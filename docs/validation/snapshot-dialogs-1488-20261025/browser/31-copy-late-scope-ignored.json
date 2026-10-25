@@ -1,0 +1,23 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": false,
+    "label": null,
+    "tag": "BODY",
+    "text": "\n          html {\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\nbody {\n  color: rgba(0, 0, 0, 0.65);\n  background-c"
+  },
+  "body": null,
+  "bodyScroll": null,
+  "buttons": [],
+  "colors": [],
+  "dialog": null,
+  "documentWidth": 1270,
+  "footer": null,
+  "groups": [],
+  "header": null,
+  "height": 720,
+  "inputs": [],
+  "tables": [],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+  "width": 1280
+}

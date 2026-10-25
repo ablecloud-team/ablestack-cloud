@@ -1,0 +1,236 @@
+Browser tab: 14, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/db2a8229-b521-441f-9d1c-1fe4c44b0bce".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot/db2a8229-b521-441f-9d1c-1fe4c44b0bce
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 content list sub_menu_2_$$_/storage-popup
+					15 hdd 볼륨
+						16 link Description: hdd 볼륨, Value: localhost:18031/client/#/volume
+					17 build 스냅샷
+						18 link Description: build 스냅샷, Value: localhost:18031/client/#/snapshot
+					19 build 스냅샷 정책
+						20 link Description: build 스냅샷 정책, Value: localhost:18031/client/#/snapshotpolicy
+					21 funnel-plot 버킷
+						22 link Description: funnel-plot 버킷, Value: localhost:18031/client/#/buckets
+					23 file-text 공유 파일 시스템
+						24 link Description: file-text 공유 파일 시스템, Value: localhost:18031/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 schedule 이벤트
+					32 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				33 project 프로젝트
+					34 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				35 team 계정
+					36 link Description: team 계정, Value: localhost:18031/client/#/account
+				37 global Zone
+					38 link Description: global Zone, Value: localhost:18031/client/#/zones
+				39 container
+					40 image shopping
+					41 text 서비스 오퍼링
+				42 container
+					43 image tool
+					44 text 도구
+				45 read API 문서
+					46 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			49 container
+				50 combo box (settable) rc_select_0
+				51 image project
+				52 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		234 button 알림 제거
+		60 container
+			61 container
+				62 container
+					63 link Description: home, Value: localhost:18031/client/#/
+					64 text /
+					65 link Description: 스냅샷, Value: localhost:18031/client/#/snapshot
+					101 text / SNAP1479-31-tenant-snapshot
+					102 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					103 button reload 업데이트
+						104 image reload
+						105 text 업데이트
+				106 button down 작업
+					107 image down
+					108 text 작업
+			80 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				81 image right
+				82 text 스냅샷 작업 및 결과 확인
+			235 text createVolume · SNAP1479-31-tenant-snapshot
+			236 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:40:44.389Z
+			237 text 요청 UUID: 0ac2ae13-4ae7-4e58-a04a-d6dbe32c3939
+			238 container
+				239 image close-circle
+				240 text 현재 계정에 이 작업 권한이 없습니다. 권한과 로그인 정보를 다시 확인하세요.
+			83 text deleteSnapshot · SNAP1479-31-lost-reload-ui
+			84 text 24165be4-ed23-4c19-b4ee-d2893a038621 · 작업 완료 · 2026-10-23T11:39:15.362Z
+			85 text 작업 ID: 18222563-f3f5-44ae-ba73-37a7cea972d7
+			86 button 기존 작업 결과 조회
+			87 text createVolume · SNAP1479-31-tenant-snapshot
+			88 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:28:47.246Z
+			89 text 요청 UUID: 20bbf36c-619e-4a87-99c3-60dd16ba72ac
+			90 container
+				91 image close-circle
+				92 text Request failed with status code 530
+			93 text createSnapshot · SNAP1479-31-tenant-source
+			94 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:23:54.177Z
+			95 text 작업 ID: 38d0c071-c199-4ceb-8b2e-12415b360230
+			96 button 기존 작업 결과 조회
+			97 text createSnapshot · SNAP1479-31-tenant-source
+			98 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:16:50.480Z
+			99 text 작업 ID: be72fead-2966-4577-a89c-b148042bb96c
+			100 button 기존 작업 결과 조회
+			109 container
+				110 image build
+				111 heading SNAP1479-31-tenant-snapshot, Value: 4
+					112 text SNAP1479-31-tenant-snapshot
+				113 text 상태 백업 됨 아이디
+				114 button 아이디 복사
+					115 image barcode
+				116 link Description: db2a8229-b521-441f-9d1c-1fe4c44b0bce , Value: javascript:;
+				117 text 볼륨
+				118 image hdd
+				119 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+				120 text Zone
+				121 image global
+				122 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				123 text 계정
+				124 image user
+				125 text snap1479-31-tenant 도메인
+				126 image block
+				127 text ROOT 생성일
+				128 image calendar
+				129 text 2026. 10. 23. 오후 7:21:36
+				130 container
+					131 text 태그
+					132 container
+						133 image plus
+						134 text  새 태그
+			135 container
+				136 tab group
+					137 container
+						138 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-0-tab-details
+						139 tab (selectable, settable, boolean) Zone, Value: 0, ID: rc-tabs-0-tab-zones
+						140 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-0-tab-events
+						141 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-0-tab-comments
+				142 container Description: 상세, ID: rc-tabs-0-panel-details
+					143 content list
+						144 container
+							145 text 이름
+							146 text SNAP1479-31-tenant-snapshot
+						147 container
+							148 text 아이디
+							149 text db2a8229-b521-441f-9d1c-1fe4c44b0bce
+						150 container
+							151 text 볼륨 이름
+							152 text SNAP1479-31-tenant-source
+						153 container
+							154 text 볼륨 유형
+							155 text DATADISK
+						156 container
+							157 text 간격 유형
+							158 text MANUAL
+						159 container
+							160 text 물리적 크기
+							161 text 0.00 GiB
+						162 container
+							163 text 가상 크기
+							164 text 1.00 GiB
+						165 container
+							166 text 계정
+							167 text snap1479-31-tenant
+						168 container
+							169 text 도메인
+							170 text ROOT
+						171 container
+							172 text 생성일
+							173 text 2026. 10. 23. 오후 7:21:36
+	174 container
+		175 container 볼륨 생성 도움말
+			176 container
+				177 button Close
+					178 image close
+				179 container vcDialogTitle0
+					180 text 볼륨 생성
+					181 link Description: 도움말, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+				182 container
+					183 container
+						241 image close-circle
+						242 text 현재 계정에 이 작업 권한이 없습니다. 권한과 로그인 정보를 다시 확인하세요.
+						184 table
+							185 row
+								186 cell
+									187 text 이름
+								188 cell
+									189 text SNAP1479-31-tenant-snapshot · db2a8229-b521-441f-9d1c-1fe4c44b0bce
+							190 row
+								191 cell
+									192 text 상태
+								193 cell
+									194 text BackedUp
+							195 row
+								196 cell
+									197 text 볼륨
+								198 cell
+									199 text SNAP1479-31-tenant-source · 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · Ready
+							200 row
+								201 cell
+									202 text 가상머신
+								203 cell
+									204 text 없음
+							205 row
+								206 cell
+									207 text 계정
+								208 cell
+									209 text snap1479-31-tenant · ROOT
+							210 row
+								211 cell
+									212 text Zone
+								213 cell
+									214 text 모든 Zone 및 현재 사본 범위
+						215 button 현재 대상 다시 확인
+					216 container
+						217 text 이름
+						218 image info-circle
+					219 text field (settable) 이름 info-circle, Value: SNAP1479-31-permission-final-must-not-exist, ID: form_item_name
+					220 container
+						243 text * Zone
+						222 image info-circle
+					223 container
+						224 combo box (settable) * Zone info-circle, ID: form_item_zoneid
+						225 image global
+						226 text  Zone
+					227 container
+						228 text 인스턴스에 연결
+						229 image info-circle
+					230 switch Description: 인스턴스에 연결 info-circle, Value: 0, ID: form_item_attachVolume
+					231 container
+						232 button 취소
+						233 button (disabled) 확인
+	244 container
+		245 image close-circle
+		246 text 요청 실패
+		247 link close
+			248 image close
+
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot/db2a8229-b521-441f-9d1c-1fe4c44b0bce

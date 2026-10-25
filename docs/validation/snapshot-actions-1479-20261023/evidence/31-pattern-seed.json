@@ -1,0 +1,26 @@
+[
+  {
+    "volume": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+    "scenario": "source",
+    "image": "/mnt/glue-gfs/0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (388.942 MiB/sec and 388.9422 ops/sec)",
+    "verifiedPattern": "0x5a"
+  },
+  {
+    "volume": "5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+    "scenario": "other",
+    "image": "/mnt/glue-gfs/5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (390.779 MiB/sec and 390.7793 ops/sec)",
+    "verifiedPattern": "0x5a"
+  },
+  {
+    "volume": "c1125109-a685-4280-91b9-e1ccd481cc30",
+    "scenario": "orphan-source",
+    "image": "/mnt/glue-gfs/c1125109-a685-4280-91b9-e1ccd481cc30",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (343.230 MiB/sec and 343.2304 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

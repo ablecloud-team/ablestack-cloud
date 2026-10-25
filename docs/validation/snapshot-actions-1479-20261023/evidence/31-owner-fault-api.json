@@ -1,0 +1,110 @@
+{
+  "context": {
+    "snapshotcontext": {
+      "version": 1,
+      "sourceavailable": false,
+      "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+      "createreason": "SOURCE_VOLUME_UNAVAILABLE"
+    },
+    "id": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+    "account": "snap1479-31-tenant",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "volumeid": "0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+    "volumename": "SNAP1479-31-tenant-source",
+    "volumetype": "DATADISK",
+    "volumestate": "Ready",
+    "created": "2026-10-23T19:21:36+0900",
+    "name": "SNAP1479-31-tenant-snapshot",
+    "intervaltype": "MANUAL",
+    "state": "BackedUp",
+    "physicalsize": 196624,
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "zonename": "Zone",
+    "revertable": true,
+    "virtualsize": 1073741824,
+    "tags": [],
+    "hasannotations": false
+  },
+  "rejected": [
+    {
+      "command": "revertSnapshot",
+      "failure": {
+        "accountid": "7919f7cc-3853-4c9c-a148-855611d563b9",
+        "account": "snap1479-31-tenant",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "0a869ae7-a118-40f7-9363-430194f83e30",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Caller does not have permission to operate with provided resource."
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+        "created": "2026-10-23T20:13:41+0900",
+        "completed": "2026-10-23T20:13:41+0900",
+        "jobid": "b5fcce76-bc31-4f35-8c1a-1b7fbb29310b",
+        "jobstatus": 2
+      }
+    },
+    {
+      "command": "createSnapshot",
+      "failure": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    }
+  ],
+  "restored": {
+    "volumemutationblockedreason": "",
+    "allocation": {
+      "fixedpolicy": "unknown",
+      "actualformat": "qcow2",
+      "evidence": "unverified",
+      "contractversion": "legacy",
+      "effectivepolicy": "unknown",
+      "requestedformat": "unspecified",
+      "requestedpolicy": "sparse",
+      "appliedmethod": "unknown",
+      "policyorigin": "legacy"
+    },
+    "id": "9fe68e7b-16ac-42b8-a0ea-9c9b495bd208",
+    "name": "SNAP1479-31-owner-recovery",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "zonename": "Zone",
+    "type": "DATADISK",
+    "provisioningtype": "sparse",
+    "size": 1073741824,
+    "created": "2026-10-23T20:13:41+0900",
+    "state": "Ready",
+    "account": "snap1479-31-tenant",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "cachemode": "none",
+    "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+    "diskofferingname": "Custom-GFS-Sparse",
+    "diskofferingdisplaytext": "Custom-GFS-Sparse",
+    "snapshotid": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+    "destroyed": false,
+    "isextractable": true,
+    "quiescevm": false,
+    "supportsstoragesnapshot": false,
+    "deleteprotection": false,
+    "kvdoenable": false,
+    "compress": false,
+    "dedup": false,
+    "tags": [],
+    "hasannotations": false,
+    "jobid": "5ed98d49-9e18-473b-b490-547672b545c0",
+    "jobstatus": 0
+  },
+  "status": "PASS"
+}

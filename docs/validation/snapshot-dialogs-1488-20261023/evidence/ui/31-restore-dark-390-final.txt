@@ -1,0 +1,3 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/bb15af01-58a0-4529-947c-fcc9ccfaeef2".
+There has been no change in the accessibility tree.
+The focused UI element is 569 checkbox (settable, integer) Description: 복원 대상과 데이터 변경 영향을 확인했습니다.  , Value: 0

@@ -1,0 +1,49 @@
+{
+  "diagnosis": {
+    "success": true,
+    "snapshotid": "b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+    "name": "SNAPREG1489-32-collision-MONTHLY",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 484,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "d491e9ec5ada11db732d0c6edac7f3903d6126aa5b2cbbfa3c17fe97806ab4aa",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 484,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+    "name": "SNAPREG1489-32-collision-MONTHLY",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 484,
+        "role": "Primary",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  }
+}

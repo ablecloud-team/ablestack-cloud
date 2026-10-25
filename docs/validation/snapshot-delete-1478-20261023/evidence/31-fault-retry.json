@@ -1,0 +1,38 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "2034db21-d0bf-4dac-8d0d-2ad81f0b8164",
+    "name": "SNAP1478-31-partial",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 97,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      {
+        "referenceid": 101,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "ce9d578e205b0e715f0218a13de2512e89b1983a897b252164a404fb9eae7345"
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "2034db21-d0bf-4dac-8d0d-2ad81f0b8164",
+    "name": "SNAP1478-31-partial",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "739fcd09ff04e48dea61f4a1083db8c3aed5b1b55ce3ff5d87dfde0acbcef25e"
+  },
+  "repeated": true
+}

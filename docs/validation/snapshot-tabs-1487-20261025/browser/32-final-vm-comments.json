@@ -1,0 +1,62 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (2)"
+  ],
+  "height": 1000,
+  "links": [],
+  "notes": [
+    {
+      "id": "1add7aa8-82c3-4222-af02-530f9e3acaa5",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-01\n모든 사람에게 표시"
+    },
+    {
+      "id": "1a929f2e-519b-4a60-a39c-ef96936c0cbe",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-00\n모든 사람에게 표시"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 2개 항목 중 1-2 표시\n1"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n관리자만 표시\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-01\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-00\n모든 사람에게 표시\n전체 2개 항목 중 1-2 표시\n1",
+  "text": "/가상머신/SNAPTABS1487-32-vm업데이트\n작업\nSNAPTABS1487-32-vm\ni-2-237-VM\nx86_64\nKVM\n동적으로 확장 가능\n상태\n정지된 상태\n아이디\n69c9ad4f-8f30-4e42-aa07-684d73464760 \nIP\n10.10.254.142 \n클라우드 · 주 IP\nCPU\n2 CPU x 2.00 GHz \nx86_64\n메모리\n2048 MB 메모리\n네트워크\n1 NIC(s)\neth0  10.10.254.142   기본\n      ADMIN-L2-Network\n템플릿\nnginx-lb-test.qcow2\n컴퓨트 오퍼링\nAS-PROD-32-AS01-2C2G\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 25. 오전 2:04:44\n마지막 업데이트\n2026. 10. 25. 오전 2:06:54\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n\n\n상세\nIP 구성\n메트릭\n프로세스\n스케줄\nISO\n볼륨\nNIC\n설정\n호스트 장치\nVM 스냅샷\n이벤트\n코멘트\n보내기\n업데이트\n관리자만 표시\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-01\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-vm-standard-comment-00\n모든 사람에게 표시\n전체 2개 항목 중 1-2 표시\n1",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 706.578125,
+        "y": -100
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 785.21875,
+        "y": -100
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/vm/69c9ad4f-8f30-4e42-aa07-684d73464760?tab=comments",
+  "width": 1280
+}

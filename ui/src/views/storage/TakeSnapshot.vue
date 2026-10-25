@@ -16,15 +16,16 @@
 // under the License.
 
 <template>
-  <div class="take-snapshot" v-ctrl-enter="handleSubmit">
+  <div class="take-snapshot snapshot-dialog-content" @keydown.ctrl.enter.prevent="handleSubmit">
     <a-spin :spinning="loading || actionLoading">
-      <a-alert type="warning">
+    <StorageSnapshotSafety compact :pending="snapshotSafetyPending" v-if="snapshotSafetyTarget" :context="snapshotSafetyContext" :loading="snapshotSafetyLoading" :error="snapshotSafetyError" @refresh="refreshSnapshotSafety" />
+      <a-alert type="info" show-icon>
         <template #message>
           <div v-html="$t('label.header.volume.take.snapshot')" />
         </template>
       </a-alert>
       <a-form
-        class="form"
+        class="form snapshot-dialog-form"
         :ref="formRef"
         :model="form"
         :rules="rules"
@@ -84,7 +85,7 @@
         <div class="tagsTitle">{{ $t('label.tags') }}</div>
         <div>
           <div v-for="(tag, index) in tags" :key="index">
-            <a-tag :key="index" :closable="true">
+            <a-tag :key="index" :closable="!actionLoading" @close="removeTag(index)">
               {{ tag.key }} = {{ tag.value }}
             </a-tag>
           </div>
@@ -92,8 +93,8 @@
             <a-input-group
               type="text"
               size="small"
-              @blur="handleInputConfirm"
-              @keyup.enter="handleInputConfirm"
+              class="snapshot-dialog-tag-input"
+              @keydown.enter.prevent.stop="handleInputConfirm"
               compact>
               <a-input ref="input" :value="inputKey" @change="handleKeyChange" style="width: 100px; text-align: center" :placeholder="$t('label.key')" />
               <a-input
@@ -103,26 +104,27 @@
                 disabled />
               <a-input :value="inputValue" @change="handleValueChange" style="width: 100px; text-align: center; border-left: 0" :placeholder="$t('label.value')" />
               <tooltip-button :tooltip="$t('label.ok')" icon="check-outlined" size="small" @onClick="handleInputConfirm" />
-              <tooltip-button :tooltip="$t('label.cancel')" icon="close-outlined" size="small" @onClick="inputVisible=false" />
+              <tooltip-button :tooltip="$t('label.cancel')" icon="close-outlined" size="small" @onClick="cancelTagInput" />
             </a-input-group>
           </div>
-          <a-tag v-else @click="showInput" class="btn-add-tag" style="borderStyle: dashed;">
+          <a-button v-else ref="tagAdd" type="dashed" size="small" @click="showInput" class="btn-add-tag">
             <plus-outlined /> {{ $t('label.new.tag') }}
-          </a-tag>
+          </a-button>
         </div>
         <MoldDialogActions :span="24" :busy="actionLoading">
           <a-button
-            :loading="actionLoading"
+            :disabled="actionLoading"
             @click="closeAction">
             {{ $t('label.cancel') }}
           </a-button>
           <a-button
             v-if="handleShowButton()"
+            :disabled="snapshotSafetyBlocked"
             :loading="actionLoading"
             type="primary"
             ref="submit"
             @click="handleSubmit">
-            {{ $t('label.ok') }}
+            {{ $t('label.action.take.snapshot') }}
           </a-button>
         </MoldDialogActions>
       </a-form>
@@ -131,6 +133,7 @@
 </template>
 
 <script>
+import { storageSnapshotSafety } from '@/utils/storageSnapshotSafety'
 import storageDialogContext from '@/utils/storageDialogContext'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import snapshotZones from '@/utils/snapshotZones'
@@ -143,7 +146,7 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
   name: 'TakeSnapshot',
-  mixins: [storageDialogContext, mixinForm, snapshotZones],
+  mixins: [storageDialogContext, storageSnapshotSafety('createSnapshot', 'volume', () => true), mixinForm, snapshotZones],
   components: {
     MoldDialogActions,
     TooltipButton,
@@ -203,8 +206,8 @@ export default {
     },
     handleSubmit (e) {
       if (e && e.preventDefault) e.preventDefault()
-      if (this.actionLoading) return
-      this.formRef.value.validate().then(() => {
+      if (this.actionLoading || this.snapshotSafetyBlocked) return
+      this.formRef.value.validate().then(async () => {
         if (this.actionLoading || (this.dialogCurrent && !this.dialogCurrent())) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -237,6 +240,13 @@ export default {
         this.actionLoading = true
         const title = this.$t('label.action.take.snapshot')
         const description = this.$t('label.volume') + ' ' + this.resource.id
+        if (this.snapshotSafetyTarget) {
+          try {
+            const operation = await this.submitSnapshotSafely(params)
+            if (operation.jobid && this.dialogCurrent()) this.closeAction()
+          } finally { this.actionLoading = false }
+          return
+        }
         postAPI('createSnapshot', params).then(json => {
           const jobId = json.createsnapshotresponse.jobid
           if (jobId) {
@@ -256,7 +266,8 @@ export default {
           this.actionLoading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     handleVisibleInterval (intervalType) {
@@ -286,6 +297,7 @@ export default {
       this.inputValue = e.target.value
     },
     handleInputConfirm () {
+      if (this.actionLoading || !this.inputKey.trim()) return
       this.tags.push({
         key: this.inputKey,
         value: this.inputValue
@@ -293,7 +305,17 @@ export default {
       this.inputVisible = false
       this.inputKey = ''
       this.inputValue = ''
+      this.focusTagAdd()
     },
+    focusTagAdd () {
+      this.$nextTick(() => {
+        if (!this.dialogCurrent()) return
+        const target = this.$refs.tagAdd?.$el
+        if (target) target.focus({ preventScroll: true })
+      })
+    },
+    removeTag (index) { this.tags.splice(index, 1); this.focusTagAdd() },
+    cancelTagInput () { this.inputVisible = false; this.focusTagAdd() },
     showInput () {
       this.inputVisible = true
       this.$nextTick(function () {

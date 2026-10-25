@@ -1,0 +1,174 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "07dbcabb-98f4-4452-928f-680056384703",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6a315db6-2d20-47c0-a624-864926627fc5",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+    "complete": true,
+    "alreadyDeletedByUi": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+    "complete": true,
+    "alreadyDeletedByUi": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "c1a98220-7541-428c-8fe1-aa66a1332d82",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "598034e2-1478-4105-83df-6b67fb3f02eb",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "f74fef3a-991c-4942-a041-8f6fadec6f53",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "bc37af4c-515a-410b-adab-87095b1d1ebf",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a6690c8b-f921-44a3-8479-f614c09b33cb",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "86788617-f4eb-4881-81c4-ee44004cd115",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "3d02a88f-de23-476b-895a-02b6d291e2ad",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "2bab1ad7-36cb-4667-aa00-0f759c276321",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "58ff84db-99c6-4252-9f37-fb977fb2a455",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6b60c0e1-2fe1-447d-8665-69007426b732",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "07e25ca7-a48d-41c8-8712-44545503e320",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "923d9327-1280-4636-9d40-cfcdea58e4a9",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "11c549a7-37a3-4038-8d32-b5a5864856ba",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "95566c66-5ffd-4c12-9713-aced51d50a0c",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "501de7e8-f7a9-4a6f-b946-e825dfca51c1",
+    "complete": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "dc4cac58-ad42-4837-999c-24ceff196933",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "2ebefeca-0e9d-4a16-bcfd-186228d33421",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "8cf087bc-9dff-4c37-a592-9667f384d2c5",
+    "complete": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "7c73f37e-6a17-419f-a5bc-9523de9125c2",
+    "complete": true
+  }
+]

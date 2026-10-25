@@ -1,0 +1,54 @@
+[
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "8af64207d6daebb4230d7c299e0262d12df08390bee617064b37d74b4b1e945e"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "e4b3089b7c6c90f4c9f718cfa72e4d89d6dbf0f62b6d48a2b2642826d207cb6f"
+  },
+  {
+    "path": "ui/src/components/view/AnnotationsTab.vue",
+    "sha256": "d30b3ec89c9afa57a824446a2a78aa0613d897e5d0837294e47e1368bca8be3f"
+  },
+  {
+    "path": "ui/src/components/view/EventsTab.vue",
+    "sha256": "d1fa977f2c595e9b8b9ca9145b2acb960c36d079c28412cd5b289cdb8547b2e2"
+  },
+  {
+    "path": "ui/src/components/view/ListView.vue",
+    "sha256": "4472af36c232866dc1c8bf9e9864df35ecdbde5ba2730e456f2ea7f1cadb66bd"
+  },
+  {
+    "path": "ui/src/style/components/view/DetailTab.scss",
+    "sha256": "7d70a691c217571f89a856ef914633b8e7f3d1e714a322a65d976f0ffa6f1788"
+  },
+  {
+    "path": "ui/src/utils/detailTabData.js",
+    "sha256": "f1c0982981cdf66d35bc823c3e0df979e9950952d8147d2fa66a9040d25d7b0d"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotZones.vue",
+    "sha256": "ae6a4c41680e834e50b9e6dcf49f8a614946f67a508ab74e0a88d37fdfbff9e7"
+  },
+  {
+    "path": "ui/tests/unit/components/SharedDetailTabs.spec.js",
+    "sha256": "9e0430210e4dee7df27604a636248be691bb5d6aa0fb01ffb1e8246f00e612bc"
+  },
+  {
+    "path": "ui/tests/unit/components/view/AnnotationsDraft.spec.js",
+    "sha256": "fec1041a5ddc6dc25a9f1c108422b7c8c5b6023906bd6827ebaa274d0959b03a"
+  },
+  {
+    "path": "ui/tests/unit/components/view/DetailTabLoading.spec.js",
+    "sha256": "2ceb5999245257e9dc687607881833d66662f8209c87f83bbdb2d5051e3cd586"
+  },
+  {
+    "path": "ui/tests/unit/utils/detailTabData.spec.js",
+    "sha256": "b0ed5515eb15b3fc00510710fb4d13fe55c033eda9791706252519fad737b6c5"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotTabs.spec.js",
+    "sha256": "2f9341fdcd0d4181abfb500e3f67a09bfa4b04149dfdaba04474783e4170b6d3"
+  }
+]

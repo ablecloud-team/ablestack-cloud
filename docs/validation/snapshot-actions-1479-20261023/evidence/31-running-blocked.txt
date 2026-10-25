@@ -1,0 +1,49 @@
+Browser tab: 12, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/snapshot/c581a625-ee69-4f4f-952a-427dd5af6486".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 216-252, 254-255, 257-258
+~				215 container
++					216 image exclamation-circle
++					217 text 소유 볼륨을 이 스냅샷으로 되돌릴 것인지 확인하십시오.
++				218 container
++					219 image close-circle
++					220 text 원본을 되돌리려면 연결 VM을 중지해야 합니다.
++					221 table
++						222 row
++							223 cell
++								224 text 이름
++							225 cell
++								226 text SNAP1479-31-source-snapshot · c581a625-ee69-4f4f-952a-427dd5af6486
++						227 row
++							228 cell
++								229 text 상태
++							230 cell
++								231 text BackedUp
++						232 row
++							233 cell
++								234 text 볼륨
++							235 cell
++								236 text SNAP1479-31-source · 0e7bbc27-b61b-4e8f-8571-047a0536f1ca · Ready
++						237 row
++							238 cell
++								239 text 가상머신
++							240 cell
++								241 text SNAP1479-31-vm d6a10e93-6c62-41f3-8b85-c83a2004555d Running
++						242 row
++							243 cell
++								244 text 계정
++							245 cell
++								246 text admin · ROOT
++						247 row
++							248 cell
++								249 text Zone
++							250 cell
++								251 text 모든 Zone 및 현재 사본 범위
++					252 button 현재 대상 다시 확인
+~				253 container
++					254 checkbox (disabled, settable, integer) Description: 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.  , Value: 0
++					255 text 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.
+~				256 button 닫기
++				257 button 현재 대상 다시 확인
++				258 button (disabled) 스냅샷 복원
++					259 text 스냅샷 복원
+The focused UI element is 260 container

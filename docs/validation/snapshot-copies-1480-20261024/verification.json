@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "checks": 338,
+  "javaTests": 33,
+  "uiSuites": 5,
+  "uiTests": 69,
+  "fullCloudCI": false
+}

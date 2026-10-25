@@ -1,0 +1,563 @@
+{
+  "snapshots": [
+    {
+      "id": 187,
+      "name": "SNAPLIST1485-31-owner-00",
+      "size": 1073741824,
+      "type": 3,
+      "uuid": "11c549a7-37a3-4038-8d32-b5a5864856ba",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "HOURLY"
+    },
+    {
+      "id": 188,
+      "name": "SNAPLIST1485-31-owner-01",
+      "size": 1073741824,
+      "type": 4,
+      "uuid": "923d9327-1280-4636-9d40-cfcdea58e4a9",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "DAILY"
+    },
+    {
+      "id": 189,
+      "name": "SNAPLIST1485-31-owner-02",
+      "size": 1073741824,
+      "type": 5,
+      "uuid": "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "WEEKLY"
+    },
+    {
+      "id": 190,
+      "name": "SNAPLIST1485-31-owner-03",
+      "size": 1073741824,
+      "type": 6,
+      "uuid": "07e25ca7-a48d-41c8-8712-44545503e320",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MONTHLY"
+    },
+    {
+      "id": 191,
+      "name": "SNAPLIST1485-31-owner-04",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 192,
+      "name": "SNAPLIST1485-31-owner-05",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "6b60c0e1-2fe1-447d-8665-69007426b732",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 193,
+      "name": "SNAPLIST1485-31-owner-06",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "58ff84db-99c6-4252-9f37-fb977fb2a455",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 194,
+      "name": "SNAPLIST1485-31-owner-07",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 195,
+      "name": "SNAPLIST1485-31-owner-08",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 196,
+      "name": "SNAPLIST1485-31-owner-09",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "2bab1ad7-36cb-4667-aa00-0f759c276321",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 197,
+      "name": "SNAPLIST1485-31-owner-10",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "3d02a88f-de23-476b-895a-02b6d291e2ad",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 198,
+      "name": "SNAPLIST1485-31-owner-11",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 199,
+      "name": "SNAPLIST1485-31-owner-12",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "86788617-f4eb-4881-81c4-ee44004cd115",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 200,
+      "name": "SNAPLIST1485-31-owner-13",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "a6690c8b-f921-44a3-8479-f614c09b33cb",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 201,
+      "name": "SNAPLIST1485-31-owner-14",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 202,
+      "name": "SNAPLIST1485-31-owner-15",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "bc37af4c-515a-410b-adab-87095b1d1ebf",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 203,
+      "name": "SNAPLIST1485-31-owner-16",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "f74fef3a-991c-4942-a041-8f6fadec6f53",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 204,
+      "name": "SNAPLIST1485-31-owner-17",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 205,
+      "name": "SNAPLIST1485-31-owner-18",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "598034e2-1478-4105-83df-6b67fb3f02eb",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 206,
+      "name": "SNAPLIST1485-31-owner-19",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "c1a98220-7541-428c-8fe1-aa66a1332d82",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 207,
+      "name": "SNAPLIST1485-31-owner-20",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 208,
+      "name": "SNAPLIST1485-31-owner-21",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+      "status": "Destroyed",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 209,
+      "name": "SNAPLIST1485-31-owner-22",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+      "status": "Destroyed",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 210,
+      "name": "SNAPLIST1485-31-other-00",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+      "status": "BackedUp",
+      "volume": "95566c66-5ffd-4c12-9713-aced51d50a0c",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 211,
+      "name": "SNAPLIST1485-31-project-00",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "6a315db6-2d20-47c0-a624-864926627fc5",
+      "status": "BackedUp",
+      "volume": "501de7e8-f7a9-4a6f-b946-e825dfca51c1",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 212,
+      "name": "SNAPLIST1485-31-project-01",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+      "status": "BackedUp",
+      "volume": "501de7e8-f7a9-4a6f-b946-e825dfca51c1",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 213,
+      "name": "SNAPLIST1485-31-ui-create",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "07dbcabb-98f4-4452-928f-680056384703",
+      "status": "BackedUp",
+      "volume": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9",
+      "removed": null,
+      "description": "MANUAL"
+    }
+  ],
+  "references": [
+    {
+      "path": "snapshots/273/1071/059c3923-fbd1-4494-a158-c7c183c7c208",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+    },
+    {
+      "path": "snapshots/272/1070/209a5b9d-fd5b-49ea-adb3-8c90c1296da4",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "11c549a7-37a3-4038-8d32-b5a5864856ba"
+    },
+    {
+      "path": "snapshots/272/1070/71ecb8c9-1b60-4151-91ef-84446b7f2bcc",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "923d9327-1280-4636-9d40-cfcdea58e4a9"
+    },
+    {
+      "path": "snapshots/272/1070/141dc5f3-edb0-4142-9967-bc8a0adece4c",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "ea29d355-0a87-4a19-8648-4d8e8975d16a"
+    },
+    {
+      "path": "snapshots/272/1070/033bd580-1a44-4c4c-9f2d-d696f7ea740a",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "07e25ca7-a48d-41c8-8712-44545503e320"
+    },
+    {
+      "path": "snapshots/272/1070/5ac1abab-9b7f-49a6-a90f-6224bcd52420",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "2b82eee6-9a6f-43cd-9d55-c755939dbfad"
+    },
+    {
+      "path": "snapshots/272/1070/f269f4d5-eae5-49e8-ad05-aa3f65b549a6",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "6b60c0e1-2fe1-447d-8665-69007426b732"
+    },
+    {
+      "path": "snapshots/272/1070/7155d1b4-bc2a-46dc-a36b-6dc4b780ca99",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "58ff84db-99c6-4252-9f37-fb977fb2a455"
+    },
+    {
+      "path": "snapshots/272/1070/bd45cefc-ec40-43eb-b6d7-152681d9e7fc",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "24a867de-0af6-489d-9a68-ab5dcbdb7a75"
+    },
+    {
+      "path": "snapshots/272/1070/9c6708f1-8d27-424c-8e23-133b6e449653",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "53dd673b-8b7b-43e0-9de3-fe39918c75ab"
+    },
+    {
+      "path": "snapshots/272/1070/d9b44064-0327-4c4f-a1a2-9eea7e27351f",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "2bab1ad7-36cb-4667-aa00-0f759c276321"
+    },
+    {
+      "path": "snapshots/272/1070/f1f159de-8142-43f2-8ae4-73947f5cc0bf",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "3d02a88f-de23-476b-895a-02b6d291e2ad"
+    },
+    {
+      "path": "snapshots/272/1070/87a90172-bea0-4e63-baf2-aa183e16cf9d",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "b7f616db-ee53-4df3-92cc-3ead163c5c74"
+    },
+    {
+      "path": "snapshots/272/1070/ec5ebd53-aea6-4f8a-9e18-7f69ba4229bb",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "86788617-f4eb-4881-81c4-ee44004cd115"
+    },
+    {
+      "path": "snapshots/272/1070/9bdd2353-b08f-4be3-99c3-083c80e097e5",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "a6690c8b-f921-44a3-8479-f614c09b33cb"
+    },
+    {
+      "path": "snapshots/272/1070/6d3c804c-9f6e-4c4f-8afa-6357a8319e6e",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "4977b44c-a18e-4b70-9a27-6c58296b54fc"
+    },
+    {
+      "path": "snapshots/272/1070/34df5176-5a1b-4f89-948f-c6188dc13235",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "bc37af4c-515a-410b-adab-87095b1d1ebf"
+    },
+    {
+      "path": "snapshots/272/1070/49f3b733-dba9-4020-bbc2-69ab91079fdf",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "f74fef3a-991c-4942-a041-8f6fadec6f53"
+    },
+    {
+      "path": "snapshots/272/1070/a5c9f683-2bec-4393-8dd7-cecaab07ed66",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "aa800cd2-8250-4c74-bbcd-10b6bab3536c"
+    },
+    {
+      "path": "snapshots/272/1070/2335bfd0-367c-400c-ae44-3dc5d472f88d",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "598034e2-1478-4105-83df-6b67fb3f02eb"
+    },
+    {
+      "path": "snapshots/272/1070/7b200a23-20c0-422b-9fbb-cdc731bd917b",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "c1a98220-7541-428c-8fe1-aa66a1332d82"
+    },
+    {
+      "path": "snapshots/272/1070/4ae15be2-9923-41f1-a6c9-16837089757a",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "241e61c0-bdb2-4aaa-aae6-7b60343e5fca"
+    },
+    {
+      "path": "snapshots/272/1070/133a6b8b-76dc-438e-811e-5ffeac44e808",
+      "role": "Image",
+      "state": "Destroyed",
+      "physical": 196624,
+      "snapshot": "f43bfd3c-ce37-42ac-a940-b5f78c8d2139"
+    },
+    {
+      "path": "snapshots/272/1070/d6997b11-5fa1-4932-819f-b99d30b9ae94",
+      "role": "Image",
+      "state": "Destroyed",
+      "physical": 196624,
+      "snapshot": "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+    },
+    {
+      "path": "snapshots/274/1072/363f23a7-549c-4b3e-b7f0-9dfec863027c",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "6a315db6-2d20-47c0-a624-864926627fc5"
+    },
+    {
+      "path": "snapshots/274/1072/66e16f07-572a-4074-b307-24127988fba4",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+    },
+    {
+      "path": "snapshots/272/1070/e674d288-7572-4bb8-834b-92abb4419c2b",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "07dbcabb-98f4-4452-928f-680056384703"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 16759,
+      "uuid": "1da2411b-d18e-4a20-8fc6-f17c98b4147f",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16755,
+      "uuid": "580d2d85-7154-4969-99fa-b55380e5ddec",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16758,
+      "uuid": "759b8c72-fea1-4d25-8317-9f616d9f409e",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16751,
+      "uuid": "7695791c-f22f-4e0a-ba7b-646d1989ff5f",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16752,
+      "uuid": "a7ba9dd9-d785-4003-b93e-f0431c095902",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16754,
+      "uuid": "c074ac9f-8429-40a1-bef8-da7e7b52aa45",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16757,
+      "uuid": "c0de5f83-fd5b-4b10-9be6-bb8bed3d6013",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16753,
+      "uuid": "cb78b373-6c1e-432d-b298-4ade3f8b20ee",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16756,
+      "uuid": "e18d6cbf-5cfd-4f11-a09f-848fccd6766b",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    }
+  ],
+  "activeAfterUi": 25,
+  "created": "07dbcabb-98f4-4452-928f-680056384703",
+  "deleted": [
+    "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+    "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+  ]
+}

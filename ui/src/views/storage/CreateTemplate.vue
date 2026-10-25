@@ -16,15 +16,19 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <div class="snapshot-template-content snapshot-dialog-content" @keydown.ctrl.enter.prevent="handleSubmit">
+  <a-spin :spinning="loading || queryLoading">
+    <StorageSnapshotSafety compact :pending="snapshotSafetyPending" v-if="snapshotSafetyTarget" :context="snapshotSafetyContext" :loading="snapshotSafetyLoading" :error="snapshotSafetyError" @refresh="refreshSnapshotSafety" />
+    <a-alert v-if="lookupError" class="snapshot-dialog-notice" type="error" show-icon :message="$t('message.snapshot.dialog.lookup.failed')">
+      <template #description><a-button :disabled="loading || queryLoading" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
     <a-form
-      class="form"
+      class="form snapshot-dialog-form"
       layout="vertical"
       :ref="formRef"
       :model="form"
       :rules="rules"
       @finish="handleSubmit"
-      v-ctrl-enter="handleSubmit"
      >
       <a-form-item ref="name" name="name">
         <template #label>
@@ -33,7 +37,7 @@
         <a-input
           v-focus="true"
           v-model:value="form.name"
-          :placeholder="apiParams.name.description" />
+          :placeholder="$t('label.name')" />
       </a-form-item>
       <a-form-item ref="displaytext" name="displaytext">
         <template #label>
@@ -41,7 +45,7 @@
         </template>
         <a-input
           v-model:value="form.displaytext"
-          :placeholder="apiParams.displaytext.description" />
+          :placeholder="$t('label.displaytext')" />
       </a-form-item>
       <a-form-item v-if="resource.intervaltype" ref="zoneid" name="zoneid">
         <template #label>
@@ -50,7 +54,7 @@
         <a-select
           v-model:value="form.zoneid"
           :loading="loading"
-          :placeholder="apiParams.zoneid.description"
+          :placeholder="$t('label.zone')"
           showSearch
           optionFilterProp="label"
           :filterOption="(input, option) => {
@@ -71,7 +75,7 @@
       </a-form-item>
       <a-form-item name="domainid" ref="domainid" v-if="'listDomains' in $store.getters.apis">
           <template #label>
-            <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
+            <tooltip-label :title="$t('label.domain')" :tooltip="apiParams.domainid.description"/>
           </template>
           <infinite-scroll-select
             v-model:value="form.domainid"
@@ -82,7 +86,7 @@
             optionLabelKey="path"
             defaultIcon="block-outlined"
             allowClear="true"
-            :placeholder="apiParams.domainid.description"
+            :placeholder="$t('label.domain')"
             @change-option-value="handleDomainChange" />
         </a-form-item>
         <a-form-item name="account" ref="account" v-if="domainid">
@@ -98,7 +102,7 @@
             optionLabelKey="name"
             defaultIcon="team-outlined"
             allowClear="true"
-            :placeholder="apiParams.account.description" />
+            :placeholder="$t('label.account')" />
         </a-form-item>
 
       <a-form-item
@@ -113,7 +117,7 @@
           }"
           v-model:value="form.ostypeid"
           :loading="osTypes.loading"
-          :placeholder="apiParams.ostypeid.description">
+          :placeholder="$t('label.ostypeid')">
           <a-select-option v-for="opt in osTypes.opts" :key="opt.id" :label="opt.name || opt.description">
               {{ opt.name || opt.description }}
           </a-select-option>
@@ -132,7 +136,7 @@
             return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }"
           v-model:value="form.arch"
-          :placeholder="apiParams.arch.description">
+          :placeholder="$t('label.arch')">
           <a-select-option v-for="opt in architectureTypes.opts" :key="opt.id">
             {{ opt.name || opt.description }}
           </a-select-option>
@@ -176,14 +180,17 @@
         </a-col>
       </a-row>
       <MoldDialogActions :span="24" :busy="loading">
-        <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" ref="submit" :loading="loading" :disabled="snapshotSafetyBlocked || queryLoading || !!lookupError" @click="handleSubmit">{{ $t('label.create.template') }}</a-button>
       </MoldDialogActions>
     </a-form>
   </a-spin>
+  </div>
 </template>
 
 <script>
+import { storageSnapshotSafety } from '@/utils/storageSnapshotSafety'
+import storageDialogContext from '@/utils/storageDialogContext'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
@@ -195,7 +202,7 @@ import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect.vue'
 
 export default {
   name: 'CreateTemplate',
-  mixins: [mixinForm],
+  mixins: [storageDialogContext, storageSnapshotSafety('createTemplate', 'snapshot', vm => !!vm.resource?.intervaltype), mixinForm],
   components: {
     MoldDialogActions,
     ResourceIcon,
@@ -210,6 +217,9 @@ export default {
   },
   data () {
     return {
+      querySequence: 0,
+      queryLoading: false,
+      lookupError: '',
       snapshotZoneIds: [],
       zones: [],
       osTypes: {},
@@ -258,60 +268,35 @@ export default {
         groupenabled: [{ type: 'array' }]
       })
     },
-    fetchData () {
-      this.fetchOsTypes()
-      if (this.resource.intervaltype) {
-        this.fetchSnapshotZones()
-      }
+    async fetchData () {
+      if (this.queryLoading || this.loading) return
+      const sequence = ++this.querySequence
+      this.queryLoading = true; this.lookupError = ''
       this.architectureTypes.opts = this.$fetchCpuArchitectureTypes()
+      try {
+        await Promise.all([this.fetchOsTypes(sequence), ...(this.resource.intervaltype ? [this.fetchSnapshotZones(sequence)] : [])])
+      } catch (error) { if (this.dialogCurrent() && sequence === this.querySequence) this.lookupError = 'message.snapshot.dialog.lookup.failed' } finally { if (this.dialogCurrent() && sequence === this.querySequence) this.queryLoading = false }
     },
-    fetchOsTypes () {
-      this.osTypes.opts = []
-      this.osTypes.loading = true
-
-      getAPI('listOsTypes').then(json => {
-        const listOsTypes = json.listostypesresponse.ostype
-        this.osTypes.opts = listOsTypes
-        this.defaultOsType = this.osTypes.opts[1].description
-        this.defaultOsId = this.osTypes.opts[1].name
-      }).finally(() => {
-        this.osTypes.loading = false
-      })
+    async fetchOsTypes (sequence = this.querySequence) {
+      const json = await getAPI('listOsTypes', { page: 1, pagesize: 500 }, { preserveOnFailure: true, timeout: 20000 })
+      if (!this.dialogCurrent() || sequence !== this.querySequence) return
+      const rows = json.listostypesresponse?.ostype
+      if (!Array.isArray(rows) || !rows.length) throw new Error('message.snapshot.dialog.lookup.failed')
+      this.osTypes.opts = rows
     },
-    fetchZones (id) {
-      this.loading = true
-      const params = { showicon: true }
-      if (Array.isArray(id)) {
-        params.ids = id.join()
-      } else {
-        params.id = id
-      }
-      getAPI('listZones', params).then(json => {
-        this.zones = json.listzonesresponse.zone || []
-        this.form.zoneid = this.zones[0].id || ''
-      }).finally(() => {
-        this.loading = false
-      })
+    async fetchZones (ids, sequence = this.querySequence) {
+      const json = await getAPI('listZones', { showicon: true, ids: ids.join(','), page: 1, pagesize: 500 }, { preserveOnFailure: true, timeout: 20000 })
+      if (!this.dialogCurrent() || sequence !== this.querySequence) return
+      this.zones = (json.listzonesresponse?.zone || []).filter(zone => ids.includes(zone.id))
+      if (!this.zones.length) throw new Error('message.snapshot.dialog.lookup.failed')
+      if (!this.zones.some(zone => zone.id === this.form.zoneid)) this.form.zoneid = this.zones[0].id
     },
-    fetchSnapshotZones () {
-      this.loading = true
-      this.snapshotZoneIds = []
-      const params = {
-        showunique: false,
-        id: this.resource.id
-      }
-      getAPI('listSnapshots', params).then(json => {
-        const snapshots = json.listsnapshotsresponse.snapshot || []
-        for (const snapshot of snapshots) {
-          if (!this.snapshotZoneIds.includes(snapshot.zoneid)) {
-            this.snapshotZoneIds.push(snapshot.zoneid)
-          }
-        }
-      }).finally(() => {
-        if (this.snapshotZoneIds && this.snapshotZoneIds.length > 0) {
-          this.fetchZones(this.snapshotZoneIds)
-        }
-      })
+    async fetchSnapshotZones (sequence = this.querySequence) {
+      const json = await getAPI('listSnapshots', { showunique: false, id: this.resource.id, page: 1, pagesize: 500 }, { preserveOnFailure: true, timeout: 20000 })
+      if (!this.dialogCurrent() || sequence !== this.querySequence) return
+      this.snapshotZoneIds = [...new Set((json.listsnapshotsresponse?.snapshot || []).map(row => row.zoneid).filter(Boolean))]
+      if (!this.snapshotZoneIds.length) throw new Error('message.snapshot.dialog.lookup.failed')
+      await this.fetchZones(this.snapshotZoneIds, sequence)
     },
     handleDomainChange (domainId) {
       this.domainid = domainId
@@ -326,8 +311,9 @@ export default {
       }
     },
     handleSubmit (e) {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
+      if (this.loading || this.queryLoading || this.lookupError || this.snapshotSafetyBlocked) return
+      this.formRef.value.validate().then(async () => {
+        if (this.loading || this.queryLoading || this.snapshotSafetyBlocked || !this.dialogCurrent()) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         const params = {}
@@ -345,6 +331,13 @@ export default {
           params[key] = input
         }
         this.loading = true
+        if (this.snapshotSafetyTarget) {
+          try {
+            const operation = await this.submitSnapshotSafely(params)
+            if (operation.jobid && this.dialogCurrent()) this.closeModal()
+          } finally { this.loading = false }
+          return
+        }
         postAPI('createTemplate', params).then(response => {
           this.$pollJob({
             jobId: response.createtemplateresponse.jobid,
@@ -365,7 +358,8 @@ export default {
           this.loading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     closeModal () {

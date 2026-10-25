@@ -1,0 +1,1453 @@
+{
+  "requests": [
+    {
+      "requestId": "41292.7577",
+      "method": "GET",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "ui",
+              "value": "SS15",
+              "resourcetype": "Snapshot",
+              "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7578",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "resourcetype": "zone",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7579",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "resourcetype": "domain",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7580",
+      "method": "GET",
+      "command": "listAccounts",
+      "args": {
+        "name": "SNAPDIALOG1488-31-owner",
+        "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "showicon": "true",
+        "command": "listAccounts",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listaccountsresponse": {
+          "count": 1,
+          "account": [
+            {
+              "id": "9de79d01-e9aa-48f5-ad6f-83f7c9de0095",
+              "name": "SNAPDIALOG1488-31-owner",
+              "accounttype": 0,
+              "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+              "roletype": "User",
+              "rolename": "User",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "vmlimit": "20",
+              "vmtotal": 0,
+              "vmavailable": "20",
+              "iplimit": "20",
+              "iptotal": 0,
+              "ipavailable": "20",
+              "volumelimit": "20",
+              "volumetotal": 1,
+              "volumeavailable": "19",
+              "snapshotlimit": "30",
+              "snapshottotal": 4,
+              "snapshotavailable": "26",
+              "backuplimit": "20",
+              "backuptotal": 0,
+              "backupavailable": "20",
+              "backupstoragelimit": "400",
+              "backupstoragetotal": 0,
+              "backupstorageavailable": "400",
+              "templatelimit": "20",
+              "templatetotal": 0,
+              "templateavailable": "20",
+              "vmstopped": 0,
+              "vmrunning": 0,
+              "projectlimit": "10",
+              "projecttotal": 1,
+              "projectavailable": "9",
+              "networklimit": "20",
+              "networktotal": 0,
+              "networkavailable": "20",
+              "vpclimit": "20",
+              "vpctotal": 0,
+              "vpcavailable": "20",
+              "cpulimit": "40",
+              "cputotal": 0,
+              "cpuavailable": "40",
+              "memorylimit": "40960",
+              "memorytotal": 0,
+              "memoryavailable": "40960",
+              "gpulimit": "20",
+              "gputotal": 0,
+              "gpuavailable": "20",
+              "primarystoragelimit": "30",
+              "primarystoragetotal": 1,
+              "primarystorageavailable": "29",
+              "secondarystoragelimit": "30",
+              "secondarystoragetotal": 0.0018310994,
+              "secondarystorageavailable": "29.998168900609016",
+              "bucketlimit": "20",
+              "buckettotal": 0,
+              "bucketavailable": "20",
+              "objectstoragelimit": "400",
+              "objectstoragetotal": 0,
+              "objectstorageavailable": "400",
+              "state": "enabled",
+              "created": "2026-10-25T08:36:35+0900",
+              "user": [
+                {
+                  "id": "be6e26bd-82f4-4b45-8944-0521f54caa56",
+                  "username": "SNAPDIALOG1488-31-owner",
+                  "firstname": "Detail",
+                  "lastname": "QA",
+                  "email": "detail-qa@example.invalid",
+                  "created": "2026-10-25T08:36:35+0900",
+                  "state": "enabled",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "accounttype": 0,
+                  "usersource": "native",
+                  "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+                  "roletype": "User",
+                  "rolename": "User",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain",
+                  "accountid": "9de79d01-e9aa-48f5-ad6f-83f7c9de0095",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                }
+              ],
+              "accountdetails": {
+                "mold.external-iam.provisioning": "local-only-v1"
+              },
+              "isdefault": false,
+              "groups": [],
+              "apikeyaccess": "[REDACTED]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7581",
+      "method": "GET",
+      "command": "listZones",
+      "args": {
+        "showicon": "true",
+        "command": "listZones",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listzonesresponse": {
+          "count": 2,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "dns1": "8.8.8.8",
+              "internaldns1": "8.8.8.8",
+              "guestcidraddress": "10.1.1.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "resourcedetails": {
+                "vm.configdrive.force.host.cache.use": "false"
+              },
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            },
+            {
+              "id": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "name": "SNAPDIALOG1488-31-Zone-a",
+              "dns1": "8.8.8.8",
+              "internaldns1": "10.10.31.10",
+              "guestcidraddress": "10.249.31.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7582",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "showunique": "false",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "c2746f1e-4276-3508-97bc-bd0b8157bed0",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7583",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "showunique": "true",
+        "includesnapshotcontext": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7584",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "c2746f1e-4276-3508-97bc-bd0b8157bed0",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7585",
+      "method": "GET",
+      "command": "listVolumes",
+      "args": {
+        "id": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listVolumes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "name": "SNAPDIALOG1488-31-owner",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:37+0900",
+              "state": "Ready",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "storagetype": "shared",
+              "cachemode": "none",
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7587",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7588",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "c2746f1e-4276-3508-97bc-bd0b8157bed0",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7589",
+      "method": "GET",
+      "command": "listSnapshotCopyTargets",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "command": "listSnapshotCopyTargets",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotcopytargetsresponse": {
+          "snapshotcopytargets": {
+            "snapshotid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+            "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "sourcezonename": "Zone",
+            "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+            "sourcestorename": "Secondary",
+            "eligible": true,
+            "reason": "",
+            "scopehash": "4731fda45dd4d235af935e3e9de938069c57cc4209a77d6cf28ffa7602dc2911",
+            "destinations": [
+              {
+                "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+                "name": "SNAPDIALOG1488-31-Zone-a",
+                "eligible": true,
+                "reason": "",
+                "mode": "Copy",
+                "method": "SecondaryStorageVM",
+                "protocol": "nfs",
+                "storeid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+                "storename": "SNAPDIALOG1488-31-Secondary-a"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "requestId": "41292.7590",
+      "method": "GET",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "ui",
+              "value": "SS15",
+              "resourcetype": "Snapshot",
+              "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7591",
+      "method": "GET",
+      "command": "listZones",
+      "args": {
+        "showicon": "true",
+        "command": "listZones",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listzonesresponse": {
+          "count": 2,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "dns1": "8.8.8.8",
+              "internaldns1": "8.8.8.8",
+              "guestcidraddress": "10.1.1.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "resourcedetails": {
+                "vm.configdrive.force.host.cache.use": "false"
+              },
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            },
+            {
+              "id": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "name": "SNAPDIALOG1488-31-Zone-a",
+              "dns1": "8.8.8.8",
+              "internaldns1": "10.10.31.10",
+              "guestcidraddress": "10.249.31.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7592",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "showunique": "false",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "c2746f1e-4276-3508-97bc-bd0b8157bed0",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7593",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "resourcetype": "zone",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7594",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "resourcetype": "domain",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7595",
+      "method": "GET",
+      "command": "listAccounts",
+      "args": {
+        "name": "SNAPDIALOG1488-31-owner",
+        "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "showicon": "true",
+        "command": "listAccounts",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listaccountsresponse": {
+          "count": 1,
+          "account": [
+            {
+              "id": "9de79d01-e9aa-48f5-ad6f-83f7c9de0095",
+              "name": "SNAPDIALOG1488-31-owner",
+              "accounttype": 0,
+              "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+              "roletype": "User",
+              "rolename": "User",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "vmlimit": "20",
+              "vmtotal": 0,
+              "vmavailable": "20",
+              "iplimit": "20",
+              "iptotal": 0,
+              "ipavailable": "20",
+              "volumelimit": "20",
+              "volumetotal": 1,
+              "volumeavailable": "19",
+              "snapshotlimit": "30",
+              "snapshottotal": 4,
+              "snapshotavailable": "26",
+              "backuplimit": "20",
+              "backuptotal": 0,
+              "backupavailable": "20",
+              "backupstoragelimit": "400",
+              "backupstoragetotal": 0,
+              "backupstorageavailable": "400",
+              "templatelimit": "20",
+              "templatetotal": 0,
+              "templateavailable": "20",
+              "vmstopped": 0,
+              "vmrunning": 0,
+              "projectlimit": "10",
+              "projecttotal": 1,
+              "projectavailable": "9",
+              "networklimit": "20",
+              "networktotal": 0,
+              "networkavailable": "20",
+              "vpclimit": "20",
+              "vpctotal": 0,
+              "vpcavailable": "20",
+              "cpulimit": "40",
+              "cputotal": 0,
+              "cpuavailable": "40",
+              "memorylimit": "40960",
+              "memorytotal": 0,
+              "memoryavailable": "40960",
+              "gpulimit": "20",
+              "gputotal": 0,
+              "gpuavailable": "20",
+              "primarystoragelimit": "30",
+              "primarystoragetotal": 1,
+              "primarystorageavailable": "29",
+              "secondarystoragelimit": "30",
+              "secondarystoragetotal": 0.0018310994,
+              "secondarystorageavailable": "29.998168900609016",
+              "bucketlimit": "20",
+              "buckettotal": 0,
+              "bucketavailable": "20",
+              "objectstoragelimit": "400",
+              "objectstoragetotal": 0,
+              "objectstorageavailable": "400",
+              "state": "enabled",
+              "created": "2026-10-25T08:36:35+0900",
+              "user": [
+                {
+                  "id": "be6e26bd-82f4-4b45-8944-0521f54caa56",
+                  "username": "SNAPDIALOG1488-31-owner",
+                  "firstname": "Detail",
+                  "lastname": "QA",
+                  "email": "detail-qa@example.invalid",
+                  "created": "2026-10-25T08:36:35+0900",
+                  "state": "enabled",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "accounttype": 0,
+                  "usersource": "native",
+                  "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+                  "roletype": "User",
+                  "rolename": "User",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain",
+                  "accountid": "9de79d01-e9aa-48f5-ad6f-83f7c9de0095",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                }
+              ],
+              "accountdetails": {
+                "mold.external-iam.provisioning": "local-only-v1"
+              },
+              "isdefault": false,
+              "groups": [],
+              "apikeyaccess": "[REDACTED]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7596",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "showunique": "true",
+        "includesnapshotcontext": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+                "volumename": "SNAPDIALOG1488-31-other",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+              "account": "SNAPDIALOG1488-31-other",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+              "volumename": "SNAPDIALOG1488-31-other",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T08:39:03+0900",
+              "name": "SNAPDIALOG1488-31-other",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPDIALOG1488-31-other",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+                  "account": "SNAPDIALOG1488-31-other",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7597",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "c604d3d6-38e4-3cf6-b0b3-f914d2f06c8a",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+              "account": "SNAPDIALOG1488-31-other",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+              "volumename": "SNAPDIALOG1488-31-other",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T08:39:03+0900",
+              "name": "SNAPDIALOG1488-31-other",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPDIALOG1488-31-other",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+                  "account": "SNAPDIALOG1488-31-other",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7598",
+      "method": "GET",
+      "command": "listVolumes",
+      "args": {
+        "id": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listVolumes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+              "name": "SNAPDIALOG1488-31-other",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:38+0900",
+              "state": "Ready",
+              "account": "SNAPDIALOG1488-31-other",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "storagetype": "shared",
+              "cachemode": "none",
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7599",
+      "method": "GET",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPDIALOG1488-31-other",
+              "resourcetype": "Snapshot",
+              "resourceid": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+              "account": "SNAPDIALOG1488-31-other",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.7600",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "resourcetype": "zone",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7601",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "resourcetype": "domain",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.7602",
+      "method": "GET",
+      "command": "listAccounts",
+      "args": {
+        "name": "SNAPDIALOG1488-31-other",
+        "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+        "showicon": "true",
+        "command": "listAccounts",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listaccountsresponse": {
+          "count": 1,
+          "account": [
+            {
+              "id": "d0477243-27f2-4adc-a34b-4366442516f3",
+              "name": "SNAPDIALOG1488-31-other",
+              "accounttype": 0,
+              "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+              "roletype": "User",
+              "rolename": "User",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "vmlimit": "20",
+              "vmtotal": 0,
+              "vmavailable": "20",
+              "iplimit": "20",
+              "iptotal": 0,
+              "ipavailable": "20",
+              "volumelimit": "20",
+              "volumetotal": 1,
+              "volumeavailable": "19",
+              "snapshotlimit": "30",
+              "snapshottotal": 1,
+              "snapshotavailable": "29",
+              "backuplimit": "20",
+              "backuptotal": 0,
+              "backupavailable": "20",
+              "backupstoragelimit": "400",
+              "backupstoragetotal": 0,
+              "backupstorageavailable": "400",
+              "templatelimit": "20",
+              "templatetotal": 0,
+              "templateavailable": "20",
+              "vmstopped": 0,
+              "vmrunning": 0,
+              "projectlimit": "10",
+              "projecttotal": 0,
+              "projectavailable": "10",
+              "networklimit": "20",
+              "networktotal": 0,
+              "networkavailable": "20",
+              "vpclimit": "20",
+              "vpctotal": 0,
+              "vpcavailable": "20",
+              "cpulimit": "40",
+              "cputotal": 0,
+              "cpuavailable": "40",
+              "memorylimit": "40960",
+              "memorytotal": 0,
+              "memoryavailable": "40960",
+              "gpulimit": "20",
+              "gputotal": 0,
+              "gpuavailable": "20",
+              "primarystoragelimit": "30",
+              "primarystoragetotal": 1,
+              "primarystorageavailable": "29",
+              "secondarystoragelimit": "30",
+              "secondarystoragetotal": 0.00018312037,
+              "secondarystorageavailable": "29.99981687963009",
+              "bucketlimit": "20",
+              "buckettotal": 0,
+              "bucketavailable": "20",
+              "objectstoragelimit": "400",
+              "objectstoragetotal": 0,
+              "objectstorageavailable": "400",
+              "state": "enabled",
+              "created": "2026-10-25T08:36:36+0900",
+              "user": [
+                {
+                  "id": "a510cabf-ddf5-4cfa-a0f3-8bb178ad7017",
+                  "username": "SNAPDIALOG1488-31-other",
+                  "firstname": "Detail",
+                  "lastname": "QA",
+                  "email": "detail-qa@example.invalid",
+                  "created": "2026-10-25T08:36:36+0900",
+                  "state": "enabled",
+                  "account": "SNAPDIALOG1488-31-other",
+                  "accounttype": 0,
+                  "usersource": "native",
+                  "roleid": "9270b33d-b253-11f1-a895-0024814c313f",
+                  "roletype": "User",
+                  "rolename": "User",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain",
+                  "accountid": "d0477243-27f2-4adc-a34b-4366442516f3",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                }
+              ],
+              "accountdetails": {
+                "mold.external-iam.provisioning": "local-only-v1"
+              },
+              "isdefault": false,
+              "groups": [],
+              "apikeyaccess": "[REDACTED]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "volume": "3c79facf-0983-4c96-964b-b334c5189901",
+  "scenario": "restore-explicit",
+  "phase": "verify",
+  "image": "rbd:rbd/87ef0b0a-9bc5-4639-a627-10291697c9e2",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (252.341 MiB/sec and 252.3408 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (235.120 MiB/sec and 235.1196 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

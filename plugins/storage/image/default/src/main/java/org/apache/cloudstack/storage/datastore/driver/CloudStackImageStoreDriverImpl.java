@@ -93,10 +93,14 @@ public class CloudStackImageStoreDriverImpl extends NfsImageStoreDriverImpl {
         if (StringUtils.isEmpty(objectName)) {
             throw new IllegalArgumentException("Object name is empty or null");
         }
-        return objectName.trim()
+        String cleaned = objectName.trim()
                 .replaceAll("[^a-zA-Z0-9]+", "-")
                 .replaceAll("-{2,}", "-")
                 .replaceAll("^-|-$", "");
+        if (cleaned.isEmpty()) {
+            throw new IllegalArgumentException("Object name has no URL-safe characters");
+        }
+        return cleaned;
     }
 
     @Override
@@ -118,7 +122,7 @@ public class CloudStackImageStoreDriverImpl extends NfsImageStoreDriverImpl {
             ans = ep.sendMessage(cmd);
         }
         if (ans == null || !ans.getResult()) {
-            String errorString = "Unable to create a link for entity at " + installPath + " on ssvm, " + ans.getDetails();
+            String errorString = "Unable to create a link for entity at " + installPath + " on ssvm, " + (ans == null ? "no response" : ans.getDetails());
             logger.error(errorString);
             throw new CloudRuntimeException(errorString);
         }

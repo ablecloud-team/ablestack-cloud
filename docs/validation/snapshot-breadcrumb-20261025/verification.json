@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "checks": 844,
+  "snapshotLayouts": 12,
+  "vmReferenceLayouts": 12,
+  "snapshotFilterLayouts": 12,
+  "vmFilterLayouts": 12,
+  "escapeCases": 12,
+  "archivedProofFiles": 176
+}

@@ -1,0 +1,27 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "고정된 작업 대상 1개를 확인하세요.\n\n이름\tSNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

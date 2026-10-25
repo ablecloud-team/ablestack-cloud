@@ -1,0 +1,41 @@
+[
+  {
+    "name": "foreign diagnosis denied",
+    "status": "PASS"
+  },
+  {
+    "name": "foreign deletion denied",
+    "status": "PASS"
+  },
+  {
+    "name": "normal owner repairs Destroyed residuals and repeats safely",
+    "status": "PASS",
+    "before": {
+      "success": true,
+      "snapshotid": "ff555212-e487-4ea9-aeca-bf64f42b3546",
+      "name": "SNAP1478-31-tenant",
+      "state": "Destroyed",
+      "dryrun": true,
+      "reference": [
+        {
+          "referenceid": 103,
+          "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+          "storename": "Secondary",
+          "role": "Image",
+          "state": "Destroying",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+        }
+      ],
+      "scopehash": "3929a9e75db39552466f23a15f6d71753482c65a6a6597cb33a0e8f71f95539c"
+    },
+    "after": {
+      "success": true,
+      "snapshotid": "ff555212-e487-4ea9-aeca-bf64f42b3546",
+      "name": "SNAP1478-31-tenant",
+      "state": "Destroyed",
+      "dryrun": true,
+      "reference": [],
+      "scopehash": "bd58e3bce954641f8719e2e2900b79ae8f6616b7ad74ee32c4901a69b2acaa7f"
+    }
+  }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "role": "owner",
+    "args": {
+      "id": "cae03eee-c739-4f20-88c0-6396794c8c86"
+    },
+    "deniedOrEmpty": true,
+    "empty": true
+  },
+  {
+    "role": "owner",
+    "args": {
+      "account": "SNAPLIST1485-32-other",
+      "domainid": "147c021b-94df-427a-aab3-063b5560b1f5"
+    },
+    "deniedOrEmpty": true,
+    "error": {
+      "uuidList": [],
+      "errorcode": 531,
+      "cserrorcode": 4365,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    }
+  },
+  {
+    "role": "other",
+    "args": {
+      "id": "bd00c94d-50ec-4df8-9840-f3246fa6b6e4"
+    },
+    "deniedOrEmpty": true,
+    "empty": true
+  },
+  {
+    "role": "other",
+    "args": {
+      "account": "SNAPLIST1485-32-owner",
+      "domainid": "147c021b-94df-427a-aab3-063b5560b1f5"
+    },
+    "deniedOrEmpty": true,
+    "error": {
+      "uuidList": [],
+      "errorcode": 531,
+      "cserrorcode": 4365,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    }
+  },
+  {
+    "role": "other",
+    "args": {
+      "projectid": "993506fe-23d4-4794-b4de-40ccde1280c3"
+    },
+    "deniedOrEmpty": true,
+    "error": {
+      "uuidList": [],
+      "errorcode": 432,
+      "cserrorcode": 9999,
+      "errortext": "The API [listSnapshots] does not exist or is not available for this account/user in project [993506fe-23d4-4794-b4de-40ccde1280c3]."
+    }
+  }
+]

@@ -1,0 +1,274 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - generic: 대시보드
+    - img "cloud":
+    - generic: 컴퓨트
+    - img "hdd":
+    - generic: 스토리지
+    - img "wifi":
+    - generic: 네트워크
+    - img "picture":
+    - generic: 이미지
+    - img "lock":
+    - generic: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - generic: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - generic: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - generic: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - generic: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - generic: 도메인
+    - img "bank":
+    - generic: 인프라스트럭쳐
+    - img "shopping":
+    - generic: 서비스 오퍼링
+    - img "setting":
+    - generic: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - generic: 확장
+    - img "tool":
+    - generic: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - generic: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+    - paragraph: "8"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPDIALOG1488-32-root
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - heading "SNAPDIALOG1488-32-root" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "09748edd-6451-4f3a-9884-9d7bf4caa9d8":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 100.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 2.25 GiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "ROOT-238":
+    - /url: "#/volume/37ed3d4c-e1d5-4c2c-8ed9-c65d94ed0936"
+  - generic: VM 이름
+  - img "desktop":
+  - link "SNAPDIALOG1488-32-vm":
+    - /url: "#/vm/78014f43-b08c-4c9d-a91b-8755f5c0fff1"
+  - generic: 사본 Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+  - generic: 계정
+  - img "user":
+  - link "admin":
+    - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+  - generic: 도메인
+  - img "block":
+  - link "ROOT":
+    - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 8:42:03
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: baseline = SNAPDIALOG1488-32-root
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "Zone"
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "상세":
+    - list:
+      - strong: 스냅샷 유형
+      - text: 수동
+      - strong: 생성 주기
+      - text: 수동
+      - strong: 원본 볼륨 유형
+      - text: 루트 디스크
+      - strong: 원본 볼륨 현재 상태
+      - generic: 사용 가능
+      - strong: 연결 가상머신 현재 상태
+      - generic: 정지된 상태
+      - strong: 원본 되돌리기
+      - text: 현재 원본 되돌리기 조건을 충족합니다.
+      - paragraph: 가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다.
+    - separator
+    - strong: 스토리지 사본
+    - paragraph: 스토리지 사본 2개. API는 사본별 물리 크기를 제공하지 않습니다.
+    - list:
+      - strong: Secondary
+      - link "Secondary":
+        - /url: "#/imagestore/af746f16-4e36-4f19-805c-61307d373e64"
+      - text: · Zone
+      - generic: 사용 가능
+      - generic: 준비됨
+      - generic: "가상 크기: 100.00 GiB"
+      - strong: Primary
+      - link "Primary":
+        - /url: "#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122"
+      - text: · Zone
+      - generic: 사용 가능
+      - generic: 준비됨
+      - generic: "가상 크기: 100.00 GiB"
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (1건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":
+- dialog "스냅샷 삭제":
+  - document:
+    - button "Close":
+      - img "close":
+    - generic: 스냅샷 삭제
+    - paragraph: 고정된 작업 대상 1개를 확인하세요.
+    - table:
+      - rowgroup:
+        - row "이름 SNAPDIALOG1488-32-root":
+          - rowheader "이름"
+          - cell "SNAPDIALOG1488-32-root":
+            - generic: SNAPDIALOG1488-32-root
+        - row "볼륨 ROOT-238":
+          - rowheader "볼륨"
+          - cell "ROOT-238":
+            - generic: ROOT-238
+        - row "가상머신 SNAPDIALOG1488-32-vm · 정지된 상태":
+          - rowheader "가상머신"
+          - cell "SNAPDIALOG1488-32-vm · 정지된 상태":
+            - generic: SNAPDIALOG1488-32-vm · 정지된 상태
+        - row "계정 admin · ROOT":
+          - rowheader "계정"
+          - cell "admin · ROOT":
+            - generic: admin · ROOT
+        - row "상태 백업 됨":
+          - rowheader "상태"
+          - cell "백업 됨":
+            - generic: 백업 됨
+        - row "가상 크기 100.00 GiB":
+          - rowheader "가상 크기"
+          - cell "100.00 GiB":
+            - generic: 100.00 GiB
+        - row "간격 유형 수동":
+          - rowheader "간격 유형"
+          - cell "수동":
+            - generic: 수동
+        - row "생성일 2026. 10. 25. 오전 8:42:03":
+          - rowheader "생성일"
+          - cell "2026. 10. 25. 오전 8:42:03":
+            - generic: 2026. 10. 25. 오전 8:42:03
+        - row "삭제 범위 모든 Zone 및 현재 사본 범위":
+          - rowheader "삭제 범위"
+          - cell "모든 Zone 및 현재 사본 범위":
+            - generic: 모든 Zone 및 현재 사본 범위
+    - alert:
+      - img "exclamation-circle":
+      - generic: 선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다.
+    - checkbox "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+    - generic: 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.
+    - button "취소":
+      - generic: 취소
+    - button "스냅샷 삭제" [disabled]:
+      - generic: 스냅샷 삭제

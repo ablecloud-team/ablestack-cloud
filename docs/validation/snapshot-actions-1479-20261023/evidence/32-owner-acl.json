@@ -1,0 +1,45 @@
+{
+  "own": {
+    "count": 1,
+    "snapshot": [
+      {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+          "volumename": "SNAP1479-32-tenant-source",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": ""
+        },
+        "id": "22b644a3-7493-49ca-bc52-f32e27b7e473",
+        "account": "snap1479-32-tenant",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "volumename": "SNAP1479-32-tenant-source",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T19:21:37+0900",
+        "name": "SNAP1479-32-tenant-snapshot",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    ]
+  },
+  "foreign": {},
+  "rejected": {
+    "uuidList": [],
+    "errorcode": 531,
+    "cserrorcode": 4365,
+    "errortext": "Caller does not have permission to operate with provided resource."
+  }
+}

@@ -1,0 +1,158 @@
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+    - paragraph: "9"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPDIALOG1488-31-owner
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "build":
+  - heading "SNAPDIALOG1488-31-owner" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "b0e33480-df88-4c67-99a4-e6d57cc2bee6":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 1.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 192.02 KiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "SNAPDIALOG1488-31-owner":
+    - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+  - generic: VM 이름
+  - img "desktop":
+  - generic: 연결된 가상머신 없음
+  - generic: 사본 Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+  - generic: 계정
+  - img "user":
+  - link "SNAPDIALOG1488-31-owner":
+    - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPDIALOG1488-31-domain":
+    - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 8:39:00
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: baseline = SNAPDIALOG1488-31-owner
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "Zone"
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "상세":
+    - list:
+      - strong: 스냅샷 유형
+      - text: 수동
+      - strong: 생성 주기
+      - text: 수동
+      - strong: 원본 볼륨 유형
+      - text: 데이터 디스크
+      - strong: 원본 볼륨 현재 상태
+      - generic: 사용 가능
+      - strong: 원본 되돌리기
+      - text: 현재 원본 되돌리기 조건을 충족합니다.
+      - paragraph: 가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다.
+    - separator
+    - strong: 스토리지 사본
+    - paragraph: 스토리지 사본 1개. API는 사본별 물리 크기를 제공하지 않습니다.
+    - list:
+      - strong: Secondary
+      - link "Secondary":
+        - /url: "#/imagestore/dd8d0666-cebe-4921-8b8f-0c7b12780ad8"
+      - text: · Zone
+      - generic: 사용 가능
+      - generic: 준비됨
+      - generic: "가상 크기: 1.00 GiB"
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+- dialog "스냅샷 복원":
+  - document:
+    - button "Close":
+      - img "close":
+    - generic: 스냅샷 복원
+    - alert:
+      - img "exclamation-circle":
+      - generic: 스냅샷 생성 이후의 변경 데이터가 사라집니다.
+      - generic: SNAPDIALOG1488-31-owner 볼륨을 SNAPDIALOG1488-31-owner 스냅샷 시점으로 되돌립니다.
+    - checkbox "복원 대상과 데이터 변경 영향을 확인했습니다."
+    - generic: 복원 대상과 데이터 변경 영향을 확인했습니다.
+    - button "취소":
+      - generic: 취소
+    - button "복원" [disabled]:
+      - generic: 복원

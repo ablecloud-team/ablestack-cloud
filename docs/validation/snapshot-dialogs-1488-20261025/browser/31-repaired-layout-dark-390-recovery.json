@@ -1,0 +1,333 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 566,
+    "height": 422,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 144
+  },
+  "bodyScroll": {
+    "clientHeight": 422,
+    "clientWidth": 364,
+    "height": 422,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 137,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 89
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 550,
+        "height": 32,
+        "right": 145.953125,
+        "width": 116.953125,
+        "x": 29,
+        "y": 518
+      },
+      "text": "삭제 대상 진단"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 615,
+        "height": 32,
+        "right": 252.75,
+        "width": 57.765625,
+        "x": 194.984375,
+        "y": 583
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 615,
+        "height": 32,
+        "right": 361,
+        "width": 100.25,
+        "x": 260.75,
+        "y": 583
+      },
+      "text": "삭제 재처리"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 127,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 105
+      },
+      "text": "삭제 잔여 복구"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(255, 231, 163)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 257,
+        "height": 88,
+        "right": 345,
+        "width": 278,
+        "x": 67,
+        "y": 169
+      },
+      "text": "스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 312,
+        "height": 22,
+        "right": 104.265625,
+        "width": 75.265625,
+        "x": 29,
+        "y": 290
+      },
+      "text": "스냅샷 UUID"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 352,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 320
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 398,
+        "height": 22,
+        "right": 259.140625,
+        "width": 230.140625,
+        "x": 29,
+        "y": 376
+      },
+      "text": "대상 Zone UUID (비워 두면 모든 Zone)"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 438,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 406
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 489,
+        "height": 22,
+        "right": 193.046875,
+        "width": 164.046875,
+        "x": 29,
+        "y": 467
+      },
+      "text": "강제삭제 (관리자 복구)"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 483.796875,
+        "height": 14,
+        "right": 43,
+        "width": 14,
+        "x": 29,
+        "y": 469.796875
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 632,
+    "height": 544,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 88
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 631,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 566
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 352,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 320
+      },
+      "label": "스냅샷 UUID",
+      "labelRect": {
+        "bottom": 320,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 290
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 438,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 406
+      },
+      "label": "대상 Zone UUID (비워 두면 모든 Zone)",
+      "labelRect": {
+        "bottom": 406,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 376
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 494,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 462
+      },
+      "labelRect": null
+    }
+  ],
+  "header": {
+    "bottom": 144,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 89
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 352,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 320
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 438,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 406
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 483.796875,
+        "height": 14,
+        "right": 43,
+        "width": 14,
+        "x": 29,
+        "y": 469.796875
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [],
+  "text": "삭제 잔여 복구\n스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수 있습니다.\n스냅샷 UUID\n대상 Zone UUID (비워 두면 모든 Zone)\n강제삭제 (관리자 복구)\n삭제 대상 진단\n취소\n삭제 재처리",
+  "title": "삭제 잔여 복구",
+  "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-31&projectid=0&q=SNAPDIALOG1488-31&sortkey=created&sortorder=desc&page=1",
+  "width": 390
+}

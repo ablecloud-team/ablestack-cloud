@@ -1,0 +1,125 @@
+{
+  "status": "PASS",
+  "transportRequests": [
+    {
+      "at": "2026-10-23T11:16:51.230Z",
+      "cmd": "createSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "name": "SNAP1479-32-lost-reload-ui",
+        "customjobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "status": 200,
+      "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T11:16:51.242Z",
+      "cmd": "createSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "name": "SNAP1479-32-lost-reload-ui",
+        "customjobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "status": 200,
+      "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f",
+      "fault": "submit-response-dropped-after-forward"
+    }
+  ],
+  "queryRequests": [
+    {
+      "at": "2026-10-23T11:16:51.289Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:16:52.820Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:16:55.832Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:17:01.846Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:18:07.444Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+      },
+      "status": 200,
+      "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f",
+      "jobstatus": 1
+    }
+  ],
+  "uniqueJobs": 1,
+  "createdSnapshots": [
+    {
+      "id": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+      "account": "snap1479-32-tenant",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+      "volumename": "SNAP1479-32-tenant-source",
+      "volumetype": "DATADISK",
+      "volumestate": "Ready",
+      "created": "2026-10-23T20:16:56+0900",
+      "name": "SNAP1479-32-lost-reload-ui",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 1073741824,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "revertable": true,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false,
+      "scenario": "lost-reload-ui"
+    }
+  ],
+  "requestid": "aba6faed-9336-4bd6-96c5-a51fab95259f"
+}

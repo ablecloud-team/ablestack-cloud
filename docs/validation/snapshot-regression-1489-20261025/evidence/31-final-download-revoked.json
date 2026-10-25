@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "scenario": "31-download-root-qcow2-verified.json",
+      "httpStatus": 404,
+      "downloadUrlOmitted": "[REDACTED]"
+    },
+    {
+      "scenario": "31-download-root-raw-verified.json",
+      "httpStatus": 404,
+      "downloadUrlOmitted": "[REDACTED]"
+    },
+    {
+      "scenario": "31-download-pattern-raw-verified.json",
+      "httpStatus": 404,
+      "downloadUrlOmitted": "[REDACTED]"
+    },
+    {
+      "scenario": "31-download-pattern-qcow2-verified.json",
+      "httpStatus": 404,
+      "downloadUrlOmitted": "[REDACTED]"
+    }
+  ],
+  "pass": true
+}

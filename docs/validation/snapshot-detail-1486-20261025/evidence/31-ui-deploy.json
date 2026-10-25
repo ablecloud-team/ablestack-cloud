@@ -1,0 +1,32 @@
+{
+  "files": 924,
+  "verified": true,
+  "backup": "/nfs/snapshot-detail-1486-20261025-ui-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "ae2896c258f21ee7f3e46f7002ff4a0bc94a249aebf2b875396936e92317dbdd",
+  "largeFileMetadataUnchanged": {},
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-detail-summary": true,
+    "snapshot-detail-properties": true,
+    "message.snapshot.detail.incomplete": true,
+    "resource.tags.v1:": true
+  },
+  "newStaticFiles": [
+    "js/chunk-38d54974.ece99224.js.map",
+    "js/app.1a84a7b8.js",
+    "js/chunk-38d54974.ece99224.js",
+    "js/chunk-74fc7aa3.6682d301.js.map",
+    "js/app.1a84a7b8.js.map",
+    "js/chunk-74fc7aa3.6682d301.js",
+    "css/app.a7c9aebb.css",
+    "css/chunk-38d54974.e6130e60.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root  383G  179G  204G  47% /\n/dev/mapper/rl-nfs   350G  311G   40G  89% /nfs\n"
+}

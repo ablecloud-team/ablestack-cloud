@@ -1,0 +1,47 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [
+    {
+      "control": {
+        "bottom": 397.5625,
+        "height": 32,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 365.5625
+      },
+      "label": {
+        "bottom": 365.5625,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 335.5625
+      },
+      "text": "대상 Zone"
+    }
+  ],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n스냅샷 \"SNAPDIALOG1488-3"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

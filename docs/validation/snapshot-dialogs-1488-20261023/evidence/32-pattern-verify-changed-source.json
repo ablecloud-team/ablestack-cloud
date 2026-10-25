@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+    "scenario": "source",
+    "image": "rbd:rbd/b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+    "phase": "verify-changed",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (375.961 MiB/sec and 375.9615 ops/sec)",
+    "verifiedPattern": "0xa5"
+  }
+]

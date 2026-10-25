@@ -1,0 +1,61 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 123,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "7ab43e9453b00904391224d55416863ae92a13220676ed4e57569d64b0dd24e1",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 123,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 123,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "821fefd36fbf42b882e0301c23ea573c40ab62fcb751b690d2c21b161400af25",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

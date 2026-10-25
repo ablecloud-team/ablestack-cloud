@@ -1,0 +1,131 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "디스크 크기(GB 단위)",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "VM 이름",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "스토리지 풀",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "클러스터",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Pod",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Zone",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "계정",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "도메인",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "생성일",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/volume",
+      "text": "볼륨"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "2410aed4-f39a-4148-8fd6-9a301cc0387d "
+    },
+    {
+      "href": "#/vm/61b24b3e-fd15-4407-9c0e-69940f35df7b",
+      "text": "SNAPDETAIL1486-31-vm"
+    },
+    {
+      "href": "#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "text": "Primary"
+    },
+    {
+      "href": "#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+      "text": "Cluster"
+    },
+    {
+      "href": "#/pod/2a9760c6-795d-48fc-bca1-77037c541279",
+      "text": "Pod"
+    },
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "Zone"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/snapshot?volumeid=2410aed4-f39a-4148-8fd6-9a301cc0387d",
+      "text": "스냅샷 보기"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "tag": "태그태그 새로고침태그가 없습니다.새 태그",
+  "text": "/볼륨/SNAPDETAIL1486-31-vmdata업데이트\n작업\nSNAPDETAIL1486-31-vmdata\nDATADISK\nKVM\n상태\n사용 가능\n아이디\n2410aed4-f39a-4148-8fd6-9a301cc0387d \n디스크 크기(GB 단위)\n1.00 GiB\nVM 이름\nSNAPDETAIL1486-31-vm\n스토리지 풀\nPrimary\nShared (DATADISK)\n클러스터\nCluster\nPod\nPod\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 25. 오전 1:07:59\n스냅샷 보기\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n상세\n스냅샷\n정기스냅샷\n이벤트\n코멘트\n이름\n\nSNAPDETAIL1486-31-vmdata\n아이디\n\n2410aed4-f39a-4148-8fd6-9a301cc0387d\n유형\n\nDATADISK\n스토리지 유형\n\nShared (DATADISK)\n디스크 오퍼링\n\nCustom-GFS-Sparse\n장치 ID\n\n1\n크기\n\n1.00 GiB\n물리적 크기\n\n0.00 GiB\n프로비저닝 유형\n\nsparse\nWrite-Cache 유형\n\nnone\n이용\n\n0.0%\n압축/중복제거\n\nfalse\n압축 사용 상태\n\nfalse\n중복제거 사용 상태\n\nfalse\n디스크 읽기 (KiB)\n\n0\n디스크 쓰기 (KiB)\n\n0\n디스크 읽기(IO)\n\n0\n디스크 쓰기(IO)\n\n0\n디스크 IOPS\n\n0\n경로\n\n2410aed4-f39a-4148-8fd6-9a301cc0387d\n삭제 보호\n\nfalse\n요청 정책 / 형식\n\n기존 호환 값: sparse\n확정 정책\n\n알 수 없음\n실제 적용 정책\n\n알 수 없음\n실제 적용 방식\n\n알 수 없음\n실제 이미지 형식\n\nQCOW2\n논리 용량\n\n1.00 GiB\n관측 할당량\n\n알 수 없음\n관측 시각\n\n알 수 없음\n할당 증거\n\n미검증",
+  "url": "http://10.10.31.10:8080/client/#/volume/2410aed4-f39a-4148-8fd6-9a301cc0387d",
+  "width": 1280,
+  "expectedHref": "#/volume/2410aed4-f39a-4148-8fd6-9a301cc0387d"
+}

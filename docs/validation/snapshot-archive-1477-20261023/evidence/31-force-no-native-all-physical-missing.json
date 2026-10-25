@@ -1,0 +1,17 @@
+{
+  "snapshot": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+  "scenario": "force-no-native",
+  "kind": "all-physical-missing",
+  "before": [
+    {
+      "path": "snapshots/2/975/f11d8648-b2c1-4e5d-8507-1f325e16ef62",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 65,
+      "referenceid": 123
+    }
+  ],
+  "fixtureOnly": true
+}

@@ -1,0 +1,788 @@
+{
+  "requests": [
+    {
+      "requestId": "17888.2983",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+                "volumename": "SNAPTABS1487-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2984",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "8f66bc31-e2e6-3064-8f5d-e632176f894d",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "024b29ae-b9e2-3213-a093-5fa33814d9be",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2985",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "dryrun": "true"
+      },
+      "status": 200,
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "26783e7f-28a9-4408-942b-4cb2e7ae4725"
+        }
+      }
+    },
+    {
+      "requestId": "17888.2986",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "26783e7f-28a9-4408-942b-4cb2e7ae4725",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "name": "SNAPTABS1487-32-owner-next",
+              "state": "BackedUp",
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 411,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 412,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "5cfa43957f0583939b0222994ea5c40bc9cc8958950442a7fd8366629a104892",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+          "created": "2026-10-25T02:55:33+0900",
+          "completed": "2026-10-25T02:55:33+0900",
+          "jobid": "26783e7f-28a9-4408-942b-4cb2e7ae4725",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "17888.2988",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+                "volumename": "SNAPTABS1487-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2989",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "8f66bc31-e2e6-3064-8f5d-e632176f894d",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "024b29ae-b9e2-3213-a093-5fa33814d9be",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2990",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "dryrun": "true"
+      },
+      "status": 200,
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "83e14d10-5787-4a9e-88b9-b3dca6152a1d"
+        }
+      }
+    },
+    {
+      "requestId": "17888.2991",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "83e14d10-5787-4a9e-88b9-b3dca6152a1d",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "name": "SNAPTABS1487-32-owner-next",
+              "state": "BackedUp",
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 411,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 412,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "5cfa43957f0583939b0222994ea5c40bc9cc8958950442a7fd8366629a104892",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+          "created": "2026-10-25T02:55:33+0900",
+          "completed": "2026-10-25T02:55:33+0900",
+          "jobid": "83e14d10-5787-4a9e-88b9-b3dca6152a1d",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "17888.2992",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "expectedscopehash": "5cfa43957f0583939b0222994ea5c40bc9cc8958950442a7fd8366629a104892",
+        "customjobid": "496fd282-3510-48ec-ab98-b86f063ef94b"
+      },
+      "status": 200,
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b"
+        }
+      }
+    },
+    {
+      "requestId": "17888.2993",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-25T02:55:33+0900",
+          "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "requestId": "17888.2994",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "showunique": "false",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "8f66bc31-e2e6-3064-8f5d-e632176f894d",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false,
+              "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+              "jobstatus": 0
+            },
+            {
+              "copy": {
+                "id": "024b29ae-b9e2-3213-a093-5fa33814d9be",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:07:00+0900",
+              "name": "SNAPTABS1487-32-owner-next",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner-next",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": false,
+              "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+              "jobstatus": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2995",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "63ae6fe2-e969-430c-a813-c5044de2c774",
+          "created": "2026-10-25T02:55:33+0900",
+          "completed": "2026-10-25T02:55:35+0900",
+          "jobid": "496fd282-3510-48ec-ab98-b86f063ef94b",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "17888.2996",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "showunique": "true",
+        "includesnapshotcontext": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {}
+      }
+    },
+    {
+      "requestId": "17888.2997",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "showunique": "true",
+        "includesnapshotcontext": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {}
+      }
+    }
+  ]
+}

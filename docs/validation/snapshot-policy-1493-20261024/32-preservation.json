@@ -1,0 +1,88 @@
+{
+  "cluster": "32",
+  "fixtureActive": [
+    {
+      "command": "listVolumes",
+      "count": 0
+    },
+    {
+      "command": "listSnapshots",
+      "count": 0
+    },
+    {
+      "command": "listVirtualMachines",
+      "count": 0
+    },
+    {
+      "command": "listDiskOfferings",
+      "count": 0
+    },
+    {
+      "command": "listZones",
+      "count": 0
+    },
+    {
+      "command": "listStoragePools",
+      "count": 0
+    },
+    {
+      "command": "listHosts",
+      "count": 0
+    },
+    {
+      "command": "listImageStores",
+      "count": 0
+    }
+  ],
+  "preserved": [
+    {
+      "command": "listVolumes",
+      "count": 49,
+      "sha256": "858dadd773f4ef39c881d89f35338f662b3725ef82f59f14dd1e62c736ea779b",
+      "unchanged": true
+    },
+    {
+      "command": "listSnapshots",
+      "count": 12,
+      "sha256": "28df7ec7cb4504d941434f5e14c2373a62312de3a7b8def77ea5dafc6bd4c615",
+      "unchanged": true
+    },
+    {
+      "command": "listVirtualMachines",
+      "count": 49,
+      "sha256": "b02d4acc00e5c99c593cda11269e8638fa66e8c7144270029220d5561ae1204f",
+      "unchanged": true
+    },
+    {
+      "command": "listDiskOfferings",
+      "count": 6,
+      "sha256": "fa63ffaace23b74759e320d56e99eacfa227bdc4eb420e3c220debc7a9b7eade",
+      "unchanged": true
+    },
+    {
+      "command": "listZones",
+      "count": 1,
+      "sha256": "a130b0a03a71ade02183953dd274547f169976956cbfc6a2e24f37c04220859b",
+      "unchanged": true
+    },
+    {
+      "command": "listStoragePools",
+      "count": 1,
+      "sha256": "6ac2e06977ceb93856825a2124edf768d6dd75baf05944eab56f149b04433a3d",
+      "unchanged": true
+    },
+    {
+      "command": "listHosts",
+      "count": 5,
+      "sha256": "1ca7a1b32e8852f5df5ad4a72148576a981cdbfd974a9c964217fdf5e6fe857e",
+      "unchanged": true
+    },
+    {
+      "command": "listImageStores",
+      "count": 1,
+      "sha256": "b2f92294733d86c79726c8c24bd3225cd159378e2402e7e167c3e2a550f87783",
+      "unchanged": true
+    }
+  ],
+  "status": "PASS"
+}

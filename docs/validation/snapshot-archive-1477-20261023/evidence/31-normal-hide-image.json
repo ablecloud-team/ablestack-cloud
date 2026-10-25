@@ -1,0 +1,21 @@
+{
+  "snapshot": "e42db153-0e91-4e77-9fee-f81f20a73213",
+  "scenario": "normal",
+  "kind": "hide-image",
+  "before": [
+    {
+      "path": "snapshots/2/975/36de84d0-e831-432f-a43c-b576552e2d68",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 59,
+      "referenceid": 111
+    }
+  ],
+  "fixtureOnly": true,
+  "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8",
+  "path": "/nfs/secondary/snapshots/2/975/36de84d0-e831-432f-a43c-b576552e2d68",
+  "backup": "/home/ablecloud/snapshot-1477-faults/e42db153-0e91-4e77-9fee-f81f20a73213.image",
+  "referenceid": 111
+}

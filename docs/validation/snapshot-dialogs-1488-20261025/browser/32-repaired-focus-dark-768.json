@@ -1,0 +1,314 @@
+[
+  {
+    "kind": "create",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "ant-input",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "INPUT",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/volume/582c13ce-12d6-421d-88db-c251f62ac47d"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/volume/582c13ce-12d6-421d-88db-c251f62ac47d"
+    },
+    "layout": "repaired-layout-dark-768-create"
+  },
+  {
+    "kind": "volume",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "ant-input",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "INPUT",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "layout": "repaired-layout-dark-768-volume"
+  },
+  {
+    "kind": "template",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "ant-input",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "INPUT",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "layout": "repaired-layout-dark-768-template"
+  },
+  {
+    "kind": "restore",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/ba45c283-ecfc-4906-aac3-4dd35d5a023a"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/ba45c283-ecfc-4906-aac3-4dd35d5a023a"
+    },
+    "layout": "repaired-layout-dark-768-restore"
+  },
+  {
+    "kind": "download",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "layout": "repaired-layout-dark-768-download"
+  },
+  {
+    "kind": "archive",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "layout": "repaired-layout-dark-768-archive"
+  },
+  {
+    "kind": "delete",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/09748edd-6451-4f3a-9884-9d7bf4caa9d8"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary autogen-action-dropdown__button ant-dropdown-trigger",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "작업",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/09748edd-6451-4f3a-9884-9d7bf4caa9d8"
+    },
+    "layout": "repaired-layout-dark-768-delete"
+  },
+  {
+    "kind": "copy",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-default ant-btn-circle ant-btn-icon-only",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "이 Zone에서 복사",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones"
+    },
+    "layout": "repaired-layout-dark-768-copy"
+  },
+  {
+    "kind": "zoneDelete",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "업데이트",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones"
+    },
+    "layout": "repaired-layout-dark-768-zoneDelete"
+  },
+  {
+    "kind": "bulk",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-32&projectid=0&q=SNAPDIALOG1488-32&sortkey=created&sortorder=desc&page=1"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-primary ant-btn-round ant-btn-dangerous ant-tooltip-open action-button-item",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "스냅샷 삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-32&projectid=0&q=SNAPDIALOG1488-32&sortkey=created&sortorder=desc&page=1"
+    },
+    "layout": "repaired-layout-dark-768-bulk"
+  },
+  {
+    "kind": "recovery",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-32&projectid=0&q=SNAPDIALOG1488-32&sortkey=created&sortorder=desc&page=1"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-default ant-btn-circle ant-tooltip-open action-button-item",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "삭제 잔여 복구",
+      "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-32&projectid=0&q=SNAPDIALOG1488-32&sortkey=created&sortorder=desc&page=1"
+    },
+    "layout": "repaired-layout-dark-768-recovery"
+  },
+  {
+    "kind": "job",
+    "theme": "dark",
+    "width": 768,
+    "entered": {
+      "cls": "",
+      "connected": true,
+      "inDialog": true,
+      "role": null,
+      "tag": "DIV",
+      "text": "",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "backward": null,
+    "forward": null,
+    "returned": {
+      "cls": "ant-btn ant-btn-text header-notice-opener",
+      "connected": true,
+      "inDialog": false,
+      "role": null,
+      "tag": "BUTTON",
+      "text": "1\n\n8",
+      "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f"
+    },
+    "layout": "repaired-layout-dark-768-job"
+  }
+]

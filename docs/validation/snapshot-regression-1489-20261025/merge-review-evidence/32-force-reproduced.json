@@ -1,0 +1,51 @@
+{
+  "diagnosis": {
+    "success": true,
+    "snapshotid": "a58e510f-82f9-401e-ae01-5b5d9246045d",
+    "name": "PR1492-REVIEW-32-before",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 506,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Destroyed"
+      }
+    ],
+    "scopehash": "ff1dc96057543f5aa2961f7b563c5dae2cfddbd57d1efe00aaf12d2c5bb7ac9c",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 506,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "error": {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 431,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 431,
+      "errortext": "Unable to find account 105"
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "a58e510f-82f9-401e-ae01-5b5d9246045d",
+    "created": "2026-10-25T23:34:26+0900",
+    "completed": "2026-10-25T23:34:26+0900",
+    "jobid": "8f8a0858-2b69-4cf9-865c-96ac837f2fc4",
+    "jobstatus": 2
+  },
+  "reproduced": true
+}

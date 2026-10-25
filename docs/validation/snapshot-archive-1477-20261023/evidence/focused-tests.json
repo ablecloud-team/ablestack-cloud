@@ -1,0 +1,110 @@
+{
+  "maven": [
+    {
+      "module": "api",
+      "name": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmdTest",
+      "tests": 1,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.748",
+      "reportSha256": "4b1da1ee9d1d2e0cdb49cfc86032bb1d5dd5cb40e96aa050fd96a937a31a2431"
+    },
+    {
+      "module": "server",
+      "name": "com.cloud.api.SnapshotArchiveSerializationTest",
+      "tests": 1,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.757",
+      "reportSha256": "f9add06bd0b377c09e336aa9a79ca595f60ea6dcbbe46c74497ebff77fd4407a"
+    },
+    {
+      "module": "server",
+      "name": "com.cloud.api.SnapshotDeletionSerializationTest",
+      "tests": 2,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.001",
+      "reportSha256": "a5048d0c8f7ebc234e7c4eabad03a495d6f9bfbc1c6610e3714b4d50d649dd0a"
+    },
+    {
+      "module": "server",
+      "name": "com.cloud.storage.snapshot.ForcedSnapshotDeletionTest",
+      "tests": 13,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.27",
+      "reportSha256": "20b944264cdb9b85ea1df70ff48f3d521e0c0510b2ff3413b872cda477e7f1b0"
+    },
+    {
+      "module": "server",
+      "name": "com.cloud.storage.snapshot.SnapshotArchiveTest",
+      "tests": 15,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.11",
+      "reportSha256": "758a1d5c184d2b18907a6140fe5da96b2940b5363cf3d459955dee3b80ebca86"
+    },
+    {
+      "module": "server",
+      "name": "com.cloud.storage.snapshot.SnapshotManagerTest",
+      "tests": 41,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "8.793",
+      "reportSha256": "d4c2220aea44d810df1257be85fe07ce4f6ff87687aa4c33dc3152a6cb516b9e"
+    },
+    {
+      "module": "engine/storage/snapshot",
+      "name": "org.apache.cloudstack.storage.snapshot.SnapshotDataFactoryImplTest",
+      "tests": 5,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.577",
+      "reportSha256": "26e2c7a69ef2cb8fb152f99217717139dab9fc730f7ee8f9ad2d7e74b62da396"
+    },
+    {
+      "module": "engine/storage/snapshot",
+      "name": "org.apache.cloudstack.storage.snapshot.SnapshotServiceImplTest",
+      "tests": 9,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "0.52",
+      "reportSha256": "12de9f533dfe9485de483981f55cd9d4f91260fe80f097c08a60d0a7c9c2565f"
+    },
+    {
+      "module": "engine/storage/snapshot",
+      "name": "org.apache.cloudstack.storage.snapshot.SnapshotArchiveServiceTest",
+      "tests": 8,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "3.743",
+      "reportSha256": "5008ae5796206c519c0294236fec4b8b52f8d25d16846269fa1426ccf44e019c"
+    },
+    {
+      "module": "engine/storage/snapshot",
+      "name": "org.apache.cloudstack.storage.snapshot.DefaultSnapshotStrategyTest",
+      "tests": 37,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": "5.999",
+      "reportSha256": "a7f971be1002b7eb5d956ed03c4d7fe69c15fb4b06535d2e46e2745d5178cc42"
+    }
+  ],
+  "mavenTotal": 132,
+  "uiTests": 34,
+  "uiSuites": 2,
+  "lintErrors": 0,
+  "uiProductionBuild": true,
+  "fullCloudBuildRun": false
+}

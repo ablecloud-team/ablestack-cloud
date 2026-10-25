@@ -1,0 +1,1557 @@
+{
+  "volume": [
+    {
+      "id": "95638c7a-8d4e-4d17-a432-f3bfd9b75bd7",
+      "name": "ROOT-7",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "95638c7a-8d4e-4d17-a432-f3bfd9b75bd7",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "ea13c4e8-61c5-4070-ad0f-cf7a740428fa",
+      "name": "test",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "ea13c4e8-61c5-4070-ad0f-cf7a740428fa",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "ba47cb32-680a-4bb0-b6ab-596331d0c41b",
+      "name": "ROOT-13",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "ba47cb32-680a-4bb0-b6ab-596331d0c41b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "e5607cc9-6d7f-4437-996c-66a26f5ca065",
+      "name": "ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "e5607cc9-6d7f-4437-996c-66a26f5ca065",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "02c33ea4-d833-4be2-8259-cff2035bb73a",
+      "name": "R10-Sparse-Clone1-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "02c33ea4-d833-4be2-8259-cff2035bb73a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "00f43ef6-f8f8-4f3a-b3b6-a6f3e7273eaa",
+      "name": "R10-Sparse-Clone2-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "00f43ef6-f8f8-4f3a-b3b6-a6f3e7273eaa",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "42600520-2f9a-4f81-ae90-3a9971fc834c",
+      "name": "R10-Sparse-Clone3-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "42600520-2f9a-4f81-ae90-3a9971fc834c",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "6a02ee4a-9844-4d9c-9537-f4e29eb11c00",
+      "name": "R10-Sparse-Clone4-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "6a02ee4a-9844-4d9c-9537-f4e29eb11c00",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "fa4ecd52-844b-4bad-9e52-ac3cb0e6daed",
+      "name": "R10-Sparse-Clone5-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "fa4ecd52-844b-4bad-9e52-ac3cb0e6daed",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "name": "ROOT-22",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "51a80555-b7d5-4f71-974b-2b084e64417d",
+      "name": "W2025-Sparse-Clone1-ROOT-13",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "51a80555-b7d5-4f71-974b-2b084e64417d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a8124af1-b3a8-4caa-aefb-3db467293b72",
+      "name": "W2025-Sparse-Clone2-ROOT-13",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a8124af1-b3a8-4caa-aefb-3db467293b72",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "8b9fc139-8172-43f2-ac3e-d795040f5095",
+      "name": "W2025-Sparse-Clone3-ROOT-13",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "clone/overlay/8b9fc139-8172-43f2-ac3e-d795040f5095-fe20b5de-6821-4737-858f-ac9a9f17c534",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "4413c878-747c-47a4-8dc6-936355ac9a5c",
+      "name": "ROOT-28",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4413c878-747c-47a4-8dc6-936355ac9a5c",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "d07224eb-4a8d-4e6e-b1b2-372f097f621d",
+      "name": "ccccc-ROOT-7",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "d07224eb-4a8d-4e6e-b1b2-372f097f621d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "914a9147-cef3-4d69-87c0-514e7608fa8f",
+      "name": "ROOT-52",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "914a9147-cef3-4d69-87c0-514e7608fa8f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "54809650-a513-4660-ab1d-3adb662a9b1e",
+      "name": "ROOT-56",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "54809650-a513-4660-ab1d-3adb662a9b1e",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f26974c4-b58e-434e-addb-d12640ca9f5e",
+      "name": "ROOT-61",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f26974c4-b58e-434e-addb-d12640ca9f5e",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9e2f0986-5a4b-4094-ad48-f1bdc8e712d2",
+      "name": "ROOT-62",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9e2f0986-5a4b-4094-ad48-f1bdc8e712d2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "811bf4bd-0928-4ab3-bb8a-faaf71f01854",
+      "name": "ROOT-69",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "811bf4bd-0928-4ab3-bb8a-faaf71f01854",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "28a10d29-6b3f-4361-bf10-8fde3a7e53bf",
+      "name": "ROOT-70",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "28a10d29-6b3f-4361-bf10-8fde3a7e53bf",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "35f91933-2e4f-43d0-82bd-80d83047d92f",
+      "name": "ROOT-71",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "35f91933-2e4f-43d0-82bd-80d83047d92f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "5e462a57-f253-4651-a1fc-9cadcda7f83e",
+      "name": "ROOT-72",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "5e462a57-f253-4651-a1fc-9cadcda7f83e",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9676d12a-fbd7-4299-9ba6-2b44276e39ee",
+      "name": "ROOT-73",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "clone/overlay/9676d12a-fbd7-4299-9ba6-2b44276e39ee-1af22ca4-3d21-4e1b-9840-5e78a5ed8187",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "e1ab6558-ff02-45c0-9e80-b7d8b2aac9bf",
+      "name": "ROOT-87",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "e1ab6558-ff02-45c0-9e80-b7d8b2aac9bf",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "49688f87-975c-4d3e-a29b-9fd1ab2cee8b",
+      "name": "ROOT-88",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "49688f87-975c-4d3e-a29b-9fd1ab2cee8b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "48a79ee4-638e-42b2-a8d9-3dd54e12bf80",
+      "name": "ROOT-89",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "48a79ee4-638e-42b2-a8d9-3dd54e12bf80",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "069360fb-1988-44ec-b9de-5e09d8f459e2",
+      "name": "ROOT-92",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "069360fb-1988-44ec-b9de-5e09d8f459e2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a3020d3e-26dd-4c61-a0c2-6cb793f4f7af",
+      "name": "ROOT-93",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a3020d3e-26dd-4c61-a0c2-6cb793f4f7af",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "6d387827-e364-4435-8626-abaa17dc0820",
+      "name": "ROOT-94",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "6d387827-e364-4435-8626-abaa17dc0820",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "964a609a-e045-4ee0-bf3e-99a6acbd3174",
+      "name": "ROOT-95",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "964a609a-e045-4ee0-bf3e-99a6acbd3174",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "df99081c-6927-4c37-b30d-95bd9e11899a",
+      "name": "ROOT-96",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "df99081c-6927-4c37-b30d-95bd9e11899a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "bea91045-b9ef-4475-b286-d5e7e412a6d1",
+      "name": "ROOT-97",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "bea91045-b9ef-4475-b286-d5e7e412a6d1",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a9691994-44fc-483d-b54b-29f1b35c3416",
+      "name": "ROOT-98",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a9691994-44fc-483d-b54b-29f1b35c3416",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "74ab9404-49e7-4aa5-b837-bda9fcec7e99",
+      "name": "ROOT-99",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "74ab9404-49e7-4aa5-b837-bda9fcec7e99",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "081b0fb8-f87f-4ad9-9728-a091a51fdc08",
+      "name": "ROOT-106",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "081b0fb8-f87f-4ad9-9728-a091a51fdc08",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "fc36d1e9-d20a-470a-be2e-ec03547e0896",
+      "name": "ROOT-107",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "fc36d1e9-d20a-470a-be2e-ec03547e0896",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "eb3d2cc7-9d4e-46e6-9bcd-a7830ee4b5b5",
+      "name": "ROOT-108",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "eb3d2cc7-9d4e-46e6-9bcd-a7830ee4b5b5",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "7758aa8f-9190-4241-acaa-cdb2dda4a2b4",
+      "name": "ROOT-109",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "7758aa8f-9190-4241-acaa-cdb2dda4a2b4",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "8e974a81-b7d2-48da-a402-ff918579a71e",
+      "name": "R10-Clone-Test-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "8e974a81-b7d2-48da-a402-ff918579a71e",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "0dfc8c40-ac37-4d70-81f5-ea194e1cc7b3",
+      "name": "DATA-130-1",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "496f5e38-f530-4c13-8cc3-86269c9bc951",
+      "name": "DATA-130-2",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "178c8bf1-3c59-4a65-a63b-a5e9fa0e313d",
+      "name": "DATA-130-4",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "0a0caf86-15bd-4eb1-84c5-768cce3abd1f",
+      "name": "DATA-130-5",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "ac8a03e9-e605-4942-9403-b8523101f7fc",
+      "name": "DATA-130-6",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "0aec9503-0a7b-412b-a451-0c5f8a7e8e23",
+      "name": "DATA-130-7",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "4f9abc2c-baeb-4f9d-b4a5-1751994fd2e6",
+      "name": "DATA-130-8",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "0a84654c-e6ad-42fe-8706-d95c534469b6",
+      "name": "DATA-130-9",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "9c52a450-3b5c-4931-b175-5800c0d36a73",
+      "name": "DATA-130-10",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "93b07cd7-1f0b-46d5-be78-55364d4d8822",
+      "name": "DATA-130-11",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "495d576b-cb33-4914-9443-b9adc81ca545",
+      "name": "ROOT-136",
+      "state": "Expunging",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "eb9524e7-c173-4a87-9e69-53028ac26d7d",
+      "name": "ROOT-168",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "eb9524e7-c173-4a87-9e69-53028ac26d7d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a6f25686-b0c3-4c2d-b8f4-ef642c248800",
+      "name": "ROOT-196",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a6f25686-b0c3-4c2d-b8f4-ef642c248800",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f638829c-22b6-49d0-9aac-443bfd3e1e38",
+      "name": "ROOT-199",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f638829c-22b6-49d0-9aac-443bfd3e1e38",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "b7fc8a26-f5b2-449b-9363-bbdc1f801686",
+      "name": "ROOT-200",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "b7fc8a26-f5b2-449b-9363-bbdc1f801686",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "21a24b08-f64b-47a5-b08c-d9b4a8e58099",
+      "name": "ROOT-201",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "21a24b08-f64b-47a5-b08c-d9b4a8e58099",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "08020646-cc4b-4ac6-913a-3eaebbd0d1b5",
+      "name": "ROOT-203",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "08020646-cc4b-4ac6-913a-3eaebbd0d1b5",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9af10cc9-7868-4a70-8d71-5d137b5ce188",
+      "name": "ROOT-204",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9af10cc9-7868-4a70-8d71-5d137b5ce188",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1ea7ca6b-315d-4304-a1a8-aeff5447ff1f",
+      "name": "ROOT-205",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1ea7ca6b-315d-4304-a1a8-aeff5447ff1f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "2ee89c74-195e-47a1-aa91-1a7ccdd58a9f",
+      "name": "ROOT-209",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2ee89c74-195e-47a1-aa91-1a7ccdd58a9f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "43c6c9b2-dd50-48ac-811e-7b8251e404b9",
+      "name": "ROOT-210",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "43c6c9b2-dd50-48ac-811e-7b8251e404b9",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c497b366-a363-47f0-841a-45375ee1d3dc",
+      "name": "ROOT-211",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "c497b366-a363-47f0-841a-45375ee1d3dc",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "76d5ca0b-44af-42df-b3bd-e4f38fcd8784",
+      "name": "ROOT-219",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "76d5ca0b-44af-42df-b3bd-e4f38fcd8784",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "4a0b60db-e3e8-42fa-8d2f-a7460343176b",
+      "name": "ROOT-220",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4a0b60db-e3e8-42fa-8d2f-a7460343176b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "21a80bc8-7a7d-40d4-8c88-9837f42673ce",
+      "name": "ROOT-221",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "21a80bc8-7a7d-40d4-8c88-9837f42673ce",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1e695f55-ad5b-4ba5-a183-32068e0ae4c9",
+      "name": "ROOT-222",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1e695f55-ad5b-4ba5-a183-32068e0ae4c9",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "0f2770cf-0729-4a51-8dc6-9d72f0789f5b",
+      "name": "ROOT-225",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "0f2770cf-0729-4a51-8dc6-9d72f0789f5b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a386c8f6-d498-4f64-8a9a-a19367193093",
+      "name": "ROOT-227",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a386c8f6-d498-4f64-8a9a-a19367193093",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "542b7d9b-ccf4-4a92-b53c-b0bf385933ae",
+      "name": "ROOT-228",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "542b7d9b-ccf4-4a92-b53c-b0bf385933ae",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "6367f83f-01d4-474c-bb3f-8780f3edcccf",
+      "name": "ROOT-229",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "6367f83f-01d4-474c-bb3f-8780f3edcccf",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9bc13e70-2c07-4a2b-80e3-dd9a1a577c5d",
+      "name": "ROOT-231",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9bc13e70-2c07-4a2b-80e3-dd9a1a577c5d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "de97726b-8fc0-429e-97e2-3e2f89d544e2",
+      "name": "ROOT-233",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "de97726b-8fc0-429e-97e2-3e2f89d544e2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9fe10079-bbf1-47dc-ad63-7852adede446",
+      "name": "ROOT-234",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9fe10079-bbf1-47dc-ad63-7852adede446",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f09cfa0c-dd38-454b-b220-e9ffc3e49ee1",
+      "name": "ROOT-235",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f09cfa0c-dd38-454b-b220-e9ffc3e49ee1",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "28112399-040a-4cb6-a2ff-ae3936883cac",
+      "name": "ROOT-241",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "28112399-040a-4cb6-a2ff-ae3936883cac",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "abd5c271-dabc-44d3-964e-70c8facbf7bf",
+      "name": "ROOT-247",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "abd5c271-dabc-44d3-964e-70c8facbf7bf",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "ed4cf2dc-77cc-4fec-a5d5-91e76ea8e7f3",
+      "name": "ROOT-254",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "ed4cf2dc-77cc-4fec-a5d5-91e76ea8e7f3",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "90fbba30-99bf-4405-89e1-66980ae8d13d",
+      "name": "pvc-752f7fac-8d98-4457-8582-aadbf69dda16",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "b0ac1d91-aa2d-4ea1-b568-1a65c4b2a76b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f8a4f70a-40b2-4dcf-8bde-7f57ffff6fdf",
+      "name": "pvc-3884df43-c361-4028-846c-e1d59ce47f8e",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "07c700ec-46c8-4dc8-be18-3aa525fea28d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "bf4e0635-c63a-4cb4-9b10-81f3bca0f7f7",
+      "name": "pvc-f6367019-7294-4b24-8845-82d0e17ff7eb",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2e02bd81-0acc-4236-93bc-03dc286f1eeb",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "d1814d1b-a467-45de-b43e-5ef9ee335950",
+      "name": "pvc-3f22ebe4-a4f1-41a4-977e-26e88cfb8ca4",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "eb6e4f5b-825e-4c90-87bf-91248dc3491f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c95e29a6-1fd0-49df-b9c0-ae6e7f745fce",
+      "name": "pvc-bcc3093a-ba49-48f1-bf3c-a5c7ba964f21",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "375b10b8-7640-489f-8074-b188f2386637",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "837700f0-bc46-47ed-858f-2c320ca39a9a",
+      "name": "pvc-93230272-3f53-4809-abc5-02c368104be5",
+      "state": "Ready",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2d7efd68-8d1d-4e7d-b9d2-f98b158f486c",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "99bdf8f8-c71e-43ed-9df0-e22d7a3f80d5",
+      "name": "sdrdsf-R10-Sparse-Clone5-ROOT-14",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "99bdf8f8-c71e-43ed-9df0-e22d7a3f80d5",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "267209d2-a091-42fb-beef-2769f865164f",
+      "name": "VM-Clone-TEST-W2025-Sparse-Clone3-ROOT-13",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "267209d2-a091-42fb-beef-2769f865164f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c7de7c57-dead-4317-a70b-4abe0e8c4ce0",
+      "name": "DATATEST",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "clone/overlay/c7de7c57-dead-4317-a70b-4abe0e8c4ce0-1af22ca4-3d21-4e1b-9840-5e78a5ed8187",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "e7b5c7ad-ddca-4fc9-87c9-322cb467786f",
+      "name": "Windows11-Clone-TEST-ROOT-73",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "e7b5c7ad-ddca-4fc9-87c9-322cb467786f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "b2a567d8-54af-48a0-b1ab-38ad7b4146eb",
+      "name": "Windows11-Clone-TEST-DATATEST",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "b2a567d8-54af-48a0-b1ab-38ad7b4146eb",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "8a38b48e-d171-41f6-9e20-d5528fa1b340",
+      "name": "ROOT-347",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "32f4fb62-31df-47b0-aad2-6f234a0ffa48",
+      "name": "ROOT-357",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "32f4fb62-31df-47b0-aad2-6f234a0ffa48",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "dec7bf0b-25c7-4426-9608-d756367168aa",
+      "name": "ROOT-358",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "dec7bf0b-25c7-4426-9608-d756367168aa",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+      "name": "ROOT-359",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1cc3ec9e-e963-4168-8704-1ed4ef34cb21",
+      "name": "ROOT-361",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "eaee1350-fe25-4fa9-a4e1-7169995f09d4",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "954f886f-c024-4112-bbd0-09b0fd9703b0",
+      "name": "ROOT-363",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "432e6316-e4bc-4693-9da7-5b4625ca0962",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "0e134401-531d-41d1-8571-55a3966027c7",
+      "name": "DATA-363-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "0e134401-531d-41d1-8571-55a3966027c7",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "5dc2d6dc-ff27-40b2-aa6b-73f42da89deb",
+      "name": "DATA-363-2",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "5dc2d6dc-ff27-40b2-aa6b-73f42da89deb",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+      "name": "ROOT-364",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1a12f0a5-eb5f-4977-8503-ce4da44c575a",
+      "name": "ROOT-365",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1a12f0a5-eb5f-4977-8503-ce4da44c575a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "008cdf42-b597-4180-a26c-43a778ea0329",
+      "name": "ROOT-368",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "008cdf42-b597-4180-a26c-43a778ea0329",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f0364599-6555-429c-8b9d-b1c6c5d4780c",
+      "name": "ROOT-369",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f0364599-6555-429c-8b9d-b1c6c5d4780c",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c698c464-38d8-4d3e-9e87-f5c97f6c637c",
+      "name": "ROOT-372",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "83966617-95e3-4b6b-b3a4-ff42cba19ef0",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9a3fca7a-17b6-42a9-a237-8eb608dad3d7",
+      "name": "ROOT-373",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2dfa4452-2804-4349-a654-cf55a6a59929",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "2f44e12e-bf27-448e-9128-ce2e72b55e5c",
+      "name": "ROOT-375",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f427b59e-c149-4e33-b711-c590f18545f6",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "2b6a2be0-331e-49c2-bca5-db1eca16f733",
+      "name": "ROOT-376",
+      "state": "Ready",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "0226345a-3cec-4bfa-84d6-4c9ce6eb5d16",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "90fffa76-e42d-49eb-8946-2e7c73661255",
+      "name": "ROOT-378",
+      "state": "Ready",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "e7c2f0e3-2595-4bfe-8d5b-ffb2a0b2349a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "5e894587-b812-42e2-b96e-68d0df75e3ca",
+      "name": "ROOT-382",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "a93dfe51-f8b6-4712-a62c-f1dc8b153786",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "20730ccc-538b-49d5-be98-9bb7f76b80f3",
+      "name": "DATA-382-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "20730ccc-538b-49d5-be98-9bb7f76b80f3",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "835fab91-488e-408c-b88a-69f3d92a46d1",
+      "name": "ROOT-383",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "efb1318d-a686-4b42-a718-a2985821d064",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "94e7feaa-176a-48e5-ac10-bad5ea6767d5",
+      "name": "DATA-383-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "94e7feaa-176a-48e5-ac10-bad5ea6767d5",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "876a602e-0128-4c4b-aaf0-80d0688b2c84",
+      "name": "E1345-31-local-nonboot",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "3f80b78e-7f43-4697-892d-7ffcc8ff7bef",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "144f28ad-682e-48c7-b8d2-cb509c069873",
+      "name": "E1345-31-url-nonboot",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "688d6ee8-599b-4f56-a112-cfb9ba69d58a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "16dc8a47-d8ec-4f63-ab0a-a457b3ddec82",
+      "name": "E1345-31-file-nonboot",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "epic1345-31-import-nonboot.qcow2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "30bd3283-f84f-47ce-b181-b52d7e8d639d",
+      "name": "E1345-31-file-boot",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "epic1345-31-import-boot.qcow2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "a8ea590a-ae15-4582-a873-5908fd7f7141",
+      "name": "E1345-31-snapshot-DATA",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "epic1345-31-snapshot-nonboot.qcow2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "b9e03fcc-c04e-4c1d-942d-47712a8a05f6",
+      "name": "ROOT-388",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "be75703b-a765-471a-a204-e35fa260d675",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "76a05d7c-b9d4-4be0-a586-30ce235ec341",
+      "name": "E1345-31-user-url-nonboot",
+      "state": "Ready",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4e051252-a85b-452b-aa3b-688941f80d8a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "7d77c2c2-70f8-46a4-b5e6-0ab124adec8b",
+      "name": "E1345-31-url-registration-final",
+      "state": "Uploaded",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "1a103784-e657-4231-8a2d-434d260128e4",
+      "name": "test132",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1a103784-e657-4231-8a2d-434d260128e4",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "548764e4-89d0-419e-83a2-6681f178ebd3",
+      "name": "yttest",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "548764e4-89d0-419e-83a2-6681f178ebd3",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "55a1cb2f-041e-4d48-b811-1b257008a16d",
+      "name": "ROOT-484",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "c5fe4a29-e460-44b3-bb8a-c48b7498e361",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "43c46c77-1f92-456c-a5ee-0f08aea95522",
+      "name": "DATA-484-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "ef229592-09b3-4205-a8c9-9d9fed5e978a",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "7ffdf40a-2ffb-40a0-8218-82c8a84b9323",
+      "name": "ROOT-485",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "7ffdf40a-2ffb-40a0-8218-82c8a84b9323",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1b1f9978-f176-4e6f-b758-4a305448082d",
+      "name": "DATA-485-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1b1f9978-f176-4e6f-b758-4a305448082d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "361f9469-0f12-4a1d-8425-d84ae40ec02a",
+      "name": "ROOT-486",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "d08a5026-7863-48bf-8a72-707db08e028b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "ca333c65-6bd6-496b-8460-a5f50ff1402b",
+      "name": "ROOT-487",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "ca333c65-6bd6-496b-8460-a5f50ff1402b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "0d3bee3a-0450-462a-ab49-9eed5edff1f3",
+      "name": "tj-test-vm3-data",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "0d3bee3a-0450-462a-ab49-9eed5edff1f3",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "2f5bb04b-5a48-49d6-8946-88343673d02c",
+      "name": "tj-test-vm2-data",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2f5bb04b-5a48-49d6-8946-88343673d02c",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "416cf28c-84b5-477e-b1c1-2e57af521399",
+      "name": "tj-test-vm1-data",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "416cf28c-84b5-477e-b1c1-2e57af521399",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1ae94b65-5cc5-4d62-b9c9-f007d32efe36",
+      "name": "ROOT-488",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1ae94b65-5cc5-4d62-b9c9-f007d32efe36",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "3767cf95-6e06-4512-a002-c8e16a5d3acb",
+      "name": "ROOT-489",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "3767cf95-6e06-4512-a002-c8e16a5d3acb",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f04af811-61c1-4a62-9683-e76e6822380b",
+      "name": "ROOT-490",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f04af811-61c1-4a62-9683-e76e6822380b",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "3ab89576-b2ab-4506-bc05-8969fbf4b920",
+      "name": "ROOT-509",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "3ab89576-b2ab-4506-bc05-8969fbf4b920-sparse",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "4c6040a3-8655-460b-8d01-4fc016c5407f",
+      "name": "ROOT-518",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4c6040a3-8655-460b-8d01-4fc016c5407f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "2704552d-ec8d-4eda-8c86-43eb45fd2710",
+      "name": "ROOT-519",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "2704552d-ec8d-4eda-8c86-43eb45fd2710",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "b243e086-16a1-4550-a4e8-6cccba2ba84d",
+      "name": "ROOT-520",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "b243e086-16a1-4550-a4e8-6cccba2ba84d",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "51d9f707-6f6b-4257-81fc-411bd3a0bdcf",
+      "name": "ROOT-521",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+    },
+    {
+      "id": "4479523c-454b-440d-8cb1-8c19a4527444",
+      "name": "E1367-sparse-data-31",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4479523c-454b-440d-8cb1-8c19a4527444",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "430b34e1-d037-4379-913f-b866eabe1d42",
+      "name": "E1367-sparse-data-31-final",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "430b34e1-d037-4379-913f-b866eabe1d42",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1d02efad-842b-474b-9d22-f4d9e3f3a311",
+      "name": "ROOT-528",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1d02efad-842b-474b-9d22-f4d9e3f3a311",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "9ac4284b-030d-4ff4-9033-c75be3fb1e11",
+      "name": "DATA-528-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "9ac4284b-030d-4ff4-9033-c75be3fb1e11",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c16ee68a-fee1-4024-bee4-67d393c0a5b3",
+      "name": "ROOT-726",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "c16ee68a-fee1-4024-bee4-67d393c0a5b3",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "22669933-d8af-41f2-85e1-03d644edb251",
+      "name": "ROOT-727",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "22669933-d8af-41f2-85e1-03d644edb251",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "f488c352-19d3-431d-990a-8a923997b4c1",
+      "name": "ROOT-728",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "f488c352-19d3-431d-990a-8a923997b4c1",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "7c9c5081-ef2d-42c4-ac6c-02bfda47575d",
+      "name": "v2k-mcjeong-monitoring-VM-20261022110826-scsi0:0",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "/mnt/glue-gfs/v2k-mcjeong-monitoring-VM-20261022110826-disk0.qcow2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "96ac5a3e-7883-438d-81c2-a984dd878718",
+      "name": "v2k-mcjeong-monitoring-VM-20261022111607-scsi0:0",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "/mnt/glue-gfs/v2k-mcjeong-monitoring-VM-20261022111607-disk0.qcow2",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "bccf9caf-9b77-4d94-bd03-87e34303bc97",
+      "name": "tj-sparse-vm-data-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "bccf9caf-9b77-4d94-bd03-87e34303bc97",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "917e352b-7e6b-4118-bebe-55363d9538b9",
+      "name": "tj-sparse-vm-data-2",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "917e352b-7e6b-4118-bebe-55363d9538b9",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "1c32c31c-f4b2-48d3-82d7-e98c34650fcb",
+      "name": "tj-sparse-vm-data-3",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "1c32c31c-f4b2-48d3-82d7-e98c34650fcb",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "b0914f07-b7d3-498a-8bf6-83ea9e8dffed",
+      "name": "tj-sparse-vm-1",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "b0914f07-b7d3-498a-8bf6-83ea9e8dffed",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "4cc022b6-b8de-409b-91e2-af47bc3d18ed",
+      "name": "tj-sparse-vm-2",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "4cc022b6-b8de-409b-91e2-af47bc3d18ed",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "3ec17c76-3915-42ad-a7ab-36a115780b56",
+      "name": "tj-sparse-vm-3",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "3ec17c76-3915-42ad-a7ab-36a115780b56",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "c8cfd04f-414d-4b69-a74e-c5ca5774e334",
+      "name": "ROOT-737",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "c8cfd04f-414d-4b69-a74e-c5ca5774e334",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "deb3a9c4-b0c2-4cb9-b6b4-a01966368955",
+      "name": "ROOT-755",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "deb3a9c4-b0c2-4cb9-b6b4-a01966368955",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "ccf425bc-190d-4a48-8e21-90054c8a78c5",
+      "name": "DATA-755-1",
+      "state": "Allocated",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    },
+    {
+      "id": "373c2395-5639-4ff0-bae0-f4fa1cadc415",
+      "name": "509-datadisk",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "path": "373c2395-5639-4ff0-bae0-f4fa1cadc415",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+    }
+  ],
+  "snapshot": [
+    {
+      "id": "82145f59-2ad1-4c12-99ef-d53c9ddf9bec",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "8c1b3364-99b9-416c-964a-3b0f9afa065c",
+      "name": "tj-test_ROOT-122_20261002003444",
+      "state": "BackedUp"
+    },
+    {
+      "id": "37d73ffe-1fc0-48b9-aab1-43cbb24e9195",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "069360fb-1988-44ec-b9de-5e09d8f459e2",
+      "name": "Ubuntu26-Snapshot",
+      "state": "BackedUp"
+    },
+    {
+      "id": "51df57e9-bed5-4c4d-bce9-351d32e6dfda",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "bfd1919a-8589-4c67-bb8a-1b5b428280b5",
+      "name": "epic1216-ui-extracted",
+      "state": "BackedUp"
+    },
+    {
+      "id": "02d0884e-7955-4293-a068-880d2179b5b5",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "a3020d3e-26dd-4c61-a0c2-6cb793f4f7af",
+      "name": "Ubuntu24-Base-Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "9990bd90-e528-4188-8f8d-0689e1e638c1",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "6d387827-e364-4435-8626-abaa17dc0820",
+      "name": "Ubuntu 22.04 Base Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "f3d5eed2-2a7e-4de2-86ac-6dc1ca0035fd",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "081b0fb8-f87f-4ad9-9728-a091a51fdc08",
+      "name": "Windows Server 2025 x86_64 Base Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "eb90c589-a818-4f44-9992-dead37f31ed9",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "fc36d1e9-d20a-470a-be2e-ec03547e0896",
+      "name": "Windows Server 2022 Base Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "cd462d51-c040-4c1e-83ff-ed1babb297b2",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "fc36d1e9-d20a-470a-be2e-ec03547e0896",
+      "name": "Windows Server 2022 Base Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "0452f681-6f14-4a95-a0e8-10da8c17a771",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "eb3d2cc7-9d4e-46e6-9bcd-a7830ee4b5b5",
+      "name": "Windows Server 2019 Base Install",
+      "state": "BackedUp"
+    },
+    {
+      "id": "cc267c3e-800e-46fa-a1ee-6d1ba9405ff4",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "3f6ef973-c8b2-44d2-a7f7-29c37b5e233f",
+      "name": "CLVM-NG-TEST-VM_ROOT-6_20260917165240",
+      "state": "BackedUp"
+    },
+    {
+      "id": "ba0f6bbd-0dd0-426e-aed5-35f8c61c8fcf",
+      "account": "k1230-20261006",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "c7e6784d-50d5-4daa-b1e1-97d95fbecf90",
+      "name": "snapshot-a2b6e227-44fa-435e-baff-69540c1819f9",
+      "state": "BackedUp"
+    },
+    {
+      "id": "97e2c185-6b23-4b71-9a2b-a6e655ca79ec",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "c5a6a13d-34e7-466f-8cb1-14273a6fe277",
+      "name": "E1335-31-L-BIOS-before",
+      "state": "BackedUp"
+    },
+    {
+      "id": "0cdedaa1-9bba-41ae-856e-022322eb0f4a",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "15c2f8f7-54bf-4287-89fe-4717838e2d40",
+      "name": "E1335-31-W-UEFI-before",
+      "state": "BackedUp"
+    },
+    {
+      "id": "0886283d-53a8-4862-a5bc-a030d36c03ee",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "7895cc65-438e-43bd-b837-356108128c5f",
+      "name": "E1335-31-L-BIOS-deleted-source-backup",
+      "state": "BackedUp"
+    },
+    {
+      "id": "5ba5c1f1-a136-4841-a71d-f3d195c861a1",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "ea13c4e8-61c5-4070-ad0f-cf7a740428fa",
+      "name": "CLVM-TEST-VM_test_20260922013042",
+      "state": "BackedUp"
+    },
+    {
+      "id": "a60ae85a-d551-4e2e-9faa-7fd44dd44995",
+      "account": "epic1335-user31",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "2b6a2be0-331e-49c2-bca5-db1eca16f733",
+      "name": "E1335-31-permission-user-snapshot",
+      "state": "BackedUp"
+    },
+    {
+      "id": "764b72b0-983b-4fb8-b58d-87f8ae2de86a",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "2f44e12e-bf27-448e-9128-ce2e72b55e5c",
+      "name": "E1335-31-fault-heavy-backup",
+      "state": "BackedUp"
+    },
+    {
+      "id": "b73d1aee-a32b-4ccd-a351-907e2578984c",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "a8ea590a-ae15-4582-a873-5908fd7f7141",
+      "name": "E1345-31-generic-DATA-snapshot",
+      "state": "BackedUp"
+    },
+    {
+      "id": "36703301-baea-40c6-9894-cd17d05f9af5",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "9ac4284b-030d-4ff4-9033-c75be3fb1e11",
+      "name": "T04-DATA-B-BEFORE-SPARSE",
+      "state": "BackedUp"
+    },
+    {
+      "id": "5e6f653e-d8f5-4bae-84f1-a8e81a6aea0e",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "name": "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923040157",
+      "state": "BackedUp"
+    },
+    {
+      "id": "ec76472d-b877-4813-be8c-d09806772074",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "name": "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042426",
+      "state": "BackedUp"
+    },
+    {
+      "id": "fc199415-849e-455d-8386-8921a1bc5211",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "name": "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042801",
+      "state": "BackedUp"
+    },
+    {
+      "id": "3f43ba18-8729-4063-9b66-6eb5c14487db",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "volumeid": "9975c1fa-26dc-4655-be07-c80f0b698be4",
+      "name": "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923043837",
+      "state": "BackedUp"
+    }
+  ]
+}

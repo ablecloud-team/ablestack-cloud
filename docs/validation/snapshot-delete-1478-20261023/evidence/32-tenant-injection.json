@@ -1,0 +1,8 @@
+{
+  "cluster": "32",
+  "scenario": "tenant",
+  "kind": "recoverystate",
+  "snapshot": "c9501c7e-d15d-4c2c-ac7d-64d48a347a5e",
+  "fixtureOnly": true,
+  "productRecoveryRequired": true
+}

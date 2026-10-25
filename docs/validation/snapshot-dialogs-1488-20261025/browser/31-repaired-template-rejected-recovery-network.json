@@ -1,0 +1,4335 @@
+{
+  "requests": [
+    {
+      "requestId": "41292.12575",
+      "method": "GET",
+      "command": "listOsTypes",
+      "args": {
+        "page": "1",
+        "pagesize": "500",
+        "command": "listOsTypes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listostypesresponse": {
+          "count": 378,
+          "ostype": [
+            {
+              "id": "9b08c5bc-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ff70-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "AlmaLinux",
+              "name": "AlmaLinux 8",
+              "description": "AlmaLinux 8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da929d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ff70-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "AlmaLinux",
+              "name": "AlmaLinux 8.3",
+              "description": "AlmaLinux 8.3",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "97087820-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ff70-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "AlmaLinux",
+              "name": "AlmaLinux 9",
+              "description": "AlmaLinux 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "e6d0706f-0a59-4d0e-b3cf-6ced07a30070",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Amazon Linux 2 (64 bit)",
+              "description": "Amazon Linux 2 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "af8ee441-39a3-471d-b0ba-faf9566409ea",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Amazon Linux 3 (64 bit)",
+              "description": "Amazon Linux 3 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2cd9f1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Apple Mac OS X 10.6 (32-bit)",
+              "description": "Apple Mac OS X 10.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2d095c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Apple Mac OS X 10.6 (64-bit)",
+              "description": "Apple Mac OS X 10.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2d3c6a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Apple Mac OS X 10.7 (32-bit)",
+              "description": "Apple Mac OS X 10.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2d6d80-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Apple Mac OS X 10.7 (64-bit)",
+              "description": "Apple Mac OS X 10.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0f36a7-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux 3(32-bit)",
+              "description": "Asianux 3(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0f6ab3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux 3(64-bit)",
+              "description": "Asianux 3(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "b1a9cc20-c928-4658-96f1-c88adbd25004",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 4 (32 bit)",
+              "description": "Asianux Server 4 (32 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "76f847a5-1407-47cc-882f-33eac18846f7",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 4 (64 bit)",
+              "description": "Asianux Server 4 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "d3ed0630-b018-49cd-b87f-e2516936790f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 5 (32 bit)",
+              "description": "Asianux Server 5 (32 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "008067fd-9236-4a64-b388-e58a66227e88",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 5 (64 bit)",
+              "description": "Asianux Server 5 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9be0c23c-6a0f-4882-adbe-a23d5340db0e",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 7 (32 bit)",
+              "description": "Asianux Server 7 (32 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "71cd3a49-07a0-4cb0-93f1-0e8274b88a4f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 7 (64 bit)",
+              "description": "Asianux Server 7 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "bdb4d271-9990-45c9-9b57-19d53ef1c25f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 8 (64 bit)",
+              "description": "Asianux Server 8 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9e9e9a6d-7d25-4838-9fe8-ba14cfe3c659",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Asianux Server 9 (64 bit)",
+              "description": "Asianux Server 9 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efc5831-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 4.5 (32-bit)",
+              "description": "CentOS 4.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efc8cab-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 4.6 (32-bit)",
+              "description": "CentOS 4.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efccc85-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 4.7 (32-bit)",
+              "description": "CentOS 4.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efd0134-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 4.8 (32-bit)",
+              "description": "CentOS 4.8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da1429-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5 (32-bit)",
+              "description": "CentOS 5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da1c51-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5 (64-bit)",
+              "description": "CentOS 5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efd32b9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.0 (32-bit)",
+              "description": "CentOS 5.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efd63a0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.0 (64-bit)",
+              "description": "CentOS 5.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efd934a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.1 (32-bit)",
+              "description": "CentOS 5.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efdcdaf-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.1 (64-bit)",
+              "description": "CentOS 5.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efe015f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.2 (32-bit)",
+              "description": "CentOS 5.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efe310a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.2 (64-bit)",
+              "description": "CentOS 5.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efe9570-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.3 (32-bit)",
+              "description": "CentOS 5.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efec537-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.3 (64-bit)",
+              "description": "CentOS 5.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7efef5db-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.4 (32-bit)",
+              "description": "CentOS 5.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7eff1a49-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.4 (64-bit)",
+              "description": "CentOS 5.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f175346-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.5 (32-bit)",
+              "description": "CentOS 5.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1789fa-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.5 (64-bit)",
+              "description": "CentOS 5.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1d5905-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.6 (32-bit)",
+              "description": "CentOS 5.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1d8e27-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.6 (64-bit)",
+              "description": "CentOS 5.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f21cbc6-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.7 (32-bit)",
+              "description": "CentOS 5.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f21fb9a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.7 (64-bit)",
+              "description": "CentOS 5.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f23fbc9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.8 (32-bit)",
+              "description": "CentOS 5.8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f242cce-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.8 (64-bit)",
+              "description": "CentOS 5.8 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f245bed-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.9 (32-bit)",
+              "description": "CentOS 5.9 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f248ae7-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 5.9 (64-bit)",
+              "description": "CentOS 5.9 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da4e11-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6 (32-bit)",
+              "description": "CentOS 6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da5252-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6 (64-bit)",
+              "description": "CentOS 6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1dbe0d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.0 (32-bit)",
+              "description": "CentOS 6.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1dedec-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.0 (64-bit)",
+              "description": "CentOS 6.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f24ba52-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.1 (32-bit)",
+              "description": "CentOS 6.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f24eabe-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.1 (64-bit)",
+              "description": "CentOS 6.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f9315-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.10",
+              "description": "CentOS 6.10",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2518a2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.2 (32-bit)",
+              "description": "CentOS 6.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f253b37-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.2 (64-bit)",
+              "description": "CentOS 6.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f239ba4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.3 (32-bit)",
+              "description": "CentOS 6.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f23cb77-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.3 (64-bit)",
+              "description": "CentOS 6.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f259075-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.4 (32-bit)",
+              "description": "CentOS 6.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f25c80b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.4 (64-bit)",
+              "description": "CentOS 6.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8fa0f2f8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.5 (32-bit)",
+              "description": "CentOS 6.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8fa0f8f2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.5 (64-bit)",
+              "description": "CentOS 6.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93154179-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.6 (32-bit)",
+              "description": "CentOS 6.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "931544ba-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.6 (64-bit)",
+              "description": "CentOS 6.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93154808-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.7 (32-bit)",
+              "description": "CentOS 6.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93154b3f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.7 (64-bit)",
+              "description": "CentOS 6.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f8c9d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.8",
+              "description": "CentOS 6.8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f8fea-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 6.9",
+              "description": "CentOS 6.9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da4797-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 7",
+              "description": "CentOS 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93153e2f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 7.1",
+              "description": "CentOS 7.1",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93156c5e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 7.2",
+              "description": "CentOS 7.2",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f7c12-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 8",
+              "description": "CentOS 8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "970889a3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS 9",
+              "description": "CentOS 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b0ace19-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS Stream 10 (preview)",
+              "description": "CentOS Stream 10 (preview)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b09398c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "CentOS Stream 9",
+              "description": "CentOS Stream 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9315624f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "CoreOS",
+              "description": "CoreOS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f6c3e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 10 (32-bit)",
+              "description": "Debian GNU/Linux 10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f6f75-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 10 (64-bit)",
+              "description": "Debian GNU/Linux 10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "97014f77-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 11 (32-bit)",
+              "description": "Debian GNU/Linux 11 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "97013b16-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 11 (64-bit)",
+              "description": "Debian GNU/Linux 11 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "2fd30551-33a3-43d1-8dce-aed67632352a",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 12 (32-bit)",
+              "description": "Debian GNU/Linux 12 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "cccecd82-b3f8-4a9e-ba0d-556e8aa0c1a8",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 12 (64-bit)",
+              "description": "Debian GNU/Linux 12 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "4e2bf615-6f59-4803-b1b9-5b3f0f5579f4",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 13 (64-bit)",
+              "description": "Debian GNU/Linux 13 (64-bit)",
+              "isuserdefined": true,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0fc80e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 4(32-bit)",
+              "description": "Debian GNU/Linux 4(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0ff7f2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 4(64-bit)",
+              "description": "Debian GNU/Linux 4(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0f98e4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 5(64-bit)",
+              "description": "Debian GNU/Linux 5(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7eff4a0a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 5.0 (64-bit)",
+              "description": "Debian GNU/Linux 5.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1ba3ef-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 6(32-bit)",
+              "description": "Debian GNU/Linux 6(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1bd40b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 6(64-bit)",
+              "description": "Debian GNU/Linux 6(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f267a55-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 7(32-bit)",
+              "description": "Debian GNU/Linux 7(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f26abad-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 7(64-bit)",
+              "description": "Debian GNU/Linux 7(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93155b6e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 8 (32-bit)",
+              "description": "Debian GNU/Linux 8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93155f15-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 8 (64-bit)",
+              "description": "Debian GNU/Linux 8 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f6286-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 9 (32-bit)",
+              "description": "Debian GNU/Linux 9 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f65e0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Debian GNU/Linux 9 (64-bit)",
+              "description": "Debian GNU/Linux 9 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f15a3f8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "DOS",
+              "description": "DOS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "c74d8bbb-f683-4c27-b970-3e6852f8c132",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "eComStation 2.0",
+              "description": "eComStation 2.0",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f18c4af-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 10",
+              "description": "Fedora 10",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f18914f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 11",
+              "description": "Fedora 11",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f185c85-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 12",
+              "description": "Fedora 12",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1826cb-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 13",
+              "description": "Fedora 13",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f19266e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 8",
+              "description": "Fedora 8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f18f6c2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora 9",
+              "description": "Fedora 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "55aa9408-c222-49bb-ba59-86bd4a7467f0",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora Linux",
+              "description": "Fedora Linux",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "5c1277f1-c32c-4ad9-86c0-3eca63fa9b7a",
+              "oscategoryid": "9c69ef1b-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Fedora",
+              "name": "Fedora Linux (64 bit)",
+              "description": "Fedora Linux (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f11af74-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD (32-bit)",
+              "description": "FreeBSD (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f11e05d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD (64-bit)",
+              "description": "FreeBSD (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2d9e01-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 10 (32-bit)",
+              "description": "FreeBSD 10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2dcdad-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 10 (64-bit)",
+              "description": "FreeBSD 10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f7f24-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 11 (32-bit)",
+              "description": "FreeBSD 11 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f8246-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 11 (64-bit)",
+              "description": "FreeBSD 11 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f85d1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 12 (32-bit)",
+              "description": "FreeBSD 12 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f8934-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 12 (64-bit)",
+              "description": "FreeBSD 12 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "41792f71-c528-4534-8e19-8d109971ec97",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 13 (32-bit)",
+              "description": "FreeBSD 13 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "d23572dc-c02c-4a1d-b1ad-80b7db6d89b9",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 13 (64-bit)",
+              "description": "FreeBSD 13 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "aa042f1d-3428-431d-b46f-3b2698056339",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 14 (32-bit)",
+              "description": "FreeBSD 14 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "1e6f85ed-f78b-4f29-bdb9-6f83c2cc5d10",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "FreeBSD 14 (64-bit)",
+              "description": "FreeBSD 14 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b0995ec-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Generic Linux BIOS",
+              "description": "Generic Linux BIOS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b098888-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Generic Linux UEFI",
+              "description": "Generic Linux UEFI",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b09a0bf-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Gooroom Platform 2.0",
+              "description": "Gooroom Platform 2.0",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "c840a152-6669-4bfe-b58d-dcf6f5d81619",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 3.x Kernel (32 bit)",
+              "description": "Linux 3.x Kernel (32 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "456cf971-e258-4f42-a949-38b726729bcb",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 3.x Kernel (64 bit)",
+              "description": "Linux 3.x Kernel (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f72af-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 4.x Kernel (32-bit)",
+              "description": "Linux 4.x Kernel (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f75ce-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 4.x Kernel (64-bit)",
+              "description": "Linux 4.x Kernel (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "de787ffd-b8df-4a66-9e44-0b937069eeab",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 5.x Kernel (32-bit)",
+              "description": "Linux 5.x Kernel (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "ff3a5711-2cc1-44e4-b431-78712ed98243",
+              "oscategoryid": "7efa5f0c-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Debian",
+              "name": "Linux 5.x Kernel (64-bit)",
+              "description": "Linux 5.x Kernel (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "778dd3c6-d541-4cd0-909c-d29d393b8370",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Linux 6.x Kernel (32-bit)",
+              "description": "Linux 6.x Kernel (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b23f73d-bd76-4df0-a551-c73bff78dc30",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Linux 6.x Kernel (64-bit)",
+              "description": "Linux 6.x Kernel (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "4eb88cf7-33d3-443a-a5fd-661f9402ff3e",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 10.13 (64 bit)",
+              "description": "macOS 10.13 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "c26df5d2-c1c6-47b3-b014-7654e4b0c940",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 10.14 (64 bit)",
+              "description": "macOS 10.14 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "587689c9-97c7-4bd2-8ef8-16050873139a",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 10.15 (64 bit)",
+              "description": "macOS 10.15 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "96bba3e2-873b-4a1e-a39b-f36b757a33d7",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 11 (64 bit)",
+              "description": "macOS 11 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "319f01f9-a059-4bd8-b6f2-9bad1943a010",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 13 (64-bit)",
+              "description": "macOS 13 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "ec6db2cf-3500-4b43-9f0f-fb161d3665ed",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "macOS 14 (64-bit)",
+              "description": "macOS 14 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "2d3e945a-04b4-4625-83f3-03781cdd943e",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Mandrake Linux",
+              "description": "Mandrake Linux",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "07471805-1daa-40d4-a8be-586f2c12922d",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Mandriva Linux",
+              "description": "Mandriva Linux",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "c648ae1d-1bb5-489a-9aaf-281e4202e604",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Mandriva Linux (64 bit)",
+              "description": "Mandriva Linux (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f13a7e8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Microsoft Small Business Server 2003",
+              "description": "Microsoft Small Business Server 2003",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "15918488-2bf9-4144-9852-cc08f1cd41f8",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "NeoKylin Linux Server 7",
+              "description": "NeoKylin Linux Server 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b092b3f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "NeoKylin Linux Server 7",
+              "description": "NeoKylin Linux Server 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1cca97-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "None",
+              "description": "None",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f10c046-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Novell Netware 5.1",
+              "description": "Novell Netware 5.1",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f107c00-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Novell Netware 6.x",
+              "description": "Novell Netware 6.x",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0f066d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Open Enterprise Server",
+              "description": "Open Enterprise Server",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da7de3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OpenBSD 6.7",
+              "description": "OpenBSD 6.7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da8799-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OpenBSD 6.8",
+              "description": "OpenBSD 6.8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "3244e6b4-cf6b-4fb7-afb1-bcbe82b96a22",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OpenSUSE Linux (32 bit)",
+              "description": "OpenSUSE Linux (32 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "63d653c5-8bbb-4057-ad39-0b7a8481e653",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OpenSUSE Linux (64 bit)",
+              "description": "OpenSUSE Linux (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da20ee-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5 (32-bit)",
+              "description": "Oracle Enterprise Linux 5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da24d8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5 (64-bit)",
+              "description": "Oracle Enterprise Linux 5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7eff79a7-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.0 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7effaa59-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.0 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7effd9ad-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.1 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0008d4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.1 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f003cf3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.2 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f006ed8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.2 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f009ed2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.3 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f00ceb0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.3 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f01000f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.4 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f01319e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.4 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1c02f8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.5 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1c318e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.5 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1e1503-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.6 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1e590f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.6 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2a2273-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.7 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2a4564-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.7 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2a73fe-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.8 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2aa419-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.8 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.8 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2ad444-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.9 (32-bit)",
+              "description": "Oracle Enterprise Linux 5.9 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2b03c1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 5.9 (64-bit)",
+              "description": "Oracle Enterprise Linux 5.9 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da28a9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6 (32-bit)",
+              "description": "Oracle Enterprise Linux 6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da2c10-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6 (64-bit)",
+              "description": "Oracle Enterprise Linux 6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1e89b9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.0 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1ebd70-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.0 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2b323a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.1 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2b5552-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.1 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2b848b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.2 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2bb616-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.2 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2be60b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.3 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2c14cf-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.3 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2c4399-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.4 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2c7199-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.4 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da55e3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.5 (32-bit)",
+              "description": "Oracle Enterprise Linux 6.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da592e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Enterprise Linux 6.5 (64-bit)",
+              "description": "Oracle Enterprise Linux 6.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da4ad8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Linux 7",
+              "description": "Oracle Linux 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f78f5-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa8ff8-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Oracle",
+              "name": "Oracle Linux 8",
+              "description": "Oracle Linux 8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "970899fe-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "Oracle Linux 9",
+              "description": "Oracle Linux 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f160255-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OS/2",
+              "description": "OS/2",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0d8749-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other (32-bit)",
+              "description": "Other (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f15d28e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other (64-bit)",
+              "description": "Other (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f102907-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other 2.6x Linux (32-bit)",
+              "description": "Other 2.6x Linux (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f105912-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other 2.6x Linux (64-bit)",
+              "description": "Other 2.6x Linux (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2e0063-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "Other CentOS (32-bit)",
+              "description": "Other CentOS (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2e318c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efa2b08-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "CentOS",
+              "name": "Other CentOS (64-bit)",
+              "description": "Other CentOS (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f14e3e2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other Linux (32-bit)",
+              "description": "Other Linux (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1512c0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other Linux (64-bit)",
+              "description": "Other Linux (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1cf9be-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other PV (32-bit)",
+              "description": "Other PV (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1d2a6d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other PV (64-bit)",
+              "description": "Other PV (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93156f8c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Other PV Virtio-SCSI (64-bit)",
+              "description": "Other PV Virtio-SCSI (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2e6436-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "Other SUSE Linux(32-bit)",
+              "description": "Other SUSE Linux(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2e92f9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "Other SUSE Linux(64-bit)",
+              "description": "Other SUSE Linux(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0d4386-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Other Ubuntu (32-bit)",
+              "description": "Other Ubuntu (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f154251-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Other Ubuntu (64-bit)",
+              "description": "Other Ubuntu (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "f86edc8b-3c8b-4af3-8a35-a62b91cce3ce",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "OVF Configured OS",
+              "description": "OVF Configured OS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da72e4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "pfSense 2.4",
+              "description": "pfSense 2.4",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1b7415-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 2",
+              "description": "Red Hat Enterprise Linux 2",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0ea751-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 3(32-bit)",
+              "description": "Red Hat Enterprise Linux 3(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0ed6a8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 3(64-bit)",
+              "description": "Red Hat Enterprise Linux 3(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1663a1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 4(64-bit)",
+              "description": "Red Hat Enterprise Linux 4(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f01b46f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 4.5 (32-bit)",
+              "description": "Red Hat Enterprise Linux 4.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f01e56f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 4.6 (32-bit)",
+              "description": "Red Hat Enterprise Linux 4.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f021651-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 4.7 (32-bit)",
+              "description": "Red Hat Enterprise Linux 4.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f024b6c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 4.8 (32-bit)",
+              "description": "Red Hat Enterprise Linux 4.8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da2f62-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da32b1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f035e99-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.0 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f03b68b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.0 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f04372d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.1 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f04de2e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.1 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f05af42-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.2 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f060f45-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.2 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f072160-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.3 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f07fb2d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.3 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0843c6-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.4 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f08e524-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.4 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f17bd44-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.5 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f17f3e1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.5 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1ef03b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.6 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1f1fd3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.6 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f27991d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.7 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f27c8ca-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.7 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f27f715-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.8 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f28264e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.8 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.8 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2849cf-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.9 (32-bit)",
+              "description": "Red Hat Enterprise Linux 5.9 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f287a4b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 5.9 (64-bit)",
+              "description": "Red Hat Enterprise Linux 5.9 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da3617-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da3971-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1c6c0e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.0 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.0 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1c9b34-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.0 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.0 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f28a967-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.1 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f28d821-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.1 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2906c0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.2 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f29361c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.2 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f296536-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.3 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f299403-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.3 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f29c2da-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.4 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8aaba299-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.4 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "91ae224a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.5 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.5 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "91ae292d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.5 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93154e6e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.6 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.6 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93155199-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.6 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.6 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93155515-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.7 (32-bit)",
+              "description": "Red Hat Enterprise Linux 6.7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93155841-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 6.7 (64-bit)",
+              "description": "Red Hat Enterprise Linux 6.7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da444d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7",
+              "description": "Red Hat Enterprise Linux 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "931565c7-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.1",
+              "description": "Red Hat Enterprise Linux 7.1",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9315692a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.2",
+              "description": "Red Hat Enterprise Linux 7.2",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f5297-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.3",
+              "description": "Red Hat Enterprise Linux 7.3",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f55b6-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.4",
+              "description": "Red Hat Enterprise Linux 7.4",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f58c6-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.5",
+              "description": "Red Hat Enterprise Linux 7.5",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f5be5-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 7.6",
+              "description": "Red Hat Enterprise Linux 7.6",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f5f4d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 8.0",
+              "description": "Red Hat Enterprise Linux 8.0",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "46cea30e-603a-4586-88ff-2d212d4a62ee",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Red Hat Enterprise Linux 9.0",
+              "description": "Red Hat Enterprise Linux 9.0",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9d93c4f5-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69f773-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Rocky Linux",
+              "name": "Rocky Linux 10",
+              "description": "Rocky Linux 10",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b08a7bd-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69f773-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Rocky Linux",
+              "name": "Rocky Linux 8",
+              "description": "Rocky Linux 8",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9708b6ac-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "9c69f773-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Rocky Linux",
+              "name": "Rocky Linux 9",
+              "description": "Rocky Linux 9",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "5eabfd4b-456e-4237-9c19-8c5c1b90804b",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Scientific Linux 7",
+              "description": "Scientific Linux 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b09795f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efacf58-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "RedHat",
+              "name": "Scientific Linux 7",
+              "description": "Scientific Linux 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f120fec-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "SCO OpenServer 5",
+              "description": "SCO OpenServer 5",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "1bad649b-da52-4fdc-af3c-ef4e31610f51",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "SCO OpenServer 6",
+              "description": "SCO OpenServer 6",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f123e92-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "SCO UnixWare 7",
+              "description": "SCO UnixWare 7",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "2742d9d2-daf4-4056-ab1e-eb89e01ce8d5",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Solaris 11 (64 bit)",
+              "description": "Solaris 11 (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f10eed9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 10(32-bit)",
+              "description": "Sun Solaris 10(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f112042-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 10(64-bit)",
+              "description": "Sun Solaris 10(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f216bb9-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 11 (32-bit)",
+              "description": "Sun Solaris 11 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f213a4e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 11 (64-bit)",
+              "description": "Sun Solaris 11 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f118006-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 8(Experimental)",
+              "description": "Sun Solaris 8(Experimental)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f11504d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "Sun Solaris 9(Experimental)",
+              "description": "Sun Solaris 9(Experimental)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f16f03d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 10(32-bit)",
+              "description": "SUSE Linux Enterprise 10(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1721af-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 10(64-bit)",
+              "description": "SUSE Linux Enterprise 10(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f148326-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 8(32-bit)",
+              "description": "SUSE Linux Enterprise 8(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f14b31d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 8(64-bit)",
+              "description": "SUSE Linux Enterprise 8(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f16927c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 9(32-bit)",
+              "description": "SUSE Linux Enterprise 9(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f16c154-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise 9(64-bit)",
+              "description": "SUSE Linux Enterprise 9(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "3422a15b-47d1-4c17-b335-1f7343e25611",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Desktop 12 SP3 (64-bit)",
+              "description": "SUSE Linux Enterprise Desktop 12 SP3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "0c783d4e-ac34-4af4-85bc-c17d911758fa",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Desktop 12 SP4 (64-bit)",
+              "description": "SUSE Linux Enterprise Desktop 12 SP4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f098488-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP1 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f09b508-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP1 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f09f16c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP2 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0a23e0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP2 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1f4eaa-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP3 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0a5822-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP3 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1faed1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP4 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1f7e6d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 10 SP4 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 10 SP4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0a88ee-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 11 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0ab93b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 11 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f209d9d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP1 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f206ba4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP1 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f270b11-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP2 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f26dc76-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP2 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f276887-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP3 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2739f2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 11 SP3 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 11 SP3 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da40eb-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 12 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 12 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "37221278-daad-46b6-b5be-a3dd959dbc21",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 12 SP4 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 12 SP4 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b091ec8-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 12 SP5 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 12 SP5 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f690a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 15 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 15 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "6cd89905-13e3-4e8e-982b-91d9cc81e35b",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 16 (64-bit)",
+              "description": "SUSE Linux Enterprise Server 16 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f092418-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efafdbb-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "SUSE",
+              "name": "SUSE Linux Enterprise Server 9 SP4 (32-bit)",
+              "description": "SUSE Linux Enterprise Server 9 SP4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f195398-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 10.04 (32-bit)",
+              "description": "Ubuntu 10.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1a8265-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 10.04 (64-bit)",
+              "description": "Ubuntu 10.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f20d814-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 10.10 (32-bit)",
+              "description": "Ubuntu 10.10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f2109cc-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 10.10 (64-bit)",
+              "description": "Ubuntu 10.10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f233d77-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 11.04 (32-bit)",
+              "description": "Ubuntu 11.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f236cde-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 11.04 (64-bit)",
+              "description": "Ubuntu 11.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f222acb-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 12.04 (32-bit)",
+              "description": "Ubuntu 12.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f225b3b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 12.04 (64-bit)",
+              "description": "Ubuntu 12.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da3d40-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 14.04 (32-bit)",
+              "description": "Ubuntu 14.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "90da5c5e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 14.04 (64-bit)",
+              "description": "Ubuntu 14.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "930b7e8c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 16.04 (32-bit)",
+              "description": "Ubuntu 16.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "930b85b2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 16.04 (64-bit)",
+              "description": "Ubuntu 16.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f40d2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 17.04",
+              "description": "Ubuntu 17.04",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f4554-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 17.10",
+              "description": "Ubuntu 17.10",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f48cd-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 18.04 LTS",
+              "description": "Ubuntu 18.04 LTS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f4c31-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 18.10",
+              "description": "Ubuntu 18.10",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "943f4f5b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 19.04",
+              "description": "Ubuntu 19.04",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da56b4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 20.04 LTS",
+              "description": "Ubuntu 20.04 LTS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "95da6720-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 21.04",
+              "description": "Ubuntu 21.04",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "4bd96e12-4ef1-4914-becf-c759ec14d6b1",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 22.04 LTS",
+              "description": "Ubuntu 22.04 LTS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b0a775a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 24.04 LTS",
+              "description": "Ubuntu 24.04 LTS",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "5cd7da3d-ba5f-486c-82af-cf4fdfe39134",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 26.04 (64-bit)",
+              "description": "Ubuntu 26.04 (64-bit)",
+              "isuserdefined": true,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1a51bc-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 8.04 (32-bit)",
+              "description": "Ubuntu 8.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1b43c6-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 8.04 (64-bit)",
+              "description": "Ubuntu 8.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1a222a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 8.10 (32-bit)",
+              "description": "Ubuntu 8.10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1b140c-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 8.10 (64-bit)",
+              "description": "Ubuntu 8.10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f19f214-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 9.04 (32-bit)",
+              "description": "Ubuntu 9.04 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1ae2d1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 9.04 (64-bit)",
+              "description": "Ubuntu 9.04 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f19c2b3-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 9.10 (32-bit)",
+              "description": "Ubuntu 9.10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1ab3f5-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efbe9df-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Ubuntu",
+              "name": "Ubuntu 9.10 (64-bit)",
+              "description": "Ubuntu 9.10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "39cc47db-3162-4c2b-bea7-a9d3857ed045",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "VMware ESXi 8.0",
+              "description": "VMware ESXi 8.0",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "f76e4365-7549-409a-9c34-1f527d8861e1",
+              "oscategoryid": "7efb5d76-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Other",
+              "name": "VMware Photon (64 bit)",
+              "description": "VMware Photon (64 bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93153199-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 10 (32-bit)",
+              "description": "Windows 10 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93153699-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 10 (64-bit)",
+              "description": "Windows 10 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "d86915f0-15ef-42ec-a15d-0646380ea6c2",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 11 (64-bit)",
+              "description": "Windows 11 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f14510e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 2000 Advanced Server",
+              "description": "Windows 2000 Advanced Server",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f163356-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 2000 Professional",
+              "description": "Windows 2000 Professional",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0db9c4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 2000 Server",
+              "description": "Windows 2000 Server",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0c524a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 2000 Server SP4 (32-bit)",
+              "description": "Windows 2000 Server SP4 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0e76e4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 3.1",
+              "description": "Windows 3.1",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0ae881-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 7 (32-bit)",
+              "description": "Windows 7 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0b19ee-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 7 (64-bit)",
+              "description": "Windows 7 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f227eaf-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 8 (32-bit)",
+              "description": "Windows 8 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f22ace0-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 8 (64-bit)",
+              "description": "Windows 8 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8fa11ef5-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 8.1 (32-bit)",
+              "description": "Windows 8.1 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8fa11a24-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 8.1 (64-bit)",
+              "description": "Windows 8.1 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0e181b-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 95",
+              "description": "Windows 95",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0de977-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows 98",
+              "description": "Windows 98",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0e4701-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows NT 4",
+              "description": "Windows NT 4",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f219cae-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows PV",
+              "description": "Windows PV",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f126e75-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 DataCenter Edition(32-bit)",
+              "description": "Windows Server 2003 DataCenter Edition(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f129d75-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 DataCenter Edition(64-bit)",
+              "description": "Windows Server 2003 DataCenter Edition(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0b487d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 Enterprise Edition(32-bit)",
+              "description": "Windows Server 2003 Enterprise Edition(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0b77a1-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 Enterprise Edition(64-bit)",
+              "description": "Windows Server 2003 Enterprise Edition(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f12cde7-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 Standard Edition(32-bit)",
+              "description": "Windows Server 2003 Standard Edition(32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f133d67-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 Standard Edition(64-bit)",
+              "description": "Windows Server 2003 Standard Edition(64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f136d5f-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2003 Web Edition",
+              "description": "Windows Server 2003 Web Edition",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0bbf50-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2008 (32-bit)",
+              "description": "Windows Server 2008 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0bef3a-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2008 (64-bit)",
+              "description": "Windows Server 2008 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0c219d-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2008 R2 (64-bit)",
+              "description": "Windows Server 2008 R2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f22dc83-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2012 (64-bit)",
+              "description": "Windows Server 2012 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "8f130991-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2012 R2 (64-bit)",
+              "description": "Windows Server 2012 R2 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93153a6e-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2016 (64-bit)",
+              "description": "Windows Server 2016 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "93e9cb03-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2019 (64-bit)",
+              "description": "Windows Server 2019 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "986c7bba-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2022 (64-bit)",
+              "description": "Windows Server 2022 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9b0a66ea-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2025",
+              "description": "Windows Server 2025",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "9d9ed195-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Server 2025 (64-bit)",
+              "description": "Windows Server 2025 (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0c81c2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Vista (32-bit)",
+              "description": "Windows Vista (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f1572f4-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows Vista (64-bit)",
+              "description": "Windows Vista (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f13ded2-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows XP (32-bit)",
+              "description": "Windows XP (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f140dbb-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows XP (64-bit)",
+              "description": "Windows XP (64-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0cf1dd-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows XP SP2 (32-bit)",
+              "description": "Windows XP SP2 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            },
+            {
+              "id": "7f0d2069-b253-11f1-a895-0024814c313f",
+              "oscategoryid": "7efb2e28-b253-11f1-a895-0024814c313f",
+              "oscategoryname": "Windows",
+              "name": "Windows XP SP3 (32-bit)",
+              "description": "Windows XP SP3 (32-bit)",
+              "isuserdefined": false,
+              "fordisplay": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12576",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "showunique": "false",
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "5acd8a42-6f1d-30e9-8d22-c7ec8651df0e",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824,
+                "downloadstate": "DOWNLOADED",
+                "error": ""
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+              "datastorename": "SNAPDIALOG1488-31-Secondary-a",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "DOWNLOADED",
+                "downloadPercent": "100"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12577",
+      "method": "GET",
+      "command": "listDomains",
+      "args": {
+        "page": "1",
+        "pagesize": "20",
+        "listall": "true",
+        "showicon": "true",
+        "details": "min",
+        "command": "listDomains",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listdomainsresponse": {
+          "count": 4,
+          "domain": [
+            {
+              "id": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "name": "ROOT",
+              "level": 0,
+              "haschild": true,
+              "path": "ROOT",
+              "state": "Active",
+              "secondarystoragetotal": 0,
+              "hasannotations": false
+            },
+            {
+              "id": "41104588-fae9-495a-be0c-557230dafdf2",
+              "name": "epic1216-domain-a",
+              "level": 1,
+              "parentdomainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "parentdomainname": "ROOT",
+              "haschild": false,
+              "path": "ROOT/epic1216-domain-a",
+              "state": "Active",
+              "created": "2026-10-03T20:39:53+0900",
+              "secondarystoragetotal": 0,
+              "hasannotations": false
+            },
+            {
+              "id": "1c32dd7e-dde2-47f0-b551-8e2e448fb110",
+              "name": "epic1216-domain-b",
+              "level": 1,
+              "parentdomainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "parentdomainname": "ROOT",
+              "haschild": false,
+              "path": "ROOT/epic1216-domain-b",
+              "state": "Active",
+              "created": "2026-10-03T20:39:53+0900",
+              "secondarystoragetotal": 0,
+              "hasannotations": false
+            },
+            {
+              "id": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "name": "SNAPDIALOG1488-31-domain",
+              "level": 1,
+              "parentdomainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "parentdomainname": "ROOT",
+              "haschild": false,
+              "path": "ROOT/SNAPDIALOG1488-31-domain",
+              "state": "Active",
+              "created": "2026-10-25T08:36:35+0900",
+              "secondarystoragetotal": 0,
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12578",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12579",
+      "method": "GET",
+      "command": "listZones",
+      "args": {
+        "showicon": "true",
+        "ids": "65c9ba3d-83ac-4c2e-9188-101122013178",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listZones",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listzonesresponse": {
+          "count": 1,
+          "zone": [
+            {
+              "id": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "name": "SNAPDIALOG1488-31-Zone-a",
+              "dns1": "8.8.8.8",
+              "internaldns1": "10.10.31.10",
+              "guestcidraddress": "10.249.31.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12580",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "5acd8a42-6f1d-30e9-8d22-c7ec8651df0e",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824,
+                "downloadstate": "DOWNLOADED",
+                "error": ""
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+              "datastorename": "SNAPDIALOG1488-31-Secondary-a",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "DOWNLOADED",
+                "downloadPercent": "100"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12581",
+      "method": "GET",
+      "command": "readyForShutdown",
+      "args": {
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "command": "readyForShutdown",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "readyforshutdownresponse": {
+          "readyforshutdown": {
+            "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+            "state": "Up",
+            "maintenanceinitiated": false,
+            "shutdowntriggered": false,
+            "readyforshutdown": true,
+            "pendingjobscount": 0,
+            "agentscount": 6,
+            "agents": [
+              "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+              "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+              "384871b9-7c75-4717-a673-e96a76abeb71",
+              "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+              "21d8be40-391b-498b-aed5-a735562cae22",
+              "34b2d7d2-6f87-48cf-8a55-d7f52a8583eb"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "requestId": "41292.12583",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12584",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "5acd8a42-6f1d-30e9-8d22-c7ec8651df0e",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824,
+                "downloadstate": "DOWNLOADED",
+                "error": ""
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+              "datastorename": "SNAPDIALOG1488-31-Secondary-a",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "DOWNLOADED",
+                "downloadPercent": "100"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12585",
+      "method": "POST",
+      "command": "createTemplate",
+      "args": {
+        "command": "createTemplate",
+        "response": "json",
+        "snapshotid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+        "name": "SNAPDIALOG1488-31-ui-validation-only",
+        "ostypeid": "7f1512c0-b253-11f1-a895-0024814c313f",
+        "customjobid": "185ebe17-59ef-4b68-867d-dfefd9fdaa46",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 431,
+      "response": {
+        "errorresponse": {
+          "errorcode": 431,
+          "errortext": "SS-15 final submission rejected"
+        }
+      }
+    },
+    {
+      "requestId": "41292.12586",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "showunique": "true",
+        "includesnapshotcontext": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12587",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "5acd8a42-6f1d-30e9-8d22-c7ec8651df0e",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824,
+                "downloadstate": "DOWNLOADED",
+                "error": ""
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+              "datastorename": "SNAPDIALOG1488-31-Secondary-a",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "DOWNLOADED",
+                "downloadPercent": "100"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12588",
+      "method": "GET",
+      "command": "listVolumes",
+      "args": {
+        "id": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listVolumes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "name": "SNAPDIALOG1488-31-owner",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:37+0900",
+              "state": "Ready",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "storagetype": "shared",
+              "cachemode": "none",
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12590",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+                "volumename": "SNAPDIALOG1488-31-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+                  "diskofferingname": "Custom-GFS-Sparse",
+                  "available": true
+                }
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "physicalsize": 1376256,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.12591",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "5acd8a42-6f1d-30e9-8d22-c7ec8651df0e",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824,
+                "downloadstate": "DOWNLOADED",
+                "error": ""
+              },
+              "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+              "account": "SNAPDIALOG1488-31-owner",
+              "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+              "domain": "SNAPDIALOG1488-31-domain",
+              "domainpath": "ROOT/SNAPDIALOG1488-31-domain",
+              "volumeid": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+              "volumename": "SNAPDIALOG1488-31-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T09:03:51+0900",
+              "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+              "intervaltype": "MANUAL",
+              "locationtype": "SECONDARY",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "zonename": "SNAPDIALOG1488-31-Zone-a",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+              "datastorename": "SNAPDIALOG1488-31-Secondary-a",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "DOWNLOADED",
+                "downloadPercent": "100"
+              },
+              "tags": [
+                {
+                  "key": "ui",
+                  "value": "SS15",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+                  "account": "SNAPDIALOG1488-31-owner",
+                  "domainid": "9b732215-9b0e-4505-bb9d-6b3cfabcd964",
+                  "domain": "SNAPDIALOG1488-31-domain"
+                }
+              ],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

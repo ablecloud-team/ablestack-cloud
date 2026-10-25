@@ -149,13 +149,20 @@ public class SnapshotServiceImpl implements SnapshotService {
     static private class CopySnapshotContext<T> extends AsyncRpcContext<T> {
         final SnapshotInfo srcSnapshot;
         final SnapshotInfo destSnapshot;
+        final boolean preservePrimary;
         final AsyncCallFuture<SnapshotResult> future;
 
         public CopySnapshotContext(AsyncCompletionCallback<T> callback, SnapshotInfo srcSnapshot, SnapshotInfo destSnapshot, AsyncCallFuture<SnapshotResult> future) {
+            this(callback, srcSnapshot, destSnapshot, future, false);
+        }
+
+        public CopySnapshotContext(AsyncCompletionCallback<T> callback, SnapshotInfo srcSnapshot, SnapshotInfo destSnapshot,
+                AsyncCallFuture<SnapshotResult> future, boolean preservePrimary) {
             super(callback);
             this.srcSnapshot = srcSnapshot;
             this.destSnapshot = destSnapshot;
             this.future = future;
+            this.preservePrimary = preservePrimary;
         }
 
     }
@@ -448,32 +455,102 @@ public class SnapshotServiceImpl implements SnapshotService {
 
     @Override
     public SnapshotInfo backupSnapshot(SnapshotInfo snapshot) {
+        return backupSnapshot(snapshot, false);
+    }
+
+    @Override
+    public SnapshotInfo backupSnapshotForArchive(SnapshotInfo snapshot) {
+        return backupSnapshot(snapshot, true);
+    }
+
+    @Override
+    public boolean verifySnapshotBackup(SnapshotInfo snapshot) {
+        if (snapshot == null || snapshot.getDataStore().getRole() != DataStoreRole.Image
+                || snapshot.getStatus() != ObjectInDataStoreStateMachine.State.Ready
+                || snapshot.getPath() == null || snapshot.getPath().isBlank() || snapshot.getPhysicalSize() <= 0) {
+            return false;
+        }
+        EndPoint endpoint = epSelector.select(snapshot);
+        if (endpoint == null) {
+            return false;
+        }
+        Answer answer = endpoint.sendMessage(new QuerySnapshotZoneCopyCommand((SnapshotObjectTO)snapshot.getTO()));
+        // The legacy command may list siblings when the exact file is absent.
+        // New NFS agents validate the original path against the store, and return
+        // export-relative paths suitable for transfer URLs, including for KVM
+        // absolute mount aliases. Match only the exact normalized snapshot file.
+        if (!(answer instanceof QuerySnapshotZoneCopyAnswer) || !answer.getResult()) { return false; }
+        List<String> files = ((QuerySnapshotZoneCopyAnswer)answer).getFiles();
+        if (files == null) { return false; }
+        if (files.contains(snapshot.getPath())) { return true; }
+        if (!(snapshot.getDataStore().getTO() instanceof com.cloud.agent.api.to.NfsTO)) { return false; }
+        int exportRoot = snapshot.getPath().indexOf("/" + TemplateConstants.DEFAULT_SNAPSHOT_ROOT_DIR + "/");
+        return exportRoot >= 0 && files.contains(snapshot.getPath().substring(exportRoot + 1));
+    }
+
+    protected SnapshotInfo archiveDestination(SnapshotInfo snapshot) {
+        List<SnapshotInfo> copies = _snapshotFactory.getSnapshots(snapshot.getId(), null).stream()
+                .filter(info -> info.getDataStore().getRole() == DataStoreRole.Image).collect(java.util.stream.Collectors.toList());
+        if (copies.size() == 1 && copies.get(0).getStatus() == ObjectInDataStoreStateMachine.State.Allocated) {
+            return copies.get(0); // Resume the same incomplete reference, never allocate a duplicate.
+        }
+        if (!copies.isEmpty()) {
+            throw new CloudRuntimeException("Archive requires no secondary copy or exactly one Allocated retry reference");
+        }
+        DataStore store = findSnapshotImageStore(snapshot);
+        if (store == null) {
+            throw new CloudRuntimeException("Cannot find an image store for archiving");
+        }
+        store.create(snapshot);
+        copies = _snapshotFactory.getSnapshots(snapshot.getId(), null).stream()
+                .filter(info -> info.getDataStore().getRole() == DataStoreRole.Image).collect(java.util.stream.Collectors.toList());
+        if (copies.size() != 1 || copies.get(0).getStatus() != ObjectInDataStoreStateMachine.State.Allocated
+                || copies.get(0).getDataStoreRefId() == null) {
+            throw new CloudRuntimeException("Archive destination reference could not be pinned");
+        }
+        return copies.get(0);
+    }
+
+    private SnapshotInfo backupSnapshot(SnapshotInfo snapshot, boolean preservePrimary) {
         SnapshotObject snapObj = (SnapshotObject)snapshot;
         AsyncCallFuture<SnapshotResult> future = new AsyncCallFuture<SnapshotResult>();
         SnapshotResult result = new SnapshotResult(snapshot, null);
         Snapshot.State origState = snapObj.getState();
+        SnapshotInfo archiveCopy = null;
         try {
             snapObj.processEvent(Snapshot.Event.BackupToSecondary);
 
-            DataStore imageStore = findSnapshotImageStore(snapshot);
-            if (imageStore == null) {
-                throw new CloudRuntimeException("can not find an image stores");
+            SnapshotInfo snapshotOnImageStore;
+            if (preservePrimary) {
+                snapshotOnImageStore = archiveDestination(snapshot);
+                archiveCopy = snapshotOnImageStore;
+            } else {
+                DataStore imageStore = findSnapshotImageStore(snapshot);
+                if (imageStore == null) {
+                    throw new CloudRuntimeException("can not find an image stores");
+                }
+                snapshotOnImageStore = (SnapshotInfo)imageStore.create(snapshot);
             }
 
-            SnapshotInfo snapshotOnImageStore = (SnapshotInfo)imageStore.create(snapshot);
-
             snapshotOnImageStore.processEvent(Event.CreateOnlyRequested);
-            CopySnapshotContext<CommandResult> context = new CopySnapshotContext<CommandResult>(null, snapshot, snapshotOnImageStore, future);
+            CopySnapshotContext<CommandResult> context = new CopySnapshotContext<CommandResult>(null, snapshot, snapshotOnImageStore, future, preservePrimary);
             AsyncCallbackDispatcher<SnapshotServiceImpl, CopyCommandResult> caller = AsyncCallbackDispatcher.create(this);
             caller.setCallback(caller.getTarget().copySnapshotAsyncCallback(null, null)).setContext(context);
             motionSrv.copyAsync(snapshot, snapshotOnImageStore, caller);
         } catch (Exception e) {
             logger.debug("Failed to copy snapshot", e);
             result.setResult("Failed to copy snapshot:" + e.toString());
+            if (preservePrimary && archiveCopy != null && archiveCopy.getStatus() == ObjectInDataStoreStateMachine.State.Creating) {
+                try {
+                    archiveCopy.processEvent(Event.OperationFailed);
+                } catch (Exception stateError) {
+                    logger.warn("Archive backup reference requires inspection after submission failure", stateError);
+                }
+            }
             try {
                 // When error archiving an already existing snapshot, emit OperationNotPerformed.
                 // This will ensure that the original snapshot does not get deleted
-                if (origState.equals(Snapshot.State.BackedUp)) {
+                if (preservePrimary || origState.equals(Snapshot.State.BackedUp)) {
                     snapObj.processEvent(Snapshot.Event.OperationNotPerformed);
                 } else {
                     snapObj.processEvent(Snapshot.Event.OperationFailed);
@@ -509,7 +586,10 @@ public class SnapshotServiceImpl implements SnapshotService {
         SnapshotResult snapResult = new SnapshotResult(destSnapshot, result.getAnswer());
         if (result.isFailed()) {
             try {
-                if (BooleanUtils.isTrue(createSnapshotPayload.getAsyncBackup())) {
+                if (context.preservePrimary) {
+                    destSnapshot.processEvent(Event.OperationFailed);
+                    srcSnapshot.processEvent(Snapshot.Event.OperationNotPerformed);
+                } else if (createSnapshotPayload != null && BooleanUtils.isTrue(createSnapshotPayload.getAsyncBackup())) {
                     _snapshotDao.remove(srcSnapshot.getId());
                     destSnapshot.processEvent(Event.OperationFailed);
                     throw new SnapshotBackupException(String.format("Failed in creating backup of snapshot %s", srcSnapshot));
@@ -518,8 +598,8 @@ public class SnapshotServiceImpl implements SnapshotService {
                     //if backup snapshot failed, mark srcSnapshot in snapshot_store_ref as failed also
                     cleanupOnSnapshotBackupFailure(context.srcSnapshot);
                 }
-            } catch (SnapshotBackupException e) {
-                logger.debug("Failed to create backup: " + e.toString());
+            } catch (Exception e) {
+                logger.warn("Failed to record backup failure; retained copies require inspection", e);
             }
             snapResult.setResult(result.getResult());
             future.complete(snapResult);
@@ -587,7 +667,7 @@ public class SnapshotServiceImpl implements SnapshotService {
         CommandResult result = callback.getResult();
         AsyncCallFuture<SnapshotResult> future = context.future;
         SnapshotInfo snapshot = context.snapshot;
-        SnapshotResult res = null;
+        SnapshotResult res = new SnapshotResult(context.snapshot, null);
         try {
             if (result.isFailed()) {
                 logger.debug("Failed to delete snapshot [{}] due to: [{}].", snapshot, result.getResult());
@@ -635,7 +715,9 @@ public class SnapshotServiceImpl implements SnapshotService {
 
         if (Hypervisor.HypervisorType.KVM.equals(snapInfo.getHypervisorType()) &&
                 SnapshotManager.kvmIncrementalSnapshot.valueIn(hostDao.findClusterIdByVolumeInfo(snapInfo.getBaseVolume()))) {
-            SnapshotDataStoreVO snapshotDataStoreVo = _snapshotStoreDao.findByStoreSnapshot(snapInfo.getDataStore().getRole(), snapInfo.getDataStore().getId(), snapInfo.getSnapshotId());
+            SnapshotDataStoreVO snapshotDataStoreVo = snapInfo.getDataStoreRefId() == null
+                    ? _snapshotStoreDao.findByStoreSnapshot(snapInfo.getDataStore().getRole(), snapInfo.getDataStore().getId(), snapInfo.getSnapshotId())
+                    : _snapshotStoreDao.findById(snapInfo.getDataStoreRefId());
             String kvmCheckpointPath = snapshotDataStoreVo.getKvmCheckpointPath();
             if (kvmCheckpointPath != null) {
                 snapInfo.setCheckpointPath(kvmCheckpointPath);

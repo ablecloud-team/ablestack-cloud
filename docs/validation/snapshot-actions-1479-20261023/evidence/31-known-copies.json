@@ -1,0 +1,62 @@
+[
+  {
+    "uuid": "c581a625-ee69-4f4f-952a-427dd5af6486",
+    "name": "SNAP1479-31-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/978/5e0b1bf7-06f9-4836-a748-1ff7154e05ff"
+  },
+  {
+    "uuid": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26",
+    "name": "SNAP1479-31-other-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/979/c349e01d-f24a-4403-8f3e-45382fcb997d"
+  },
+  {
+    "uuid": "140bc334-a5a9-4538-a652-d9c76a36ef91",
+    "name": "SNAP1479-31-orphan-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/980/32120945-1d45-4144-8aa9-aa54f439c369"
+  },
+  {
+    "uuid": "b33928f0-11af-43af-95f6-811d77eba840",
+    "name": "SNAP1479-31-running-snapshot",
+    "role": "Image",
+    "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73"
+  },
+  {
+    "uuid": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+    "name": "SNAP1479-31-tenant-snapshot",
+    "role": "Image",
+    "path": "snapshots/250/982/7aa2a13f-8acf-48cd-8876-36363b660eb5"
+  },
+  {
+    "uuid": "d9f9b438-fd77-4600-8f62-8cda96171731",
+    "name": "SNAP1479-31-lost-ui",
+    "role": "Image",
+    "path": "snapshots/250/982/c918fc02-e8b6-441e-b998-8d1a4fdfc760"
+  },
+  {
+    "uuid": "6acf107e-81fe-47a3-930f-fdf47019ed39",
+    "name": "SNAP1479-31-dedupe-createSnapshot",
+    "role": "Image",
+    "path": "snapshots/250/982/1f37a755-79e1-4084-bcff-86e56466ec6f"
+  },
+  {
+    "uuid": "21e134fe-bc51-4aef-b76a-8e952ac34ea6",
+    "name": "SNAP1479-31-lost-fixed-ui",
+    "role": "Image",
+    "path": "snapshots/250/982/ce5aea8d-7214-41d8-bc0b-01287872b5dc"
+  },
+  {
+    "uuid": "24165be4-ed23-4c19-b4ee-d2893a038621",
+    "name": "SNAP1479-31-lost-reload-ui",
+    "role": "Image",
+    "path": "snapshots/250/982/5b8d166e-dc8e-4f0c-bf98-0ed07f03a10f"
+  },
+  {
+    "uuid": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb",
+    "name": "SNAP1479-31-query-project-ui",
+    "role": "Image",
+    "path": "snapshots/250/982/1ecfabaa-496b-42db-b237-ccb4cf1902fa"
+  }
+]

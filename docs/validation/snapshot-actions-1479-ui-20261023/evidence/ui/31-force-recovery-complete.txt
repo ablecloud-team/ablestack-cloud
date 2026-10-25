@@ -1,0 +1,319 @@
+Browser tab: 19, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18031/client/#/snapshot?keyword=SNAP1479UI-31".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/snapshot?keyword=SNAP1479UI-31
+	2 container
+		445 container
+			446 image
+			447 menu
+				448 dashboard 대시보드
+					449 link Description: dashboard 대시보드, Value: 127.0.0.1:18031/client/#/dashboard
+				450 container
+					451 image cloud
+					452 text 컴퓨트
+				453 container
+					454 image hdd
+					455 text 스토리지
+				456 content list sub_menu_20_$$_/storage-popup
+					457 hdd 볼륨
+						458 link Description: hdd 볼륨, Value: 127.0.0.1:18031/client/#/volume
+					459 build 스냅샷
+						460 link Description: build 스냅샷, Value: 127.0.0.1:18031/client/#/snapshot
+					461 build 스냅샷 정책
+						462 link Description: build 스냅샷 정책, Value: 127.0.0.1:18031/client/#/snapshotpolicy
+					463 funnel-plot 버킷
+						464 link Description: funnel-plot 버킷, Value: 127.0.0.1:18031/client/#/buckets
+					465 file-text 공유 파일 시스템
+						466 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18031/client/#/sharedfs
+				467 container
+					468 image wifi
+					469 text 네트워크
+				470 container
+					471 image picture
+					472 text 이미지
+				473 container
+					474 image lock
+					475 text 키 관리
+				476 schedule 이벤트
+					477 link Description: schedule 이벤트, Value: 127.0.0.1:18031/client/#/event
+				478 project 프로젝트
+					479 link Description: project 프로젝트, Value: 127.0.0.1:18031/client/#/project
+				480 idcard 역할
+					481 link Description: idcard 역할, Value: 127.0.0.1:18031/client/#/role
+				482 team 계정
+					483 link Description: team 계정, Value: 127.0.0.1:18031/client/#/account
+				484 block 도메인
+					485 link Description: block 도메인, Value: 127.0.0.1:18031/client/#/domain
+				486 container
+					487 image bank
+					488 text 인프라스트럭쳐
+				489 container
+					490 image shopping
+					491 text 서비스 오퍼링
+				492 container
+					493 image setting
+					494 text 구성
+				495 appstore-add 확장
+					496 link Description: appstore-add 확장, Value: 127.0.0.1:18031/client/#/extension
+				497 container
+					498 image tool
+					499 text 도구
+				500 read API 문서
+					501 link Description: read API 문서, Value: 127.0.0.1:18031/client/#/apidocs/
+		68 container
+			69 text 페이지 스타일 설정
+			70 button 닫기
+				71 image close
+			502 container
+				503 heading 페이지 스타일 설정, Value: 3
+					504 text 페이지 스타일 설정
+				505 container
+					506 image
+					507 container
+						508 radio button (settable, integer) Description:  , Value: 1
+					509 image check
+				510 container
+					511 image
+					512 container
+						513 radio button (settable, integer) Description:  , Value: 0
+				514 heading 테마 색상, Value: 3
+					515 text 테마 색상
+				516 container
+					517 radio button (settable, integer) Description:  , Value: 0
+					518 image check
+				519 container
+					520 radio button (settable, integer) Description:  , Value: 0
+				521 container
+					522 radio button (settable, integer) Description:  , Value: 0
+				523 container
+					524 radio button (settable, integer) Description:  , Value: 0
+				525 container
+					526 radio button (settable, integer) Description:  , Value: 0
+				527 container
+					528 radio button (settable, integer) Description:  , Value: 0
+				529 container
+					530 radio button (settable, integer) Description:  , Value: 0
+				531 container
+					532 radio button (settable, integer) Description:  , Value: 0
+				533 heading 네비게이션 설정, Value: 3
+					534 text 네비게이션 설정
+				535 container
+					536 container
+						537 text 배경색
+						538 color well (settable) #ffffff
+					539 container
+						540 text 텍스트 색상
+						541 color well (settable) #000000
+				542 image exclamation-circle
+				543 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				544 button download 세팅값 다운로드(json)
+					545 image download
+					546 text 세팅값 다운로드(json)
+				547 button undo 기본값으로 재설정
+					548 image undo
+					549 text 기본값으로 재설정
+		120 container
+			550 image menu-fold
+			122 container
+				431 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				409 image project
+				410 text 기본 보기
+			551 button 생성 down
+				552 text 생성
+				553 image down
+			129 image translation
+			130 button 알림
+				131 image bell
+				773 text 2
+			133 container
+				134 text AC admin cloud
+		135 container
+			433 container
+				434 link Description: home, Value: 127.0.0.1:18031/client/#/
+				435 text /
+				436 link Description: 스냅샷, Value: 127.0.0.1:18031/client/#/snapshot
+				554 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+				555 button reload 업데이트
+					556 image reload
+					557 text 업데이트
+				558 switch 프로젝트, Value: 0
+					559 text 프로젝트
+			560 container
+				561 button 삭제 잔여 복구
+					562 image tool
+				563 button 고급 검색
+					564 image filter
+				565 text field (settable)
+				566 button search
+					567 image search
+			568 table
+				569 row
+					570 cell
+						571 container
+							572 checkbox (settable, integer) Description:  , Value: 0
+					573 cell
+						574 container
+							575 text 이름
+							576 image caret-up
+							577 image caret-down
+					578 cell
+						579 container
+							580 text 상태
+							581 image caret-up
+							582 image caret-down
+					583 cell
+						584 container
+							585 text 볼륨 이름
+							586 image caret-up
+							587 image caret-down
+					588 cell
+						589 container
+							590 text 간격 유형
+							591 image caret-up
+							592 image caret-down
+					593 cell
+						594 container
+							595 text 물리적 크기
+							596 image caret-up
+							597 image caret-down
+					598 cell
+						599 container
+							600 text 생성일
+							601 image caret-up
+							602 image caret-down
+					603 cell
+						604 container
+							605 text 계정
+							606 image caret-up
+							607 image caret-down
+					608 cell
+						609 container
+							610 text 도메인
+							611 image caret-up
+							612 image caret-down
+					613 cell
+						614 container
+							615 text Zone
+							616 image caret-up
+							617 image caret-down
+					618 cell
+						619 button filter
+							620 image filter
+				621 row
+					622 cell
+						623 container
+							624 checkbox (settable, integer) Description:  , Value: 0
+					625 cell
+						626 link Description: SNAP1479UI-31-source-snapshot, Value: 127.0.0.1:18031/client/#/snapshot/35a571b5-eda8-4032-ade1-9109060b2216
+					627 cell
+						628 text 백업 됨
+					629 cell
+						630 link Description: SNAP1479UI-31-source, Value: 127.0.0.1:18031/client/#/volume/2978492b-2b64-48a7-8392-d6cefccd94c8
+					631 cell
+						632 text MANUAL
+					633 cell
+						634 text 0.00 GiB
+					635 cell
+						636 text 2026. 10. 23. 오후 9:50:56
+					637 cell
+						638 link Description: admin, Value: 127.0.0.1:18031/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					639 cell
+						640 link Description: ROOT, Value: 127.0.0.1:18031/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					641 cell
+						642 link Description: Zone, Value: 127.0.0.1:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				665 row
+					666 cell
+						667 container
+							668 checkbox (settable, integer) Description:  , Value: 0
+					669 cell
+						670 link Description: SNAP1479UI-31-orphan-source-snapshot, Value: 127.0.0.1:18031/client/#/snapshot/bd7f4750-bde7-47d1-86c1-b3de612060d9
+					671 cell
+						672 text 백업 됨
+					673 cell
+						674 text SNAP1479UI-31-orphan-source
+					675 cell
+						676 text MANUAL
+					677 cell
+						678 text 0.00 GiB
+					679 cell
+						680 text 2026. 10. 23. 오후 9:50:58
+					681 cell
+						682 link Description: admin, Value: 127.0.0.1:18031/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					683 cell
+						684 link Description: ROOT, Value: 127.0.0.1:18031/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					685 cell
+						686 link Description: Zone, Value: 127.0.0.1:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+			687 content list
+				688 text 전체 2 개 항목 중 1-2 표시
+				689 container 이전 페이지
+					690 button (disabled) left
+						691 image left
+				692 text 1
+				693 container 다음 페이지
+					694 button (disabled) right
+						695 image right
+				696 container
+					697 combo box (settable) rc_select_8
+					698 text 20 / 쪽
+	260 container
+		261 image info-circle
+		262 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	699 container
+		700 container 삭제 잔여 복구 도움말
+			701 container
+				702 button Close
+					703 image close
+				704 container vcDialogTitle4
+					705 text 삭제 잔여 복구
+					706 link Description: 도움말, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+				707 container
+					708 image exclamation-circle
+					709 text 스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수 있습니다.
+					710 text 스냅샷 UUID
+					711 text field (settable) 27a03fbc-770b-4723-aca0-6e34eb7e60e8
+					712 text 대상 Zone UUID (비워 두면 모든 Zone)
+					774 text field (settable)
+					714 container
+						715 checkbox (settable, integer) Description: 강제삭제 (관리자 복구)  , Value: 1
+						716 text 강제삭제 (관리자 복구)
+						717 image exclamation-circle
+						718 text 확인 가능한 사본의 실물 삭제를 시도한 뒤, 정보 누락이나 저장소 정리 실패가 있어도 선택한 DB 정보를 삭제 상태로 정리합니다. 미확인 대상은 정리 이력에 남겨 재시도할 수 있습니다. 매핑이 누락된 실물의 부재는 보장할 수 없습니다.
+					719 button 삭제 대상 진단
+						721 text 삭제 대상 진단
+					775 text 삭제 작업이 완료됐습니다. 다시 진단하여 남은 참조를 확인할 수 있습니다.
+					776 content list
+						777 container
+							778 AXListMarker • 
+							779 text Image #152: 실물 삭제 또는 부재 확인 · DB 정리 완료
+					722 table
+						723 row
+							724 cell
+								725 text 이름
+							726 cell
+								727 text SNAP1479UI-31-other-snapshot
+						728 row
+							729 cell
+								730 text 스냅샷 UUID
+							731 cell
+								732 text 27a03fbc-770b-4723-aca0-6e34eb7e60e8
+						733 row
+							734 cell
+								735 text 상태
+							736 cell
+								737 text Destroyed
+						738 row
+							739 cell
+								740 text Zone
+							741 cell
+								742 text 모든 Zone
+					743 content list
+						744 container
+							780 AXListMarker • 
+							781 text #152 · Secondary · Image · Destroyed ·
+					751 container
+						752 checkbox (disabled, settable, integer) Description: 강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다.  , Value: 0
+						753 text 강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다.
+					754 container
+						755 button 닫기
+						756 button (disabled) 강제삭제 실행
+							772 text 강제삭제 실행
+
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/snapshot?keyword=SNAP1479UI-31

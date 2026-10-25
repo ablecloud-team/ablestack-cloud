@@ -1,0 +1,11 @@
+{
+  "ui/public/locales/en.json": "f90f2a7548b7e6fc1fc79b88366c5c8cfd0f63eddb3fa1cb43bac52466f9fd21",
+  "ui/public/locales/ko_KR.json": "98c281fd9c2b1ca57f004e0ff333919bf56d18c54179f21dc04d915a4a0e4f66",
+  "ui/src/components/header/HeaderNotice.vue": "a047366eb351bd60925566c9a7513e8499cb8653bf0e3c2e4abd8193fd4cbc6b",
+  "ui/src/components/view/StorageSnapshotJobDialog.vue": "cd6b5e8ba745000361b38367aa103e7563f870e5b1a7631a6755ec9cfc3dbd56",
+  "ui/src/components/view/StorageSnapshotOperations.vue": null,
+  "ui/src/utils/storageSnapshotNotices.js": "61eb614d60afb094514bcceaac0daedf6d8d67233dc48fdeb15c77f48f5e0567",
+  "ui/src/utils/storageSnapshotOperations.js": "57fef508aeb1abf032f3210284ce3b0d52613ca8279e53705149c8b273b34fb7",
+  "ui/src/views/AutogenView.vue": "609706b6807850bd669bcfe87ccab332f4d6104b98cb4e2c32ad27c13edc64bb",
+  "ui/tests/unit/components/header/StorageSnapshotNotifications.spec.js": "02f7e6fffb01d99ae75f21813d397c0215f5b14ef83508f955fc177b890a666c"
+}

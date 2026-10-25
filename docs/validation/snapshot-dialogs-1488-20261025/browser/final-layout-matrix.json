@@ -1,0 +1,1154 @@
+[
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "create",
+    "record": "31-repaired-layout-light-390-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "volume",
+    "record": "31-repaired-layout-light-390-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "template",
+    "record": "31-repaired-layout-light-390-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "restore",
+    "record": "31-repaired-layout-light-390-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "download",
+    "record": "31-repaired-layout-light-390-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "archive",
+    "record": "31-repaired-layout-light-390-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "delete",
+    "record": "31-repaired-layout-light-390-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "copy",
+    "record": "31-repaired-layout-light-390-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-light-390-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "bulk",
+    "record": "31-repaired-layout-light-390-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "recovery",
+    "record": "31-repaired-layout-light-390-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "kind": "job",
+    "record": "31-repaired-layout-light-390-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "create",
+    "record": "31-repaired-layout-light-768-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "volume",
+    "record": "31-repaired-layout-light-768-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "template",
+    "record": "31-repaired-layout-light-768-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "restore",
+    "record": "31-repaired-layout-light-768-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "download",
+    "record": "31-repaired-layout-light-768-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "archive",
+    "record": "31-repaired-layout-light-768-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "delete",
+    "record": "31-repaired-layout-light-768-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "copy",
+    "record": "31-repaired-layout-light-768-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-light-768-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "bulk",
+    "record": "31-repaired-layout-light-768-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "recovery",
+    "record": "31-repaired-layout-light-768-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "kind": "job",
+    "record": "31-repaired-layout-light-768-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "create",
+    "record": "31-repaired-layout-light-1280-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "volume",
+    "record": "31-repaired-layout-light-1280-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "template",
+    "record": "31-repaired-layout-light-1280-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "restore",
+    "record": "31-repaired-layout-light-1280-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "download",
+    "record": "31-repaired-layout-light-1280-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "archive",
+    "record": "31-repaired-layout-light-1280-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "delete",
+    "record": "31-repaired-layout-light-1280-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "copy",
+    "record": "31-repaired-layout-light-1280-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-light-1280-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "bulk",
+    "record": "31-repaired-layout-light-1280-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "recovery",
+    "record": "31-repaired-layout-light-1280-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "kind": "job",
+    "record": "31-repaired-layout-light-1280-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "create",
+    "record": "31-repaired-layout-dark-390-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "volume",
+    "record": "31-repaired-layout-dark-390-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "template",
+    "record": "31-repaired-layout-dark-390-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "restore",
+    "record": "31-repaired-layout-dark-390-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "download",
+    "record": "31-repaired-layout-dark-390-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "archive",
+    "record": "31-repaired-layout-dark-390-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "delete",
+    "record": "31-repaired-layout-dark-390-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "copy",
+    "record": "31-repaired-layout-dark-390-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-dark-390-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "bulk",
+    "record": "31-repaired-layout-dark-390-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "recovery",
+    "record": "31-repaired-layout-dark-390-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "kind": "job",
+    "record": "31-repaired-layout-dark-390-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "create",
+    "record": "31-repaired-layout-dark-768-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "volume",
+    "record": "31-repaired-layout-dark-768-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "template",
+    "record": "31-repaired-layout-dark-768-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "restore",
+    "record": "31-repaired-layout-dark-768-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "download",
+    "record": "31-repaired-layout-dark-768-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "archive",
+    "record": "31-repaired-layout-dark-768-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "delete",
+    "record": "31-repaired-layout-dark-768-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "copy",
+    "record": "31-repaired-layout-dark-768-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-dark-768-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "bulk",
+    "record": "31-repaired-layout-dark-768-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "recovery",
+    "record": "31-repaired-layout-dark-768-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "kind": "job",
+    "record": "31-repaired-layout-dark-768-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "create",
+    "record": "31-repaired-layout-dark-1280-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "volume",
+    "record": "31-repaired-layout-dark-1280-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "template",
+    "record": "31-repaired-layout-dark-1280-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "restore",
+    "record": "31-repaired-layout-dark-1280-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "download",
+    "record": "31-repaired-layout-dark-1280-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "archive",
+    "record": "31-repaired-layout-dark-1280-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "delete",
+    "record": "31-repaired-layout-dark-1280-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "copy",
+    "record": "31-repaired-layout-dark-1280-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "zoneDelete",
+    "record": "31-repaired-layout-dark-1280-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "bulk",
+    "record": "31-repaired-layout-dark-1280-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "recovery",
+    "record": "31-repaired-layout-dark-1280-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "job",
+    "record": "31-repaired-layout-dark-1280-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "create",
+    "record": "32-repaired-layout-light-390-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "volume",
+    "record": "32-repaired-layout-light-390-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "template",
+    "record": "32-repaired-layout-light-390-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "restore",
+    "record": "32-repaired-layout-light-390-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "download",
+    "record": "32-repaired-layout-light-390-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "archive",
+    "record": "32-repaired-layout-light-390-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "delete",
+    "record": "32-repaired-layout-light-390-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "copy",
+    "record": "32-repaired-layout-light-390-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-light-390-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "bulk",
+    "record": "32-repaired-layout-light-390-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "recovery",
+    "record": "32-repaired-layout-light-390-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "kind": "job",
+    "record": "32-repaired-layout-light-390-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "create",
+    "record": "32-repaired-layout-light-768-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "volume",
+    "record": "32-repaired-layout-light-768-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "template",
+    "record": "32-repaired-layout-light-768-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "restore",
+    "record": "32-repaired-layout-light-768-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "download",
+    "record": "32-repaired-layout-light-768-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "archive",
+    "record": "32-repaired-layout-light-768-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "delete",
+    "record": "32-repaired-layout-light-768-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "copy",
+    "record": "32-repaired-layout-light-768-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-light-768-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "bulk",
+    "record": "32-repaired-layout-light-768-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "recovery",
+    "record": "32-repaired-layout-light-768-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "kind": "job",
+    "record": "32-repaired-layout-light-768-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "create",
+    "record": "32-repaired-layout-light-1280-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "volume",
+    "record": "32-repaired-layout-light-1280-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "template",
+    "record": "32-repaired-layout-light-1280-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "restore",
+    "record": "32-repaired-layout-light-1280-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "download",
+    "record": "32-repaired-layout-light-1280-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "archive",
+    "record": "32-repaired-layout-light-1280-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "delete",
+    "record": "32-repaired-layout-light-1280-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "copy",
+    "record": "32-repaired-layout-light-1280-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-light-1280-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "bulk",
+    "record": "32-repaired-layout-light-1280-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "recovery",
+    "record": "32-repaired-layout-light-1280-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "kind": "job",
+    "record": "32-repaired-layout-light-1280-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "create",
+    "record": "32-repaired-layout-dark-390-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "volume",
+    "record": "32-repaired-layout-dark-390-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "template",
+    "record": "32-repaired-layout-dark-390-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "restore",
+    "record": "32-repaired-layout-dark-390-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "download",
+    "record": "32-repaired-layout-dark-390-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "archive",
+    "record": "32-repaired-layout-dark-390-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "delete",
+    "record": "32-repaired-layout-dark-390-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "copy",
+    "record": "32-repaired-layout-dark-390-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-dark-390-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "bulk",
+    "record": "32-repaired-layout-dark-390-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "recovery",
+    "record": "32-repaired-layout-dark-390-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "kind": "job",
+    "record": "32-repaired-layout-dark-390-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "create",
+    "record": "32-repaired-layout-dark-768-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "volume",
+    "record": "32-repaired-layout-dark-768-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "template",
+    "record": "32-repaired-layout-dark-768-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "restore",
+    "record": "32-repaired-layout-dark-768-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "download",
+    "record": "32-repaired-layout-dark-768-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "archive",
+    "record": "32-repaired-layout-dark-768-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "delete",
+    "record": "32-repaired-layout-dark-768-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "copy",
+    "record": "32-repaired-layout-dark-768-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-dark-768-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "bulk",
+    "record": "32-repaired-layout-dark-768-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "recovery",
+    "record": "32-repaired-layout-dark-768-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "kind": "job",
+    "record": "32-repaired-layout-dark-768-job.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "create",
+    "record": "32-repaired-layout-dark-1280-create.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "volume",
+    "record": "32-repaired-layout-dark-1280-volume.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "template",
+    "record": "32-repaired-layout-dark-1280-template.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "restore",
+    "record": "32-repaired-layout-dark-1280-restore.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "download",
+    "record": "32-repaired-layout-dark-1280-download.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "archive",
+    "record": "32-repaired-layout-dark-1280-archive.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "delete",
+    "record": "32-repaired-layout-dark-1280-delete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "copy",
+    "record": "32-repaired-layout-dark-1280-copy.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "zoneDelete",
+    "record": "32-repaired-layout-dark-1280-zoneDelete.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "bulk",
+    "record": "32-repaired-layout-dark-1280-bulk.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "recovery",
+    "record": "32-repaired-layout-dark-1280-recovery.json",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "kind": "job",
+    "record": "32-repaired-layout-dark-1280-job.json",
+    "status": "PASS"
+  }
+]

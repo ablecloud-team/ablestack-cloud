@@ -1,0 +1,80 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "33ace438-7857-4acc-aada-a57294a7ae8f",
+    "name": "SNAP1477-32-force-no-native",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 72,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready"
+      },
+      {
+        "referenceid": 73,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "04c743f71f62b9a1f4d2e159193c5ece31e31ab43d09a8a27a88ca16e3f50875",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 72,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      },
+      {
+        "referenceid": 73,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "33ace438-7857-4acc-aada-a57294a7ae8f",
+    "name": "SNAP1477-32-force-no-native",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 72,
+        "role": "Primary",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      },
+      {
+        "referenceid": 73,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "33ace438-7857-4acc-aada-a57294a7ae8f",
+    "name": "SNAP1477-32-force-no-native",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "a36dab2a227e2f2fa1899220029af61ae402ad4126fede9d4202103983d389ed",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

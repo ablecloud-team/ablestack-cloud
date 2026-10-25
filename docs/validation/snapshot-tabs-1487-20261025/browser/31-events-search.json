@@ -1,0 +1,396 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "레벨"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "사용자 이름"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "계정"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "도메인"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "생성일"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/event/8067cbcd-08da-43bb-b47b-c6194d653a51",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/96fc3433-70c5-4609-aa79-70947b2b6e26",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/a1adb1f9-1417-4ff2-884e-a74e4a562029",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/14b153ae-5dbe-4038-870d-62bd41544b67",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/19a92322-45a7-4ea7-83a3-009d98e02c86",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/b8ab3e8d-bc64-469b-a3cd-d3f52852df4b",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/c2050407-e8ef-48a2-b292-218d5ad79fe8",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/e998204f-664d-41ff-95a0-c3339f42583c",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/d121a3df-36fd-4c2d-8771-1aa64db72970",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/4a06cf94-5191-48ad-b9b4-e85bc1ebabff",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 26개 항목 중 1-10 표시\n1\n2\n3\n10 / 쪽\n이동하기"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "8067cbcd-08da-43bb-b47b-c6194d653a51",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "96fc3433-70c5-4609-aa79-70947b2b6e26",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "a1adb1f9-1417-4ff2-884e-a74e4a562029",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "14b153ae-5dbe-4038-870d-62bd41544b67",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "19a92322-45a7-4ea7-83a3-009d98e02c86",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "b8ab3e8d-bc64-469b-a3cd-d3f52852df4b",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "c2050407-e8ef-48a2-b292-218d5ad79fe8",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "e998204f-664d-41ff-95a0-c3339f42583c",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "d121a3df-36fd-4c2d-8771-1aa64db72970",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "4a06cf94-5191-48ad-b9b4-e85bc1ebabff",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\n전체 26개 항목 중 1-10 표시\n1\n2\n3\n10 / 쪽\n이동하기",
+  "text": "/스냅샷/SNAPTABS1487-31-owner업데이트\n작업\nSNAPTABS1487-31-owner\n상태\n백업 됨\n아이디\n83b1c043-b780-40ee-a143-f8bef390ce91 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-31-owner\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:18\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-owner\n새 태그\n상세\nZone\n이벤트\n코멘트\n업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\n전체 26개 항목 중 1-10 표시\n1\n2\n3\n10 / 쪽\n이동하기",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 676.96875,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 790.5,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": 265
+      },
+      "tag": "INPUT",
+      "text": "관련 자원 이벤트 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/83b1c043-b780-40ee-a143-f8bef390ce91?tab=events",
+  "width": 1280
+}

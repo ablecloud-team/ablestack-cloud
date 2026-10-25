@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { clearStorageSnapshotOperations, pauseSnapshotOperations, snapshotSecurityReplaced } from '@/utils/storageSnapshotOperations'
 import { clearIsoOperations } from '@/utils/vmIsoActions'
 import { clearBackupInstanceCreations } from '@/utils/backupInstanceCreation'
 import { clearNicOperations } from '@/utils/vmNicActions'
@@ -128,7 +129,11 @@ export const pollJobPlugin = {
       }
     })
     // A route change may cancel one query; retry it. A security scope change must stop tracking.
-    store.watch(() => [store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id].join('|'), () => { tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations(); clearBackupInstanceCreations() })
+    store.watch(() => JSON.stringify([store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id]), (next, before) => {
+      tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations(); clearBackupInstanceCreations()
+      if (snapshotSecurityReplaced(next, before)) clearStorageSnapshotOperations()
+      else pauseSnapshotOperations()
+    })
     app.config.globalProperties.$pollJob = function (options) {
       if (options.retry) options = { ...tracker.metadata(options.jobId)?.options, ...options }
       const originalPage = normalizePath(options.originalPage || this.$router.currentRoute.value.path)

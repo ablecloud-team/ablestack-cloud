@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1",
+    "scenario": "lost-ui-volume",
+    "image": "rbd:rbd/f04e6637-e0c6-40e6-8828-f2836c6160db",
+    "phase": "verify",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (300.695 MiB/sec and 300.6946 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

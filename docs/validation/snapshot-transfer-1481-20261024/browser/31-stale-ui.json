@@ -1,0 +1,9 @@
+{
+  "text": "스냅샷 복사\n대상 Zone/스토리지의 상태나 복사 지원 조건이 바뀌었습니다. 대상을 다시 선택하세요.\n재시도\n다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n원본: Zone / Secondary\n대상 Zone\nSNAPTR1481-31-Zone-b\nSNAPTR1481-31-Boundary-empty\n세컨더리 스토리지 · 세컨더리 스토리지 없음\nSNAPTR1481-31-Boundary-edge\n세컨더리 스토리지 · Edge Zone은 이 복사를 지원하지 않음\nSNAPTR1481-31-Zone-b\nSNAPTR1481-31-Secondary-b · 복사 가능\nSNAPTR1481-31-Zone-a\nSNAPTR1481-31-Secondary-a · 실패한 복사 재시도 가능\n대상 다시 조회\n취소\n스냅샷 복사",
+  "commands": [
+    "listApis",
+    "listSnapshots",
+    "listSnapshots",
+    "listSnapshotCopyTargets"
+  ]
+}

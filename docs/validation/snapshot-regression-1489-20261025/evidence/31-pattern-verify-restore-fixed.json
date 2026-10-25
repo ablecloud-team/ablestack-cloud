@@ -1,0 +1,19 @@
+{
+  "volume": "38b90dc4-a157-443e-899b-7e2b60c757d7",
+  "scenario": "restore-fixed",
+  "phase": "verify",
+  "image": "/mnt/glue-gfs/59fa04c0-ae99-43e7-b761-36fd4c3c303f",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (393.924 MiB/sec and 393.9238 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.275 GiB/sec and 2329.9487 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

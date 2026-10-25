@@ -1,0 +1,17 @@
+{
+  "kind": "management",
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "before": "1538f85520142ac9706e26a7ab7aa9c15442a2ab482c4991e454abd91b1a138d",
+  "after": "532b65da6ae19f521226ebdf55664e6be30477170f376b97c678383224993fb7",
+  "changedEntries": [
+    {
+      "path": "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl.class",
+      "sha256": "8aa6105d892a271a85a8dd953c695d3d2623ced154545fa12ef6fa5e6b7c92f5"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 0,
+  "methodPatch": "getProjectKubernetesAccount(Account,boolean) only"
+}

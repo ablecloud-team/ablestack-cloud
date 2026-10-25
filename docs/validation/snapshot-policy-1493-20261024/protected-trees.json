@@ -1,0 +1,14 @@
+{
+  "windows": {
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diffSha256": "f6a2902d2f2fe96ad7a6f84a4ea5afeaa8bfdee5561d70858608428040b02d73",
+    "unchanged": true,
+    "statusSha256": "dac701cb2bead888cb4bc657f234168a37b8b4d56fd048800586f7a012362f11"
+  },
+  "wsl": {
+    "head": "084d43aa0b37c46a94256fff6fcd966696d9f1b0",
+    "statusSha256": "199e5115e256edd40ea90b2d1e41e22f82df5de829e9dbe54de922e807849b1f",
+    "diffSha256": "4616f42e7bfef16d6dae3c185e8e23eb1fd80d91a0d941f3158958a858f77a45",
+    "unchanged": true
+  }
+}

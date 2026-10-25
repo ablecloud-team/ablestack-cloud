@@ -1,0 +1,193 @@
+Browser tab: 15, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/22b644a3-7493-49ca-bc52-f32e27b7e473".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot/22b644a3-7493-49ca-bc52-f32e27b7e473
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 127.0.0.1:18032/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 content list sub_menu_2_$$_/storage-popup
+					15 hdd 볼륨
+						16 link Description: hdd 볼륨, Value: 127.0.0.1:18032/client/#/volume
+					17 build 스냅샷
+						18 link Description: build 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					19 build 스냅샷 정책
+						20 link Description: build 스냅샷 정책, Value: 127.0.0.1:18032/client/#/snapshotpolicy
+					21 funnel-plot 버킷
+						22 link Description: funnel-plot 버킷, Value: 127.0.0.1:18032/client/#/buckets
+					23 file-text 공유 파일 시스템
+						24 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18032/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 schedule 이벤트
+					32 link Description: schedule 이벤트, Value: 127.0.0.1:18032/client/#/event
+				33 project 프로젝트
+					34 link Description: project 프로젝트, Value: 127.0.0.1:18032/client/#/project
+				35 team 계정
+					36 link Description: team 계정, Value: 127.0.0.1:18032/client/#/account
+				37 global Zone
+					38 link Description: global Zone, Value: 127.0.0.1:18032/client/#/zones
+				39 container
+					40 image shopping
+					41 text 서비스 오퍼링
+				42 container
+					43 image tool
+					44 text 도구
+				45 read API 문서
+					46 link Description: read API 문서, Value: 127.0.0.1:18032/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			49 container
+				50 combo box (settable) rc_select_0
+				51 image project
+				52 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		60 container
+			61 container
+				62 container
+					63 link Description: home, Value: 127.0.0.1:18032/client/#/
+					64 text /
+					65 link Description: 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					66 text / SNAP1479-32-tenant-snapshot
+					67 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					68 button reload 업데이트
+						69 image reload
+						70 text 업데이트
+				71 button down 작업
+					72 image down
+					73 text 작업
+			74 container
+				75 image build
+				76 heading SNAP1479-32-tenant-snapshot, Value: 4
+					77 text SNAP1479-32-tenant-snapshot
+				78 text 상태 백업 됨 아이디
+				79 button 아이디 복사
+					80 image barcode
+				81 link Description: 22b644a3-7493-49ca-bc52-f32e27b7e473 , Value: javascript:;
+				82 text 볼륨
+				83 image hdd
+				84 link Description: SNAP1479-32-tenant-source, Value: 127.0.0.1:18032/client/#/volume/9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+				85 text Zone
+				86 image global
+				87 link Description: Zone, Value: 127.0.0.1:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				88 text 계정
+				89 image user
+				90 text snap1479-32-tenant 도메인
+				91 image block
+				92 text ROOT 생성일
+				93 image calendar
+				94 text 2026. 10. 23. 오후 7:21:37
+				95 container
+					96 text 태그
+					97 container
+						98 image plus
+						99 text  새 태그
+			100 container
+				101 tab group
+					102 container
+						103 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						104 tab (selectable, settable, boolean) Zone, Value: 0, ID: rc-tabs-1-tab-zones
+						105 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						106 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				107 container Description: 상세, ID: rc-tabs-1-panel-details
+					108 content list
+						109 container
+							110 text 이름
+							111 text SNAP1479-32-tenant-snapshot
+						112 container
+							113 text 아이디
+							114 text 22b644a3-7493-49ca-bc52-f32e27b7e473
+						115 container
+							116 text 볼륨 이름
+							117 text SNAP1479-32-tenant-source
+						118 container
+							119 text 볼륨 유형
+							120 text DATADISK
+						121 container
+							122 text 간격 유형
+							123 text MANUAL
+						124 container
+							125 text 물리적 크기
+							126 text 0.00 GiB
+						127 container
+							128 text 가상 크기
+							129 text 1.00 GiB
+						130 container
+							131 text 계정
+							132 text snap1479-32-tenant
+						133 container
+							134 text 도메인
+							135 text ROOT
+						136 container
+							137 text 생성일
+							138 text 2026. 10. 23. 오후 7:21:37
+	152 container
+		153 container 스냅샷 복원
+			154 container
+				155 button Close
+					156 image close
+				157 text 스냅샷 복원
+				158 container
+					159 image exclamation-circle
+					160 text 소유 볼륨을 이 스냅샷으로 되돌릴 것인지 확인하십시오.
+				161 container
+					162 image close-circle
+					163 text 원본 볼륨이 없어 이 작업을 실행할 수 없습니다.
+					164 table
+						165 row
+							166 cell
+								167 text 이름
+							168 cell
+								169 text SNAP1479-32-tenant-snapshot · 22b644a3-7493-49ca-bc52-f32e27b7e473
+						170 row
+							171 cell
+								172 text 상태
+							173 cell
+								174 text BackedUp
+						175 row
+							176 cell
+								177 text 볼륨
+							178 cell
+								179 text SNAP1479-32-tenant-source · 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · 원본 볼륨 정보 없음
+						180 row
+							181 cell
+								182 text 가상머신
+							183 cell
+								184 text 없음
+						185 row
+							186 cell
+								187 text 계정
+							188 cell
+								189 text snap1479-32-tenant · ROOT
+						190 row
+							191 cell
+								192 text Zone
+							193 cell
+								194 text 모든 Zone 및 현재 사본 범위
+					195 text 원본 볼륨이 없어도 유효한 스냅샷에서 새 볼륨·템플릿을 생성할 수 있습니다. 원본 되돌리기는 사용할 수 없습니다.
+					196 button 현재 대상 다시 확인
+				197 container
+					198 checkbox (disabled, settable, integer) Description: 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.  , Value: 0
+					199 text 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.
+				200 button 닫기
+				201 button 현재 대상 다시 확인
+				202 button (disabled) 스냅샷 복원
+					203 text 스냅샷 복원
+
+The focused UI element is 204 container

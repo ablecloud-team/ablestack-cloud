@@ -26,9 +26,9 @@ beforeEach(() => getAPI.mockReset())
 test('volume events preserve the authenticated session and existing rows on read failure', async () => {
   getAPI.mockRejectedValueOnce(new Error('Network Error'))
   const token = { loaded: true }
-  const vm = { resource: { id: 'volume' }, resourceType: 'Volume', page: 2, pageSize: 20, events: ['keep'], listRequestToken: () => token, isListRequestCurrent: () => true, $notifyError: jest.fn() }
+  const vm = { resource: { id: 'volume' }, resourceType: 'Volume', page: 2, pageSize: 20, events: ['keep'], $store: { getters: { apis: { listEvents: {} } } }, listRequestToken: () => token, isListRequestCurrent: () => true, $notifyError: jest.fn() }
   await Events.methods.fetchEvents.call(vm)
-  expect(getAPI).toHaveBeenCalledWith('listEvents', { resourceid: 'volume', resourcetype: 'Volume', page: 2, pagesize: 20, listall: true }, { preserveOnFailure: true })
+  expect(getAPI).toHaveBeenCalledWith('listEvents', { resourceid: 'volume', resourcetype: 'Volume', page: 2, pagesize: 20, listall: true }, { preserveOnFailure: true, timeout: 20000 })
   expect(vm.events).toEqual(['keep']); expect(vm.listRefreshFailed).toBe(true); expect(vm.$notifyError).not.toHaveBeenCalled()
 })
 test('volume comments preserve rows and count on a failed page read', async () => {
@@ -37,7 +37,7 @@ test('volume comments preserve rows and count on a failed page read', async () =
   const vm = { resource: { id: 'volume' }, annotationType: 'VOLUME', page: 2, pageSize: 10, notes: ['keep'], itemCount: 12, $store: { getters: { apis: { listAnnotations: {} } } }, listRequestToken: () => token, isListRequestCurrent: () => true }
   await Notes.methods.getAnnotations.call(vm)
   expect(getAPI.mock.calls[0][1]).toMatchObject({ entityid: 'volume', entitytype: 'VOLUME', page: 2, pagesize: 10 })
-  expect(getAPI.mock.calls[0][2]).toEqual({ preserveOnFailure: true }); expect(vm.notes).toEqual(['keep']); expect(vm.itemCount).toBe(12)
+  expect(getAPI.mock.calls[0][2]).toEqual({ preserveOnFailure: true, timeout: 20000 }); expect(vm.notes).toEqual(['keep']); expect(vm.itemCount).toBe(12)
 })
 test('usage history requires feature and API permission; comments require list permission', () => {
   const tabs = storage.children.find(c => c.name === 'volume').tabs

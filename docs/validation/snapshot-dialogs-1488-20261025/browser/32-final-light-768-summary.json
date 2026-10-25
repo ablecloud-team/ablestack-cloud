@@ -1,0 +1,182 @@
+[
+  {
+    "kind": "create",
+    "width": 720,
+    "title": "스냅샷 생성",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "volume",
+    "width": 720,
+    "title": "볼륨 생성",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "template",
+    "width": 720,
+    "title": "템플릿 생성",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "restore",
+    "width": 720,
+    "title": "스냅샷 복원",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "download",
+    "width": 720,
+    "title": "스냅샷 다운로드",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "archive",
+    "width": 720,
+    "title": "스냅샷 보관",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "delete",
+    "width": 720,
+    "title": "스냅샷 삭제",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "작업"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "copy",
+    "width": 720,
+    "title": "스냅샷 복사",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "이 Zone에서 복사"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "zoneDelete",
+    "width": 720,
+    "title": "Zone 스냅샷 사본 삭제",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "bulk",
+    "width": 720,
+    "title": "스냅샷 삭제",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "스냅샷 삭제"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "recovery",
+    "width": 720,
+    "title": "삭제 잔여 복구",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "삭제 잔여 복구"
+    },
+    "overlaps": [],
+    "storpool": false
+  },
+  {
+    "kind": "job",
+    "width": 720,
+    "title": "작업 상세",
+    "overflow": false,
+    "footerVisible": true,
+    "focus": true,
+    "focusReturn": {
+      "connected": true,
+      "tag": "BUTTON",
+      "text": "8"
+    },
+    "overlaps": [],
+    "storpool": false
+  }
+]

@@ -17,7 +17,7 @@ export default {
   methods: {
     dialogScope () {
       const state = this.$store.getters
-      return JSON.stringify([this.$route?.path, this.resource?.id, state.userInfo?.id, state.userInfo?.roletype, state.project?.id])
+      return JSON.stringify([this.$route?.path, this.resource?.id, state.userInfo?.id, state.userInfo?.roletype, state.project?.id, this.$store.state?.user?.token])
     },
     dialogCurrent () { return this.dialogActive && this.dialogInitialScope === this.dialogScope() }
   }

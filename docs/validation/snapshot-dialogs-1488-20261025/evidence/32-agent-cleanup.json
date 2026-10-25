@@ -1,0 +1,25 @@
+{
+  "agents": [
+    {
+      "name": "SNAPDIALOG1488-32-a",
+      "pid": 512340,
+      "stopped": true,
+      "mountsRemoved": true,
+      "physicalFilesBeforeUnmount": 0,
+      "originalIdentityNetworkAndCertificatesPreserved": true,
+      "generatedPropertiesHashChangedOnReconnect": false
+    }
+  ],
+  "originalAgentPid": "3953683",
+  "originalAgentAlive": true,
+  "remainingNfs": {
+    "filesystems": [
+      {
+        "target": "/mnt/SecStorage/043add34-29ed-3802-812b-a93d814e67a4",
+        "source": "10.10.32.10:/nfs/secondary",
+        "fstype": "nfs4",
+        "options": "rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acdirmin=0,acdirmax=0,soft,proto=tcp,timeo=133,retrans=2147483647,sec=sys,clientaddr=10.10.32.7,local_lock=none,addr=10.10.32.10"
+      }
+    ]
+  }
+}

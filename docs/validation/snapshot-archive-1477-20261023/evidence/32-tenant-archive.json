@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "foreign": true,
+      "dryrun": true,
+      "denied": true
+    },
+    {
+      "foreign": true,
+      "dryrun": false,
+      "denied": true
+    }
+  ],
+  "before": {
+    "snapshotid": "141e60ae-55fd-4844-907c-9e91cf35ce13",
+    "name": "SNAP1477-32-tenant",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "REUSE_SECONDARY",
+    "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+    "primaryreferences": 1,
+    "secondaryreferences": 1,
+    "scopehash": "f5642c769e2ad852d7fd3a06760a6feeaf926025d6df41202eb7fac61b48f747",
+    "dryrun": true
+  },
+  "after": {
+    "snapshotid": "141e60ae-55fd-4844-907c-9e91cf35ce13",
+    "name": "SNAP1477-32-tenant",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "a57d68d5e2c8d023eae76e648dbc0af22cf4829381212837d24415d57937a1af",
+    "dryrun": true
+  }
+}

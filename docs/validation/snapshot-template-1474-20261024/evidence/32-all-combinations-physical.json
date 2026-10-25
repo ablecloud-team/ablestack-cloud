@@ -1,0 +1,475 @@
+[
+  {
+    "path": "/nfs/secondary/snapshots/2/350/ad832a2c-31b7-4fbc-a599-a95dc4817cee",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4864,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/2/350/ad832a2c-31b7-4fbc-a599-a95dc4817cee",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/2/350/ad832a2c-31b7-4fbc-a599-a95dc4817cee",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "6ac1afbb-0dbd-40bf-a52a-c03e96d8506e",
+    "name": "SNAPT1474-32-native"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/351/56e26108-8d5d-4046-b216-f9e8f55685c3",
+    "exists": true,
+    "fileSize": 1073741824,
+    "blocks": 4096,
+    "magic": "5a5a5a5a5a5a5a5a",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 1073741824,
+            "filename": "/nfs/secondary/snapshots/2/351/56e26108-8d5d-4046-b216-f9e8f55685c3",
+            "format": "file",
+            "actual-size": 2097152,
+            "format-specific": {
+              "type": "file",
+              "data": {
+                "extent-size-hint": 1048576
+              }
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/2/351/56e26108-8d5d-4046-b216-f9e8f55685c3",
+      "format": "raw",
+      "actual-size": 2097152,
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "278b6184-696e-45d0-b830-8a582ab83911",
+    "name": "SNAPT1474-32-raw"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/352/3b4fe607-2d28-4cce-9c58-2a3f606cdc56",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4864,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/2/352/3b4fe607-2d28-4cce-9c58-2a3f606cdc56",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/2/352/3b4fe607-2d28-4cce-9c58-2a3f606cdc56",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44",
+    "name": "SNAPT1474-32-negative"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/349/5b8ed461-e8b3-4b96-af2b-d848e9a03615",
+    "exists": true,
+    "fileSize": 107374182400,
+    "blocks": 4771864,
+    "magic": "eb6390108ed0bc00",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 107374182400,
+            "filename": "/nfs/secondary/snapshots/2/349/5b8ed461-e8b3-4b96-af2b-d848e9a03615",
+            "format": "file",
+            "actual-size": 2443194368,
+            "format-specific": {
+              "type": "file",
+              "data": {
+                "extent-size-hint": 1048576
+              }
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 107374182400,
+      "filename": "/nfs/secondary/snapshots/2/349/5b8ed461-e8b3-4b96-af2b-d848e9a03615",
+      "format": "raw",
+      "actual-size": 2443194368,
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "b3bd7b6d-c3ef-4d56-a678-58214231497b",
+    "name": "SNAPT1474-32-root"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/225/ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4744,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/template/tmpl/2/225/ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw",
+            "format": "file",
+            "actual-size": 2428928,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/225/ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2428928,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 16:36:12 UTC 2026\nuniquename=225-2-da847832-d54a-3a28-8be6-6dd45515440f\nraw.virtualsize=2490368\nfilename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw\npublic=true\nsize=2490368\nraw.size=2490368\nraw=true\nraw.filename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw\nid=1\nvirtualsize=2490368\n",
+    "uuid": "6c79bab3-2446-4400-951c-3e571f74f1db",
+    "name": "SNAPT1474-32-native-before"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/229/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4744,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/template/tmpl/2/229/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+            "format": "file",
+            "actual-size": 2428928,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/229/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2428928,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 16:49:42 UTC 2026\nuniquename=229-2-69a4b8c1-8382-311b-b955-6f7d92cc96df\nqcow2.filename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nfilename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nqcow2.virtualsize=1073741824\npublic=true\nsize=2490368\nid=229\nqcow2.size=2490368\nvirtualsize=1073741824\nqcow2=true\n",
+    "uuid": "581584f9-b1f3-4385-8703-709ef94b105d",
+    "name": "SNAPT1474-32-native-final"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/230/56e26108-8d5d-4046-b216-f9e8f55685c3.raw",
+    "exists": true,
+    "fileSize": 1073741824,
+    "blocks": 4096,
+    "magic": "5a5a5a5a5a5a5a5a",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 1073741824,
+            "filename": "/nfs/secondary/template/tmpl/2/230/56e26108-8d5d-4046-b216-f9e8f55685c3.raw",
+            "format": "file",
+            "actual-size": 2097152,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/230/56e26108-8d5d-4046-b216-f9e8f55685c3.raw",
+      "format": "raw",
+      "actual-size": 2097152,
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 16:50:21 UTC 2026\nuniquename=230-2-30dd7d7c-99e9-3867-872a-5b56741e51f4\nraw.virtualsize=1073741824\nfilename=56e26108-8d5d-4046-b216-f9e8f55685c3.raw\npublic=true\nsize=1073741824\nraw.size=1073741824\nraw=true\nraw.filename=56e26108-8d5d-4046-b216-f9e8f55685c3.raw\nid=230\nvirtualsize=1073741824\n",
+    "uuid": "8e52631a-7777-4767-96a2-ce90241b4c93",
+    "name": "SNAPT1474-32-raw-final"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/231/5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2",
+    "exists": true,
+    "fileSize": 2419720192,
+    "blocks": 4710064,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2419720192,
+            "filename": "/nfs/secondary/template/tmpl/2/231/5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2",
+            "format": "file",
+            "actual-size": 2411552768,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 107374182400,
+      "filename": "/nfs/secondary/template/tmpl/2/231/5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2411552768,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 16:52:23 UTC 2026\nuniquename=231-2-ea544787-870b-3aca-bf72-93f6bfefd1b3\nqcow2.filename=5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2\nfilename=5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2\nqcow2.virtualsize=107374182400\npublic=true\nsize=2419720192\nid=231\nqcow2.size=2419720192\nvirtualsize=107374182400\nqcow2=true\n",
+    "uuid": "c7e1e8ad-7645-4992-a5bc-abaaa7e7d1d2",
+    "name": "SNAPT1474-32-root-ui-template"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/235/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4744,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/template/tmpl/2/235/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+            "format": "file",
+            "actual-size": 2428928,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/235/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2428928,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 17:00:13 UTC 2026\nuniquename=235-2-7c4091ae-a6d0-3e10-a42c-e46c3e197814\nqcow2.filename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nfilename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nqcow2.virtualsize=1073741824\npublic=true\nsize=2490368\nid=235\nqcow2.size=2490368\nvirtualsize=1073741824\nqcow2=true\n",
+    "uuid": "56e11622-7c72-4013-a257-35e0f5eb1d15",
+    "name": "SNAPT1474-32-native-orphan"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/237/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4744,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/template/tmpl/2/237/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+            "format": "file",
+            "actual-size": 2428928,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/237/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2428928,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 17:06:00 UTC 2026\nuniquename=237-2-05354c0f-7598-3c5a-8907-eebe09ba9298\nqcow2.filename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nfilename=ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2\nqcow2.virtualsize=1073741824\npublic=true\nsize=2490368\nid=237\nqcow2.size=2490368\nvirtualsize=1073741824\nqcow2=true\n",
+    "uuid": "fabc291f-da1d-4719-9538-0c6d3f07c022",
+    "name": "SNAPT1474-32-native-final-code"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/238/5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw",
+    "exists": true,
+    "fileSize": 107374182400,
+    "blocks": 4707880,
+    "magic": "eb6390108ed0bc00",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 107374182400,
+            "filename": "/nfs/secondary/template/tmpl/2/238/5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw",
+            "format": "file",
+            "actual-size": 2410434560,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 107374182400,
+      "filename": "/nfs/secondary/template/tmpl/2/238/5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw",
+      "format": "raw",
+      "actual-size": 2410434560,
+      "dirty-flag": false
+    },
+    "properties": "#\n#Fri Oct 23 17:10:15 UTC 2026\nuniquename=238-2-a7189faa-9a58-31d8-aa94-7ea148badd5f\nraw.virtualsize=107374182400\nfilename=5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw\npublic=true\nsize=107374182400\nraw.size=107374182400\nraw=true\nraw.filename=5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw\nid=238\nvirtualsize=107374182400\n",
+    "uuid": "3b327842-c594-411d-a4b0-b2c70dcfdd27",
+    "name": "SNAPT1474-32-root-raw-template"
+  }
+]

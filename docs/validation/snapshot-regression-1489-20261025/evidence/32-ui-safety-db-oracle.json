@@ -1,0 +1,51 @@
+{
+  "volumes": [
+    {
+      "name": "SNAPREG1489-32-ui-lost-ack",
+      "size": 1073741824,
+      "uuid": "1387e329-13b7-45d5-8e88-4a2b18a712a6",
+      "state": "Ready",
+      "offering": 12
+    },
+    {
+      "name": "SNAPREG1489-32-ui-lost-response",
+      "size": 1073741824,
+      "uuid": "b2d98c72-69fd-409d-8af3-3fca83f7e23d",
+      "state": "Ready",
+      "offering": 12
+    }
+  ],
+  "lostResponseJobs": [
+    {
+      "args": {
+        "customjobid": "ba0a2201-119b-4b65-a436-c5048038ea02",
+        "snapshotid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+        "ctxStorageSnapshotRequestFingerprint": "07e04fd3c7fe29df54e281510c95d7098f8f43ce0ccefa9f9aa38bd291820234",
+        "sessionkey": "[REDACTED]",
+        "httpmethod": "POST",
+        "ctxAccountId": "2",
+        "uuid": "b2d98c72-69fd-409d-8af3-3fca83f7e23d",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "cmdEventType": "VOLUME.CREATE",
+        "response": "json",
+        "ctxUserId": "2",
+        "name": "SNAPREG1489-32-ui-lost-response",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "ctxStartEventId": "16829",
+        "id": "459",
+        "ctxDetails": {
+          "interface com.cloud.storage.Volume": "b2d98c72-69fd-409d-8af3-3fca83f7e23d",
+          "interface com.cloud.storage.Snapshot": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+          "interface com.cloud.dc.DataCenter": "991d2f57-0f37-4445-b956-09773d064816",
+          "interface com.cloud.domain.Domain": "2246448b-b23b-11f1-990e-0024811f8935"
+        },
+        "account": "admin"
+      },
+      "uuid": "ba0a2201-119b-4b65-a436-c5048038ea02",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin"
+    }
+  ],
+  "latestVmStateRejectedRevertJobs": [],
+  "pass": true
+}

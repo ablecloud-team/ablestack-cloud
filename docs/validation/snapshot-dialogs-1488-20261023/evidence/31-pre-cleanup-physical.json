@@ -1,0 +1,37 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/992/031ee175-ef6b-4ea3-9b2a-de25467b1ae1",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/993/579a4bb5-c5d8-48d4-94e0-b75ee671d181",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/993/8b46cd05-6f2f-4412-86e1-32b43ea1aab5",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/994/1c45cd7f-13d5-49ad-93bb-85e43b6df64c",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    }
+  ],
+  "templates": [],
+  "sourceVolumePaths": [
+    "/mnt/glue-gfs/f51fdbc4-41aa-4514-b7ff-dab5d627c440",
+    "/mnt/glue-gfs/be4a5f6d-4c07-4ff5-b76c-e6a40895d012",
+    "/mnt/glue-gfs/5ee23f54-0c6d-4429-bb43-0516d4311131",
+    "/mnt/glue-gfs/7a755531-908d-4149-beb1-3b3eca906194",
+    "/mnt/glue-gfs/5139d3a4-312f-4f64-8761-2afebcf29b1a",
+    "/mnt/glue-gfs/292703f5-8c15-40fc-9fdf-d94934e4dbea"
+  ]
+}

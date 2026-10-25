@@ -1,0 +1,137 @@
+{
+  "snapshots": [
+    {
+      "id": 79,
+      "name": "SNAP1479UI-31-source-snapshot",
+      "path": "snapshots/2/987/7376b457-d9a6-4035-a4df-71eef39fe896",
+      "role": "Image",
+      "uuid": "35a571b5-eda8-4032-ade1-9109060b2216",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 150
+    },
+    {
+      "id": 80,
+      "name": "SNAP1479UI-31-other-snapshot",
+      "path": "snapshots/2/988/c48a516b-5f06-4985-8f85-9c1ed262e107",
+      "role": "Image",
+      "uuid": "27a03fbc-770b-4723-aca0-6e34eb7e60e8",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 152
+    },
+    {
+      "id": 81,
+      "name": "SNAP1479UI-31-orphan-source-snapshot",
+      "path": "snapshots/2/989/c32f56d6-1a18-406a-a534-4e205f620bd4",
+      "role": "Image",
+      "uuid": "bd7f4750-bde7-47d1-86c1-b3de612060d9",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 154
+    }
+  ],
+  "volumes": [
+    {
+      "id": 987,
+      "name": "SNAP1479UI-31-source",
+      "path": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+      "uuid": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": 757
+    },
+    {
+      "id": 988,
+      "name": "SNAP1479UI-31-other",
+      "path": "1cdac293-2c4d-4ef0-b01d-3b7113eba9fb",
+      "uuid": "1cdac293-2c4d-4ef0-b01d-3b7113eba9fb",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 989,
+      "name": "SNAP1479UI-31-orphan-source",
+      "path": "bf7dd948-fe06-4781-90d7-8e0025631ba6",
+      "uuid": "bf7dd948-fe06-4781-90d7-8e0025631ba6",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 12:58:36.000000",
+      "instanceid": null
+    },
+    {
+      "id": 990,
+      "name": "SNAP1479UI-31-lost-ui-volume",
+      "path": "2f4245c0-2ebf-4097-810e-8168fd5511f2",
+      "uuid": "899ce621-18f4-4d22-9fa4-83844dc22d1d",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 23,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1206232543248,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [
+    {
+      "name": "SNAP1479UI-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "bd7f4750-bde7-47d1-86c1-b3de612060d9"
+    },
+    {
+      "name": "SNAP1479UI-31-other-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "27a03fbc-770b-4723-aca0-6e34eb7e60e8"
+    },
+    {
+      "name": "SNAP1479UI-31-other-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "27a03fbc-770b-4723-aca0-6e34eb7e60e8"
+    },
+    {
+      "name": "SNAP1479UI-31-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "35a571b5-eda8-4032-ade1-9109060b2216"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "admin",
+      "snapshot": 23,
+      "secondary_storage": 1206232543248
+    }
+  ]
+}

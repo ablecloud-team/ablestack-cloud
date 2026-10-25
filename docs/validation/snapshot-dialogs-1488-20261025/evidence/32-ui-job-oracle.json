@@ -1,0 +1,294 @@
+{
+  "requests": [
+    {
+      "file": "32-archive-submit-network.json",
+      "command": "archiveSnapshot",
+      "status": 200,
+      "jobid": "e0f8150f-5cd8-4b4a-a7fb-62cc46dcc4bf",
+      "customjobid": "e0f8150f-5cd8-4b4a-a7fb-62cc46dcc4bf",
+      "definiteRejected": false,
+      "requestId": "17888.9070"
+    },
+    {
+      "file": "32-bulk-delete-partial-retry-network.json",
+      "command": "deleteSnapshot",
+      "status": 200,
+      "jobid": "bb057ba1-2530-4327-9730-59c8419a4072",
+      "customjobid": "bb057ba1-2530-4327-9730-59c8419a4072",
+      "definiteRejected": false,
+      "requestId": "17888.9396"
+    },
+    {
+      "file": "32-bulk-delete-partial-retry-network.json",
+      "command": "deleteSnapshot",
+      "status": 431,
+      "jobid": "da15a673-5894-4db1-abf7-38608e959fa4",
+      "customjobid": "da15a673-5894-4db1-abf7-38608e959fa4",
+      "definiteRejected": true,
+      "requestId": "17888.9407"
+    },
+    {
+      "file": "32-bulk-delete-partial-retry-network.json",
+      "command": "deleteSnapshot",
+      "status": 200,
+      "jobid": "650186da-44a7-44a8-bb92-83146683a85a",
+      "customjobid": "650186da-44a7-44a8-bb92-83146683a85a",
+      "definiteRejected": false,
+      "requestId": "17888.9434"
+    },
+    {
+      "file": "32-copy-real-server-retry-network.json",
+      "command": "copySnapshot",
+      "status": 200,
+      "jobid": "a0040383-d8b2-4e3b-9e47-c3855487fbb8",
+      "customjobid": "a0040383-d8b2-4e3b-9e47-c3855487fbb8",
+      "definiteRejected": false,
+      "requestId": "17888.9261"
+    },
+    {
+      "file": "32-copy-submit-retry-network.json",
+      "command": "copySnapshot",
+      "status": 200,
+      "jobid": "f4f28e6e-19a2-4d30-8d98-c7581aad6a11",
+      "customjobid": "f4f28e6e-19a2-4d30-8d98-c7581aad6a11",
+      "definiteRejected": false,
+      "requestId": "17888.9116"
+    },
+    {
+      "file": "32-create-network.json",
+      "command": "createSnapshot",
+      "status": 200,
+      "jobid": "695cc036-b294-4f2e-8594-23af72da7762",
+      "customjobid": "695cc036-b294-4f2e-8594-23af72da7762",
+      "definiteRejected": false,
+      "requestId": "17888.6639"
+    },
+    {
+      "file": "32-download-submit-network.json",
+      "command": "extractSnapshot",
+      "status": 200,
+      "jobid": "26ac7f24-e861-47e3-bd22-460ca972eedb",
+      "customjobid": "26ac7f24-e861-47e3-bd22-460ca972eedb",
+      "definiteRejected": false,
+      "requestId": "17888.7247"
+    },
+    {
+      "file": "32-final-create-network.json",
+      "command": "createSnapshot",
+      "status": 200,
+      "jobid": "50a4d195-a266-4898-afa6-6501cbcf58cb",
+      "customjobid": "50a4d195-a266-4898-afa6-6501cbcf58cb",
+      "definiteRejected": false,
+      "requestId": "17888.8077"
+    },
+    {
+      "file": "32-recovery-force-submit-network.json",
+      "command": "deleteSnapshot",
+      "status": 200,
+      "jobid": "ee63ae98-841c-4982-9c54-0d6e1b3c5b37",
+      "customjobid": "ee63ae98-841c-4982-9c54-0d6e1b3c5b37",
+      "definiteRejected": false,
+      "requestId": "17888.9453"
+    },
+    {
+      "file": "32-repaired-attached-create-network.json",
+      "command": "createSnapshot",
+      "status": 200,
+      "jobid": "378c1bb3-2843-4e26-b130-a60cc0fba179",
+      "customjobid": "378c1bb3-2843-4e26-b130-a60cc0fba179",
+      "definiteRejected": false,
+      "requestId": "17888.11088"
+    },
+    {
+      "file": "32-repaired-template-rejected-recovery-network.json",
+      "command": "createTemplate",
+      "status": 431,
+      "jobid": "1711d5e5-d57c-4572-ab10-55d4e0a8fe87",
+      "customjobid": "1711d5e5-d57c-4572-ab10-55d4e0a8fe87",
+      "definiteRejected": true,
+      "requestId": "17888.12419"
+    },
+    {
+      "file": "32-restore-submit-network.json",
+      "command": "revertSnapshot",
+      "status": 200,
+      "jobid": "057f691c-2040-4305-9134-4edfb917d72a",
+      "customjobid": "057f691c-2040-4305-9134-4edfb917d72a",
+      "definiteRejected": false,
+      "requestId": "17888.7226"
+    },
+    {
+      "file": "32-single-delete-submit-network.json",
+      "command": "deleteSnapshot",
+      "status": 200,
+      "jobid": "95b5402d-7f62-4198-8329-19b250d8ba01",
+      "customjobid": "95b5402d-7f62-4198-8329-19b250d8ba01",
+      "definiteRejected": false,
+      "requestId": "17888.9360"
+    },
+    {
+      "file": "32-template-submit-retry-network.json",
+      "command": "createTemplate",
+      "status": 431,
+      "jobid": "0fdc7f7c-a267-4221-bbdf-d21678abac4a",
+      "customjobid": "0fdc7f7c-a267-4221-bbdf-d21678abac4a",
+      "definiteRejected": true,
+      "requestId": "17888.7138"
+    },
+    {
+      "file": "32-template-submit-retry-network.json",
+      "command": "createTemplate",
+      "status": 200,
+      "jobid": "3dfb6059-ec6c-4e4f-b647-4aef8e58246a",
+      "customjobid": "3dfb6059-ec6c-4e4f-b647-4aef8e58246a",
+      "definiteRejected": false,
+      "requestId": "17888.7150"
+    },
+    {
+      "file": "32-volume-response-loss-network.json",
+      "command": "createVolume",
+      "status": 503,
+      "jobid": "18e8e0ce-a258-4ce2-9220-edbf9b486827",
+      "customjobid": "18e8e0ce-a258-4ce2-9220-edbf9b486827",
+      "definiteRejected": false,
+      "requestId": "17888.7172"
+    },
+    {
+      "file": "32-zone-delete-submit-network.json",
+      "command": "deleteSnapshot",
+      "status": 200,
+      "jobid": "c37ce710-b846-49f6-b419-e8b8defffdf4",
+      "customjobid": "c37ce710-b846-49f6-b419-e8b8defffdf4",
+      "definiteRejected": false,
+      "requestId": "17888.9315"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 4022,
+      "uuid": "057f691c-2040-4305-9134-4edfb917d72a",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+      "created": "2026-10-25 00:26:07.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4021,
+      "uuid": "18e8e0ce-a258-4ce2-9220-edbf9b486827",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+      "created": "2026-10-25 00:24:35.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4023,
+      "uuid": "26ac7f24-e861-47e3-bd22-460ca972eedb",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+      "created": "2026-10-25 00:26:32.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4101,
+      "uuid": "378c1bb3-2843-4e26-b130-a60cc0fba179",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "created": "2026-10-25 01:13:13.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4020,
+      "uuid": "3dfb6059-ec6c-4e4f-b647-4aef8e58246a",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+      "created": "2026-10-25 00:24:24.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4024,
+      "uuid": "50a4d195-a266-4898-afa6-6501cbcf58cb",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "created": "2026-10-25 00:34:00.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4097,
+      "uuid": "650186da-44a7-44a8-bb92-83146683a85a",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "created": "2026-10-25 00:52:18.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4019,
+      "uuid": "695cc036-b294-4f2e-8594-23af72da7762",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "created": "2026-10-25 00:05:02.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4086,
+      "uuid": "95b5402d-7f62-4198-8329-19b250d8ba01",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "created": "2026-10-25 00:51:22.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4078,
+      "uuid": "a0040383-d8b2-4e3b-9e47-c3855487fbb8",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+      "created": "2026-10-25 00:50:12.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4092,
+      "uuid": "bb057ba1-2530-4327-9730-59c8419a4072",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "created": "2026-10-25 00:51:46.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4082,
+      "uuid": "c37ce710-b846-49f6-b419-e8b8defffdf4",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "created": "2026-10-25 00:51:02.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4076,
+      "uuid": "e0f8150f-5cd8-4b4a-a7fb-62cc46dcc4bf",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd",
+      "created": "2026-10-25 00:45:01.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4100,
+      "uuid": "ee63ae98-841c-4982-9c54-0d6e1b3c5b37",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "created": "2026-10-25 00:52:47.000000",
+      "resultCode": 0
+    },
+    {
+      "id": 4077,
+      "uuid": "f4f28e6e-19a2-4d30-8d98-c7581aad6a11",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+      "created": "2026-10-25 00:45:44.000000",
+      "resultCode": 530
+    }
+  ],
+  "uniqueJobs": 15,
+  "successfulJobs": 14,
+  "expectedServerFailures": [
+    "f4f28e6e-19a2-4d30-8d98-c7581aad6a11"
+  ],
+  "status": "PASS"
+}

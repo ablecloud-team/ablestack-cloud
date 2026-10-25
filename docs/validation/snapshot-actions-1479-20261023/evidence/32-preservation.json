@@ -1,0 +1,48 @@
+{
+  "cluster": "32",
+  "fixtureActive": [
+    {
+      "command": "listVolumes",
+      "count": 0
+    },
+    {
+      "command": "listSnapshots",
+      "count": 0
+    },
+    {
+      "command": "listVirtualMachines",
+      "count": 0
+    },
+    {
+      "command": "listTemplates",
+      "count": 0
+    }
+  ],
+  "preserved": [
+    {
+      "command": "listVolumes",
+      "count": 49,
+      "sha256": "947577d9150586cf142f898557856ad1dbc77b6818ffe6910bd2b76da5f13117",
+      "unchanged": true
+    },
+    {
+      "command": "listSnapshots",
+      "count": 12,
+      "sha256": "c475b26e430c86ab81878523cefd4f0860ce9c3ae69d5908161ded4ce2c6fb57",
+      "unchanged": true
+    },
+    {
+      "command": "listVirtualMachines",
+      "count": 49,
+      "sha256": "66435b8e1bf19914c5c781ee414c19a2d5791a31c1358542e26542430a18263c",
+      "unchanged": true
+    },
+    {
+      "command": "listTemplates",
+      "count": 6,
+      "sha256": "cf04a772cdd8d7ac37c2f5d3d3db3e55f23df7a880f61f885c2e9adef8aa8909",
+      "unchanged": true
+    }
+  ],
+  "status": "PASS"
+}

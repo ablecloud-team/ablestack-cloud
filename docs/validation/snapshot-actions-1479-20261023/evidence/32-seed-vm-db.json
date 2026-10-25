@@ -1,0 +1,11 @@
+[
+  {
+    "id": 227,
+    "name": "SNAP1479-32-vm",
+    "uuid": "c27c7bcf-0036-41cf-be04-3f855a0a4a1c",
+    "state": "Stopped",
+    "hostid": null,
+    "removed": null,
+    "instance": "i-2-227-VM"
+  }
+]

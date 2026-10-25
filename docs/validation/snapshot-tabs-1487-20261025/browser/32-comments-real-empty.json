@@ -1,0 +1,52 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (0)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [],
+  "pagination": [
+    {
+      "text": "전체 0개 항목 중 0-0 표시\n1"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1",
+  "text": "/스냅샷/SNAPTABS1487-32-owner-next업데이트\n작업\nSNAPTABS1487-32-owner-next\n상태\n백업 됨\n아이디\n63ae6fe2-e969-430c-a813-c5044de2c774 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-32-owner\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:07:00\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-owner-next\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n관리자만 표시\n코멘트 (0)\n\n등록된 코멘트가 없습니다.\n\n전체 0개 항목 중 0-0 표시\n1",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 212
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 212
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/63ae6fe2-e969-430c-a813-c5044de2c774?tab=comments",
+  "width": 1280
+}

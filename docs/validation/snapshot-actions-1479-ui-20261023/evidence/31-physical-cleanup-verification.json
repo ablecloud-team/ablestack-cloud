@@ -1,0 +1,21 @@
+{
+  "cluster": "31",
+  "secondarySnapshotFilesAbsent": 3,
+  "knownPrimaryVolumesAbsent": 5,
+  "templateFiles": [],
+  "hosts": [
+    {
+      "host": "10.10.31.1",
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": "10.10.31.2",
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": "10.10.31.3",
+      "fixtureDomainAbsent": true
+    }
+  ],
+  "status": "PASS"
+}

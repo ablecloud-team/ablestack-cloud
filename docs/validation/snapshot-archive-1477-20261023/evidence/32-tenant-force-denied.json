@@ -1,0 +1,72 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "141e60ae-55fd-4844-907c-9e91cf35ce13",
+    "name": "SNAP1477-32-tenant",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 77,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      },
+      {
+        "referenceid": 78,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      }
+    ],
+    "scopehash": "f5642c769e2ad852d7fd3a06760a6feeaf926025d6df41202eb7fac61b48f747",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "results": [
+    {
+      "dryrun": true,
+      "denied": true,
+      "failure": "{\"accountid\":\"528d6be5-f0b4-41cf-a918-3144afca7887\",\"account\":\"snap1477-32-tenant\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"7439886b-02ad-4727-afc5-3ca70e297846\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Forced snapshot cleanup requires a root administrator\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"141e60ae-55fd-4844-907c-9e91cf35ce13\",\"created\":\"2026-10-23T17:25:20+0900\",\"completed\":\"2026-10-23T17:25:20+0900\",\"jobid\":\"7ff0d30c-c9bd-4ba0-9aa1-8803306aa427\",\"jobstatus\":2}"
+    },
+    {
+      "dryrun": false,
+      "denied": true,
+      "failure": "{\"accountid\":\"528d6be5-f0b4-41cf-a918-3144afca7887\",\"account\":\"snap1477-32-tenant\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"7439886b-02ad-4727-afc5-3ca70e297846\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Forced snapshot cleanup requires a root administrator\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"141e60ae-55fd-4844-907c-9e91cf35ce13\",\"created\":\"2026-10-23T17:25:20+0900\",\"completed\":\"2026-10-23T17:25:20+0900\",\"jobid\":\"c55c3bc4-5857-4df6-849e-ff30127d720f\",\"jobstatus\":2}"
+    }
+  ],
+  "after": {
+    "success": true,
+    "snapshotid": "141e60ae-55fd-4844-907c-9e91cf35ce13",
+    "name": "SNAP1477-32-tenant",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 77,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      },
+      {
+        "referenceid": 78,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      }
+    ],
+    "scopehash": "f5642c769e2ad852d7fd3a06760a6feeaf926025d6df41202eb7fac61b48f747",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

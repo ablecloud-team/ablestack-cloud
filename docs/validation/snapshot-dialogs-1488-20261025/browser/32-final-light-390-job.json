@@ -1,0 +1,266 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 642,
+    "height": 574,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyScroll": {
+    "clientHeight": 574,
+    "clientWidth": 354,
+    "height": 941,
+    "overflowY": "auto",
+    "width": 354
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 61,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 13
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 937.140625,
+        "height": 32,
+        "right": 175.546875,
+        "width": 146.546875,
+        "x": 29,
+        "y": 905.140625
+      },
+      "text": "기존 작업 결과 조회"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 691,
+        "height": 32,
+        "right": 361,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 659
+      },
+      "text": "닫기"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 51,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 29
+      },
+      "text": "작업 상세"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 123.5,
+        "height": 38.5,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 85
+      },
+      "text": "스냅샷 다운로드"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 316.5,
+        "height": 193,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 123.5
+      },
+      "text": "SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 355.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 316.5
+      },
+      "text": "작업 완료"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 394,
+        "height": 38.5,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 355.5
+      },
+      "text": "2026. 10. 25. 오전 9:26:29"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 77, 29)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 452.140625,
+        "height": 25.140625,
+        "right": 335,
+        "width": 242,
+        "x": 93,
+        "y": 427
+      },
+      "text": "다운로드 준비가 완료되었습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 77, 29)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 522.140625,
+        "height": 66,
+        "right": 335,
+        "width": 242,
+        "x": 93,
+        "y": 456.140625
+      },
+      "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 615.640625,
+        "height": 60.5,
+        "right": 350,
+        "width": 182.53125,
+        "x": 167.46875,
+        "y": 555.140625
+      },
+      "text": "SNAPDIALOG1488-32-ui.qcow2"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 654.640625,
+        "height": 39,
+        "right": 350,
+        "width": 182.53125,
+        "x": 167.46875,
+        "y": 615.640625
+      },
+      "text": "QCOW2"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 693.640625,
+        "height": 39,
+        "right": 350,
+        "width": 182.53125,
+        "x": 167.46875,
+        "y": 654.640625
+      },
+      "text": "1 GiB (1,073,741,824 B)"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 754.140625,
+        "height": 60.5,
+        "right": 350,
+        "width": 182.53125,
+        "x": 167.46875,
+        "y": 693.640625
+      },
+      "text": "0.0013 GiB (1,376,256 B)"
+    }
+  ],
+  "dialog": {
+    "bottom": 708,
+    "height": 696,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 707,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 642
+  },
+  "groups": [],
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 720,
+  "inputs": [],
+  "tables": [],
+  "text": "작업 상세\n동작\t스냅샷 다운로드\n작업 대상\tSNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n상태\t작업 완료\n생성일\t2026. 10. 25. 오전 9:26:29\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPDIALOG1488-32-ui.qcow2\n형식\tQCOW2\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t0.0013 GiB (1,376,256 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기",
+  "title": "작업 상세",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f",
+  "width": 390
+}

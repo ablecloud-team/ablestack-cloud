@@ -1,0 +1,12 @@
+{
+  "format": "qcow2",
+  "virtualSize": 107374182400,
+  "fileSize": 2419720192,
+  "fullHttp200": true,
+  "rangeHttp206": true,
+  "sourceSha256": "0ca0e5bcd8200195f3b4c1fb31c4e440478c121467b4c04b2879dd7b5805a250",
+  "downloadSha256": "0ca0e5bcd8200195f3b4c1fb31c4e440478c121467b4c04b2879dd7b5805a250",
+  "sourceUnchanged": true,
+  "dataPatternChecked": false,
+  "dataPattern": "ROOT backup verified by independent template and guest boot evidence"
+}

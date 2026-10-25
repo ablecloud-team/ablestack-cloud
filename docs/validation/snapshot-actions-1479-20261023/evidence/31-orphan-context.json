@@ -1,0 +1,33 @@
+{
+  "count": 1,
+  "snapshot": [
+    {
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": false,
+        "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "createreason": "SOURCE_VOLUME_UNAVAILABLE"
+      },
+      "id": "140bc334-a5a9-4538-a652-d9c76a36ef91",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "c1125109-a685-4280-91b9-e1ccd481cc30",
+      "volumename": "SNAP1479-31-orphan-source",
+      "volumetype": "DATADISK",
+      "volumestate": "Expunged",
+      "created": "2026-10-23T19:05:35+0900",
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 1376256,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "revertable": false,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false
+    }
+  ]
+}

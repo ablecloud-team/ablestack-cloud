@@ -1,0 +1,8 @@
+
+> cloudstack-ui@4.22.0 lint
+> vue-cli-service lint --no-fix src/utils/storageSnapshotContext.js src/utils/storageSnapshotTransfer.js src/views/storage/SnapshotZones.vue src/views/storage/SnapshotCopyDialog.vue src/views/storage/StorageSnapshotActionDialog.vue src/components/view/StorageSnapshotJobDialog.vue src/config/section/storage.js tests/unit/views/storage/SnapshotTransfer.spec.js tests/unit/views/storage/SnapshotCopies.spec.js tests/unit/utils/storageSnapshotContext.spec.js tests/unit/views/storage/StorageSnapshotActionDialog.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ DONE  No lint errors found!

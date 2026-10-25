@@ -1,0 +1,664 @@
+{
+  "31-raw-light": {
+    "background": "rgb(255, 255, 255)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "동작"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-31-raw"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "상태"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "2026. 10. 24. 오전 8:03:04"
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-31-raw.raw"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "형식"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "RAW"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "1 GiB (1,073,741,824 B)"
+      }
+    ],
+    "filename": "SNAPD1475-31-raw.raw",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.31.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-31-raw\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 8:03:04\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-31-raw.raw\n형식\tRAW\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t1 GiB (1,073,741,824 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+    "width": 720
+  },
+  "32-raw-dark": {
+    "background": "rgb(34, 40, 47)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "동작"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-32-raw"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "상태"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "2026. 10. 24. 오전 8:03:05"
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-32-raw.raw"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "형식"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "RAW"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "1 GiB (1,073,741,824 B)"
+      }
+    ],
+    "filename": "SNAPD1475-32-raw.raw",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/less.min.js",
+      "http://10.10.32.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.32.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-32-raw\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 8:03:05\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-32-raw.raw\n형식\tRAW\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t1 GiB (1,073,741,824 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.32.6/userdata/caef15a9-b3a8-4b12-ad85-ac5ee796198a/SNAPD1475-32-raw.raw",
+    "width": 720
+  },
+  "31-raw-dark": {
+    "background": "rgb(34, 40, 47)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "동작"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-31-raw"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "상태"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "2026. 10. 24. 오전 8:03:04"
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-31-raw.raw"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "형식"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "RAW"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "1 GiB (1,073,741,824 B)"
+      }
+    ],
+    "filename": "SNAPD1475-31-raw.raw",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.31.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-31-raw\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 8:03:04\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-31-raw.raw\n형식\tRAW\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t1 GiB (1,073,741,824 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+    "width": 720
+  },
+  "32-raw-light": {
+    "background": "rgb(255, 255, 255)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "동작"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-32-raw"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "상태"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "2026. 10. 24. 오전 8:03:05"
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-32-raw.raw"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "형식"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "RAW"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "1 GiB (1,073,741,824 B)"
+      }
+    ],
+    "filename": "SNAPD1475-32-raw.raw",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/less.min.js",
+      "http://10.10.32.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.32.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-32-raw\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 8:03:05\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-32-raw.raw\n형식\tRAW\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t1 GiB (1,073,741,824 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.32.6/userdata/caef15a9-b3a8-4b12-ad85-ac5ee796198a/SNAPD1475-32-raw.raw",
+    "width": 720
+  },
+  "31-qcow2-dark": {
+    "background": "rgb(34, 40, 47)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "동작"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-31-native"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "상태"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "2026. 10. 24. 오전 7:57:49"
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(211, 244, 220)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "SNAPD1475-31-native.qcow2"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "형식"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "QCOW2"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.85)",
+        "text": "0.0023 GiB (2,490,368 B)"
+      }
+    ],
+    "filename": "SNAPD1475-31-native.qcow2",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.31.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-31-native\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 7:57:49\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-31-native.qcow2\n형식\tQCOW2\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t0.0023 GiB (2,490,368 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+    "width": 720
+  },
+  "32-qcow2-light": {
+    "background": "rgb(255, 255, 255)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "동작"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "스냅샷 다운로드"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 대상"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-32-native"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "상태"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "작업 완료"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "생성일"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "2026. 10. 24. 오전 7:59:35"
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "다운로드 준비가 완료되었습니다."
+      },
+      {
+        "color": "rgb(31, 77, 29)",
+        "text": "이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요."
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "파일 명"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "SNAPD1475-32-native.qcow2"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "형식"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "QCOW2"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "가상 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "1 GiB (1,073,741,824 B)"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "다운로드 파일 크기"
+      },
+      {
+        "color": "rgb(75, 85, 99)",
+        "text": "0.0023 GiB (2,490,368 B)"
+      }
+    ],
+    "filename": "SNAPD1475-32-native.qcow2",
+    "headerPadding": "16px 24px",
+    "height": 656,
+    "noOverlap": true,
+    "rel": "noopener noreferrer",
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/less.min.js",
+      "http://10.10.32.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.32.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-32-native\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 7:59:35\n다운로드 준비가 완료되었습니다.\n이 링크를 아는 사람은 로그인 없이 파일을 내려받을 수 있습니다. 링크를 안전하게 보관하세요.\n파일 명\tSNAPD1475-32-native.qcow2\n형식\tQCOW2\n가상 크기\t1 GiB (1,073,741,824 B)\n다운로드 파일 크기\t0.0023 GiB (2,490,368 B)\n스냅샷 파일 다운로드\n\n링크가 만료되거나 접근할 수 없으면 스냅샷에서 다운로드 링크를 다시 생성하세요. 링크를 다시 생성하면 이전 링크는 폐기됩니다.\n\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구",
+    "url": "http://10.10.32.6/userdata/f086d0e2-ef53-411c-85d7-1964f1aa3d45/SNAPD1475-32-native.qcow2",
+    "width": 720
+  },
+  "31-prepare-dark": {
+    "background": "rgb(34, 40, 47)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다."
+      },
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다."
+      },
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요."
+      }
+    ],
+    "headerPadding": "16px 24px",
+    "height": 317.140625,
+    "noOverlap": true,
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/chunk-305c9f86.74db7118.js",
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.31.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다.\n실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다.\n기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요.",
+    "width": 720
+  },
+  "32-prepare-light": {
+    "background": "rgb(255, 255, 255)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다."
+      },
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다."
+      },
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요."
+      }
+    ],
+    "headerPadding": "16px 24px",
+    "height": 317.140625,
+    "noOverlap": true,
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/chunk-305c9f86.74db7118.js",
+      "http://10.10.32.10:8080/client/js/less.min.js",
+      "http://10.10.32.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.32.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다.\n실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다.\n기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요.",
+    "width": 720
+  },
+  "31-prepare-light": {
+    "background": "rgb(255, 255, 255)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다."
+      },
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다."
+      },
+      {
+        "color": "rgb(11, 59, 102)",
+        "text": "기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요."
+      }
+    ],
+    "headerPadding": "16px 24px",
+    "height": 317.140625,
+    "noOverlap": true,
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/chunk-305c9f86.74db7118.js",
+      "http://10.10.31.10:8080/client/js/less.min.js",
+      "http://10.10.31.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.31.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다.\n실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다.\n기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요.",
+    "width": 720
+  },
+  "32-prepare-dark": {
+    "background": "rgb(34, 40, 47)",
+    "bodyPadding": "24px 28px",
+    "colors": [
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다."
+      },
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다."
+      },
+      {
+        "color": "rgb(214, 235, 255)",
+        "text": "기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요."
+      }
+    ],
+    "headerPadding": "16px 24px",
+    "height": 317.140625,
+    "noOverlap": true,
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/chunk-305c9f86.74db7118.js",
+      "http://10.10.32.10:8080/client/js/less.min.js",
+      "http://10.10.32.10:8080/client/js/vendors.db346b57.js",
+      "http://10.10.32.10:8080/client/js/app.c7685c71.js"
+    ],
+    "text": "원본 볼륨이 없어도 스냅샷 백업을 다운로드할 수 있습니다.\n실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다.\n기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요.",
+    "width": 720
+  }
+}

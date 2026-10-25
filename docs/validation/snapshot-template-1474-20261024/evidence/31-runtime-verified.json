@@ -1,0 +1,23 @@
+{
+  "snapshotClassSha256": "3fd36e1584861c5fc2f85d6ff8c6bc3b75f29e1bf279083ede39b92d05cc8ec3",
+  "jarSha256": "1034fe4a64ef0339a840f5e8ffa288c4360896ada2b2a86409347a44e193c4b6",
+  "WEB-INF": true,
+  "configSha256": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13",
+  "indexSha256": "31363c537906de444ece7341f31598aeb609f6980fbe67fbb337a58f7998e63c",
+  "mold": "active",
+  "http": "200",
+  "agents": [
+    {
+      "metadataSha256": "0edb9a803dc7c2df2447e07b204cba3070327bed62c9a72a58cb489fd1629ce5",
+      "host": "1"
+    },
+    {
+      "metadataSha256": "0edb9a803dc7c2df2447e07b204cba3070327bed62c9a72a58cb489fd1629ce5",
+      "host": "2"
+    },
+    {
+      "metadataSha256": "0edb9a803dc7c2df2447e07b204cba3070327bed62c9a72a58cb489fd1629ce5",
+      "host": "3"
+    }
+  ]
+}

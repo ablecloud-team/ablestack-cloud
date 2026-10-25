@@ -1,0 +1,40 @@
+{
+  "files": 922,
+  "verified": true,
+  "backup": "/nfs/snapshot-breadcrumb-20261025-ui-submit-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "ae2896c258f21ee7f3e46f7002ff4a0bc94a249aebf2b875396936e92317dbdd",
+  "largeFileMetadataUnchanged": {},
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-list-actions": true,
+    "snapshot-search-keyword": true,
+    "filter-group-button-search": true,
+    "mold-dialog-focus-content": true,
+    "snapshot-dialog-targets": true,
+    "snapshot-dialog-form": true,
+    "message.snapshot.dialog.delete.zone": true,
+    "snapshot-zones": true,
+    "events-tab": true,
+    "annotations-tab": true,
+    "message.detail.tab.incomplete": true,
+    "message.snapshot.copy.search.empty": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "js/vendors.abe728a0.js.map",
+    "js/app.7b27d56f.js.map",
+    "js/app.7b27d56f.js",
+    "js/vendors.abe728a0.js",
+    "css/app.efcea546.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root  383G  181G  202G  48% /\n/dev/mapper/rl-nfs   350G  311G   39G  89% /nfs\n"
+}

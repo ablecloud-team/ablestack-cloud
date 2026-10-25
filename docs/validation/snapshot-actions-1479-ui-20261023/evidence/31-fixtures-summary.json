@@ -1,0 +1,57 @@
+{
+  "cluster": "31",
+  "prefix": "SNAP1479UI-31",
+  "vm": {
+    "id": "c9b7186a-a58a-4c0b-b5f3-84213afacb1d",
+    "name": "SNAP1479UI-31-vm",
+    "instancename": "i-2-757-VM"
+  },
+  "project": {
+    "id": "06542644-28f6-42ee-ad36-52e967fd7677",
+    "name": "SNAP1479UI-31-project"
+  },
+  "volumes": [
+    {
+      "id": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+      "name": "SNAP1479UI-31-source",
+      "scenario": "source"
+    },
+    {
+      "id": "1cdac293-2c4d-4ef0-b01d-3b7113eba9fb",
+      "name": "SNAP1479UI-31-other",
+      "scenario": "other"
+    },
+    {
+      "id": "bf7dd948-fe06-4781-90d7-8e0025631ba6",
+      "name": "SNAP1479UI-31-orphan-source",
+      "scenario": "orphan-source"
+    },
+    {
+      "id": "3391e98c-d064-4b8d-9ac8-572a2d24d323",
+      "name": "ROOT-757",
+      "scenario": "vm-root"
+    },
+    {
+      "id": "899ce621-18f4-4d22-9fa4-83844dc22d1d",
+      "name": "SNAP1479UI-31-lost-ui-volume",
+      "scenario": "lost-ui-volume"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "35a571b5-eda8-4032-ade1-9109060b2216",
+      "name": "SNAP1479UI-31-source-snapshot",
+      "scenario": "source"
+    },
+    {
+      "id": "27a03fbc-770b-4723-aca0-6e34eb7e60e8",
+      "name": "SNAP1479UI-31-other-snapshot",
+      "scenario": "other"
+    },
+    {
+      "id": "bd7f4750-bde7-47d1-86c1-b3de612060d9",
+      "name": "SNAP1479UI-31-orphan-source-snapshot",
+      "scenario": "orphan-source"
+    }
+  ]
+}

@@ -22,7 +22,7 @@ beforeEach(() => getAPI.mockReset())
 
 function mountedTab (name, resourceType, comments) {
   const route = reactive({ path: '/' + name + '/first', fullPath: '/' + name + '/first', query: {}, meta: { resourceType } })
-  const getters = reactive({ apis: { listAnnotations: {}, addAnnotation: {} }, userInfo: { id: 'user', roletype: 'Admin' }, project: {}, defaultListViewPageSize: 10 })
+  const getters = reactive({ apis: { listAnnotations: {}, addAnnotation: {}, listEvents: {} }, userInfo: { id: 'user', roletype: 'Admin' }, project: {}, defaultListViewPageSize: 10 })
   const wrapper = shallowMount(comments ? AnnotationsTab : EventsTab, {
     props: { resource: { id: 'first' }, ...(!comments ? { resourceType, loading: false } : {}) },
     global: { provide: { parentFetchData: jest.fn() }, mocks: { $route: route, $store: { getters, state: { user: {} } }, $localStorage: { get: () => null }, $t: key => key, $toLocaleDate: value => value, $notifyError: jest.fn() } }
@@ -74,7 +74,8 @@ describe.each([false, true])('shared detail response ownership (comments=%s)', c
     releases[0](comments ? { listannotationsresponse: { count: 1, annotation: [{ id: 'old-private' }] } } : { listeventsresponse: { count: 1, event: [{ id: 'old-private' }] } })
     await flushPromises()
     expect(comments ? wrapper.vm.notes : wrapper.vm.events).toEqual([])
-    releases[1](comments ? { listannotationsresponse: { count: 1, annotation: [{ id: 'current' }] } } : { listeventsresponse: { count: 1, event: [{ id: 'current' }] } })
+    const count = change === 'page' ? wrapper.vm.pageSize + 1 : 1
+    releases[1](comments ? { listannotationsresponse: { count, annotation: [{ id: 'current' }] } } : { listeventsresponse: { count, event: [{ id: 'current' }] } })
     await pending; await flushPromises()
     expect(comments ? wrapper.vm.notes[0].id : wrapper.vm.events[0].id).toBe('current')
     wrapper.unmount()

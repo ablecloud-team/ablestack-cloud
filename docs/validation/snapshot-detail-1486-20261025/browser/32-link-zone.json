@@ -1,0 +1,82 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "할당 상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "HA 활성화",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "CPU",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "메모리",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/zone",
+      "text": "Zone"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/conceptsandterminology/concepts.html#about-zones",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "991d2f57-0f37-4445-b956-09773d064816 "
+    },
+    {
+      "href": "#/pod?zoneid=991d2f57-0f37-4445-b956-09773d064816",
+      "text": "Pod 보기"
+    },
+    {
+      "href": "#/cluster?zoneid=991d2f57-0f37-4445-b956-09773d064816",
+      "text": "클러스터 보기"
+    },
+    {
+      "href": "#/host?zoneid=991d2f57-0f37-4445-b956-09773d064816",
+      "text": "호스트 보기"
+    },
+    {
+      "href": "#/storagepool?zoneid=991d2f57-0f37-4445-b956-09773d064816",
+      "text": "기본 스토리지 보기"
+    },
+    {
+      "href": "#/imagestore?zoneid=991d2f57-0f37-4445-b956-09773d064816",
+      "text": "2차 스토리지 보기"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "text": "/Zone/Zone업데이트\n작업\nZone\nCore\n할당 상태\n정상\nHA 활성화\n정상\n아이디\n991d2f57-0f37-4445-b956-09773d064816 \nCPU\n604.80 Ghz\n0.80% 사용됨\n9.42% 할당됨\n메모리\n750.43 GiB 메모리\n23.91% 사용됨\n6.06% 할당됨\nPod 보기\n클러스터 보기\n호스트 보기\n기본 스토리지 보기\n2차 스토리지 보기\n상세\n물리 네트워크\nIPv4 서브넷\nAS Number\nBGP 피어\n시스템 VM\n리소스\n설정\n이벤트\n코멘트\n이름\n\nZone\n아이디\n\n991d2f57-0f37-4445-b956-09773d064816\n할당 상태\n\nEnabled\n유형\n\nCore\n네트워크 유형\n\nAdvanced\n게스트 CIDR\n\n10.1.1.0/24\n사용자 VM에 로컬 스토리지 사용\n\nfalse\n보안그룹 활성화\n\nfalse\nDNS 1\n\n8.8.8.8\n내부 DNS 1\n\n8.8.8.8\nAS Range\n\nHA 활성화\n\ntrue\n전용\n아니오\n전용 Zone",
+  "url": "http://10.10.32.10:8080/client/#/zone/991d2f57-0f37-4445-b956-09773d064816",
+  "width": 1280,
+  "expectedHref": "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+}

@@ -1,0 +1,292 @@
+Browser tab: 14, Title: "볼륨 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 content list sub_menu_2_$$_/storage-popup
+					15 hdd 볼륨
+						16 link Description: hdd 볼륨, Value: localhost:18031/client/#/volume
+					17 build 스냅샷
+						18 link Description: build 스냅샷, Value: localhost:18031/client/#/snapshot
+					19 build 스냅샷 정책
+						20 link Description: build 스냅샷 정책, Value: localhost:18031/client/#/snapshotpolicy
+					21 funnel-plot 버킷
+						22 link Description: funnel-plot 버킷, Value: localhost:18031/client/#/buckets
+					23 file-text 공유 파일 시스템
+						24 link Description: file-text 공유 파일 시스템, Value: localhost:18031/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 schedule 이벤트
+					32 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				33 project 프로젝트
+					34 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				35 team 계정
+					36 link Description: team 계정, Value: localhost:18031/client/#/account
+				37 global Zone
+					38 link Description: global Zone, Value: localhost:18031/client/#/zones
+				39 container
+					40 image shopping
+					41 text 서비스 오퍼링
+				42 container
+					43 image tool
+					44 text 도구
+				45 read API 문서
+					46 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			49 container
+				50 combo box (settable) rc_select_0
+				51 image project
+				52 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		234 button 알림 제거
+		60 container
+			312 container
+				313 container
+					314 link Description: home, Value: localhost:18031/client/#/
+					315 text /
+					316 link Description: 볼륨, Value: localhost:18031/client/#/volume
+					317 text / SNAP1479-31-tenant-source
+					318 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+					319 button reload 업데이트
+						320 image reload
+						321 text 업데이트
+				322 button down 작업
+					323 image down
+					324 text 작업
+			80 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				81 image right
+				82 text 스냅샷 작업 및 결과 확인
+			309 text createVolume · SNAP1479-31-tenant-snapshot
+			325 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:41:18.276Z
+			311 text 요청 UUID: f7b5c840-7cb2-4a1b-b420-e4fc651a7587
+			326 container
+				327 image close-circle
+				328 text canceled
+			235 text createVolume · SNAP1479-31-tenant-snapshot
+			236 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:40:44.389Z
+			237 text 요청 UUID: 0ac2ae13-4ae7-4e58-a04a-d6dbe32c3939
+			238 container
+				239 image close-circle
+				240 text 현재 계정에 이 작업 권한이 없습니다. 권한과 로그인 정보를 다시 확인하세요.
+			83 text deleteSnapshot · SNAP1479-31-lost-reload-ui
+			84 text 24165be4-ed23-4c19-b4ee-d2893a038621 · 작업 완료 · 2026-10-23T11:39:15.362Z
+			85 text 작업 ID: 18222563-f3f5-44ae-ba73-37a7cea972d7
+			86 button 기존 작업 결과 조회
+			87 text createVolume · SNAP1479-31-tenant-snapshot
+			88 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:28:47.246Z
+			89 text 요청 UUID: 20bbf36c-619e-4a87-99c3-60dd16ba72ac
+			90 container
+				91 image close-circle
+				92 text Request failed with status code 530
+			93 text createSnapshot · SNAP1479-31-tenant-source
+			94 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:23:54.177Z
+			95 text 작업 ID: 38d0c071-c199-4ceb-8b2e-12415b360230
+			96 button 기존 작업 결과 조회
+			97 text createSnapshot · SNAP1479-31-tenant-source
+			98 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:16:50.480Z
+			99 text 작업 ID: be72fead-2966-4577-a89c-b148042bb96c
+			100 button 기존 작업 결과 조회
+			329 container
+				330 image hdd
+				331 heading SNAP1479-31-tenant-source, Value: 4
+					332 text SNAP1479-31-tenant-source
+				333 text DATADISK
+				334 text 상태 사용 가능 아이디
+				335 button 아이디 복사
+					336 image barcode
+				337 link Description: 0e51c938-b2c0-4101-8a7f-ba071ad20e53 , Value: javascript:;
+				338 text 디스크 크기(GB 단위)
+				339 image hdd
+				340 text 1.00 GiB Zone
+				341 image global
+				342 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				343 text 계정
+				344 image user
+				345 text snap1479-31-tenant 도메인
+				346 image block
+				347 text ROOT 생성일
+				348 image calendar
+				349 text 2026. 10. 23. 오후 7:21:35
+				350 link Description: build 스냅샷 보기, Value: localhost:18031/client/#/snapshot?volumeid=0e51c938-b2c0-4101-8a7f-ba071ad20e53
+				351 container
+					352 text 태그
+					353 container
+						354 image plus
+						355 text  새 태그
+			356 container
+				357 tab group
+					358 container
+						359 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						360 tab (selectable, settable, boolean) 스냅샷, Value: 0, ID: rc-tabs-1-tab-snapshots
+						361 tab (selectable, settable, boolean) 정기스냅샷, Value: 0, ID: rc-tabs-1-tab-recurringsnapshots
+						362 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						363 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				364 container Description: 상세, ID: rc-tabs-1-panel-details
+					365 content list
+						366 container
+							367 text 이름
+							368 text SNAP1479-31-tenant-source
+						369 container
+							370 text 아이디
+							371 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						372 container
+							373 text 유형
+							374 text DATADISK
+						375 container
+							376 text 디스크 오퍼링
+							377 text Custom-GFS-Sparse
+						378 container
+							379 text 크기
+							380 text 1.00 GiB
+						381 container
+							382 text 프로비저닝 유형
+							383 text sparse
+						384 container
+							385 text Write-Cache 유형
+							386 text none
+						387 container
+							388 text 압축/중복제거
+							389 text false
+						390 container
+							391 text 압축 사용 상태
+							392 text false
+						393 container
+							394 text 중복제거 사용 상태
+							395 text false
+						396 container
+							397 text 삭제 보호
+							398 text false
+						399 container
+							400 text 요청 정책 / 형식
+							401 text 기존 호환 값: sparse
+						402 container
+							403 text 확정 정책
+							404 text 알 수 없음
+						405 container
+							406 text 실제 적용 정책
+							407 text 알 수 없음
+						408 container
+							409 text 실제 적용 방식
+							410 text 알 수 없음
+						411 container
+							412 text 실제 이미지 형식
+							413 text QCOW2
+						414 container
+							415 text 논리 용량
+							416 text 1.00 GiB
+						417 container
+							418 text 관측 할당량
+							419 image question-circle
+							420 text 알 수 없음
+						421 container
+							422 text 관측 시각
+							423 text 알 수 없음
+						424 container
+							425 text 할당 증거
+							426 text 미검증
+	427 container
+		428 image close-circle
+		429 text 요청 실패
+		430 link close
+			431 image close
+		432 image close-circle
+		433 text 요청 실패
+		434 link close
+			435 image close
+	249 container
+		250 container 볼륨 생성 도움말
+			251 container
+				252 button Close
+					253 image close
+				254 container vcDialogTitle1
+					255 text 볼륨 생성
+					256 link Description: 도움말, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				436 container
+					437 container
+						465 text * 이름
+						439 image info-circle
+					440 text field (settable) * 이름 info-circle * 이름 info-circle, ID: form_item_name
+					441 container
+						466 text * Zone
+						443 image info-circle
+					444 container
+						445 combo box (settable) * Zone info-circle * Zone info-circle, ID: form_item_zoneid
+						446 image global
+						447 text  Zone
+					448 container
+						467 text * 디스크 오퍼링
+						450 image info-circle
+					451 container
+						452 combo box (settable) * 디스크 오퍼링 info-circle * 디스크 오퍼링 info-circle, ID: form_item_diskofferingid
+						453 text ABLESTACK V2K migration disk offering with writeback cache
+					468 text 기존 호환 값: thin
+					454 container
+						469 text * 크기
+						455 image info-circle
+					456 text field (settable) * 크기 info-circle * 크기 info-circle, ID: form_item_size
+					457 container
+						458 text 인스턴스에 연결
+						459 image info-circle
+					460 switch 인스턴스에 연결 info-circle 인스턴스에 연결 info-circle, Value: 0, ID: form_item_attachVolume
+					461 button 취소
+					462 button 확인
+	463 container
+		464 container 볼륨 생성 도움말
+			470 container
+				471 button Close
+					472 image close
+				473 container vcDialogTitle2
+					474 text 볼륨 생성
+					475 link Description: 도움말, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				476 container
+					477 container
+						478 text * 이름
+						479 image info-circle
+					480 text field (settable) form_item_name
+					481 container
+						482 text * Zone
+						483 image info-circle
+					484 container
+						485 combo box (settable) form_item_zoneid
+						486 image global
+						487 text  Zone
+					488 container
+						489 text * 디스크 오퍼링
+						490 image info-circle
+					491 container
+						492 combo box (settable) form_item_diskofferingid
+						493 text ABLESTACK V2K migration disk offering with writeback cache
+					494 text 기존 호환 값: thin
+					495 container
+						496 text * 크기
+						497 image info-circle
+					498 text field (settable) form_item_size
+					499 container
+						500 text 인스턴스에 연결
+						501 image info-circle
+					502 switch Value: 0, ID: form_item_attachVolume
+				503 container
+					504 button 취소
+					505 button 확인
+
+The focused UI element is 506 container

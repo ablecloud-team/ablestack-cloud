@@ -1,0 +1,146 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 514.140625,
+    "height": 318.28125,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 195.859375
+  },
+  "bodyScroll": {
+    "clientHeight": 318,
+    "clientWidth": 364,
+    "height": 318,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 188.859375,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 140.859375
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 563.140625,
+        "height": 32,
+        "right": 202.28125,
+        "width": 57.765625,
+        "x": 144.515625,
+        "y": 531.140625
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 563.140625,
+        "height": 32,
+        "right": 361,
+        "width": 142.71875,
+        "x": 218.28125,
+        "y": 531.140625
+      },
+      "text": "다운로드 링크 생성"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 178.859375,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 156.859375
+      },
+      "text": "스냅샷 다운로드"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 412.140625,
+        "height": 50.28125,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 361.859375
+      },
+      "text": "실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 482.140625,
+        "height": 66,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 416.140625
+      },
+      "text": "기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요."
+    }
+  ],
+  "dialog": {
+    "bottom": 580.140625,
+    "height": 440.28125,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 139.859375
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 579.140625,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 514.140625
+  },
+  "groups": [],
+  "header": {
+    "bottom": 195.859375,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 140.859375
+  },
+  "height": 720,
+  "inputs": [],
+  "tables": [],
+  "text": "스냅샷 다운로드\n\n스냅샷 이름: SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n\n실제 백업 파일을 확인한 뒤 다운로드 링크를 생성합니다.\n기존 다운로드 링크가 있으면 폐기됩니다. 완료 후 상단 알림의 작업 상세에서 파일을 내려받으세요.\n취소\n다운로드 링크 생성",
+  "title": "스냅샷 다운로드",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+  "width": 390
+}

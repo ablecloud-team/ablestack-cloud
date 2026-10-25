@@ -1,0 +1,508 @@
+{
+  "status": "PASS",
+  "checks": 106,
+  "javaTests": 112,
+  "uiTests": 193,
+  "uiSuites": 14,
+  "downloadProofs": 8,
+  "matrix": [
+    {
+      "cluster": "31",
+      "entry": "native-after",
+      "sourceFormat": "QCOW2",
+      "format": "QCOW2",
+      "virtualSize": 1073741824,
+      "fileSize": 2490368,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "entry": "raw",
+      "sourceFormat": "QCOW2",
+      "format": "RAW",
+      "virtualSize": 1073741824,
+      "fileSize": 1073741824,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "entry": "native-ui",
+      "sourceFormat": "QCOW2",
+      "format": "QCOW2",
+      "virtualSize": 1073741824,
+      "fileSize": 2490368,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "entry": "raw-ui",
+      "sourceFormat": "QCOW2",
+      "format": "RAW",
+      "virtualSize": 1073741824,
+      "fileSize": 1073741824,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "entry": "native-after",
+      "sourceFormat": "RAW",
+      "format": "QCOW2",
+      "virtualSize": 1073741824,
+      "fileSize": 2490368,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "entry": "raw",
+      "sourceFormat": "RAW",
+      "format": "RAW",
+      "virtualSize": 1073741824,
+      "fileSize": 1073741824,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "entry": "native-ui",
+      "sourceFormat": "RAW",
+      "format": "QCOW2",
+      "virtualSize": 1073741824,
+      "fileSize": 2490368,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "entry": "raw-ui",
+      "sourceFormat": "RAW",
+      "format": "RAW",
+      "virtualSize": 1073741824,
+      "fileSize": 1073741824,
+      "passed": true
+    }
+  ],
+  "results": [
+    {
+      "check": "24 changed source/test files and two unchanged common inspectors",
+      "passed": true
+    },
+    {
+      "check": "source hashes match this checkout",
+      "passed": true
+    },
+    {
+      "check": "core-tests.log focused tests/install",
+      "passed": true
+    },
+    {
+      "check": "server-final-tests.log focused tests/install",
+      "passed": true
+    },
+    {
+      "check": "secondary-final-tests.log focused tests/install",
+      "passed": true
+    },
+    {
+      "check": "Java focused total 112",
+      "passed": true
+    },
+    {
+      "check": "api-build.log changed module install",
+      "passed": true
+    },
+    {
+      "check": "driver-final-build.log changed module install",
+      "passed": true
+    },
+    {
+      "check": "UI 193 tests in 14 suites",
+      "passed": true
+    },
+    {
+      "check": "no-fix lint",
+      "passed": true
+    },
+    {
+      "check": "production UI build completed",
+      "passed": true
+    },
+    {
+      "check": "no full Cloud/Actions/qemu build claimed",
+      "passed": true
+    },
+    {
+      "check": "protected-windows.json preserved",
+      "passed": true
+    },
+    {
+      "check": "protected-wsl.json preserved",
+      "passed": true
+    },
+    {
+      "check": "31 original bug baseline",
+      "passed": true
+    },
+    {
+      "check": "31 four API/UI file proofs",
+      "passed": true
+    },
+    {
+      "check": "31 native-after response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "31 native-after HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "31 native-after async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "31 raw response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "31 raw HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "31 raw async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "31 native-ui response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "31 native-ui HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "31 native-ui async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "31 raw-ui response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "31 raw-ui HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "31 raw-ui async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "31 source format differs from actual backup",
+      "passed": true
+    },
+    {
+      "check": "31 four failure paths without URL",
+      "passed": true
+    },
+    {
+      "check": "31 anonymous API rejected",
+      "passed": true
+    },
+    {
+      "check": "31 HTTP403 handled",
+      "passed": true
+    },
+    {
+      "check": "31 controlled expiry and regeneration",
+      "passed": true
+    },
+    {
+      "check": "31 Korean name safe fallback and deletion",
+      "passed": true
+    },
+    {
+      "check": "31 double click and F5 never duplicate POST",
+      "passed": true
+    },
+    {
+      "check": "31 active DB and references zero",
+      "passed": true
+    },
+    {
+      "check": "31 physical files/trash/domains/exports zero",
+      "passed": true
+    },
+    {
+      "check": "31 all issued links revoked",
+      "passed": true
+    },
+    {
+      "check": "31 exactly one DELETE event per snapshot",
+      "passed": true
+    },
+    {
+      "check": "31 operational projections preserved/API zero",
+      "passed": true
+    },
+    {
+      "check": "31 counters and test file cleanup",
+      "passed": true
+    },
+    {
+      "check": "31 deployed class/static hashes and server files",
+      "passed": true
+    },
+    {
+      "check": "31 five agents up",
+      "passed": true
+    },
+    {
+      "check": "32 original bug baseline",
+      "passed": true
+    },
+    {
+      "check": "32 four API/UI file proofs",
+      "passed": true
+    },
+    {
+      "check": "32 native-after response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "32 native-after HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "32 native-after async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "32 raw response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "32 raw HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "32 raw async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "32 native-ui response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "32 native-ui HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "32 native-ui async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "32 raw-ui response/DB/header/capacity/filename",
+      "passed": true
+    },
+    {
+      "check": "32 raw-ui HTTP full/partial and unchanged data",
+      "passed": true
+    },
+    {
+      "check": "32 raw-ui async preparation complete",
+      "passed": true
+    },
+    {
+      "check": "32 source format differs from actual backup",
+      "passed": true
+    },
+    {
+      "check": "32 four failure paths without URL",
+      "passed": true
+    },
+    {
+      "check": "32 anonymous API rejected",
+      "passed": true
+    },
+    {
+      "check": "32 HTTP403 handled",
+      "passed": true
+    },
+    {
+      "check": "32 controlled expiry and regeneration",
+      "passed": true
+    },
+    {
+      "check": "32 Korean name safe fallback and deletion",
+      "passed": true
+    },
+    {
+      "check": "32 double click and F5 never duplicate POST",
+      "passed": true
+    },
+    {
+      "check": "32 active DB and references zero",
+      "passed": true
+    },
+    {
+      "check": "32 physical files/trash/domains/exports zero",
+      "passed": true
+    },
+    {
+      "check": "32 all issued links revoked",
+      "passed": true
+    },
+    {
+      "check": "32 exactly one DELETE event per snapshot",
+      "passed": true
+    },
+    {
+      "check": "32 operational projections preserved/API zero",
+      "passed": true
+    },
+    {
+      "check": "32 counters and test file cleanup",
+      "passed": true
+    },
+    {
+      "check": "32 deployed class/static hashes and server files",
+      "passed": true
+    },
+    {
+      "check": "32 five agents up",
+      "passed": true
+    },
+    {
+      "check": "10 final browser theme/format/preparation observations",
+      "passed": true
+    },
+    {
+      "check": "31-raw-light VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "31-raw-light localized safe result",
+      "passed": true
+    },
+    {
+      "check": "31-raw-light native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "32-raw-dark VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "32-raw-dark localized safe result",
+      "passed": true
+    },
+    {
+      "check": "32-raw-dark native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "31-raw-dark VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "31-raw-dark localized safe result",
+      "passed": true
+    },
+    {
+      "check": "31-raw-dark native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "32-raw-light VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "32-raw-light localized safe result",
+      "passed": true
+    },
+    {
+      "check": "32-raw-light native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "31-qcow2-dark VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "31-qcow2-dark localized safe result",
+      "passed": true
+    },
+    {
+      "check": "31-qcow2-dark native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "32-qcow2-light VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "32-qcow2-light localized safe result",
+      "passed": true
+    },
+    {
+      "check": "32-qcow2-light native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-dark VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-dark download guidance",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-dark native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-light VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-light download guidance",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-light native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-light VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-light download guidance",
+      "passed": true
+    },
+    {
+      "check": "31-prepare-light native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-dark VM shell/overlap/theme",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-dark download guidance",
+      "passed": true
+    },
+    {
+      "check": "32-prepare-dark native screenshot exists",
+      "passed": true
+    },
+    {
+      "check": "UI failed jobs do not provide a download link",
+      "passed": true
+    },
+    {
+      "check": "UI cleanup lists show no fixture",
+      "passed": true
+    },
+    {
+      "check": "report/evidence/script/image file manifest",
+      "passed": true
+    }
+  ]
+}

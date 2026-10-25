@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "748800ca-3dca-485d-ba09-6dab5aeca810",
+    "scenario": "keyboard-ui-volume",
+    "image": "rbd:rbd/654d34e0-063e-444c-a362-b9197063c183",
+    "phase": "verify",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (262.465 MiB/sec and 262.4651 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

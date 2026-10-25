@@ -1,0 +1,18 @@
+{
+  "snapshot": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+  "scenario": "force-path",
+  "kind": "restore-path",
+  "before": [
+    {
+      "path": null,
+      "role": "Image",
+      "state": "Destroyed",
+      "refstate": "Destroyed",
+      "volumeid": 975,
+      "snapshotid": 63,
+      "referenceid": 119
+    }
+  ],
+  "fixtureOnly": true,
+  "restoredAddressOnly": true
+}

@@ -1,0 +1,39 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "821fefd36fbf42b882e0301c23ea573c40ab62fcb751b690d2c21b161400af25",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "821fefd36fbf42b882e0301c23ea573c40ab62fcb751b690d2c21b161400af25",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "type": "snapshot",
+    "id": "30234b2e-12fb-42b0-8cfe-ffbcb689d151",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "e2f5dfdf-faa3-4208-a5ca-cb837f868cd9",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "c7f9c08c-8b20-460b-9fc8-05ad70f2126d",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "06a5da98-d091-4df6-8418-db5e460c6b26",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "c9501c7e-d15d-4c2c-ac7d-64d48a347a5e",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "4c4e0a3f-c872-4d1d-9d54-b6d86959364f",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "snapshot",
+    "id": "c41d6695-361f-4c41-8ffd-28cafb51d16c",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "volume",
+    "id": "7aab199e-63e2-4407-abe4-980f1ea14481",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "volume",
+    "id": "9658582c-564a-4a57-a11a-ccdc677dc67a",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "type": "account",
+    "id": "6b13134b-d895-4947-b412-e96ee71ac1e7",
+    "result": {
+      "success": true
+    }
+  }
+]

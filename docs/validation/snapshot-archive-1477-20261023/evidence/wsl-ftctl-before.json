@@ -1,0 +1,34 @@
+{
+  "root": "/home/ablecloud/work/dhslove/ablestack-cloud",
+  "head": "084d43aa0b37c46a94256fff6fcd966696d9f1b0",
+  "branch": "feature/ftctl-cloud-integration",
+  "status": [
+    " M docs/ftctl/506-cross-hypervisor-dr-cloud-ui-design-20260630.md",
+    " M docs/ftctl/530-cross-hypervisor-dr-site-inventory-and-detail-ux-design-20260703.md",
+    " M docs/ftctl/625-dr-cutover-authority-commit-serialization-and-failback-readiness-convergence-design-20260901.md",
+    " M docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md",
+    " M plugins/integrations/disaster-recovery/src/main/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapter.java",
+    " M plugins/integrations/disaster-recovery/src/test/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapterTest.java",
+    " M plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java",
+    " M plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java",
+    " M ui/public/locales/en.json",
+    " M ui/public/locales/ko_KR.json",
+    " M ui/src/views/infra/dr/DrSiteList.vue",
+    "?? ui/tests/unit/views/infra/dr/DrSiteList.spec.js"
+  ],
+  "diffSha256": "4616f42e7bfef16d6dae3c185e8e23eb1fd80d91a0d941f3158958a858f77a45",
+  "files": {
+    "docs/ftctl/506-cross-hypervisor-dr-cloud-ui-design-20260630.md": "99b627ab6003a99619c2c4a6de2f7cd910666f5c321816c811c9c304cb3d12ee",
+    "docs/ftctl/530-cross-hypervisor-dr-site-inventory-and-detail-ux-design-20260703.md": "3bd17b799210b09c79897f28ee3f7948a286dcb4acac7daa81d7908653932973",
+    "docs/ftctl/625-dr-cutover-authority-commit-serialization-and-failback-readiness-convergence-design-20260901.md": "d7c21b9c28460e54688d185ca701e8edccfd1057c8c641ea0784a528503e9958",
+    "docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md": "60c9af5221e998a05588537dd60bb96b82e82a30903f0e0760031c75bc7ae694",
+    "plugins/integrations/disaster-recovery/src/main/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapter.java": "30a612fd006b38529f96cf339c56e5cf13b6abf20dac143606316814e39f3b30",
+    "plugins/integrations/disaster-recovery/src/test/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapterTest.java": "3420dcd7fa9ac5a0bb639d4c7fa66faa0b8b5d2ca91ef1b5b57695b02426e142",
+    "plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java": "c90e8c8f76ffcfe9de93012dcffa918cf521876f5d1adf41800db3503327aa93",
+    "plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java": "75472de2fd75bbf20493cd1bfbbefe4d648a639665f982decf9edf7fe4f58b07",
+    "ui/public/locales/en.json": "58e33f39c338f7126e6132f24a65a54cb25c6dfd67ea6e8a8649206d352a96ee",
+    "ui/public/locales/ko_KR.json": "97b52038440779ff48316ba03f41181beb4f08eb837e304566503a0d0ea2227f",
+    "ui/src/views/infra/dr/DrSiteList.vue": "6084193945b1b8004f098dcdeb955ac09853bdbd196949a2b36186b2fb0c5117",
+    "ui/tests/unit/views/infra/dr/DrSiteList.spec.js": "279cb6b7619aa65e6439e2fe5810024118709ae912c5fdaf4554cb5e42b8b6e5"
+  }
+}

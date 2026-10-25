@@ -1,0 +1,56 @@
+{
+  "files": 922,
+  "verified": true,
+  "backup": "/nfs/snapshot-tabs-1487-20261025-ui-final-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "e3839c761e59e77f960b9f9f717055ea91882682a3a036b07e4c69277aac8687"
+  },
+  "managementJarUnchanged": "adab81df9e1c78d2f621fea8f76ecdaa2a35799eacc62c2423a4806fedaa41f9",
+  "largeFileMetadataUnchanged": {
+    "monitoring-vm.qcow2": {
+      "size": 29194321920,
+      "inode": 27209289,
+      "mtime_ns": 1791859614464247580
+    }
+  },
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-zones": true,
+    "events-tab": true,
+    "annotations-tab": true,
+    "message.detail.tab.incomplete": true,
+    "message.snapshot.copy.search.empty": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "js/chunk-450cdccd.ebb5a67a.js.map",
+    "js/chunk-5ef683dc.1b119a58.js.map",
+    "js/chunk-11816a40.591c6470.js.map",
+    "js/chunk-6e256fb4.c02fa3bc.js.map",
+    "js/chunk-ff615f02.407f3627.js",
+    "js/chunk-ff615f02.407f3627.js.map",
+    "js/app.1cb18d7f.js.map",
+    "js/chunk-11816a40.591c6470.js",
+    "js/chunk-5ef683dc.1b119a58.js",
+    "js/chunk-2d221de3.0f932758.js",
+    "js/chunk-2d221de3.0f932758.js.map",
+    "js/chunk-450cdccd.ebb5a67a.js",
+    "js/app.1cb18d7f.js",
+    "js/chunk-7abf2bee.ed73294c.js",
+    "js/chunk-6e256fb4.c02fa3bc.js",
+    "js/chunk-7abf2bee.ed73294c.js.map",
+    "css/chunk-6e256fb4.f2d932ee.css",
+    "css/chunk-7abf2bee.393c7a84.css",
+    "css/chunk-450cdccd.e261b898.css",
+    "css/chunk-ff615f02.cd1bcbd8.css",
+    "css/chunk-5ef683dc.6707d202.css",
+    "css/chunk-11816a40.01596be4.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   75G  7.8G  91% /\n/dev/mapper/rl-nfs   350G   89G  262G  26% /nfs\n"
+}

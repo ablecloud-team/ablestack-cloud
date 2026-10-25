@@ -1,0 +1,27 @@
+[
+  {
+    "path": "api-build.log",
+    "originalSha256": "93151a6be2f7744ff49c4b7a5a83b6ac0a9f6419df48eb1ff5fa20784013b9bc",
+    "normalization": "UTF-8/LF, ANSI and trailing spaces removed"
+  },
+  {
+    "path": "server-tests.log",
+    "originalSha256": "12d2182a1fb5e5ac3c9709b19d173227382617321ea2122456cf44bbd05b53a4",
+    "normalization": "UTF-8/LF, ANSI and trailing spaces removed"
+  },
+  {
+    "path": "ui-tests.log",
+    "originalSha256": "2f3d8c9a16f3ca25aaf7b8973e17bc9d7b58e668f12c31e83c460e203275afee",
+    "normalization": "UTF-8/LF, ANSI and trailing spaces removed"
+  },
+  {
+    "path": "ui-lint.log",
+    "originalSha256": "01a972370ea609a5e4dc45336f6861354e751e50f6d61c8db210bb816ef133f8",
+    "normalization": "UTF-8/LF, ANSI and trailing spaces removed"
+  },
+  {
+    "path": "ui-build.log",
+    "originalSha256": "abd363e22bbd1aba4bdd60d3efdb3b43c4f8646506793199e553a6e76814a339",
+    "normalization": "UTF-8/LF, ANSI and trailing spaces removed"
+  }
+]

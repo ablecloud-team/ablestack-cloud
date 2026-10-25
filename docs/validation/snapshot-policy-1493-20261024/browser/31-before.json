@@ -1,0 +1,13 @@
+{
+  "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPPOL1493-31&projectid=0&q=SNAPPOL1493-31&sortkey=created&sortorder=desc&page=1",
+  "rows": [
+    "\tSNAPPOL1493-31-insufficient-proof\t\n백업 됨\n\tSNAPPOL1493-31-other\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:17\tSNAPPOL1493-31-other\tSNAPPOL1493-31-domain\tZone\t",
+    "\tSNAPPOL1493-31-internal-control\t\n백업 됨\n\tSNAPPOL1493-31-other\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:16\tSNAPPOL1493-31-other\tSNAPPOL1493-31-domain\tZone\t",
+    "\tSNAPPOL1493-31-legacy-MONTHLY\t\n백업 됨\n\tSNAPPOL1493-31-owner\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:15\tSNAPPOL1493-31-owner\tSNAPPOL1493-31-domain\tZone\t",
+    "\tSNAPPOL1493-31-legacy-WEEKLY\t\n백업 됨\n\tSNAPPOL1493-31-owner\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:13\tSNAPPOL1493-31-owner\tSNAPPOL1493-31-domain\tZone\t",
+    "\tSNAPPOL1493-31-legacy-DAILY\t\n백업 됨\n\tSNAPPOL1493-31-owner\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:12\tSNAPPOL1493-31-owner\tSNAPPOL1493-31-domain\tZone\t",
+    "\tSNAPPOL1493-31-legacy-HOURLY\t\n백업 됨\n\tSNAPPOL1493-31-owner\tINTERNAL\t0.00 GiB\t2026. 10. 24. 오후 8:48:10\tSNAPPOL1493-31-owner\tSNAPPOL1493-31-domain\tZone\t",
+    "         ",
+    "데이터 없음"
+  ]
+}

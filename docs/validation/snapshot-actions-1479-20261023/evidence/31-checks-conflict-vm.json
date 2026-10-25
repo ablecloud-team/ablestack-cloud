@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Backend rejects retained VM snapshot conflict",
+    "status": "PASS",
+    "details": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 431,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 431,
+        "errortext": "VM_SNAPSHOTS_EXIST: Snapshot source is not available for revert"
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "c581a625-ee69-4f4f-952a-427dd5af6486",
+      "created": "2026-10-23T19:17:53+0900",
+      "completed": "2026-10-23T19:17:53+0900",
+      "jobid": "245da548-69d7-4f98-81c8-7c7bc1608c23",
+      "jobstatus": 2
+    }
+  },
+  {
+    "name": "Current context exposes VM snapshot conflict",
+    "status": "PASS",
+    "details": {
+      "version": 1,
+      "sourceavailable": true,
+      "volumeid": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "volumename": "SNAP1479-31-source",
+      "volumestate": "Ready",
+      "virtualmachineid": "d6a10e93-6c62-41f3-8b85-c83a2004555d",
+      "virtualmachinename": "SNAP1479-31-vm",
+      "virtualmachinestate": "Stopped",
+      "revertreason": "VM_SNAPSHOTS_EXIST",
+      "createreason": ""
+    }
+  }
+]

@@ -1,0 +1,405 @@
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "8"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "plus 스냅샷 생성":
+    - img "plus":
+    - generic: 스냅샷 생성
+  - button "삭제 잔여 복구":
+    - img "tool":
+  - button "스냅샷 삭제":
+    - img "delete":
+    - generic: 스냅샷 삭제
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색": SNAPDIALOG1488-31
+  - button "close-circle":
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "이름 caret-up caret-down 상태 caret-up caret-down 볼륨 이름 caret-up caret-down 간격 유형 caret-up caret-down 물리적 크기 가상 크기 caret-up caret-down 생성일 caret-up caret-down 계정 caret-up caret-down 도메인 caret-up caret-down Zone filter":
+        - columnheader:
+          - checkbox
+        - columnheader "이름 caret-up caret-down":
+          - generic: 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "볼륨 이름 caret-up caret-down":
+          - generic: 볼륨 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "간격 유형 caret-up caret-down":
+          - generic: 간격 유형
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "물리적 크기"
+        - columnheader "가상 크기 caret-up caret-down":
+          - generic: 가상 크기
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "생성일 caret-up caret-down":
+          - generic: 생성일
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "도메인 caret-up caret-down":
+          - generic: 도메인
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone"
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "SNAPDIALOG1488-31-ui-final-keyboard 백업 됨 SNAPDIALOG1488-31-owner 수동 1.31 MiB 1.00 GiB 2026. 10. 25. 오전 9:33:59 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox
+        - cell "SNAPDIALOG1488-31-ui-final-keyboard":
+          - link "SNAPDIALOG1488-31-ui-final-keyboard":
+            - /url: "#/snapshot/29121a5b-1700-41e6-9744-4c6adf7c13c6"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+        - cell "수동"
+        - cell "1.31 MiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 9:33:59"
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름 백업 됨 SNAPDIALOG1488-31-owner 수동 1.31 MiB 1.00 GiB 2026. 10. 25. 오전 9:03:51 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox [checked]
+        - cell "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름":
+          - link "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름":
+            - /url: "#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+        - cell "수동"
+        - cell "1.31 MiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 9:03:51"
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-root 백업 됨 ROOT-767 수동 2.25 GiB 100.00 GiB 2026. 10. 25. 오전 8:39:09 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "SNAPDIALOG1488-31-root":
+          - link "SNAPDIALOG1488-31-root":
+            - /url: "#/snapshot/4666ff7a-06ee-4225-b087-035c6ed29433"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-767":
+          - link "ROOT-767":
+            - /url: "#/volume/56a1e6b8-0979-4222-b66d-72bb5c057621"
+        - cell "수동"
+        - cell "2.25 GiB"
+        - cell "100.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:09"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-vmdata 백업 됨 SNAPDIALOG1488-31-vmdata 수동 192.02 KiB 1.00 GiB 2026. 10. 25. 오전 8:39:06 admin ROOT Zone":
+        - cell:
+          - checkbox [checked]
+        - cell "SNAPDIALOG1488-31-vmdata":
+          - link "SNAPDIALOG1488-31-vmdata":
+            - /url: "#/snapshot/3c985f6a-63af-4cbb-bb9a-47a20277a351"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-vmdata":
+          - link "SNAPDIALOG1488-31-vmdata":
+            - /url: "#/volume/4e35de8b-99b9-498e-b54b-16b3f1bccbbf"
+        - cell "수동"
+        - cell "192.02 KiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:06"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-deleted 백업 됨 SNAPDIALOG1488-31-deleted 수동 192.02 KiB 1.00 GiB 2026. 10. 25. 오전 8:39:05 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox
+        - cell "SNAPDIALOG1488-31-deleted":
+          - link "SNAPDIALOG1488-31-deleted":
+            - /url: "#/snapshot/c442f11f-c701-40a6-b512-21384fd3d6b1"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-deleted"
+        - cell "수동"
+        - cell "192.02 KiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:05"
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-other 백업 됨 SNAPDIALOG1488-31-other 수동 192.02 KiB 1.00 GiB 2026. 10. 25. 오전 8:39:03 SNAPDIALOG1488-31-other SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox [checked]
+        - cell "SNAPDIALOG1488-31-other":
+          - link "SNAPDIALOG1488-31-other":
+            - /url: "#/snapshot/36d308ba-0e13-4cf2-b3e3-155c85d11cae"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-other":
+          - link "SNAPDIALOG1488-31-other":
+            - /url: "#/volume/d182cbea-4b57-410e-99ff-9dc138d1e28d"
+        - cell "수동"
+        - cell "192.02 KiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:03"
+        - cell "SNAPDIALOG1488-31-other":
+          - link "SNAPDIALOG1488-31-other":
+            - /url: "#/account?name=SNAPDIALOG1488-31-other&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-owner-next 백업 됨 SNAPDIALOG1488-31-owner 수동 192.02 KiB 1.00 GiB 2026. 10. 25. 오전 8:39:01 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox [checked]
+        - cell "SNAPDIALOG1488-31-owner-next":
+          - link "SNAPDIALOG1488-31-owner-next":
+            - /url: "#/snapshot/4f70bd8b-df70-49a7-ac0c-a86e4ac1c133"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+        - cell "수동"
+        - cell "192.02 KiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:01"
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "SNAPDIALOG1488-31-owner 백업 됨 SNAPDIALOG1488-31-owner 수동 192.02 KiB 1.00 GiB 2026. 10. 25. 오전 8:39:00 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-domain Zone":
+        - cell:
+          - checkbox [checked]
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/snapshot/b0e33480-df88-4c67-99a4-e6d57cc2bee6"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+        - cell "수동"
+        - cell "192.02 KiB"
+        - cell "1.00 GiB"
+        - cell "2026. 10. 25. 오전 8:39:00"
+        - cell "SNAPDIALOG1488-31-owner":
+          - link "SNAPDIALOG1488-31-owner":
+            - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964&dataView=true"
+        - cell "SNAPDIALOG1488-31-domain":
+          - link "SNAPDIALOG1488-31-domain":
+            - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+  - generic: 5개 선택
+  - list:
+    - listitem: 전체 8 개 항목 중 1-8 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "다음 페이지":
+      - button "right" [disabled]:
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+- dialog "스냅샷 삭제":
+  - document:
+    - button "Close":
+      - img "close":
+    - generic: 스냅샷 삭제
+    - paragraph: 고정된 작업 대상 5개를 확인하세요.
+    - table:
+      - rowgroup:
+        - row "이름 볼륨 계정 상태 가상 크기 간격 유형 생성일 삭제 범위":
+          - columnheader "이름"
+          - columnheader "볼륨"
+          - columnheader "계정"
+          - columnheader "상태"
+          - columnheader "가상 크기"
+          - columnheader "간격 유형"
+          - columnheader "생성일"
+          - columnheader "삭제 범위"
+          - columnheader
+    - table:
+      - rowgroup:
+        - row "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름 SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain 백업 됨 1.00 GiB 수동 2026. 10. 25. 오전 9:03:51 모든 Zone 및 현재 사본 범위":
+          - cell "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+          - cell "SNAPDIALOG1488-31-owner"
+          - cell "SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain"
+          - cell "백업 됨"
+          - cell "1.00 GiB"
+          - cell "수동"
+          - cell "2026. 10. 25. 오전 9:03:51"
+          - cell "모든 Zone 및 현재 사본 범위"
+        - row "SNAPDIALOG1488-31-vmdata SNAPDIALOG1488-31-vmdata admin · ROOT 백업 됨 1.00 GiB 수동 2026. 10. 25. 오전 8:39:06 모든 Zone 및 현재 사본 범위":
+          - cell "SNAPDIALOG1488-31-vmdata"
+          - cell "SNAPDIALOG1488-31-vmdata"
+          - cell "admin · ROOT"
+          - cell "백업 됨"
+          - cell "1.00 GiB"
+          - cell "수동"
+          - cell "2026. 10. 25. 오전 8:39:06"
+          - cell "모든 Zone 및 현재 사본 범위"
+        - row "SNAPDIALOG1488-31-other SNAPDIALOG1488-31-other SNAPDIALOG1488-31-other · SNAPDIALOG1488-31-domain 백업 됨 1.00 GiB 수동 2026. 10. 25. 오전 8:39:03 모든 Zone 및 현재 사본 범위":
+          - cell "SNAPDIALOG1488-31-other"
+          - cell "SNAPDIALOG1488-31-other"
+          - cell "SNAPDIALOG1488-31-other · SNAPDIALOG1488-31-domain"
+          - cell "백업 됨"
+          - cell "1.00 GiB"
+          - cell "수동"
+          - cell "2026. 10. 25. 오전 8:39:03"
+          - cell "모든 Zone 및 현재 사본 범위"
+        - row "SNAPDIALOG1488-31-owner-next SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain 백업 됨 1.00 GiB 수동 2026. 10. 25. 오전 8:39:01 모든 Zone 및 현재 사본 범위":
+          - cell "SNAPDIALOG1488-31-owner-next"
+          - cell "SNAPDIALOG1488-31-owner"
+          - cell "SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain"
+          - cell "백업 됨"
+          - cell "1.00 GiB"
+          - cell "수동"
+          - cell "2026. 10. 25. 오전 8:39:01"
+          - cell "모든 Zone 및 현재 사본 범위"
+        - row "SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-owner SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain 백업 됨 1.00 GiB 수동 2026. 10. 25. 오전 8:39:00 모든 Zone 및 현재 사본 범위":
+          - cell "SNAPDIALOG1488-31-owner"
+          - cell "SNAPDIALOG1488-31-owner"
+          - cell "SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain"
+          - cell "백업 됨"
+          - cell "1.00 GiB"
+          - cell "수동"
+          - cell "2026. 10. 25. 오전 8:39:00"
+          - cell "모든 Zone 및 현재 사본 범위"
+    - alert:
+      - img "exclamation-circle":
+      - generic: 선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다.
+    - checkbox "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+    - generic: 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.
+    - button "취소":
+      - generic: 취소
+    - button "loading 스냅샷 삭제" [disabled]:
+      - img "loading"
+      - generic: 스냅샷 삭제

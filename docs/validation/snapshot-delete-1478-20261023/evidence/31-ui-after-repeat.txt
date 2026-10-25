@@ -1,0 +1,4 @@
+snapshot	22
+secondary_storage	1206229987360
+1d0b8d4b-1b85-4f84-aff1-53e32f832f5f	Destroyed	95	Destroyed
+1d0b8d4b-1b85-4f84-aff1-53e32f832f5f	Destroyed	100	Destroyed

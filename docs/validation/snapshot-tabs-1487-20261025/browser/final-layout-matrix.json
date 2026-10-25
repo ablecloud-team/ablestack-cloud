@@ -1,0 +1,3564 @@
+[
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 546
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-light-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 546
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-light-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-light-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 499
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-light-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 499
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-light-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-light-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 296
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-light-390.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 296
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-light-390.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-light-390.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 546
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-dark-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 546
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-dark-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-dark-1280.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 499
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-dark-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 499
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-dark-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-dark-768.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 296
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "1"
+        }
+      ]
+    },
+    "screenshot": "31-final-zones-dark-390.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "events",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 296
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "31-final-events-dark-390.png"
+  },
+  {
+    "cluster": "31",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "31-final-comments-dark-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 546
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-light-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 546
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-light-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "light",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-light-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 499
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-light-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 499
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-light-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "light",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-light-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 296
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgb(250, 250, 250)",
+          "color": "rgb(75, 85, 99)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": null
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-light-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 296
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": " "
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(75, 85, 99)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-light-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "light",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(31, 41, 55)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-light-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 546
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-dark-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 546
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-dark-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 1280,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 1270,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-dark-1280.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 499
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-dark-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 499
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-dark-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 768,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 758,
+      "innerWidth": 768,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-dark-768.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "zones",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 793,
+          "width": 296
+        },
+        {
+          "overflowX": "auto",
+          "scrollWidth": 760,
+          "width": 760
+        }
+      ],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": null
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "간격 유형"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "현재 페이지 조회 항목"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "Zone 작업"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": null
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " Zone"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "백업 됨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "수동"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "2"
+        }
+      ]
+    },
+    "screenshot": "32-final-zones-dark-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "events",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [
+        {
+          "overflowX": "auto",
+          "scrollWidth": 980,
+          "width": 296
+        }
+      ],
+      "text": [
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "레벨"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "유형"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "상태"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "사용자 이름"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "계정"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "도메인"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgba(255, 255, 255, 0.85)",
+          "text": "생성일"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": " "
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "INFO"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "주석 제거"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "완료"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "admin"
+        },
+        {
+          "background": "rgb(34, 40, 47)",
+          "color": "rgb(197, 204, 212)",
+          "text": "ROOT"
+        }
+      ]
+    },
+    "screenshot": "32-final-events-dark-390.png"
+  },
+  {
+    "cluster": "32",
+    "tab": "comments",
+    "theme": "dark",
+    "width": 390,
+    "pass": true,
+    "layout": {
+      "assets": [
+        "js/chunk-6e256fb4.c02fa3bc.js",
+        "js/chunk-f3483fac.35bef369.js",
+        "js/chunk-15e1bb9b.fa280948.js",
+        "js/chunk-ff615f02.407f3627.js",
+        "js/less.min.js",
+        "js/vendors.a20d6fe4.js",
+        "js/app.1cb18d7f.js"
+      ],
+      "documentWidth": 380,
+      "innerWidth": 390,
+      "overlaps": [],
+      "tables": [],
+      "text": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(255, 255, 255, 0.65)",
+          "text": "메모 추가"
+        }
+      ]
+    },
+    "screenshot": "32-final-comments-dark-390.png"
+  }
+]

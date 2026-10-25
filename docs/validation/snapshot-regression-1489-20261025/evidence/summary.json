@@ -1,0 +1,76 @@
+{
+  "status": "INCOMPLETE",
+  "issue": 1489,
+  "epic": 1473,
+  "pullRequest": 1492,
+  "branch": "dhslove/epic-1473-storage-snapshots",
+  "sourceBaseline": "d7e0d6810849c0a389e66af7d899d6b79df842da",
+  "tests": {
+    "serverPriorRegression": 225,
+    "serverLatestRecovery": 25,
+    "snapshotEngine": 57,
+    "secondary": 30,
+    "kvm": 48,
+    "snapshotUiSuites": 31,
+    "snapshotUiTests": 469,
+    "broaderUiFailedSuites": 7,
+    "broaderUiFailedTests": 22,
+    "fullCloudActionsBuild": "Not requested; not run"
+  },
+  "blocker": "Computer Use stopped: current Windows browser URL could not be determined with enough confidence to enforce policy",
+  "finalCleanupComplete": false,
+  "active": {
+    "31": [
+      {
+        "type": "vm",
+        "active": 2
+      },
+      {
+        "type": "volume",
+        "active": 10
+      },
+      {
+        "type": "snapshot",
+        "active": 9
+      },
+      {
+        "type": "template",
+        "active": 2
+      },
+      {
+        "type": "pendingCleanup",
+        "active": 0
+      },
+      {
+        "type": "nonterminalJobs",
+        "active": 0
+      }
+    ],
+    "32": [
+      {
+        "type": "vm",
+        "active": 2
+      },
+      {
+        "type": "volume",
+        "active": 10
+      },
+      {
+        "type": "snapshot",
+        "active": 10
+      },
+      {
+        "type": "template",
+        "active": 2
+      },
+      {
+        "type": "pendingCleanup",
+        "active": 0
+      },
+      {
+        "type": "nonterminalJobs",
+        "active": 0
+      }
+    ]
+  }
+}

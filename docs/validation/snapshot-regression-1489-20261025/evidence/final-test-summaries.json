@@ -1,0 +1,105 @@
+{
+  "server-r6-regression.log": {
+    "sha256": "e851dca98164687c24fa156e4841e6c3be970eaebb025693b2ac7816fdfbca99",
+    "lastMavenTotal": [
+      "230",
+      "0",
+      "0",
+      "0"
+    ],
+    "mavenBuildSuccess": true,
+    "uiTotals": [],
+    "kind": "maven",
+    "pass": true
+  },
+  "kubernetes-cleanup-regression.log": {
+    "sha256": "f11e5f3f36e9afde956f1f06d508f1e791b3c6bf9d75101be93c24a67b05093e",
+    "lastMavenTotal": [
+      "13",
+      "0",
+      "0",
+      "0"
+    ],
+    "mavenBuildSuccess": true,
+    "uiTotals": [],
+    "kind": "maven",
+    "pass": true
+  },
+  "ui-focused.log": {
+    "sha256": "e8ec45ca8a40832ffe67d9c76aa540c2d47fd7ddc6e2fd239e4e133ed989e4fa",
+    "lastMavenTotal": null,
+    "uiTotals": [
+      "Test Suites: 31 passed, 31 total",
+      "Tests:       472 passed, 472 total"
+    ],
+    "kind": "ui",
+    "pass": true
+  },
+  "ui-resume-summary.log": {
+    "sha256": "f4c6efe31300f8ceddea0d16e64ec24a8f68c3f61680b14bcb914e3df1f5588a",
+    "lastMavenTotal": null,
+    "uiTotals": [
+      "Test Suites: 2 passed, 2 total",
+      "Tests:       13 passed, 13 total"
+    ],
+    "kind": "ui",
+    "pass": true
+  },
+  "ui-resume-lint.log": {
+    "sha256": "70ac77bb9c3e7a56ec826292bd704862d35e99062301d7787d1768cac63bf164",
+    "lastMavenTotal": null,
+    "uiTotals": [
+      "DONE  No lint errors found!"
+    ],
+    "kind": "ui",
+    "pass": true
+  },
+  "ui-resume-build.log": {
+    "sha256": "9f669ad670bfabf6c292e69487f71fdeef26545f7e26a1c3fd5ed3d8593f4c86",
+    "lastMavenTotal": null,
+    "uiTotals": [
+      "DONE  Build complete. The dist directory is ready to be deployed."
+    ],
+    "kind": "ui",
+    "pass": true
+  },
+  "engine-test.log": {
+    "sha256": "f8149893a98949264d1b378f3a48c4dbf216eee86dd739ce1efe2c6cc3b1ee23",
+    "lastMavenTotal": [
+      "57",
+      "0",
+      "0",
+      "0"
+    ],
+    "mavenBuildSuccess": true,
+    "uiTotals": [],
+    "kind": "maven",
+    "pass": true
+  },
+  "secondary-test.log": {
+    "sha256": "231258372a0ab8e5769369fff6afff78ba9d4e665c820e6069ad3e5ea77e8c7e",
+    "lastMavenTotal": [
+      "30",
+      "0",
+      "0",
+      "0"
+    ],
+    "mavenBuildSuccess": true,
+    "uiTotals": [],
+    "kind": "maven",
+    "pass": true
+  },
+  "kvm-test.log": {
+    "sha256": "fbb9034ff158ea2a376ea2f98fe4068d59d33c43386bb348bf3314d6d01c9775",
+    "lastMavenTotal": [
+      "48",
+      "0",
+      "0",
+      "0"
+    ],
+    "mavenBuildSuccess": true,
+    "uiTotals": [],
+    "kind": "maven",
+    "pass": true
+  }
+}

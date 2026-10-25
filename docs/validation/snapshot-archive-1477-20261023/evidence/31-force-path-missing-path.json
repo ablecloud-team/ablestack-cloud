@@ -1,0 +1,19 @@
+{
+  "snapshot": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+  "scenario": "force-path",
+  "kind": "missing-path",
+  "before": [
+    {
+      "path": "snapshots/2/975/c2415873-1b2a-405f-a05d-72ba03e36693",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 63,
+      "referenceid": 119
+    }
+  ],
+  "fixtureOnly": true,
+  "referenceid": 119,
+  "path": "snapshots/2/975/c2415873-1b2a-405f-a05d-72ba03e36693"
+}

@@ -1,0 +1,287 @@
+{
+  "dialogBackground": "rgb(255, 255, 255)",
+  "fields": [
+    {
+      "control": {
+        "bottom": 146,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 114
+      },
+      "label": {
+        "bottom": 114,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 84
+      },
+      "text": "이름"
+    },
+    {
+      "control": {
+        "bottom": 232,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 200
+      },
+      "label": {
+        "bottom": 200,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 170
+      },
+      "text": "설명"
+    },
+    {
+      "control": {
+        "bottom": 318,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 286
+      },
+      "label": {
+        "bottom": 286,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 256
+      },
+      "text": "Zone"
+    },
+    {
+      "control": {
+        "bottom": 404,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 372
+      },
+      "label": {
+        "bottom": 372,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 342
+      },
+      "text": "도메인"
+    },
+    {
+      "control": {
+        "bottom": 490,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 458
+      },
+      "label": {
+        "bottom": 458,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 428
+      },
+      "text": "OS 유형"
+    },
+    {
+      "control": {
+        "bottom": 576,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 544
+      },
+      "label": {
+        "bottom": 544,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 514
+      },
+      "text": "CPU 아키텍처"
+    },
+    {
+      "control": {
+        "bottom": 662,
+        "height": 32,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 630
+      },
+      "label": {
+        "bottom": 630,
+        "height": 30,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 600
+      },
+      "text": "동적으로 확장 가능"
+    },
+    {
+      "control": {
+        "bottom": 748,
+        "height": 32,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 716
+      },
+      "label": {
+        "bottom": 716,
+        "height": 30,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 686
+      },
+      "text": "HVM"
+    },
+    {
+      "control": {
+        "bottom": 834,
+        "height": 32,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 802
+      },
+      "label": {
+        "bottom": 802,
+        "height": 30,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 772
+      },
+      "text": "비밀번호 관리 사용"
+    },
+    {
+      "control": {
+        "bottom": 920,
+        "height": 32,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 888
+      },
+      "label": {
+        "bottom": 888,
+        "height": 30,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 858
+      },
+      "text": "공개"
+    },
+    {
+      "control": {
+        "bottom": 1006,
+        "height": 32,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 974
+      },
+      "label": {
+        "bottom": 974,
+        "height": 30,
+        "right": 155.71875,
+        "width": 126.71875,
+        "x": 29,
+        "y": 944
+      },
+      "text": "추천"
+    }
+  ],
+  "focus": {
+    "inDialog": true,
+    "tag": "INPUT"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "이름\n설명\nZone\n Zone\n도메인\n도메인\nOS 유형\nOS 유형\nCPU 아키텍처\nCPU 아키텍처\n동적으로 "
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "ant-scrolling-effect"
+}

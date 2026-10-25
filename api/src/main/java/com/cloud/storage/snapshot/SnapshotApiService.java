@@ -55,6 +55,15 @@ public interface SnapshotApiService {
      */
     boolean deleteSnapshot(long snapshotId, Long zoneId);
 
+    boolean deleteSnapshot(long snapshotId, Long zoneId, String expectedScopeHash);
+
+    org.apache.cloudstack.api.response.SnapshotDeletionResponse previewSnapshotDeletion(long snapshotId, Long zoneId);
+
+    org.apache.cloudstack.api.response.SnapshotDeletionResponse previewSnapshotDeletion(long snapshotId, Long zoneId, boolean force);
+
+    org.apache.cloudstack.api.response.SnapshotDeletionResponse forceDeleteSnapshot(long snapshotId, Long zoneId, String expectedScopeHash);
+
+
     /**
      * Creates a policy with specified schedule. maxSnaps specifies the number of most recent snapshots that are to be
      * retained.
@@ -114,7 +123,7 @@ public interface SnapshotApiService {
      *            id (the id of the snapshot)
      *
      */
-    String extractSnapshot(ExtractSnapshotCmd cmd);
+    SnapshotExtractResult extractSnapshot(ExtractSnapshotCmd cmd);
 
     /**
      * Archives a snapshot from primary storage to secondary storage.
@@ -122,6 +131,10 @@ public interface SnapshotApiService {
      * @return Archived Snapshot object
      */
     Snapshot archiveSnapshot(Long id);
+
+    Snapshot archiveSnapshot(Long id, String expectedScopeHash);
+
+    org.apache.cloudstack.api.response.SnapshotArchiveResponse previewSnapshotArchive(Long id);
 
     /**
      * @param vol
@@ -136,6 +149,8 @@ public interface SnapshotApiService {
     SnapshotPolicy updateSnapshotPolicy(UpdateSnapshotPolicyCmd updateSnapshotPolicyCmd);
 
     void markVolumeSnapshotsAsDestroyed(Volume volume);
+
+    org.apache.cloudstack.api.response.SnapshotCopyTargetsResponse previewSnapshotCopy(long snapshotId, Long sourceZoneId);
 
     Snapshot copySnapshot(CopySnapshotCmd cmd) throws StorageUnavailableException, ResourceAllocationException;
 }

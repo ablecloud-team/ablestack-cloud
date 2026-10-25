@@ -1,0 +1,80 @@
+{
+  "refs": [
+    {
+      "path": "rbd/f3b72221-0933-468e-a8a8-26e5c8361595/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+      "role": "Primary",
+      "state": "Destroyed",
+      "removed": null,
+      "snapshot": "7eee8768-0fc3-4bdb-9bab-39c5a33cc81c"
+    },
+    {
+      "path": "snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+      "role": "Image",
+      "state": "Ready",
+      "removed": null,
+      "snapshot": "7eee8768-0fc3-4bdb-9bab-39c5a33cc81c"
+    }
+  ],
+  "physical": {
+    "path": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "pattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.195 GiB/sec and 3271.2665 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.047 GiB/sec and 2096.1328 ops/sec)\n"
+  },
+  "rbdPrimaryAbsent": true,
+  "jobs": [
+    {
+      "uuid": "654b7708-4b84-4119-9bd8-3e27a9219ca4",
+      "result": "org.apache.cloudstack.api.response.SuccessResponse/null/{\"success\":true}",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd"
+    },
+    {
+      "uuid": "2a64beda-7664-42bb-bca8-1f0d9c80c8b1",
+      "result": "org.apache.cloudstack.api.response.SnapshotArchiveResponse/archivesnapshotresponse/{\"snapshotid\":\"7eee8768-0fc3-4bdb-9bab-39c5a33cc81c\",\"name\":\"SNAPREG1489-32-primary-only\",\"state\":\"BackedUp\",\"eligible\":true,\"reason\":\"BACKUP_REQUIRED\",\"message\":\"Copy from managed or RBD primary, verify the backup, then remove primary\",\"primaryreferences\":1,\"secondaryreferences\":0,\"scopehash\":\"968c926429898364a6ad20d5c36ae984b8657ade94479f54a7ad5de7f9f1b274\",\"dryrun\":true}",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd"
+    },
+    {
+      "uuid": "44bd4e1c-84f1-4c51-b174-d791414eaea2",
+      "result": "org.apache.cloudstack.api.response.SnapshotArchiveResponse/archivesnapshotresponse/{\"snapshotid\":\"7eee8768-0fc3-4bdb-9bab-39c5a33cc81c\",\"name\":\"SNAPREG1489-32-primary-only\",\"state\":\"BackedUp\",\"eligible\":true,\"reason\":\"BACKUP_REQUIRED\",\"message\":\"Copy from managed or RBD primary, verify the backup, then remove primary\",\"primaryreferences\":1,\"secondaryreferences\":0,\"scopehash\":\"968c926429898364a6ad20d5c36ae984b8657ade94479f54a7ad5de7f9f1b274\",\"dryrun\":true}",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd"
+    }
+  ],
+  "pass": true
+}

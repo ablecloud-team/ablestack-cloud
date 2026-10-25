@@ -1,0 +1,10 @@
+{
+  "files": 921,
+  "config": {
+    "/usr/share/cloudstack-management/webapp/config.json": "e3839c761e59e77f960b9f9f717055ea91882682a3a036b07e4c69277aac8687",
+    "/usr/share/cloudstack-management/webapp/WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "protectedServerFiles": 1,
+  "metaInfPreserved": true,
+  "verified": true
+}

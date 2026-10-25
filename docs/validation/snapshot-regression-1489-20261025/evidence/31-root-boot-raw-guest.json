@@ -1,0 +1,75 @@
+{
+  "host": "10.10.31.1",
+  "name": "SNAPREG1489-31-root-boot-raw",
+  "state": "Running",
+  "instance": "i-2-770-VM",
+  "vmid": "8d2c9991-3795-4e5b-b0da-407b30eb4286",
+  "scenario": "root-boot-raw",
+  "guestAgent": true,
+  "guest-get-osinfo": {
+    "name": "Rocky Linux",
+    "kernel-release": "5.14.0-362.8.1.el9_3.x86_64",
+    "version": "9.3 (Blue Onyx)",
+    "pretty-name": "Rocky Linux 9.3 (Blue Onyx)",
+    "version-id": "9.3",
+    "kernel-version": "#1 SMP PREEMPT_DYNAMIC Wed Nov 8 17:36:32 UTC 2023",
+    "machine": "x86_64",
+    "id": "rocky"
+  },
+  "guest-get-host-name": {
+    "host-name": "localhost.localdomain"
+  },
+  "guest-get-fsinfo": [
+    {
+      "name": "sda1",
+      "total-bytes": 1006632960,
+      "mountpoint": "/boot",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_6a68ce2812e04cfb967a",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda1",
+          "target": 0
+        }
+      ],
+      "used-bytes": 271851520,
+      "type": "xfs"
+    },
+    {
+      "name": "dm-0",
+      "total-bytes": 97643397120,
+      "mountpoint": "/",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_6a68ce2812e04cfb967a",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda2",
+          "target": 0
+        }
+      ],
+      "used-bytes": 2508029952,
+      "type": "xfs"
+    }
+  ],
+  "disks": "Type   Device   Target   Source\n------------------------------------------------------------------------------\n file   disk     sda      /mnt/glue-gfs/6a68ce28-12e0-4cfb-967a-dc04b9ebc103\n file   cdrom    hdc      -\n file   cdrom    hdd      -",
+  "blockJobs": {
+    "return": [],
+    "id": "libvirt-93"
+  }
+}

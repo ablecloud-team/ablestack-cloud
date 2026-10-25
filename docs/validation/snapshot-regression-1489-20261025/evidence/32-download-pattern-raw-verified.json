@@ -1,0 +1,62 @@
+{
+  "url": "[HTTP URL OMITTED]",
+  "filename": "SNAPREG1489-32-pattern-raw-source.raw",
+  "fullHeaders": "HTTP/1.1 200 OK\nDate: Sun, 25 Oct 2026 12:05:41 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Sun, 25 Oct 2026 12:02:22 GMT\nETag: \"40000000-65ea8fc6f9fd1\"\nAccept-Ranges: bytes\nContent-Length: 1073741824\n\n",
+  "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Sun, 25 Oct 2026 12:05:46 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Sun, 25 Oct 2026 12:02:22 GMT\nETag: \"40000000-65ea8fc6f9fd1\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/1073741824\n\n",
+  "qemu": {
+    "children": [
+      {
+        "name": "file",
+        "info": {
+          "children": [],
+          "virtual-size": 1073741824,
+          "filename": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern-raw-source.raw",
+          "format": "file",
+          "actual-size": 1073741824,
+          "format-specific": {
+            "type": "file",
+            "data": {}
+          },
+          "dirty-flag": false
+        }
+      }
+    ],
+    "virtual-size": 1073741824,
+    "filename": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern-raw-source.raw",
+    "format": "raw",
+    "actual-size": 1073741824,
+    "dirty-flag": false
+  },
+  "fileSize": 1073741824,
+  "magic": "5a5a5a5a5a5a5a5a",
+  "sourceSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+  "downloadSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+  "sourceUnchanged": true,
+  "dataPattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.776 GiB/sec and 2842.4838 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (4.347 GiB/sec and 4451.4282 ops/sec)\n",
+  "verified": true,
+  "db": {
+    "url": "[HTTP URL OMITTED]",
+    "path": "snapshots/99/443/114ba72a-93b3-4c2e-8e6e-46b712d95704",
+    "size": 1073741824,
+    "uuid": "7bc7f649-fec3-48bb-ac9c-4296ac66f9f2",
+    "refid": 472,
+    "state": "Ready",
+    "status": "BackedUp",
+    "urlCreated": "2026-10-25 12:05:39.000000",
+    "sourceformat": "RAW",
+    "sourceRemoved": null
+  },
+  "api": {
+    "id": "7bc7f649-fec3-48bb-ac9c-4296ac66f9f2",
+    "name": "SNAPREG1489-32-pattern-raw-source",
+    "accountid": "237927b9-4175-4695-87fb-2188e0418faa",
+    "state": "DOWNLOAD_URL_CREATED",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "zonename": "Zone",
+    "url": "[HTTP URL OMITTED]",
+    "filename": "SNAPREG1489-32-pattern-raw-source.raw",
+    "format": "RAW",
+    "size": 1073741824,
+    "physicalsize": 1073741824
+  }
+}

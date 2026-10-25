@@ -1,0 +1,66 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "디스크 크기(GB 단위)",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Zone",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/imagestore",
+      "text": "2차 스토리지"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#secondary-storage",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "af746f16-4e36-4f19-805c-61307d373e64 "
+    },
+    {
+      "href": "#/zone/991d2f57-0f37-4445-b956-09773d064816",
+      "text": "Zone"
+    },
+    {
+      "href": "#/template?templatefilter=self&filter=self&imagestoreid=af746f16-4e36-4f19-805c-61307d373e64",
+      "text": "템플릿 보기"
+    },
+    {
+      "href": "#/iso?isofilter=self&filter=self&imagestoreid=af746f16-4e36-4f19-805c-61307d373e64",
+      "text": "ISO 보기"
+    },
+    {
+      "href": "#/snapshot?imagestoreid=af746f16-4e36-4f19-805c-61307d373e64",
+      "text": "스냅샷 보기"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "text": "/2차 스토리지/Secondary업데이트\n작업\nSecondary\nZONE\n아이디\naf746f16-4e36-4f19-805c-61307d373e64 \n디스크 크기(GB 단위)\n88.10 GiB / 349.83 GiB\n25.18% 사용됨\nZone\nZone\n템플릿 보기\nISO 보기\n스냅샷 보기\n상세\n설정\n브라우저\n이벤트\n코멘트\n이름\n\nSecondary\n아이디\n\naf746f16-4e36-4f19-805c-61307d373e64\nURL\n\nnfs://10.10.32.10/nfs/secondary\n전체 디스크 크기\n\n349.83 GiB\n사용된 디스크 크기\n\n88.10 GiB\n프로토콜\n\nnfs\n범위\n\nZONE\nZone\n\nZone\n읽기전용\n\nfalse",
+  "url": "http://10.10.32.10:8080/client/#/imagestore/af746f16-4e36-4f19-805c-61307d373e64",
+  "width": 1280,
+  "expectedHref": "#/imagestore/af746f16-4e36-4f19-805c-61307d373e64"
+}

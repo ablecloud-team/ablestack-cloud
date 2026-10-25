@@ -1,0 +1,44 @@
+{
+  "database": {
+    "vms": 0,
+    "tags": 0,
+    "roles": 0,
+    "domains": 0,
+    "volumes": 0,
+    "accounts": 0,
+    "policies": 0,
+    "projects": 0,
+    "schedules": 0,
+    "snapshots": 0,
+    "references": 0,
+    "forcedCleanup": 0,
+    "domainAccounts": 0
+  },
+  "chainSetting": "false",
+  "runtime": {
+    "webInf": true,
+    "mold": "active",
+    "clientHttp": 200
+  },
+  "physical": {
+    "secondaryFilesChecked": 7,
+    "primaryVolumesChecked": 6,
+    "remaining": [],
+    "rbdTrash": []
+  },
+  "normalApiCleanup": true,
+  "libvirt": [
+    {
+      "host": 1,
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": 2,
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": 3,
+      "fixtureDomainAbsent": true
+    }
+  ]
+}

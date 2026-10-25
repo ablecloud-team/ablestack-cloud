@@ -1,0 +1,189 @@
+{
+  "uiTests": 69,
+  "uiSuites": 5,
+  "fullCloudCI": false,
+  "clusters": {
+    "31": {
+      "before": {
+        "runtime": {
+          "jarSha256": "2f228bab083a49332745aa63de571244b64aa0de278aa9c0beb1845a68749ddf",
+          "mainPID": "2907956",
+          "state": "active",
+          "http": 200,
+          "webInf": true
+        },
+        "refs": [
+          {
+            "path": "snapshots/2/1027/56eadaab-3858-4e39-b61f-24ec35b03519",
+            "role": "Image",
+            "state": "Ready"
+          }
+        ],
+        "volumes": [
+          {
+            "path": "85504a05-4b52-4321-9bc6-0875f3006367",
+            "pool": "/mnt/glue-gfs",
+            "type": "SharedMountPoint",
+            "uuid": "85504a05-4b52-4321-9bc6-0875f3006367"
+          }
+        ]
+      },
+      "after": {
+        "runtime": {
+          "jarSha256": "2f228bab083a49332745aa63de571244b64aa0de278aa9c0beb1845a68749ddf",
+          "mainPID": "2907956",
+          "state": "active",
+          "http": 200,
+          "webInf": true
+        },
+        "backendUnchanged": true,
+        "noRestart": true,
+        "snapshot": 0,
+        "volume": 0,
+        "references": 0,
+        "secondary": [
+          {
+            "path": "/nfs/secondary/snapshots/2/1027/56eadaab-3858-4e39-b61f-24ec35b03519",
+            "exists": false
+          }
+        ],
+        "primary": [],
+        "trash": []
+      },
+      "cleanup": {
+        "cluster": "31",
+        "active": {
+          "listVolumes": 0,
+          "listSnapshots": 0
+        },
+        "existingIdsRetained": {
+          "listVolumes": true,
+          "listSnapshots": true
+        }
+      },
+      "deploy": {
+        "files": 921,
+        "verified": true,
+        "backup": "/root/snapshot1480-copy-ui-backup"
+      },
+      "static": {
+        "files": 921,
+        "hashesMatch": true,
+        "webInf": true,
+        "protectedServerFiles": 1,
+        "configPreserved": true
+      },
+      "network": {
+        "cluster": "31",
+        "fields": 1,
+        "switches": 0,
+        "zoneSelect": true,
+        "storageSelect": false,
+        "confirmDisabled": true,
+        "commands": [
+          "listZones",
+          "listApis",
+          "listSnapshots",
+          "listSnapshots",
+          "readyForShutdown"
+        ],
+        "poolLookups": 0,
+        "copySubmissions": 0
+      }
+    },
+    "32": {
+      "before": {
+        "runtime": {
+          "jarSha256": "3963d649b56070921c9aa03e5e0201ba60d657998eb8d5d9d137db682c929dd2",
+          "mainPID": "2848670",
+          "state": "active",
+          "http": 200,
+          "webInf": true
+        },
+        "refs": [
+          {
+            "path": "rbd/165d0d91-ace4-4350-b7f6-18b2a05c6f55/2e893850-6b8c-4a3b-aab4-90d25f49cf53",
+            "role": "Primary",
+            "state": "Ready"
+          },
+          {
+            "path": "snapshots/2/378/2e893850-6b8c-4a3b-aab4-90d25f49cf53",
+            "role": "Image",
+            "state": "Ready"
+          }
+        ],
+        "volumes": [
+          {
+            "path": "165d0d91-ace4-4350-b7f6-18b2a05c6f55",
+            "pool": "rbd",
+            "type": "RBD",
+            "uuid": "165d0d91-ace4-4350-b7f6-18b2a05c6f55"
+          }
+        ]
+      },
+      "after": {
+        "runtime": {
+          "jarSha256": "3963d649b56070921c9aa03e5e0201ba60d657998eb8d5d9d137db682c929dd2",
+          "mainPID": "2848670",
+          "state": "active",
+          "http": 200,
+          "webInf": true
+        },
+        "backendUnchanged": true,
+        "noRestart": true,
+        "snapshot": 0,
+        "volume": 0,
+        "references": 0,
+        "secondary": [
+          {
+            "path": "/nfs/secondary/snapshots/2/378/2e893850-6b8c-4a3b-aab4-90d25f49cf53",
+            "exists": false
+          }
+        ],
+        "primary": [],
+        "trash": []
+      },
+      "cleanup": {
+        "cluster": "32",
+        "active": {
+          "listVolumes": 0,
+          "listSnapshots": 0
+        },
+        "existingIdsRetained": {
+          "listVolumes": true,
+          "listSnapshots": true
+        }
+      },
+      "deploy": {
+        "files": 921,
+        "verified": true,
+        "backup": "/root/snapshot1480-copy-ui-backup"
+      },
+      "static": {
+        "files": 921,
+        "hashesMatch": true,
+        "webInf": true,
+        "protectedServerFiles": 1,
+        "configPreserved": true
+      },
+      "network": {
+        "cluster": "32",
+        "fields": 1,
+        "switches": 0,
+        "zoneSelect": true,
+        "storageSelect": false,
+        "confirmDisabled": true,
+        "commands": [
+          "listZones",
+          "listApis",
+          "listSnapshots",
+          "listSnapshots",
+          "readyForShutdown",
+          "listWallAlertRules"
+        ],
+        "poolLookups": 0,
+        "copySubmissions": 0
+      }
+    }
+  }
+}

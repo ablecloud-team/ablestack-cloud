@@ -1,0 +1,16 @@
+{
+  "kind": "ssvm",
+  "jar": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.21.0.0-Mold.Diplo-202609171036.jar",
+  "before": "84700c25b4af896d6982cf4efdd2931803086a095819f021454aa7abbab3f9b0",
+  "after": "fc3972a2707aefb29963c46275168502847a1f860dac882597ecc5d555cfce0b",
+  "changedEntries": [
+    {
+      "path": "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class",
+      "sha256": "0977b31df42dfab822e8c6ba8f4fa0a9378b5f3a9e948f99de5951f431c631f9"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 0
+}

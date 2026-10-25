@@ -1,0 +1,89 @@
+[
+  {
+    "id": "5abca700-1b5f-4825-b578-a2b8144b0585",
+    "scenario": "SNAPT1474-31-native-restored",
+    "image": "/mnt/glue-gfs/ead369f9-4217-4c00-99f6-5c912727f571",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.251 GiB/sec and 2305.3001 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.263 GiB/sec and 2316.8313 ops/sec)"
+  },
+  {
+    "id": "618c002a-c4cd-4695-873f-a964beb55213",
+    "scenario": "SNAPT1474-31-native-restore-final",
+    "image": "/mnt/glue-gfs/2cc199f3-471d-4101-9ab5-3eb2aafedaa3",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.437 GiB/sec and 2495.6202 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.518 GiB/sec and 2577.9641 ops/sec)"
+  },
+  {
+    "id": "53b9906f-ff5b-4e12-9084-5c2636e72ad9",
+    "scenario": "SNAPT1474-31-raw-restore-final",
+    "image": "/mnt/glue-gfs/f1f147ee-a336-4e6b-bbd2-02ac6184a43b",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.480 GiB/sec and 2539.1215 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.476 GiB/sec and 2535.7541 ops/sec)"
+  },
+  {
+    "id": "1ec36c87-bca4-45c4-a3fd-e18f60204567",
+    "scenario": "SNAPT1474-31-native-restore-orphans",
+    "image": "/mnt/glue-gfs/56bbb18e-bcd0-44e1-a450-4545ee828ffa",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.280 GiB/sec and 2334.2997 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.287 GiB/sec and 2341.6791 ops/sec)"
+  },
+  {
+    "id": "3e849115-8297-44e6-9544-3a1936d23864",
+    "scenario": "SNAPT1474-31-raw-restore-orphans",
+    "image": "/mnt/glue-gfs/d494af0c-0f01-4f52-bb4d-fa3d224397e2",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.436 GiB/sec and 2494.5121 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.382 GiB/sec and 2438.7032 ops/sec)"
+  },
+  {
+    "id": "6a927a79-d77b-4ebc-902c-7f7657c85b97",
+    "name": "SNAPT1474-31-native-after",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/400/2b6d7dea-3513-4cdf-aa60-42d3be8c5ec6.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.048 GiB/sec and 2096.9240 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (1.973 GiB/sec and 2020.8471 ops/sec)"
+  },
+  {
+    "id": "3e991194-b761-4e58-ba82-0f7bc5eb5b6f",
+    "name": "SNAPT1474-31-raw-after",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/402/83d05d2c-ec1a-49b9-8a48-a097decd0719.raw",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.509 GiB/sec and 2568.8121 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.784 GiB/sec and 2850.5378 ops/sec)"
+  },
+  {
+    "id": "f76adac6-f378-47b0-8e9e-e89b653560b0",
+    "name": "SNAPT1474-31-native-orphan",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/406/2b6d7dea-3513-4cdf-aa60-42d3be8c5ec6.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.801 GiB/sec and 2868.2388 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.678 GiB/sec and 2742.4008 ops/sec)"
+  },
+  {
+    "id": "ba8bc663-30cd-4283-aa23-ef1c7919bc8e",
+    "name": "SNAPT1474-31-native-final-code",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/409/2b6d7dea-3513-4cdf-aa60-42d3be8c5ec6.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (695.585 MiB/sec and 695.5849 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (1.704 GiB/sec and 1745.1276 ops/sec)"
+  }
+]

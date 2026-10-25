@@ -1,0 +1,58 @@
+[
+  {
+    "path": "ui/src/views/AutogenView.vue",
+    "sha256": "11a04a91156aa3955b28d29a6ff1c8106c9f6031fd97edbfd28bc710b67de26b"
+  },
+  {
+    "path": "ui/src/components/view/InfoCard.vue",
+    "sha256": "493470dab16c7741d644bf43cc6e895fca0c7e0d0876731fd787474d0130ac79"
+  },
+  {
+    "path": "ui/src/components/view/ResourceView.vue",
+    "sha256": "8bc4cb407822afe076955b9d60aa02c458b5caa8d12010591211fcd37f61893d"
+  },
+  {
+    "path": "ui/src/config/section/storage.js",
+    "sha256": "d8513ae0128482d4d60031e873decedeaed05de701ba1d65e08790b6b5445eb8"
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "4368964ed1dafb51f01cc0c96a099a6a8ddc07c48485a389f920d1cedf1a361d"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "ed48239569d50ff57bef4a17b5694f5e47bda7972ad133c5a8d8170466e8973c"
+  },
+  {
+    "path": "ui/tests/unit/components/view/ResourceView.spec.js",
+    "sha256": "0c252a74e1b0ae6be0addcc4aece7ceef88ca0421e7872183c5402c3dd95ae57"
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotDetail.js",
+    "sha256": "3b53e710f75de35ff9c49bd3324e30e67c54ea0a1a235a5ac937779739cafd62"
+  },
+  {
+    "path": "ui/src/views/storage/StorageSnapshotSummary.vue",
+    "sha256": "85b7c88d174abf0a5a2ae654288ae658cecfd92d20351c494a2710b22d41de96"
+  },
+  {
+    "path": "ui/src/views/storage/StorageSnapshotDetails.vue",
+    "sha256": "ba8ebbba9063b589b171b52396f65acdac70440cd1f89e5366d5ea691252c368"
+  },
+  {
+    "path": "ui/src/style/components/view/resource-detail-fields.css",
+    "sha256": "ed9cf9de3b75a8b50228849e2f2faf80187c684a51933b894506b62908341080"
+  },
+  {
+    "path": "ui/tests/unit/utils/storageSnapshotDetail.spec.js",
+    "sha256": "55323c606a07715fa3f471f1ed7e475117e2fe9651dd99e4d5fc8461d3788bcd"
+  },
+  {
+    "path": "ui/tests/unit/views/AutogenStorageSnapshotDetail.spec.js",
+    "sha256": "7bd3692c5e4c90c1981a277af707adfde6e845b8dc1bff48c3dfc5e139ceeb2b"
+  },
+  {
+    "path": "ui/tests/unit/components/view/StorageSnapshotSummary.spec.js",
+    "sha256": "9668cc253fa59bf148ad1a50699638562fb34f3d15c6f236b983907311d60527"
+  }
+]

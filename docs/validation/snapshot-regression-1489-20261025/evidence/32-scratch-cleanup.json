@@ -1,0 +1,61 @@
+{
+  "removedScratchFiles": [
+    {
+      "path": "/nfs/snapshot-regression-1489-format-backups/7bc7f649-fec3-48bb-ac9c-4296ac66f9f2.qcow2",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/nfs/snapshot-regression-1489-format-backups/891c645d-03b3-4af3-a182-dd506a812918.qcow2",
+      "bytes": 2452619264,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/nfs/snapshot-regression-1489-loss-backups/archive-7eee8768-0fc3-4bdb-9bab-39c5a33cc81c",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/nfs/snapshot-regression-1489-loss-backups/force-db30cf10-412a-405d-8355-957947e958f2",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/nfs/snapshot-regression-1489-loss-backups/display-b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern.qcow2",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern.qcow2.front",
+      "bytes": 1048576,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-root.qcow2",
+      "bytes": 2419720192,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-root.qcow2.front",
+      "bytes": 1048576,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern-raw-source.raw",
+      "bytes": 1073741824,
+      "testHarnessScratch": true
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-32-pattern-raw-source.raw.front",
+      "bytes": 1048576,
+      "testHarnessScratch": true
+    }
+  ],
+  "ownZoneEmptyDirectoriesRemoved": true,
+  "noProductImageDeletionByHarness": true
+}

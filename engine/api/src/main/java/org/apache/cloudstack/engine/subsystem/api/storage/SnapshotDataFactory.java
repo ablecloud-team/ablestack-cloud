@@ -26,6 +26,9 @@ import com.cloud.utils.fsm.NoTransitionException;
 public interface SnapshotDataFactory {
     SnapshotInfo getSnapshot(long snapshotId, DataStore store);
 
+    SnapshotInfo getSnapshotForStoreRef(long snapshotId, long referenceId);
+
+
     SnapshotInfo getSnapshot(DataObject obj, DataStore store);
 
     SnapshotInfo getSnapshot(long snapshotId, long storeId, DataStoreRole role);

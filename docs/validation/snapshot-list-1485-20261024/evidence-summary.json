@@ -1,0 +1,73 @@
+{
+  "issue": 1485,
+  "branch": "dhslove/epic-1473-storage-snapshots",
+  "base": "c7fc749f8e7d4cd4cfbaedc534b3380b15b1d9ab",
+  "tests": 120,
+  "suites": 7,
+  "sourceFiles": 8,
+  "sourceManifest": [
+    {
+      "path": "ui/src/views/AutogenView.vue",
+      "sha256": "6f227d68e76d57ce1e5a01e668b82faea481ffbf3d928694c7106dabfabe3dbd"
+    },
+    {
+      "path": "ui/src/components/view/ListView.vue",
+      "sha256": "6ad0355e55c4bd28662d06d68dce511bad50fb00273039cd13a76198ef297bb1"
+    },
+    {
+      "path": "ui/src/config/section/storage.js",
+      "sha256": "854c91751000e8c6d785d2dd48beea0228e17eaf82d1e0d04ae51d5270bf6d25"
+    },
+    {
+      "path": "ui/src/utils/storageSnapshotPresentation.js",
+      "sha256": "ff87079631ccf416dc3ef037ba8a54301a54dc7799ffb5546fdae0a39c0ce338"
+    },
+    {
+      "path": "ui/tests/unit/utils/storageSnapshotPresentation.spec.js",
+      "sha256": "5ffc7fbaace21a77c5bbfd74088e7977763d974728a3967d13e841470c9be38e"
+    },
+    {
+      "path": "ui/tests/unit/views/AutogenStorageSnapshotList.spec.js",
+      "sha256": "a490a4761dc4a34800b147ec04643647cd49b9d6b3ca952e3c0a40fbb0e469f2"
+    },
+    {
+      "path": "ui/public/locales/en.json",
+      "sha256": "f5fe260fe7faaf91bed7dce8daee22eb27bc1f9dd0c16d76b9b32a6c1e480ffb"
+    },
+    {
+      "path": "ui/public/locales/ko_KR.json",
+      "sha256": "425af84db825d9c7dfa04df8e2a079c5700585707b4c1ba379cba37fabfd0213"
+    }
+  ],
+  "lint": "PASS",
+  "uiBuild": "PASS",
+  "artifactSha256": "46cb1067aca0ed412d1e5e61c1955f12e38ad41b09c4c29255d38785d9c218e2",
+  "clusters": {
+    "31": {
+      "apiDbCases": 30,
+      "aclCases": 5,
+      "uiStates": 42,
+      "activeResidual": 0,
+      "uiCreated": 1,
+      "uiDeleted": 2,
+      "responsiveWidths": [
+        390,
+        768,
+        1280
+      ]
+    },
+    "32": {
+      "apiDbCases": 30,
+      "aclCases": 5,
+      "uiStates": 41,
+      "activeResidual": 0,
+      "uiCreated": 1,
+      "uiDeleted": 2,
+      "responsiveWidths": [
+        390,
+        768,
+        1280
+      ]
+    }
+  }
+}

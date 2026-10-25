@@ -1,0 +1,22 @@
+{
+  "vmid": "a7660ae9-d56b-401a-9a6c-a4d6d4e6d56c",
+  "name": "SNAPREG1489-31-root-boot-qcow2",
+  "instance": "i-2-769-VM",
+  "state": "Running",
+  "guestAgent": true,
+  "os": {
+    "name": "Rocky Linux",
+    "kernel-release": "5.14.0-362.8.1.el9_3.x86_64",
+    "version": "9.3 (Blue Onyx)",
+    "pretty-name": "Rocky Linux 9.3 (Blue Onyx)",
+    "version-id": "9.3",
+    "kernel-version": "#1 SMP PREEMPT_DYNAMIC Wed Nov 8 17:36:32 UTC 2023",
+    "machine": "x86_64",
+    "id": "rocky"
+  },
+  "rootFilesystemPresent": true,
+  "blockJobs": {
+    "return": [],
+    "id": "libvirt-95"
+  }
+}

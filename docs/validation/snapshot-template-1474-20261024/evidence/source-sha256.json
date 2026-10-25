@@ -1,0 +1,10 @@
+{
+  "core/src/main/java/org/apache/cloudstack/storage/to/SnapshotObjectTO.java": "d1177158f20feea87b1c96fdb5055c506ef95e28b5a45ee3b258339b8969d7af",
+  "core/src/test/java/org/apache/cloudstack/storage/to/SnapshotObjectTOTest.java": "981a10c8f8b5321863164d8e17669849d48ecea353f1badef728ef10569b95a7",
+  "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/storage/KVMStorageProcessor.java": "735b3a0e58fcb854e1e0695a6d5e3ab58e6d2aed432a1f98f5ac7e90f4199752",
+  "plugins/hypervisors/kvm/src/test/java/com/cloud/hypervisor/kvm/storage/KVMStorageProcessorSnapshotImageTest.java": "928586388c5715bc613eb66241c41d4bea0cadabd7a78933ef28d9664eaa4e6a",
+  "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.java": "20138c5355d26e8b3208c45351519e21acf17681c1d5bc028a93392ce4fb711a",
+  "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/formatinspector/SnapshotImageMetadata.java": "ca6d07b7a3e79e525467c00daed9debb151629d4be0af9e2af4ea0a36916d60f",
+  "services/secondary-storage/server/src/test/java/org/apache/cloudstack/storage/formatinspector/SnapshotImageMetadataTest.java": "11dc9130526a1c6f517a4d70120c37e42de29d3a988f89184c84d032223a1c42",
+  "services/secondary-storage/server/src/test/java/org/apache/cloudstack/storage/resource/SnapshotTemplateCopyTest.java": "1c099bf38e8543e574cfaf426ebe94a919e71b994ba84838cf2dfa6d1c71ba0b"
+}

@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "scenario": "normal-ui-volume",
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+      "vm": null,
+      "jobid": "7cdf7c95-ff65-4d2a-9582-0eb2ffe1739d",
+      "device": null,
+      "volume": "7edd8768-4879-4416-bb12-0682cefbf860",
+      "jobRows": 1,
+      "jobStatus": 1,
+      "volumeRows": 1,
+      "transportPosts": 1
+    },
+    {
+      "scenario": "lost-ui-volume",
+      "snapshot": "a936f658-2ec0-470b-90e6-145bce23d7f1",
+      "vm": null,
+      "jobid": "e6dc3253-e6e7-40c8-bb04-7f2b18a9cf0c",
+      "device": null,
+      "volume": "9f6d4dc8-2d22-4a9e-8e5d-0f5c7b68286a",
+      "jobRows": 1,
+      "jobStatus": 1,
+      "volumeRows": 1,
+      "transportPosts": 2
+    },
+    {
+      "scenario": "keyboard-ui-volume",
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+      "vm": "6df58ee7-7b25-4da7-a646-350dec00e24e",
+      "jobid": "7ec0dc78-187f-4d9d-8a16-8681c4037499",
+      "device": 4,
+      "volume": "1b5e28c6-dd97-448a-a130-1294984523aa",
+      "jobRows": 1,
+      "jobStatus": 1,
+      "volumeRows": 1,
+      "transportPosts": 1
+    },
+    {
+      "scenario": "revert",
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+      "jobid": "5f46eb7e-a80b-41dd-944e-ddfc74950f0e",
+      "transportPosts": 1,
+      "jobRows": 1,
+      "jobStatus": 1
+    },
+    {
+      "scenario": "revert",
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+      "jobid": "ee0c8093-44bf-42bc-a7f1-0ee81baeb2e1",
+      "transportPosts": 1,
+      "jobRows": 1,
+      "jobStatus": 1
+    }
+  ]
+}

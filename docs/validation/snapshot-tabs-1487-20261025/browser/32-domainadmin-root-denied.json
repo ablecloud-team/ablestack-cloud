@@ -1,0 +1,31 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/snapshot",
+      "text": "스냅샷"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots",
+      "text": ""
+    }
+  ],
+  "notes": [],
+  "pagination": [],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "/스냅샷/135a8843-0156-4236-a986-7f21a3416bd4업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\n현재 권한 범위에서 스냅샷을 찾을 수 없습니다.\n\n재시도",
+  "text": "/스냅샷/135a8843-0156-4236-a986-7f21a3416bd4업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\n현재 권한 범위에서 스냅샷을 찾을 수 없습니다.\n\n재시도",
+  "tools": [],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/135a8843-0156-4236-a986-7f21a3416bd4?tab=events",
+  "width": 1280
+}

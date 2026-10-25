@@ -1,0 +1,55 @@
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements. See the NOTICE file for copyright ownership.
+// Licensed under the Apache License, Version 2.0 (the "License"); you may obtain
+// a copy at http://www.apache.org/licenses/LICENSE-2.0 . Distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
+
+.storage-standard-search-form {
+  width: min(320px, calc(100vw - 64px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+.input-search {
+  margin-left: 10px;
+}
+
+.filter-group {
+  :deep(.ant-input-group-addon) {
+    padding: 0 5px;
+  }
+
+  &-button {
+    background: inherit;
+    border: 0;
+    padding: 0;
+  }
+
+  &-button {
+    position: relative;
+    display: block;
+    min-height: 25px;
+
+    &-clear {
+      position: absolute;
+      left: 0;
+    }
+
+    &-search {
+      position: absolute;
+      right: 0;
+    }
+  }
+}
+
+.filter-button {
+  background: inherit;
+  border: 0;
+  padding: 0;
+  position: relative;
+  display: block;
+  min-height: 25px;
+  width: 20px;
+}

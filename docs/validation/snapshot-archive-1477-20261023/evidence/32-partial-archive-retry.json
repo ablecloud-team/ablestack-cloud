@@ -1,0 +1,40 @@
+{
+  "before": {
+    "snapshotid": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+    "name": "SNAP1477-32-partial",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "RETRY_PRIMARY_CLEANUP",
+    "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+    "primaryreferences": 1,
+    "secondaryreferences": 1,
+    "scopehash": "924c1c5e48cca9df161cc2586354d78c93cbdf747fb3bcc46fe6477964ca74a0",
+    "dryrun": true
+  },
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    }
+  ],
+  "after": {
+    "snapshotid": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+    "name": "SNAP1477-32-partial",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "9d4ec9829192565bc215aefc406cd26d7ea8c0057f197661015f6c932e1a6138",
+    "dryrun": true
+  }
+}

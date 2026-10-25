@@ -1,0 +1,261 @@
+Browser tab: 20, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18032/client/#/snapshot/bd417e75-7e0f-44ae-a54d-d7617cd22527?tab=zones".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18032/client/#/snapshot/bd417e75-7e0f-44ae-a54d-d7617cd22527?tab=zones
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: localhost:18032/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 content list sub_menu_2_$$_/storage-popup
+					15 hdd 볼륨
+						16 link Description: hdd 볼륨, Value: localhost:18032/client/#/volume
+					17 build 스냅샷
+						18 link Description: build 스냅샷, Value: localhost:18032/client/#/snapshot
+					19 build 스냅샷 정책
+						20 link Description: build 스냅샷 정책, Value: localhost:18032/client/#/snapshotpolicy
+					21 funnel-plot 버킷
+						22 link Description: funnel-plot 버킷, Value: localhost:18032/client/#/buckets
+					23 file-text 공유 파일 시스템
+						24 link Description: file-text 공유 파일 시스템, Value: localhost:18032/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: localhost:18032/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: localhost:18032/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: localhost:18032/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: localhost:18032/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: localhost:18032/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: localhost:18032/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: localhost:18032/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 button 알림
+				123 image bell
+				253 text 1
+			125 container
+				126 text AC admin cloud
+		127 container
+			128 container
+				129 container
+					130 link Description: home, Value: localhost:18032/client/#/
+					131 text /
+					132 link Description: 스냅샷, Value: localhost:18032/client/#/snapshot
+					133 text / SNAP1479UI-32-orphan-source-snapshot
+					134 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					135 button reload 업데이트
+						136 image reload
+						137 text 업데이트
+				138 button down 작업
+					139 image down
+					140 text 작업
+			141 container
+				142 image build
+				143 heading SNAP1479UI-32-orphan-source-snapshot, Value: 4
+					144 text SNAP1479UI-32-orphan-source-snapshot
+				145 text 상태 백업 됨 아이디
+				146 button 아이디 복사
+					147 image barcode
+				148 link Description: bd417e75-7e0f-44ae-a54d-d7617cd22527 , Value: javascript:;
+				149 text 볼륨
+				150 image hdd
+				151 text SNAP1479UI-32-orphan-source Zone
+				152 image global
+				153 link Description: Zone, Value: localhost:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				154 text 계정
+				155 image user
+				156 link Description: admin, Value: localhost:18032/client/#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				157 text 도메인
+				158 image block
+				159 link Description: ROOT, Value: localhost:18032/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				160 text 생성일
+				161 image calendar
+				162 text 2026. 10. 23. 오후 9:51:02
+				163 container
+					164 text 태그
+					165 container
+						166 image plus
+						167 text  새 태그
+			168 container
+				169 tab group
+					170 container
+						171 tab (selectable, settable, boolean) 상세, Value: 0, ID: rc-tabs-0-tab-details
+						172 tab (selected, settable, boolean) Zone, Value: 1, ID: rc-tabs-0-tab-zones
+						173 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-0-tab-events
+						174 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-0-tab-comments
+				214 container Description: Zone, ID: rc-tabs-0-panel-zones
+					215 table
+						216 row
+							217 cell
+								218 container
+									219 checkbox (settable, integer) Description:  , Value: 0
+							220 cell
+								221 text Zone
+							222 cell
+								223 text 상태
+							224 cell
+								225 text 준비
+						226 row
+							227 cell
+								228 container
+									229 checkbox (settable, integer) Description:  , Value: 0
+							230 cell
+								231 link Description: global Zone, Value: localhost:18032/client/#/imagestore/af746f16-4e36-4f19-805c-61307d373e64
+							232 cell
+								233 text BackedUp
+							234 cell
+								235 text 예
+							236 cell
+								237 button copy
+									238 image copy
+								239 button delete
+									240 image delete
+					241 content list
+						242 text 전체 1 개 항목
+						243 container 이전 페이지
+							244 button (disabled) left
+								245 image left
+						246 text 1
+						247 container 다음 페이지
+							248 button (disabled) right
+								249 image right
+						250 container
+							251 combo box (settable) rc_select_2
+							252 text 10 / 쪽
+	207 container
+		208 image exclamation-circle
+		209 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		210 button 세부 경보 내용 확인
+		211 button 경보 규칙으로 이동
+		212 button 닫기
+			213 image close
+	254 container
+		255 container 작업 상세
+			256 container
+				257 button Close
+					258 image close
+				259 text 작업 상세
+				260 container
+					261 table
+						262 row
+							263 cell
+								264 text 동작
+							265 cell
+								266 text 볼륨 생성
+						267 row
+							268 cell
+								269 text 작업 대상
+							270 cell
+								271 text SNAP1479UI-32-orphan-source-snapshot
+						272 row
+							273 cell
+								274 text 상태
+							275 cell
+								276 text 접수 또는 결과 미확인 · 재제출 차단
+						277 row
+							278 cell
+								279 text 생성일
+							280 cell
+								281 text 2026. 10. 23. 오후 10:11:17
+					282 image exclamation-circle
+					283 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 기존 작업 결과 조회로 다시 확인하세요.
+					284 image exclamation-circle
+					285 text 기존 작업의 결과만 조회합니다. 결과가 확인될 때까지 동일 대상의 재제출은 차단됩니다.
+					286 button 기존 작업 결과 조회
+					287 link Description: 작업 이력 확인, Value: localhost:18032/client/#/event?resourceid=bd417e75-7e0f-44ae-a54d-d7617cd22527
+					288 button (collapsed) right 고급 · 작업 식별 및 복구, Secondary Actions: Expand
+						289 image right
+						290 text 고급 · 작업 식별 및 복구
+				291 button 닫기
+
+The focused UI element is 292 container

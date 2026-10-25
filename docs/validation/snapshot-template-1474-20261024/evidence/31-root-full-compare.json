@@ -1,0 +1,18 @@
+[
+  {
+    "template": "a87bef1c-cf2a-45c9-9588-65f87358d040",
+    "format": "QCOW2",
+    "sourceSnapshot": "/nfs/secondary/snapshots/2/998/4e127751-19c8-4d11-b559-00922200f3ef",
+    "path": "/nfs/secondary/template/tmpl/2/401/4e127751-19c8-4d11-b559-00922200f3ef.qcow2",
+    "result": "Images are identical.",
+    "identical": true
+  },
+  {
+    "template": "cefa9533-4c1f-4df1-abf5-2c4a1863ea5d",
+    "format": "RAW",
+    "sourceSnapshot": "/nfs/secondary/snapshots/2/998/4e127751-19c8-4d11-b559-00922200f3ef",
+    "path": "/nfs/secondary/template/tmpl/2/410/4e127751-19c8-4d11-b559-00922200f3ef.raw",
+    "result": "Images are identical.",
+    "identical": true
+  }
+]

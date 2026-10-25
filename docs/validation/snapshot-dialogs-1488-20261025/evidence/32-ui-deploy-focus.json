@@ -1,0 +1,56 @@
+{
+  "files": 922,
+  "verified": true,
+  "backup": "/nfs/snapshot-dialogs-1488-20261025-ui-focus-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "e3839c761e59e77f960b9f9f717055ea91882682a3a036b07e4c69277aac8687"
+  },
+  "managementJarUnchanged": "adab81df9e1c78d2f621fea8f76ecdaa2a35799eacc62c2423a4806fedaa41f9",
+  "largeFileMetadataUnchanged": {
+    "monitoring-vm.qcow2": {
+      "size": 29194321920,
+      "inode": 27209289,
+      "mtime_ns": 1791859614464247580
+    }
+  },
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "mold-dialog-focus-content": true,
+    "snapshot-dialog-targets": true,
+    "snapshot-dialog-form": true,
+    "message.snapshot.dialog.delete.zone": true,
+    "snapshot-zones": true,
+    "events-tab": true,
+    "annotations-tab": true,
+    "message.detail.tab.incomplete": true,
+    "message.snapshot.copy.search.empty": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "js/chunk-0474fd77.adb9d55a.js",
+    "js/chunk-0474fd77.adb9d55a.js.map",
+    "js/chunk-f8ba058e.ad31d875.js.map",
+    "js/chunk-8fae99c4.7b06caec.js.map",
+    "js/chunk-774141e7.805523e7.js",
+    "js/app.bf003dbe.js",
+    "js/chunk-774141e7.805523e7.js.map",
+    "js/chunk-f8ba058e.ad31d875.js",
+    "js/chunk-a39b0bb0.da80c762.js.map",
+    "js/app.bf003dbe.js.map",
+    "js/chunk-8fae99c4.7b06caec.js",
+    "js/chunk-a39b0bb0.da80c762.js",
+    "css/app.3a60d8e7.css",
+    "css/chunk-8fae99c4.99aa4115.css",
+    "css/chunk-0474fd77.d8be70b0.css",
+    "css/chunk-a39b0bb0.a208222d.css",
+    "css/chunk-f8ba058e.23e2d6f8.css",
+    "css/chunk-774141e7.2c69b4eb.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   75G  7.8G  91% /\n/dev/mapper/rl-nfs   350G   89G  262G  26% /nfs\n"
+}

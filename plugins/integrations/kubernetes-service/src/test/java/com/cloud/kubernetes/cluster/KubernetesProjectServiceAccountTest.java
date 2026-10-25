@@ -202,4 +202,26 @@ public class KubernetesProjectServiceAccountTest {
         try { manager.getProjectKubernetesAccountRole(); fail("lookup error must propagate"); }
         catch (CloudRuntimeException expected) { assertSame(caller, CallContext.current()); }
     }
+    @Test public void cleanupResolvesRemovedProjectWithoutRestoringMembership() {
+        Account owner = Mockito.mock(Account.class);
+        Mockito.when(owner.getId()).thenReturn(27L);
+        Mockito.when(project.getUuid()).thenReturn("12345678-1234-1234-1234-123456789abc");
+        Mockito.when(manager.projectManager.findByProjectAccountIdIncludingRemoved(27L)).thenReturn(project);
+        manager.accountDao = Mockito.mock(com.cloud.user.dao.AccountDao.class);
+        com.cloud.user.AccountVO service = Mockito.mock(com.cloud.user.AccountVO.class);
+        Mockito.when(manager.accountDao.findAccountsByName(Mockito.anyString())).thenReturn(Collections.singletonList(service));
+        assertSame(service, manager.getProjectKubernetesAccount(owner, false));
+        Mockito.verify(manager.projectManager).findByProjectAccountIdIncludingRemoved(27L);
+        Mockito.verifyNoMoreInteractions(manager.projectManager);
+        Mockito.verifyNoInteractions(manager.projectAccountDao);
+    }
+
+    @Test public void cleanupOfAbsentProjectDoesNotCreateOrBindAccounts() {
+        Account owner = Mockito.mock(Account.class);
+        Mockito.when(owner.getId()).thenReturn(27L);
+        manager.accountDao = Mockito.mock(com.cloud.user.dao.AccountDao.class);
+        org.junit.Assert.assertNull(manager.getProjectKubernetesAccount(owner, false));
+        Mockito.verifyNoInteractions(manager.accountDao, manager.accountService, manager.projectAccountDao);
+    }
+
 }

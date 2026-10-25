@@ -1,0 +1,10 @@
+{
+  "height": 720,
+  "rows": 0,
+  "scripts": [
+    "http://10.10.32.10:8080/client/js/app.8f886a4c.js"
+  ],
+  "text": "/스냅샷\n스냅샷 생성\n프로젝트\n업데이트\n\t\n\t\n이름\n\t\n상태\n\t\n볼륨 이름\n\t\n간격 유형\n\t물리적 크기\t\n가상 크기\n\t\n생성일\n\t\n계정\n\t\n도메인\n\tZone\t\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n현재 검색 조건과 일치하는 스냅샷이 없습니다.\n전체 0 개 항목 중 0-0 표시\n1\n20 / 쪽",
+  "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-32&projectid=0&q=SNAPDIALOG1488-32&sortkey=created&sortorder=desc&page=1",
+  "width": 1280
+}

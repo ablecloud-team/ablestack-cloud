@@ -26,6 +26,19 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class SnapshotObjectTOTest {
 
     @Test
+    public void testSnapshotLogicalSizeWithoutSourceVolume() {
+        SnapshotInfo snapshot = Mockito.mock(SnapshotInfo.class);
+        Mockito.when(snapshot.getDataStore()).thenReturn(Mockito.mock(DataStore.class));
+        Mockito.when(snapshot.getSize()).thenReturn(1073741824L);
+        SnapshotObjectTO object = new SnapshotObjectTO(snapshot);
+        Assert.assertNull(object.getVolume());
+        Assert.assertEquals(Long.valueOf(1073741824L), object.getSize());
+        String json = new com.google.gson.Gson().toJson(object);
+        Assert.assertEquals(object.getSize(), new com.google.gson.Gson().fromJson(json, SnapshotObjectTO.class).getSize());
+        Assert.assertNull(new com.google.gson.Gson().fromJson("{}", SnapshotObjectTO.class).getSize());
+    }
+
+    @Test
     public void testAccountId() {
         SnapshotObjectTO obj = new SnapshotObjectTO();
         long accountId = 1L;

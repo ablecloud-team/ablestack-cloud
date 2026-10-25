@@ -1,0 +1,90 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [
+    {
+      "control": {
+        "bottom": 252.0625,
+        "height": 32,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 220.0625
+      },
+      "label": {
+        "bottom": 220.0625,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 190.0625
+      },
+      "text": "이름"
+    },
+    {
+      "control": {
+        "bottom": 390.921875,
+        "height": 84.859375,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 306.0625
+      },
+      "label": {
+        "bottom": 306.0625,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 276.0625
+      },
+      "text": "Zone"
+    },
+    {
+      "control": {
+        "bottom": 476.921875,
+        "height": 32,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 444.921875
+      },
+      "label": {
+        "bottom": 444.921875,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 414.921875
+      },
+      "text": "비동기 백업"
+    }
+  ],
+  "focus": {
+    "inDialog": true,
+    "tag": "INPUT"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "이 볼륨의 스냅샷을 만드시겠습니까?\n이름\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

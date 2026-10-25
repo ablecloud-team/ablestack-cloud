@@ -1,0 +1,312 @@
+{
+  "snapshots": [
+    {
+      "id": "2221a3f0-1728-40cd-8539-101566703b62",
+      "name": "SNAPDIALOG1488-31-project",
+      "state": "Destroyed",
+      "volume": "ba7665fd-4e15-42a2-b98b-6547a1b98c40",
+      "account": "PrjAcct-SNAPDIALOG1488-31-project-69",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "29121a5b-1700-41e6-9744-4c6adf7c13c6",
+      "name": "SNAPDIALOG1488-31-ui-final-keyboard",
+      "state": "Destroyed",
+      "volume": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "account": "SNAPDIALOG1488-31-owner",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+      "name": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름",
+      "state": "Destroyed",
+      "volume": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "account": "SNAPDIALOG1488-31-owner",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+      "name": "SNAPDIALOG1488-31-other",
+      "state": "Destroyed",
+      "volume": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+      "account": "SNAPDIALOG1488-31-other",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "3c985f6a-63af-4cbb-bb9a-47a20277a351",
+      "name": "SNAPDIALOG1488-31-vmdata",
+      "state": "Destroyed",
+      "volume": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+      "account": "admin",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "4666ff7a-06ee-4225-b087-035c6ed29433",
+      "name": "SNAPDIALOG1488-31-root",
+      "state": "Destroyed",
+      "volume": "56a1e6b8-0979-4222-b66d-72bb5c057621",
+      "account": "admin",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "4f70bd8b-df70-49a7-ac0c-a86e4ac1c133",
+      "name": "SNAPDIALOG1488-31-owner-next",
+      "state": "Destroyed",
+      "volume": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "account": "SNAPDIALOG1488-31-owner",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+      "name": "SNAPDIALOG1488-31-ui-attached-final",
+      "state": "Destroyed",
+      "volume": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+      "account": "admin",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "b0e33480-df88-4c67-99a4-e6d57cc2bee6",
+      "name": "SNAPDIALOG1488-31-owner",
+      "state": "Destroyed",
+      "volume": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "account": "SNAPDIALOG1488-31-owner",
+      "removed": null,
+      "volumeActive": false
+    },
+    {
+      "id": "c442f11f-c701-40a6-b512-21384fd3d6b1",
+      "name": "SNAPDIALOG1488-31-deleted",
+      "state": "Destroyed",
+      "volume": "1013b7af-1308-475b-86b9-a85422af6519",
+      "account": "SNAPDIALOG1488-31-owner",
+      "removed": null,
+      "volumeActive": false
+    }
+  ],
+  "references": [
+    {
+      "id": 478,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/286/1087/9317e09f-5d59-4741-824f-adf00d997c67",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "2221a3f0-1728-40cd-8539-101566703b62"
+    },
+    {
+      "id": 488,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/283/1085/c8e5342c-61de-479f-81bb-c8900d45222e",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 1376256,
+      "snapshot": "29121a5b-1700-41e6-9744-4c6adf7c13c6"
+    },
+    {
+      "id": 486,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/283/1085/8b5e769e-5fa1-4d03-bfed-0db4c2febbf7",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 1376256,
+      "snapshot": "35fc8e78-e4cc-4df2-9f22-210a45048ceb"
+    },
+    {
+      "id": 476,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/284/1086/d74be64d-05fa-4ffc-aef5-0e6eca562f4a",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "36d308ba-0e13-4cf2-b3e3-155c85d11cae"
+    },
+    {
+      "id": 482,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/2/1089/0cc2299b-3d31-477e-9868-65e390239108",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "3c985f6a-63af-4cbb-bb9a-47a20277a351"
+    },
+    {
+      "id": 484,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/2/1090/8bb8ba58-bbc5-4066-a48a-0ab0110f3970",
+      "role": "Image",
+      "size": 107374182400,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 2419720192,
+      "snapshot": "4666ff7a-06ee-4225-b087-035c6ed29433"
+    },
+    {
+      "id": 474,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/283/1085/09cfe09f-1ddd-45a8-b51d-a262962461c9",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "4f70bd8b-df70-49a7-ac0c-a86e4ac1c133"
+    },
+    {
+      "id": 492,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/2/1089/0bdf1581-a2c0-416c-914e-1c4e376d8767",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "95157c64-cf34-49a7-9317-7dcfbd738cec"
+    },
+    {
+      "id": 472,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/283/1085/fd4c4ef4-da41-4e70-b376-d2c9f1811434",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "b0e33480-df88-4c67-99a4-e6d57cc2bee6"
+    },
+    {
+      "id": 480,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/283/1088/8c5ded91-0923-45da-bb8e-fef2faac5d1d",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "state": "Destroyed",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "download": null,
+      "physical": 196624,
+      "snapshot": "c442f11f-c701-40a6-b512-21384fd3d6b1"
+    }
+  ],
+  "volumes": [
+    {
+      "id": "1013b7af-1308-475b-86b9-a85422af6519",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-deleted",
+      "path": "1013b7af-1308-475b-86b9-a85422af6519",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-24 23:39:16.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    },
+    {
+      "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-vmdata",
+      "path": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:32:15.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    },
+    {
+      "id": "56a1e6b8-0979-4222-b66d-72bb5c057621",
+      "vm": "4946b875-af90-4312-9d60-c0e450f67fb4",
+      "name": "ROOT-767",
+      "path": "56a1e6b8-0979-4222-b66d-72bb5c057621",
+      "size": 107374182400,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:32:14.000000",
+      "offering": "e44f9baa-0352-4cb6-818d-79c6eeb285a6"
+    },
+    {
+      "id": "ba7665fd-4e15-42a2-b98b-6547a1b98c40",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-project",
+      "path": "ba7665fd-4e15-42a2-b98b-6547a1b98c40",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:32:15.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    },
+    {
+      "id": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-other",
+      "path": "d182cbea-4b57-410e-99ff-9dc138d1e28d",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:32:15.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    },
+    {
+      "id": "e1ae9074-c858-4f5e-8f7e-499208ab9b66",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-ui-volume",
+      "path": "3571a537-3f5a-413d-b83c-66205208f3e0",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:31:53.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    },
+    {
+      "id": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "vm": null,
+      "name": "SNAPDIALOG1488-31-owner",
+      "path": "eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5",
+      "size": 1073741824,
+      "state": "Expunged",
+      "removed": "2026-10-25 01:32:15.000000",
+      "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15"
+    }
+  ],
+  "templates": [
+    {
+      "id": "2f860db9-bd37-4d75-b2d2-7bd2b1c7d4cb",
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "name": "SNAPDIALOG1488-31-ui-template",
+      "path": "template/tmpl/2/411/8b5e769e-5fa1-4d03-bfed-0db4c2febbf7.qcow2",
+      "size": 1073741824,
+      "state": "Destroyed",
+      "format": "QCOW2",
+      "removed": "2026-10-25 01:31:52.000000",
+      "physical": 1376256
+    }
+  ],
+  "physical": []
+}

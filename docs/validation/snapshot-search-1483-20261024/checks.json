@@ -1,0 +1,87 @@
+{
+  "api": {
+    "logSha256": "f155195924928cb1c9d39913545af809cbb664f6df4c1a69891f89eb9a8da45a",
+    "sourceLog": "api-build.log",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "success": true,
+    "summaryLines": [
+      "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.85 s - in org.apache.cloudstack.api.command.user.snapshot.ListSnapshotsCmdTest",
+      "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS",
+      "[INFO] Total time:  36.478 s"
+    ]
+  },
+  "server": {
+    "logSha256": "9ca282bb1f94c71a3356ca622087cafe5d383f934ca30753867d8577e37a319c",
+    "sourceLog": "server-tests.log",
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "success": true,
+    "summaryLines": [
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.534 s - in com.cloud.api.query.SnapshotCopyContractTest",
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.api.query.SnapshotListFiltersTest",
+      "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.182 s - in com.cloud.api.query.SnapshotListOrderingTest",
+      "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.779 s - in com.cloud.api.query.dao.SnapshotJoinDaoImplTest",
+      "[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS",
+      "[INFO] Total time:  51.440 s"
+    ]
+  },
+  "ui": {
+    "logSha256": "7a79fffb9a0305a5b6584490cead151c6c5eb72144a2264eb67c38e2835f8c9b",
+    "sourceLog": "ui-tests.log",
+    "suites": 6,
+    "tests": 95,
+    "success": true,
+    "summaryLines": [
+      "PASS tests/unit/views/AutogenStorageSnapshotSearch.spec.js (7.347s)",
+      "PASS tests/unit/components/view/SnapshotSearch.spec.js",
+      "PASS tests/unit/components/view/ListViewSnapshotContext.spec.js",
+      "PASS tests/unit/views/storage/SnapshotCopies.spec.js",
+      "PASS tests/unit/views/AutogenStorageSnapshotSort.spec.js",
+      "PASS tests/unit/components/view/SearchFilter.spec.js",
+      "Test Suites: 6 passed, 6 total",
+      "Tests:       95 passed, 95 total",
+      "Time:        128.928s",
+      "Ran all test suites within paths \"tests/unit/components/view/SnapshotSearch.spec.js\", \"tests/unit/views/AutogenStorageSnapshotSearch.spec.js\", \"tests/unit/views/AutogenStorageSnapshotSort.spec.js\", \"tests/unit/components/view/SearchFilter.spec.js\", \"tests/unit/views/storage/SnapshotCopies.spec.js\", \"tests/unit/components/view/ListViewSnapshotContext.spec.js\"."
+    ]
+  },
+  "lint": {
+    "logSha256": "7b91ad6a7ad808c487d2f0b2eadb9865069dd070ec200f1ee4ea1a57126b00a0",
+    "sourceLog": "ui-lint.log",
+    "success": true,
+    "summaryLines": [
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ]
+  },
+  "productionUi": {
+    "logSha256": "0faede82fa04df6fc86818a5448512fcd9549afdc253c3541b19c6d05ae7f180",
+    "sourceLog": "ui-build.log",
+    "success": true,
+    "summaryLines": [
+      "  dist/css/chunk-306332a8.afadbd41.css    0.04 KiB          0.06 KiB",
+      "",
+      "  Images and other types of assets omitted.",
+      "",
+      " DONE  Build complete. The dist directory is ready to be deployed.",
+      " INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html",
+      "      ",
+      "",
+      "> cloudstack-ui@4.22.0 postbuild",
+      "> ./postbuild.sh",
+      "",
+      "Post-build: removing all docHelp suffixes in ./public/config.json",
+      "[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15"
+    ]
+  },
+  "fullCloudBuild": false,
+  "actionsDispatch": false
+}

@@ -1,0 +1,29 @@
+{
+  "database": {
+    "vms": 0,
+    "tags": 0,
+    "domains": 0,
+    "accounts": 0,
+    "policies": 0,
+    "projects": 0,
+    "schedules": 0,
+    "snapshots": 0,
+    "references": 0,
+    "forcedCleanup": 0,
+    "domainAccounts": 0,
+    "volumesIncludingAllocatedRoot": 0
+  },
+  "runtime": {
+    "webInf": true,
+    "mold": "active",
+    "clientHttp": 200
+  },
+  "physical": {
+    "secondaryChecked": 3,
+    "primaryVolumesChecked": 3,
+    "allocatedRootNeverMaterialized": 1,
+    "remaining": [],
+    "rbdTrash": []
+  },
+  "normalApiCleanup": true
+}

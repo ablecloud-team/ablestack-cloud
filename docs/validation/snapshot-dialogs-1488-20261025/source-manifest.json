@@ -1,0 +1,78 @@
+[
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "c1106a35b642bf84f980dbc82bd97c079f40b9132c7b6be0eae5ed0b3018f292"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "3ff2dcc2599178c42e6c1ada02f523b249655dc12e85fa1cc5fe562e138869a9"
+  },
+  {
+    "path": "ui/src/components/view/MoldDialog.vue",
+    "sha256": "a720cd6fff0c51bd690b276a5ac3dbe17bcae139657043ac343904d78f0f2ea3"
+  },
+  {
+    "path": "ui/src/components/view/StorageSnapshotJobDialog.vue",
+    "sha256": "cf7927be5bfb6dc8446242441f581c6d5ab20d87bdf42aa367c971d4fb31a66d"
+  },
+  {
+    "path": "ui/src/config/section/storage.js",
+    "sha256": "0054ae1ee28edc6df52420d921bf592b056093dd12e06d9a4a765ea7f2b68b40"
+  },
+  {
+    "path": "ui/src/style/components/view/mold-dialog.less",
+    "sha256": "8512054a8ab03a146cee8204d055c11b54b267db0f0f5054ae82b80b6ca6682e"
+  },
+  {
+    "path": "ui/src/views/AutogenView.vue",
+    "sha256": "0f9957ffd3f231724df9b7d591eb08facf1a0eed0d1d64560ae5b19641aaaecb"
+  },
+  {
+    "path": "ui/src/views/storage/CreateTemplate.vue",
+    "sha256": "9a46d49b57f3eeb4c4b6c239f7a061690ea6d093405ffa1d65dc42886880c150"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotCopyDialog.vue",
+    "sha256": "9b41451e2b5d05870e7f2bc9c05de073ce4aa500dc5410d95161157a1e09d36e"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotDeletionRecovery.vue",
+    "sha256": "6d2630f91c7c78756d2f434604a153604b3c5b1ecf4c67299ca981b322f5f701"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotZones.vue",
+    "sha256": "4f404e28bd22976840887e4891c02134b0cb2246c15564eb25f322bb420257d7"
+  },
+  {
+    "path": "ui/src/views/storage/StorageSnapshotActionDialog.vue",
+    "sha256": "cd57cdb93723aa0ed06f49f441e2552ac12bfc195df16afc980336d73225f7c5"
+  },
+  {
+    "path": "ui/src/views/storage/StorageSnapshotDialogTargets.vue",
+    "sha256": "2d6285f80e097f529fe4e14bbc324626ab20f9df61ff4e85bc914c8ebd9a7367"
+  },
+  {
+    "path": "ui/src/views/storage/TakeSnapshot.vue",
+    "sha256": "c1dd05376e37b915836e93e060b38d92fb976acb5c997e6d82ba90690c31ac17"
+  },
+  {
+    "path": "ui/tests/unit/components/view/MoldDialog.spec.js",
+    "sha256": "61780bf441ce0d9296fc72c26dcc863acee1feee227a218cea0999258d1358a5"
+  },
+  {
+    "path": "ui/tests/unit/views/AutogenSnapshotActions.spec.js",
+    "sha256": "947738807dffea3eb6573ea94c21a898a6c2439170c3ad098dc64cf3acd694a9"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotDialogStandard.spec.js",
+    "sha256": "3a4cc79284d66d4bf3ba9bca8d08d46c8135bbab17e07c20b1a9f286aec487b3"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotDialogZones.spec.js",
+    "sha256": "9fddc9b349cfd9a468bdd4b9f75f70cd7c51876d56bef9f6b95d908a90caac22"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotTransfer.spec.js",
+    "sha256": "0e0ea839fd078f5f14a84c136e50c7e417ef9673438574dadcc1b53ea11733fc"
+  }
+]

@@ -1,0 +1,109 @@
+{
+  "snapshots": [
+    {
+      "id": 86,
+      "name": "SNAPT1474-31-native",
+      "path": "snapshots/2/999/2b6d7dea-3513-4cdf-aa60-42d3be8c5ec6",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+      "refid": 164,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    },
+    {
+      "id": 87,
+      "name": "SNAPT1474-31-raw",
+      "path": "snapshots/2/1000/83d05d2c-ec1a-49b9-8a48-a097decd0719",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "918a1b51-ea18-445f-be1c-956416a715d8",
+      "refid": 166,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    },
+    {
+      "id": 88,
+      "name": "SNAPT1474-31-negative",
+      "path": "snapshots/2/1001/cb0c1c26-0b3f-4dfd-ba13-eade1698e27b",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+      "refid": 168,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    }
+  ],
+  "templates": [],
+  "vms": [
+    {
+      "id": 759,
+      "name": "SNAPT1474-31-root-source",
+      "uuid": "b21daec1-c4d1-457a-ba42-307df1125a66",
+      "state": "Stopped",
+      "hostid": null,
+      "removed": null,
+      "instance": "i-2-759-VM"
+    }
+  ],
+  "volumes": [
+    {
+      "id": 998,
+      "vm": "SNAPT1474-31-root-source",
+      "name": "ROOT-759",
+      "path": null,
+      "pool": null,
+      "size": 107374182400,
+      "uuid": "35198ffb-dec1-41fb-85f3-64a9020b1e99",
+      "state": "Allocated",
+      "format": "QCOW2",
+      "removed": null,
+      "instanceid": 759
+    },
+    {
+      "id": 999,
+      "vm": null,
+      "name": "SNAPT1474-31-native",
+      "path": "88252f75-f0ff-4b73-a0eb-5fbc67e88a36",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "88252f75-f0ff-4b73-a0eb-5fbc67e88a36",
+      "state": "Ready",
+      "format": "QCOW2",
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 1000,
+      "vm": null,
+      "name": "SNAPT1474-31-raw",
+      "path": "10a2bc17-db4e-42f2-a8d5-9c4096173dbe",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "10a2bc17-db4e-42f2-a8d5-9c4096173dbe",
+      "state": "Ready",
+      "format": "QCOW2",
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 1001,
+      "vm": null,
+      "name": "SNAPT1474-31-negative",
+      "path": "70a495ba-f2da-4fdd-b217-7bd9ff62948f",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "70a495ba-f2da-4fdd-b217-7bd9ff62948f",
+      "state": "Ready",
+      "format": "QCOW2",
+      "removed": null,
+      "instanceid": null
+    }
+  ]
+}

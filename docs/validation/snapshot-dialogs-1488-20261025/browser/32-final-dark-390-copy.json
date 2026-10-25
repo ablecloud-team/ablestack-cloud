@@ -1,0 +1,226 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 587.140625,
+    "height": 464.28125,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 122.859375
+  },
+  "bodyScroll": {
+    "clientHeight": 464,
+    "clientWidth": 364,
+    "height": 464,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 115.859375,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 67.859375
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 571.140625,
+        "height": 24,
+        "right": 122.953125,
+        "width": 93.953125,
+        "x": 29,
+        "y": 547.140625
+      },
+      "text": "대상 다시 조회"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 636.140625,
+        "height": 32,
+        "right": 244.75,
+        "width": 57.765625,
+        "x": 186.984375,
+        "y": 604.140625
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 636.140625,
+        "height": 32,
+        "right": 361,
+        "width": 100.25,
+        "x": 260.75,
+        "y": 604.140625
+      },
+      "text": "스냅샷 복사"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 105.859375,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 83.859375
+      },
+      "text": "스냅샷 복사"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 205.140625,
+        "height": 50.28125,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 154.859375
+      },
+      "text": "다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 341.140625,
+        "height": 132,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 209.140625
+      },
+      "text": "스냅샷 \"SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 403.140625,
+        "height": 22,
+        "right": 101.03125,
+        "width": 72.03125,
+        "x": 29,
+        "y": 381.140625
+      },
+      "text": "대상 Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 439.140625,
+        "height": 24,
+        "right": 45.09375,
+        "width": 4.09375,
+        "x": 41,
+        "y": 415.140625
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 653.140625,
+    "height": 586.28125,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 66.859375
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 652.140625,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 587.140625
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 443.140625,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 411.140625
+      },
+      "label": "대상 Zone",
+      "labelRect": {
+        "bottom": 411.140625,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 381.140625
+      }
+    }
+  ],
+  "header": {
+    "bottom": 122.859375,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 67.859375
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "snapshot-copy-destinations",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 439.140625,
+        "height": 24,
+        "right": 45.09375,
+        "width": 4.09375,
+        "x": 41,
+        "y": 415.140625
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "스냅샷 복사\n다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n스냅샷 \"SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\" · 원본 Zone Zone / Secondary\n대상 Zone\nZone 선택\nSNAPDIALOG1488-32-Zone-a\nSNAPDIALOG1488-32-Secondary-a · 복사 가능\n대상 다시 조회\n취소\n스냅샷 복사",
+  "title": "스냅샷 복사",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones",
+  "width": 390
+}

@@ -1,0 +1,19 @@
+{
+  "before": "60",
+  "after": "86400",
+  "result": {
+    "configuration": {
+      "category": "Advanced",
+      "group": "Access",
+      "subgroup": "Account",
+      "name": "account.cleanup.interval",
+      "value": "86400",
+      "defaultvalue": "86400",
+      "description": "The interval (in seconds) between cleanup for removed accounts",
+      "isdynamic": false,
+      "component": "management-server",
+      "displaytext": "Account cleanup interval",
+      "type": "Number"
+    }
+  }
+}

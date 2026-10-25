@@ -1,0 +1,309 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - list:
+      - menuitem "hdd 볼륨":
+        - link "hdd 볼륨":
+          - /url: "#/volume"
+          - img "hdd":
+          - text: 볼륨
+      - menuitem "build 스냅샷":
+        - link "build 스냅샷":
+          - /url: "#/snapshot"
+          - img "build":
+          - text: 스냅샷
+      - menuitem "build 스냅샷 정책":
+        - link "build 스냅샷 정책":
+          - /url: "#/snapshotpolicy"
+          - img "build":
+          - text: 스냅샷 정책
+      - menuitem "funnel-plot 버킷":
+        - link "funnel-plot 버킷":
+          - /url: "#/buckets"
+          - img "funnel-plot":
+          - text: 버킷
+      - menuitem "file-text 공유 파일 시스템":
+        - link "file-text 공유 파일 시스템":
+          - /url: "#/sharedfs"
+          - img "file-text":
+          - text: 공유 파일 시스템
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+    - paragraph: "8"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "build":
+  - heading "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "35fc8e78-e4cc-4df2-9f22-210a45048ceb":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 1.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 1.31 MiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "SNAPDIALOG1488-31-owner":
+    - /url: "#/volume/eb86ab6b-1eb3-4a84-9e4d-2e178a7003f5"
+  - generic: VM 이름
+  - img "desktop":
+  - generic: 연결된 가상머신 없음
+  - generic: 사본 Zone
+  - img "global":
+  - link "SNAPDIALOG1488-31-Zone-a":
+    - /url: "#/zone/65c9ba3d-83ac-4c2e-9188-101122013178"
+  - generic: 계정
+  - img "user":
+  - link "SNAPDIALOG1488-31-owner":
+    - /url: "#/account?name=SNAPDIALOG1488-31-owner&domainid=9b732215-9b0e-4505-bb9d-6b3cfabcd964"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPDIALOG1488-31-domain":
+    - /url: "#/domain/9b732215-9b0e-4505-bb9d-6b3cfabcd964?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 9:03:51
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: ui = SS15
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세"
+    - tab "Zone" [selected]
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "Zone":
+    - button "delete 선택한 Zone의 모든 사본 삭제" [disabled]:
+      - img "delete":
+      - generic: 선택한 Zone의 모든 사본 삭제
+    - button "reload 업데이트":
+      - img "reload":
+      - generic: 업데이트
+    - button "열 선택":
+      - img "setting":
+      - generic: 열 선택
+    - textbox "현재 페이지 Zone·스토리지 검색"
+    - button "search":
+      - img "search":
+    - paragraph: 사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.
+    - paragraph: 표시 Zone 1개 · 현재 페이지 전체 사본 1개
+    - table:
+      - rowgroup:
+        - row "Zone 상태 간격 유형 현재 페이지 조회 항목 Zone 작업":
+          - columnheader
+          - columnheader:
+            - checkbox
+          - columnheader "Zone"
+          - columnheader "상태"
+          - columnheader "간격 유형"
+          - columnheader "현재 페이지 조회 항목"
+          - columnheader "Zone 작업"
+      - rowgroup:
+        - row "Collapse row global SNAPDIALOG1488-31-Zone-a 백업 됨 수동 1 이 Zone에서 복사 이 Zone의 모든 사본 삭제":
+          - cell "Collapse row":
+            - button "Collapse row"
+          - cell:
+            - checkbox
+          - cell "global SNAPDIALOG1488-31-Zone-a":
+            - link "global SNAPDIALOG1488-31-Zone-a":
+              - /url: "#/zone/65c9ba3d-83ac-4c2e-9188-101122013178"
+              - img "global":
+              - text: SNAPDIALOG1488-31-Zone-a
+          - cell "백업 됨":
+            - generic: 백업 됨
+          - cell "수동"
+          - cell "1"
+          - cell "이 Zone에서 복사 이 Zone의 모든 사본 삭제":
+            - button "이 Zone에서 복사":
+              - img "copy":
+            - button "이 Zone의 모든 사본 삭제":
+              - img "delete":
+        - row "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류 Secondary SNAPDIALOG1488-31-Secondary-a 사용 가능 준비됨 1.00 GiB 완료":
+          - cell "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류 Secondary SNAPDIALOG1488-31-Secondary-a 사용 가능 준비됨 1.00 GiB 완료":
+            - table:
+              - rowgroup:
+                - row "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류":
+                  - columnheader "유형"
+                  - columnheader "스토리지"
+                  - columnheader "참조 상태"
+                  - columnheader "준비 상태"
+                  - columnheader "가상 용량"
+                  - columnheader "진행·오류"
+              - rowgroup:
+                - row "Secondary SNAPDIALOG1488-31-Secondary-a 사용 가능 준비됨 1.00 GiB 완료":
+                  - cell "Secondary"
+                  - cell "SNAPDIALOG1488-31-Secondary-a":
+                    - link "SNAPDIALOG1488-31-Secondary-a":
+                      - /url: "#/imagestore/fd3f2671-f522-4014-92a5-50dc6a4f44b8"
+                  - cell "사용 가능":
+                    - generic: 사용 가능
+                  - cell "준비됨"
+                  - cell "1.00 GiB"
+                  - cell "완료"
+    - list:
+      - listitem: 전체 스토리지 사본 1개 중 1-1 표시
+      - listitem "이전 페이지":
+        - button "left" [disabled]:
+          - img "left":
+      - listitem "1":
+        - generic: "1"
+      - listitem "다음 페이지":
+        - button "right" [disabled]:
+          - img "right":
+      - combobox
+      - generic: 10 / 쪽
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+- dialog "스냅샷 복사":
+  - document:
+    - button "Close":
+      - img "close":
+    - generic: 스냅샷 복사
+    - alert:
+      - img "info-circle":
+      - generic: 다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.
+      - generic: 스냅샷 "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름" · 원본 Zone SNAPDIALOG1488-31-Zone-a / SNAPDIALOG1488-31-Secondary-a
+    - generic "대상 Zone": "* 대상 Zone"
+    - combobox
+    - generic: Zone 선택
+    - list:
+      - generic: Zone
+      - generic: Secondary · 복사 가능
+    - button "대상 다시 조회":
+      - generic: 대상 다시 조회
+    - button "취소":
+      - generic: 취소
+    - button "스냅샷 복사" [disabled]:
+      - generic: 스냅샷 복사

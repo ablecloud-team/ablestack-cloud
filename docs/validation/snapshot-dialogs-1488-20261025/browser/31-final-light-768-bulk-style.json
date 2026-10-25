@@ -1,0 +1,27 @@
+{
+  "dialogBackground": "rgb(255, 255, 255)",
+  "fields": [],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "고정된 작업 대상 5개를 확인하세요.\n\n이름\t볼륨\t계정\t상태\t가상 크기\t간격 유형\t생성일\t삭제 범위\t\n \n\t"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "ant-scrolling-effect"
+}

@@ -1,0 +1,323 @@
+{
+  "requests": [
+    {
+      "requestId": "41292.2575",
+      "method": "POST",
+      "command": "addAnnotation",
+      "args": {
+        "command": "addAnnotation",
+        "response": "json",
+        "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+        "entitytype": "SNAPSHOT",
+        "annotation": "SNAPTABS1487-31-ui-owner",
+        "adminsonly": "false"
+      },
+      "status": 200,
+      "response": {
+        "addannotationresponse": {
+          "annotation": {
+            "id": "5ef6dbad-2395-416f-a7ef-951c838e1faf",
+            "entitytype": "SNAPSHOT",
+            "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+            "entityname": "SNAPTABS1487-31-owner",
+            "annotation": "SNAPTABS1487-31-ui-owner",
+            "userid": "ba0847a6-1594-4565-a2e1-7d8cb0923b57",
+            "username": "SNAPTABS1487-31-owner",
+            "adminsonly": false,
+            "created": "2026-10-25T02:52:13+0900"
+          }
+        }
+      }
+    },
+    {
+      "requestId": "41292.2576",
+      "method": "GET",
+      "command": "listAnnotations",
+      "args": {
+        "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+        "entitytype": "SNAPSHOT",
+        "annotationfilter": "all",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listAnnotations",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listannotationsresponse": {
+          "count": 20,
+          "annotation": [
+            {
+              "id": "5ef6dbad-2395-416f-a7ef-951c838e1faf",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-ui-owner",
+              "userid": "ba0847a6-1594-4565-a2e1-7d8cb0923b57",
+              "username": "SNAPTABS1487-31-owner",
+              "adminsonly": false,
+              "created": "2026-10-25T02:52:13+0900"
+            },
+            {
+              "id": "288c5261-1e42-4176-af85-4e95e65e3b6e",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-24",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "cf450906-0939-4549-9825-2abee5046752",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-23",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "98223dca-cd99-48a6-8a0c-d88ca2e13921",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-22",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "646db211-39cd-48d0-b6d1-2d3ec1c978a7",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-21",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "870fbf1a-d8cb-4e82-8aa4-90c6ceae91eb",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-20",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "2a76f7ad-9776-448a-896a-728d2412d4ac",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-19",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "224cabc1-1142-43da-a4c3-c72c7f14c340",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-18",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "c31261ed-1428-4bb6-8acf-f33c10973536",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-17",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "707d37b2-b1a2-455f-8f92-219eae73e82d",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-16",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.2577",
+      "method": "POST",
+      "command": "removeAnnotation",
+      "args": {
+        "command": "removeAnnotation",
+        "response": "json",
+        "id": "5ef6dbad-2395-416f-a7ef-951c838e1faf"
+      },
+      "status": 200,
+      "response": {
+        "removeannotationresponse": {
+          "annotation": {
+            "id": "5ef6dbad-2395-416f-a7ef-951c838e1faf",
+            "entitytype": "SNAPSHOT",
+            "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+            "entityname": "SNAPTABS1487-31-owner",
+            "annotation": "SNAPTABS1487-31-ui-owner",
+            "userid": "ba0847a6-1594-4565-a2e1-7d8cb0923b57",
+            "username": "SNAPTABS1487-31-owner",
+            "adminsonly": false,
+            "created": "2026-10-25T02:52:13+0900"
+          }
+        }
+      }
+    },
+    {
+      "requestId": "41292.2578",
+      "method": "GET",
+      "command": "listAnnotations",
+      "args": {
+        "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+        "entitytype": "SNAPSHOT",
+        "annotationfilter": "all",
+        "page": "1",
+        "pagesize": "10",
+        "command": "listAnnotations",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listannotationsresponse": {
+          "count": 19,
+          "annotation": [
+            {
+              "id": "288c5261-1e42-4176-af85-4e95e65e3b6e",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-24",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "cf450906-0939-4549-9825-2abee5046752",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-23",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "98223dca-cd99-48a6-8a0c-d88ca2e13921",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-22",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "646db211-39cd-48d0-b6d1-2d3ec1c978a7",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-21",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "870fbf1a-d8cb-4e82-8aa4-90c6ceae91eb",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-20",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "2a76f7ad-9776-448a-896a-728d2412d4ac",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-19",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "224cabc1-1142-43da-a4c3-c72c7f14c340",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-18",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "c31261ed-1428-4bb6-8acf-f33c10973536",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-17",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "707d37b2-b1a2-455f-8f92-219eae73e82d",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-16",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            },
+            {
+              "id": "54f3bcf8-5ad8-4497-b58e-db1711fd389b",
+              "entitytype": "SNAPSHOT",
+              "entityid": "83b1c043-b780-40ee-a143-f8bef390ce91",
+              "entityname": "SNAPTABS1487-31-owner",
+              "annotation": "SNAPTABS1487-31-owner-comment-15",
+              "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+              "username": "admin",
+              "adminsonly": false,
+              "created": "2026-10-25T02:09:05+0900"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

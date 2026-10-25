@@ -1,0 +1,27 @@
+[
+  {
+    "name": "ablecube31-1",
+    "type": "Routing",
+    "state": "Up"
+  },
+  {
+    "name": "ablecube31-2",
+    "type": "Routing",
+    "state": "Up"
+  },
+  {
+    "name": "ablecube31-3",
+    "type": "Routing",
+    "state": "Up"
+  },
+  {
+    "name": "v-174-VM",
+    "type": "ConsoleProxy",
+    "state": "Up"
+  },
+  {
+    "name": "s-173-VM",
+    "type": "SecondaryStorageVM",
+    "state": "Up"
+  }
+]

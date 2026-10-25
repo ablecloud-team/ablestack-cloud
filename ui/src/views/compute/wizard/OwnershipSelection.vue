@@ -16,13 +16,13 @@
 // under the License.
 
 <template>
-  <a-form layout="vertical" >
+  <component :is="embedded ? 'div' : 'a-form'" :layout="embedded ? undefined : 'vertical'" :class="{ 'ownership-selection-embedded': embedded }">
     <a-form-item :label="$t('label.owner.type')">
       <a-select
         @change="changeAccountTypeOrDomain"
         v-model:value="selectedAccountType"
         defaultValue="account"
-        autoFocus
+        :autoFocus="!embedded"
         showSearch
         optionFilterProp="label"
         :filterOption="
@@ -124,7 +124,7 @@
         </a-select>
       </a-form-item>
     </template>
-  </a-form>
+  </component>
 </template>
 
 <script>
@@ -149,6 +149,7 @@ export default {
     }
   },
   props: {
+    embedded: { type: Boolean, default: false },
     override: {
       type: Object
     },

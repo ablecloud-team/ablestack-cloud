@@ -1,0 +1,14 @@
+{
+  "job": {
+    "id": 16676,
+    "uuid": "755070fe-bedf-4c62-bd37-46e462e6a4ec",
+    "status": 2,
+    "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd"
+  },
+  "oldUiQueries": [
+    "createTags",
+    "listTags"
+  ],
+  "oldUiJobPolling": false,
+  "oldUiFailureVisible": false
+}

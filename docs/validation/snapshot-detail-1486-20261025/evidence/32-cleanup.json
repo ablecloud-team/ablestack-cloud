@@ -1,0 +1,102 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "598e0747-ec05-472a-874d-0919cefb1693",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+    "complete": true
+  },
+  {
+    "command": "detachVolume",
+    "id": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+    "complete": true
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+    "complete": true
+  },
+  {
+    "command": "expungeVirtualMachine",
+    "id": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+    "complete": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "f8799846-abcc-4781-b1cb-6d6fe3afaf88",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "bc0a3650-b216-45df-9cfa-12294f79d66a",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "41fe3945-5aac-4f27-b494-68ec49553a9d",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "39f07624-ff07-42d2-bb81-7b345d9df854",
+    "complete": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+    "complete": true
+  },
+  {
+    "command": "deleteRole",
+    "id": "eb1f65ef-dec5-43eb-ad27-d872d2e4234a",
+    "complete": true
+  }
+]

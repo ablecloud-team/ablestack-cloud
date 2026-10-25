@@ -1,0 +1,118 @@
+[
+  {
+    "command": "destroyVirtualMachine",
+    "id": "b21daec1-c4d1-457a-ba42-307df1125a66",
+    "name": "SNAPT1474-31-root-source"
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "817c63c0-865a-4924-95e2-93e3860c5e55",
+    "name": "SNAPT1474-31-root-boot"
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "a5518fc2-8e38-4867-96e0-35f4645af3cc",
+    "name": "SNAPT1474-31-root-raw-boot"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "70a495ba-f2da-4fdd-b217-7bd9ff62948f",
+    "name": "SNAPT1474-31-negative"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "5abca700-1b5f-4825-b578-a2b8144b0585",
+    "name": "SNAPT1474-31-native-restored"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "1efaf339-bcdd-4fe2-b0f6-ac98d85f9307",
+    "name": "SNAPT1474-31-raw-restored"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "618c002a-c4cd-4695-873f-a964beb55213",
+    "name": "SNAPT1474-31-native-restore-final"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "53b9906f-ff5b-4e12-9084-5c2636e72ad9",
+    "name": "SNAPT1474-31-raw-restore-final"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "1ec36c87-bca4-45c4-a3fd-e18f60204567",
+    "name": "SNAPT1474-31-native-restore-orphans"
+  },
+  {
+    "command": "deleteVolume",
+    "id": "3e849115-8297-44e6-9544-3a1936d23864",
+    "name": "SNAPT1474-31-raw-restore-orphans"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "6a927a79-d77b-4ebc-902c-7f7657c85b97",
+    "name": "SNAPT1474-31-native-after"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "a87bef1c-cf2a-45c9-9588-65f87358d040",
+    "name": "SNAPT1474-31-root-ui-template"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "3e991194-b761-4e58-ba82-0f7bc5eb5b6f",
+    "name": "SNAPT1474-31-raw-after"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "f76adac6-f378-47b0-8e9e-e89b653560b0",
+    "name": "SNAPT1474-31-native-orphan"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "ba8bc663-30cd-4283-aa23-ef1c7919bc8e",
+    "name": "SNAPT1474-31-native-final-code"
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "cefa9533-4c1f-4df1-abf5-2c4a1863ea5d",
+    "name": "SNAPT1474-31-root-raw-template"
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "81cef367-b1c2-4f82-a6da-8346b827eb96",
+    "name": "SNAPT1474-31-root"
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "name": "SNAPT1474-31-negative"
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "918a1b51-ea18-445f-be1c-956416a715d8",
+    "name": "SNAPT1474-31-raw"
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "name": "SNAPT1474-31-native"
+  },
+  {
+    "check": "listVirtualMachines",
+    "active": 0
+  },
+  {
+    "check": "listVolumes",
+    "active": 0
+  },
+  {
+    "check": "listTemplates",
+    "active": 0
+  },
+  {
+    "check": "listSnapshots",
+    "active": 0
+  }
+]

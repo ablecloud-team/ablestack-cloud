@@ -1,0 +1,49 @@
+{
+  "diagnosis": {
+    "success": true,
+    "snapshotid": "a58e510f-82f9-401e-ae01-5b5d9246045d",
+    "name": "PR1492-REVIEW-32-before",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 506,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Destroyed"
+      }
+    ],
+    "scopehash": "ff1dc96057543f5aa2961f7b563c5dae2cfddbd57d1efe00aaf12d2c5bb7ac9c",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 506,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "a58e510f-82f9-401e-ae01-5b5d9246045d",
+    "name": "PR1492-REVIEW-32-before",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 506,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  }
+}

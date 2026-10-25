@@ -1,0 +1,758 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "BUTTON",
+    "text": "템플릿 생성"
+  },
+  "body": {
+    "bottom": 622,
+    "height": 534,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 88
+  },
+  "bodyScroll": {
+    "clientHeight": 534,
+    "clientWidth": 708,
+    "height": 1042,
+    "overflowY": "auto",
+    "width": 708
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 81,
+        "height": 48,
+        "right": 999,
+        "width": 48,
+        "x": 951,
+        "y": 33
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 733.75,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 711.75
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 819.75,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 797.75
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 905.75,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 883.75
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 991.75,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 969.75
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 1077.75,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 1055.75
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 862.75,
+        "width": 57.765625,
+        "x": 804.984375,
+        "y": 639
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 971,
+        "width": 100.25,
+        "x": 870.75,
+        "y": 639
+      },
+      "text": "템플릿 생성"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 71,
+        "height": 22,
+        "right": 975,
+        "width": 670,
+        "x": 305,
+        "y": 49
+      },
+      "text": "템플릿 생성"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 134,
+        "height": 22,
+        "right": 361.765625,
+        "width": 52.765625,
+        "x": 309,
+        "y": 112
+      },
+      "text": "이름"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 174,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 142
+      },
+      "text": "이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 244,
+        "height": 22,
+        "right": 350.765625,
+        "width": 41.765625,
+        "x": 309,
+        "y": 222
+      },
+      "text": "설명"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 284,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 252
+      },
+      "text": "설명"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 330,
+        "height": 22,
+        "right": 356.4375,
+        "width": 47.4375,
+        "x": 309,
+        "y": 308
+      },
+      "text": "Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 369,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 339
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 369,
+        "height": 30,
+        "right": 949,
+        "width": 628,
+        "x": 321,
+        "y": 339
+      },
+      "text": " SNAPDIALOG1488-31-Zone-a"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 416,
+        "height": 22,
+        "right": 363.640625,
+        "width": 54.640625,
+        "x": 309,
+        "y": 394
+      },
+      "text": "도메인"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 455,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 425
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 502,
+        "height": 22,
+        "right": 367.59375,
+        "width": 58.59375,
+        "x": 309,
+        "y": 480
+      },
+      "text": "OS 유형"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 541,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 511
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 612,
+        "height": 22,
+        "right": 406.484375,
+        "width": 97.484375,
+        "x": 309,
+        "y": 590
+      },
+      "text": "CPU 아키텍처"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 651,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 621
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 698,
+        "height": 22,
+        "right": 435.71875,
+        "width": 126.71875,
+        "x": 309,
+        "y": 676
+      },
+      "text": "동적으로 확장 가능"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 784,
+        "height": 22,
+        "right": 356.21875,
+        "width": 47.21875,
+        "x": 309,
+        "y": 762
+      },
+      "text": "HVM"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 870,
+        "height": 22,
+        "right": 435.71875,
+        "width": 126.71875,
+        "x": 309,
+        "y": 848
+      },
+      "text": "비밀번호 관리 사용"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 956,
+        "height": 22,
+        "right": 350.765625,
+        "width": 41.765625,
+        "x": 309,
+        "y": 934
+      },
+      "text": "공개"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 1042,
+        "height": 22,
+        "right": 350.765625,
+        "width": 41.765625,
+        "x": 309,
+        "y": 1020
+      },
+      "text": "추천"
+    }
+  ],
+  "dialog": {
+    "bottom": 688,
+    "height": 656,
+    "right": 1000,
+    "width": 720,
+    "x": 280,
+    "y": 32
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 687,
+    "height": 65,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 622
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 174,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 142
+      },
+      "label": "이름",
+      "labelRect": {
+        "bottom": 142,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 112
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 284,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 252
+      },
+      "label": "설명",
+      "labelRect": {
+        "bottom": 252,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 222
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 370,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 338
+      },
+      "label": "Zone",
+      "labelRect": {
+        "bottom": 338,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 308
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 456,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 424
+      },
+      "label": "도메인",
+      "labelRect": {
+        "bottom": 424,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 394
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 542,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 510
+      },
+      "label": "OS 유형",
+      "labelRect": {
+        "bottom": 510,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 480
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 652,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 620
+      },
+      "label": "CPU 아키텍처",
+      "labelRect": {
+        "bottom": 620,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 590
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 738,
+        "height": 32,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 706
+      },
+      "label": "동적으로 확장 가능",
+      "labelRect": {
+        "bottom": 706,
+        "height": 30,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 676
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 824,
+        "height": 32,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 792
+      },
+      "label": "HVM",
+      "labelRect": {
+        "bottom": 792,
+        "height": 30,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 762
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 910,
+        "height": 32,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 878
+      },
+      "label": "비밀번호 관리 사용",
+      "labelRect": {
+        "bottom": 878,
+        "height": 30,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 848
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 996,
+        "height": 32,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 964
+      },
+      "label": "공개",
+      "labelRect": {
+        "bottom": 964,
+        "height": 30,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 934
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 1082,
+        "height": 32,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 1050
+      },
+      "label": "추천",
+      "labelRect": {
+        "bottom": 1050,
+        "height": 30,
+        "right": 629,
+        "width": 320,
+        "x": 309,
+        "y": 1020
+      }
+    }
+  ],
+  "header": {
+    "bottom": 88,
+    "height": 55,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 33
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_name",
+      "label": null,
+      "placeholder": "이름",
+      "rect": {
+        "bottom": 174,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 142
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_displaytext",
+      "label": null,
+      "placeholder": "설명",
+      "rect": {
+        "bottom": 284,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 252
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_zoneid",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 369,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 339
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_domainid",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 455,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 425
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_ostypeid",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 541,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 511
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_arch",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 651,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 621
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "템플릿 생성\n이름\n입력해 주십시오.\n설명\nZone\n SNAPDIALOG1488-31-Zone-a\n도메인\n도메인\nOS 유형\nOS 유형\n옵션을 선택하세요.\nCPU 아키텍처\nCPU 아키텍처\n동적으로 확장 가능\nHVM\n비밀번호 관리 사용\n공개\n추천\n취소\n템플릿 생성",
+  "title": "템플릿 생성",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+  "width": 1280
+}

@@ -1,0 +1,17 @@
+{
+  "snapshot": "077b9ecb-0ed4-4544-af68-96dedb387ad0",
+  "scenario": "force-busy",
+  "kind": "release-busy",
+  "before": [
+    {
+      "path": "snapshots/2/975/9694e589-f5bc-421e-8bff-cb2339b5078c",
+      "role": "Image",
+      "state": "Destroyed",
+      "refstate": "Destroyed",
+      "volumeid": 975,
+      "snapshotid": 64,
+      "referenceid": 121
+    }
+  ],
+  "fixtureOnly": true
+}

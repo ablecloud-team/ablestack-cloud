@@ -1,0 +1,20 @@
+{
+  "snapshots": [
+    {
+      "status": "Destroyed",
+      "snapshot": "63ae6fe2-e969-430c-a813-c5044de2c774",
+      "activeRefs": 0,
+      "sourceVolumeActive": 1
+    },
+    {
+      "status": "BackedUp",
+      "snapshot": "ca67daa2-391b-4459-90e8-345d13e42c41",
+      "activeRefs": 2,
+      "sourceVolumeActive": 1
+    }
+  ],
+  "removedSecondaryPaths": [
+    "/nfs/secondary/snapshots/91/430/9f856ef3-118f-4021-be81-017bf79f6f1d"
+  ],
+  "remainingSecondary": []
+}

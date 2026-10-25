@@ -1,0 +1,313 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 642,
+    "height": 574,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 68
+  },
+  "bodyScroll": {
+    "clientHeight": 574,
+    "clientWidth": 354,
+    "height": 616,
+    "overflowY": "auto",
+    "width": 354
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 61,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 13
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 691,
+        "height": 32,
+        "right": 244.75,
+        "width": 57.765625,
+        "x": 186.984375,
+        "y": 659
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 691,
+        "height": 32,
+        "right": 361,
+        "width": 100.25,
+        "x": 260.75,
+        "y": 659
+      },
+      "text": "스냅샷 삭제"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 51,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 29
+      },
+      "text": "스냅샷 삭제"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 157.5,
+        "height": 38.5,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 119
+      },
+      "text": "SNAPDIALOG1488-31-root"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 196.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 157.5
+      },
+      "text": "ROOT-767"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 257.5,
+        "height": 61,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 196.5
+      },
+      "text": "SNAPDIALOG1488-31-vm · 정지된 상태"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 296.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 257.5
+      },
+      "text": "admin · ROOT"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 335.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 296.5
+      },
+      "text": "백업 됨"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 374.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 335.5
+      },
+      "text": "100.00 GiB"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 413.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 374.5
+      },
+      "text": "수동"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 452.5,
+        "height": 39,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 413.5
+      },
+      "text": "2026. 10. 25. 오전 8:39:09"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 491,
+        "height": 38.5,
+        "right": 350,
+        "width": 200,
+        "x": 150,
+        "y": 452.5
+      },
+      "text": "모든 Zone 및 현재 사본 범위"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(255, 231, 163)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 591,
+        "height": 66,
+        "right": 335,
+        "width": 268,
+        "x": 67,
+        "y": 525
+      },
+      "text": "선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 668,
+        "height": 44,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 624
+      },
+      "text": "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 644,
+        "height": 16,
+        "right": 45,
+        "width": 16,
+        "x": 29,
+        "y": 628
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 708,
+    "height": 696,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 12
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 707,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 642
+  },
+  "groups": [],
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 13
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 644,
+        "height": 16,
+        "right": 45,
+        "width": 16,
+        "x": 29,
+        "y": 628
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [],
+  "text": "스냅샷 삭제\n\n고정된 작업 대상 1개를 확인하세요.\n\n이름\tSNAPDIALOG1488-31-root\n볼륨\tROOT-767\n가상머신\tSNAPDIALOG1488-31-vm · 정지된 상태\n계정\tadmin · ROOT\n상태\t백업 됨\n가상 크기\t100.00 GiB\n간격 유형\t수동\n생성일\t2026. 10. 25. 오전 8:39:09\n삭제 범위\t모든 Zone 및 현재 사본 범위\n선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다.\n표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.\n취소\n스냅샷 삭제",
+  "title": "스냅샷 삭제",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/4666ff7a-06ee-4225-b087-035c6ed29433",
+  "width": 390
+}

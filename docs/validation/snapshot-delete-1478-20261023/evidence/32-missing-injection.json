@@ -1,0 +1,15 @@
+{
+  "cluster": "32",
+  "scenario": "missing",
+  "kind": "missing",
+  "snapshot": "4c4e0a3f-c872-4d1d-9d54-b6d86959364f",
+  "sourcePath": "snapshots/2/321/0b83d535-6ae4-4ed9-862d-cd43179870be",
+  "imagePhysicalSize": 196624,
+  "countsBefore": {
+    "snapshot": 9,
+    "secondary_storage": 386749081648
+  },
+  "nativePath": "rbd/7aab199e-63e2-4407-abe4-980f1ea14481/0b83d535-6ae4-4ed9-862d-cd43179870be",
+  "nativeAbsentAfterInjection": true,
+  "otherNativeSnapshotsUnchanged": true
+}

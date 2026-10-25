@@ -1,0 +1,353 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --coverage=false --runInBand --runTestsByPath tests/unit/views/storage/SnapshotCopies.spec.js tests/unit/utils/storageSnapshotContext.spec.js tests/unit/utils/storageSnapshotOperations.spec.js tests/unit/views/storage/StorageSnapshotActionDialog.spec.js tests/unit/views/storage/StorageSnapshotSafety.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/storage/SnapshotCopies.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 'other', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 'other', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <SnapshotZones resource= { id: 's', state: 'BackedUp' } ref="VTU_COMPONENT" >
+        at <VTUROOT>
+
+PASS tests/unit/views/storage/StorageSnapshotActionDialog.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/utils/storageSnapshotOperations.spec.js
+PASS tests/unit/utils/storageSnapshotContext.spec.js
+PASS tests/unit/views/storage/StorageSnapshotSafety.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+
+Test Suites: 5 passed, 5 total
+Tests:       69 passed, 69 total
+Snapshots:   0 total
+Time:        8.612s
+Ran all test suites within paths "tests/unit/views/storage/SnapshotCopies.spec.js", "tests/unit/utils/storageSnapshotContext.spec.js", "tests/unit/utils/storageSnapshotOperations.spec.js", "tests/unit/views/storage/StorageSnapshotActionDialog.spec.js", "tests/unit/views/storage/StorageSnapshotSafety.spec.js".

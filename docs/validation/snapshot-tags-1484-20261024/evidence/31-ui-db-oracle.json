@@ -1,0 +1,236 @@
+{
+  "tags": [
+    {
+      "id": 422,
+      "key": "baseline",
+      "type": "UserVm",
+      "value": "SNAPTAG1484-31-vm-admin",
+      "domain": 1,
+      "account": 2,
+      "resourceid": "6dc43f40-d841-4517-8e52-e12ddc64739a"
+    },
+    {
+      "id": 421,
+      "key": "baseline",
+      "type": "Snapshot",
+      "value": "SNAPTAG1484-31-project",
+      "domain": 65,
+      "account": 271,
+      "resourceid": "859c7b9f-e2de-435e-815d-0bc323e01903"
+    },
+    {
+      "id": 441,
+      "key": "baseline",
+      "type": "Snapshot",
+      "value": "SNAPTAG1484-31-owner",
+      "domain": 65,
+      "account": 268,
+      "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "id": 442,
+      "key": "ui-job-retry",
+      "type": "Snapshot",
+      "value": "31",
+      "domain": 65,
+      "account": 268,
+      "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "id": 445,
+      "key": "ui-late-held",
+      "type": "Snapshot",
+      "value": "31",
+      "domain": 65,
+      "account": 268,
+      "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "id": 444,
+      "key": "ui-late-receipt",
+      "type": "Snapshot",
+      "value": "31",
+      "domain": 65,
+      "account": 268,
+      "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "id": 443,
+      "key": "ui-read-retry",
+      "type": "Snapshot",
+      "value": "31",
+      "domain": 65,
+      "account": 268,
+      "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "id": 420,
+      "key": "baseline",
+      "type": "Snapshot",
+      "value": "SNAPTAG1484-31-other",
+      "domain": 65,
+      "account": 269,
+      "resourceid": "e93bbad4-6ae5-445b-9b0a-5672d0f427ca"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 16677,
+      "uuid": "1fe6f3fa-7923-44da-b1e7-7fbc5d828fce",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16678,
+      "uuid": "38fc378c-b775-4938-b081-95f2738ad372",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16679,
+      "uuid": "f32f3549-26a4-484d-9b96-6bd6bba32308",
+      "status": 2,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 530
+    },
+    {
+      "id": 16681,
+      "uuid": "39047f09-1e30-486a-a11c-14885a058812",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16682,
+      "uuid": "2c00bf97-67dd-46bf-a685-27daaf38fd87",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16683,
+      "uuid": "41229436-87c5-4dd2-a44f-6a55bb7bd9a5",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16685,
+      "uuid": "842b79d7-dd0b-4cbf-a165-bcc1d7d685ad",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16686,
+      "uuid": "34e0e2c2-24fd-4af8-ac4e-daf8b3c1d96d",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16687,
+      "uuid": "389e8c72-cf65-4b68-91de-c8f5f3773ce8",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16688,
+      "uuid": "32c3f0dd-a05c-48e5-93ee-e96ea75f0b8d",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16689,
+      "uuid": "c1a80d57-ce51-4429-8353-80cbc7e0e0c2",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16690,
+      "uuid": "cdb40d38-8ce0-47e2-ba62-c3b5634dceeb",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16691,
+      "uuid": "389ba534-4e22-420b-a5d2-f1b2f832fc8f",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16692,
+      "uuid": "1a26f3db-05d5-441b-8082-3063265655e1",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 16693,
+      "uuid": "0df38843-544d-4735-89bf-48e07cc55669",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    }
+  ],
+  "jobCount": 15,
+  "baselineCount": 4,
+  "noReceiptHasNoTag": true,
+  "snapshotRefs": [
+    {
+      "path": "snapshots/271/1068/e8bbc6aa-81b3-4f03-be57-50fc6b2bba4f",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "859c7b9f-e2de-435e-815d-0bc323e01903"
+    },
+    {
+      "path": "snapshots/268/1066/77724d94-5ef1-4856-9ebf-00600ed8c25d",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "path": "snapshots/269/1067/7d135058-99e8-4c07-8676-6e1b532e8750",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "e93bbad4-6ae5-445b-9b0a-5672d0f427ca"
+    }
+  ],
+  "volumes": [
+    {
+      "name": "SNAPTAG1484-31-owner",
+      "path": "148b63c0-b20b-4d72-85bb-677613e1adaa",
+      "type": "DATADISK",
+      "uuid": "148b63c0-b20b-4d72-85bb-677613e1adaa",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-31-other",
+      "path": "1876b4b9-507a-4d9d-9602-8b78c3861943",
+      "type": "DATADISK",
+      "uuid": "1876b4b9-507a-4d9d-9602-8b78c3861943",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-31-project",
+      "path": "f982ed44-a7f0-4142-a1d1-b3682e3893c7",
+      "type": "DATADISK",
+      "uuid": "f982ed44-a7f0-4142-a1d1-b3682e3893c7",
+      "state": "Ready"
+    },
+    {
+      "name": "ROOT-764",
+      "path": null,
+      "type": "ROOT",
+      "uuid": "a5b69cad-8c34-46bc-bb26-0df0aab2f802",
+      "state": "Allocated"
+    }
+  ]
+}

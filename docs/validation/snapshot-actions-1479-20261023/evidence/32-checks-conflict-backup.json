@@ -1,0 +1,53 @@
+[
+  {
+    "name": "Backend rejects restore conflict on revert",
+    "status": "PASS",
+    "details": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 530,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 530,
+        "errortext": "Unable to revert volume snapshot while a backup restore is currently in progress for VM [227]."
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "bc35f098-29a3-4b7e-bfe0-ed9632f3c2bb",
+      "created": "2026-10-23T19:18:24+0900",
+      "completed": "2026-10-23T19:18:24+0900",
+      "jobid": "a7139616-8193-4470-a985-6172c624ddd1",
+      "jobstatus": 2
+    }
+  },
+  {
+    "name": "Backend rejects restore conflict on snapshot creation",
+    "status": "PASS",
+    "details": {
+      "uuidList": [],
+      "errorcode": 530,
+      "cserrorcode": 4250,
+      "errortext": "Unable to create volume snapshot while a backup restore is currently in progress for VM [227]."
+    }
+  },
+  {
+    "name": "Current context exposes NetBackup restoring conflict",
+    "status": "PASS",
+    "details": {
+      "version": 1,
+      "sourceavailable": true,
+      "volumeid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "volumename": "SNAP1479-32-source",
+      "volumestate": "Ready",
+      "virtualmachineid": "c27c7bcf-0036-41cf-be04-3f855a0a4a1c",
+      "virtualmachinename": "SNAP1479-32-vm",
+      "virtualmachinestate": "Stopped",
+      "revertreason": "BACKUP_RESTORE_IN_PROGRESS",
+      "createreason": "BACKUP_RESTORE_IN_PROGRESS"
+    }
+  }
+]

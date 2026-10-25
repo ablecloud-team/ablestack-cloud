@@ -1,0 +1,313 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 622,
+    "height": 534,
+    "right": 743,
+    "width": 718,
+    "x": 25,
+    "y": 88
+  },
+  "bodyScroll": {
+    "clientHeight": 534,
+    "clientWidth": 708,
+    "height": 610,
+    "overflowY": "auto",
+    "width": 708
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 81,
+        "height": 48,
+        "right": 743,
+        "width": 48,
+        "x": 695,
+        "y": 33
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 598.75,
+        "width": 57.765625,
+        "x": 540.984375,
+        "y": 639
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 715,
+        "width": 100.25,
+        "x": 614.75,
+        "y": 639
+      },
+      "text": "스냅샷 삭제"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 71,
+        "height": 22,
+        "right": 719,
+        "width": 670,
+        "x": 49,
+        "y": 49
+      },
+      "text": "Zone 스냅샷 사본 삭제"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 229.5,
+        "height": 82.5,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 147
+      },
+      "text": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 268.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 229.5
+      },
+      "text": "SNAPDIALOG1488-31-owner"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 307.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 268.5
+      },
+      "text": "없음"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 346.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 307.5
+      },
+      "text": "SNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 385.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 346.5
+      },
+      "text": "백업 됨"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 424.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 385.5
+      },
+      "text": "1.00 GiB"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 463.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 424.5
+      },
+      "text": "수동"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 502.5,
+        "height": 39,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 463.5
+      },
+      "text": "2026. 10. 25. 오전 9:03:51"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 541,
+        "height": 38.5,
+        "right": 704,
+        "width": 530,
+        "x": 174,
+        "y": 502.5
+      },
+      "text": "SNAPDIALOG1488-31-Zone-a"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(92, 59, 0)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 619,
+        "height": 44,
+        "right": 689,
+        "width": 598,
+        "x": 91,
+        "y": 575
+      },
+      "text": "선택한 Zone의 모든 스토리지 사본을 삭제합니다. 다른 페이지의 사본도 포함되며, 스토리지 사본 하나만 삭제하는 작업이 아닙니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 674,
+        "height": 22,
+        "right": 705,
+        "width": 652,
+        "x": 53,
+        "y": 652
+      },
+      "text": "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 672,
+        "height": 16,
+        "right": 69,
+        "width": 16,
+        "x": 53,
+        "y": 656
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 688,
+    "height": 656,
+    "right": 744,
+    "width": 720,
+    "x": 24,
+    "y": 32
+  },
+  "documentWidth": 758,
+  "footer": {
+    "bottom": 687,
+    "height": 65,
+    "right": 743,
+    "width": 718,
+    "x": 25,
+    "y": 622
+  },
+  "groups": [],
+  "header": {
+    "bottom": 88,
+    "height": 55,
+    "right": 743,
+    "width": 718,
+    "x": 25,
+    "y": 33
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 672,
+        "height": 16,
+        "right": 69,
+        "width": 16,
+        "x": 53,
+        "y": 656
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [],
+  "text": "Zone 스냅샷 사본 삭제\n\n고정된 작업 대상 1개를 확인하세요.\n\n이름\tSNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n볼륨\tSNAPDIALOG1488-31-owner\n가상머신\t없음\n계정\tSNAPDIALOG1488-31-owner · SNAPDIALOG1488-31-domain\n상태\t백업 됨\n가상 크기\t1.00 GiB\n간격 유형\t수동\n생성일\t2026. 10. 25. 오전 9:03:51\n삭제 범위\tSNAPDIALOG1488-31-Zone-a\n선택한 Zone의 모든 스토리지 사본을 삭제합니다. 다른 페이지의 사본도 포함되며, 스토리지 사본 하나만 삭제하는 작업이 아닙니다.\n표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.\n취소\n스냅샷 삭제",
+  "title": "Zone 스냅샷 사본 삭제",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb?tab=zones",
+  "width": 768
+}

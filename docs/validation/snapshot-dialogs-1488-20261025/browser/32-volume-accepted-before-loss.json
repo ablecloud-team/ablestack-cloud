@@ -1,0 +1,19 @@
+{
+  "args": {
+    "command": "createVolume",
+    "response": "json",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "name": "SNAPDIALOG1488-32-ui-volume",
+    "snapshotid": "adcc0782-b1cb-44c7-82a9-c2f5a733341f",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "customjobid": "18e8e0ce-a258-4ce2-9220-edbf9b486827",
+    "sessionkey": "[REDACTED]"
+  },
+  "response": {
+    "createvolumeresponse": {
+      "id": "f02b65bb-91cf-44e2-987a-7150a59c32da",
+      "jobid": "18e8e0ce-a258-4ce2-9220-edbf9b486827"
+    }
+  }
+}

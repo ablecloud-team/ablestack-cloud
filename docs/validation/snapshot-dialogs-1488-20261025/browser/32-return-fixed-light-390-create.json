@@ -1,0 +1,338 @@
+{
+  "active": {
+    "id": "form_item_name",
+    "inDialog": true,
+    "label": null,
+    "tag": "INPUT",
+    "text": ""
+  },
+  "body": {
+    "bottom": 618.8125,
+    "height": 527.625,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 91.1875
+  },
+  "bodyScroll": {
+    "clientHeight": 528,
+    "clientWidth": 364,
+    "height": 528,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 84.1875,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 36.1875
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 491.5625,
+        "height": 22,
+        "right": 73,
+        "width": 44,
+        "x": 29,
+        "y": 469.5625
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 602.8125,
+        "height": 24,
+        "right": 109.484375,
+        "width": 80.484375,
+        "x": 29,
+        "y": 578.8125
+      },
+      "text": "새 태그"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 667.8125,
+        "height": 32,
+        "right": 252.75,
+        "width": 57.765625,
+        "x": 194.984375,
+        "y": 635.8125
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 667.8125,
+        "height": 32,
+        "right": 361,
+        "width": 100.25,
+        "x": 260.75,
+        "y": 635.8125
+      },
+      "text": "스냅샷 생성"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 74.1875,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 52.1875
+      },
+      "text": "스냅샷 생성"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(11, 59, 102)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 138.1875,
+        "height": 22,
+        "right": 345,
+        "width": 278,
+        "x": 67,
+        "y": 116.1875
+      },
+      "text": "이 볼륨의 스냅샷을 만드시겠습니까?"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 193.1875,
+        "height": 22,
+        "right": 54.765625,
+        "width": 25.765625,
+        "x": 29,
+        "y": 171.1875
+      },
+      "text": "이름"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 233.1875,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 201.1875
+      },
+      "text": "스냅샷 이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 279.1875,
+        "height": 22,
+        "right": 60.4375,
+        "width": 31.4375,
+        "x": 29,
+        "y": 257.1875
+      },
+      "text": "Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(11, 59, 102)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 362.1875,
+        "height": 66,
+        "right": 345,
+        "width": 300,
+        "x": 45,
+        "y": 296.1875
+      },
+      "text": "스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 405.8125,
+        "height": 24,
+        "right": 45.09375,
+        "width": 4.09375,
+        "x": 41,
+        "y": 381.8125
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 455.8125,
+        "height": 22,
+        "right": 113.25,
+        "width": 84.25,
+        "x": 29,
+        "y": 433.8125
+      },
+      "text": "비동기 백업"
+    }
+  ],
+  "dialog": {
+    "bottom": 684.8125,
+    "height": 649.625,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 35.1875
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 683.8125,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 618.8125
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 233.1875,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 201.1875
+      },
+      "label": "이름",
+      "labelRect": {
+        "bottom": 201.1875,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 171.1875
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 409.8125,
+        "height": 122.625,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 287.1875
+      },
+      "label": "Zone",
+      "labelRect": {
+        "bottom": 287.1875,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 257.1875
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 495.8125,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 463.8125
+      },
+      "label": "비동기 백업",
+      "labelRect": {
+        "bottom": 463.8125,
+        "height": 30,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 433.8125
+      }
+    }
+  ],
+  "header": {
+    "bottom": 91.1875,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 36.1875
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_name",
+      "label": null,
+      "placeholder": "스냅샷 이름",
+      "rect": {
+        "bottom": 233.1875,
+        "height": 32,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 201.1875
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "zone-selection",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 405.8125,
+        "height": 24,
+        "right": 45.09375,
+        "width": 4.09375,
+        "x": 41,
+        "y": 381.8125
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "스냅샷 생성\n이 볼륨의 스냅샷을 만드시겠습니까?\n이름\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n비동기 백업\n태그\n새 태그\n취소\n스냅샷 생성",
+  "title": "스냅샷 생성",
+  "url": "http://10.10.32.10:8080/client/#/volume/582c13ce-12d6-421d-88db-c251f62ac47d",
+  "width": 390
+}

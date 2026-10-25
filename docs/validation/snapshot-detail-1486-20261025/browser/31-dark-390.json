@@ -1,0 +1,219 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [
+    {
+      "id": "38446ace-84c9-3892-86ad-170977cf8d35",
+      "text": "Secondary\nSecondary · Zone\n사용 가능\n준비됨\n가상 크기: 1.00 GiB"
+    }
+  ],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "가상 크기",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Secondary 백업 물리 크기",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "볼륨",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "VM 이름",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "사본 Zone",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "계정",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "도메인",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "생성일",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/snapshot",
+      "text": "스냅샷"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "fabeb5f3-9da0-4770-855b-da16eab6763c "
+    },
+    {
+      "href": "#/volume/2410aed4-f39a-4148-8fd6-9a301cc0387d",
+      "text": "SNAPDETAIL1486-31-vmdata"
+    },
+    {
+      "href": "#/vm/61b24b3e-fd15-4407-9c0e-69940f35df7b",
+      "text": "SNAPDETAIL1486-31-vm"
+    },
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "Zone"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/imagestore/dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "text": "Secondary"
+    }
+  ],
+  "properties": true,
+  "scrollWidth": 380,
+  "summary": true,
+  "tag": "태그태그 새로고침baseline = SNAPDETAIL1486-31-vmdata새 태그",
+  "text": "/스냅샷/SNAPDETAIL1486-31-vmdata업데이트\n작업\nSNAPDETAIL1486-31-vmdata\n상태\n백업 됨\n아이디\nfabeb5f3-9da0-4770-855b-da16eab6763c \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPDETAIL1486-31-vmdata\nVM 이름\nSNAPDETAIL1486-31-vm\n사본 Zone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 25. 오전 1:10:18\n태그\n태그 새로고침\nbaseline = SNAPDETAIL1486-31-vmdata\n새 태그\n상세\nZone\n이벤트\n코멘트\n스냅샷 유형\n수동\n생성 주기\n수동\n원본 볼륨 유형\n데이터 디스크\n원본 볼륨 현재 상태\n\n사용 가능\n연결 가상머신 현재 상태\n\n정지된 상태\n원본 되돌리기\n현재 원본 되돌리기 조건을 충족합니다.\n\n가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다.\n\n스토리지 사본\n\n스토리지 사본 1개. API는 사본별 물리 크기를 제공하지 않습니다.\n\nSecondary\nSecondary · Zone\n사용 가능\n준비됨\n가상 크기: 1.00 GiB",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/fabeb5f3-9da0-4770-855b-da16eab6763c",
+  "width": 390,
+  "layout": {
+    "cardStyle": "rgb(34, 40, 47)",
+    "items": [
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "상태",
+        "labelBottom": 462.5,
+        "margin": "5px",
+        "valueTop": 467.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "아이디",
+        "labelBottom": 526.5,
+        "margin": "5px",
+        "valueTop": 531.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "가상 크기",
+        "labelBottom": 617.5,
+        "margin": "5px",
+        "valueTop": 622.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "가상 크기",
+        "labelBottom": 617.5,
+        "margin": "5px",
+        "valueTop": 622.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "Secondary 백업 물리 크기",
+        "labelBottom": 686.5,
+        "margin": "5px",
+        "valueTop": 691.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "볼륨",
+        "labelBottom": 755.5,
+        "margin": "5px",
+        "valueTop": 760.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "VM 이름",
+        "labelBottom": 824.5,
+        "margin": "5px",
+        "valueTop": 829.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "사본 Zone",
+        "labelBottom": 893.5,
+        "margin": "5px",
+        "valueTop": 898.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "계정",
+        "labelBottom": 962.5,
+        "margin": "5px",
+        "valueTop": 967.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "도메인",
+        "labelBottom": 1031.5,
+        "margin": "5px",
+        "valueTop": 1036.5,
+        "weight": "700"
+      },
+      {
+        "color": "rgba(255, 255, 255, 0.65)",
+        "label": "생성일",
+        "labelBottom": 1100.5,
+        "margin": "5px",
+        "valueTop": 1105.5,
+        "weight": "700"
+      }
+    ],
+    "noOverlap": true,
+    "pageOverflowContained": true,
+    "propertiesStyle": "rgb(197, 204, 212)",
+    "scrollWidth": 380,
+    "width": 390
+  }
+}

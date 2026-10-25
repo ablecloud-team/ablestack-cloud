@@ -1,0 +1,19 @@
+{
+  "volume": "a5ad08fd-7cef-4e4d-aa88-608ee00eaa3f",
+  "scenario": "restore-inherited",
+  "phase": "verify",
+  "image": "/mnt/glue-gfs/aaf069ba-c784-4475-91bf-91b6f583d283",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.449 GiB/sec and 2507.4534 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.459 GiB/sec and 2517.8579 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

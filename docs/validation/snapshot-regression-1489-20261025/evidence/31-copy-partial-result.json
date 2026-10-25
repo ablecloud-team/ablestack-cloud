@@ -1,0 +1,66 @@
+{
+  "plan": {
+    "snapshotcopytargets": {
+      "snapshotid": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "b6400a540f9df9a6d7c039e74643d2a8e277774232ebea9fc777a08658f887eb",
+      "destinations": [
+        {
+          "zoneid": "79cc3335-db1a-4c15-9e3d-e32ad6032395",
+          "name": "SNAPREG1489-31-Zone-a",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "8acb6c48-3028-4660-a565-c0ac6791aea7",
+          "storename": "SNAPREG1489-31-Secondary-a"
+        },
+        {
+          "zoneid": "9b2a63c0-e8bd-48f1-92ff-a810aa4416c5",
+          "name": "SNAPREG1489-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "1d7853cc-57cd-4ca7-9c6f-646d165cd60d",
+          "storename": "SNAPREG1489-31-Secondary-b"
+        }
+      ]
+    }
+  },
+  "args": {
+    "id": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+    "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "destzoneids": "79cc3335-db1a-4c15-9e3d-e32ad6032395,9b2a63c0-e8bd-48f1-92ff-a810aa4416c5",
+    "expectedscopehash": "b6400a540f9df9a6d7c039e74643d2a8e277774232ebea9fc777a08658f887eb"
+  },
+  "error": {
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Snapshot copy failed. Completed destinations: SNAPREG1489-31-Zone-a. Failed destinations: SNAPREG1489-31-Zone-b (TRANSFER_OR_VERIFICATION_FAILED). Refresh destinations and retry failed Zones; completed copies are retained."
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+    "created": "2026-10-25T21:30:44+0900",
+    "completed": "2026-10-25T21:30:51+0900",
+    "jobid": "06ede3f2-472a-417b-921e-021d9738deae",
+    "jobstatus": 2
+  },
+  "success": false
+}

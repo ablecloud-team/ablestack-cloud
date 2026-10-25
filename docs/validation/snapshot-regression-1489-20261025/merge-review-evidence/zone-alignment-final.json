@@ -1,0 +1,401 @@
+{
+  "configurations": [
+    {
+      "cluster": "31",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 825.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 687.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 825.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 493.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 355.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 493.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 493.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 355.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 493.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 493.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 355.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 493.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 493.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 355.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 493.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 493.75
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-92",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 355.75
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 493.75
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 821.5
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 683.5
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 821.5
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 123,
+          "y": 586.703125
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 582,
+        "x": 123,
+        "y": 448.703125
+      },
+      "width": 768,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 582,
+        "x": 123,
+        "y": 586.703125
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "dark": false,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 43,
+          "y": 600.484375
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 284,
+        "x": 43,
+        "y": 462.484375
+      },
+      "width": 390,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 284,
+        "x": 43,
+        "y": 600.484375
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 299,
+          "y": 576.5
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 215.328125,
+        "x": 299,
+        "y": 438.5
+      },
+      "width": 1280,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 215.328125,
+        "x": 299,
+        "y": 576.5
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 123,
+          "y": 556.5
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 582,
+        "x": 123,
+        "y": 418.5
+      },
+      "width": 768,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 582,
+        "x": 123,
+        "y": 556.5
+      },
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "dark": true,
+      "rows": [
+        {
+          "align": "normal",
+          "text": "Zone",
+          "textAlign": "left",
+          "width": 55.4375,
+          "x": 43,
+          "y": 592.5
+        }
+      ],
+      "volume": {
+        "align": "center",
+        "text": "ROOT-32",
+        "textAlign": "start",
+        "width": 284,
+        "x": 43,
+        "y": 454.5
+      },
+      "width": 390,
+      "zones": {
+        "align": "flex-start",
+        "text": "Zone",
+        "textAlign": "left",
+        "width": 284,
+        "x": 43,
+        "y": 592.5
+      },
+      "pass": true
+    }
+  ],
+  "pass": true
+}

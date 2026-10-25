@@ -1,0 +1,282 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "레벨"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "사용자 이름"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "계정"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "도메인"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "생성일"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/event/b141eff4-ce96-4883-889c-fa257c19cd13",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/bd4c3c40-00a9-4be0-99c4-6e953a76e5a2",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/af0c6f5d-1c5b-4abd-8629-2b67ae502953",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/b9db96e5-61c5-4039-9941-b2e4f802918b",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/6ca0ddd9-bb3e-4b5c-904c-7021ed499b0d",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2a174d07-2284-4903-8829-f125ebf1a648",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=SNAPTABS1487-31-other&domainid=2a174d07-2284-4903-8829-f125ebf1a648&dataView=true",
+      "text": "SNAPTABS1487-31-other"
+    },
+    {
+      "href": "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details",
+      "text": "SNAPTABS1487-31-domain"
+    },
+    {
+      "href": "#/event/4fd980a4-0e92-4d83-b2a5-0bc2a3e451f5",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 6개 항목 중 1-6 표시\n1\n10 / 쪽"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "b141eff4-ce96-4883-889c-fa257c19cd13",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:05"
+      ],
+      "id": "bd4c3c40-00a9-4be0-99c4-6e953a76e5a2",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:20"
+      ],
+      "id": "af0c6f5d-1c5b-4abd-8629-2b67ae502953",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "시작",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:20"
+      ],
+      "id": "b9db96e5-61c5-4039-9941-b2e4f802918b",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "예정됨",
+        "admin",
+        "SNAPTABS1487-31-other",
+        "SNAPTABS1487-31-domain",
+        "2026. 10. 25. 오전 2:04:20"
+      ],
+      "id": "6ca0ddd9-bb3e-4b5c-904c-7021ed499b0d",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "생성됨",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:20"
+      ],
+      "id": "4fd980a4-0e92-4d83-b2a5-0bc2a3e451f5",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t스냅샷 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\tSNAPTABS1487-31-other\tSNAPTABS1487-31-domain\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\n전체 6개 항목 중 1-6 표시\n1\n10 / 쪽",
+  "text": "/스냅샷/SNAPTABS1487-31-other업데이트\n작업\nSNAPTABS1487-31-other\n상태\n백업 됨\n아이디\n74dd642f-9c12-4090-96de-e390f844f90a \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-other\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-31-other\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:20\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-other\n새 태그\n상세\nZone\n이벤트\n코멘트\n업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:05\nINFO\t스냅샷 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\tSNAPTABS1487-31-other\tSNAPTABS1487-31-domain\t2026. 10. 25. 오전 2:04:20\nINFO\t스냅샷 생성\t\n생성됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:20\n전체 6개 항목 중 1-6 표시\n1\n10 / 쪽",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 676.96875,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 790.5,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": 265
+      },
+      "tag": "INPUT",
+      "text": "관련 자원 이벤트 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/74dd642f-9c12-4090-96de-e390f844f90a?tab=events",
+  "width": 1280,
+  "heldResponses": 1,
+  "expectedTarget": "74dd642f-9c12-4090-96de-e390f844f90a"
+}

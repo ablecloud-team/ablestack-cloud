@@ -1,0 +1,570 @@
+{
+  "active": {
+    "id": "form_item_name",
+    "inDialog": true,
+    "label": null,
+    "tag": "INPUT",
+    "text": ""
+  },
+  "body": {
+    "bottom": 622,
+    "height": 534,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 88
+  },
+  "bodyScroll": {
+    "clientHeight": 534,
+    "clientWidth": 708,
+    "height": 692,
+    "overflowY": "auto",
+    "width": 708
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 81,
+        "height": 48,
+        "right": 999,
+        "width": 48,
+        "x": 951,
+        "y": 33
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 206.28125,
+        "height": 24,
+        "right": 413.640625,
+        "width": 40.640625,
+        "x": 373,
+        "y": 182.28125
+      },
+      "text": "재시도"
+    },
+    {
+      "disabled": false,
+      "label": "가상머신에 연결",
+      "rect": {
+        "bottom": 727.28125,
+        "height": 22,
+        "right": 353,
+        "width": 44,
+        "x": 309,
+        "y": 705.28125
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 905.234375,
+        "width": 57.765625,
+        "x": 847.46875,
+        "y": 639
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 971,
+        "width": 57.765625,
+        "x": 913.234375,
+        "y": 639
+      },
+      "text": "생성"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 71,
+        "height": 22,
+        "right": 975,
+        "width": 670,
+        "x": 305,
+        "y": 49
+      },
+      "text": "볼륨 생성"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(255, 210, 210)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 178.28125,
+        "height": 50.28125,
+        "right": 945,
+        "width": 572,
+        "x": 373,
+        "y": 128
+      },
+      "text": "요청 접수 여부를 확인할 수 없습니다. 자동 재제출을 차단했습니다. 기존 작업/이벤트를 먼저 확인하세요."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(255, 210, 210)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 206.28125,
+        "height": 24,
+        "right": 945,
+        "width": 572,
+        "x": 373,
+        "y": 182.28125
+      },
+      "text": "재시도"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 268.28125,
+        "height": 22,
+        "right": 350.765625,
+        "width": 41.765625,
+        "x": 309,
+        "y": 246.28125
+      },
+      "text": "이름"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 308.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 276.28125
+      },
+      "text": "볼륨 이름 입력 (선택 사항)"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 354.28125,
+        "height": 22,
+        "right": 367.4375,
+        "width": 58.4375,
+        "x": 309,
+        "y": 332.28125
+      },
+      "text": "Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 393.28125,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 363.28125
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 393.28125,
+        "height": 30,
+        "right": 949,
+        "width": 628,
+        "x": 321,
+        "y": 363.28125
+      },
+      "text": " Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 440.28125,
+        "height": 22,
+        "right": 377.25,
+        "width": 68.25,
+        "x": 309,
+        "y": 418.28125
+      },
+      "text": "소유자 유형"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 479.28125,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 449.28125
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 479.28125,
+        "height": 30,
+        "right": 949,
+        "width": 628,
+        "x": 321,
+        "y": 449.28125
+      },
+      "text": "계정"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 526.28125,
+        "height": 22,
+        "right": 358.640625,
+        "width": 49.640625,
+        "x": 309,
+        "y": 504.28125
+      },
+      "text": "도메인"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 597,
+        "width": 276,
+        "x": 321,
+        "y": 535.28125
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 611,
+        "width": 290,
+        "x": 321,
+        "y": 535.28125
+      },
+      "text": " ROOT"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 526.28125,
+        "height": 22,
+        "right": 683.765625,
+        "width": 36.765625,
+        "x": 647,
+        "y": 504.28125
+      },
+      "text": "계정"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 935,
+        "width": 276,
+        "x": 659,
+        "y": 535.28125
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 949,
+        "width": 290,
+        "x": 659,
+        "y": 535.28125
+      },
+      "text": " admin"
+    }
+  ],
+  "dialog": {
+    "bottom": 688,
+    "height": 656,
+    "right": 1000,
+    "width": 720,
+    "x": 280,
+    "y": 32
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 687,
+    "height": 65,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 622
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 308.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 276.28125
+      },
+      "label": "이름",
+      "labelRect": {
+        "bottom": 276.28125,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 246.28125
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 394.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 362.28125
+      },
+      "label": "Zone",
+      "labelRect": {
+        "bottom": 362.28125,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 332.28125
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 480.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 448.28125
+      },
+      "label": "소유자 유형",
+      "labelRect": {
+        "bottom": 448.28125,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 418.28125
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 566.28125,
+        "height": 32,
+        "right": 623,
+        "width": 314,
+        "x": 309,
+        "y": 534.28125
+      },
+      "label": "도메인",
+      "labelRect": {
+        "bottom": 534.28125,
+        "height": 30,
+        "right": 623,
+        "width": 314,
+        "x": 309,
+        "y": 504.28125
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 566.28125,
+        "height": 32,
+        "right": 961,
+        "width": 314,
+        "x": 647,
+        "y": 534.28125
+      },
+      "label": "계정",
+      "labelRect": {
+        "bottom": 534.28125,
+        "height": 30,
+        "right": 961,
+        "width": 314,
+        "x": 647,
+        "y": 504.28125
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 732.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 700.28125
+      },
+      "labelRect": null
+    }
+  ],
+  "header": {
+    "bottom": 88,
+    "height": 55,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 33
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_name",
+      "label": null,
+      "placeholder": "볼륨 이름 입력 (선택 사항)",
+      "rect": {
+        "bottom": 308.28125,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 276.28125
+      },
+      "value": "SNAPDIALOG1488-31-ui-volume"
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "form_item_zoneid",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 393.28125,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 363.28125
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "rc_select_23",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 479.28125,
+        "height": 30,
+        "right": 935,
+        "width": 614,
+        "x": 321,
+        "y": 449.28125
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "rc_select_24",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 597,
+        "width": 276,
+        "x": 321,
+        "y": 535.28125
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "rc_select_25",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 565.28125,
+        "height": 30,
+        "right": 935,
+        "width": 276,
+        "x": 659,
+        "y": 535.28125
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "볼륨 생성\n요청 접수 여부를 확인할 수 없습니다. 자동 재제출을 차단했습니다. 기존 작업/이벤트를 먼저 확인하세요.\n재시도\n이름\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\n크기\n1 GiB\n디스크 오퍼링\nCustom-GFS-Sparse\n\n스냅샷 생성 시의 크기와 디스크 오퍼링을 상속합니다. 크기 변경은 복원 완료 후 볼륨에서 수행하세요.\n\n가상머신에 연결\n취소\n생성",
+  "title": "볼륨 생성",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+  "width": 1280
+}

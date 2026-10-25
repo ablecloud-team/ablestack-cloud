@@ -1,0 +1,78 @@
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] -----------< org.apache.cloudstack:cloud-secondary-storage >------------
+[INFO] Building Apache CloudStack Secondary Storage Service 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-secondary-storage ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO]
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-secondary-storage ---
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-secondary-storage ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 2 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-secondary-storage ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-secondary-storage ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/services/secondary-storage/server/src/test/resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-secondary-storage ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 8 source files to /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/services/secondary-storage/server/target/test-classes
+[INFO]
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-secondary-storage ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.apache.cloudstack.storage.resource.SnapshotTemplateCopyTest
+ERROR StatusLogger Reconfiguration failed: No configuration found for '5ffd2b27' at 'null' in 'null'
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.041 s - in org.apache.cloudstack.storage.resource.SnapshotTemplateCopyTest
+[INFO] Running org.apache.cloudstack.storage.resource.NfsSecondaryStorageResourceTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.588 s - in org.apache.cloudstack.storage.resource.NfsSecondaryStorageResourceTest
+[INFO] Running org.apache.cloudstack.storage.template.SnapshotDownloadTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.092 s - in org.apache.cloudstack.storage.template.SnapshotDownloadTest
+[INFO] Running org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadataTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadataTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 60, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-secondary-storage ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/services/secondary-storage/server/target/cloud-secondary-storage-4.23.0.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-secondary-storage ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO]
+[INFO] --- maven-install-plugin:2.3.1:install (default-install) @ cloud-secondary-storage ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/services/secondary-storage/server/target/cloud-secondary-storage-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-secondary-storage/4.23.0.0/cloud-secondary-storage-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/services/secondary-storage/server/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-secondary-storage/4.23.0.0/cloud-secondary-storage-4.23.0.0.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  16.894 s
+[INFO] Finished at: 2026-10-24T07:46:59+09:00
+[INFO] ------------------------------------------------------------------------

@@ -1,0 +1,919 @@
+{
+  "requests": [
+    {
+      "requestId": "41292.11344",
+      "method": "GET",
+      "command": "listVolumesMetrics",
+      "args": {
+        "listall": "true",
+        "listsystemvms": "true",
+        "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listVolumesMetrics",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "sizegb": "1.00 GiB",
+              "diskiopstotal": 0,
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "name": "SNAPDIALOG1488-31-vmdata",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "deviceid": 1,
+              "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+              "vmname": "SNAPDIALOG1488-31-vm",
+              "vmdisplayname": "SNAPDIALOG1488-31-vm",
+              "vmstate": "Stopped",
+              "vmtype": "User",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:41+0900",
+              "state": "Ready",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "storagetype": "Shared (DATADISK)",
+              "cachemode": "none",
+              "diskkbsread": 0,
+              "diskkbswrite": 0,
+              "diskioread": 0,
+              "diskiowrite": 0,
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "attached": "2026-10-25T08:39:00+0900",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "physicalsize": 348160,
+              "virtualsize": 1073741824,
+              "utilization": "0.0%",
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11345",
+      "method": "GET",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Volume",
+        "resourceid": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.11346",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "resourcetype": "zone",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.11347",
+      "method": "GET",
+      "command": "listResourceIcon",
+      "args": {
+        "resourceids": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "resourcetype": "domain",
+        "command": "listResourceIcon",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listresourceiconresponse": {}
+      }
+    },
+    {
+      "requestId": "41292.11348",
+      "method": "GET",
+      "command": "listAccounts",
+      "args": {
+        "name": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "showicon": "true",
+        "command": "listAccounts",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listaccountsresponse": {
+          "count": 1,
+          "account": [
+            {
+              "id": "a75c97c6-b253-11f1-a895-0024814c313f",
+              "name": "admin",
+              "accounttype": 1,
+              "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+              "roletype": "Admin",
+              "rolename": "Root Admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "receivedbytes": 3490573307,
+              "sentbytes": 1946454208,
+              "vmlimit": "Unlimited",
+              "vmtotal": 87,
+              "vmavailable": "Unlimited",
+              "iplimit": "Unlimited",
+              "iptotal": 3,
+              "ipavailable": "Unlimited",
+              "volumelimit": "Unlimited",
+              "volumetotal": 123,
+              "volumeavailable": "Unlimited",
+              "snapshotlimit": "Unlimited",
+              "snapshottotal": 22,
+              "snapshotavailable": "Unlimited",
+              "backuplimit": "Unlimited",
+              "backuptotal": 0,
+              "backupavailable": "Unlimited",
+              "backupstoragelimit": "Unlimited",
+              "backupstoragetotal": 0,
+              "backupstorageavailable": "Unlimited",
+              "templatelimit": "Unlimited",
+              "templatetotal": 45,
+              "templateavailable": "Unlimited",
+              "vmstopped": 33,
+              "vmrunning": 54,
+              "projectlimit": "Unlimited",
+              "projecttotal": 1,
+              "projectavailable": "Unlimited",
+              "networklimit": "Unlimited",
+              "networktotal": 3,
+              "networkavailable": "Unlimited",
+              "vpclimit": "Unlimited",
+              "vpctotal": 0,
+              "vpcavailable": "Unlimited",
+              "cpulimit": "Unlimited",
+              "cputotal": 272,
+              "cpuavailable": "Unlimited",
+              "memorylimit": "Unlimited",
+              "memorytotal": 503808,
+              "memoryavailable": "Unlimited",
+              "gpulimit": "Unlimited",
+              "gputotal": 0,
+              "gpuavailable": "Unlimited",
+              "primarystoragelimit": "Unlimited",
+              "primarystoragetotal": 10160,
+              "primarystorageavailable": "Unlimited",
+              "secondarystoragelimit": "Unlimited",
+              "secondarystoragetotal": 1126.6426,
+              "secondarystorageavailable": "Unlimited",
+              "bucketlimit": "Unlimited",
+              "buckettotal": 0,
+              "bucketavailable": "Unlimited",
+              "objectstoragelimit": "Unlimited",
+              "objectstoragetotal": 0,
+              "objectstorageavailable": "Unlimited",
+              "state": "enabled",
+              "user": [
+                {
+                  "id": "a75cdd55-b253-11f1-a895-0024814c313f",
+                  "username": "admin",
+                  "firstname": "admin",
+                  "lastname": "cloud",
+                  "created": "2026-09-17T22:52:58+0900",
+                  "state": "enabled",
+                  "account": "admin",
+                  "accounttype": 1,
+                  "usersource": "native",
+                  "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+                  "roletype": "Admin",
+                  "rolename": "Root Admin",
+                  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                  "domain": "ROOT",
+                  "apikey": "[REDACTED]",
+                  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+                  "iscallerchilddomain": false,
+                  "isdefault": true,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                },
+                {
+                  "id": "155bde0a-ccfb-4e8b-8007-2ad3cdb30a5c",
+                  "username": "admin-kubeadmin",
+                  "firstname": "admin",
+                  "lastname": "kubeadmin",
+                  "email": "kubeadmin",
+                  "created": "2026-09-29T10:34:14+0900",
+                  "state": "enabled",
+                  "account": "admin",
+                  "accounttype": 1,
+                  "usersource": "native",
+                  "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+                  "roletype": "Admin",
+                  "rolename": "Root Admin",
+                  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                  "domain": "ROOT",
+                  "apikey": "[REDACTED]",
+                  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                },
+                {
+                  "id": "87c3b515-54b8-45fa-89a0-fa49407974ba",
+                  "username": "mold-cks-07a93624-59ec-4cf9-961a-baaf6abf1431",
+                  "firstname": "admin",
+                  "lastname": "kubeadmin",
+                  "email": "kubeadmin",
+                  "created": "2026-10-08T14:51:31+0900",
+                  "state": "enabled",
+                  "account": "admin",
+                  "accounttype": 1,
+                  "usersource": "native",
+                  "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+                  "roletype": "Admin",
+                  "rolename": "Root Admin",
+                  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                  "domain": "ROOT",
+                  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                },
+                {
+                  "id": "0cdab356-4b3f-4f77-8606-26c4b1edf60f",
+                  "username": "mold-cks-c2edc5d4-18b2-4a95-8ef1-85a462e5a084",
+                  "firstname": "admin",
+                  "lastname": "kubeadmin",
+                  "email": "kubeadmin",
+                  "created": "2026-10-08T15:28:43+0900",
+                  "state": "enabled",
+                  "account": "admin",
+                  "accounttype": 1,
+                  "usersource": "native",
+                  "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+                  "roletype": "Admin",
+                  "rolename": "Root Admin",
+                  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                  "domain": "ROOT",
+                  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                },
+                {
+                  "id": "3b88f67c-1a66-49cd-bc39-7773787328f3",
+                  "username": "mold-cks-49424a5e-d6d2-49aa-a904-bc385a77fe0f",
+                  "firstname": "admin",
+                  "lastname": "kubeadmin",
+                  "email": "kubeadmin",
+                  "created": "2026-10-08T17:22:34+0900",
+                  "state": "enabled",
+                  "account": "admin",
+                  "accounttype": 1,
+                  "usersource": "native",
+                  "roleid": "92709d09-b253-11f1-a895-0024814c313f",
+                  "roletype": "Admin",
+                  "rolename": "Root Admin",
+                  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                  "domain": "ROOT",
+                  "apikey": "[REDACTED]",
+                  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+                  "iscallerchilddomain": false,
+                  "isdefault": false,
+                  "is2faenabled": false,
+                  "is2famandated": false
+                }
+              ],
+              "isdefault": true,
+              "groups": [],
+              "apikeyaccess": "[REDACTED]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11354",
+      "method": "GET",
+      "command": "listZones",
+      "args": {
+        "showicon": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listZones",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listzonesresponse": {
+          "count": 2,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "dns1": "8.8.8.8",
+              "internaldns1": "8.8.8.8",
+              "guestcidraddress": "10.1.1.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "resourcedetails": {
+                "vm.configdrive.force.host.cache.use": "false"
+              },
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            },
+            {
+              "id": "65c9ba3d-83ac-4c2e-9188-101122013178",
+              "name": "SNAPDIALOG1488-31-Zone-a",
+              "dns1": "8.8.8.8",
+              "internaldns1": "10.10.31.10",
+              "guestcidraddress": "10.249.31.0/24",
+              "networktype": "Advanced",
+              "securitygroupsenabled": false,
+              "gputotal": 0,
+              "gpuused": 0,
+              "allocationstate": "Enabled",
+              "zonetoken": "[REDACTED]",
+              "dhcpprovider": "VirtualRouter",
+              "localstorageenabled": false,
+              "tags": [],
+              "allowuserspecifyvrmtu": false,
+              "routerprivateinterfacemaxmtu": 1500,
+              "routerpublicinterfacemaxmtu": 1500,
+              "type": "Core",
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "asnrange": "",
+              "routedmodeenabled": true,
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11355",
+      "method": "GET",
+      "command": "listVolumes",
+      "args": {
+        "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "command": "listVolumes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+                "volumename": "SNAPDIALOG1488-31-vmdata",
+                "volumestate": "Ready",
+                "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+                "virtualmachinename": "SNAPDIALOG1488-31-vm",
+                "virtualmachinestate": "Stopped",
+                "revertreason": "",
+                "createreason": ""
+              },
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "name": "SNAPDIALOG1488-31-vmdata",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "deviceid": 1,
+              "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+              "vmname": "SNAPDIALOG1488-31-vm",
+              "vmdisplayname": "SNAPDIALOG1488-31-vm",
+              "vmstate": "Stopped",
+              "vmtype": "User",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:41+0900",
+              "state": "Ready",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "storagetype": "shared",
+              "cachemode": "none",
+              "diskkbsread": 0,
+              "diskkbswrite": 0,
+              "diskioread": 0,
+              "diskiowrite": 0,
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "attached": "2026-10-25T08:39:00+0900",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "physicalsize": 348160,
+              "virtualsize": 1073741824,
+              "utilization": "0.0%",
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11357",
+      "method": "GET",
+      "command": "listVolumes",
+      "args": {
+        "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "command": "listVolumes",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+                "volumename": "SNAPDIALOG1488-31-vmdata",
+                "volumestate": "Ready",
+                "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+                "virtualmachinename": "SNAPDIALOG1488-31-vm",
+                "virtualmachinestate": "Stopped",
+                "revertreason": "",
+                "createreason": ""
+              },
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "name": "SNAPDIALOG1488-31-vmdata",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "deviceid": 1,
+              "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+              "vmname": "SNAPDIALOG1488-31-vm",
+              "vmdisplayname": "SNAPDIALOG1488-31-vm",
+              "vmstate": "Stopped",
+              "vmtype": "User",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:41+0900",
+              "state": "Ready",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "storagetype": "shared",
+              "cachemode": "none",
+              "diskkbsread": 0,
+              "diskkbswrite": 0,
+              "diskioread": 0,
+              "diskiowrite": 0,
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "attached": "2026-10-25T08:39:00+0900",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "physicalsize": 348160,
+              "virtualsize": 1073741824,
+              "utilization": "0.0%",
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11358",
+      "method": "POST",
+      "command": "createSnapshot",
+      "args": {
+        "command": "createSnapshot",
+        "response": "json",
+        "name": "SNAPDIALOG1488-31-ui-attached-final",
+        "useStorageReplication": "false",
+        "asyncBackup": "false",
+        "quiescevm": "false",
+        "volumeid": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "customjobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "createsnapshotresponse": {
+          "id": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+          "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7"
+        }
+      }
+    },
+    {
+      "requestId": "41292.11359",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+        "command": "queryAsyncJobResult",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-25T10:13:10+0900",
+          "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "requestId": "41292.11360",
+      "method": "GET",
+      "command": "readyForShutdown",
+      "args": {
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "command": "readyForShutdown",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "readyforshutdownresponse": {
+          "readyforshutdown": {
+            "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+            "state": "Up",
+            "maintenanceinitiated": false,
+            "shutdowntriggered": false,
+            "readyforshutdown": false,
+            "pendingjobscount": 1,
+            "agentscount": 6,
+            "agents": [
+              "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+              "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+              "384871b9-7c75-4717-a673-e96a76abeb71",
+              "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+              "21d8be40-391b-498b-aed5-a735562cae22",
+              "34b2d7d2-6f87-48cf-8a55-d7f52a8583eb"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "requestId": "41292.11361",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+        "command": "queryAsyncJobResult",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-25T10:13:10+0900",
+          "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "requestId": "41292.11362",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+        "command": "queryAsyncJobResult",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "snapshot": {
+              "id": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT",
+              "snapshottype": "MANUAL",
+              "volumeid": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "volumename": "SNAPDIALOG1488-31-vmdata",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T10:13:10+0900",
+              "name": "SNAPDIALOG1488-31-ui-attached-final",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "95157c64-cf34-49a7-9317-7dcfbd738cec",
+          "created": "2026-10-25T10:13:10+0900",
+          "completed": "2026-10-25T10:13:12+0900",
+          "jobid": "da89eb0e-bff7-4d4c-94b9-41671d61eba7",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "41292.11363",
+      "method": "GET",
+      "command": "listVolumesMetrics",
+      "args": {
+        "listall": "true",
+        "listsystemvms": "true",
+        "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listVolumesMetrics",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "listvolumesresponse": {
+          "count": 1,
+          "volume": [
+            {
+              "sizegb": "1.00 GiB",
+              "diskiopstotal": 0,
+              "volumemutationblockedreason": "",
+              "allocation": {
+                "contractversion": "legacy",
+                "requestedpolicy": "sparse",
+                "requestedformat": "unspecified",
+                "policyorigin": "legacy",
+                "fixedpolicy": "unknown",
+                "effectivepolicy": "unknown",
+                "appliedmethod": "unknown",
+                "actualformat": "qcow2",
+                "evidence": "unverified"
+              },
+              "id": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "name": "SNAPDIALOG1488-31-vmdata",
+              "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "zonename": "Zone",
+              "type": "DATADISK",
+              "deviceid": 1,
+              "virtualmachineid": "4946b875-af90-4312-9d60-c0e450f67fb4",
+              "vmname": "SNAPDIALOG1488-31-vm",
+              "vmdisplayname": "SNAPDIALOG1488-31-vm",
+              "vmstate": "Stopped",
+              "vmtype": "User",
+              "provisioningtype": "sparse",
+              "size": 1073741824,
+              "created": "2026-10-25T08:36:41+0900",
+              "state": "Ready",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "storagetype": "Shared (DATADISK)",
+              "cachemode": "none",
+              "diskkbsread": 0,
+              "diskkbswrite": 0,
+              "diskioread": 0,
+              "diskiowrite": 0,
+              "hypervisor": "KVM",
+              "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+              "diskofferingname": "Custom-GFS-Sparse",
+              "diskofferingdisplaytext": "Custom-GFS-Sparse",
+              "storage": "Primary",
+              "attached": "2026-10-25T08:39:00+0900",
+              "destroyed": false,
+              "isextractable": true,
+              "displayvolume": true,
+              "path": "4e35de8b-99b9-498e-b54b-16b3f1bccbbf",
+              "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "quiescevm": false,
+              "supportsstoragesnapshot": false,
+              "deleteprotection": false,
+              "physicalsize": 348160,
+              "virtualsize": 1073741824,
+              "utilization": "0.0%",
+              "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+              "clustername": "Cluster",
+              "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+              "podname": "Pod",
+              "kvdoenable": false,
+              "compress": false,
+              "dedup": false,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "41292.11364",
+      "method": "GET",
+      "command": "readyForShutdown",
+      "args": {
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "command": "readyForShutdown",
+        "response": "json",
+        "sessionkey": "[REDACTED]"
+      },
+      "status": 200,
+      "response": {
+        "readyforshutdownresponse": {
+          "readyforshutdown": {
+            "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+            "state": "Up",
+            "maintenanceinitiated": false,
+            "shutdowntriggered": false,
+            "readyforshutdown": true,
+            "pendingjobscount": 0,
+            "agentscount": 6,
+            "agents": [
+              "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+              "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+              "384871b9-7c75-4717-a673-e96a76abeb71",
+              "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+              "21d8be40-391b-498b-aed5-a735562cae22",
+              "34b2d7d2-6f87-48cf-8a55-d7f52a8583eb"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

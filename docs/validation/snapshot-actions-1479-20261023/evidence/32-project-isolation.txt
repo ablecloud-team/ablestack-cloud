@@ -1,0 +1,178 @@
+Browser tab: 15, Title: "대시보드 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/dashboard".
+0 AXWebArea 대시보드 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/dashboard
+	1 container
+		2 container
+			3 image
+			4 menu
+				5 dashboard 대시보드
+					6 link Description: dashboard 대시보드, Value: 127.0.0.1:18032/client/#/dashboard
+				7 container
+					8 image cloud
+					9 text 컴퓨트
+				10 container
+					11 image hdd
+					12 text 스토리지
+				13 container
+					14 image wifi
+					15 text 네트워크
+				16 container
+					17 image picture
+					18 text 이미지
+				19 container
+					20 image lock
+					21 text 키 관리
+				22 schedule 이벤트
+					23 link Description: schedule 이벤트, Value: 127.0.0.1:18032/client/#/event
+				24 project 프로젝트
+					25 link Description: project 프로젝트, Value: 127.0.0.1:18032/client/#/project
+				26 team 계정
+					27 link Description: team 계정, Value: 127.0.0.1:18032/client/#/account
+				28 global Zone
+					29 link Description: global Zone, Value: 127.0.0.1:18032/client/#/zones
+				30 container
+					31 image shopping
+					32 text 서비스 오퍼링
+				33 container
+					34 image tool
+					35 text 도구
+				36 read API 문서
+					37 link Description: read API 문서, Value: 127.0.0.1:18032/client/#/apidocs/
+		38 container
+			39 image menu-fold
+			40 container
+				41 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				42 image project
+				43 text SNAP1479-32-project
+			44 button 생성 down
+				45 text 생성
+				46 image down
+			47 image translation
+			48 image bell
+			49 container
+				50 text S1 Snapshot 1479
+		51 container
+			52 container
+				53 heading dashboard 리소스 more, Value: 3
+					54 image dashboard
+					55 text  리소스
+					56 button more
+						57 image more
+				58 container
+					59 link Description: 가상머신 cloud-server   0, Value: 127.0.0.1:18032/client/#/vm
+					60 link Description: 쿠버네티스 클러스터 cluster   0, Value: 127.0.0.1:18032/client/#/kubernetes
+					61 link Description: 볼륨 hdd   0, Value: 127.0.0.1:18032/client/#/volume
+					62 link Description: 스냅샷 build   0, Value: 127.0.0.1:18032/client/#/snapshot
+					63 link Description: 가상머신용 네트워크 apartment   0, Value: 127.0.0.1:18032/client/#/guestnetwork
+					64 link Description: VPCs deployment-unit   0, Value: 127.0.0.1:18032/client/#/vpc
+					65 link Description: Public IP 주소 environment   0, Value: 127.0.0.1:18032/client/#/publicip
+					66 link Description: 템플릿 picture   0, Value: 127.0.0.1:18032/client/#/template?templatefilter=self&filter=self
+			67 container
+				68 heading cloud 컴퓨트, Value: 3
+					69 image cloud
+					70 text  컴퓨트
+				71 container
+					72 link Description: 실행 중 가상머신 0, Value: 127.0.0.1:18032/client/#/vm?state=running&filter=running
+					73 link Description: 정지된 VM 가상머신 0, Value: 127.0.0.1:18032/client/#/vm?state=stopped&filter=stopped
+					74 text 가상머신
+					75 text 0 사용됨
+					76 text 0%
+					77 text 20 사용 가능 | 20 제한
+					78 text CPU 코어
+					79 text 0 사용됨
+					80 text 0%
+					81 text 40 사용 가능 | 40 제한
+					82 text 메모리
+					83 text 0.00 GiB 사용됨
+					84 text 0%
+					85 text 40.00 GiB 사용 가능 | 40.00 GiB 제한
+					86 text GPU
+					87 text 0 사용됨
+					88 text 0%
+					89 text 20 사용 가능 | 20 제한
+			90 container
+				91 heading hdd 스토리지, Value: 3
+					92 image hdd
+					93 text  스토리지
+				94 container
+					95 text 볼륨
+					96 text 0 사용됨
+					97 text 0%
+					98 text 20 사용 가능 | 20 제한
+					99 text 스냅샷
+					100 text 0 사용됨
+					101 text 0%
+					102 text 20 사용 가능 | 20 제한
+					103 text 템플릿
+					104 text 0 사용됨
+					105 text 0%
+					106 text 20 사용 가능 | 20 제한
+					107 text 기본 스토리지
+					108 text 0.00 GiB 사용됨
+					109 text 0%
+					110 text 200.00 GiB 사용 가능 | 200.00 GiB 제한
+					111 text 2차 스토리지
+					112 text 0.00 GiB 사용됨
+					113 text 0%
+					114 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+					115 text 백업
+					116 text 0 사용됨
+					117 text 0%
+					118 text 20 사용 가능 | 20 제한
+					119 text 백업 스토리지
+					120 text 0.00 GiB 사용됨
+					121 text 0%
+					122 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+					123 text 버킷
+					124 text 0 사용됨
+					125 text 0%
+					126 text 20 사용 가능 | 20 제한
+					127 text Object 스토리지
+					128 text 0.00 GiB 사용됨
+					129 text 0%
+					130 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+			131 container
+				132 heading apartment 네트워크, Value: 3
+					133 image apartment
+					134 text  네트워크
+				135 container
+					136 text Public IP 주소
+					137 text 0 사용됨
+					138 text 0%
+					139 text 20 사용 가능 | 20 제한
+					140 text 네트워크
+					141 text 0 사용됨
+					142 text 0%
+					143 text 20 사용 가능 | 20 제한
+					144 text VPCs
+					145 text 0 사용됨
+					146 text 0%
+					147 text 20 사용 가능 | 20 제한
+			148 container
+				149 heading question-circle 도움말, Value: 3
+					150 image question-circle
+					151 text  도움말
+				152 container
+					153 content list
+						154 container
+							155 image read
+							156 heading Documentation, Value: 4
+								157 link Description: Documentation, Value: docs.ablecloud.io/latest
+							158 text ABLESTACK documentation website
+						159 container
+							160 image mail
+							161 heading Email Support, Value: 4
+								162 link Description: Email Support, Value: mailto:support@ablecloud.io
+							163 text Join ABLESTACK users mailing list to seek and provide support
+						164 container
+							165 image bug
+							166 heading Report Issue, Value: 4
+								167 link Description: Report Issue, Value: github.com/ablecloud-team/ablestack-cloud/issues/new
+							168 text Submit a bug or improvement request
+			169 container
+				170 heading schedule 이벤트, Value: 3
+					171 image schedule
+					172 text  이벤트
+				173 container
+					174 link Description: 보기 이벤트, Value: 127.0.0.1:18032/client/#/event
+
+The focused UI element is 0 AXWebArea 대시보드 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/dashboard

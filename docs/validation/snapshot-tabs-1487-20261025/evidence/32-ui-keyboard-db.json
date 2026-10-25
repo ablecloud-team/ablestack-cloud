@@ -1,0 +1,71 @@
+{
+  "requests": [
+    {
+      "requestId": "17888.4983",
+      "method": "POST",
+      "command": "addAnnotation",
+      "args": {
+        "command": "addAnnotation",
+        "response": "json",
+        "entityid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+        "entitytype": "SNAPSHOT",
+        "annotation": "SNAPTABS1487-32-ui-keyboard",
+        "adminsonly": "false"
+      },
+      "status": 200,
+      "response": {
+        "addannotationresponse": {
+          "annotation": {
+            "id": "71dae713-1c45-4201-8b91-ebc9b7f6b25b",
+            "entitytype": "SNAPSHOT",
+            "entityid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+            "entityname": "SNAPTABS1487-32-owner",
+            "annotation": "SNAPTABS1487-32-ui-keyboard",
+            "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+            "username": "admin",
+            "adminsonly": false,
+            "created": "2026-10-25T03:22:39+0900"
+          }
+        }
+      }
+    },
+    {
+      "requestId": "17888.4985",
+      "method": "POST",
+      "command": "removeAnnotation",
+      "args": {
+        "command": "removeAnnotation",
+        "response": "json",
+        "id": "71dae713-1c45-4201-8b91-ebc9b7f6b25b"
+      },
+      "status": 200,
+      "response": {
+        "removeannotationresponse": {
+          "annotation": {
+            "id": "71dae713-1c45-4201-8b91-ebc9b7f6b25b",
+            "entitytype": "SNAPSHOT",
+            "entityid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+            "entityname": "SNAPTABS1487-32-owner",
+            "annotation": "SNAPTABS1487-32-ui-keyboard",
+            "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+            "username": "admin",
+            "adminsonly": false,
+            "created": "2026-10-25T03:22:39+0900"
+          }
+        }
+      }
+    }
+  ],
+  "notes": [
+    {
+      "id": "71dae713-1c45-4201-8b91-ebc9b7f6b25b",
+      "text": "SNAPTABS1487-32-ui-keyboard",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "removed": "2026-10-24 18:22:40.000000",
+      "entityid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+      "adminsonly": 0,
+      "entitytype": "SNAPSHOT"
+    }
+  ],
+  "pass": true
+}

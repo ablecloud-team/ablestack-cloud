@@ -1,0 +1,54 @@
+{
+  "31": [
+    {
+      "type": "vm",
+      "active": 2
+    },
+    {
+      "type": "volume",
+      "active": 10
+    },
+    {
+      "type": "snapshot",
+      "active": 9
+    },
+    {
+      "type": "template",
+      "active": 2
+    },
+    {
+      "type": "pendingCleanup",
+      "active": 0
+    },
+    {
+      "type": "nonterminalJobs",
+      "active": 0
+    }
+  ],
+  "32": [
+    {
+      "type": "vm",
+      "active": 2
+    },
+    {
+      "type": "volume",
+      "active": 10
+    },
+    {
+      "type": "snapshot",
+      "active": 10
+    },
+    {
+      "type": "template",
+      "active": 2
+    },
+    {
+      "type": "pendingCleanup",
+      "active": 0
+    },
+    {
+      "type": "nonterminalJobs",
+      "active": 0
+    }
+  ]
+}

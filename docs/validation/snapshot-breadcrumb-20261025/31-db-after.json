@@ -1,0 +1,14 @@
+{
+  "snapshots": {
+    "rows": 237,
+    "sha256": "b60e149098ce0404572aa41663fb2ea340fef4b7f709a648c07b7bbd20da4f10"
+  },
+  "copies": {
+    "rows": 36,
+    "sha256": "fd2f142a72b3c6a0028bca2f6ef30e62ec9fdbcdb797e4e8af7117535d27a9f5"
+  },
+  "volumes": {
+    "rows": 1091,
+    "sha256": "51d646104bc2d016117b626d9f2fec58c1aca5a3f729e58e90acaaf294122db2"
+  }
+}

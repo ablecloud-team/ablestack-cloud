@@ -1,0 +1,30 @@
+{
+  "3": {
+    "count": 1,
+    "resourcecount": [
+      {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourcetype": "3",
+        "resourcetypename": "snapshot",
+        "resourcecount": 8
+      }
+    ]
+  },
+  "11": {
+    "count": 1,
+    "resourcecount": [
+      {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourcetype": "11",
+        "resourcetypename": "secondary_storage",
+        "resourcecount": 385675339824
+      }
+    ]
+  }
+}

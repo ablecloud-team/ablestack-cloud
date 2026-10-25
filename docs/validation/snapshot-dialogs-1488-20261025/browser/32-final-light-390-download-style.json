@@ -1,0 +1,27 @@
+{
+  "dialogBackground": "rgb(255, 255, 255)",
+  "fields": [],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "스냅샷 이름: SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "ant-scrolling-effect"
+}

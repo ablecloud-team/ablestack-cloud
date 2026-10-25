@@ -37,7 +37,7 @@ import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.context.CallContext;
 
 @APICommand(name = "archiveSnapshot", description = "Archives (moves) a Snapshot on primary storage to secondary storage",
-        responseObject = SnapshotResponse.class, entityType = {Snapshot.class},
+        responseObject = org.apache.cloudstack.api.response.SnapshotArchiveResponse.class, entityType = {Snapshot.class},
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class ArchiveSnapshotCmd extends BaseAsyncCmd {
     private static final String s_name = "createsnapshotresponse";
@@ -47,6 +47,13 @@ public class ArchiveSnapshotCmd extends BaseAsyncCmd {
             required=true, description = "The ID of the Snapshot")
     private Long id;
 
+    @Parameter(name = "dryrun", type = CommandType.BOOLEAN, description = "Diagnose archive eligibility without changing snapshot data")
+    private Boolean dryRun;
+
+    @Parameter(name = "expectedscopehash", type = CommandType.STRING, description = "Revision returned by the archive diagnosis")
+    private String expectedScopeHash;
+
+
     @Override
     public String getEventType() {
         return EventTypes.EVENT_SNAPSHOT_CREATE;
@@ -54,13 +61,20 @@ public class ArchiveSnapshotCmd extends BaseAsyncCmd {
 
     @Override
     public String getEventDescription() {
-        return "Archiving Snapshot with ID: " + getResourceUuid(ApiConstants.ID) + " to secondary storage";
+        return (Boolean.TRUE.equals(dryRun) ? "Diagnosing archive eligibility for Snapshot: " : "Archiving Snapshot to secondary storage: ")
+                + getResourceUuid(ApiConstants.ID);
     }
 
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         CallContext.current().setEventDetails("Snapshot ID: " + getResourceUuid(ApiConstants.ID));
-        Snapshot snapshot = _snapshotService.archiveSnapshot(getId());
+        if (Boolean.TRUE.equals(dryRun)) {
+            org.apache.cloudstack.api.response.SnapshotArchiveResponse response = _snapshotService.previewSnapshotArchive(getId());
+            response.setResponseName(getCommandName());
+            setResponseObject(response);
+            return;
+        }
+        Snapshot snapshot = _snapshotService.archiveSnapshot(getId(), expectedScopeHash);
         if (snapshot != null) {
             SuccessResponse response = new SuccessResponse(getCommandName());
             setResponseObject(response);

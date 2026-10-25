@@ -1,0 +1,66 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [
+    {
+      "control": {
+        "bottom": 330,
+        "height": 32,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 298
+      },
+      "label": {
+        "bottom": 298,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 268
+      },
+      "text": "스냅샷 UUID"
+    },
+    {
+      "control": {
+        "bottom": 416,
+        "height": 32,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 384
+      },
+      "label": {
+        "bottom": 384,
+        "height": 30,
+        "right": 715,
+        "width": 662,
+        "x": 53,
+        "y": 354
+      },
+      "text": "대상 Zone UUID (비워 두면 모든 Zone)"
+    }
+  ],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

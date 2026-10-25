@@ -1,0 +1,189 @@
+{
+  "entries": [
+    {
+      "command": "copySnapshot",
+      "method": "POST",
+      "params": {
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "destzoneids": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f,b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "expectedscopehash": "8999246bb5aaa1e3c025f106c062476cf23d957a17af037ba209ffb288ac546d",
+        "customjobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "copysnapshotresponse": {
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:23:37+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:23:37+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:23:37+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:23:37+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:23:37+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "Snapshot copy failed. Completed destinations: SNAPTR1481-31-Zone-a. Failed destinations: SNAPTR1481-31-Zone-b (TRANSFER_OR_VERIFICATION_FAILED). Refresh destinations and retry failed Zones; completed copies are retained."
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "created": "2026-10-24T17:23:37+0900",
+          "completed": "2026-10-24T17:23:43+0900",
+          "jobid": "28c4b8ed-f635-48c0-8245-1e81131f132a",
+          "jobstatus": 2
+        }
+      }
+    }
+  ],
+  "truncated": false,
+  "hasMore": false
+}

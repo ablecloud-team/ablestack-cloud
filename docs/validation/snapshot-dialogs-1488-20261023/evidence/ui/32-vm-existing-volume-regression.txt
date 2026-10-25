@@ -1,0 +1,13 @@
+Browser tab: 23, Title: "가상머신 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/vm/06c94726-9a47-43ca-8b75-b6310f58cb66?tab=volumes".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 334-341
+~				333 container
++					334 text 볼륨 번호 (Device ID)
++					335 container
++						336 button Increase Value
++							337 image up
++						338 button Decrease Value
++							339 image down
++						340 stepper (settable, integer) Description: 볼륨 번호 (Device ID), Value: 0
++					341 text 비워두면 자동 배정합니다. 0은 ROOT, 3은 예약 번호입니다. 허용 범위와 게스트 디스크 매핑은 하이퍼바이저 정책에 따릅니다.
+The focused UI element is 344 container

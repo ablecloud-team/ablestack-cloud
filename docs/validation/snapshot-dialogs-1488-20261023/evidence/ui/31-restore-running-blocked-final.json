@@ -1,0 +1,258 @@
+{
+  "bodyOverflow": {
+    "clientHeight": 286,
+    "clientWidth": 718,
+    "scrollHeight": 286,
+    "scrollWidth": 718
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "text": "복원"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "스냅샷 복원"
+    },
+    {
+      "background": [
+        64.94,
+        45.18,
+        51.48
+      ],
+      "contrast": 9.33,
+      "disabled": false,
+      "foreground": "rgb(255, 210, 210)",
+      "opacity": "1",
+      "text": "원본을 되돌리려면 연결 VM을 중지해야 합니다."
+    },
+    {
+      "background": [
+        64.94,
+        45.18,
+        51.48
+      ],
+      "contrast": 9.33,
+      "disabled": false,
+      "foreground": "rgb(255, 210, 210)",
+      "opacity": "1",
+      "text": "재시도"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "재시도"
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "contrast": 9.19,
+      "disabled": false,
+      "foreground": "rgb(255, 231, 163)",
+      "opacity": "1",
+      "text": "스냅샷 생성 이후의 변경 데이터가 사라집니다."
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "contrast": 9.19,
+      "disabled": false,
+      "foreground": "rgb(255, 231, 163)",
+      "opacity": "1",
+      "text": "SNAPDIALOG-31-source 볼륨을 SNAPDIALOG-31-source-snapshot 스냅샷 시점으로 되돌립니다."
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 13.35,
+      "disabled": true,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "복원 대상과 데이터 변경 영향을 확인했습니다."
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "취소"
+    },
+    {
+      "background": [
+        48,
+        54,
+        61
+      ],
+      "contrast": 7.53,
+      "disabled": true,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "복원"
+    }
+  ],
+  "contrastFailures": [],
+  "dark": true,
+  "documentOverflow": {
+    "clientWidth": 1280,
+    "scrollWidth": 1270
+  },
+  "fieldGaps": [],
+  "focus": "BODY",
+  "minimumContrast": 7.13,
+  "modal": true,
+  "nestedForms": 0,
+  "overlaps": [],
+  "padding": {
+    "body": "24px 28px",
+    "footer": "16px 28px",
+    "header": "16px 24px"
+  },
+  "rect": {
+    "bottom": 564.140625,
+    "height": 408.28125,
+    "left": 280,
+    "right": 1000,
+    "top": 155.859375,
+    "width": 720
+  },
+  "stackGaps": [
+    24,
+    24
+  ],
+  "summaryTables": 0,
+  "text": "스냅샷 복원\n원본을 되돌리려면 연결 VM을 중지해야 합니다.\n재시도\n스냅샷 생성 이후의 변경 데이터가 사라집니다.\nSNAPDIALOG-31-source 볼륨을 SNAPDIALOG-31-source-snapshot 스냅샷 시점으로 되돌립니다.\n복원 대상과 데이터 변경 영향을 확인했습니다.\n취소\n복원",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "leafText": {
+    "failures": [],
+    "minimumContrast": 7.13,
+    "textNodes": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 7.13,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "스냅샷 복원"
+      },
+      {
+        "background": [
+          64.94,
+          45.18,
+          51.48
+        ],
+        "contrast": 9.33,
+        "foreground": "rgb(255, 210, 210)",
+        "opacity": 1,
+        "text": "원본을 되돌리려면 연결 VM을 중지해야 합니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "재시도"
+      },
+      {
+        "background": [
+          64.24,
+          58.620000000000005,
+          43.22
+        ],
+        "contrast": 9.19,
+        "foreground": "rgb(255, 231, 163)",
+        "opacity": 1,
+        "text": "스냅샷 생성 이후의 변경 데이터가 사라집니다."
+      },
+      {
+        "background": [
+          64.24,
+          58.620000000000005,
+          43.22
+        ],
+        "contrast": 9.19,
+        "foreground": "rgb(255, 231, 163)",
+        "opacity": 1,
+        "text": "SNAPDIALOG-31-source 볼륨을 SNAPDIALOG-31-source-snapshot 스냅샷 시점으로 되돌립니다."
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 13.35,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "복원 대상과 데이터 변경 영향을 확인했습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "취소"
+      },
+      {
+        "background": [
+          48,
+          54,
+          61
+        ],
+        "contrast": 7.53,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "복원"
+      }
+    ]
+  }
+}

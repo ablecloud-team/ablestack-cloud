@@ -1,0 +1,33 @@
+{
+  "nfs": [
+    {
+      "path": "/nfs/secondary/snapshots/293/1108/d2cf16c2-cff1-4e6a-bcb0-8172acdff99f",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/294/1109/3d4e9c23-8f1b-4399-8c46-ebfd06932c88",
+      "exists": false
+    }
+  ],
+  "primary": [
+    {
+      "path": "/mnt/glue-gfs/99ee56ca-8576-4c56-be71-8038686ad1e4",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/c7a35547-e3a1-4fc3-92eb-20df204d155d",
+      "exists": false
+    }
+  ],
+  "counts": {
+    "jobs": 0,
+    "refs": 0,
+    "cleanup": 0,
+    "pending": 0,
+    "activeDomain": 0,
+    "activeVolumes": 0,
+    "activeAccounts": 0,
+    "activeSnapshots": 0
+  },
+  "pass": true
+}

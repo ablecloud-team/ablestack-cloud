@@ -1,0 +1,75 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/323/0ac5b8fb-9142-494f-be12-c198c8e18865",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/0b9005a1-b32e-4cb5-a868-da49a0e9c857",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/11801d4d-9be7-473c-bfb3-3032fe8d9957",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/60751a63-28fe-4b2a-ba75-7a48cf532afe",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/8a8705fb-d666-4e8b-abdf-235fedaa1d27",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/b1a7eafa-a1c9-421c-9c57-0a79864c6890",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/323/f0e2daae-6028-4588-a8f7-42e4d090d5e4",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "sourceVolumes": [
+    {
+      "uuid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 132,
+          "name": "b1a7eafa-a1c9-421c-9c57-0a79864c6890",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 16:22:31 2026"
+        },
+        {
+          "id": 133,
+          "name": "0ac5b8fb-9142-494f-be12-c198c8e18865",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 16:52:03 2026"
+        }
+      ]
+    }
+  ],
+  "fixtureClones": []
+}

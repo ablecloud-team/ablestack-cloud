@@ -1,0 +1,353 @@
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPTABS1487-31-owner
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "build":
+  - heading "SNAPTABS1487-31-owner" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "83b1c043-b780-40ee-a143-f8bef390ce91":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 1.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 192.02 KiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "SNAPTABS1487-31-owner":
+    - /url: "#/volume/ac8771dc-e1f4-4dbb-9fa1-30c4016d2c03"
+  - generic: VM 이름
+  - img "desktop":
+  - generic: 연결된 가상머신 없음
+  - generic: 사본 Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+  - generic: 계정
+  - img "user":
+  - link "SNAPTABS1487-31-owner":
+    - /url: "#/account?name=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPTABS1487-31-domain":
+    - /url: "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 2:04:18
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: baseline = SNAPTABS1487-31-owner
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세"
+    - tab "Zone"
+    - tab "이벤트" [selected]
+    - tab "코멘트"
+  - tabpanel "이벤트":
+    - button "reload 업데이트" [active]:
+      - img "reload":
+      - generic: 업데이트
+    - button "열 선택":
+      - img "setting":
+      - generic: 열 선택
+    - textbox "관련 자원 이벤트 검색":
+      - /placeholder: 검색
+    - button "search":
+      - img "search":
+    - table:
+      - rowgroup:
+        - row "레벨 caret-up caret-down 유형 caret-up caret-down 상태 caret-up caret-down 사용자 이름 caret-up caret-down 계정 caret-up caret-down 도메인 caret-up caret-down 생성일 caret-up caret-down":
+          - columnheader "레벨 caret-up caret-down":
+            - generic: 레벨
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "유형 caret-up caret-down":
+            - generic: 유형
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "상태 caret-up caret-down":
+            - generic: 상태
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "사용자 이름 caret-up caret-down":
+            - generic: 사용자 이름
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "계정 caret-up caret-down":
+            - generic: 계정
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "도메인 caret-up caret-down":
+            - generic: 도메인
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "생성일 caret-up caret-down":
+            - generic: 생성일
+            - img "caret-up":
+            - img "caret-down":
+      - rowgroup:
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 3:22:33":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/5ec95999-9f44-4072-84a8-9b60adb55854"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 3:22:33"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 3:22:32":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/ce3c42fd-77f3-464f-80a3-0c9cb8f4f2e8"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 3:22:32"
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 2:59:57":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/7ed04910-22a3-473e-9256-bd313e605189"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 2:59:57"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 2:59:54":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/cbd7af3c-dddf-43a4-a6bd-beb63c8d6d6a"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 2:59:54"
+        - row "INFO 스냅샷 생성 예정됨 admin SNAPTABS1487-31-owner SNAPTABS1487-31-domain 2026. 10. 25. 오전 2:54:49":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/111c30bf-9d1d-4cc5-8024-0d7dd9f0dea9"
+          - cell "스냅샷 생성"
+          - cell "예정됨":
+            - generic: 예정됨
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2a174d07-2284-4903-8829-f125ebf1a648"
+          - cell "SNAPTABS1487-31-owner":
+            - link "SNAPTABS1487-31-owner":
+              - /url: "#/account?name=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648&dataView=true"
+          - cell "SNAPTABS1487-31-domain":
+            - link "SNAPTABS1487-31-domain":
+              - /url: "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details"
+          - cell "2026. 10. 25. 오전 2:54:49"
+        - row "INFO 주석 제거 완료 SNAPTABS1487-31-owner SNAPTABS1487-31-owner SNAPTABS1487-31-domain 2026. 10. 25. 오전 2:52:15":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/8b6a23fb-2690-433f-9911-00a61ad1ee28"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "SNAPTABS1487-31-owner":
+            - link "SNAPTABS1487-31-owner":
+              - /url: "#/accountuser?username=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648"
+          - cell "SNAPTABS1487-31-owner":
+            - link "SNAPTABS1487-31-owner":
+              - /url: "#/account?name=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648&dataView=true"
+          - cell "SNAPTABS1487-31-domain":
+            - link "SNAPTABS1487-31-domain":
+              - /url: "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details"
+          - cell "2026. 10. 25. 오전 2:52:15"
+        - row "INFO 주석 생성 완료 SNAPTABS1487-31-owner SNAPTABS1487-31-owner SNAPTABS1487-31-domain 2026. 10. 25. 오전 2:52:13":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/1fa074fa-4965-4f23-93f2-f23f5434027f"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "SNAPTABS1487-31-owner":
+            - link "SNAPTABS1487-31-owner":
+              - /url: "#/accountuser?username=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648"
+          - cell "SNAPTABS1487-31-owner":
+            - link "SNAPTABS1487-31-owner":
+              - /url: "#/account?name=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648&dataView=true"
+          - cell "SNAPTABS1487-31-domain":
+            - link "SNAPTABS1487-31-domain":
+              - /url: "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details"
+          - cell "2026. 10. 25. 오전 2:52:13"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 2:45:17":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/ba2e0b14-37d0-44d7-93b4-a8d48b820f6c"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 2:45:17"
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 2:44:55":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/479c0474-9235-4373-b537-b25de654b429"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 2:44:55"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 2:43:58":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/6dfbcd70-eb6a-4c31-8606-704f68dcea2d"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+          - cell "2026. 10. 25. 오전 2:43:58"
+    - list:
+      - listitem: 전체 46개 항목 중 1-10 표시
+      - listitem "이전 페이지":
+        - button "left" [disabled]:
+          - img "left":
+      - listitem "1":
+        - generic: "1"
+      - listitem "2":
+        - generic: "2"
+      - listitem "3":
+        - generic: "3"
+      - listitem "4":
+        - generic: "4"
+      - listitem "5":
+        - generic: "5"
+      - listitem "다음 페이지":
+        - button "right":
+          - img "right":
+      - combobox
+      - generic: 10 / 쪽
+      - text: 이동하기
+      - textbox
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

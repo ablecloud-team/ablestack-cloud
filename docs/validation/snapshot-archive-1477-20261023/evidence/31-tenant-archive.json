@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "foreign": true,
+      "dryrun": true,
+      "denied": true
+    },
+    {
+      "foreign": true,
+      "dryrun": false,
+      "denied": true
+    }
+  ],
+  "before": {
+    "snapshotid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+    "name": "SNAP1477-31-tenant",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "b78ab274ecfc35bf7a47cf4c3d55522051c02435240409bfe32a3716e73fab8b",
+    "dryrun": true
+  },
+  "after": {
+    "snapshotid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+    "name": "SNAP1477-31-tenant",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "b78ab274ecfc35bf7a47cf4c3d55522051c02435240409bfe32a3716e73fab8b",
+    "dryrun": true
+  }
+}

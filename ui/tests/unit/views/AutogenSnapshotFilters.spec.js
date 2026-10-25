@@ -120,7 +120,7 @@ test.each(['displayname', 'state', 'type', 'current', 'created'])('sorting %s pr
 })
 
 test.each([undefined, 'NaN', '0', '-1', '2.5'])('a page-only or invalid page-size URL keeps the selected page size (%s)', pagesize => {
-  const context = { pageSize: 20, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
+  const context = { $store: store, getValidPageSize: AutogenView.methods.getValidPageSize, pageSize: 20, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
   const query = { page: '1', sortkey: 'displayname', sortorder: 'asc', ...(pagesize === undefined ? {} : { pagesize }) }
   AutogenView.watch.$route.call(context, { path: '/vmsnapshot', fullPath: '/vmsnapshot?page=1', query }, { fullPath: '/vmsnapshot' })
   expect(context.pageSize).toBe(20)
@@ -129,7 +129,7 @@ test.each([undefined, 'NaN', '0', '-1', '2.5'])('a page-only or invalid page-siz
 })
 
 test('page size changes without a page parameter are applied independently', () => {
-  const context = { pageSize: 20, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
+  const context = { $store: store, getValidPageSize: AutogenView.methods.getValidPageSize, pageSize: 20, resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), fetchData: jest.fn(), scheduleAutoRefresh: jest.fn() }
   AutogenView.watch.$route.call(context, { path: '/vmsnapshot', fullPath: '/vmsnapshot?pagesize=50', query: { pagesize: '50' } }, { fullPath: '/vmsnapshot' })
   expect(context.pageSize).toBe(50)
   expect(context.page).toBe(1)

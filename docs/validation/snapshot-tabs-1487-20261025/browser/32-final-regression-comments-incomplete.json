@@ -1,0 +1,96 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (21)"
+  ],
+  "height": 1000,
+  "links": [],
+  "notes": [
+    {
+      "id": "c39eb124-9bf4-45c2-bc03-8746dbd45994",
+      "text": "admin\n2026. 10. 25. 오전 2:45:20\nSNAPTABS1487-32-ui-admin\n한글 코멘트 · 오류와 재시도 검증\nlong_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_\n관리자만 표시"
+    },
+    {
+      "id": "8b1ce573-bd32-46b3-bcc5-ace2080737c3",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-25\n관리자만 표시"
+    },
+    {
+      "id": "88661442-b81b-465b-987d-abdba26c21fc",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-24\n모든 사람에게 표시"
+    },
+    {
+      "id": "c9009b02-f3ad-42a6-bc84-a3c87551cebd",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-23\n모든 사람에게 표시"
+    },
+    {
+      "id": "bee482ff-5767-46ea-80f1-c6110ba8020a",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-22\n모든 사람에게 표시"
+    },
+    {
+      "id": "74c24d6c-a018-48c5-802c-fd1065c9e647",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-21\n모든 사람에게 표시"
+    },
+    {
+      "id": "3dd60fc3-ebf6-417e-9e4c-68befd1bbb3e",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-20\n모든 사람에게 표시"
+    },
+    {
+      "id": "d9d6e475-b5ce-40fb-8f17-9c207af6de06",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-19\n모든 사람에게 표시"
+    },
+    {
+      "id": "01e84399-201e-49ab-bb38-8ef26e6f1c5c",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-18\n모든 사람에게 표시"
+    },
+    {
+      "id": "51dfded6-e0eb-467e-a994-f698ec834b18",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-17\n모든 사람에게 표시"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 21개 항목 중 1-10 표시\n1\n2\n3\n이동하기"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n\n탭 응답이 불완전하거나 다른 자원의 정보가 포함돼 있습니다. 다시 조회하세요.\n\n재시도\n관리자만 표시\n코멘트 (21)\nadmin\n2026. 10. 25. 오전 2:45:20\nSNAPTABS1487-32-ui-admin\n한글 코멘트 · 오류와 재시도 검증\nlong_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_\n관리자만 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-25\n관리자만 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-24\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-23\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-22\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-21\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-20\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-19\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-18\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-17\n모든 사람에게 표시\n전체 21개 항목 중 1-10 표시\n1\n2\n3\n이동하기",
+  "text": "/스냅샷/SNAPTABS1487-32-owner업데이트\n작업\nSNAPTABS1487-32-owner\n상태\n백업 됨\n아이디\nca67daa2-391b-4459-90e8-345d13e42c41 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-32-owner\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:06:55\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-owner\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n\n탭 응답이 불완전하거나 다른 자원의 정보가 포함돼 있습니다. 다시 조회하세요.\n\n재시도\n관리자만 표시\n코멘트 (21)\nadmin\n2026. 10. 25. 오전 2:45:20\nSNAPTABS1487-32-ui-admin\n한글 코멘트 · 오류와 재시도 검증\nlong_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_long_comment_\n관리자만 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-25\n관리자만 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-24\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-23\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-22\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-21\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-20\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-19\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-18\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-17\n모든 사람에게 표시\n전체 21개 항목 중 1-10 표시\n1\n2\n3\n이동하기",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 287
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 287
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/ca67daa2-391b-4459-90e8-345d13e42c41?tab=comments",
+  "width": 1280,
+  "faultInjected": true,
+  "affectedResponses": 1
+}

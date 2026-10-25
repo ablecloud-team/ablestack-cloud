@@ -1,0 +1,32 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "동작\t스냅샷 다운로드\n작업 대상\tSNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": "고급 · 작업 식별 및 복구"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

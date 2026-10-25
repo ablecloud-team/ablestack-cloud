@@ -1,0 +1,61 @@
+{
+  "transportRequests": [
+    {
+      "at": "2026-10-23T10:58:41.280Z",
+      "cmd": "createSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "name": "SNAP1479-32-lost-fixed-ui",
+        "customjobid": "fb15f9f8-5d7e-45fe-8db2-355b8f1713c9"
+      },
+      "status": 200,
+      "jobid": "fb15f9f8-5d7e-45fe-8db2-355b8f1713c9",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T10:58:41.293Z",
+      "cmd": "createSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "name": "SNAP1479-32-lost-fixed-ui",
+        "customjobid": "fb15f9f8-5d7e-45fe-8db2-355b8f1713c9"
+      },
+      "status": 200,
+      "jobid": "fb15f9f8-5d7e-45fe-8db2-355b8f1713c9",
+      "fault": "submit-response-dropped-after-forward"
+    }
+  ],
+  "uniqueJobs": 1,
+  "createdSnapshots": [
+    {
+      "id": "8f2b5ab4-d4e4-43fb-a7d9-3929e0339ace",
+      "account": "snap1479-32-tenant",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+      "volumename": "SNAP1479-32-tenant-source",
+      "volumetype": "DATADISK",
+      "volumestate": "Ready",
+      "created": "2026-10-23T19:58:46+0900",
+      "name": "SNAP1479-32-lost-fixed-ui",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 1073741824,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "revertable": true,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false,
+      "scenario": "lost-fixed-ui"
+    }
+  ],
+  "status": "PASS"
+}

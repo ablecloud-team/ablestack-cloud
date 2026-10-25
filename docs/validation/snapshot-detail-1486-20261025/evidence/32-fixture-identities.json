@@ -1,0 +1,116 @@
+{
+  "prefix": "SNAPDETAIL1486-32",
+  "domain": {
+    "id": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+    "name": "SNAPDETAIL1486-32-domain"
+  },
+  "project": {
+    "id": "f8799846-abcc-4781-b1cb-6d6fe3afaf88",
+    "name": "SNAPDETAIL1486-32-project"
+  },
+  "accounts": [
+    {
+      "id": "bc0a3650-b216-45df-9cfa-12294f79d66a",
+      "name": "SNAPDETAIL1486-32-owner",
+      "scenario": "owner"
+    },
+    {
+      "id": "41fe3945-5aac-4f27-b494-68ec49553a9d",
+      "name": "SNAPDETAIL1486-32-other",
+      "scenario": "other"
+    },
+    {
+      "id": "39f07624-ff07-42d2-bb81-7b345d9df854",
+      "name": "SNAPDETAIL1486-32-domainadmin",
+      "scenario": "domainadmin"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+      "name": "SNAPDETAIL1486-32-owner",
+      "scenario": "owner",
+      "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf"
+    },
+    {
+      "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+      "name": "SNAPDETAIL1486-32-owner-next",
+      "scenario": "owner-next",
+      "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf"
+    },
+    {
+      "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+      "name": "SNAPDETAIL1486-32-other",
+      "scenario": "other",
+      "volumeid": "ef88afe9-2c1f-417d-b7ba-813358012cfc"
+    },
+    {
+      "id": "598e0747-ec05-472a-874d-0919cefb1693",
+      "name": "SNAPDETAIL1486-32-project",
+      "scenario": "project",
+      "volumeid": "24785cd7-8017-461d-a039-ae9b78bf3e48"
+    },
+    {
+      "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+      "name": "SNAPDETAIL1486-32-deleted",
+      "scenario": "deleted",
+      "volumeid": "82bcb113-bf6e-4b9f-bec0-a701c085248f"
+    },
+    {
+      "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+      "name": "SNAPDETAIL1486-32-vmdata",
+      "scenario": "vmdata",
+      "volumeid": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b"
+    },
+    {
+      "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+      "name": "SNAPDETAIL1486-32-root",
+      "scenario": "root",
+      "volumeid": "d6361215-81fe-41ac-a7f3-bf6f7c572200"
+    }
+  ],
+  "volumes": [
+    {
+      "id": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+      "name": "SNAPDETAIL1486-32-owner",
+      "scenario": "owner"
+    },
+    {
+      "id": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+      "name": "SNAPDETAIL1486-32-other",
+      "scenario": "other"
+    },
+    {
+      "id": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+      "name": "SNAPDETAIL1486-32-project",
+      "scenario": "project"
+    },
+    {
+      "id": "82bcb113-bf6e-4b9f-bec0-a701c085248f",
+      "name": "SNAPDETAIL1486-32-deleted",
+      "scenario": "deleted"
+    },
+    {
+      "id": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+      "name": "SNAPDETAIL1486-32-vmdata",
+      "scenario": "vmdata"
+    },
+    {
+      "id": "d6361215-81fe-41ac-a7f3-bf6f7c572200",
+      "name": "ROOT-236",
+      "scenario": "root"
+    }
+  ],
+  "vms": [
+    {
+      "id": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+      "name": "SNAPDETAIL1486-32-vm",
+      "displayname": "SNAPDETAIL1486-32-vm"
+    }
+  ],
+  "role": {
+    "id": "eb1f65ef-dec5-43eb-ad27-d872d2e4234a",
+    "name": "SNAPDETAIL1486-32-detail-read-only"
+  },
+  "chainConfigBefore": "false"
+}

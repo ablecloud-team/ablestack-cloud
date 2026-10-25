@@ -1,0 +1,367 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "레벨"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "사용자 이름"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "계정"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "도메인"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "생성일"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 1000,
+  "links": [
+    {
+      "href": "#/event/8b3050d4-c094-4f56-bacd-322a4ca9d092",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/38932659-fc09-4dae-ad91-cb3ef8d1c14a",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/aaccfbdd-e7d5-4b77-8987-0090b1fd7627",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/5f0dee12-fa2f-46d6-be43-cac2888ea289",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=system&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "system"
+    },
+    {
+      "href": "#/account?name=system&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "system"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/34ac97c9-537b-4fcc-b428-3837d75946fd",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/11096d71-a1fb-4119-8403-72ef6f361be7",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/b1669c41-414a-47dd-a2b0-0991b0941823",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/52b47768-7b74-4734-8f1d-704b592e180b",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    },
+    {
+      "href": "#/event/5dd67d68-d984-468a-baf0-f4f322bcea26",
+      "text": "INFO"
+    },
+    {
+      "href": "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "admin"
+    },
+    {
+      "href": "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+      "text": "ROOT"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 9개 항목 중 1-9 표시\n1\n10 / 쪽"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:07"
+      ],
+      "id": "8b3050d4-c094-4f56-bacd-322a4ca9d092",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:09:07"
+      ],
+      "id": "38932659-fc09-4dae-ad91-cb3ef8d1c14a",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 중지",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:06:54"
+      ],
+      "id": "aaccfbdd-e7d5-4b77-8987-0090b1fd7627",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "외부 DHCP VM IP 가져오기",
+        "완료",
+        "system",
+        "system",
+        "ROOT",
+        "2026. 10. 25. 오전 2:05:24"
+      ],
+      "id": "5f0dee12-fa2f-46d6-be43-cac2888ea289",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 중지",
+        "시작",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:49"
+      ],
+      "id": "34ac97c9-537b-4fcc-b428-3837d75946fd",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 중지",
+        "예정됨",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:49"
+      ],
+      "id": "11096d71-a1fb-4119-8403-72ef6f361be7",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 생성",
+        "완료",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:49"
+      ],
+      "id": "b1669c41-414a-47dd-a2b0-0991b0941823",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 생성",
+        "시작",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:44"
+      ],
+      "id": "52b47768-7b74-4734-8f1d-704b592e180b",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "가상머신 생성",
+        "예정됨",
+        "admin",
+        "admin",
+        "ROOT",
+        "2026. 10. 25. 오전 2:04:44"
+      ],
+      "id": "5dd67d68-d984-468a-baf0-f4f322bcea26",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:07\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:07\nINFO\t가상머신 중지\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:06:54\nINFO\t외부 DHCP VM IP 가져오기\t\n완료\n\tsystem\tsystem\tROOT\t2026. 10. 25. 오전 2:05:24\nINFO\t가상머신 중지\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 중지\t\n예정됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 생성\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:44\nINFO\t가상머신 생성\t\n예정됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:44\n전체 9개 항목 중 1-9 표시\n1\n10 / 쪽",
+  "text": "/가상머신/SNAPTABS1487-32-vm업데이트\n작업\nSNAPTABS1487-32-vm\ni-2-237-VM\nx86_64\nKVM\n동적으로 확장 가능\n상태\n정지된 상태\n아이디\n69c9ad4f-8f30-4e42-aa07-684d73464760 \nIP\n10.10.254.142 \n클라우드 · 주 IP\nCPU\n2 CPU x 2.00 GHz \nx86_64\n메모리\n2048 MB 메모리\n네트워크\n1 NIC(s)\neth0  10.10.254.142   기본\n      ADMIN-L2-Network\n템플릿\nnginx-lb-test.qcow2\n컴퓨트 오퍼링\nAS-PROD-32-AS01-2C2G\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 25. 오전 2:04:44\n마지막 업데이트\n2026. 10. 25. 오전 2:06:54\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n\n\n상세\nIP 구성\n메트릭\n프로세스\n스케줄\nISO\n볼륨\nNIC\n설정\n호스트 장치\nVM 스냅샷\n이벤트\n코멘트\n업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:07\nINFO\t주석 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:09:07\nINFO\t가상머신 중지\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:06:54\nINFO\t외부 DHCP VM IP 가져오기\t\n완료\n\tsystem\tsystem\tROOT\t2026. 10. 25. 오전 2:05:24\nINFO\t가상머신 중지\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 중지\t\n예정됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 생성\t\n완료\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:49\nINFO\t가상머신 생성\t\n시작\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:44\nINFO\t가상머신 생성\t\n예정됨\n\tadmin\tadmin\tROOT\t2026. 10. 25. 오전 2:04:44\n전체 9개 항목 중 1-9 표시\n1\n10 / 쪽",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 706.578125,
+        "y": -46
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 820.109375,
+        "y": -46
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": -41
+      },
+      "tag": "INPUT",
+      "text": "관련 자원 이벤트 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": -46
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/vm/69c9ad4f-8f30-4e42-aa07-684d73464760?tab=events",
+  "width": 1280
+}

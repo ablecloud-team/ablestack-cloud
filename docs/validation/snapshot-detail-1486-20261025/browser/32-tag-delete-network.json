@@ -1,0 +1,150 @@
+{
+  "requests": [
+    {
+      "requestId": "46608.1869",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 2,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "detail1486",
+              "value": "SNAPDETAIL1486-32",
+              "resourcetype": "Snapshot",
+              "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "46608.1870",
+      "command": "deleteTags",
+      "args": {
+        "command": "deleteTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+        "tags[0].value": "SNAPDETAIL1486-32"
+      },
+      "status": 200,
+      "response": {
+        "deletetagsresponse": {
+          "jobid": "e1a38d04-08b1-4aeb-9ac8-76da632cfc23"
+        }
+      }
+    },
+    {
+      "requestId": "46608.1871",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "e1a38d04-08b1-4aeb-9ac8-76da632cfc23",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-25T01:43:42+0900",
+          "jobid": "e1a38d04-08b1-4aeb-9ac8-76da632cfc23",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "requestId": "46608.1873",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "e1a38d04-08b1-4aeb-9ac8-76da632cfc23",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-25T01:43:42+0900",
+          "completed": "2026-10-25T01:43:42+0900",
+          "jobid": "e1a38d04-08b1-4aeb-9ac8-76da632cfc23",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "46608.1874",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

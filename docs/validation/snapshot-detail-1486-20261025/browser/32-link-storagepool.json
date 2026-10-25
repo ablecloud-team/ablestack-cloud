@@ -1,0 +1,116 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "IP",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "디스크 크기(GB 단위)",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "클러스터",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Pod",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Zone",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "생성일",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/storagepool",
+      "text": "기본 스토리지"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#primary-storage",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "91cae554-3fce-3f93-89d1-cefaf9bf8122 "
+    },
+    {
+      "href": "javascript:;",
+      "text": "scvm1 "
+    },
+    {
+      "href": "javascript:;",
+      "text": "scvm2 "
+    },
+    {
+      "href": "javascript:;",
+      "text": "scvm3 "
+    },
+    {
+      "href": "#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9",
+      "text": "Cluster"
+    },
+    {
+      "href": "#/pod/6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "text": "Pod"
+    },
+    {
+      "href": "#/zone/991d2f57-0f37-4445-b956-09773d064816",
+      "text": "Zone"
+    },
+    {
+      "href": "#/volume?storageid=91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "text": "볼륨 보기"
+    },
+    {
+      "href": "#/template?templatefilter=self&filter=self&storageid=91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "text": "템플릿 보기"
+    },
+    {
+      "href": "#/iso?isofilter=self&filter=self&storageid=91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "text": "ISO 보기"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "text": "/기본 스토리지/Primary업데이트\n작업\nPrimary\nRBD\nKVM\nCLUSTER\n상태\n실행 중\n아이디\n91cae554-3fce-3f93-89d1-cefaf9bf8122 \nIP\nscvm1 \nscvm2 \nscvm3 \n\n디스크 크기(GB 단위)\n12436.52 GiB (x1.0)\n4.54% 사용된\n36.06% 할당된\n클러스터\nCluster\nPod\nPod\nZone\nZone\n생성일\n2026. 9. 17. 오전 11:12:08\n볼륨 보기\n템플릿 보기\nISO 보기\n상세\n설정\n브라우저\n이벤트\n코멘트\n이름\n\nPrimary\n아이디\n\n91cae554-3fce-3f93-89d1-cefaf9bf8122\nIP 주소\n\nscvm1,scvm2,scvm3\n유형\n\nRBD\n범위\n\nCLUSTER\n태그\n\nrbd\n경로\n\nrbd\n하이퍼바이저\n\nKVM\n오버 프로비저닝 요인\n\n1.0\n전체 디스크 크기\n\n13353609875074\n할당된 디스크 크기\n\n4815102935040\n사용된 디스크 크기\n\n606572126429\n클러스터\n\nCluster\nPod 이름\n\nPod\nZone\n\nZone\n생성일\n\n2026. 9. 17. 오전 11:12:08",
+  "url": "http://10.10.32.10:8080/client/#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122",
+  "width": 1280,
+  "expectedHref": "#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122"
+}

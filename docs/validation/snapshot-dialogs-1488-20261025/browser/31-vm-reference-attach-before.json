@@ -1,0 +1,214 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 489,
+    "height": 256,
+    "right": 895,
+    "width": 520,
+    "x": 375,
+    "y": 233
+  },
+  "bodyScroll": {
+    "clientHeight": 256,
+    "clientWidth": 520,
+    "height": 256,
+    "overflowY": "auto",
+    "width": 520
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 234,
+        "height": 56,
+        "right": 895,
+        "width": 56,
+        "x": 839,
+        "y": 178
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 532,
+        "height": 32,
+        "right": 813.234375,
+        "width": 57.765625,
+        "x": 755.46875,
+        "y": 500
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 532,
+        "height": 32,
+        "right": 879,
+        "width": 57.765625,
+        "x": 821.234375,
+        "y": 500
+      },
+      "text": "확인"
+    }
+  ],
+  "classes": "ant-modal",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 216,
+        "height": 22,
+        "right": 871,
+        "width": 472,
+        "x": 399,
+        "y": 194
+      },
+      "text": "기존 볼륨 연결"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 324,
+        "height": 30,
+        "right": 845,
+        "width": 434,
+        "x": 411,
+        "y": 294
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 367,
+        "height": 22,
+        "right": 525.046875,
+        "width": 126.046875,
+        "x": 399,
+        "y": 345
+      },
+      "text": "볼륨 번호 (Device ID)"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 406,
+        "height": 30,
+        "right": 870,
+        "width": 470,
+        "x": 400,
+        "y": 376
+      },
+      "text": "자동 배정"
+    }
+  ],
+  "dialog": {
+    "bottom": 542,
+    "height": 364,
+    "right": 895,
+    "width": 520,
+    "x": 375,
+    "y": 178
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 542,
+    "height": 53,
+    "right": 895,
+    "width": 520,
+    "x": 375,
+    "y": 489
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 407,
+        "height": 32,
+        "right": 871,
+        "width": 472,
+        "x": 399,
+        "y": 375
+      },
+      "label": "볼륨 번호 (Device ID)",
+      "labelRect": {
+        "bottom": 375,
+        "height": 30,
+        "right": 871,
+        "width": 472,
+        "x": 399,
+        "y": 345
+      }
+    }
+  ],
+  "header": {
+    "bottom": 233,
+    "height": 55,
+    "right": 895,
+    "width": 520,
+    "x": 375,
+    "y": 178
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "rc_select_9",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 324,
+        "height": 30,
+        "right": 845,
+        "width": 434,
+        "x": 411,
+        "y": 294
+      },
+      "value": ""
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": "볼륨 번호 (Device ID)",
+      "placeholder": "자동 배정",
+      "rect": {
+        "bottom": 406,
+        "height": 30,
+        "right": 870,
+        "width": 470,
+        "x": 400,
+        "y": 376
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "기존 볼륨 연결\n\nSNAPDIALOG1488-31-vm\n\n볼륨\n볼륨 번호 (Device ID)\n비워두면 자동 배정합니다. 0은 ROOT, 3은 예약 번호입니다. 허용 범위와 게스트 디스크 매핑은 하이퍼바이저 정책에 따릅니다.\n취소\n확인",
+  "title": "기존 볼륨 연결",
+  "url": "http://10.10.31.10:8080/client/#/vm/4946b875-af90-4312-9d60-c0e450f67fb4?tab=volumes",
+  "width": 1280
+}

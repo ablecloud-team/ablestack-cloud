@@ -1,0 +1,17 @@
+{
+  "snapshot": "e42db153-0e91-4e77-9fee-f81f20a73213",
+  "scenario": "normal",
+  "kind": "restore-image",
+  "before": [
+    {
+      "path": "snapshots/2/975/36de84d0-e831-432f-a43c-b576552e2d68",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 59,
+      "referenceid": 111
+    }
+  ],
+  "fixtureOnly": true
+}

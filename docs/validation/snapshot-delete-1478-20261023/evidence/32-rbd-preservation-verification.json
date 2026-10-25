@@ -1,0 +1,21 @@
+{
+  "normalAndControlNativePreserved": true,
+  "failedAndMissingAndQuotaNativeAbsent": true,
+  "externalBusyChildAbsent": true,
+  "remaining": [
+    {
+      "id": 115,
+      "name": "167f8682-f0dc-440a-b65f-44f507d04f38",
+      "size": 1073741824,
+      "protected": "false",
+      "timestamp": "Fri Oct 23 13:51:16 2026"
+    },
+    {
+      "id": 118,
+      "name": "63370bf9-4b6f-4ed8-8676-2380e4154bea",
+      "size": 1073741824,
+      "protected": "false",
+      "timestamp": "Fri Oct 23 13:51:25 2026"
+    }
+  ]
+}

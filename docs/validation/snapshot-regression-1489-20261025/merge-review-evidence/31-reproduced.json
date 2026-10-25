@@ -1,0 +1,22 @@
+[
+  {
+    "case": "before",
+    "rows": [
+      {
+        "path": "snapshots/293/1108/d2cf16c2-cff1-4e6a-bcb0-8172acdff99f",
+        "role": "Image",
+        "state": "Destroyed",
+        "cleanup": 0,
+        "refstate": "Destroyed",
+        "snapshot": "95dc6fe6-f96e-4ee8-b34c-d413c83d2c74",
+        "snapshotid": 268,
+        "volumePath": "99ee56ca-8576-4c56-be71-8038686ad1e4",
+        "volumeState": "Expunged",
+        "accountState": "removed",
+        "deleteEvents": 0,
+        "volumeRemoved": "2026-10-25 14:33:48.000000",
+        "accountRemoved": "2026-10-25 14:33:48.000000"
+      }
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "volume": "e5ca7d21-acd5-418d-847b-ac3921271163",
+  "scenario": "restore-ui-lost-response",
+  "phase": "verify",
+  "image": "/mnt/glue-gfs/d60b192b-a0f9-4978-8a59-e623d33cdf88",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.534 GiB/sec and 2594.8819 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.363 GiB/sec and 2419.4153 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

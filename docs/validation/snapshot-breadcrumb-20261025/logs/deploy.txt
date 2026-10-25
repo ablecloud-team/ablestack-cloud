@@ -1,0 +1,4 @@
+UI packed 922 files 64262690 bytes
+31 UI deploy verified 922 files,Mold active,HTTP200,WEB-INF/config/JAR preserved
+32 UI deploy verified 922 files,Mold active,HTTP200,WEB-INF/config/JAR preserved
+BREADCRUMB/FILTER UI DEPLOY COMPLETE

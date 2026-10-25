@@ -1,0 +1,178 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 601.5,
+    "height": 493,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 108.5
+  },
+  "bodyScroll": {
+    "clientHeight": 493,
+    "clientWidth": 364,
+    "height": 493,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 101.5,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 53.5
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 650.5,
+        "height": 32,
+        "right": 361,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 618.5
+      },
+      "text": "닫기"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 91.5,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 69.5
+      },
+      "text": "작업 상세"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.85)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 164,
+        "height": 38.5,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 125.5
+      },
+      "text": "템플릿 생성"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.85)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 357,
+        "height": 193,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 164
+      },
+      "text": "SNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.85)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 396,
+        "height": 39,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 357
+      },
+      "text": "서버 작업 실패"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.85)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 434.5,
+        "height": 38.5,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 396
+      },
+      "text": "2026. 10. 25. 오전 10:24:52"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(255, 210, 210)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 482.5,
+        "height": 22,
+        "right": 345,
+        "width": 278,
+        "x": 67,
+        "y": 460.5
+      },
+      "text": "SS-15 final submission rejected"
+    }
+  ],
+  "dialog": {
+    "bottom": 667.5,
+    "height": 615,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 52.5
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 666.5,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 601.5
+  },
+  "groups": [],
+  "header": {
+    "bottom": 108.5,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 53.5
+  },
+  "height": 720,
+  "inputs": [],
+  "tables": [],
+  "text": "작업 상세\n동작\t템플릿 생성\n작업 대상\tSNAPDIALOG1488-31-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n상태\t서버 작업 실패\n생성일\t2026. 10. 25. 오전 10:24:52\nSS-15 final submission rejected\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기",
+  "title": "작업 상세",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/35fc8e78-e4cc-4df2-9f22-210a45048ceb",
+  "width": 390
+}

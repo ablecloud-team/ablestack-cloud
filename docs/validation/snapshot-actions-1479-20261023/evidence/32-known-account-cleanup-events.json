@@ -1,0 +1,65 @@
+[
+  {
+    "name": "SNAP1479-32-dedupe-createSnapshot",
+    "type": "SNAPSHOT.DELETE",
+    "count": 1,
+    "snapshot": "2bddb03e-f6c7-486a-a243-51b1c564e127",
+    "beforeAccountCleanup": 0
+  },
+  {
+    "name": "SNAP1479-32-dedupe-createSnapshot-after-agent-up",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "7294b578-80fc-4cc2-bf38-34c18fd87496",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-dedupe-createSnapshot-final",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-lost-fixed-ui",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "8f2b5ab4-d4e4-43fb-a7d9-3929e0339ace",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-lost-reload-ui",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-lost-ui",
+    "type": "SNAPSHOT.DELETE",
+    "count": 1,
+    "snapshot": "8979386c-7b04-4d51-bf98-180c5f790922",
+    "beforeAccountCleanup": 0
+  },
+  {
+    "name": "SNAP1479-32-lost-ui",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "117eb337-732e-4a8a-9cc5-863216e1dd0a",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-query-project-ui",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+    "beforeAccountCleanup": 1
+  },
+  {
+    "name": "SNAP1479-32-tenant-snapshot",
+    "type": "SNAPSHOT.DELETE",
+    "count": 2,
+    "snapshot": "22b644a3-7493-49ca-bc52-f32e27b7e473",
+    "beforeAccountCleanup": 1
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "snapshot": 22,
+    "secondary_storage": 1206229987360
+  },
+  "rawAfterConcurrentAndRepeat": {
+    "snapshot": 22,
+    "secondary_storage": 1206229987360
+  },
+  "usageDeleteEvents": 1,
+  "snapshot": "e2385437-9338-458e-a48a-c9d4c6eb0321",
+  "rows": [
+    "e2385437-9338-458e-a48a-c9d4c6eb0321\tDestroyed\tImage\tDestroyed\tsnapshots/2/972/9f2af538-fe87-4c1f-98fa-f59f1d7151c0"
+  ],
+  "result": "PASS"
+}

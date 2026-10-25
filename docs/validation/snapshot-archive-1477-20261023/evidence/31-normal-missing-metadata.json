@@ -1,0 +1,45 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+    "name": "SNAP1477-31-force-path",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 119,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "31e99e756a1ae2d67ed48aca93b9e8f9e4c516624ca5dcb539acb95fde311c71",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "failure": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":431,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":431,\"errortext\":\"INCOMPLETE_STORE_REFERENCE: run administrator force=true deletion diagnosis to inspect database-only cleanup\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"31fe7ab0-41eb-49fb-919a-19187ecef81c\",\"created\":\"2026-10-23T17:19:34+0900\",\"completed\":\"2026-10-23T17:19:34+0900\",\"jobid\":\"1039e0a3-b82c-47c1-88f1-0851361f03d1\",\"jobstatus\":2}",
+  "after": {
+    "success": true,
+    "snapshotid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+    "name": "SNAP1477-31-force-path",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 119,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "31e99e756a1ae2d67ed48aca93b9e8f9e4c516624ca5dcb539acb95fde311c71",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

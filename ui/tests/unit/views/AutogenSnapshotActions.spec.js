@@ -65,3 +65,52 @@ test('lost create response blocks repeat submissions without claiming job failur
   await expect(AutogenView.methods.postSnapshotAwareAction.call(context, action, {})).rejects.toThrow('message.vmsnapshot.busy')
   expect(postAPI).toHaveBeenCalledTimes(1)
 })
+
+test('a storage restore dialog freezes its target and returns focus to the action trigger on close', () => {
+  const trigger = document.createElement('button')
+  const dialogButton = document.createElement('button')
+  document.body.append(trigger, dialogButton)
+  const row = { id: 'fixed-snapshot', name: 'selected snapshot' }
+  const view = { $route: { path: '/snapshot/fixed-snapshot', meta: { name: 'snapshot' } }, $refs: { detailActionsTrigger: { $el: trigger } }, resource: row, storageActionGeneration: 0, $nextTick: callback => callback() }
+  try {
+    AutogenView.methods.execAction.call(view, { api: 'revertSnapshot', storageSnapshotMode: true, resource: row }, false)
+    row.id = 'later-selection'
+    expect(view.currentAction.storageSnapshotTargets[0].id).toBe('fixed-snapshot')
+    dialogButton.focus()
+    AutogenView.methods.closeAction.call(view)
+    expect(document.activeElement).toBe(trigger)
+    expect(view.showAction).toBe(false)
+  } finally { trigger.remove(); dialogButton.remove() }
+})
+
+test('a snapshot form returns to the stable action button when its portal menu item remains connected', () => {
+  const trigger = document.createElement('li'); trigger.tabIndex = 0; trigger.style.display = 'none'
+  const replacement = document.createElement('button'); const input = document.createElement('input')
+  document.body.append(trigger, replacement, input); input.focus()
+  const view = { currentAction: { snapshotStandardDialog: true, api: 'createSnapshot' }, actionTrigger: trigger, actionOriginPath: '/volume/source', $route: { path: '/volume/source' }, $refs: { detailActionsTrigger: { $el: replacement } }, $nextTick: callback => callback() }
+  try { AutogenView.methods.closeAction.call(view); expect(document.activeElement).toBe(replacement) } finally { trigger.remove(); replacement.remove(); input.remove() }
+})
+
+test('a closed snapshot dialog repairs focus after its Affix button is replaced, without stealing user focus', () => {
+  const first = document.createElement('button'); const second = document.createElement('button'); const other = document.createElement('input')
+  document.body.append(first, second, other)
+  const view = { currentAction: { snapshotStandardDialog: true }, storageActionGeneration: 1, actionOriginPath: '/volume/source', $route: { path: '/volume/source' }, $refs: { detailActionsTrigger: { $el: first } }, $nextTick: callback => callback(), listScope: () => 'owner' }
+  try {
+    AutogenView.methods.closeAction.call(view); expect(document.activeElement).toBe(first)
+    first.remove(); view.$refs.detailActionsTrigger.$el = second
+    AutogenView.methods.restoreClosedActionFocus.call(view); expect(document.activeElement).toBe(second)
+    other.focus(); AutogenView.methods.restoreClosedActionFocus.call(view); expect(document.activeElement).toBe(other)
+  } finally { first.remove(); second.remove(); other.remove() }
+})
+test.each(['generation', 'scope', 'route'])('a deferred snapshot focus repair rejects a changed %s', change => {
+  const button = document.createElement('button'); document.body.append(button)
+  let scope = 'owner'
+  const view = { currentAction: { snapshotStandardDialog: true }, storageActionGeneration: 1, actionOriginPath: '/volume/source', $route: { path: '/volume/source' }, $refs: { detailActionsTrigger: { $el: button } }, $nextTick: callback => callback(), listScope: () => scope }
+  try {
+    AutogenView.methods.closeAction.call(view); button.blur()
+    if (change === 'generation') view.storageActionGeneration++
+    if (change === 'scope') scope = 'project'
+    if (change === 'route') view.$route.path = '/volume/new'
+    AutogenView.methods.restoreClosedActionFocus.call(view); expect(document.activeElement).not.toBe(button)
+  } finally { button.remove() }
+})

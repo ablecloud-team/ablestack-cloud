@@ -1,0 +1,245 @@
+{
+  "bodyOverflow": {
+    "clientHeight": 309,
+    "clientWidth": 718,
+    "scrollHeight": 309,
+    "scrollWidth": 718
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "닫기"
+    }
+  ],
+  "classes": "ant-modal mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "작업 상세"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 6.1,
+      "disabled": false,
+      "foreground": "rgb(105, 177, 255)",
+      "opacity": "1",
+      "text": "기존 작업 결과 조회"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "닫기"
+    }
+  ],
+  "contrastFailures": [],
+  "dark": true,
+  "documentOverflow": {
+    "clientWidth": 1280,
+    "scrollWidth": 1270
+  },
+  "fieldGaps": [],
+  "focus": "BUTTON",
+  "minimumContrast": 6.1,
+  "modal": true,
+  "nestedForms": 0,
+  "overlaps": [],
+  "padding": {
+    "body": "24px 28px",
+    "footer": "16px 28px",
+    "header": "16px 24px"
+  },
+  "rect": {
+    "bottom": 575.5,
+    "height": 431,
+    "left": 280,
+    "right": 1000,
+    "top": 144.5,
+    "width": 720
+  },
+  "stackGaps": [],
+  "summaryTables": 1,
+  "text": "작업 상세\n동작\t볼륨 생성\n작업 대상\tSNAPDIALOG-31-orphan-source-snapshot\n상태\t작업 완료\n생성일\t2026. 10. 24. 오전 12:27:37\n기존 작업 결과 조회\n생성된 리소스 보기\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "leafText": {
+    "failures": [],
+    "minimumContrast": 4.58,
+    "textNodes": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 7.13,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "작업 상세"
+      },
+      {
+        "background": [
+          22,
+          27,
+          34
+        ],
+        "contrast": 12.7,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "동작"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 11.12,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "볼륨 생성"
+      },
+      {
+        "background": [
+          22,
+          27,
+          34
+        ],
+        "contrast": 12.7,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "작업 대상"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 11.12,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "SNAPDIALOG-31-orphan-source-snapshot"
+      },
+      {
+        "background": [
+          22,
+          27,
+          34
+        ],
+        "contrast": 12.7,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "상태"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 11.12,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "작업 완료"
+      },
+      {
+        "background": [
+          22,
+          27,
+          34
+        ],
+        "contrast": 12.7,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "생성일"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 11.12,
+        "foreground": "rgba(255, 255, 255, 0.85)",
+        "opacity": 1,
+        "text": "2026. 10. 24. 오전 12:27:37"
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 6.1,
+        "foreground": "rgb(105, 177, 255)",
+        "opacity": 1,
+        "text": "기존 작업 결과 조회"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 4.58,
+        "foreground": "rgb(24, 144, 255)",
+        "opacity": 1,
+        "text": "생성된 리소스 보기"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 4.58,
+        "foreground": "rgb(24, 144, 255)",
+        "opacity": 1,
+        "text": "작업 이력 확인"
+      },
+      {
+        "background": [
+          22,
+          27,
+          34
+        ],
+        "contrast": 7.89,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "고급 · 작업 식별 및 복구"
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "닫기"
+      }
+    ]
+  }
+}

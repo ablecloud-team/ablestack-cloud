@@ -1,0 +1,157 @@
+{
+  "identity": {
+    "username": "SNAPREG1489-31-owner",
+    "type": "0"
+  },
+  "checks": [
+    {
+      "filters": {
+        "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521"
+      },
+      "hidden": true
+    },
+    {
+      "filters": {
+        "volumeid": "c92a3078-6e3e-4958-b0ee-5cbc32060966"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "filters": {
+        "keyword": "SNAPREG1489-31-other"
+      },
+      "hidden": true
+    },
+    {
+      "filters": {
+        "account": "SNAPREG1489-31-other",
+        "domainid": "0cb3ed60-18db-4e58-a249-131f54db2cc9"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "listSnapshotCopyTargets",
+      "args": {
+        "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+        "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "deleteSnapshot",
+      "args": {
+        "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+        "dryrun": true
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "archiveSnapshot",
+      "args": {
+        "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+        "dryrun": true
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "createVolume",
+      "args": {
+        "snapshotid": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+        "name": "SNAPREG1489-31-foreign-forbidden",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "createTags",
+      "args": {
+        "resourceids": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+        "resourcetype": "Snapshot",
+        "tags[0].key": "forbidden",
+        "tags[0].value": "denied"
+      },
+      "rejected": {
+        "accountid": "8e8d040c-4b6c-445d-9192-6f80fb5bbce9",
+        "account": "SNAPREG1489-31-owner",
+        "domainid": "0cb3ed60-18db-4e58-a249-131f54db2cc9",
+        "domainpath": "ROOT/SNAPREG1489-31-domain",
+        "userid": "7725d718-0af4-4411-994b-a9f367c3ba7c",
+        "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Caller does not have permission to operate with provided resource."
+        },
+        "created": "2026-10-25T21:02:54+0900",
+        "completed": "2026-10-25T21:02:54+0900",
+        "jobid": "7f0d6d46-2864-4ea3-8b07-af5df076555d",
+        "jobstatus": 2
+      }
+    },
+    {
+      "command": "deleteSnapshot",
+      "args": {
+        "id": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "dryrun": true,
+        "force": true
+      },
+      "rejected": {
+        "accountid": "8e8d040c-4b6c-445d-9192-6f80fb5bbce9",
+        "account": "SNAPREG1489-31-owner",
+        "domainid": "0cb3ed60-18db-4e58-a249-131f54db2cc9",
+        "domainpath": "ROOT/SNAPREG1489-31-domain",
+        "userid": "7725d718-0af4-4411-994b-a9f367c3ba7c",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Forced snapshot cleanup requires a root administrator"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "created": "2026-10-25T21:02:55+0900",
+        "completed": "2026-10-25T21:02:55+0900",
+        "jobid": "1174f963-3437-4ae4-ab78-d7dbf039eb1c",
+        "jobstatus": 2
+      }
+    },
+    {
+      "ownProjectVisible": true
+    }
+  ],
+  "status": "PASS"
+}

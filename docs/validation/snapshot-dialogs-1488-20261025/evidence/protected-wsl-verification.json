@@ -1,0 +1,21 @@
+{
+  "unchanged": true,
+  "head": "084d43aa0b37c46a94256fff6fcd966696d9f1b0",
+  "items": {
+    "head": {
+      "beforeSha256": "f0f50e89b0b8c83c49c93ccf9df3002446a8e4dbd8a8bfa85446a75d6cf99c3e",
+      "afterSha256": "f0f50e89b0b8c83c49c93ccf9df3002446a8e4dbd8a8bfa85446a75d6cf99c3e",
+      "unchanged": true
+    },
+    "status": {
+      "beforeSha256": "199e5115e256edd40ea90b2d1e41e22f82df5de829e9dbe54de922e807849b1f",
+      "afterSha256": "199e5115e256edd40ea90b2d1e41e22f82df5de829e9dbe54de922e807849b1f",
+      "unchanged": true
+    },
+    "diff": {
+      "beforeSha256": "4616f42e7bfef16d6dae3c185e8e23eb1fd80d91a0d941f3158958a858f77a45",
+      "afterSha256": "4616f42e7bfef16d6dae3c185e8e23eb1fd80d91a0d941f3158958a858f77a45",
+      "unchanged": true
+    }
+  }
+}

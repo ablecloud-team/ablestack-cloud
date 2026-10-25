@@ -1,0 +1,176 @@
+{
+  "cases": [
+    {
+      "name": "main-identity-size-copy-api-db",
+      "pass": true
+    },
+    {
+      "name": "root-identity-size-copy-api-db",
+      "pass": true
+    },
+    {
+      "name": "owner-identity-size-copy-api-db",
+      "pass": true
+    },
+    {
+      "name": "project-identity-size-copy-api-db",
+      "pass": true
+    },
+    {
+      "name": "deleted-identity-size-copy-api-db",
+      "pass": true
+    },
+    {
+      "name": "403-cleared",
+      "pass": true
+    },
+    {
+      "name": "missing-cleared",
+      "pass": true
+    },
+    {
+      "name": "other-denied",
+      "pass": true
+    },
+    {
+      "name": "domainadmin-root-denied",
+      "pass": true
+    },
+    {
+      "name": "503-retained",
+      "pass": true
+    },
+    {
+      "name": "copies-incomplete-retained",
+      "pass": true
+    },
+    {
+      "name": "deleted-no-dead-source-links",
+      "pass": true
+    },
+    {
+      "name": "related403-no-dead-source-links",
+      "pass": true
+    },
+    {
+      "name": "deleted-source-volume-create-retained",
+      "pass": true
+    },
+    {
+      "name": "late-response-ignored",
+      "pass": true
+    },
+    {
+      "name": "synthetic-parent-link-zero-unknown",
+      "pass": true
+    },
+    {
+      "name": "read-only-chain-off",
+      "pass": true
+    },
+    {
+      "name": "admin-chain-off",
+      "pass": true
+    },
+    {
+      "name": "readonly-information-mutation-controls",
+      "pass": true
+    },
+    {
+      "name": "owner-role",
+      "pass": true
+    },
+    {
+      "name": "owner-project",
+      "pass": true
+    },
+    {
+      "name": "other-own",
+      "pass": true
+    },
+    {
+      "name": "domainadmin-child",
+      "pass": true
+    },
+    {
+      "name": "tag-read-failure-retention-write-gate",
+      "pass": true
+    },
+    {
+      "name": "tag-job-completion-refresh",
+      "pass": true
+    },
+    {
+      "name": "light-390-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "light-768-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "light-1280-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "dark-390-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "dark-768-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "dark-1280-vm-fields-layout",
+      "pass": true
+    },
+    {
+      "name": "actual-ui-tag-jobs-db-terminal",
+      "pass": true
+    },
+    {
+      "name": "ui-tag-deletion-db-zero",
+      "pass": true
+    },
+    {
+      "name": "keyboard-copy-success-ui",
+      "pass": true
+    },
+    {
+      "name": "actual-link-volume",
+      "pass": true
+    },
+    {
+      "name": "actual-link-account",
+      "pass": true
+    },
+    {
+      "name": "actual-link-domain",
+      "pass": true
+    },
+    {
+      "name": "actual-link-zone",
+      "pass": true
+    },
+    {
+      "name": "actual-link-imagestore",
+      "pass": true
+    }
+  ],
+  "jobs": [
+    {
+      "uuid": "62be8659-e846-4673-bdca-1e50a51d61cc",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+      "resultCode": 0
+    },
+    {
+      "uuid": "8aee04af-253d-46ff-afcb-10ae11b9472d",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+      "resultCode": 0
+    }
+  ],
+  "clipboardLimitation": "UI keyboard/click success confirmed; automation clipboard read empty; OS bytes not verified",
+  "chainLimitation": "No physical parent chains on either cluster; positive UI contract uses labelled response injection"
+}

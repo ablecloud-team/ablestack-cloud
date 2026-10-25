@@ -1,0 +1,451 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - list:
+      - menuitem "hdd 볼륨":
+        - link "hdd 볼륨":
+          - /url: "#/volume"
+          - img "hdd":
+          - text: 볼륨
+      - menuitem "build 스냅샷":
+        - link "build 스냅샷":
+          - /url: "#/snapshot"
+          - img "build":
+          - text: 스냅샷
+      - menuitem "build 스냅샷 정책":
+        - link "build 스냅샷 정책":
+          - /url: "#/snapshotpolicy"
+          - img "build":
+          - text: 스냅샷 정책
+      - menuitem "funnel-plot 버킷":
+        - link "funnel-plot 버킷":
+          - /url: "#/buckets"
+          - img "funnel-plot":
+          - text: 버킷
+      - menuitem "file-text 공유 파일 시스템":
+        - link "file-text 공유 파일 시스템":
+          - /url: "#/sharedfs"
+          - img "file-text":
+          - text: 공유 파일 시스템
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio [checked]
+- img "check":
+- radio
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox: "#ffffff"
+- generic: 텍스트 색상
+- textbox: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPTABS1487-32-owner
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "build":
+  - heading "SNAPTABS1487-32-owner" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "ca67daa2-391b-4459-90e8-345d13e42c41":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 1.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 192.02 KiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "SNAPTABS1487-32-owner":
+    - /url: "#/volume/f969404f-79a7-4c48-8101-27d91d793256"
+  - generic: VM 이름
+  - img "desktop":
+  - generic: 연결된 가상머신 없음
+  - generic: 사본 Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+  - generic: 계정
+  - img "user":
+  - link "SNAPTABS1487-32-owner":
+    - /url: "#/account?name=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPTABS1487-32-domain":
+    - /url: "#/domain/c50222a4-4d3b-455e-b326-46f3a6bf19b2?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 2:06:55
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: baseline = SNAPTABS1487-32-owner
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세"
+    - tab "Zone"
+    - tab "이벤트" [selected]
+    - tab "코멘트"
+  - tabpanel "이벤트":
+    - button "reload 업데이트" [active]:
+      - img "reload":
+      - generic: 업데이트
+    - button "열 선택":
+      - img "setting":
+      - generic: 열 선택
+    - textbox "관련 자원 이벤트 검색":
+      - /placeholder: 검색
+    - button "search":
+      - img "search":
+    - table:
+      - rowgroup:
+        - row "레벨 caret-up caret-down 유형 caret-up caret-down 상태 caret-up caret-down 사용자 이름 caret-up caret-down 계정 caret-up caret-down 도메인 caret-up caret-down 생성일 caret-up caret-down":
+          - columnheader "레벨 caret-up caret-down":
+            - generic: 레벨
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "유형 caret-up caret-down":
+            - generic: 유형
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "상태 caret-up caret-down":
+            - generic: 상태
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "사용자 이름 caret-up caret-down":
+            - generic: 사용자 이름
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "계정 caret-up caret-down":
+            - generic: 계정
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "도메인 caret-up caret-down":
+            - generic: 도메인
+            - img "caret-up":
+            - img "caret-down":
+          - columnheader "생성일 caret-up caret-down":
+            - generic: 생성일
+            - img "caret-up":
+            - img "caret-down":
+      - rowgroup:
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 3:22:40":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/9fae9ec2-1b9a-4113-9390-2f5ca28c69b3"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 3:22:40"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 3:22:39":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/050c42d7-6728-46fe-9928-d8352d6c0852"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 3:22:39"
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 3:00:03":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/4f375f38-66ae-4ad9-9aea-b592d9bdcc4c"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 3:00:03"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 3:00:00":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/588ecfbc-20e7-4ca1-b668-d4f8c527caf8"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 3:00:00"
+        - row "INFO 스냅샷 생성 예정됨 admin SNAPTABS1487-32-owner SNAPTABS1487-32-domain 2026. 10. 25. 오전 2:54:54":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/53c60992-2deb-456b-9477-f597c583a0dd"
+          - cell "스냅샷 생성"
+          - cell "예정됨":
+            - generic: 예정됨
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2"
+          - cell "SNAPTABS1487-32-owner":
+            - link "SNAPTABS1487-32-owner":
+              - /url: "#/account?name=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2&dataView=true"
+          - cell "SNAPTABS1487-32-domain":
+            - link "SNAPTABS1487-32-domain":
+              - /url: "#/domain/c50222a4-4d3b-455e-b326-46f3a6bf19b2?tab=details"
+          - cell "2026. 10. 25. 오전 2:54:54"
+        - row "INFO 주석 제거 완료 SNAPTABS1487-32-owner SNAPTABS1487-32-owner SNAPTABS1487-32-domain 2026. 10. 25. 오전 2:52:19":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/ba3f650f-e4d4-402c-acd0-d97a3f1bc642"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "SNAPTABS1487-32-owner":
+            - link "SNAPTABS1487-32-owner":
+              - /url: "#/accountuser?username=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2"
+          - cell "SNAPTABS1487-32-owner":
+            - link "SNAPTABS1487-32-owner":
+              - /url: "#/account?name=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2&dataView=true"
+          - cell "SNAPTABS1487-32-domain":
+            - link "SNAPTABS1487-32-domain":
+              - /url: "#/domain/c50222a4-4d3b-455e-b326-46f3a6bf19b2?tab=details"
+          - cell "2026. 10. 25. 오전 2:52:19"
+        - row "INFO 주석 생성 완료 SNAPTABS1487-32-owner SNAPTABS1487-32-owner SNAPTABS1487-32-domain 2026. 10. 25. 오전 2:52:18":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/d340c7f3-f6db-4ba1-9699-e975abc5024b"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "SNAPTABS1487-32-owner":
+            - link "SNAPTABS1487-32-owner":
+              - /url: "#/accountuser?username=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2"
+          - cell "SNAPTABS1487-32-owner":
+            - link "SNAPTABS1487-32-owner":
+              - /url: "#/account?name=SNAPTABS1487-32-owner&domainid=c50222a4-4d3b-455e-b326-46f3a6bf19b2&dataView=true"
+          - cell "SNAPTABS1487-32-domain":
+            - link "SNAPTABS1487-32-domain":
+              - /url: "#/domain/c50222a4-4d3b-455e-b326-46f3a6bf19b2?tab=details"
+          - cell "2026. 10. 25. 오전 2:52:18"
+        - row "INFO 주석 생성 완료 admin admin ROOT 2026. 10. 25. 오전 2:45:20":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/b12cc35e-db7d-45ce-b6d4-ba8bb74dae12"
+          - cell "주석 생성"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 2:45:20"
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 2:43:01":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/92a21046-a735-431c-8249-402d170383f4"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 2:43:01"
+        - row "INFO 주석 제거 완료 admin admin ROOT 2026. 10. 25. 오전 2:43:00":
+          - cell "INFO":
+            - link "INFO":
+              - /url: "#/event/3e2a46cb-5b92-49a2-96ad-103d1010610b"
+          - cell "주석 제거"
+          - cell "완료":
+            - generic: 완료
+          - cell "admin":
+            - link "admin":
+              - /url: "#/accountuser?username=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935"
+          - cell "admin":
+            - link "admin":
+              - /url: "#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&dataView=true"
+          - cell "ROOT":
+            - link "ROOT":
+              - /url: "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+          - cell "2026. 10. 25. 오전 2:43:00"
+    - list:
+      - listitem: 전체 44개 항목 중 1-10 표시
+      - listitem "이전 페이지":
+        - button "left" [disabled]:
+          - img "left":
+      - listitem "1":
+        - generic: "1"
+      - listitem "2":
+        - generic: "2"
+      - listitem "3":
+        - generic: "3"
+      - listitem "4":
+        - generic: "4"
+      - listitem "5":
+        - generic: "5"
+      - listitem "다음 페이지":
+        - button "right":
+          - img "right":
+      - combobox
+      - generic: 10 / 쪽
+      - text: 이동하기
+      - textbox
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (1건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":

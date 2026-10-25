@@ -1,0 +1,36 @@
+{
+  "files": 922,
+  "verified": true,
+  "backup": "/root/snapshot-regression-1489-20261025-ui-review1492-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "2ab8bae34a3b03de406b6de0271fc0aa003941a26ce04582c6ca142704cf6fff",
+  "largeFileMetadataUnchanged": {},
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "backupPhysicalSize": true,
+    "mold-dialog-focus-content": true,
+    "snapshot-dialog-targets": true,
+    "snapshot-dialog-form": true,
+    "message.snapshot.dialog.delete.zone": true,
+    "snapshot-zones": true,
+    "events-tab": true,
+    "annotations-tab": true,
+    "message.detail.tab.incomplete": true,
+    "message.snapshot.copy.search.empty": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "js/app.83159f2f.js.map",
+    "js/app.83159f2f.js",
+    "css/app.9e4509e5.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root  383G  183G  200G  48% /\n/dev/mapper/rl-nfs   350G  313G   38G  90% /nfs\n"
+}

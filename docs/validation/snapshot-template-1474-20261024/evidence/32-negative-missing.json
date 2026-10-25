@@ -1,0 +1,26 @@
+{
+  "snapshotid": "a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44",
+  "jobid": "b376f86e-37fd-4e6b-af61-29ae07edd188",
+  "job": {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Failed to create TemplateFailed to create template from snapshot: Snapshot backup is missing, unreadable or empty"
+    },
+    "jobinstancetype": "Template",
+    "created": "2026-10-24T01:59:08+0900",
+    "completed": "2026-10-24T01:59:08+0900",
+    "jobid": "b376f86e-37fd-4e6b-af61-29ae07edd188",
+    "jobstatus": 2
+  },
+  "templates": {},
+  "noReady": true
+}

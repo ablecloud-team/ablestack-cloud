@@ -1,0 +1,3 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/a936f658-2ec0-470b-90e6-145bce23d7f1".
+There has been no change in the accessibility tree.
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot/a936f658-2ec0-470b-90e6-145bce23d7f1

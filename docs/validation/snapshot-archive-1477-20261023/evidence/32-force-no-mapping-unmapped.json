@@ -1,0 +1,26 @@
+{
+  "snapshot": "d1340d75-f2f1-45de-9796-04e7892dc8b7",
+  "scenario": "force-no-mapping",
+  "kind": "unmapped",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/8a8705fb-d666-4e8b-abdf-235fedaa1d27",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 39,
+      "referenceid": 74
+    },
+    {
+      "path": "snapshots/2/323/8a8705fb-d666-4e8b-abdf-235fedaa1d27",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 39,
+      "referenceid": 75
+    }
+  ],
+  "fixtureOnly": true
+}

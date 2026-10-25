@@ -1,0 +1,22 @@
+{
+  "dialog": {
+    "bottom": 488,
+    "height": 488,
+    "width": 459,
+    "x": 0,
+    "y": 0
+  },
+  "footer": {
+    "bottom": 475,
+    "height": 65,
+    "width": 433,
+    "x": 13,
+    "y": 410
+  },
+  "switches": 0,
+  "text": "스냅샷 복사\n다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n원본: Zone / Secondary\n현재 복사 가능한 대상이 없습니다. 아래 사유를 확인한 후 다시 조회하세요.\n대상 Zone\nZone 선택\nSNAPTR1481-32-Boundary-edge\n세컨더리 스토리지 · Edge Zone은 이 복사를 지원하지 않음\nSNAPTR1481-32-Zone-a\nSNAPTR1481-32-Secondary-a · 복사 완료된 대상\nSNAPTR1481-32-Zone-b\nSNAPTR1481-32-Secondary-b · 복사 완료된 대상\nSNAPTR1481-32-Boundary-empty\n세컨더리 스토리지 · 세컨더리 스토리지 없음\n대상 다시 조회\n취소\n스냅샷 복사",
+  "viewport": {
+    "height": 488,
+    "width": 459
+  }
+}

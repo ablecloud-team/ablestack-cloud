@@ -1,0 +1,46 @@
+[
+  {
+    "template": "309a2fd0-9178-4ac5-af20-c844a9b37690",
+    "scenario": "pattern-qcow2",
+    "sourceSnapshot": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+    "format": "qcow2",
+    "virtualSize": 1073741824,
+    "fileLength": 2490368,
+    "allocatedBytes": 2428928,
+    "apiDbHeaderPropertiesAgree": true,
+    "fullVirtualDataComparison": "Images are identical."
+  },
+  {
+    "template": "c3ce81ac-848d-4271-a3c4-7fc7bca6665f",
+    "scenario": "root-qcow2",
+    "sourceSnapshot": "08ba29d7-db45-48ef-ae7d-f5e94baf50d0",
+    "format": "qcow2",
+    "virtualSize": 107374182400,
+    "fileLength": 2419720192,
+    "allocatedBytes": 2411552768,
+    "apiDbHeaderPropertiesAgree": true,
+    "fullVirtualDataComparison": "Images are identical."
+  },
+  {
+    "template": "d8208355-635d-4f73-969b-cc457a5222b0",
+    "scenario": "pattern-raw",
+    "sourceSnapshot": "7bc7f649-fec3-48bb-ac9c-4296ac66f9f2",
+    "format": "raw",
+    "virtualSize": 1073741824,
+    "fileLength": 1073741824,
+    "allocatedBytes": 2097152,
+    "apiDbHeaderPropertiesAgree": true,
+    "fullVirtualDataComparison": "Images are identical."
+  },
+  {
+    "template": "adbe257b-7978-4d77-901b-82ac22663e98",
+    "scenario": "root-raw",
+    "sourceSnapshot": "891c645d-03b3-4af3-a182-dd506a812918",
+    "format": "raw",
+    "virtualSize": 107374182400,
+    "fileLength": 107374182400,
+    "allocatedBytes": 2443476992,
+    "apiDbHeaderPropertiesAgree": true,
+    "fullVirtualDataComparison": "Images are identical."
+  }
+]

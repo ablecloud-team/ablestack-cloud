@@ -1,0 +1,21 @@
+{
+  "31": {
+    "GFS2SourceAndTenantVolumeFilesAbsent": true,
+    "verifiedHost": "10.10.31.1",
+    "path": "/mnt/glue-gfs",
+    "UUIDs": [
+      "d6df5264-f9dd-404c-ac46-3ebc0277fe67",
+      "b6a84001-f91a-4566-96d0-055f53cbfbb3"
+    ]
+  },
+  "32": {
+    "RBDSourceAndTenantImagesAbsent": true,
+    "busyChildAbsent": true,
+    "verifiedHost": "10.10.32.1",
+    "images": [
+      "7aab199e-63e2-4407-abe4-980f1ea14481",
+      "9658582c-564a-4a57-a11a-ccdc677dc67a",
+      "SNAP1478-32-busy-child"
+    ]
+  }
+}

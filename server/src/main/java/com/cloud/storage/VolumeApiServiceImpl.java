@@ -978,7 +978,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 }
             }
 
+            com.cloud.storage.snapshot.SnapshotRestoreContract.validate(snapshotCheck.getSize(), cmdSize, size,
+                    diskOffering == null, cmdMinIops, cmdMaxIops, kmsKeyId);
             parentVolume = _volsDao.findByIdIncludingRemoved(snapshotCheck.getVolumeId());
+            if (parentVolume == null) {
+                throw new InvalidParameterValueException("Snapshot source metadata is unavailable; cannot validate encryption and allocation constraints");
+            }
             com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volsDetailsDao.listDetailsKeyPairs(parentVolume.getId()), "snapshot restore");
             if (diskOffering != null) com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailsDao.listDetailsKeyPairs(diskOffering.getId()));
 
@@ -999,14 +1004,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 minIops = snapshotCheck.getMinIops();
                 maxIops = snapshotCheck.getMaxIops();
                 size = snapshotCheck.getSize(); // ; disk offering is used for tags purposes
-            } else {
-                if (size < snapshotCheck.getSize()) {
-                    throw new InvalidParameterValueException(String.format("Invalid size for volume creation: %dGB, snapshot size is: %dGB",
-                            size / (1024 * 1024 * 1024), snapshotCheck.getSize() / (1024 * 1024 * 1024)));
-                }
             }
-
-            _configMgr.checkDiskOfferingAccess(null, diskOffering, _dcDao.findById(zoneId));
+            if (diskOffering == null || diskOffering.getRemoved() != null) {
+                throw new InvalidParameterValueException("Snapshot disk offering is unavailable for restore");
+            }
+            com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailsDao.listDetailsKeyPairs(diskOffering.getId()));
+            _configMgr.checkDiskOfferingAccess(owner, diskOffering, _dcDao.findById(zoneId));
 
             // check snapshot permissions
             _accountMgr.checkAccess(caller, null, true, snapshotCheck);
@@ -5580,6 +5583,19 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         return sendCommand;
     }
 
+    static AttachAnswer requireAttachAnswer(Answer response) {
+        if (!(response instanceof AttachAnswer)) {
+            String details = response == null ? "Agent returned no response" : response.getDetails();
+            throw new CloudRuntimeException("Unexpected attach response ("
+                    + (response == null ? "null" : response.getClass().getSimpleName()) + "): " + details);
+        }
+        AttachAnswer result = (AttachAnswer) response;
+        if (result.getResult() && result.getDisk() == null) {
+            throw new CloudRuntimeException("Successful attach response has no disk; inspect the VM before retrying");
+        }
+        return result;
+    }
+
     private VolumeVO sendAttachVolumeCommand(UserVmVO vm, VolumeVO volumeToAttach, Long deviceId) {
         String errorMsg = "Failed to attach volume " + volumeToAttach.getName() + " to VM " + vm.getHostName();
         boolean sendCommand = vm.getState() == State.Running;
@@ -5702,7 +5718,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 logger.debug("Attach volume {} on VM {} has controller info: {}", volumeToAttach, vm, controllerInfo);
 
                 try {
-                    answer = (AttachAnswer)_agentMgr.send(hostId, cmd);
+                    answer = requireAttachAnswer(_agentMgr.send(hostId, cmd));
                 } catch (AgentUnavailableException e) {
                     if (host != null) {
                         volService.revokeAccess(volFactory.getVolume(volumeToAttach.getId()), host, dataStore);

@@ -1,0 +1,469 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": false,
+    "label": null,
+    "tag": "DIV",
+    "text": "삭제 잔여 복구스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수 있습니다.스냅샷 UU"
+  },
+  "body": {
+    "bottom": 622,
+    "height": 534,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 88
+  },
+  "bodyScroll": {
+    "clientHeight": 534,
+    "clientWidth": 708,
+    "height": 789,
+    "overflowY": "auto",
+    "width": 708
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 81,
+        "height": 48,
+        "right": 999,
+        "width": 48,
+        "x": 951,
+        "y": 33
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 331,
+        "height": 32,
+        "right": 425.953125,
+        "width": 116.953125,
+        "x": 309,
+        "y": 299
+      },
+      "text": "삭제 대상 진단"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 849.875,
+        "width": 57.765625,
+        "x": 792.109375,
+        "y": 639
+      },
+      "text": "닫기"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 971,
+        "width": 113.125,
+        "x": 857.875,
+        "y": 639
+      },
+      "text": "강제삭제 실행"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 71,
+        "height": 22,
+        "right": 975,
+        "width": 670,
+        "x": 305,
+        "y": 49
+      },
+      "text": "삭제 잔여 복구"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(92, 59, 0)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": -48,
+        "height": 44,
+        "right": 945,
+        "width": 598,
+        "x": 347,
+        "y": -92
+      },
+      "text": "스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 7,
+        "height": 22,
+        "right": 384.265625,
+        "width": 75.265625,
+        "x": 309,
+        "y": -15
+      },
+      "text": "스냅샷 UUID"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 47,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 15
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 93,
+        "height": 22,
+        "right": 539.140625,
+        "width": 230.140625,
+        "x": 309,
+        "y": 71
+      },
+      "text": "대상 Zone UUID (비워 두면 모든 Zone)"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 133,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 101
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 179,
+        "height": 22,
+        "right": 473.046875,
+        "width": 164.046875,
+        "x": 309,
+        "y": 157
+      },
+      "text": "강제삭제 (관리자 복구)"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 173.796875,
+        "height": 14,
+        "right": 323,
+        "width": 14,
+        "x": 309,
+        "y": 159.796875
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(92, 59, 0)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 266,
+        "height": 66,
+        "right": 945,
+        "width": 598,
+        "x": 347,
+        "y": 200
+      },
+      "text": "확인 가능한 사본의 실물 삭제를 시도한 뒤, 정보 누락이나 저장소 정리 실패가 있어도 선택한 DB 정보를 삭제 상태로 정리합니다. 미확인 대상은 정리 이력에 남겨 재시도할 수 있습"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 77, 29)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 378,
+        "height": 22,
+        "right": 945,
+        "width": 620,
+        "x": 325,
+        "y": 356
+      },
+      "text": "삭제 작업이 완료됐습니다. 다시 진단하여 남은 참조를 확인할 수 있습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 464.5,
+        "height": 38.5,
+        "right": 960,
+        "width": 458.390625,
+        "x": 501.609375,
+        "y": 426
+      },
+      "text": "SNAPDIALOG1488-31-deleted"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 503.5,
+        "height": 39,
+        "right": 960,
+        "width": 458.390625,
+        "x": 501.609375,
+        "y": 464.5
+      },
+      "text": "c442f11f-c701-40a6-b512-21384fd3d6b1"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 542.5,
+        "height": 39,
+        "right": 960,
+        "width": 458.390625,
+        "x": 501.609375,
+        "y": 503.5
+      },
+      "text": "삭제됨"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 581,
+        "height": 38.5,
+        "right": 960,
+        "width": 458.390625,
+        "x": 501.609375,
+        "y": 542.5
+      },
+      "text": "모든 Zone"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 640,
+        "height": 22,
+        "right": 688.796875,
+        "width": 379.796875,
+        "x": 309,
+        "y": 618
+      },
+      "text": "강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 636.796875,
+        "height": 16,
+        "right": 325,
+        "width": 16,
+        "x": 309,
+        "y": 620.796875
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 688,
+    "height": 656,
+    "right": 1000,
+    "width": 720,
+    "x": 280,
+    "y": 32
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 687,
+    "height": 65,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 622
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 47,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 15
+      },
+      "label": "스냅샷 UUID",
+      "labelRect": {
+        "bottom": 15,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": -15
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 133,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 101
+      },
+      "label": "대상 Zone UUID (비워 두면 모든 Zone)",
+      "labelRect": {
+        "bottom": 101,
+        "height": 30,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 71
+      }
+    },
+    {
+      "controlRect": {
+        "bottom": 275,
+        "height": 118,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 157
+      },
+      "labelRect": null
+    }
+  ],
+  "header": {
+    "bottom": 88,
+    "height": 55,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 33
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 47,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 15
+      },
+      "value": "c442f11f-c701-40a6-b512-21384fd3d6b1"
+    },
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 133,
+        "height": 32,
+        "right": 961,
+        "width": 652,
+        "x": 309,
+        "y": 101
+      },
+      "value": ""
+    },
+    {
+      "checked": true,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 173.796875,
+        "height": 14,
+        "right": 323,
+        "width": 14,
+        "x": 309,
+        "y": 159.796875
+      },
+      "value": "on"
+    },
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 636.796875,
+        "height": 16,
+        "right": 325,
+        "width": 16,
+        "x": 309,
+        "y": 620.796875
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [],
+  "text": "삭제 잔여 복구\n스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수 있습니다.\n스냅샷 UUID\n대상 Zone UUID (비워 두면 모든 Zone)\n강제삭제 (관리자 복구)\n확인 가능한 사본의 실물 삭제를 시도한 뒤, 정보 누락이나 저장소 정리 실패가 있어도 선택한 DB 정보를 삭제 상태로 정리합니다. 미확인 대상은 정리 이력에 남겨 재시도할 수 있습니다. 매핑이 누락된 실물의 부재는 보장할 수 없습니다.\n삭제 대상 진단\n삭제 작업이 완료됐습니다. 다시 진단하여 남은 참조를 확인할 수 있습니다.\nSecondary #480: 실물 삭제 또는 부재 확인 · DB 정리 완료\n이름\tSNAPDIALOG1488-31-deleted\n스냅샷 UUID\tc442f11f-c701-40a6-b512-21384fd3d6b1\n상태\t삭제됨\nZone\t모든 Zone\n#480 · Secondary · Secondary · 삭제됨 ·\n강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다.\n닫기\n강제삭제 실행",
+  "title": "삭제 잔여 복구",
+  "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-31&projectid=0&q=SNAPDIALOG1488-31&sortkey=created&sortorder=desc&page=1",
+  "width": 1280
+}

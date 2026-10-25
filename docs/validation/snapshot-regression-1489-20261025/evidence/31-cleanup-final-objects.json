@@ -1,0 +1,128 @@
+[
+  {
+    "command": "destroyVirtualMachine",
+    "id": "bd7f07c6-ef20-4dec-a9d8-7ca70d5129d7",
+    "complete": true,
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    }
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "a7660ae9-d56b-401a-9a6c-a4d6d4e6d56c",
+    "complete": true,
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "4d48ab7e-3087-4cf7-b36b-a6bbf76f3d7f",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "b2a20ecc-8709-4adb-8e2a-ce7b34f8ac11",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteTemplate",
+    "id": "8067ea7c-b1f2-4b33-8aa9-42fe0a239cbf",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "c92a3078-6e3e-4958-b0ee-5cbc32060966",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "739002b8-3d2a-4171-9181-635a3dc5ed70",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "f00d7500-822c-408c-b3ae-33ecf3987f23",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "7cc2044a-935e-490a-aed2-36a5cbf80370",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "a5ad08fd-7cef-4e4d-aa88-608ee00eaa3f",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "85eaef3b-1336-4ecd-a563-6e18cdfb1b56",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "38b90dc4-a157-443e-899b-7e2b60c757d7",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "0ec0b12b-bef0-42d0-8e45-eb86e449f475",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteVolume",
+    "id": "e5ca7d21-acd5-418d-847b-ac3921271163",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  }
+]

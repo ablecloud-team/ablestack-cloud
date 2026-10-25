@@ -1,0 +1,204 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "1a63fa28-4eea-49ff-8904-219fa9b0e9dc",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e31cdbbc-c1ce-43be-9873-8393bcfb30bf",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a82aa7b5-f0d5-4146-a503-11dcdbaa0587",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6378a024-c33c-4e68-b063-794c567a9e0a",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "c605326a-1bd5-44a4-b5d5-9bbbddfa3e98",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "d91a4d59-78c9-43f9-aae7-950bc1a94b77",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "08ba29d7-db45-48ef-ae7d-f5e94baf50d0",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "021f8385-aaaa-45f5-a5af-dbc24bff4338",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "8b8ef214-ebcc-4bcd-8ee0-e88fd5c75e1e",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "82e2bf40-74ae-4bb4-af3a-e3f0c731cfc0",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "ff8a9a01-a8da-4b6c-9be4-b495c3f71cf2",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "7eee8768-0fc3-4bdb-9bab-39c5a33cc81c",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "7bc7f649-fec3-48bb-ac9c-4296ac66f9f2",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "891c645d-03b3-4af3-a182-dd506a812918",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "db30cf10-412a-405d-8355-957947e958f2",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e91cbcc9-7269-4fec-9868-b1ffd34a1862",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6e56ed4e-e7c7-4ac5-afb9-8281da647a06",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e0aa014a-1a53-47eb-b526-760c418875b8",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "4c54f3d6-8802-4f50-be8e-12157853174d",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "42c5494b-1e4e-4931-9b51-0daf205aca7d",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "93182193-848c-4826-a82b-0ebd2f1faaff",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "760bf942-7040-486d-a12a-f52d5d1d1112",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "382974c3-7a8b-403f-b42a-965ab3950118",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "297eb81c-4459-48fe-b2e2-d0ed3a1ba8cc",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  }
+]

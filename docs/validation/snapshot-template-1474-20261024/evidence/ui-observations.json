@@ -1,0 +1,18 @@
+{
+  "source": "Summarized fields observed in live CUA AX snapshots and screenshots during this validation",
+  "templates": [
+    {"cluster":"31","uuid":"6a927a79-d77b-4ebc-902c-7f7657c85b97","format":"QCOW2","sizeLabel":"1.00 GiB","ready":true},
+    {"cluster":"32","uuid":"581584f9-b1f3-4385-8703-709ef94b105d","format":"QCOW2","sizeLabel":"1.00 GiB","ready":true},
+    {"cluster":"31","uuid":"cefa9533-4c1f-4df1-abf5-2c4a1863ea5d","format":"RAW","sizeLabel":"100.00 GiB","ready":true},
+    {"cluster":"32","uuid":"3b327842-c594-411d-a4b0-b2c70dcfdd27","format":"RAW","sizeLabel":"100.00 GiB","ready":true}
+  ],
+  "bootedVMs": [
+    {"cluster":"31","uuid":"817c63c0-865a-4924-95e2-93e3860c5e55","templateFormat":"QCOW2","state":"Running"},
+    {"cluster":"32","uuid":"533c4fdc-5283-4c9c-b3be-22e54051d7e6","templateFormat":"QCOW2","state":"Running"},
+    {"cluster":"31","uuid":"a5518fc2-8e38-4867-96e0-35f4645af3cc","templateFormat":"RAW","state":"Running"},
+    {"cluster":"32","uuid":"86de836f-b265-439b-b493-b3ac4ead0200","templateFormat":"RAW","state":"Running"}
+  ],
+  "failure":{"cluster":"32","jobid":"a72bf790-b8d8-462d-919d-2537b345cf95","state":"서버 작업 실패","reason":"Failed to create TemplateFailed to create template from snapshot: Truncated snapshot backup image header"},
+  "dialogSourcesChanged":false,
+  "vmStandardPolicy":"New or changed dialogs use the VM common standard; bulk remaining dialog cleanup is deferred to the final stage"
+}

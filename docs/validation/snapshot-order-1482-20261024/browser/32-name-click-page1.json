@@ -1,0 +1,269 @@
+{
+  "label": "32-name-click-page1",
+  "network": {
+    "args": {
+      "listall": "true",
+      "keyword": "SNAPORD1482-32",
+      "account": "SNAPORD1482-32-owner",
+      "domainid": "5fad36ba-5c09-4940-bd75-d60b144653ba",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "name",
+      "sortorder": "asc",
+      "command": "listSnapshots",
+      "response": "json"
+    },
+    "id": "56716.658",
+    "count": 24,
+    "rows": [
+      {
+        "id": "ef6f6975-dcb9-4d72-8762-d353e040d014",
+        "name": "SNAPORD1482-32-G-19",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "e6ffbbb8-1c8a-4062-b5ee-0e7802caecdd",
+        "name": "SNAPORD1482-32-H-18",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "ba614e6c-b906-43e9-a755-8c75402c0118",
+        "name": "SNAPORD1482-32-I-17",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "a706d727-1189-4505-968d-d45371233b4b",
+        "name": "SNAPORD1482-32-J-16",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "6a9970d3-ab7e-4ad0-9d00-255bbcfcecdb",
+        "name": "SNAPORD1482-32-K-15",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "ea2f1a9f-b2a3-424b-8635-89fe9edcdf41",
+        "name": "SNAPORD1482-32-L-14",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "deae7bf2-5f2c-4cd9-b497-470c3abd705e",
+        "name": "SNAPORD1482-32-M-13",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "bd7fd639-e779-4dd3-8fb9-82b4cd74f209",
+        "name": "SNAPORD1482-32-N-12",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "4b073efa-0b64-46fa-a5b7-ab30c80b9d4d",
+        "name": "SNAPORD1482-32-O-11",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "1a3c4286-7dc9-4f5e-b4d3-ef5ec46c72f3",
+        "name": "SNAPORD1482-32-P-10",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "9251e611-9439-419d-b72f-7879c870dc24",
+        "name": "SNAPORD1482-32-Q-09",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "d5eb82b3-f7cb-48ab-85ab-e9973bbf1324",
+        "name": "SNAPORD1482-32-R-08",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "6c2f762f-ff01-48a5-9e5f-2f62c72a5c8e",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "a356733f-3e06-4629-a31d-2a00d3e00e23",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "e0ac89cc-b529-435d-80d3-71ba0a3b290e",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "99b426c8-e422-45fa-9f6e-947725bc9dc3",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "5d0e538e-816a-44dc-a27d-dbd695edf812",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "7f7ae245-bf13-416a-8aa9-3b0d32226b20",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "059c5439-2d64-4d43-9f08-a1375524c329",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      },
+      {
+        "id": "b83f8821-bf9f-4885-8bf4-f1c3b437c8cb",
+        "name": "SNAPORD1482-32-same",
+        "account": "SNAPORD1482-32-owner"
+      }
+    ]
+  },
+  "dom": {
+    "headers": [
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": "asc",
+        "sortable": true,
+        "text": "이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "상태"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "볼륨 이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "간격 유형"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "물리적 크기"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "생성일"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "계정"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "도메인"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "Zone"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "레벨"
+      }
+    ],
+    "paging": "전체 24 개 항목 중 1-20 표시1220 / 쪽이동하기",
+    "rows": [
+      {
+        "id": "ef6f6975-dcb9-4d72-8762-d353e040d014",
+        "name": "SNAPORD1482-32-G-19"
+      },
+      {
+        "id": "e6ffbbb8-1c8a-4062-b5ee-0e7802caecdd",
+        "name": "SNAPORD1482-32-H-18"
+      },
+      {
+        "id": "ba614e6c-b906-43e9-a755-8c75402c0118",
+        "name": "SNAPORD1482-32-I-17"
+      },
+      {
+        "id": "a706d727-1189-4505-968d-d45371233b4b",
+        "name": "SNAPORD1482-32-J-16"
+      },
+      {
+        "id": "6a9970d3-ab7e-4ad0-9d00-255bbcfcecdb",
+        "name": "SNAPORD1482-32-K-15"
+      },
+      {
+        "id": "ea2f1a9f-b2a3-424b-8635-89fe9edcdf41",
+        "name": "SNAPORD1482-32-L-14"
+      },
+      {
+        "id": "deae7bf2-5f2c-4cd9-b497-470c3abd705e",
+        "name": "SNAPORD1482-32-M-13"
+      },
+      {
+        "id": "bd7fd639-e779-4dd3-8fb9-82b4cd74f209",
+        "name": "SNAPORD1482-32-N-12"
+      },
+      {
+        "id": "4b073efa-0b64-46fa-a5b7-ab30c80b9d4d",
+        "name": "SNAPORD1482-32-O-11"
+      },
+      {
+        "id": "1a3c4286-7dc9-4f5e-b4d3-ef5ec46c72f3",
+        "name": "SNAPORD1482-32-P-10"
+      },
+      {
+        "id": "9251e611-9439-419d-b72f-7879c870dc24",
+        "name": "SNAPORD1482-32-Q-09"
+      },
+      {
+        "id": "d5eb82b3-f7cb-48ab-85ab-e9973bbf1324",
+        "name": "SNAPORD1482-32-R-08"
+      },
+      {
+        "id": "6c2f762f-ff01-48a5-9e5f-2f62c72a5c8e",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "a356733f-3e06-4629-a31d-2a00d3e00e23",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "e0ac89cc-b529-435d-80d3-71ba0a3b290e",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "99b426c8-e422-45fa-9f6e-947725bc9dc3",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "5d0e538e-816a-44dc-a27d-dbd695edf812",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "7f7ae245-bf13-416a-8aa9-3b0d32226b20",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "059c5439-2d64-4d43-9f08-a1375524c329",
+        "name": "SNAPORD1482-32-same"
+      },
+      {
+        "id": "b83f8821-bf9f-4885-8bf4-f1c3b437c8cb",
+        "name": "SNAPORD1482-32-same"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPORD1482-32&account=SNAPORD1482-32-owner&domainid=5fad36ba-5c09-4940-bd75-d60b144653ba&page=1&pagesize=20&sortkey=name&sortorder=asc"
+  }
+}

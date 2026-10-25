@@ -1,0 +1,55 @@
+{
+  "verified": true,
+  "fullStatus": 200,
+  "partialStatus": 206,
+  "fullHeaders": {
+    "Date": "Sun, 25 Oct 2026 12:13:14 GMT",
+    "Server": "Apache",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host",
+    "Last-Modified": "Sun, 25 Oct 2026 12:02:51 GMT",
+    "ETag": "\"1900000000-65ea8fe2101b3\"",
+    "Accept-Ranges": "bytes",
+    "Content-Length": "107374182400",
+    "Connection": "close"
+  },
+  "partialHeaders": {
+    "Date": "Sun, 25 Oct 2026 12:17:59 GMT",
+    "Server": "Apache",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host",
+    "Last-Modified": "Sun, 25 Oct 2026 12:02:51 GMT",
+    "ETag": "\"1900000000-65ea8fe2101b3\"",
+    "Accept-Ranges": "bytes",
+    "Content-Length": "1048576",
+    "Content-Range": "bytes 0-1048575/107374182400",
+    "Connection": "close"
+  },
+  "fileSize": 107374182400,
+  "format": "raw",
+  "virtualSize": 107374182400,
+  "sourceSha256": "49113cb42bdd929da2cc084242e4365d82a0db3967d90bdb2f7652794dabc78d",
+  "downloadSha256": "49113cb42bdd929da2cc084242e4365d82a0db3967d90bdb2f7652794dabc78d",
+  "noFullDownloadFileCreated": true,
+  "elapsedSeconds": 441.9088158607483,
+  "api": {
+    "id": "891c645d-03b3-4af3-a182-dd506a812918",
+    "name": "SNAPREG1489-32-root-raw-source",
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "state": "DOWNLOAD_URL_CREATED",
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "zonename": "Zone",
+    "url": "[HTTP URL OMITTED]",
+    "filename": "SNAPREG1489-32-root-raw-source.raw",
+    "format": "RAW",
+    "size": 107374182400,
+    "physicalsize": 107374182400
+  },
+  "db": {
+    "url": "[HTTP URL OMITTED]",
+    "path": "snapshots/2/448/9e6e8dda-0339-4d42-99c9-da7f1605bb61",
+    "size": 107374182400
+  }
+}

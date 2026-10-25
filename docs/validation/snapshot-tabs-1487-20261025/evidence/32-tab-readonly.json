@@ -1,0 +1,22 @@
+[
+  {
+    "name": "readonly-public-notes",
+    "pass": true
+  },
+  {
+    "name": "readonly-own-account-events",
+    "pass": true
+  },
+  {
+    "name": "readonly-addAnnotation-denied",
+    "pass": true
+  },
+  {
+    "name": "readonly-removeAnnotation-denied",
+    "pass": true
+  },
+  {
+    "name": "readonly-updateAnnotationVisibility-denied",
+    "pass": true
+  }
+]

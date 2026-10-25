@@ -1,0 +1,193 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 537.140625,
+    "height": 364.28125,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 172.859375
+  },
+  "bodyScroll": {
+    "clientHeight": 364,
+    "clientWidth": 364,
+    "height": 364,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 165.859375,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 117.859375
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 586.140625,
+        "height": 32,
+        "right": 244.75,
+        "width": 57.765625,
+        "x": 186.984375,
+        "y": 554.140625
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 586.140625,
+        "height": 32,
+        "right": 361,
+        "width": 100.25,
+        "x": 260.75,
+        "y": 554.140625
+      },
+      "text": "스냅샷 보관"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 155.859375,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 133.859375
+      },
+      "text": "스냅샷 보관"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 389.140625,
+        "height": 50.28125,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 338.859375
+      },
+      "text": "세컨더리 사본 검증 후 프라이머리 정리"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(214, 235, 255)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 437.140625,
+        "height": 44,
+        "right": 345,
+        "width": 252,
+        "x": 93,
+        "y": 393.140625
+      },
+      "text": "이미 세컨더리에 보관되어 있습니다. 새 사본을 만들지 않고 기존 사본을 검증합니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 521.140625,
+        "height": 44,
+        "right": 361,
+        "width": 332,
+        "x": 29,
+        "y": 477.140625
+      },
+      "text": "세컨더리 사본 검증이 완료된 후 프라이머리 스냅샷 데이터가 정리됨을 확인했습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 497.140625,
+        "height": 16,
+        "right": 45,
+        "width": 16,
+        "x": 29,
+        "y": 481.140625
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 603.140625,
+    "height": 486.28125,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 116.859375
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 602.140625,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 537.140625
+  },
+  "groups": [],
+  "header": {
+    "bottom": 172.859375,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 117.859375
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": false,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 497.140625,
+        "height": 16,
+        "right": 45,
+        "width": 16,
+        "x": 29,
+        "y": 481.140625
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [],
+  "text": "스냅샷 보관\n\n스냅샷 이름: SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n\n세컨더리 사본 검증 후 프라이머리 정리\n이미 세컨더리에 보관되어 있습니다. 새 사본을 만들지 않고 기존 사본을 검증합니다.\n세컨더리 사본 검증이 완료된 후 프라이머리 스냅샷 데이터가 정리됨을 확인했습니다.\n취소\n스냅샷 보관",
+  "title": "스냅샷 보관",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f",
+  "width": 390
+}

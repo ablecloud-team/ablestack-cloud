@@ -1,0 +1,716 @@
+Browser tab: 11, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/snapshot".
+0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/snapshot
+	1 container
+		2 container
+			3 image
+			4 menu
+				5 dashboard 대시보드
+					6 link Description: dashboard 대시보드, Value: 10.10.31.10:8080/client/#/dashboard
+				7 container
+					8 image cloud
+					9 text 컴퓨트
+				10 container
+					11 image hdd
+					12 text 스토리지
+				13 content list sub_menu_2_$$_/storage-popup
+					14 hdd 볼륨
+						15 link Description: hdd 볼륨, Value: 10.10.31.10:8080/client/#/volume
+					16 build 스냅샷
+						17 link Description: build 스냅샷, Value: 10.10.31.10:8080/client/#/snapshot
+					18 build 스냅샷 정책
+						19 link Description: build 스냅샷 정책, Value: 10.10.31.10:8080/client/#/snapshotpolicy
+					20 funnel-plot 버킷
+						21 link Description: funnel-plot 버킷, Value: 10.10.31.10:8080/client/#/buckets
+					22 file-text 공유 파일 시스템
+						23 link Description: file-text 공유 파일 시스템, Value: 10.10.31.10:8080/client/#/sharedfs
+				24 container
+					25 image wifi
+					26 text 네트워크
+				27 container
+					28 image picture
+					29 text 이미지
+				30 container
+					31 image lock
+					32 text 키 관리
+				33 schedule 이벤트
+					34 link Description: schedule 이벤트, Value: 10.10.31.10:8080/client/#/event
+				35 project 프로젝트
+					36 link Description: project 프로젝트, Value: 10.10.31.10:8080/client/#/project
+				37 idcard 역할
+					38 link Description: idcard 역할, Value: 10.10.31.10:8080/client/#/role
+				39 team 계정
+					40 link Description: team 계정, Value: 10.10.31.10:8080/client/#/account
+				41 block 도메인
+					42 link Description: block 도메인, Value: 10.10.31.10:8080/client/#/domain
+				43 container
+					44 image bank
+					45 text 인프라스트럭쳐
+				46 container
+					47 image shopping
+					48 text 서비스 오퍼링
+				49 container
+					50 image setting
+					51 text 구성
+				52 appstore-add 확장
+					53 link Description: appstore-add 확장, Value: 10.10.31.10:8080/client/#/extension
+				54 container
+					55 image tool
+					56 text 도구
+				57 read API 문서
+					58 link Description: read API 문서, Value: 10.10.31.10:8080/client/#/apidocs/
+		59 container
+			60 text 페이지 스타일 설정
+			61 button 닫기
+				62 image close
+			63 container
+				64 heading 페이지 스타일 설정, Value: 3
+					65 text 페이지 스타일 설정
+				66 container
+					67 image
+					68 container
+						69 radio button (settable, integer) Description:  , Value: 0
+				70 container
+					71 image
+					72 container
+						73 radio button (settable, integer) Description:  , Value: 1
+					74 image check
+				75 heading 테마 색상, Value: 3
+					76 text 테마 색상
+				77 container
+					78 radio button (settable, integer) Description:  , Value: 0
+					79 image check
+				80 container
+					81 radio button (settable, integer) Description:  , Value: 0
+				82 container
+					83 radio button (settable, integer) Description:  , Value: 0
+				84 container
+					85 radio button (settable, integer) Description:  , Value: 0
+				86 container
+					87 radio button (settable, integer) Description:  , Value: 0
+				88 container
+					89 radio button (settable, integer) Description:  , Value: 0
+				90 container
+					91 radio button (settable, integer) Description:  , Value: 0
+				92 container
+					93 radio button (settable, integer) Description:  , Value: 0
+				94 heading 네비게이션 설정, Value: 3
+					95 text 네비게이션 설정
+				96 container
+					97 container
+						98 text 배경색
+						99 color well (disabled, settable) #ffffff
+					100 container
+						101 text 텍스트 색상
+						102 color well (disabled, settable) #000000
+				103 image exclamation-circle
+				104 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				105 button download 세팅값 다운로드(json)
+					106 image download
+					107 text 세팅값 다운로드(json)
+				108 button undo 기본값으로 재설정
+					109 image undo
+					110 text 기본값으로 재설정
+		111 container
+			112 image menu-fold
+			113 container
+				114 combo box (settable) rc_select_0
+				115 image project
+				116 text 기본 보기
+			117 button 생성 down
+				118 text 생성
+				119 image down
+			120 image translation
+			121 image bell
+			122 container
+				123 text AC admin cloud
+		124 container
+			125 container
+				126 container
+					127 link Description: home, Value: 10.10.31.10:8080/client/#/
+					128 text /
+					129 link Description: 스냅샷, Value: 10.10.31.10:8080/client/#/snapshot
+					130 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					131 button reload 업데이트
+						132 image reload
+						133 text 업데이트
+					134 switch 프로젝트, Value: 0
+						135 text 프로젝트
+				136 button 삭제 잔여 복구
+					137 image tool
+				138 container
+					139 button 고급 검색
+						140 image filter
+					141 text field (settable)
+					142 button search
+						143 image search
+			144 table
+				145 row
+					146 cell
+						147 container
+							148 checkbox (settable, integer) Description:  , Value: 0
+					149 cell
+						150 container
+							151 text 이름
+							152 image caret-up
+							153 image caret-down
+					154 cell
+						155 container
+							156 text 상태
+							157 image caret-up
+							158 image caret-down
+					159 cell
+						160 container
+							161 text 볼륨 이름
+							162 image caret-up
+							163 image caret-down
+					164 cell
+						165 container
+							166 text 간격 유형
+							167 image caret-up
+							168 image caret-down
+					169 cell
+						170 container
+							171 text 물리적 크기
+							172 image caret-up
+							173 image caret-down
+					174 cell
+						175 container
+							176 text 생성일
+							177 image caret-up
+							178 image caret-down
+					179 cell
+						180 container
+							181 text 계정
+							182 image caret-up
+							183 image caret-down
+					184 cell
+						185 container
+							186 text 도메인
+							187 image caret-up
+							188 image caret-down
+					189 cell
+						190 container
+							191 text Zone
+							192 image caret-up
+							193 image caret-down
+					194 cell
+						195 button filter
+							196 image filter
+				197 row
+					198 cell
+						199 container
+							200 checkbox (settable, integer) Description:  , Value: 0
+					201 cell
+						202 link Description: tj-test_ROOT-122_20261002003444, Value: 10.10.31.10:8080/client/#/snapshot/82145f59-2ad1-4c12-99ef-d53c9ddf9bec
+					203 cell
+						204 text 백업 됨
+					205 cell
+						206 text ROOT-122
+					207 cell
+						208 text MANUAL
+					209 cell
+						210 text 0
+					211 cell
+						212 text 2026. 10. 2. 오전 9:34:44
+					213 cell
+						214 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					215 cell
+						216 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					217 cell
+						218 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				219 row
+					220 cell
+						221 container
+							222 checkbox (settable, integer) Description:  , Value: 0
+					223 cell
+						224 link Description: Ubuntu26-Snapshot, Value: 10.10.31.10:8080/client/#/snapshot/37d73ffe-1fc0-48b9-aab1-43cbb24e9195
+					225 cell
+						226 text 백업 됨
+					227 cell
+						228 link Description: ROOT-92, Value: 10.10.31.10:8080/client/#/volume/069360fb-1988-44ec-b9de-5e09d8f459e2
+					229 cell
+						230 text MANUAL
+					231 cell
+						232 text 6.39 GiB
+					233 cell
+						234 text 2026. 10. 3. 오전 12:11:41
+					235 cell
+						236 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					237 cell
+						238 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					239 cell
+						240 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				241 row
+					242 cell
+						243 container
+							244 checkbox (settable, integer) Description:  , Value: 0
+					245 cell
+						246 link Description: epic1216-ui-extracted, Value: 10.10.31.10:8080/client/#/snapshot/51df57e9-bed5-4c4d-bce9-351d32e6dfda
+					247 cell
+						248 text 백업 됨
+					249 cell
+						250 text ROOT-143
+					251 cell
+						252 text MANUAL
+					253 cell
+						254 text 6.44 GiB
+					255 cell
+						256 text 2026. 10. 3. 오후 9:45:38
+					257 cell
+						258 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					259 cell
+						260 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					261 cell
+						262 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				263 row
+					264 cell
+						265 container
+							266 checkbox (settable, integer) Description:  , Value: 0
+					267 cell
+						268 link Description: Ubuntu24-Base-Install, Value: 10.10.31.10:8080/client/#/snapshot/02d0884e-7955-4293-a068-880d2179b5b5
+					269 cell
+						270 text 백업 됨
+					271 cell
+						272 link Description: ROOT-93, Value: 10.10.31.10:8080/client/#/volume/a3020d3e-26dd-4c61-a0c2-6cb793f4f7af
+					273 cell
+						274 text MANUAL
+					275 cell
+						276 text 5.14 GiB
+					277 cell
+						278 text 2026. 10. 4. 오후 11:36:02
+					279 cell
+						280 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					281 cell
+						282 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					283 cell
+						284 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				285 row
+					286 cell
+						287 container
+							288 checkbox (settable, integer) Description:  , Value: 0
+					289 cell
+						290 link Description: Ubuntu 22.04 Base Install, Value: 10.10.31.10:8080/client/#/snapshot/9990bd90-e528-4188-8f8d-0689e1e638c1
+					291 cell
+						292 text 백업 됨
+					293 cell
+						294 link Description: ROOT-94, Value: 10.10.31.10:8080/client/#/volume/6d387827-e364-4435-8626-abaa17dc0820
+					295 cell
+						296 text MANUAL
+					297 cell
+						298 text 5.76 GiB
+					299 cell
+						300 text 2026. 10. 4. 오후 11:41:04
+					301 cell
+						302 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					303 cell
+						304 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					305 cell
+						306 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				307 row
+					308 cell
+						309 container
+							310 checkbox (settable, integer) Description:  , Value: 0
+					311 cell
+						312 link Description: Windows Server 2025 x86_64 Base Install, Value: 10.10.31.10:8080/client/#/snapshot/f3d5eed2-2a7e-4de2-86ac-6dc1ca0035fd
+					313 cell
+						314 text 백업 됨
+					315 cell
+						316 link Description: ROOT-106, Value: 10.10.31.10:8080/client/#/volume/081b0fb8-f87f-4ad9-9728-a091a51fdc08
+					317 cell
+						318 text MANUAL
+					319 cell
+						320 text 10.83 GiB
+					321 cell
+						322 text 2026. 10. 4. 오후 11:43:40
+					323 cell
+						324 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					325 cell
+						326 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					327 cell
+						328 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				329 row
+					330 cell
+						331 container
+							332 checkbox (settable, integer) Description:  , Value: 0
+					333 cell
+						334 link Description: Windows Server 2022 Base Install, Value: 10.10.31.10:8080/client/#/snapshot/eb90c589-a818-4f44-9992-dead37f31ed9
+					335 cell
+						336 text 백업 됨
+					337 cell
+						338 link Description: ROOT-107, Value: 10.10.31.10:8080/client/#/volume/fc36d1e9-d20a-470a-be2e-ec03547e0896
+					339 cell
+						340 text MANUAL
+					341 cell
+						342 text 9.27 GiB
+					343 cell
+						344 text 2026. 10. 4. 오후 11:46:21
+					345 cell
+						346 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					347 cell
+						348 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					349 cell
+						350 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				351 row
+					352 cell
+						353 container
+							354 checkbox (settable, integer) Description:  , Value: 0
+					355 cell
+						356 link Description: Windows Server 2022 Base Install, Value: 10.10.31.10:8080/client/#/snapshot/cd462d51-c040-4c1e-83ff-ed1babb297b2
+					357 cell
+						358 text 백업 됨
+					359 cell
+						360 link Description: ROOT-107, Value: 10.10.31.10:8080/client/#/volume/fc36d1e9-d20a-470a-be2e-ec03547e0896
+					361 cell
+						362 text MANUAL
+					363 cell
+						364 text 9.27 GiB
+					365 cell
+						366 text 2026. 10. 5. 오후 9:53:12
+					367 cell
+						368 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					369 cell
+						370 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					371 cell
+						372 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				373 row
+					374 cell
+						375 container
+							376 checkbox (settable, integer) Description:  , Value: 0
+					377 cell
+						378 link Description: Windows Server 2019 Base Install, Value: 10.10.31.10:8080/client/#/snapshot/0452f681-6f14-4a95-a0e8-10da8c17a771
+					379 cell
+						380 text 백업 됨
+					381 cell
+						382 link Description: ROOT-108, Value: 10.10.31.10:8080/client/#/volume/eb3d2cc7-9d4e-46e6-9bcd-a7830ee4b5b5
+					383 cell
+						384 text MANUAL
+					385 cell
+						386 text 9.45 GiB
+					387 cell
+						388 text 2026. 10. 5. 오후 9:55:36
+					389 cell
+						390 link Description: admin, Value: 10.10.31.10:8080/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true
+					391 cell
+						392 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+					393 cell
+						394 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				395 row
+					396 cell
+						397 container
+							398 checkbox (settable, integer) Description:  , Value: 0
+					399 cell
+						400 link Description: CLVM-NG-TEST-VM_ROOT-6_20260917165240, Value: …
+					401 cell
+						402 text 백업 됨
+					403 cell
+						404 text ROOT-6
+					405 cell
+						406 text MANUAL
+					407 cell
+						408 text 19.64 GiB
+					409 cell
+						410 text 2026. 9. 18. 오전 1:52:40
+					411 cell
+						412 link Description: admin, Value: …
+					413 cell
+						414 link Description: ROOT, Value: …
+					415 cell
+						416 link Description: Zone, Value: …
+				417 row
+					418 cell
+						419 container
+							420 checkbox (settable, integer) Description:  , Value: 0
+					421 cell
+						422 link Description: snapshot-a2b6e227-44fa-435e-baff-69540c1819f9, Value: …
+					423 cell
+						424 text 백업 됨
+					425 cell
+						426 text pvc-46bc297c-4870-4d8b-a3c5-974246d3f3e8
+					427 cell
+						428 text MANUAL
+					429 cell
+						430 text 0
+					431 cell
+						432 text 2026. 10. 7. 오전 3:10:42
+					433 cell
+						434 link Description: k1230-20261006, Value: …
+					435 cell
+						436 link Description: ROOT, Value: …
+					437 cell
+						438 link Description: Zone, Value: …
+				439 row
+					440 cell
+						441 container
+							442 checkbox (settable, integer) Description:  , Value: 0
+					443 cell
+						444 link Description: E1335-31-L-BIOS-before, Value: …
+					445 cell
+						446 text 백업 됨
+					447 cell
+						448 link Description: ROOT-359, Value: …
+					449 cell
+						450 text MANUAL
+					451 cell
+						452 text 2.00 GiB
+					453 cell
+						454 text 2026. 10. 9. 오전 10:41:23
+					455 cell
+						456 link Description: admin, Value: …
+					457 cell
+						458 link Description: ROOT, Value: …
+					459 cell
+						460 link Description: Zone, Value: …
+				461 row
+					462 cell
+						463 container
+							464 checkbox (settable, integer) Description:  , Value: 0
+					465 cell
+						466 link Description: E1335-31-W-UEFI-before, Value: …
+					467 cell
+						468 text 백업 됨
+					469 cell
+						470 link Description: ROOT-364, Value: …
+					471 cell
+						472 text MANUAL
+					473 cell
+						474 text 9.30 GiB
+					475 cell
+						476 text 2026. 10. 9. 오후 10:00:45
+					477 cell
+						478 link Description: admin, Value: …
+					479 cell
+						480 link Description: ROOT, Value: …
+					481 cell
+						482 link Description: Zone, Value: …
+				483 row
+					484 cell
+						485 container
+							486 checkbox (settable, integer) Description:  , Value: 0
+					487 cell
+						488 link Description: E1335-31-L-BIOS-deleted-source-backup, Value: …
+					489 cell
+						490 text 백업 됨
+					491 cell
+						492 text ROOT-374
+					493 cell
+						494 text MANUAL
+					495 cell
+						496 text 2.00 GiB
+					497 cell
+						498 text 2026. 10. 9. 오후 11:25:55
+					499 cell
+						500 link Description: admin, Value: …
+					501 cell
+						502 link Description: ROOT, Value: …
+					503 cell
+						504 link Description: Zone, Value: …
+				505 row
+					506 cell
+						507 container
+							508 checkbox (settable, integer) Description:  , Value: 0
+					509 cell
+						510 link Description: CLVM-TEST-VM_test_20260922013042, Value: …
+					511 cell
+						512 text 백업 됨
+					513 cell
+						514 link Description: test, Value: …
+					515 cell
+						516 text MANUAL
+					517 cell
+						518 text 0
+					519 cell
+						520 text 2026. 9. 22. 오전 10:30:42
+					521 cell
+						522 link Description: admin, Value: …
+					523 cell
+						524 link Description: ROOT, Value: …
+					525 cell
+						526 link Description: Zone, Value: …
+				527 row
+					528 cell
+						529 container
+							530 checkbox (settable, integer) Description:  , Value: 0
+					531 cell
+						532 link Description: E1335-31-permission-user-snapshot, Value: …
+					533 cell
+						534 text 백업 됨
+					535 cell
+						536 link Description: ROOT-376, Value: …
+					537 cell
+						538 text MANUAL
+					539 cell
+						540 text 2.00 GiB
+					541 cell
+						542 text 2026. 10. 9. 오후 11:58:15
+					543 cell
+						544 link Description: epic1335-user31, Value: …
+					545 cell
+						546 link Description: ROOT, Value: …
+					547 cell
+						548 link Description: Zone, Value: …
+				549 row
+					550 cell
+						551 container
+							552 checkbox (settable, integer) Description:  , Value: 0
+					553 cell
+						554 link Description: E1335-31-fault-heavy-backup, Value: …
+					555 cell
+						556 text 백업 됨
+					557 cell
+						558 link Description: ROOT-375, Value: …
+					559 cell
+						560 text MANUAL
+					561 cell
+						562 text 21.97 GiB
+					563 cell
+						564 text 2026. 10. 10. 오전 1:10:02
+					565 cell
+						566 link Description: admin, Value: …
+					567 cell
+						568 link Description: ROOT, Value: …
+					569 cell
+						570 link Description: Zone, Value: …
+				571 row
+					572 cell
+						573 container
+							574 checkbox (settable, integer) Description:  , Value: 0
+					575 cell
+						576 link Description: E1345-31-generic-DATA-snapshot, Value: …
+					577 cell
+						578 text 백업 됨
+					579 cell
+						580 link Description: E1345-31-snapshot-DATA, Value: …
+					581 cell
+						582 text MANUAL
+					583 cell
+						584 text 0.00 GiB
+					585 cell
+						586 text 2026. 10. 10. 오후 8:54:24
+					587 cell
+						588 link Description: admin, Value: …
+					589 cell
+						590 link Description: ROOT, Value: …
+					591 cell
+						592 link Description: Zone, Value: …
+				593 row
+					594 cell
+						595 container
+							596 checkbox (settable, integer) Description:  , Value: 0
+					597 cell
+						598 link Description: T04-DATA-B-BEFORE-SPARSE, Value: …
+					599 cell
+						600 text 백업 됨
+					601 cell
+						602 link Description: DATA-528-1, Value: …
+					603 cell
+						604 text MANUAL
+					605 cell
+						606 text 0
+					607 cell
+						608 text 2026. 10. 15. 오후 1:38:40
+					609 cell
+						610 link Description: admin, Value: …
+					611 cell
+						612 link Description: ROOT, Value: …
+					613 cell
+						614 link Description: Zone, Value: …
+				615 row
+					616 cell
+						617 container
+							618 checkbox (settable, integer) Description:  , Value: 0
+					619 cell
+						620 link Description: VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923040157, Value: …
+					621 cell
+						622 text 백업 됨
+					623 cell
+						624 link Description: ROOT-22, Value: …
+					625 cell
+						626 text MANUAL
+					627 cell
+						628 text 0
+					629 cell
+						630 text 2026. 9. 23. 오후 1:01:57
+					631 cell
+						632 link Description: admin, Value: …
+					633 cell
+						634 link Description: ROOT, Value: …
+					635 cell
+						636 link Description: Zone, Value: …
+			637 content list
+				638 text 전체 27 개 항목 중 1-20 표시
+				639 container 이전 페이지
+					640 button (disabled) left
+						641 image left
+				642 text 1
+				643 text 2
+				644 container 다음 페이지
+					645 button right
+						646 image right
+				647 container
+					648 container
+						649 combo box (settable) rc_select_1
+						650 text 20 / 쪽
+					651 text 이동하기
+					652 text field (settable)
+	653 container
+		654 image info-circle
+		655 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	656 container
+		657 container 삭제 잔여 복구 도움말
+			658 container
+				659 button Close
+					660 image close
+				661 container vcDialogTitle0
+					662 text 삭제 잔여 복구
+					663 link Description: 도움말, Value: …
+				664 container
+					665 image exclamation-circle
+					666 text 스냅샷 UUID로 삭제 잔여를 진단합니다. 확인한 범위의 사본을 삭제하며 다른 Zone을 보존하려면 Zone UUID를 지정하세요. Hidden 참조는 의존 체인을 위해 보존될 수 있습니다.
+					667 text 스냅샷 UUID
+					668 text field (settable) 31fe7ab0-41eb-49fb-919a-19187ecef81c
+					669 text 대상 Zone UUID (비워 두면 모든 Zone)
+					670 text field (settable)
+					671 container
+						672 checkbox (settable, integer) Description: 강제삭제 (관리자 복구)  , Value: 1
+						673 text 강제삭제 (관리자 복구)
+						674 image exclamation-circle
+						675 text 확인 가능한 사본의 실물 삭제를 시도한 뒤, 정보 누락이나 저장소 정리 실패가 있어도 선택한 DB 정보를 삭제 상태로 정리합니다. 미확인 대상은 정리 이력에 남겨 재시도할 수 있습니다. 매핑이 누락된 실물의 부재는 보장할 수 없습니다.
+					676 button 삭제 대상 진단
+					677 table
+						678 row
+							679 cell
+								680 text 이름
+							681 cell
+								682 text SNAP1477-31-force-path
+						683 row
+							684 cell
+								685 text 스냅샷 UUID
+							686 cell
+								687 text 31fe7ab0-41eb-49fb-919a-19187ecef81c
+						688 row
+							689 cell
+								690 text 상태
+							691 cell
+								692 text BackedUp
+						693 row
+							694 cell
+								695 text Zone
+							696 cell
+								697 text 모든 Zone
+					698 content list
+						699 container
+							700 AXListMarker •
+							701 text #119 · Unresolved store · Image · Ready ·
+					702 content list
+						703 container
+							704 AXListMarker •
+							705 text Image #119: 실물 위치 확인 불가 · DB 정리 예정
+					706 container
+						707 checkbox (settable, integer) Description: 강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다.  , Value: 0
+						708 text 강제 DB 정리와 미확인 실물이 남을 수 있음을 확인했습니다.
+					709 container
+						710 button 닫기
+						711 button (disabled) 강제삭제 실행
+							712 text 강제삭제 실행
+
+The focused UI element is 0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/snapshot

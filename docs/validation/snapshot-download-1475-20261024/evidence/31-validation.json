@@ -1,0 +1,1498 @@
+{
+  "cluster": "31",
+  "baseline": {
+    "api": {
+      "snapshot": {
+        "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "name": "SNAPD1475-31-native",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "state": "DOWNLOAD_URL_CREATED",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "url": "http://10.10.31.6/userdata/4f0a02d9-2dd9-4512-8f16-18a6cd6db610/SNAPD1475-31-native.qcow2"
+      }
+    },
+    "http": {
+      "http": 206,
+      "headers": {
+        "Date": "Fri, 23 Oct 2026 22:52:41 GMT",
+        "Server": "Apache",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host",
+        "Last-Modified": "Fri, 23 Oct 2026 22:41:24 GMT",
+        "ETag": "\"260000-65e89ae1d4087\"",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "8",
+        "Content-Range": "bytes 0-7/2490368",
+        "Connection": "close"
+      },
+      "magic": "514649fb00000003",
+      "url": "http://10.10.31.6/userdata/4f0a02d9-2dd9-4512-8f16-18a6cd6db610/SNAPD1475-31-native.qcow2"
+    },
+    "physical": [
+      {
+        "path": "/nfs/secondary/snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+        "exists": true,
+        "fileSize": 2490368,
+        "blocks": 4864,
+        "magic": "514649fb00000003",
+        "qemuExit": 0,
+        "qemu": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 2490368,
+                "filename": "/nfs/secondary/snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+                "format": "file",
+                "actual-size": 2490368,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 1073741824,
+          "filename": "/nfs/secondary/snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 2490368,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        },
+        "properties": null,
+        "uuid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "name": "SNAPD1475-31-native"
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "exists": true,
+        "fileSize": 2490368,
+        "blocks": 12928,
+        "magic": "514649fb00000003",
+        "qemuExit": 0,
+        "qemu": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 2490368,
+                "filename": "/nfs/secondary/snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+                "format": "file",
+                "actual-size": 2490368,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 1073741824,
+          "filename": "/nfs/secondary/snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 2490368,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        },
+        "properties": null,
+        "uuid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "name": "SNAPD1475-31-raw"
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+        "exists": true,
+        "fileSize": 2490368,
+        "blocks": 12928,
+        "magic": "514649fb00000003",
+        "qemuExit": 0,
+        "qemu": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 2490368,
+                "filename": "/nfs/secondary/snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+                "format": "file",
+                "actual-size": 2490368,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 1073741824,
+          "filename": "/nfs/secondary/snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 2490368,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        },
+        "properties": null,
+        "uuid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "name": "SNAPD1475-31-negative"
+      }
+    ]
+  },
+  "downloads": {
+    "native-after": {
+      "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2",
+      "filename": "SNAPD1475-31-native.qcow2",
+      "fullHeaders": "HTTP/1.1 200 OK\nDate: Fri, 23 Oct 2026 22:53:58 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:24 GMT\nETag: \"260000-65e89ae1d4087\"\nAccept-Ranges: bytes\nContent-Length: 2490368\n\n",
+      "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Fri, 23 Oct 2026 22:53:58 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:24 GMT\nETag: \"260000-65e89ae1d4087\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/2490368\n\n",
+      "qemu": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/root/snapshot-download1475-files/SNAPD1475-31-native.qcow2",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/root/snapshot-download1475-files/SNAPD1475-31-native.qcow2",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "fileSize": 2490368,
+      "magic": "514649fb00000003",
+      "sourceSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "downloadSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "sourceUnchanged": true,
+      "dataPattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.873 GiB/sec and 2941.8081 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.365 GiB/sec and 3446.1606 ops/sec)\n",
+      "verified": true,
+      "db": {
+        "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2",
+        "path": "snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+        "size": 1073741824,
+        "uuid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "refid": 172,
+        "state": "Ready",
+        "status": "BackedUp",
+        "urlCreated": "2026-10-23 22:53:05.000000",
+        "sourceformat": "QCOW2",
+        "sourceRemoved": "2026-10-23 22:53:04.000000"
+      },
+      "api": {
+        "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "name": "SNAPD1475-31-native",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "state": "DOWNLOAD_URL_CREATED",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2",
+        "filename": "SNAPD1475-31-native.qcow2",
+        "format": "QCOW2",
+        "size": 1073741824,
+        "physicalsize": 2490368
+      }
+    },
+    "raw": {
+      "url": "http://10.10.31.6/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43/SNAPD1475-31-raw.raw",
+      "filename": "SNAPD1475-31-raw.raw",
+      "fullHeaders": "HTTP/1.1 200 OK\nDate: Fri, 23 Oct 2026 22:54:33 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:25 GMT\nETag: \"40000000-65e89ae2cf7ee\"\nAccept-Ranges: bytes\nContent-Length: 1073741824\n\n",
+      "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Fri, 23 Oct 2026 22:54:37 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:25 GMT\nETag: \"40000000-65e89ae2cf7ee\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/1073741824\n\n",
+      "qemu": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 1073741824,
+              "filename": "/root/snapshot-download1475-files/SNAPD1475-31-raw.raw",
+              "format": "file",
+              "actual-size": 1073741824,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/root/snapshot-download1475-files/SNAPD1475-31-raw.raw",
+        "format": "raw",
+        "actual-size": 1073741824,
+        "dirty-flag": false
+      },
+      "fileSize": 1073741824,
+      "magic": "5a5a5a5a5a5a5a5a",
+      "sourceSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+      "downloadSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+      "sourceUnchanged": true,
+      "dataPattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.060 GiB/sec and 2109.7135 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.527 GiB/sec and 2587.1414 ops/sec)\n",
+      "verified": true,
+      "db": {
+        "url": "http://10.10.31.6/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43/SNAPD1475-31-raw.raw",
+        "path": "snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "size": 1073741824,
+        "uuid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "refid": 174,
+        "state": "Ready",
+        "status": "BackedUp",
+        "urlCreated": "2026-10-23 22:54:30.000000",
+        "sourceformat": "QCOW2",
+        "sourceRemoved": "2026-10-23 22:53:05.000000"
+      },
+      "api": {
+        "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "name": "SNAPD1475-31-raw",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "state": "DOWNLOAD_URL_CREATED",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "url": "http://10.10.31.6/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43/SNAPD1475-31-raw.raw",
+        "filename": "SNAPD1475-31-raw.raw",
+        "format": "RAW",
+        "size": 1073741824,
+        "physicalsize": 1073741824
+      }
+    },
+    "native-ui": {
+      "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+      "filename": "SNAPD1475-31-native.qcow2",
+      "fullHeaders": "HTTP/1.1 200 OK\nDate: Fri, 23 Oct 2026 23:01:34 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:24 GMT\nETag: \"260000-65e89ae1d4087\"\nAccept-Ranges: bytes\nContent-Length: 2490368\n\n",
+      "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Fri, 23 Oct 2026 23:01:34 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:24 GMT\nETag: \"260000-65e89ae1d4087\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/2490368\n\n",
+      "qemu": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/root/snapshot-download1475-files/SNAPD1475-31-native.qcow2",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/root/snapshot-download1475-files/SNAPD1475-31-native.qcow2",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "fileSize": 2490368,
+      "magic": "514649fb00000003",
+      "sourceSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "downloadSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "sourceUnchanged": true,
+      "dataPattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.667 GiB/sec and 2731.2554 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.202 GiB/sec and 2254.9897 ops/sec)\n",
+      "verified": true,
+      "db": {
+        "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+        "path": "snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+        "size": 1073741824,
+        "uuid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "refid": 172,
+        "state": "Ready",
+        "status": "BackedUp",
+        "urlCreated": "2026-10-23 22:57:50.000000",
+        "sourceformat": "QCOW2",
+        "sourceRemoved": "2026-10-23 22:53:04.000000"
+      },
+      "api": {
+        "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "name": "SNAPD1475-31-native",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "state": "DOWNLOAD_URL_CREATED",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+        "filename": "SNAPD1475-31-native.qcow2",
+        "format": "QCOW2",
+        "size": 1073741824,
+        "physicalsize": 2490368
+      }
+    },
+    "raw-ui": {
+      "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+      "filename": "SNAPD1475-31-raw.raw",
+      "fullHeaders": "HTTP/1.1 200 OK\nDate: Fri, 23 Oct 2026 23:06:08 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:25 GMT\nETag: \"40000000-65e89ae2cf7ee\"\nAccept-Ranges: bytes\nContent-Length: 1073741824\n\n",
+      "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Fri, 23 Oct 2026 23:06:12 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Fri, 23 Oct 2026 22:41:25 GMT\nETag: \"40000000-65e89ae2cf7ee\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/1073741824\n\n",
+      "qemu": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 1073741824,
+              "filename": "/root/snapshot-download1475-files/SNAPD1475-31-raw.raw",
+              "format": "file",
+              "actual-size": 1073741824,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/root/snapshot-download1475-files/SNAPD1475-31-raw.raw",
+        "format": "raw",
+        "actual-size": 1073741824,
+        "dirty-flag": false
+      },
+      "fileSize": 1073741824,
+      "magic": "5a5a5a5a5a5a5a5a",
+      "sourceSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+      "downloadSha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+      "sourceUnchanged": true,
+      "dataPattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (1.854 GiB/sec and 1898.4879 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.400 GiB/sec and 2457.7513 ops/sec)\n",
+      "verified": true,
+      "db": {
+        "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+        "path": "snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "size": 1073741824,
+        "uuid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "refid": 174,
+        "state": "Ready",
+        "status": "BackedUp",
+        "urlCreated": "2026-10-23 23:03:05.000000",
+        "sourceformat": "QCOW2",
+        "sourceRemoved": "2026-10-23 22:53:05.000000"
+      },
+      "api": {
+        "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "name": "SNAPD1475-31-raw",
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "state": "DOWNLOAD_URL_CREATED",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+        "filename": "SNAPD1475-31-raw.raw",
+        "format": "RAW",
+        "size": 1073741824,
+        "physicalsize": 1073741824
+      }
+    }
+  },
+  "extracts": {
+    "native-after": {
+      "snapshot": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+      "scenario": "native",
+      "accepted": {
+        "jobid": "138fe511-f080-4227-828e-ee6bb1403bc3"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshot": {
+            "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+            "name": "SNAPD1475-31-native",
+            "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+            "state": "DOWNLOAD_URL_CREATED",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2",
+            "filename": "SNAPD1475-31-native.qcow2",
+            "format": "QCOW2",
+            "size": 1073741824,
+            "physicalsize": 2490368
+          }
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "created": "2026-10-24T07:53:05+0900",
+        "completed": "2026-10-24T07:53:05+0900",
+        "jobid": "138fe511-f080-4227-828e-ee6bb1403bc3",
+        "jobstatus": 1
+      },
+      "elapsedMs": 1054
+    },
+    "raw": {
+      "snapshot": "25209189-8811-47f8-baaf-3afb6c20e438",
+      "scenario": "raw",
+      "accepted": {
+        "jobid": "0d914a6f-1f95-409a-b9f9-5d29e67735fd"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshot": {
+            "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+            "name": "SNAPD1475-31-raw",
+            "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+            "state": "DOWNLOAD_URL_CREATED",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "url": "http://10.10.31.6/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43/SNAPD1475-31-raw.raw",
+            "filename": "SNAPD1475-31-raw.raw",
+            "format": "RAW",
+            "size": 1073741824,
+            "physicalsize": 1073741824
+          }
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "created": "2026-10-24T07:54:30+0900",
+        "completed": "2026-10-24T07:54:30+0900",
+        "jobid": "0d914a6f-1f95-409a-b9f9-5d29e67735fd",
+        "jobstatus": 1
+      },
+      "elapsedMs": 1046
+    },
+    "native-ui": {
+      "snapshot": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+      "scenario": "native-ui",
+      "accepted": {
+        "jobid": "eff1c3da-b737-4bbd-9f59-181255fc2f27"
+      },
+      "job": {
+        "jobstatus": 1,
+        "jobresult": {
+          "snapshot": {
+            "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+            "name": "SNAPD1475-31-native",
+            "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+            "state": "DOWNLOAD_URL_CREATED",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+            "filename": "SNAPD1475-31-native.qcow2",
+            "format": "QCOW2",
+            "size": 1073741824,
+            "physicalsize": 2490368
+          }
+        }
+      }
+    },
+    "raw-ui": {
+      "snapshot": "25209189-8811-47f8-baaf-3afb6c20e438",
+      "scenario": "raw-ui",
+      "accepted": {
+        "jobid": "e3414e73-9d80-456f-b63a-ef96559bcf4c"
+      },
+      "job": {
+        "jobstatus": 1,
+        "jobresult": {
+          "snapshot": {
+            "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+            "name": "SNAPD1475-31-raw",
+            "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+            "state": "DOWNLOAD_URL_CREATED",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+            "filename": "SNAPD1475-31-raw.raw",
+            "format": "RAW",
+            "size": 1073741824,
+            "physicalsize": 1073741824
+          }
+        }
+      }
+    }
+  },
+  "negative": [
+    {
+      "mode": "unsupported",
+      "jobid": "e23f2984-4825-4d0e-b77f-515d34d46495",
+      "jobstatus": 2,
+      "db": {
+        "url": null,
+        "state": "Ready",
+        "status": "BackedUp"
+      },
+      "noSuccessfulUrl": true
+    },
+    {
+      "mode": "corrupt",
+      "jobid": "255b837c-e652-4157-b738-b66683441206",
+      "jobstatus": 2,
+      "db": {
+        "url": null,
+        "state": "Ready",
+        "status": "BackedUp"
+      },
+      "noSuccessfulUrl": true
+    },
+    {
+      "mode": "missing",
+      "jobid": "0c22b3db-8f2d-407c-8eee-f451f1ba17a7",
+      "jobstatus": 2,
+      "db": {
+        "url": null,
+        "state": "Ready",
+        "status": "BackedUp"
+      },
+      "noSuccessfulUrl": true
+    },
+    {
+      "mode": "unreadable",
+      "jobid": "402d7841-ec9e-4df0-a633-0530ccf3e57e",
+      "jobstatus": 2,
+      "db": {
+        "url": null,
+        "state": "Ready",
+        "status": "BackedUp"
+      },
+      "noSuccessfulUrl": true
+    }
+  ],
+  "negativeJobs": {
+    "unsupported": {
+      "snapshot": "196978e0-7207-42ad-a2a6-59084acb11e2",
+      "scenario": "negative",
+      "accepted": {
+        "jobid": "e23f2984-4825-4d0e-b77f-515d34d46495"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Unable to inspect snapshot backup: Snapshot download failed: Unsupported snapshot backup image format; only standalone QCOW2 and verified RAW are supported"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "created": "2026-10-24T07:54:52+0900",
+        "completed": "2026-10-24T07:54:52+0900",
+        "jobid": "e23f2984-4825-4d0e-b77f-515d34d46495",
+        "jobstatus": 2
+      },
+      "elapsedMs": 1049
+    },
+    "corrupt": {
+      "snapshot": "196978e0-7207-42ad-a2a6-59084acb11e2",
+      "scenario": "negative",
+      "accepted": {
+        "jobid": "255b837c-e652-4157-b738-b66683441206"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Unable to inspect snapshot backup: Snapshot download failed: Truncated snapshot backup image header"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "created": "2026-10-24T07:54:54+0900",
+        "completed": "2026-10-24T07:54:55+0900",
+        "jobid": "255b837c-e652-4157-b738-b66683441206",
+        "jobstatus": 2
+      },
+      "elapsedMs": 1048
+    },
+    "missing": {
+      "snapshot": "196978e0-7207-42ad-a2a6-59084acb11e2",
+      "scenario": "negative",
+      "accepted": {
+        "jobid": "0c22b3db-8f2d-407c-8eee-f451f1ba17a7"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Unable to inspect snapshot backup: Snapshot download failed: /mnt/SecStorage/81fa5a45-c569-3c48-a1b4-bc07942a8866/snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "created": "2026-10-24T07:54:57+0900",
+        "completed": "2026-10-24T07:54:57+0900",
+        "jobid": "0c22b3db-8f2d-407c-8eee-f451f1ba17a7",
+        "jobstatus": 2
+      },
+      "elapsedMs": 1044
+    },
+    "unreadable": {
+      "snapshot": "196978e0-7207-42ad-a2a6-59084acb11e2",
+      "scenario": "negative",
+      "accepted": {
+        "jobid": "402d7841-ec9e-4df0-a633-0530ccf3e57e"
+      },
+      "job": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Unable to create a link for entity at snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac on ssvm, Snapshot download failed: Snapshot backup is not readable by the download server"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "created": "2026-10-24T07:54:59+0900",
+        "completed": "2026-10-24T07:54:59+0900",
+        "jobid": "402d7841-ec9e-4df0-a633-0530ccf3e57e",
+        "jobstatus": 2
+      },
+      "elapsedMs": 1044
+    }
+  },
+  "lifecycle": {
+    "deny": {
+      "mode": "access-denied",
+      "before": "200",
+      "after": "403",
+      "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2"
+    },
+    "expire": {
+      "mode": "controlled-expiry",
+      "before": "200",
+      "after": "404",
+      "url": "http://10.10.31.6/userdata/b784e4b6-552a-432a-8f6e-cd5cf8001b75/SNAPD1475-31-native.qcow2",
+      "answer": {
+        "result": true,
+        "details": "",
+        "contextMap": {},
+        "wait": 0,
+        "bypassHostMaintenance": false
+      },
+      "timerWaited": false,
+      "method": "Age only fixture DB timestamp, invoke installed SSVM revocation handler, clear only matching fixture URL as collector does"
+    }
+  },
+  "regenerated": {
+    "snapshot": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+    "scenario": "native",
+    "accepted": {
+      "jobid": "35d9d955-eb2a-4c96-8fe1-f2c03f43be4f"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "snapshot": {
+          "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+          "name": "SNAPD1475-31-native",
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "state": "DOWNLOAD_URL_CREATED",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "url": "http://10.10.31.6/userdata/b784e4b6-552a-432a-8f6e-cd5cf8001b75/SNAPD1475-31-native.qcow2",
+          "filename": "SNAPD1475-31-native.qcow2",
+          "format": "QCOW2",
+          "size": 1073741824,
+          "physicalsize": 2490368
+        }
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+      "created": "2026-10-24T07:54:24+0900",
+      "completed": "2026-10-24T07:54:24+0900",
+      "jobid": "35d9d955-eb2a-4c96-8fe1-f2c03f43be4f",
+      "jobstatus": 1
+    },
+    "elapsedMs": 1054
+  },
+  "afterExpiry": {
+    "snapshot": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+    "scenario": "native",
+    "accepted": {
+      "jobid": "275a6e2b-1132-44fa-9d39-82cb86a56d6e"
+    },
+    "job": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.ExtractSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "snapshot": {
+          "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+          "name": "SNAPD1475-31-native",
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "state": "DOWNLOAD_URL_CREATED",
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "url": "http://10.10.31.6/userdata/15c67c5b-f454-498e-9c2d-831056264566/SNAPD1475-31-native.qcow2",
+          "filename": "SNAPD1475-31-native.qcow2",
+          "format": "QCOW2",
+          "size": 1073741824,
+          "physicalsize": 2490368
+        }
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+      "created": "2026-10-24T07:54:28+0900",
+      "completed": "2026-10-24T07:54:29+0900",
+      "jobid": "275a6e2b-1132-44fa-9d39-82cb86a56d6e",
+      "jobstatus": 1
+    },
+    "elapsedMs": 1046
+  },
+  "korean": {
+    "snapshot": {
+      "id": "0f668f3e-05b7-4d73-b96e-7100f47c7f8a",
+      "name": "다운로드 검증",
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "state": "DOWNLOAD_URL_CREATED",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "url": "http://10.10.31.6/userdata/2c984f85-91d7-4f19-a432-b0c090bd8290/63159f9a-d419-4b48-9117-a03e1427c81a.qcow2",
+      "filename": "63159f9a-d419-4b48-9117-a03e1427c81a.qcow2",
+      "format": "QCOW2",
+      "size": 1073741824,
+      "physicalsize": 2490368
+    },
+    "http": 206,
+    "magic": "514649fb00000003",
+    "afterDeleteHttp": 404
+  },
+  "anonymous": {
+    "http": 401,
+    "response": {
+      "extractsnapshotresponse": {
+        "uuidList": [],
+        "errorcode": 401,
+        "errortext": "unable to verify user credentials and/or request signature"
+      }
+    }
+  },
+  "doubleclick": {
+    "expectedApiJobs": 1,
+    "uiDoubleclickAddedJobs": 1,
+    "jobs": [
+      {
+        "uuid": "0d914a6f-1f95-409a-b9f9-5d29e67735fd",
+        "status": 1
+      },
+      {
+        "uuid": "e3414e73-9d80-456f-b63a-ef96559bcf4c",
+        "status": 1
+      }
+    ],
+    "verified": true,
+    "afterReloadAndThemeJobs": [
+      {
+        "uuid": "0d914a6f-1f95-409a-b9f9-5d29e67735fd",
+        "status": 1
+      },
+      {
+        "uuid": "e3414e73-9d80-456f-b63a-ef96559bcf4c",
+        "status": 1
+      }
+    ],
+    "noResubmitAfterReload": true
+  },
+  "state": {
+    "snapshots": 0,
+    "volumes": 0,
+    "vm_instance": 0,
+    "snapshotReferences": 0,
+    "downloadReferences": 0,
+    "counts": [
+      {
+        "type": "snapshot",
+        "count": 21
+      },
+      {
+        "type": "secondary_storage",
+        "count": 1206229790736
+      }
+    ],
+    "usage": [
+      {
+        "name": "다운로드 검증",
+        "uuid": "0f668f3e-05b7-4d73-b96e-7100f47c7f8a",
+        "count": 1
+      },
+      {
+        "name": "SNAPD1475-31-negative",
+        "uuid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "count": 1
+      },
+      {
+        "name": "SNAPD1475-31-raw",
+        "uuid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "count": 1
+      },
+      {
+        "name": "SNAPD1475-31-native",
+        "uuid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "count": 1
+      }
+    ],
+    "secondary": [
+      {
+        "path": "/nfs/secondary/snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1013/8fcbb9d6-9116-4126-be9a-d0b24a1461e7",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+        "exists": false
+      }
+    ],
+    "primaryObjects": [],
+    "trash": [],
+    "domains": {
+      "1": [],
+      "2": [],
+      "3": []
+    },
+    "urls": [
+      {
+        "url": "http://10.10.31.6/userdata/15c67c5b-f454-498e-9c2d-831056264566/SNAPD1475-31-native.qcow2",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097/SNAPD1475-31-native.qcow2",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43/SNAPD1475-31-raw.raw",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/2c984f85-91d7-4f19-a432-b0c090bd8290/63159f9a-d419-4b48-9117-a03e1427c81a.qcow2",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/4f0a02d9-2dd9-4512-8f16-18a6cd6db610/SNAPD1475-31-native.qcow2",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0/SNAPD1475-31-native.qcow2",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8/SNAPD1475-31-raw.raw",
+        "status": 404
+      },
+      {
+        "url": "http://10.10.31.6/userdata/b784e4b6-552a-432a-8f6e-cd5cf8001b75/SNAPD1475-31-native.qcow2",
+        "status": 404
+      }
+    ],
+    "exportDirs": [
+      {
+        "path": "/var/www/html/userdata/15c67c5b-f454-498e-9c2d-831056264566",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/2793e8fa-0bab-491f-b7f9-ce42ad74e097",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/2a98d33b-b75b-4cc3-992c-1ecbc4631d43",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/2c984f85-91d7-4f19-a432-b0c090bd8290",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/4f0a02d9-2dd9-4512-8f16-18a6cd6db610",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/725c3c58-fafe-4ff2-8cc1-6007e78408a0",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/938451b1-fc34-451c-be54-a1db1d39e4c8",
+        "exists": false
+      },
+      {
+        "path": "/var/www/html/userdata/b784e4b6-552a-432a-8f6e-cd5cf8001b75",
+        "exists": false
+      }
+    ]
+  },
+  "preservation": {
+    "cluster": "31",
+    "fixtureActive": [
+      {
+        "command": "listVolumes",
+        "count": 0
+      },
+      {
+        "command": "listSnapshots",
+        "count": 0
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 0
+      },
+      {
+        "command": "listTemplates",
+        "count": 0
+      }
+    ],
+    "preserved": [
+      {
+        "command": "listVolumes",
+        "count": 155,
+        "sha256": "8b063f2983dda7d8633241bc24a86cd705513a8913ce0f6cb773bfea1b5268f7",
+        "unchanged": true
+      },
+      {
+        "command": "listSnapshots",
+        "count": 23,
+        "sha256": "fa53b11509533e051cfda8d950a19a442586b3ecec0ef2db4e10d8623fece02f",
+        "unchanged": true
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 116,
+        "sha256": "b0ff3a15e2e89b81d2247651648c846d21ff5541dacba39aeafdc9e27cf020c6",
+        "unchanged": true
+      },
+      {
+        "command": "listTemplates",
+        "count": 11,
+        "sha256": "5fa1997daa275284c10e769f8160b0d90e053e926a7a7495278f80dba8dfb5bd",
+        "unchanged": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "counters": {
+    "actual": {
+      "snapshot": 21,
+      "secondary_storage": 1206229790736
+    },
+    "calculated": {
+      "snapshot": 21,
+      "secondary_storage": 1206229790736
+    },
+    "match": true
+  },
+  "backupsCleanup": {
+    "removedFixtureBackups": [
+      {
+        "name": "310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+        "bytes": 2490368
+      },
+      {
+        "name": "f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+        "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+        "bytes": 2490368
+      }
+    ],
+    "directoryExists": false,
+    "deploymentRollbackBackupsRetained": true
+  },
+  "filesCleanup": {
+    "removed": [
+      {
+        "name": "SNAPD1475-31-native.qcow2",
+        "bytes": 2490368
+      },
+      {
+        "name": "SNAPD1475-31-native.qcow2.front",
+        "bytes": 1048576
+      },
+      {
+        "name": "SNAPD1475-31-raw.raw",
+        "bytes": 1073741824
+      },
+      {
+        "name": "SNAPD1475-31-raw.raw.front",
+        "bytes": 1048576
+      }
+    ],
+    "directoryExists": false
+  },
+  "runtime": {
+    "management": {
+      "classes": {
+        "com/cloud/storage/snapshot/SnapshotApiService.class": "cb4a429a6f9db0512b70eb9a6981e0f774685a2ca7ed82a7b255e93e97bc6482",
+        "com/cloud/storage/snapshot/SnapshotExtractResult.class": "bdf17b7775c79e97ac7e9e7be888ef834a87545eca4e9e396a85900c2b180bf7",
+        "org/apache/cloudstack/api/command/user/snapshot/ExtractSnapshotCmd.class": "3724f1dd265c56c84df638ba7051253d0f6ce5a50a99ec55777086c61629d6e0",
+        "org/apache/cloudstack/api/response/ExtractResponse.class": "d353aae41b526bce1b7f5aed9f7c6ddf6fbd2aec7d9705c4f3e82f39589f40e5",
+        "com/cloud/agent/api/storage/CreateEntityDownloadURLCommand.class": "a129c9fc5f9e67be7ea373a0ad149883be5bf901a855a3283a5849577ee16cf6",
+        "com/cloud/agent/api/storage/CreateEntityDownloadURLAnswer.class": "baed8f65c6e54fe60b2a1de7a90a4d570891a3689203c1465f18301a9a5e205f",
+        "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "b6b9ebd101cc6e4d6a6398d631cddca477600c1ae68f1c3eddde3d965859d71e",
+        "org/apache/cloudstack/storage/datastore/driver/CloudStackImageStoreDriverImpl.class": "b6be329582fe249279c494d4f86cb36c266ee1d9f90086a2b5746abeb84e004a"
+      },
+      "WEB-INF": true,
+      "staticFiles": 921,
+      "configPreserved": true,
+      "protectedServerFiles": 1
+    },
+    "ssvm": {
+      "classes": {
+        "core": {
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLCommand.class": "a129c9fc5f9e67be7ea373a0ad149883be5bf901a855a3283a5849577ee16cf6",
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLAnswer.class": "baed8f65c6e54fe60b2a1de7a90a4d570891a3689203c1465f18301a9a5e205f"
+        },
+        "secondary": {
+          "org/apache/cloudstack/storage/template/UploadManagerImpl.class": "0c753208f4f216f6cdd835bb4e7fcb14430590a6165dcfb71dd2bd107f95966c",
+          "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class": "08e44d1fa3c8953333e76ff9724e91a90ad3dfd37cd74876111d901651c8f192",
+          "org/apache/cloudstack/storage/formatinspector/SnapshotImageMetadata.class": "0edb9a803dc7c2df2447e07b204cba3070327bed62c9a72a58cb489fd1629ce5"
+        }
+      },
+      "existingSnapshotTemplateMethodsPreserved": true
+    },
+    "mold": "active",
+    "clientHttp": 200
+  },
+  "ready": {
+    "http": 200,
+    "hosts": [
+      {
+        "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "name": "ablecube31-1",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "name": "ablecube31-2",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "name": "ablecube31-3",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+        "name": "v-174-VM",
+        "state": "Up",
+        "type": "ConsoleProxy"
+      },
+      {
+        "id": "21d8be40-391b-498b-aed5-a735562cae22",
+        "name": "s-173-VM",
+        "state": "Up",
+        "type": "SecondaryStorageVM"
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "command": "destroyVirtualMachine",
+      "id": "3fc7afea-b02a-4e6d-a9d9-818e9840b96c",
+      "name": "SNAPD1475-31-root-source"
+    },
+    {
+      "command": "deleteVolume",
+      "id": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+      "name": "SNAPD1475-31-negative"
+    },
+    {
+      "command": "deleteSnapshot",
+      "id": "196978e0-7207-42ad-a2a6-59084acb11e2",
+      "name": "SNAPD1475-31-negative"
+    },
+    {
+      "command": "deleteSnapshot",
+      "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+      "name": "SNAPD1475-31-raw"
+    },
+    {
+      "command": "deleteSnapshot",
+      "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+      "name": "SNAPD1475-31-native"
+    },
+    {
+      "check": "listVirtualMachines",
+      "active": 0
+    },
+    {
+      "check": "listVolumes",
+      "active": 0
+    },
+    {
+      "check": "listTemplates",
+      "active": 0
+    },
+    {
+      "check": "listSnapshots",
+      "active": 0
+    }
+  ],
+  "beforeCleanupDb": {
+    "snapshots": [
+      {
+        "id": 90,
+        "name": "SNAPD1475-31-native",
+        "path": "snapshots/2/1011/f1da3565-a6e9-47ee-a871-3c8a53a777dc",
+        "role": "Image",
+        "size": 1073741824,
+        "uuid": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "refid": 172,
+        "state": "BackedUp",
+        "removed": null,
+        "refstate": "Ready",
+        "physicalsize": 2490368
+      },
+      {
+        "id": 91,
+        "name": "SNAPD1475-31-raw",
+        "path": "snapshots/2/1012/310ecd76-51b1-4b1a-afc8-783c258b4fe1",
+        "role": "Image",
+        "size": 1073741824,
+        "uuid": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "refid": 174,
+        "state": "BackedUp",
+        "removed": null,
+        "refstate": "Ready",
+        "physicalsize": 2490368
+      },
+      {
+        "id": 92,
+        "name": "SNAPD1475-31-negative",
+        "path": "snapshots/2/1013/f2eb1292-1940-4618-a9ce-0ece4548c9ac",
+        "role": "Image",
+        "size": 1073741824,
+        "uuid": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "refid": 176,
+        "state": "BackedUp",
+        "removed": null,
+        "refstate": "Ready",
+        "physicalsize": 2490368
+      },
+      {
+        "id": 93,
+        "name": "다운로드 검증",
+        "path": "snapshots/2/1013/8fcbb9d6-9116-4126-be9a-d0b24a1461e7",
+        "role": "Image",
+        "size": 1073741824,
+        "uuid": "0f668f3e-05b7-4d73-b96e-7100f47c7f8a",
+        "refid": 178,
+        "state": "Destroyed",
+        "removed": null,
+        "refstate": "Destroyed",
+        "physicalsize": 2490368
+      }
+    ],
+    "templates": [],
+    "vms": [
+      {
+        "id": 762,
+        "name": "SNAPD1475-31-root-source",
+        "uuid": "3fc7afea-b02a-4e6d-a9d9-818e9840b96c",
+        "state": "Stopped",
+        "hostid": null,
+        "removed": null,
+        "instance": "i-2-762-VM"
+      }
+    ],
+    "volumes": [
+      {
+        "id": 1010,
+        "vm": "SNAPD1475-31-root-source",
+        "name": "ROOT-762",
+        "path": null,
+        "pool": null,
+        "size": 107374182400,
+        "uuid": "cd6a65d9-984a-4089-891e-3753be01d116",
+        "state": "Allocated",
+        "format": "QCOW2",
+        "removed": null,
+        "instanceid": 762
+      },
+      {
+        "id": 1011,
+        "vm": null,
+        "name": "SNAPD1475-31-native",
+        "path": "e2ddc6ca-03d5-4f59-a0e5-7d9769e2ffa1",
+        "pool": 1,
+        "size": 1073741824,
+        "uuid": "e2ddc6ca-03d5-4f59-a0e5-7d9769e2ffa1",
+        "state": "Expunged",
+        "format": "QCOW2",
+        "removed": "2026-10-23 22:53:04.000000",
+        "instanceid": null
+      },
+      {
+        "id": 1012,
+        "vm": null,
+        "name": "SNAPD1475-31-raw",
+        "path": "6ec2c0f8-0f7d-4332-84f6-892601018f80",
+        "pool": 1,
+        "size": 1073741824,
+        "uuid": "6ec2c0f8-0f7d-4332-84f6-892601018f80",
+        "state": "Expunged",
+        "format": "QCOW2",
+        "removed": "2026-10-23 22:53:05.000000",
+        "instanceid": null
+      },
+      {
+        "id": 1013,
+        "vm": null,
+        "name": "SNAPD1475-31-negative",
+        "path": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+        "pool": 1,
+        "size": 1073741824,
+        "uuid": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+        "state": "Ready",
+        "format": "QCOW2",
+        "removed": null,
+        "instanceid": null
+      }
+    ]
+  },
+  "deployments": {
+    "management": [
+      {
+        "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+        "before": "1034fe4a64ef0339a840f5e8ffa288c4360896ada2b2a86409347a44e193c4b6",
+        "after": "5d14916b593f68397a0a0aaf331bc9f1bcb06ec0dad7518096e99b18b8e848ee",
+        "updatedClasses": [
+          "com/cloud/storage/snapshot/SnapshotApiService.class",
+          "com/cloud/storage/snapshot/SnapshotExtractResult.class",
+          "org/apache/cloudstack/api/command/user/snapshot/ExtractSnapshotCmd.class",
+          "org/apache/cloudstack/api/response/ExtractResponse.class",
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLCommand.class",
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLAnswer.class",
+          "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+          "org/apache/cloudstack/storage/datastore/driver/CloudStackImageStoreDriverImpl.class"
+        ],
+        "otherEntriesUnchanged": true
+      }
+    ],
+    "managementFinal": [
+      {
+        "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+        "before": "5d14916b593f68397a0a0aaf331bc9f1bcb06ec0dad7518096e99b18b8e848ee",
+        "after": "d63e2e993415de95fef37e4fcb459c66488c703cb1bc4093a5813c2169d49415",
+        "updatedClasses": [
+          "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+          "org/apache/cloudstack/storage/datastore/driver/CloudStackImageStoreDriverImpl.class"
+        ],
+        "otherEntriesUnchanged": true
+      }
+    ],
+    "ssvm": [
+      {
+        "jar": "/usr/local/cloud/systemvm/cloud-core-4.23.0.0-Mold.Europa-202609222315.jar",
+        "before": "a4d77a0bb4c05bd505b44cab394cdfdc192bec2b2f66414e3e1b2fe7487cdaa7",
+        "after": "8550d24d8a9d5b90cf6db3bf754457f049285d788348bfe0eee9bc46baec0a0d",
+        "updatedClasses": [
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLCommand.class",
+          "com/cloud/agent/api/storage/CreateEntityDownloadURLAnswer.class"
+        ],
+        "otherEntriesUnchanged": true
+      },
+      {
+        "jar": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.23.0.0-Mold.Europa-202609222315.jar",
+        "before": "111baca3a2096a0d596eae757413bdad2eccf9299767606cc3516de0908b38f6",
+        "after": "21b66cdac91dad30bbb06f02dc1919e0b0f21a203cc37ddca880abb63445d11b",
+        "updatedClasses": [
+          "org/apache/cloudstack/storage/template/UploadManagerImpl.class"
+        ],
+        "otherEntriesUnchanged": true
+      }
+    ],
+    "ui": {
+      "files": 921,
+      "verified": true,
+      "backup": "/root/snapshot-download-1475-20261024-ui-verified-backup"
+    }
+  },
+  "fixtures": {
+    "vms": [
+      {
+        "id": "3fc7afea-b02a-4e6d-a9d9-818e9840b96c",
+        "name": "SNAPD1475-31-root-source",
+        "displayname": "SNAPD1475-31-root-source",
+        "state": "Stopped",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "scenario": "root-source"
+      }
+    ],
+    "volumes": [
+      {
+        "id": "e2ddc6ca-03d5-4f59-a0e5-7d9769e2ffa1",
+        "name": "SNAPD1475-31-native",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "state": "Ready",
+        "scenario": "native",
+        "deleted": true
+      },
+      {
+        "id": "6ec2c0f8-0f7d-4332-84f6-892601018f80",
+        "name": "SNAPD1475-31-raw",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "state": "Ready",
+        "scenario": "raw",
+        "deleted": true
+      },
+      {
+        "id": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+        "name": "SNAPD1475-31-negative",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "state": "Ready",
+        "scenario": "negative"
+      }
+    ],
+    "snapshots": [
+      {
+        "id": "4a63e870-1934-4967-9a6f-4ae2163cc9bd",
+        "volumeid": "e2ddc6ca-03d5-4f59-a0e5-7d9769e2ffa1",
+        "name": "SNAPD1475-31-native",
+        "state": "Allocated",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "scenario": "native"
+      },
+      {
+        "id": "25209189-8811-47f8-baaf-3afb6c20e438",
+        "volumeid": "6ec2c0f8-0f7d-4332-84f6-892601018f80",
+        "name": "SNAPD1475-31-raw",
+        "state": "Allocated",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "scenario": "raw"
+      },
+      {
+        "id": "196978e0-7207-42ad-a2a6-59084acb11e2",
+        "volumeid": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+        "name": "SNAPD1475-31-negative",
+        "state": "Allocated",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "scenario": "negative"
+      },
+      {
+        "id": "0f668f3e-05b7-4d73-b96e-7100f47c7f8a",
+        "volumeid": "d3ea4785-8c8c-4263-b829-9bf2531886d0",
+        "name": "다운로드 검증",
+        "state": "Allocated",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "scenario": "korean"
+      }
+    ]
+  }
+}

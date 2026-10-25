@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "args": {
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575",
+        "policyid": "9ad20741-e81f-4266-b607-137ef9d68d3a",
+        "name": "SNAPPOL1493-31-must-not-allocate-owner"
+      },
+      "error": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Snapshot policy is unavailable for the source volume"
+      }
+    },
+    {
+      "args": {
+        "volumeid": "4c76a4ec-0ba4-490d-9397-d3e23695feb5",
+        "name": "SNAPPOL1493-31-must-not-foreign-source"
+      },
+      "error": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "args": {
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575",
+        "policyid": "-1",
+        "name": "SNAPPOL1493-31-must-not-internal-owner"
+      },
+      "error": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Policy ID must identify a persisted snapshot policy"
+      }
+    }
+  ],
+  "noUnauthorizedAllocation": true
+}

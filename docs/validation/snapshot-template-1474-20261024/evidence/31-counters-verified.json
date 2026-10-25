@@ -1,0 +1,11 @@
+{
+  "actual": {
+    "snapshot": 21,
+    "secondary_storage": 1206229790736
+  },
+  "calculated": {
+    "snapshot": 21,
+    "secondary_storage": 1206229790736
+  },
+  "match": true
+}

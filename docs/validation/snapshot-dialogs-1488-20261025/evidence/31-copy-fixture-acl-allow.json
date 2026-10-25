@@ -1,0 +1,11 @@
+{
+  "copyParentSha256": "be80c7656a38527896c06ff11b2ea3a0acdcd693de23498f827b2e03888c733c",
+  "status": 206,
+  "magic": "514649fb",
+  "mode": "allow",
+  "path": "/nfs/secondary/snapshots/283/1085/.htaccess",
+  "file": "8b5e769e-5fa1-4d03-bfed-0db4c2febbf7",
+  "onlyClient": "10.10.31.6",
+  "fixtureOnly": true,
+  "originalAclUnchanged": true
+}

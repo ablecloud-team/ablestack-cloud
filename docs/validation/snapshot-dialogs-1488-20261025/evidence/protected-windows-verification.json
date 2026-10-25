@@ -1,0 +1,21 @@
+{
+  "unchanged": true,
+  "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+  "items": {
+    "head": {
+      "beforeSha256": "9bcd6c7db530853ba15f3c40e9d75986800809566ac1dd96d003166b2b14259b",
+      "afterSha256": "9bcd6c7db530853ba15f3c40e9d75986800809566ac1dd96d003166b2b14259b",
+      "unchanged": true
+    },
+    "status": {
+      "beforeSha256": "64832aaa3d66d09d8d359e3c3be951b72822d868008621bfaf789f400e5932be",
+      "afterSha256": "64832aaa3d66d09d8d359e3c3be951b72822d868008621bfaf789f400e5932be",
+      "unchanged": true
+    },
+    "diff": {
+      "beforeSha256": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e",
+      "afterSha256": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e",
+      "unchanged": true
+    }
+  }
+}

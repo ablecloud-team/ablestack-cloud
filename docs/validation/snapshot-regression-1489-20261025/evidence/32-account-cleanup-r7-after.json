@@ -1,0 +1,32 @@
+[
+  {
+    "id": 99,
+    "name": "SNAPREG1489-32-owner",
+    "pending": 0
+  },
+  {
+    "id": 100,
+    "name": "SNAPREG1489-32-other",
+    "pending": 0
+  },
+  {
+    "id": 101,
+    "name": "SNAPREG1489-32-domainadmin",
+    "pending": 0
+  },
+  {
+    "id": 102,
+    "name": "PrjAcct-SNAPREG1489-32-project-27",
+    "pending": 0
+  },
+  {
+    "id": 103,
+    "name": "SNAPREG1489-32-usage-before",
+    "pending": 0
+  },
+  {
+    "id": 104,
+    "name": "SNAPREG1489-32-usage-after",
+    "pending": 0
+  }
+]

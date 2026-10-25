@@ -1,0 +1,94 @@
+{
+  "cluster": "32",
+  "prefix": "SNAP1477-32",
+  "snapshots": [
+    {
+      "id": "9003808c-3002-4b00-a922-b17a212b8a1c",
+      "name": "SNAP1477-32-normal",
+      "scenario": "normal",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+      "name": "SNAP1477-32-residue",
+      "scenario": "residue",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+      "name": "SNAP1477-32-partial",
+      "scenario": "partial",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "95cf7be4-721d-47ad-8b8a-a5a7b779f66d",
+      "name": "SNAP1477-32-control",
+      "scenario": "control",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+      "name": "SNAP1477-32-force-path",
+      "scenario": "force-path",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "1bd281e3-436c-41bf-b0bd-95efded5a1db",
+      "name": "SNAP1477-32-force-busy",
+      "scenario": "force-busy",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "33ace438-7857-4acc-aada-a57294a7ae8f",
+      "name": "SNAP1477-32-force-no-native",
+      "scenario": "force-no-native",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "d1340d75-f2f1-45de-9796-04e7892dc8b7",
+      "name": "SNAP1477-32-force-no-mapping",
+      "scenario": "force-no-mapping",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "141e60ae-55fd-4844-907c-9e91cf35ce13",
+      "name": "SNAP1477-32-tenant",
+      "scenario": "tenant",
+      "volumeid": "323e1fef-3e49-40b4-8b15-dff2a814423a"
+    },
+    {
+      "id": "ba62370e-1790-45c8-b9ab-26d8d079d877",
+      "name": "SNAP1477-32-force-secondary-missing",
+      "scenario": "force-secondary-missing",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    },
+    {
+      "id": "4eccbaab-9aba-45b7-b7ed-e8cf8bf998c8",
+      "name": "SNAP1477-32-force-primary-only",
+      "scenario": "force-primary-only",
+      "volumeid": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c"
+    }
+  ],
+  "volumes": [
+    {
+      "id": "ec0e0e8d-ea4f-4de6-801c-1035fb9a648c",
+      "name": "SNAP1477-32-source",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935"
+    },
+    {
+      "id": "323e1fef-3e49-40b4-8b15-dff2a814423a",
+      "name": "SNAP1477-32-tenant-source",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "account": "snap1477-32-tenant",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935"
+    }
+  ],
+  "tenant": {
+    "id": "528d6be5-f0b4-41cf-a918-3144afca7887",
+    "name": "snap1477-32-tenant",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "role": "2c2b5b27-c45f-4cb2-88d6-a76a50e50d9b"
+  }
+}

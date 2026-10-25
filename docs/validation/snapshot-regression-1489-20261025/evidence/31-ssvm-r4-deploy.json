@@ -1,0 +1,16 @@
+{
+  "kind": "ssvm",
+  "jar": "/usr/local/cloud/systemvm/cloud-secondary-storage-4.23.0.0-Mold.Europa-202609222315.jar",
+  "before": "8fa21ad302fce4f47319bd71c98dbab426dd81348f009927a7d5c1bdecec7172",
+  "after": "c0332f6c48dce850ada9f655cf89132d0597e51af1429e087ac33febd3376edb",
+  "changedEntries": [
+    {
+      "path": "org/apache/cloudstack/storage/resource/NfsSecondaryStorageResource.class",
+      "sha256": "af9fb24d33580db72a27707092e2c0063e09648cbd804aba958c08b6905b8a3c"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 0
+}

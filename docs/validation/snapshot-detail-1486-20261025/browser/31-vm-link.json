@@ -1,0 +1,142 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 870,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "IP",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "CPU",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "메모리",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "네트워크",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "템플릿",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "컴퓨트 오퍼링",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Zone",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "계정",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "도메인",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "생성일",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "마지막 업데이트",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/vm",
+      "text": "가상머신"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/virtual_machines.html",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "61b24b3e-fd15-4407-9c0e-69940f35df7b "
+    },
+    {
+      "href": "javascript:;",
+      "text": "10.10.254.150 "
+    },
+    {
+      "href": "javascript:;",
+      "text": "10.10.254.150 "
+    },
+    {
+      "href": "#/guestnetwork/d2fb4fd9-e933-4862-8527-5c2d92bf8c71",
+      "text": "ADMIN-L2-Network"
+    },
+    {
+      "href": "#/template/83232fe8-c0bd-4ed3-b29e-5ae054a3ee02",
+      "text": "nginx-lb-test.qcow2"
+    },
+    {
+      "href": "#/computeoffering/39c3aa33-5632-4dea-bd84-ba794d292c87",
+      "text": "AS-PROD-31-AS01-2C2G-Sparse"
+    },
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "Zone"
+    },
+    {
+      "href": "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f",
+      "text": "admin"
+    },
+    {
+      "href": "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details",
+      "text": "ROOT"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 891,
+  "summary": false,
+  "tag": "태그태그 새로고침태그가 없습니다.새 태그",
+  "text": "/가상머신/SNAPDETAIL1486-31-vm업데이트\n작업\nSNAPDETAIL1486-31-vm\ni-2-765-VM\nx86_64\nKVM\n동적으로 확장 가능\n상태\n정지된 상태\n아이디\n61b24b3e-fd15-4407-9c0e-69940f35df7b \nIP\n10.10.254.150 \n클라우드 · 주 IP\nCPU\n2 CPU x 2.00 GHz \nx86_64\n메모리\n2048 MB 메모리\n네트워크\n1 NIC(s)\neth0  10.10.254.150   기본\n      ADMIN-L2-Network\n템플릿\nnginx-lb-test.qcow2\n컴퓨트 오퍼링\nAS-PROD-31-AS01-2C2G-Sparse\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 25. 오전 1:08:00\n마지막 업데이트\n2026. 10. 25. 오전 1:10:11\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n\n\n상세\nIP 구성\n메트릭\n프로세스\n스케줄\nISO\n볼륨\nNIC\n설정\n호스트 장치\nVM 스냅샷\n이벤트\n코멘트\nVM 호스트 명\n\nSNAPDETAIL1486-31-vm\nVM 표시 명\n\nSNAPDETAIL1486-31-vm\n아이디\n\n61b24b3e-fd15-4407-9c0e-69940f35df7b\n상태\n\nStopped\nIP 주소\n\n10.10.254.150\n템플릿\n\nnginx-lb-test.qcow2\n템플릿 형식\n\nUSER\n컴퓨트 오퍼링\n\nAS-PROD-31-AS01-2C2G-Sparse\n동적으로 확장 가능\n\ntrue\nHA 활성화\n\nfalse\n하이퍼바이저\n\nKVM\nCPU 아키텍처\n\nx86_64\n계정\n\nadmin\n도메인\n\nROOT\nZone\n\nZone\nVBMC 포트\n\n미할당\n삭제 보호\n\nfalse",
+  "url": "http://10.10.31.10:8080/client/#/vm/61b24b3e-fd15-4407-9c0e-69940f35df7b",
+  "width": 901
+}

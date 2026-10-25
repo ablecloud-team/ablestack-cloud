@@ -1,0 +1,437 @@
+{
+  "bodyOverflow": {
+    "clientHeight": 534,
+    "clientWidth": 708,
+    "scrollHeight": 582,
+    "scrollWidth": 708
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "text": "생성"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "볼륨 생성"
+    },
+    {
+      "background": [
+        64.94,
+        45.18,
+        51.48
+      ],
+      "contrast": 9.33,
+      "disabled": false,
+      "foreground": "rgb(255, 210, 210)",
+      "opacity": "1",
+      "text": "요청 접수 여부를 확인할 수 없습니다. 자동 재제출을 차단했습니다. 기존 작업/이벤트를 먼저 확인하세요."
+    },
+    {
+      "background": [
+        64.94,
+        45.18,
+        51.48
+      ],
+      "contrast": 9.33,
+      "disabled": false,
+      "foreground": "rgb(255, 210, 210)",
+      "opacity": "1",
+      "text": "재시도"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "재시도"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "이름"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "볼륨 이름 입력 (선택 사항)"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "Zone"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "Zone"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "소유자 유형"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "계정"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "도메인"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "ROOT"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "계정"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "admin"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "가상머신에 연결"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "취소"
+    },
+    "[Circular]"
+  ],
+  "contrastFailures": [
+    {
+      "background": [
+        85,
+        85,
+        85
+      ],
+      "contrast": 4.25,
+      "disabled": true,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "생성"
+    }
+  ],
+  "dark": true,
+  "documentOverflow": {
+    "clientWidth": 1280,
+    "scrollWidth": 1270
+  },
+  "fieldGaps": [
+    24,
+    24,
+    24,
+    24
+  ],
+  "focus": "DIV",
+  "minimumContrast": 4.25,
+  "modal": true,
+  "nestedForms": 0,
+  "overlaps": [],
+  "padding": {
+    "body": "24px 28px",
+    "footer": "16px 28px",
+    "header": "16px 24px"
+  },
+  "rect": {
+    "bottom": 688,
+    "height": 656,
+    "left": 280,
+    "right": 1000,
+    "top": 32,
+    "width": 720
+  },
+  "stackGaps": [],
+  "summaryTables": 0,
+  "text": "볼륨 생성\n요청 접수 여부를 확인할 수 없습니다. 자동 재제출을 차단했습니다. 기존 작업/이벤트를 먼저 확인하세요.\n재시도\n이름\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\n가상머신에 연결\n취소\n생성",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "leafText": {
+    "failures": [
+      {
+        "background": [
+          85,
+          85,
+          85
+        ],
+        "contrast": 4.25,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "생성"
+      }
+    ],
+    "minimumContrast": 4.25,
+    "textNodes": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 7.13,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "볼륨 생성"
+      },
+      {
+        "background": [
+          64.94,
+          45.18,
+          51.48
+        ],
+        "contrast": 9.33,
+        "foreground": "rgb(255, 210, 210)",
+        "opacity": 1,
+        "text": "요청 접수 여부를 확인할 수 없습니다. 자동 재제출을 차단했습니다. 기존 작업/이벤트를 먼저 확인하세요."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "재시도"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 9.18,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "이름"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 9.18,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "Zone"
+      },
+      {
+        "background": [
+          27,
+          33,
+          40
+        ],
+        "contrast": 14.56,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "Zone"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 9.18,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "소유자 유형"
+      },
+      {
+        "background": [
+          27,
+          33,
+          40
+        ],
+        "contrast": 14.56,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "계정"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 9.18,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "도메인"
+      },
+      {
+        "background": [
+          27,
+          33,
+          40
+        ],
+        "contrast": 14.56,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "ROOT"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 9.18,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "계정"
+      },
+      {
+        "background": [
+          27,
+          33,
+          40
+        ],
+        "contrast": 14.56,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "admin"
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 7.13,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "가상머신에 연결"
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "취소"
+      },
+      "[Circular]"
+    ]
+  }
+}

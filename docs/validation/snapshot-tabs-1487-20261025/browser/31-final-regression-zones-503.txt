@@ -1,0 +1,293 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - list:
+      - menuitem "hdd 볼륨":
+        - link "hdd 볼륨":
+          - /url: "#/volume"
+          - img "hdd":
+          - text: 볼륨
+      - menuitem "build 스냅샷":
+        - link "build 스냅샷":
+          - /url: "#/snapshot"
+          - img "build":
+          - text: 스냅샷
+      - menuitem "build 스냅샷 정책":
+        - link "build 스냅샷 정책":
+          - /url: "#/snapshotpolicy"
+          - img "build":
+          - text: 스냅샷 정책
+      - menuitem "funnel-plot 버킷":
+        - link "funnel-plot 버킷":
+          - /url: "#/buckets"
+          - img "funnel-plot":
+          - text: 버킷
+      - menuitem "file-text 공유 파일 시스템":
+        - link "file-text 공유 파일 시스템":
+          - /url: "#/sharedfs"
+          - img "file-text":
+          - text: 공유 파일 시스템
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - text: /
+  - generic: SNAPTABS1487-31-owner
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "build":
+  - heading "SNAPTABS1487-31-owner" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 백업 됨
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "83b1c043-b780-40ee-a143-f8bef390ce91":
+    - /url: javascript:;
+  - generic: 가상 크기
+  - img "hdd":
+  - text: 1.00 GiB
+  - generic: Secondary 백업 물리 크기
+  - img "hdd":
+  - text: 192.02 KiB
+  - generic: 볼륨
+  - img "hdd":
+  - link "SNAPTABS1487-31-owner":
+    - /url: "#/volume/ac8771dc-e1f4-4dbb-9fa1-30c4016d2c03"
+  - generic: VM 이름
+  - img "desktop":
+  - generic: 연결된 가상머신 없음
+  - generic: 사본 Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+  - generic: 계정
+  - img "user":
+  - link "SNAPTABS1487-31-owner":
+    - /url: "#/account?name=SNAPTABS1487-31-owner&domainid=2a174d07-2284-4903-8829-f125ebf1a648"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPTABS1487-31-domain":
+    - /url: "#/domain/2a174d07-2284-4903-8829-f125ebf1a648?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 2:04:18
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - text: baseline = SNAPTABS1487-31-owner
+  - img "close":
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세"
+    - tab "Zone" [selected]
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "Zone":
+    - button "delete 선택한 Zone의 모든 사본 삭제" [disabled]:
+      - img "delete":
+      - generic: 선택한 Zone의 모든 사본 삭제
+    - button "reload 업데이트":
+      - img "reload":
+      - generic: 업데이트
+    - button "열 선택":
+      - img "setting":
+      - generic: 열 선택
+    - textbox "현재 페이지 Zone·스토리지 검색" [active]
+    - button "search":
+      - img "search":
+    - paragraph: 사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.
+    - alert:
+      - img "close-circle":
+      - generic: 목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.
+      - paragraph: SS-14 controlled tab 503
+      - button "재시도":
+        - generic: 재시도
+    - paragraph: 표시 Zone 1개 · 현재 페이지 전체 사본 1개
+    - table:
+      - rowgroup:
+        - row "Zone 상태 간격 유형 현재 페이지 조회 항목 Zone 작업":
+          - columnheader
+          - columnheader:
+            - checkbox [disabled]
+          - columnheader "Zone"
+          - columnheader "상태"
+          - columnheader "간격 유형"
+          - columnheader "현재 페이지 조회 항목"
+          - columnheader "Zone 작업"
+      - rowgroup:
+        - row "Collapse row global Zone 백업 됨 수동 1 이 Zone에서 복사 이 Zone의 모든 사본 삭제":
+          - cell "Collapse row":
+            - button "Collapse row"
+          - cell:
+            - checkbox [disabled]
+          - cell "global Zone":
+            - link "global Zone":
+              - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+              - img "global":
+              - text: Zone
+          - cell "백업 됨":
+            - generic: 백업 됨
+          - cell "수동"
+          - cell "1"
+          - cell "이 Zone에서 복사 이 Zone의 모든 사본 삭제":
+            - button "이 Zone에서 복사" [disabled]:
+              - img "copy":
+            - button "이 Zone의 모든 사본 삭제" [disabled]:
+              - img "delete":
+        - row "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류 Secondary Secondary 사용 가능 준비됨 1.00 GiB 확인 불가":
+          - cell "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류 Secondary Secondary 사용 가능 준비됨 1.00 GiB 확인 불가":
+            - table:
+              - rowgroup:
+                - row "유형 스토리지 참조 상태 준비 상태 가상 용량 진행·오류":
+                  - columnheader "유형"
+                  - columnheader "스토리지"
+                  - columnheader "참조 상태"
+                  - columnheader "준비 상태"
+                  - columnheader "가상 용량"
+                  - columnheader "진행·오류"
+              - rowgroup:
+                - row "Secondary Secondary 사용 가능 준비됨 1.00 GiB 확인 불가":
+                  - cell "Secondary"
+                  - cell "Secondary":
+                    - link "Secondary":
+                      - /url: "#/imagestore/dd8d0666-cebe-4921-8b8f-0c7b12780ad8"
+                  - cell "사용 가능":
+                    - generic: 사용 가능
+                  - cell "준비됨"
+                  - cell "1.00 GiB"
+                  - cell "확인 불가"
+    - list:
+      - listitem: 전체 스토리지 사본 1개 중 1-1 표시
+      - listitem "이전 페이지":
+        - button "left" [disabled]:
+          - img "left":
+      - listitem "1":
+        - generic: "1"
+      - listitem "다음 페이지":
+        - button "right" [disabled]:
+          - img "right":
+      - combobox
+      - generic: 10 / 쪽
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

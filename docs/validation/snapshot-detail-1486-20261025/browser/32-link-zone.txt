@@ -1,0 +1,297 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - list:
+      - menuitem "read 요약":
+        - link "read 요약":
+          - /url: "#/infrasummary"
+          - img "read":
+          - text: 요약
+      - menuitem "global Zone":
+        - link "global Zone":
+          - /url: "#/zone"
+          - img "global":
+          - text: Zone
+      - menuitem "appstore Pod":
+        - link "appstore Pod":
+          - /url: "#/pod"
+          - img "appstore":
+          - text: Pod
+      - menuitem "cluster 클러스터":
+        - link "cluster 클러스터":
+          - /url: "#/cluster"
+          - img "cluster":
+          - text: 클러스터
+      - menuitem "database 호스트":
+        - link "database 호스트":
+          - /url: "#/host"
+          - img "database":
+          - text: 호스트
+      - menuitem "hdd 기본 스토리지":
+        - link "hdd 기본 스토리지":
+          - /url: "#/storagepool"
+          - img "hdd":
+          - text: 기본 스토리지
+      - menuitem "picture 2차 스토리지":
+        - link "picture 2차 스토리지":
+          - /url: "#/imagestore"
+          - img "picture":
+          - text: 2차 스토리지
+      - menuitem "gold Object 스토리지":
+        - link "gold Object 스토리지":
+          - /url: "#/objectstore"
+          - img "gold":
+          - text: Object 스토리지
+      - menuitem "thunderbolt 시스템 VM":
+        - link "thunderbolt 시스템 VM":
+          - /url: "#/systemvm"
+          - img "thunderbolt":
+          - text: 시스템 VM
+      - menuitem "fork 가상 라우터":
+        - link "fork 가상 라우터":
+          - /url: "#/router"
+          - img "fork":
+          - text: 가상 라우터
+      - menuitem "share-alt 내부 LB":
+        - link "share-alt 내부 LB":
+          - /url: "#/ilbvm"
+          - img "share-alt":
+          - text: 내부 LB
+      - menuitem "cloud-server 관리 서버":
+        - link "cloud-server 관리 서버":
+          - /url: "#/managementserver"
+          - img "cloud-server":
+          - text: 관리 서버
+      - menuitem "inbox CPU 소켓":
+        - link "inbox CPU 소켓":
+          - /url: "#/cpusocket"
+          - img "inbox":
+          - text: CPU 소켓
+      - menuitem "bar-chart DB/Usage 서버":
+        - link "bar-chart DB/Usage 서버":
+          - /url: "#/metric"
+          - img "bar-chart":
+          - text: DB/Usage 서버
+      - menuitem "flag 경보":
+        - link "flag 경보":
+          - /url: "#/alert"
+          - img "flag":
+          - text: 경보
+      - menuitem "sound 경보 규칙":
+        - link "sound 경보 규칙":
+          - /url: "#/alertRules"
+          - img "sound":
+          - text: 경보 규칙
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "Zone":
+    - /url: "#/zone"
+  - text: /
+  - generic: Zone
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/conceptsandterminology/concepts.html#about-zones
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "edit":
+  - img "global":
+  - heading "Zone" [level=4]
+  - generic: Core
+  - separator
+  - generic: 할당 상태
+  - generic: 정상
+  - generic: HA 활성화
+  - generic: 정상
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "991d2f57-0f37-4445-b956-09773d064816":
+    - /url: javascript:;
+  - generic: CPU
+  - generic: 604.80 Ghz
+  - generic "0.80% 사용됨"
+  - generic "9.42% 할당됨"
+  - generic: 메모리
+  - img "bulb":
+  - text: 750.43 GiB 메모리
+  - generic "23.91% 사용됨"
+  - generic "6.06% 할당됨"
+  - separator
+  - link "appstore Pod 보기":
+    - /url: "#/pod?zoneid=991d2f57-0f37-4445-b956-09773d064816"
+    - button "appstore Pod 보기":
+      - img "appstore":
+      - generic: Pod 보기
+  - link "cluster 클러스터 보기":
+    - /url: "#/cluster?zoneid=991d2f57-0f37-4445-b956-09773d064816"
+    - button "cluster 클러스터 보기":
+      - img "cluster":
+      - generic: 클러스터 보기
+  - link "database 호스트 보기":
+    - /url: "#/host?zoneid=991d2f57-0f37-4445-b956-09773d064816"
+    - button "database 호스트 보기":
+      - img "database":
+      - generic: 호스트 보기
+  - link "hdd 기본 스토리지 보기":
+    - /url: "#/storagepool?zoneid=991d2f57-0f37-4445-b956-09773d064816"
+    - button "hdd 기본 스토리지 보기":
+      - img "hdd":
+      - generic: 기본 스토리지 보기
+  - link "picture 2차 스토리지 보기":
+    - /url: "#/imagestore?zoneid=991d2f57-0f37-4445-b956-09773d064816"
+    - button "picture 2차 스토리지 보기":
+      - img "picture":
+      - generic: 2차 스토리지 보기
+  - tablist:
+    - tab "상세" [selected]
+    - tab "물리 네트워크"
+    - tab "IPv4 서브넷"
+    - tab "AS Number"
+    - tab "BGP 피어"
+    - tab "시스템 VM"
+    - tab "리소스"
+    - tab "설정"
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "상세":
+    - list:
+      - strong: 이름
+      - generic: Zone
+      - strong: 아이디
+      - generic: 991d2f57-0f37-4445-b956-09773d064816
+      - strong: 할당 상태
+      - generic: Enabled
+      - strong: 유형
+      - generic: Core
+      - strong: 네트워크 유형
+      - generic: Advanced
+      - strong: 게스트 CIDR
+      - generic: 10.1.1.0/24
+      - strong: 사용자 VM에 로컬 스토리지 사용
+      - generic: "false"
+      - strong: 보안그룹 활성화
+      - generic: "false"
+      - strong: DNS 1
+      - generic: 8.8.8.8
+      - strong: 내부 DNS 1
+      - generic: 8.8.8.8
+      - strong: AS Range
+      - strong: HA 활성화
+      - generic: "true"
+    - separator
+    - strong: 전용
+    - generic: 아니오
+    - button "전용 Zone":
+      - generic: 전용 Zone
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 연결 불가

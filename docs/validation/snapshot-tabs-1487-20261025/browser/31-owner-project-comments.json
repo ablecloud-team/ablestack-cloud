@@ -1,0 +1,66 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (3)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [
+    {
+      "id": "8926e581-dac4-41ed-9f83-ef5dd1d5502f",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-02"
+    },
+    {
+      "id": "61451f62-c426-4f04-954d-ccc339905f65",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-01"
+    },
+    {
+      "id": "1a428325-e7c3-4075-81f4-46a4c77d768f",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-00"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 3개 항목 중 1-3 표시\n1"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n코멘트 (3)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-02\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-01\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-00\n전체 3개 항목 중 1-3 표시\n1",
+  "text": "/스냅샷/SNAPTABS1487-31-project업데이트\n작업\nSNAPTABS1487-31-project\n상태\n백업 됨\n아이디\n17292dc6-928a-4ccf-9e77-8ff9ef750372 \n프로젝트\nSNAPTABS1487-31-project\n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-project\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:21\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-project\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n코멘트 (3)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-02\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-01\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-project-comment-00\n전체 3개 항목 중 1-3 표시\n1",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/17292dc6-928a-4ccf-9e77-8ff9ef750372?tab=comments",
+  "width": 1280
+}

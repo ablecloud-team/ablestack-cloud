@@ -1,0 +1,35 @@
+{
+  "indexSha256": "d85f6d496eea07707cc2b13716da5abfaac0605ec4ebc41edf71000662a6396e",
+  "markers": {
+    "snapshot-job-details": [
+      {
+        "path": "js/app.404c459f.js",
+        "sha256": "a5d511c49fb110f8fcc022fcd8dbd4a1f28e171c01b58e614538a92fe0b6d051"
+      }
+    ],
+    "snapshot-notice-target": [
+      {
+        "path": "js/app.404c459f.js",
+        "sha256": "a5d511c49fb110f8fcc022fcd8dbd4a1f28e171c01b58e614538a92fe0b6d051"
+      }
+    ],
+    "blockingLoadingState": [
+      {
+        "path": "js/chunk-c84375b2.e5d59354.js",
+        "sha256": "51f9a4b8040088e86fe41fc74a5133d15010cb170458432d15f1a3fbb6bf336c"
+      }
+    ],
+    "fetchSyncProgress": [
+      {
+        "path": "js/chunk-c84375b2.e5d59354.js",
+        "sha256": "51f9a4b8040088e86fe41fc74a5133d15010cb170458432d15f1a3fbb6bf336c"
+      }
+    ],
+    "extractJobId": [
+      {
+        "path": "js/chunk-c84375b2.e5d59354.js",
+        "sha256": "51f9a4b8040088e86fe41fc74a5133d15010cb170458432d15f1a3fbb6bf336c"
+      }
+    ]
+  }
+}

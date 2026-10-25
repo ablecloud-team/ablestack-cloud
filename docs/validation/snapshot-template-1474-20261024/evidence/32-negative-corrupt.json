@@ -1,0 +1,26 @@
+{
+  "snapshotid": "a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44",
+  "jobid": "9f1f5ed7-1cca-413d-93de-ac405b4d35d8",
+  "job": {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Failed to create TemplateFailed to create template from snapshot: Truncated snapshot backup image header"
+    },
+    "jobinstancetype": "Template",
+    "created": "2026-10-24T01:59:05+0900",
+    "completed": "2026-10-24T01:59:06+0900",
+    "jobid": "9f1f5ed7-1cca-413d-93de-ac405b4d35d8",
+    "jobstatus": 2
+  },
+  "templates": {},
+  "noReady": true
+}

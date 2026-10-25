@@ -1,0 +1,15 @@
+{
+  "copyRows": [],
+  "dialog": null,
+  "links": [],
+  "pagination": "전체 사본 조회 항목 0개\n1\n20 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n스냅샷 사본 조회 권한을 확인할 수 없습니다. 현재 권한으로 다시 조회하세요.\n재시도\n현재 페이지: Zone 0개 · 조회 항목 0개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\n데이터 없음\n\n전체 사본 조회 항목 0개\n1\n20 / 쪽",
+  "url": "#/snapshot/0d97b62f-4955-4cb1-a538-8cc490be7f96?tab=zones",
+  "zones": [],
+  "cluster": "32",
+  "phase": "denied-cleared",
+  "viewport": {
+    "width": 1680,
+    "height": 1200
+  }
+}

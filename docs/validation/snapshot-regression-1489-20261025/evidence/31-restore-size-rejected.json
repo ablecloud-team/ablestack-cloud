@@ -1,0 +1,5 @@
+{
+  "requestedGiB": 2,
+  "snapshotBytes": 1073741824,
+  "rejection": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Snapshot restore preserves snapshot size; resize the restored volume separately\"}"
+}

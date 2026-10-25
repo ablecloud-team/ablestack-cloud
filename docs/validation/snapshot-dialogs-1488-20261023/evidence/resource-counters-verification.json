@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "clusters": [
+    "31",
+    "32"
+  ],
+  "snapshotAndSecondaryCountersMatchActiveDb": true
+}

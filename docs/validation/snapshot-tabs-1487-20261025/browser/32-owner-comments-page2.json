@@ -1,0 +1,90 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (19)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [
+    {
+      "id": "28c5050d-d392-4983-83fa-3ac780344fe0",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-14"
+    },
+    {
+      "id": "8da5a453-ba4e-4057-9ca6-c21af15af80b",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-13"
+    },
+    {
+      "id": "96714ba7-1ce0-4081-933f-42d223362639",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-12"
+    },
+    {
+      "id": "ca8e01a1-26f6-48fd-8252-94c3e5d24ae6",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-11"
+    },
+    {
+      "id": "9704e38f-84af-4811-b227-9f0da256df8f",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-10"
+    },
+    {
+      "id": "bba275f0-d4d6-4b54-b259-0a5e56d8e6bc",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-09"
+    },
+    {
+      "id": "59b3b096-c308-4e49-9d3b-7b9a2b00ee45",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-08"
+    },
+    {
+      "id": "36bf02b6-1313-4347-b2b2-829136b30943",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-07"
+    },
+    {
+      "id": "f51cba18-3929-44d1-baa4-e13974130865",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-06"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "2",
+      "text": "전체 19개 항목 중 11-19 표시\n1\n2\n이동하기"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n코멘트 (19)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-14\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-13\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-12\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-11\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-10\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-09\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-08\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-07\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-06\n전체 19개 항목 중 11-19 표시\n1\n2\n이동하기",
+  "text": "/스냅샷/SNAPTABS1487-32-owner업데이트\n작업\nSNAPTABS1487-32-owner\n상태\n백업 됨\n아이디\nca67daa2-391b-4459-90e8-345d13e42c41 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-32-owner\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:06:55\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-owner\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n코멘트 (19)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-14\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-13\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-12\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-11\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-10\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-09\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-08\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-07\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-owner-comment-06\n전체 19개 항목 중 11-19 표시\n1\n2\n이동하기",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": -764
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": -764
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/ca67daa2-391b-4459-90e8-345d13e42c41?tab=comments",
+  "width": 1280
+}

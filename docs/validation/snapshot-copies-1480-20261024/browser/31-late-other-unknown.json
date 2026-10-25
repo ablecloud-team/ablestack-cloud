@@ -1,0 +1,50 @@
+{
+  "copyRows": [
+    {
+      "key": "d0135100-6525-3026-94aa-66d3dc27eef2",
+      "text": "확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—"
+    },
+    {
+      "key": "549bea2f-7796-3e16-848d-07c13894d7e1",
+      "text": "확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—"
+    }
+  ],
+  "dialog": null,
+  "links": [
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": " Zone"
+    },
+    {
+      "href": "#/zone/668e4e2e-5b77-4838-8c62-31a9124be102",
+      "text": " SNAPC1480-31-ZONE2"
+    }
+  ],
+  "pagination": "전체 사본 조회 항목 2개\n1\n10 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n현재 페이지: Zone 2개 · 조회 항목 2개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\t\n\t Zone\t1\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—\n\n\n\t\n\t SNAPC1480-31-ZONE2\t1\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—\n전체 사본 조회 항목 2개\n1\n10 / 쪽",
+  "url": "#/snapshot/c1eb121e-1f0e-443b-b055-fa7a3d8c39eb?tab=zones",
+  "zones": [
+    {
+      "key": "zone:7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "\t\n\t Zone\t1\t"
+    },
+    {
+      "key": "d0135100-6525-3026-94aa-66d3dc27eef2",
+      "text": "확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—"
+    },
+    {
+      "key": "zone:668e4e2e-5b77-4838-8c62-31a9124be102",
+      "text": "\t\n\t SNAPC1480-31-ZONE2\t1\t"
+    },
+    {
+      "key": "549bea2f-7796-3e16-848d-07c13894d7e1",
+      "text": "확인 불가\t저장소 미확인 참조\t\n알 수 없음\n\t확인 불가\t확인 불가\t—"
+    }
+  ],
+  "cluster": "31",
+  "phase": "late-other-unknown",
+  "viewport": {
+    "width": 1280,
+    "height": 1200
+  }
+}

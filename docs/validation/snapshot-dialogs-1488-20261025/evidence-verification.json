@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 971,
+  "layouts": 144,
+  "focusCases": 144,
+  "mobileTabCases": 48,
+  "sources": 19,
+  "boundaries": [
+    "focused tests and live clusters; not full Cloud CI",
+    "dedicated TLS agent processes in existing SSVM; independent NFS subpaths",
+    "fixture-only mount mapping and exact-file self-IP ACL; no snapshot/result SQL edits"
+  ]
+}

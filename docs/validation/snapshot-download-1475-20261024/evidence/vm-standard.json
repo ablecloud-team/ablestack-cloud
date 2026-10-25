@@ -1,0 +1,12 @@
+[
+  {
+    "classes": "ant-modal mold-dialog",
+    "padding": {
+      "body": "24px",
+      "footer": null,
+      "header": "16px 24px"
+    },
+    "title": "편집",
+    "width": 508
+  }
+]

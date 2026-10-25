@@ -1,0 +1,68 @@
+[
+  {
+    "command": "listHosts",
+    "states": [
+      {
+        "type": "Routing",
+        "state": "Up",
+        "resource": "Enabled"
+      },
+      {
+        "type": "Routing",
+        "state": "Up",
+        "resource": "Enabled"
+      },
+      {
+        "type": "Routing",
+        "state": "Up",
+        "resource": "Enabled"
+      },
+      {
+        "type": "ConsoleProxy",
+        "state": "Up",
+        "resource": "Enabled"
+      },
+      {
+        "type": "SecondaryStorageVM",
+        "state": "Up",
+        "resource": "Enabled"
+      }
+    ],
+    "status": "PASS"
+  },
+  {
+    "command": "listVolumes",
+    "count": 49,
+    "status": "PASS"
+  },
+  {
+    "command": "listSnapshots",
+    "count": 7,
+    "status": "PASS"
+  },
+  {
+    "command": "listVirtualMachines",
+    "count": 49,
+    "status": "PASS"
+  },
+  {
+    "command": "listTemplates",
+    "count": 7,
+    "status": "PASS"
+  },
+  {
+    "command": "listIsos",
+    "count": 2,
+    "status": "PASS"
+  },
+  {
+    "command": "listSSHKeyPairs",
+    "count": 1,
+    "status": "PASS"
+  },
+  {
+    "command": "listVirtualMachines keypair filter",
+    "count": 0,
+    "status": "PASS"
+  }
+]

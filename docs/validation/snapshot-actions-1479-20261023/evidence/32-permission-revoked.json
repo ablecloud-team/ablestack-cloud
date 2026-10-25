@@ -1,0 +1,14 @@
+{
+  "permission": {
+    "uuidList": [],
+    "errorcode": 530,
+    "cserrorcode": 9999,
+    "errortext": "Api Discovery plugin was unable to find an api by that name or process any apis"
+  },
+  "rejected": {
+    "uuidList": [],
+    "errorcode": 432,
+    "cserrorcode": 9999,
+    "errortext": "The API [createVolume] does not exist or is not available for the account snap1479-32-tenant."
+  }
+}

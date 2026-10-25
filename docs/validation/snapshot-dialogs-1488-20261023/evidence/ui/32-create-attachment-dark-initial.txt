@@ -1,0 +1,5 @@
+Browser tab: 23, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/d6b637f5-e5a6-49b9-b015-e03e95314970".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 314
+~				258 button 생성
+The focused UI element is 292 switch Description: 인스턴스에 연결 info-circle, Value: 1, ID: form_item_attachVolume

@@ -1,0 +1,16 @@
+{
+  "context": {
+    "version": 1,
+    "sourceavailable": true,
+    "volumeid": "5ee23f54-0c6d-4429-bb43-0516d4311131",
+    "volumename": "SNAPDIALOG-31-source",
+    "volumestate": "Ready",
+    "virtualmachineid": "6df58ee7-7b25-4da7-a646-350dec00e24e",
+    "virtualmachinename": "SNAPDIALOG-31-vm",
+    "virtualmachinestate": "Running",
+    "revertreason": "VM_MUST_BE_STOPPED",
+    "createreason": ""
+  },
+  "failure": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":431,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":431,\"errortext\":\"VM_MUST_BE_STOPPED: Snapshot source is not available for revert\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"df68f239-a62b-459a-9a0c-bf06b0afb91c\",\"created\":\"2026-10-23T23:40:34+0900\",\"completed\":\"2026-10-23T23:40:34+0900\",\"jobid\":\"dbfa351f-26fa-441c-a39e-01e4213c6205\",\"jobstatus\":2}",
+  "status": "PASS"
+}

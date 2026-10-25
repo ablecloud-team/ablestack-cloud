@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    }
+  ],
+  "after": {
+    "success": true,
+    "snapshotid": "4c4e0a3f-c872-4d1d-9d54-b6d86959364f",
+    "name": "SNAP1478-32-missing",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "8dbfa5561c7c2f7a40ef7114aca550dbcde1abc91c67a1c2a9b0615398a4e2e9"
+  }
+}

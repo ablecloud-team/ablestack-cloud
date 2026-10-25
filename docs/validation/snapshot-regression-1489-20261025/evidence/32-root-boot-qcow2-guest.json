@@ -1,0 +1,75 @@
+{
+  "host": "10.10.32.2",
+  "name": "SNAPREG1489-32-root-boot-qcow2",
+  "state": "Running",
+  "instance": "i-2-240-VM",
+  "vmid": "8bb92847-c22b-4abb-9b98-356f998bbfa4",
+  "scenario": "root-boot-qcow2",
+  "guestAgent": true,
+  "guest-get-osinfo": {
+    "name": "Rocky Linux",
+    "kernel-release": "5.14.0-362.8.1.el9_3.x86_64",
+    "version": "9.3 (Blue Onyx)",
+    "pretty-name": "Rocky Linux 9.3 (Blue Onyx)",
+    "version-id": "9.3",
+    "kernel-version": "#1 SMP PREEMPT_DYNAMIC Wed Nov 8 17:36:32 UTC 2023",
+    "machine": "x86_64",
+    "id": "rocky"
+  },
+  "guest-get-host-name": {
+    "host-name": "localhost.localdomain"
+  },
+  "guest-get-fsinfo": [
+    {
+      "name": "sda1",
+      "total-bytes": 1006632960,
+      "mountpoint": "/boot",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_8d2521c7eb6d4596a1d2",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda1",
+          "target": 0
+        }
+      ],
+      "used-bytes": 271851520,
+      "type": "xfs"
+    },
+    {
+      "name": "dm-0",
+      "total-bytes": 97643397120,
+      "mountpoint": "/",
+      "disk": [
+        {
+          "serial": "0QEMU_QEMU_HARDDISK_8d2521c7eb6d4596a1d2",
+          "bus-type": "scsi",
+          "bus": 0,
+          "unit": 0,
+          "pci-controller": {
+            "bus": 0,
+            "slot": 9,
+            "domain": 0,
+            "function": 0
+          },
+          "dev": "/dev/sda2",
+          "target": 0
+        }
+      ],
+      "used-bytes": 2411573248,
+      "type": "xfs"
+    }
+  ],
+  "disks": "Type    Device   Target   Source\n------------------------------------------------------------------------------\n block   disk     sda      /dev/rbd/rbd/8d2521c7-eb6d-4596-a1d2-63f39e763c80\n file    cdrom    hdc      -\n file    cdrom    hdd      -",
+  "blockJobs": {
+    "return": [],
+    "id": "libvirt-241"
+  }
+}

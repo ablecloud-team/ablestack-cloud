@@ -1,0 +1,46 @@
+{
+  "faultInjectionOnly": true,
+  "scenario": "Secondary file and metadata externally missing; Primary retained",
+  "before": [
+    {
+      "url": null,
+      "name": "SNAPREG1489-32-collision-MONTHLY",
+      "path": "rbd/f3b72221-0933-468e-a8a8-26e5c8361595/3a0521e1-eaca-429f-998f-92f49564d3d1",
+      "role": "Primary",
+      "refid": 484,
+      "store": 3,
+      "global": "BackedUp",
+      "account": 99,
+      "refstate": "Ready",
+      "snapshot": "b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+      "volumeid": 443,
+      "volumePath": "f3b72221-0933-468e-a8a8-26e5c8361595"
+    },
+    {
+      "url": "nfs://10.10.32.10/nfs/secondary",
+      "name": "SNAPREG1489-32-collision-MONTHLY",
+      "path": "snapshots/99/443/3a0521e1-eaca-429f-998f-92f49564d3d1",
+      "role": "Image",
+      "refid": 485,
+      "store": 1,
+      "global": "BackedUp",
+      "account": 99,
+      "refstate": "Ready",
+      "snapshot": "b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+      "volumeid": 443,
+      "volumePath": "f3b72221-0933-468e-a8a8-26e5c8361595"
+    }
+  ],
+  "physical": {
+    "path": "/nfs/secondary/snapshots/99/443/3a0521e1-eaca-429f-998f-92f49564d3d1",
+    "backup": "/nfs/snapshot-regression-1489-loss-backups/display-b8009e7a-56bb-4b5d-bdd5-349d8735f62d",
+    "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "secondaryFileAbsent": true
+  },
+  "primarySnapshotStillPresent": "3a0521e1-eaca-429f-998f-92f49564d3d1",
+  "remaining": [
+    {
+      "remaining": 0
+    }
+  ]
+}

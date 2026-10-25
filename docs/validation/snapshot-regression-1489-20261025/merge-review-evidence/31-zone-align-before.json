@@ -1,0 +1,30 @@
+{
+  "dark": true,
+  "rows": [
+    {
+      "align": "normal",
+      "text": "Zone",
+      "textAlign": "start",
+      "width": 55.4375,
+      "x": 378.9375,
+      "y": 799.75
+    }
+  ],
+  "volume": {
+    "align": "center",
+    "text": "ROOT-92",
+    "textAlign": "start",
+    "width": 215.328125,
+    "x": 299,
+    "y": 661.75
+  },
+  "width": 1280,
+  "zones": {
+    "align": "center",
+    "text": "Zone",
+    "textAlign": "start",
+    "width": 215.328125,
+    "x": 299,
+    "y": 799.75
+  }
+}

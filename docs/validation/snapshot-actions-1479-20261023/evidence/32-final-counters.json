@@ -1,0 +1,13 @@
+{
+  "roles": 0,
+  "activeVMs": 0,
+  "activeVolumes": 0,
+  "activeAccounts": 0,
+  "activeProjects": 0,
+  "activeSnapshots": 0,
+  "activeTemplates": 0,
+  "forbiddenVolumes": 0,
+  "forbiddenSnapshots": 0,
+  "vmSnapshotFaultRows": 0,
+  "nonterminalReferences": 0
+}

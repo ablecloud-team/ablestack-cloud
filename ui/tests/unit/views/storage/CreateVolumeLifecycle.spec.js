@@ -13,8 +13,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import '../../utils/cryptoRandom'
 import CreateVolume from '@/views/storage/CreateVolume.vue'
-import { postAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
+import { clearStorageSnapshotOperations } from '@/utils/storageSnapshotOperations'
 import { mixinForm } from '@/utils/mixin'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/store', () => ({ getters: { userInfo: { account: 'admin', roletype: 'Admin' }, project: null } }))
@@ -94,4 +96,53 @@ test('a close from an obsolete dialog scope cannot close the currently active di
   ctx.dialogCurrent = () => true
   CreateVolume.methods.closeModal.call(ctx)
   expect(ctx.$emit).toHaveBeenCalledWith('close-action')
+})
+
+afterEach(() => clearStorageSnapshotOperations())
+function snapshotContext () {
+  const ctx = context(); ctx.attachVolume = true; ctx.snapshotSafetyTarget = { id: 'snapshot' }; ctx.createVolumeFromSnapshot = true; ctx.resource.id = 'snapshot'; ctx.form.zoneid = 'zone'
+  ctx.$store = { getters: { userInfo: { id: 'admin' }, project: {} }, state: { user: { token: 'session' } } }
+  ctx.submitSnapshotSafely = jest.fn(async (values, validate) => {
+    await validate()
+    return { jobid: 'created-job', status: 'complete', completion: Promise.resolve({ jobstatus: 1, jobresult: { volume: { id: 'created-volume', name: 'restored' } } }) }
+  })
+  getAPI.mockImplementation(api => Promise.resolve(api === 'listApis' ? { listapisresponse: { api: [{ name: 'attachVolume' }] } } : api === 'listVirtualMachines' ? { listvirtualmachinesresponse: { virtualmachine: [{ id: 'original-vm', state: 'Stopped', account: 'admin', domainid: 'domain', zoneid: 'zone' }] } } : { queryasyncjobresultresponse: { jobstatus: 1, jobresult: { volume: { id: 'created-volume' } } } }))
+  return ctx
+}
+test('snapshot restore retains its requested attachment and checks the fixed VM again before attach', async () => {
+  const ctx = snapshotContext(); CreateVolume.methods.handleSubmit.call(ctx); await flush()
+  expect(postAPI).toHaveBeenCalledWith('attachVolume', { id: 'created-volume', virtualmachineid: 'original-vm', deviceid: 4, projectid: '-1', customjobid: expect.any(String) }, { preserveOnFailure: true })
+  expect(getAPI.mock.calls.filter(([api]) => api === 'listVirtualMachines')).toHaveLength(2)
+})
+test('a changed destination VM prevents snapshot volume creation before its first mutation', async () => {
+  const ctx = snapshotContext()
+  getAPI.mockResolvedValue({ listapisresponse: { api: [{ name: 'attachVolume' }] }, listvirtualmachinesresponse: { virtualmachine: [{ id: 'different-vm' }] } })
+  CreateVolume.methods.handleSubmit.call(ctx); await flush()
+  expect(postAPI).not.toHaveBeenCalled(); expect(ctx.$notifyError).toHaveBeenCalled()
+})
+test('closing the snapshot dialog during creation prevents a late attachment', async () => {
+  const ctx = snapshotContext()
+  ctx.submitSnapshotSafely.mockImplementation(async () => { ctx.dialogCurrent = () => false; return { jobid: 'job', status: 'complete', completion: Promise.resolve({ jobstatus: 1 }) } })
+  CreateVolume.methods.handleSubmit.call(ctx); await flush()
+  expect(postAPI).not.toHaveBeenCalled(); expect(ctx.closeModal).not.toHaveBeenCalled()
+})
+
+test('confirmed missing source permits snapshot recovery while incomplete source lookup still blocks', () => {
+  const ctx = { createVolumeFromSnapshot: true, createOnStorage: false, snapshotAllocationLoading: false, snapshotAllocationError: true, explicitAllocation: null, snapshotAllocation: null, snapshotSafetyContext: { source: { sourceavailable: false } } }
+  expect(CreateVolume.computed.allocationBlocked.call(ctx)).toBe(false)
+  ctx.snapshotSafetyContext.source.sourceavailable = true
+  expect(CreateVolume.computed.allocationBlocked.call(ctx)).toBe(true)
+  ctx.snapshotSafetyContext = null
+  expect(CreateVolume.computed.allocationBlocked.call(ctx)).toBe(true)
+  ctx.snapshotSafetyContext = { source: { sourceavailable: false } }; ctx.explicitAllocation = { policy: 'full' }
+  expect(CreateVolume.computed.allocationBlocked.call(ctx)).toBe(true)
+})
+
+test('failed snapshot restore retains target and inputs while surfacing the async failure', async () => {
+  const ctx = snapshotContext(); ctx.attachVolume = false
+  ctx.submitSnapshotSafely.mockResolvedValue({ jobid: 'failed-job', status: 'failed', error: 'storage unavailable', completion: Promise.resolve({ jobstatus: 2 }) })
+  CreateVolume.methods.handleSubmit.call(ctx); await flush()
+  expect(ctx.closeModal).not.toHaveBeenCalled(); expect(ctx.form.name).toBe('first-volume')
+  expect(ctx.resource.id).toBe('snapshot'); expect(ctx.snapshotSafetyError).toBe('storage unavailable')
+  expect(ctx.loading).toBe(false)
 })

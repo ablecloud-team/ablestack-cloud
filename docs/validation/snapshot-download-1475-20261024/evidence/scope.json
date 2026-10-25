@@ -1,0 +1,39 @@
+{
+  "changedSourceAndTests": [
+    "api/src/main/java/com/cloud/storage/snapshot/SnapshotApiService.java",
+    "api/src/main/java/com/cloud/storage/snapshot/SnapshotExtractResult.java",
+    "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/ExtractSnapshotCmd.java",
+    "api/src/main/java/org/apache/cloudstack/api/response/ExtractResponse.java",
+    "core/src/main/java/com/cloud/agent/api/storage/CreateEntityDownloadURLAnswer.java",
+    "core/src/main/java/com/cloud/agent/api/storage/CreateEntityDownloadURLCommand.java",
+    "plugins/storage/image/default/src/main/java/org/apache/cloudstack/storage/datastore/driver/CloudStackImageStoreDriverImpl.java",
+    "server/src/main/java/com/cloud/storage/snapshot/SnapshotManagerImpl.java",
+    "server/src/test/java/com/cloud/storage/snapshot/SnapshotManagerTest.java",
+    "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/template/UploadManagerImpl.java",
+    "services/secondary-storage/server/src/test/java/org/apache/cloudstack/storage/template/SnapshotDownloadTest.java",
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/components/view/StorageSnapshotJobDialog.vue",
+    "ui/src/components/view/StorageSnapshotSafety.vue",
+    "ui/src/config/section/storage.js",
+    "ui/src/utils/snapshotDownload.js",
+    "ui/src/utils/storageSnapshotContext.js",
+    "ui/src/utils/storageSnapshotNotices.js",
+    "ui/src/utils/storageSnapshotOperations.js",
+    "ui/src/views/storage/StorageSnapshotActionDialog.vue",
+    "ui/tests/unit/components/header/StorageSnapshotNotifications.spec.js",
+    "ui/tests/unit/utils/snapshotDownload.spec.js",
+    "ui/tests/unit/views/storage/StorageSnapshotActionDialog.spec.js"
+  ],
+  "reusedInspectors": [
+    "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/formatinspector/SnapshotImageMetadata.java",
+    "services/secondary-storage/server/src/main/java/org/apache/cloudstack/storage/formatinspector/Qcow2Inspector.java"
+  ],
+  "javaTests": 112,
+  "uiTests": 193,
+  "uiSuites": 14,
+  "fullCloudBuild": false,
+  "actionsDispatch": false,
+  "qemuBuild": false,
+  "sourceBase": "ac2ab9eaa1076fe5fb607c78b10da4da52fa6106"
+}

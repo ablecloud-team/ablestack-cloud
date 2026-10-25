@@ -1,0 +1,7 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/df68f239-a62b-459a-9a0c-bf06b0afb91c?tab=zones".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					1132 image close
+~					1134 image close-circle
++					1138 text 확인 이후 대상 상태나 사본 범위가 바뀌었습니다. 현재 대상을 다시 확인한 뒤 제출하세요.
+~					1135 button 재시도
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot/df68f239-a62b-459a-9a0c-bf06b0afb91c?tab=zones

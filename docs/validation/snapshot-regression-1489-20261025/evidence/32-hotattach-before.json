@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "error": "{\"accountid\":\"6d3ebcb0-b23b-11f1-990e-0024811f8935\",\"account\":\"admin\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"6d3f209b-b23b-11f1-990e-0024811f8935\",\"cmd\":\"org.apache.cloudstack.api.command.admin.volume.AttachVolumeCmdByAdmin\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Failed to attach volume SNAPREG1489-32-vmdata to VM SNAPREG1489-32-vm due to: class com.cloud.agent.api.Answer cannot be cast to class org.apache.cloudstack.storage.command.AttachAnswer (com.cloud.agent.api.Answer and org.apache.cloudstack.storage.command.AttachAnswer are in unnamed module of loader 'app')\"},\"jobinstancetype\":\"Volume\",\"jobinstanceid\":\"4977aef9-bb3f-4cd7-9fed-58cb7e401871\",\"created\":\"2026-10-25T17:32:46+0900\",\"completed\":\"2026-10-25T17:32:48+0900\",\"jobid\":\"35f5d6ce-5044-4a17-9d1f-d1e958401b14\",\"jobstatus\":2}",
+  "volume": null,
+  "vm": null
+}

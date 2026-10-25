@@ -1,0 +1,62 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (2)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [
+    {
+      "id": "98b5f9f0-8543-4cd3-b0a8-31780f0b58ec",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-01"
+    },
+    {
+      "id": "3a1643f7-b97c-44aa-aed9-ce01d0a001e4",
+      "text": "admin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-00"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 2개 항목 중 1-2 표시\n1"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-01\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-00\n전체 2개 항목 중 1-2 표시\n1",
+  "text": "/스냅샷/SNAPTABS1487-32-other업데이트\n작업\nSNAPTABS1487-32-other\n상태\n백업 됨\n아이디\n2a63b280-0452-486f-b123-00948080b885 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-other\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-32-other\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:07:02\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-other\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-01\nadmin\n2026. 10. 25. 오전 2:09:07\nSNAPTABS1487-32-other-comment-00\n전체 2개 항목 중 1-2 표시\n1",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/2a63b280-0452-486f-b123-00948080b885?tab=comments",
+  "width": 1280
+}

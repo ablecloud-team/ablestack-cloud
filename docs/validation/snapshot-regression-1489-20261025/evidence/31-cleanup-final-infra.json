@@ -1,0 +1,82 @@
+[
+  {
+    "command": "deleteHost",
+    "id": "9c79350a-62fd-43cb-a367-024cee8efc90",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteHost",
+    "id": "b0a40ced-d10a-4b02-aa7f-9533e367afb1",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteImageStore",
+    "id": "8acb6c48-3028-4660-a565-c0ac6791aea7",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePhysicalNetwork",
+    "id": "4a80980a-29ab-4f40-bd67-b660dcdd366a",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePod",
+    "id": "b452a390-3ab7-4a45-aa26-9bd72ac03339",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteZone",
+    "id": "79cc3335-db1a-4c15-9e3d-e32ad6032395",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteImageStore",
+    "id": "1d7853cc-57cd-4ca7-9c6f-646d165cd60d",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePhysicalNetwork",
+    "id": "bfef9229-3095-4162-8867-bd46ec9c9e9e",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deletePod",
+    "id": "dab3e330-8305-4812-aa9b-8d29d2535348",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteZone",
+    "id": "9b2a63c0-e8bd-48f1-92ff-a810aa4416c5",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  }
+]

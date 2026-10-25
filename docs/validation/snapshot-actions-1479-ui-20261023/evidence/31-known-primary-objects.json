@@ -1,0 +1,27 @@
+[
+  {
+    "uuid": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+    "name": "SNAP1479UI-31-source",
+    "path": "2978492b-2b64-48a7-8392-d6cefccd94c8"
+  },
+  {
+    "uuid": "1cdac293-2c4d-4ef0-b01d-3b7113eba9fb",
+    "name": "SNAP1479UI-31-other",
+    "path": "1cdac293-2c4d-4ef0-b01d-3b7113eba9fb"
+  },
+  {
+    "uuid": "bf7dd948-fe06-4781-90d7-8e0025631ba6",
+    "name": "SNAP1479UI-31-orphan-source",
+    "path": "bf7dd948-fe06-4781-90d7-8e0025631ba6"
+  },
+  {
+    "uuid": "899ce621-18f4-4d22-9fa4-83844dc22d1d",
+    "name": "SNAP1479UI-31-lost-ui-volume",
+    "path": "2f4245c0-2ebf-4097-810e-8168fd5511f2"
+  },
+  {
+    "uuid": "3391e98c-d064-4b8d-9ac8-572a2d24d323",
+    "name": "ROOT-757",
+    "path": "3391e98c-d064-4b8d-9ac8-572a2d24d323"
+  }
+]

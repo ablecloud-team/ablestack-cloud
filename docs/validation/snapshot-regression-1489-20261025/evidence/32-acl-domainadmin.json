@@ -1,0 +1,13 @@
+{
+  "identity": {
+    "username": "SNAPREG1489-32-domainadmin",
+    "type": "2"
+  },
+  "checks": [
+    {
+      "domainScope": true,
+      "rootHidden": true
+    }
+  ],
+  "status": "PASS"
+}

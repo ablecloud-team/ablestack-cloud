@@ -1,0 +1,410 @@
+{
+  "snapshots": [
+    {
+      "id": 68,
+      "name": "SNAP1479-31-source-snapshot",
+      "path": "snapshots/2/978/5e0b1bf7-06f9-4836-a748-1ff7154e05ff",
+      "role": "Image",
+      "uuid": "c581a625-ee69-4f4f-952a-427dd5af6486",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 130
+    },
+    {
+      "id": 69,
+      "name": "SNAP1479-31-other-snapshot",
+      "path": "snapshots/2/979/c349e01d-f24a-4403-8f3e-45382fcb997d",
+      "role": "Image",
+      "uuid": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 132
+    },
+    {
+      "id": 70,
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "path": "snapshots/2/980/32120945-1d45-4144-8aa9-aa54f439c369",
+      "role": "Image",
+      "uuid": "140bc334-a5a9-4538-a652-d9c76a36ef91",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 134
+    },
+    {
+      "id": 71,
+      "name": "SNAP1479-31-running-snapshot",
+      "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+      "role": "Image",
+      "uuid": "b33928f0-11af-43af-95f6-811d77eba840",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 0,
+      "refstate": "Destroyed",
+      "referenceid": 136
+    },
+    {
+      "id": 72,
+      "name": "SNAP1479-31-tenant-snapshot",
+      "path": "snapshots/250/982/7aa2a13f-8acf-48cd-8876-36363b660eb5",
+      "role": "Image",
+      "uuid": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 138
+    },
+    {
+      "id": 73,
+      "name": "SNAP1479-31-lost-ui",
+      "path": "snapshots/250/982/c918fc02-e8b6-441e-b998-8d1a4fdfc760",
+      "role": "Image",
+      "uuid": "d9f9b438-fd77-4600-8f62-8cda96171731",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 140
+    },
+    {
+      "id": 74,
+      "name": "SNAP1479-31-lost-ui",
+      "path": null,
+      "role": null,
+      "uuid": "00476908-569b-4d56-a950-21004036d9fc",
+      "state": "Destroyed",
+      "display": null,
+      "removed": null,
+      "storeid": null,
+      "location": null,
+      "physical": null,
+      "refstate": null,
+      "referenceid": null
+    },
+    {
+      "id": 75,
+      "name": "SNAP1479-31-dedupe-createSnapshot",
+      "path": "snapshots/250/982/1f37a755-79e1-4084-bcff-86e56466ec6f",
+      "role": "Image",
+      "uuid": "6acf107e-81fe-47a3-930f-fdf47019ed39",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 142
+    },
+    {
+      "id": 76,
+      "name": "SNAP1479-31-lost-fixed-ui",
+      "path": "snapshots/250/982/ce5aea8d-7214-41d8-bc0b-01287872b5dc",
+      "role": "Image",
+      "uuid": "21e134fe-bc51-4aef-b76a-8e952ac34ea6",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 144
+    },
+    {
+      "id": 77,
+      "name": "SNAP1479-31-lost-reload-ui",
+      "path": "snapshots/250/982/5b8d166e-dc8e-4f0c-bf98-0ed07f03a10f",
+      "role": "Image",
+      "uuid": "24165be4-ed23-4c19-b4ee-d2893a038621",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 146
+    },
+    {
+      "id": 78,
+      "name": "SNAP1479-31-query-project-ui",
+      "path": "snapshots/250/982/1ecfabaa-496b-42db-b237-ccb4cf1902fa",
+      "role": "Image",
+      "uuid": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 148
+    }
+  ],
+  "volumes": [
+    {
+      "id": 978,
+      "name": "SNAP1479-31-source",
+      "path": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "uuid": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 979,
+      "name": "SNAP1479-31-other",
+      "path": "5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+      "uuid": "5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 980,
+      "name": "SNAP1479-31-orphan-source",
+      "path": "c1125109-a685-4280-91b9-e1ccd481cc30",
+      "uuid": "c1125109-a685-4280-91b9-e1ccd481cc30",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 10:20:20.000000",
+      "instanceid": null
+    },
+    {
+      "id": 981,
+      "name": "SNAP1479-31-orphan-api-volume",
+      "path": "c0f04321-39a4-44b7-a0a8-33cfdb2bbd28",
+      "uuid": "5e0a3b34-56e5-4bc4-8cff-1cc2ae5520b8",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 982,
+      "name": "SNAP1479-31-tenant-source",
+      "path": "0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+      "uuid": "0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:55:19.000000",
+      "instanceid": null
+    },
+    {
+      "id": 983,
+      "name": "SNAP1479-31-dedupe-createVolume",
+      "path": "9df4cde4-90f3-4c7e-8e1d-6f27ffca0431",
+      "uuid": "083d7179-4e15-476e-a1fd-7cafbca8c8b4",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 984,
+      "name": "SNAP1479-31-orphan-ui-volume",
+      "path": "bcfc0104-5ba8-4f5d-a1e5-55ce528f4895",
+      "uuid": "a1190b3f-4380-4869-b015-b9ccc0929845",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 985,
+      "name": "SNAP1479-31-owner-recovery",
+      "path": "9c7f5386-55fb-433b-8d33-c4e6773c9890",
+      "uuid": "9fe68e7b-16ac-42b8-a0ea-9c9b495bd208",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 11:44:12.000000",
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 21,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1206229790736,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [
+    {
+      "name": "SNAP1479-31-dedupe-createSnapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "6acf107e-81fe-47a3-930f-fdf47019ed39"
+    },
+    {
+      "name": "SNAP1479-31-dedupe-createSnapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "6acf107e-81fe-47a3-930f-fdf47019ed39"
+    },
+    {
+      "name": "SNAP1479-31-lost-fixed-ui",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "21e134fe-bc51-4aef-b76a-8e952ac34ea6"
+    },
+    {
+      "name": "SNAP1479-31-lost-fixed-ui",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "21e134fe-bc51-4aef-b76a-8e952ac34ea6"
+    },
+    {
+      "name": "SNAP1479-31-lost-reload-ui",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "24165be4-ed23-4c19-b4ee-d2893a038621"
+    },
+    {
+      "name": "SNAP1479-31-lost-reload-ui",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "24165be4-ed23-4c19-b4ee-d2893a038621"
+    },
+    {
+      "name": "SNAP1479-31-lost-ui",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "00476908-569b-4d56-a950-21004036d9fc"
+    },
+    {
+      "name": "SNAP1479-31-lost-ui",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "d9f9b438-fd77-4600-8f62-8cda96171731"
+    },
+    {
+      "name": "SNAP1479-31-lost-ui",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "d9f9b438-fd77-4600-8f62-8cda96171731"
+    },
+    {
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "140bc334-a5a9-4538-a652-d9c76a36ef91"
+    },
+    {
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "140bc334-a5a9-4538-a652-d9c76a36ef91"
+    },
+    {
+      "name": "SNAP1479-31-other-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26"
+    },
+    {
+      "name": "SNAP1479-31-other-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26"
+    },
+    {
+      "name": "SNAP1479-31-query-project-ui",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb"
+    },
+    {
+      "name": "SNAP1479-31-query-project-ui",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb"
+    },
+    {
+      "name": "SNAP1479-31-running-snapshot",
+      "type": "SNAPSHOT.CREATE",
+      "count": 1,
+      "snapshot": "b33928f0-11af-43af-95f6-811d77eba840"
+    },
+    {
+      "name": "SNAP1479-31-running-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "b33928f0-11af-43af-95f6-811d77eba840"
+    },
+    {
+      "name": "SNAP1479-31-running-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "b33928f0-11af-43af-95f6-811d77eba840"
+    },
+    {
+      "name": "SNAP1479-31-source-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "c581a625-ee69-4f4f-952a-427dd5af6486"
+    },
+    {
+      "name": "SNAP1479-31-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "c581a625-ee69-4f4f-952a-427dd5af6486"
+    },
+    {
+      "name": "SNAP1479-31-tenant-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 2,
+      "snapshot": "db2a8229-b521-441f-9d1c-1fe4c44b0bce"
+    },
+    {
+      "name": "SNAP1479-31-tenant-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "db2a8229-b521-441f-9d1c-1fe4c44b0bce"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "snap1479-31-tenant",
+      "snapshot": 0,
+      "secondary_storage": 0
+    },
+    {
+      "owner": "admin",
+      "snapshot": 21,
+      "secondary_storage": 1206229790736
+    }
+  ]
+}

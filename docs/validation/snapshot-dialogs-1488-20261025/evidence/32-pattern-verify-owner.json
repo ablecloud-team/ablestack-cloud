@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "582c13ce-12d6-421d-88db-c251f62ac47d",
+    "scenario": "owner",
+    "image": "rbd:rbd/582c13ce-12d6-421d-88db-c251f62ac47d",
+    "phase": "verify",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (288.223 MiB/sec and 288.2233 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

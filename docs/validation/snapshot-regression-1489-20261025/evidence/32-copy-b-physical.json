@@ -1,0 +1,103 @@
+{
+  "pass": true,
+  "snapshot": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+  "refs": [
+    {
+      "id": 463,
+      "url": null,
+      "path": "rbd/f3b72221-0933-468e-a8a8-26e5c8361595/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "role": "Primary",
+      "zone": null,
+      "state": "Ready",
+      "store": null
+    },
+    {
+      "id": 464,
+      "url": "nfs://10.10.32.10/nfs/secondary",
+      "path": "snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "role": "Image",
+      "zone": "991d2f57-0f37-4445-b956-09773d064816",
+      "state": "Ready",
+      "store": "af746f16-4e36-4f19-805c-61307d373e64"
+    },
+    {
+      "id": 493,
+      "url": "nfs://10.10.32.10/nfs/secondary/SNAPREG1489-32/a",
+      "path": "snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "role": "Image",
+      "zone": "821e7589-35b8-4a4d-b190-454836e35485",
+      "state": "Ready",
+      "store": "4dc84609-8c5e-4a81-9f83-0a96f38aeb58"
+    },
+    {
+      "id": 497,
+      "url": "nfs://10.10.32.10/nfs/secondary/SNAPREG1489-32/b",
+      "path": "snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "role": "Image",
+      "zone": "0c0bba32-57d5-4e55-b054-395925bc8fad",
+      "state": "Ready",
+      "store": "70327fb1-c8c0-47e7-bd80-e2e66572a220"
+    }
+  ],
+  "physical": {
+    "source": "/nfs/secondary/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+    "target": "/nfs/secondary/SNAPREG1489-32/b/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+    "sourceSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "targetSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/SNAPREG1489-32/b/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/SNAPREG1489-32/b/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "compare": "Images are identical.\n",
+    "pattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.736 GiB/sec and 2801.4736 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.938 GiB/sec and 3008.5503 ops/sec)\n"
+  },
+  "jobs": [
+    {
+      "uuid": "be2f9215-80cf-4cce-92fd-59600bd25e5c",
+      "result": "org.apache.cloudstack.api.response.SnapshotResponse/snapshot/{\"copy\":{\"id\":\"35766188-8096-3744-86d2-580ad61961a5\",\"role\":\"Image\",\"state\":\"Ready\",\"datastoreknown\":true,\"availability\":\"Ready\",\"virtualsize\":1073741824,\"downloadstate\":\"DOWNLOADED\",\"error\":\"\"},\"id\":\"0d1473da-64c7-42bb-b7ec-5c5f3863976f\",\"account\":\"SNAPREG1489-32-owner\",\"domainid\":\"58217a61-215b-4a44-a326-ed35dede63e2\",\"domain\":\"SNAPREG1489-32-domain\",\"domainpath\":\"ROOT/SNAPREG1489-32-domain\",\"volumeid\":\"f3b72221-0933-468e-a8a8-26e5c8361595\",\"volumename\":\"SNAPREG1489-32-owner\",\"volumetype\":\"DATADISK\",\"volumestate\":\"Ready\",\"created\":\"2026-10-25T17:53:31+0900\",\"name\":\"SNAPREG1489-32-pattern\",\"intervaltype\":\"MANUAL\",\"state\":\"BackedUp\",\"status\":\"BackedUp\",\"physicalsize\":0,\"zoneid\":\"0c0bba32-57d5-4e55-b054-395925bc8fad\",\"zonename\":\"SNAPREG1489-32-Zone-b\",\"revertable\":false,\"virtualsize\":1073741824,\"datastoreid\":\"70327fb1-c8c0-47e7-bd80-e2e66572a220\",\"datastorename\":\"SNAPREG1489-32-Secondary-b\",\"datastorestate\":\"Ready\",\"datastoretype\":\"Image\",\"downloaddetails\":{\"downloadState\":\"DOWNLOADED\",\"downloadPercent\":\"100\"},\"tags\":[],\"hasannotations\":false}",
+      "status": 1
+    },
+    {
+      "uuid": "e7255bb3-1078-48e0-b4c6-fc29b2aad8a8",
+      "result": "org.apache.cloudstack.api.response.ExceptionResponse/null/{\"uuidList\":[],\"errorcode\":530,\"errortext\":\"Snapshot copy failed. Completed destinations: SNAPREG1489-32-Zone-a. Failed destinations: SNAPREG1489-32-Zone-b (TRANSFER_OR_VERIFICATION_FAILED). Refresh destinations and retry failed Zones; completed copies are retained.\"}",
+      "status": 2
+    },
+    {
+      "uuid": "df916e05-061a-411d-a317-e4933a3b8bf8",
+      "result": "org.apache.cloudstack.api.response.SnapshotResponse/snapshot/{\"copy\":{\"id\":\"89cad883-72b3-3c6e-ae5d-311a98939471\",\"role\":\"Image\",\"state\":\"Ready\",\"datastoreknown\":true,\"availability\":\"Ready\",\"virtualsize\":1073741824,\"downloadstate\":\"DOWNLOADED\",\"error\":\"\"},\"id\":\"0d1473da-64c7-42bb-b7ec-5c5f3863976f\",\"account\":\"SNAPREG1489-32-owner\",\"domainid\":\"58217a61-215b-4a44-a326-ed35dede63e2\",\"domain\":\"SNAPREG1489-32-domain\",\"domainpath\":\"ROOT/SNAPREG1489-32-domain\",\"volumeid\":\"f3b72221-0933-468e-a8a8-26e5c8361595\",\"volumename\":\"SNAPREG1489-32-owner\",\"volumetype\":\"DATADISK\",\"volumestate\":\"Ready\",\"created\":\"2026-10-25T17:53:31+0900\",\"name\":\"SNAPREG1489-32-pattern\",\"intervaltype\":\"MANUAL\",\"state\":\"BackedUp\",\"status\":\"BackedUp\",\"physicalsize\":0,\"zoneid\":\"821e7589-35b8-4a4d-b190-454836e35485\",\"zonename\":\"SNAPREG1489-32-Zone-a\",\"revertable\":false,\"virtualsize\":1073741824,\"datastoreid\":\"4dc84609-8c5e-4a81-9f83-0a96f38aeb58\",\"datastorename\":\"SNAPREG1489-32-Secondary-a\",\"datastorestate\":\"Ready\",\"datastoretype\":\"Image\",\"downloaddetails\":{\"downloadState\":\"DOWNLOADED\",\"downloadPercent\":\"100\"},\"tags\":[],\"hasannotations\":false}",
+      "status": 1
+    }
+  ]
+}

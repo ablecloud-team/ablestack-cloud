@@ -1,0 +1,703 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": false,
+    "label": null,
+    "tag": "DIV",
+    "text": "스냅샷 삭제고정된 작업 대상 2개를 확인하세요.이름볼륨계정상태가상 크기간격 유형생성일삭제 범위        SNAPDIALOG1488-31-vmdataSNAPDIALOG1488-31-vmdataadmin · ROOT"
+  },
+  "body": {
+    "bottom": 622,
+    "height": 534,
+    "right": 1119,
+    "width": 958,
+    "x": 161,
+    "y": 88
+  },
+  "bodyScroll": {
+    "clientHeight": 534,
+    "clientWidth": 948,
+    "height": 699,
+    "overflowY": "auto",
+    "width": 948
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 81,
+        "height": 48,
+        "right": 1119,
+        "width": 48,
+        "x": 1071,
+        "y": 33
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 496.140625,
+        "height": 24,
+        "right": 293.640625,
+        "width": 40.640625,
+        "x": 253,
+        "y": 472.140625
+      },
+      "text": "재시도"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 974.75,
+        "width": 57.765625,
+        "x": 916.984375,
+        "y": 639
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 671,
+        "height": 32,
+        "right": 1091,
+        "width": 100.25,
+        "x": 990.75,
+        "y": 639
+      },
+      "text": "스냅샷 삭제"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 71,
+        "height": 22,
+        "right": 1095,
+        "width": 910,
+        "x": 185,
+        "y": 49
+      },
+      "text": "스냅샷 삭제"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 409,
+        "width": 220,
+        "x": 189,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 609,
+        "width": 200,
+        "x": 409,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 789,
+        "width": 180,
+        "x": 609,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 889,
+        "width": 100,
+        "x": 789,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 1009,
+        "width": 120,
+        "x": 889,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 1109,
+        "width": 100,
+        "x": 1009,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 1279,
+        "width": 170,
+        "x": 1109,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 185,
+        "height": 0,
+        "right": 1489,
+        "width": 210,
+        "x": 1279,
+        "y": 185
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 409,
+        "width": 220,
+        "x": 189,
+        "y": 185
+      },
+      "text": "SNAPDIALOG1488-31-vmdata"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 609,
+        "width": 200,
+        "x": 409,
+        "y": 185
+      },
+      "text": "SNAPDIALOG1488-31-vmdata"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 789,
+        "width": 180,
+        "x": 609,
+        "y": 185
+      },
+      "text": "admin · ROOT"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 889,
+        "width": 100,
+        "x": 789,
+        "y": 185
+      },
+      "text": "백업 됨"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 1009,
+        "width": 120,
+        "x": 889,
+        "y": 185
+      },
+      "text": "1.00 GiB"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 1109,
+        "width": 100,
+        "x": 1009,
+        "y": 185
+      },
+      "text": "수동"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 1279,
+        "width": 170,
+        "x": 1109,
+        "y": 185
+      },
+      "text": "2026. 10. 25. 오전 8:39:06"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 246,
+        "height": 61,
+        "right": 1489,
+        "width": 210,
+        "x": 1279,
+        "y": 185
+      },
+      "text": "모든 Zone 및 현재 사본 범위"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 409,
+        "width": 220,
+        "x": 189,
+        "y": 246
+      },
+      "text": "SNAPDIALOG1488-31-other"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 609,
+        "width": 200,
+        "x": 409,
+        "y": 246
+      },
+      "text": "SNAPDIALOG1488-31-other"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 789,
+        "width": 180,
+        "x": 609,
+        "y": 246
+      },
+      "text": "SNAPDIALOG1488-31-other · SNAPDIALOG1488-31-domain"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 889,
+        "width": 100,
+        "x": 789,
+        "y": 246
+      },
+      "text": "백업 됨"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 1009,
+        "width": 120,
+        "x": 889,
+        "y": 246
+      },
+      "text": "1.00 GiB"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 1109,
+        "width": 100,
+        "x": 1009,
+        "y": 246
+      },
+      "text": "수동"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 1279,
+        "width": 170,
+        "x": 1109,
+        "y": 246
+      },
+      "text": "2026. 10. 25. 오전 8:39:03"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 329,
+        "height": 83,
+        "right": 1489,
+        "width": 210,
+        "x": 1279,
+        "y": 246
+      },
+      "text": "모든 Zone 및 현재 사본 범위"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(92, 59, 0)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 394,
+        "height": 22,
+        "right": 1065,
+        "width": 838,
+        "x": 227,
+        "y": 372
+      },
+      "text": "선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(112, 27, 27)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 468.140625,
+        "height": 25.140625,
+        "right": 1065,
+        "width": 812,
+        "x": 253,
+        "y": 443
+      },
+      "text": "SS-15 second selection rejected"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(112, 27, 27)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 496.140625,
+        "height": 24,
+        "right": 1065,
+        "width": 812,
+        "x": 253,
+        "y": 472.140625
+      },
+      "text": "재시도"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(31, 41, 55)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 558.140625,
+        "height": 22,
+        "right": 1081,
+        "width": 892,
+        "x": 189,
+        "y": 536.140625
+      },
+      "text": "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 556.140625,
+        "height": 16,
+        "right": 205,
+        "width": 16,
+        "x": 189,
+        "y": 540.140625
+      },
+      "text": ""
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(11, 59, 102)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 613.140625,
+        "height": 22,
+        "right": 1065,
+        "width": 838,
+        "x": 227,
+        "y": 591.140625
+      },
+      "text": "완료 결과는 알림에 보관됩니다. 실패한 경우 작업 결과를 확인한 뒤 대화상자를 닫고 남은 대상만 다시 선택하세요."
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 685.140625,
+        "height": 0,
+        "right": 724.1875,
+        "width": 535.1875,
+        "x": 189,
+        "y": 685.140625
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "0px",
+      "rect": {
+        "bottom": 685.140625,
+        "height": 0,
+        "right": 1081,
+        "width": 356.8125,
+        "x": 724.1875,
+        "y": 685.140625
+      },
+      "text": " "
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 724.140625,
+        "height": 39,
+        "right": 724.1875,
+        "width": 535.1875,
+        "x": 189,
+        "y": 685.140625
+      },
+      "text": "SNAPDIALOG1488-31-vmdata"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 724.140625,
+        "height": 39,
+        "right": 1081,
+        "width": 356.8125,
+        "x": 724.1875,
+        "y": 685.140625
+      },
+      "text": "작업 완료"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 763.140625,
+        "height": 39,
+        "right": 724.1875,
+        "width": 535.1875,
+        "x": 189,
+        "y": 724.140625
+      },
+      "text": "SNAPDIALOG1488-31-other"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 763.140625,
+        "height": 39,
+        "right": 1081,
+        "width": 356.8125,
+        "x": 724.1875,
+        "y": 724.140625
+      },
+      "text": "서버 작업 실패"
+    }
+  ],
+  "dialog": {
+    "bottom": 688,
+    "height": 656,
+    "right": 1120,
+    "width": 960,
+    "x": 160,
+    "y": 32
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 687,
+    "height": 65,
+    "right": 1119,
+    "width": 958,
+    "x": 161,
+    "y": 622
+  },
+  "groups": [],
+  "header": {
+    "bottom": 88,
+    "height": 55,
+    "right": 1119,
+    "width": 958,
+    "x": 161,
+    "y": 33
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 556.140625,
+        "height": 16,
+        "right": 205,
+        "width": 16,
+        "x": 189,
+        "y": 540.140625
+      },
+      "value": "on"
+    }
+  ],
+  "tables": [
+    {
+      "height": 144,
+      "overflowX": "auto",
+      "overflowY": "scroll",
+      "scrollHeight": 144,
+      "scrollWidth": 1300,
+      "width": 882
+    },
+    {
+      "height": 117,
+      "overflowX": "auto",
+      "overflowY": "hidden",
+      "scrollHeight": 117,
+      "scrollWidth": 892,
+      "width": 892
+    }
+  ],
+  "text": "스냅샷 삭제\n\n고정된 작업 대상 2개를 확인하세요.\n\n이름\t볼륨\t계정\t상태\t가상 크기\t간격 유형\t생성일\t삭제 범위\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSNAPDIALOG1488-31-vmdata\tSNAPDIALOG1488-31-vmdata\tadmin · ROOT\t백업 됨\t1.00 GiB\t수동\t2026. 10. 25. 오전 8:39:06\t모든 Zone 및 현재 사본 범위\nSNAPDIALOG1488-31-other\tSNAPDIALOG1488-31-other\tSNAPDIALOG1488-31-other · SNAPDIALOG1488-31-domain\t백업 됨\t1.00 GiB\t수동\t2026. 10. 25. 오전 8:39:03\t모든 Zone 및 현재 사본 범위\n선택한 스냅샷과 모든 Zone의 Primary·Secondary 사본을 삭제합니다. 원본 볼륨은 유지됩니다.\nSS-15 second selection rejected\n재시도\n표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.\n완료 결과는 알림에 보관됩니다. 실패한 경우 작업 결과를 확인한 뒤 대화상자를 닫고 남은 대상만 다시 선택하세요.\n이름\t상태\n\n \n\t\n \n\nSNAPDIALOG1488-31-vmdata\t작업 완료\nSNAPDIALOG1488-31-other\t서버 작업 실패\n취소\n스냅샷 삭제",
+  "title": "스냅샷 삭제",
+  "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPDIALOG1488-31&projectid=0&q=SNAPDIALOG1488-31&sortkey=created&sortorder=desc&page=1",
+  "width": 1280
+}

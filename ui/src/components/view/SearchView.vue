@@ -16,7 +16,8 @@
 // under the License.
 
 <template>
-  <span :style="styleSearch">
+  <SnapshotSearch v-if="apiName === 'listSnapshots'" @search="$emit('search', $event)" />
+  <span v-else :style="styleSearch">
     <span v-if="!searchFilters || searchFilters.length === 0" style="display: flex;">
       <a-input-search
         v-model:value="searchQuery"
@@ -180,6 +181,7 @@ import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import Status from '@/components/widgets/Status'
+import SnapshotSearch from '@/components/view/SnapshotSearch'
 import { i18n } from '@/locales'
 import { affinityOwnerOptions, affinityTypeOptions } from '@/utils/affinityGroupCreation'
 
@@ -188,7 +190,8 @@ export default {
   components: {
     TooltipButton,
     ResourceIcon,
-    Status
+    Status,
+    SnapshotSearch
   },
   props: {
     searchFilters: {
@@ -1898,54 +1901,4 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
-.storage-standard-search-form {
-  width: min(320px, calc(100vw - 64px));
-  max-height: calc(100vh - 64px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 4px;
-}
-
-.input-search {
-  margin-left: 10px;
-}
-
-.filter-group {
-  :deep(.ant-input-group-addon) {
-    padding: 0 5px;
-  }
-
-  &-button {
-    background: inherit;
-    border: 0;
-    padding: 0;
-  }
-
-  &-button {
-    position: relative;
-    display: block;
-    min-height: 25px;
-
-    &-clear {
-      position: absolute;
-      left: 0;
-    }
-
-    &-search {
-      position: absolute;
-      right: 0;
-    }
-  }
-}
-
-.filter-button {
-  background: inherit;
-  border: 0;
-  padding: 0;
-  position: relative;
-  display: block;
-  min-height: 25px;
-  width: 20px;
-}
-</style>
+<style scoped lang="less" src="@/style/components/view/search-view.less" />

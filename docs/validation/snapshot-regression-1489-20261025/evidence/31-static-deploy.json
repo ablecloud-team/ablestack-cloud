@@ -1,0 +1,28 @@
+{
+  "files": 922,
+  "verified": true,
+  "backup": "/nfs/snapshot-regression-1489-20261025-ui-regression-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "46d5d6d3c60b1361cfe23a4ea6494f7941b697c24f5c941513995032278c70d3",
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "mold-dialog-focus-content": true,
+    "snapshot-dialog-targets": true,
+    "snapshot-dialog-form": true,
+    "message.snapshot.dialog.delete.zone": true,
+    "snapshot-zones": true,
+    "events-tab": true,
+    "annotations-tab": true,
+    "message.detail.tab.incomplete": true,
+    "message.snapshot.copy.search.empty": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  }
+}

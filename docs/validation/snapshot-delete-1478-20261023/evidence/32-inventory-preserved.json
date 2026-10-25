@@ -1,0 +1,16 @@
+[
+  {
+    "inventory": "volume",
+    "before": 48,
+    "after": 48,
+    "allBaselineRowsUnchanged": true,
+    "unrelatedNewRows": []
+  },
+  {
+    "inventory": "snapshot",
+    "before": 7,
+    "after": 7,
+    "allBaselineRowsUnchanged": true,
+    "unrelatedNewRows": []
+  }
+]

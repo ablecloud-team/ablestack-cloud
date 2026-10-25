@@ -1,0 +1,123 @@
+{
+  "requests": [
+    {
+      "requestId": "38064.1773",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 2,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-31-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "detail1486",
+              "value": "SNAPDETAIL1486-31",
+              "resourcetype": "Snapshot",
+              "resourceid": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "38064.1774",
+      "command": "deleteTags",
+      "args": {
+        "command": "deleteTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+        "tags[0].value": "SNAPDETAIL1486-31"
+      },
+      "status": 200,
+      "response": {
+        "deletetagsresponse": {
+          "jobid": "8aee04af-253d-46ff-afcb-10ae11b9472d"
+        }
+      }
+    },
+    {
+      "requestId": "38064.1775",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "8aee04af-253d-46ff-afcb-10ae11b9472d",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-25T01:43:41+0900",
+          "completed": "2026-10-25T01:43:41+0900",
+          "jobid": "8aee04af-253d-46ff-afcb-10ae11b9472d",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "requestId": "38064.1776",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-31-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "fabeb5f3-9da0-4770-855b-da16eab6763c",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

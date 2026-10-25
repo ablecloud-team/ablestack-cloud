@@ -1,0 +1,285 @@
+Browser tab: 20, Title: "가상머신 - ABLESTACK-Mold", URL: "http://localhost:18032/client/#/vm/3a92624e-311b-4fb7-a137-e475473f7026".
+1 AXWebArea 가상머신 - ABLESTACK-Mold, URL: localhost:18032/client/#/vm/3a92624e-311b-4fb7-a137-e475473f7026
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: localhost:18032/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 content list sub_menu_1_$$_/compute-popup
+					12 cloud-server 가상머신
+						13 link Description: cloud-server 가상머신, Value: localhost:18032/client/#/vm
+					14 camera VM 스냅샷
+						15 link Description: camera VM 스냅샷, Value: localhost:18032/client/#/vmsnapshot
+					16 쿠버네티스
+						17 link Description: 쿠버네티스, Value: localhost:18032/client/#/kubernetes
+					18 fullscreen 오토스케일 VM 그룹
+						19 link Description: fullscreen 오토스케일 VM 그룹, Value: localhost:18032/client/#/autoscalevmgroup
+					20 gold 가상머신 그룹
+						21 link Description: gold 가상머신 그룹, Value: localhost:18032/client/#/vmgroup
+					22 key SSH 키 쌍
+						23 link Description: key SSH 키 쌍, Value: localhost:18032/client/#/ssh
+					24 solution 사용자 데이터 라이브러리
+						25 link Description: solution 사용자 데이터 라이브러리, Value: localhost:18032/client/#/userdata
+					26 solution CNI 구성
+						27 link Description: solution CNI 구성, Value: localhost:18032/client/#/cniconfiguration
+					28 swap Affinity 그룹
+						29 link Description: swap Affinity 그룹, Value: localhost:18032/client/#/affinitygroup
+				30 container
+					31 image hdd
+					32 text 스토리지
+				33 container
+					34 image wifi
+					35 text 네트워크
+				36 container
+					37 image picture
+					38 text 이미지
+				39 container
+					40 image lock
+					41 text 키 관리
+				42 schedule 이벤트
+					43 link Description: schedule 이벤트, Value: localhost:18032/client/#/event
+				44 project 프로젝트
+					45 link Description: project 프로젝트, Value: localhost:18032/client/#/project
+				46 idcard 역할
+					47 link Description: idcard 역할, Value: localhost:18032/client/#/role
+				48 team 계정
+					49 link Description: team 계정, Value: localhost:18032/client/#/account
+				50 block 도메인
+					51 link Description: block 도메인, Value: localhost:18032/client/#/domain
+				52 container
+					53 image bank
+					54 text 인프라스트럭쳐
+				55 container
+					56 image shopping
+					57 text 서비스 오퍼링
+				58 container
+					59 image setting
+					60 text 구성
+				61 appstore-add 확장
+					62 link Description: appstore-add 확장, Value: localhost:18032/client/#/extension
+				63 container
+					64 image tool
+					65 text 도구
+				66 read API 문서
+					67 link Description: read API 문서, Value: localhost:18032/client/#/apidocs/
+		68 container
+			69 text 페이지 스타일 설정
+			70 button 닫기
+				71 image close
+			72 container
+				73 heading 페이지 스타일 설정, Value: 3
+					74 text 페이지 스타일 설정
+				75 container
+					76 image
+					77 container
+						78 radio button (settable, integer) Description:  , Value: 0
+				79 container
+					80 image
+					81 container
+						82 radio button (settable, integer) Description:  , Value: 1
+					83 image check
+				84 heading 테마 색상, Value: 3
+					85 text 테마 색상
+				86 container
+					87 radio button (settable, integer) Description:  , Value: 0
+					88 image check
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 container
+					96 radio button (settable, integer) Description:  , Value: 0
+				97 container
+					98 radio button (settable, integer) Description:  , Value: 0
+				99 container
+					100 radio button (settable, integer) Description:  , Value: 0
+				101 container
+					102 radio button (settable, integer) Description:  , Value: 0
+				103 heading 네비게이션 설정, Value: 3
+					104 text 네비게이션 설정
+				105 container
+					106 container
+						107 text 배경색
+						108 color well (disabled, settable) #ffffff
+					109 container
+						110 text 텍스트 색상
+						111 color well (disabled, settable) #000000
+				112 image exclamation-circle
+				113 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				114 button download 세팅값 다운로드(json)
+					115 image download
+					116 text 세팅값 다운로드(json)
+				117 button undo 기본값으로 재설정
+					118 image undo
+					119 text 기본값으로 재설정
+		120 container
+			121 image menu-fold
+			122 container
+				123 combo box (settable) rc_select_0
+				124 image project
+				125 text 기본 보기
+			126 button 생성 down
+				127 text 생성
+				128 image down
+			129 image translation
+			130 button 알림
+				131 image bell
+				132 text 1
+			133 container
+				134 text AC admin cloud
+		135 container
+			136 container
+				137 container
+					138 link Description: home, Value: localhost:18032/client/#/
+					139 text /
+					140 link Description: 가상머신, Value: localhost:18032/client/#/vm
+					141 text / SNAP1479UI-32-vm
+					142 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/virtual_machines.html
+					143 button reload 업데이트
+						144 image reload
+						145 text 업데이트
+				146 button down 작업
+					147 image down
+					148 text 작업
+			149 container
+				150 image edit
+				151 heading SNAP1479UI-32-vm, Value: 4
+					152 text SNAP1479UI-32-vm
+				153 text i-2-228-VM x86_64 KVM 동적으로 확장 가능
+				154 link code
+					155 button (disabled) code
+						156 image code
+				157 text 상태 정지된 상태 아이디
+				158 button 아이디 복사
+					159 image barcode
+				160 link Description: 3a92624e-311b-4fb7-a137-e475473f7026 , Value: javascript:;
+				161 text CPU 2 CPU x 2.00 GHz 
+				162 image question-circle
+				163 text x86_64 메모리 2048 MB 메모리 네트워크
+				164 image wifi
+				165 text 1 NIC(s)
+				166 text eth0
+				167 link Description:  , Value: javascript:;
+				168 text 기본
+				169 image apartment
+				170 link Description: ADMIN-L2-Network, Value: localhost:18032/client/#/guestnetwork/78aabc42-0648-49c9-9d39-4cd6b212ebe8
+				171 text 템플릿
+				172 image save
+				173 link Description: nginx-lb-test.qcow2, Value: localhost:18032/client/#/template/ca2075df-12e9-4110-94c7-bd11068b621c
+				174 text 컴퓨트 오퍼링
+				175 image cloud
+				176 link Description: AS-PROD-32-AS01-2C2G, Value: localhost:18032/client/#/computeoffering/b02ac1bf-2da7-46e1-8961-d94d76dad9ab
+				177 text Zone
+				178 image global
+				179 link Description: Zone, Value: localhost:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				180 text 계정
+				181 image user
+				182 link Description: admin, Value: localhost:18032/client/#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				183 text 도메인
+				184 image block
+				185 link Description: ROOT, Value: localhost:18032/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				186 text 생성일
+				187 image calendar
+				188 text 2026. 10. 23. 오후 9:49:13
+				189 container
+					190 text 태그
+					191 container
+						192 image plus
+						193 text  새 태그
+			194 container
+				195 tab group
+					196 container
+						197 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-0-tab-details
+						198 tab (selectable, settable, boolean) IP 구성, Value: 0, ID: rc-tabs-0-tab-guestnetwork
+						199 tab (selectable, settable, boolean) 메트릭, Value: 0, ID: rc-tabs-0-tab-stats
+						200 tab (selectable, settable, boolean) 프로세스, Value: 0, ID: rc-tabs-0-tab-processes
+						201 tab (selectable, settable, boolean) 스케줄, Value: 0, ID: rc-tabs-0-tab-schedules
+						202 tab (selectable, settable, boolean) ISO, Value: 0, ID: rc-tabs-0-tab-cdrom
+						203 tab (selectable, settable, boolean) 볼륨, Value: 0, ID: rc-tabs-0-tab-volumes
+						204 tab (selectable, settable, boolean) NIC, Value: 0, ID: rc-tabs-0-tab-nics
+						205 tab (selectable, settable, boolean) 설정, Value: 0, ID: rc-tabs-0-tab-settings
+						206 tab (selectable, settable, boolean) 호스트 장치, Value: 0, ID: rc-tabs-0-tab-hostdevices
+						207 tab (selectable, settable, boolean) VM 스냅샷, Value: 0, ID: rc-tabs-0-tab-vmsnapshots
+						208 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-0-tab-events
+						209 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-0-tab-comments
+				210 container Description: 상세, ID: rc-tabs-0-panel-details
+					211 content list
+						212 container
+							213 text VM 호스트 명
+							214 text SNAP1479UI-32-vm
+						215 container
+							216 text VM 표시 명
+							217 text SNAP1479UI-32-vm
+						218 container
+							219 text 아이디
+							220 text 3a92624e-311b-4fb7-a137-e475473f7026
+						221 container
+							222 text 상태
+							223 text Stopped
+						224 container
+							225 text 템플릿
+							226 text nginx-lb-test.qcow2
+						227 container
+							228 text 템플릿 형식
+							229 text USER
+						230 container
+							231 text 컴퓨트 오퍼링
+							232 text AS-PROD-32-AS01-2C2G
+						233 container
+							234 text 동적으로 확장 가능
+							235 text true
+						236 container
+							237 text HA 활성화
+							238 text false
+						239 container
+							240 text 하이퍼바이저
+							241 text KVM
+						242 container
+							243 text CPU 아키텍처
+							244 text x86_64
+						245 container
+							246 text 계정
+							247 text admin
+						248 container
+							249 text 도메인
+							250 text ROOT
+						251 container
+							252 text Zone
+							253 text Zone
+						254 container
+							255 text VBMC 포트
+							256 text 미할당
+						257 container
+							258 text 삭제 보호
+							259 text false
+	260 container
+		261 image exclamation-circle
+		262 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		263 button 세부 경보 내용 확인
+		264 button 경보 규칙으로 이동
+		265 button 닫기
+			266 image close
+	267 container
+		268 container notification 알림 목록 제거 question-circle 볼륨 생성 SNAP1479UI-32-orphan-source-snapshot 접수 또는 결과 미확인 · 재제출 차단 2026. 10. 23. 오후 10:11:17 calendar 최근 이벤트 / 경보
+			269 container
+				270 image notification
+				271 heading 알림, Value: 4
+					272 text 알림
+				273 button 목록 제거
+				274 image question-circle
+				275 heading 볼륨 생성, Value: 4
+					276 text 볼륨 생성
+				277 button SNAP1479UI-32-orphan-source-snapshot
+				278 text 접수 또는 결과 미확인 · 재제출 차단
+				279 text 2026. 10. 23. 오후 10:11:17
+				280 button calendar 최근 이벤트 / 경보
+					281 image calendar
+					282 text 최근 이벤트 / 경보
+
+The focused UI element is 130 button 알림

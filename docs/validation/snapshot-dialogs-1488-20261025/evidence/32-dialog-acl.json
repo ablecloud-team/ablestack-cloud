@@ -1,0 +1,58 @@
+{
+  "own": {
+    "count": 1,
+    "snapshot": [
+      {
+        "id": "ba45c283-ecfc-4906-aac3-4dd35d5a023a",
+        "account": "SNAPDIALOG1488-32-owner",
+        "domainid": "be54b4a6-af29-4ec3-ae43-e39fc074fd8e",
+        "domain": "SNAPDIALOG1488-32-domain",
+        "domainpath": "ROOT/SNAPDIALOG1488-32-domain",
+        "volumeid": "582c13ce-12d6-421d-88db-c251f62ac47d",
+        "volumename": "SNAPDIALOG1488-32-owner",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T08:41:44+0900",
+        "name": "SNAPDIALOG1488-32-owner",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDIALOG1488-32-owner",
+            "resourcetype": "Snapshot",
+            "resourceid": "ba45c283-ecfc-4906-aac3-4dd35d5a023a",
+            "account": "SNAPDIALOG1488-32-owner",
+            "domainid": "be54b4a6-af29-4ec3-ae43-e39fc074fd8e",
+            "domain": "SNAPDIALOG1488-32-domain"
+          }
+        ],
+        "hasannotations": false
+      }
+    ]
+  },
+  "foreignHidden": true,
+  "rejected": [
+    {
+      "command": "listSnapshotCopyTargets",
+      "errorcode": 531,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    },
+    {
+      "command": "deleteSnapshot",
+      "errorcode": 531,
+      "errortext": "Caller does not have permission to operate with provided resource."
+    },
+    {
+      "command": "archiveSnapshot",
+      "errorcode": 530,
+      "errortext": "Api Discovery plugin was unable to find an api by that name or process any apis"
+    }
+  ],
+  "status": "PASS"
+}

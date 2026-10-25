@@ -1,0 +1,180 @@
+{
+  "entries": [
+    {
+      "command": "archiveSnapshot",
+      "method": "POST",
+      "params": {
+        "id": "896ff1eb-dd23-426d-8a14-3ae1df594ea8",
+        "dryrun": "true"
+      },
+      "http": 200,
+      "response": {
+        "createsnapshotresponse": {
+          "jobid": "4c7df9e9-204f-49fa-91b4-7a96c73f7b10"
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "4c7df9e9-204f-49fa-91b4-7a96c73f7b10"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "archivesnapshotresponse": {
+              "snapshotid": "896ff1eb-dd23-426d-8a14-3ae1df594ea8",
+              "name": "SNAPTR1481-32-archive",
+              "state": "BackedUp",
+              "eligible": true,
+              "reason": "REUSE_SECONDARY",
+              "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+              "primaryreferences": 1,
+              "secondaryreferences": 1,
+              "scopehash": "cb27ade26bd517cbafb1e95ade89bcf97ac98aa5463163b7c294391bf2aeaf11",
+              "dryrun": true
+            }
+          },
+          "created": "2026-10-24T17:05:41+0900",
+          "completed": "2026-10-24T17:05:41+0900",
+          "jobid": "4c7df9e9-204f-49fa-91b4-7a96c73f7b10",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "command": "archiveSnapshot",
+      "method": "POST",
+      "params": {
+        "id": "896ff1eb-dd23-426d-8a14-3ae1df594ea8",
+        "dryrun": "true"
+      },
+      "http": 200,
+      "response": {
+        "createsnapshotresponse": {
+          "jobid": "53c24af9-80b7-4f25-b290-3e439cb866eb"
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "53c24af9-80b7-4f25-b290-3e439cb866eb"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "archivesnapshotresponse": {
+              "snapshotid": "896ff1eb-dd23-426d-8a14-3ae1df594ea8",
+              "name": "SNAPTR1481-32-archive",
+              "state": "BackedUp",
+              "eligible": true,
+              "reason": "REUSE_SECONDARY",
+              "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+              "primaryreferences": 1,
+              "secondaryreferences": 1,
+              "scopehash": "cb27ade26bd517cbafb1e95ade89bcf97ac98aa5463163b7c294391bf2aeaf11",
+              "dryrun": true
+            }
+          },
+          "created": "2026-10-24T17:05:41+0900",
+          "completed": "2026-10-24T17:05:41+0900",
+          "jobid": "53c24af9-80b7-4f25-b290-3e439cb866eb",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "command": "archiveSnapshot",
+      "method": "POST",
+      "params": {
+        "id": "896ff1eb-dd23-426d-8a14-3ae1df594ea8",
+        "expectedscopehash": "cb27ade26bd517cbafb1e95ade89bcf97ac98aa5463163b7c294391bf2aeaf11",
+        "customjobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd"
+      },
+      "http": 200,
+      "response": {
+        "createsnapshotresponse": {
+          "jobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd"
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T17:05:41+0900",
+          "jobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd"
+      },
+      "http": 200,
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T17:05:41+0900",
+          "completed": "2026-10-24T17:05:42+0900",
+          "jobid": "d841c7c1-8e88-4159-95f8-a1e6b4bd24dd",
+          "jobstatus": 1
+        }
+      }
+    }
+  ],
+  "truncated": false,
+  "hasMore": false
+}

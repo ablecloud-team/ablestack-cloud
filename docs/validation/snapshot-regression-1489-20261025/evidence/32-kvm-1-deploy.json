@@ -1,0 +1,40 @@
+{
+  "kind": "kvm",
+  "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+  "before": "c0cddf76df4d07ad2d8c7d6483133bd0db206d65fd413c97db914a080977781b",
+  "after": "4246515bd7249fb2380c701c33a05ae57de8a51c7f4896a7df245d528e0dbd2b",
+  "changedEntries": [
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation$Runner.class",
+      "sha256": "29a2f8c4312036da0acf52a9e9463d0396875c0b96ccc50f7e76821a2a48c698"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2AllocationFailureEvidence.class",
+      "sha256": "e00b37e54a74fbbd0958fc57bb865b8adfbaf7cbf11ae44c5ede1033e900177a"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2AllocationCommandRunner$CommandFailure.class",
+      "sha256": "b399ca8db175c6a76af9529915e472350d94c01f0e8899b68310af830b0bb659"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation.class",
+      "sha256": "05316abeee93ca1ab161ea0f7a6df1b51ef46703298805c49a5c6d5acef502c5"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation$Context.class",
+      "sha256": "75b771b2658e658460a5f2ab44f07baa937b3f6d66271d000b746b4622c962ef"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2AllocationFailureEvidence$ContentMismatch.class",
+      "sha256": "d16621741b78fa0ddfb47a71b507c606d415f55f312d46aaf35d98a07063c453"
+    },
+    {
+      "path": "com/cloud/hypervisor/kvm/storage/Gfs2AllocationCommandRunner.class",
+      "sha256": "993472880a1157703eeb8111b6dcecf90c8b8ecde6f62ec3db8ace592b5510f7"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 15
+}

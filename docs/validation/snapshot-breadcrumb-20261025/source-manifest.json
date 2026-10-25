@@ -1,0 +1,22 @@
+[
+  {
+    "path": "ui/src/views/AutogenView.vue",
+    "sha256": "91660a51147c9d1e5f9f0b814031180d754bd34d8b7fbad543cb7e65159c4756"
+  },
+  {
+    "path": "ui/src/components/view/SearchView.vue",
+    "sha256": "368f9ac9f87db939adc794e4acd5f36c91ae2a3299729a54e02bd77801223eb9"
+  },
+  {
+    "path": "ui/src/components/view/SnapshotSearch.vue",
+    "sha256": "9c5770e908f6f0e31ec39754412dde3ec8dd812eac882149852f112add416552"
+  },
+  {
+    "path": "ui/src/style/components/view/search-view.less",
+    "sha256": "a92f63f3c7cae96cfedb6f5e115bb2ae26beadf92e3cd49fa0459aac1ebd3831"
+  },
+  {
+    "path": "ui/tests/unit/components/view/SnapshotSearch.spec.js",
+    "sha256": "21cce695fde89f9487bd42dd4330fdec4507f84d162133c89a4663b3c3ff82bc"
+  }
+]

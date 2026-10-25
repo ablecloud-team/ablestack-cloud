@@ -1,0 +1,221 @@
+{
+  "requests": [
+    {
+      "requestId": "17888.2940",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+                "volumename": "SNAPTABS1487-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:06:55+0900",
+              "name": "SNAPTABS1487-32-owner",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2943",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "827d79fe-112f-3147-acdd-7f3c719e8015",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:06:55+0900",
+              "name": "SNAPTABS1487-32-owner",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": true
+            },
+            {
+              "copy": {
+                "id": "c9b801f7-e6c7-3a6d-a7fb-3d93c389a81d",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+              "account": "SNAPTABS1487-32-owner",
+              "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+              "domain": "SNAPTABS1487-32-domain",
+              "domainpath": "ROOT/SNAPTABS1487-32-domain",
+              "volumeid": "f969404f-79a7-4c48-8101-27d91d793256",
+              "volumename": "SNAPTABS1487-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-25T02:06:55+0900",
+              "name": "SNAPTABS1487-32-owner",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [
+                {
+                  "key": "baseline",
+                  "value": "SNAPTABS1487-32-owner",
+                  "resourcetype": "Snapshot",
+                  "resourceid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+                  "account": "SNAPTABS1487-32-owner",
+                  "domainid": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+                  "domain": "SNAPTABS1487-32-domain"
+                }
+              ],
+              "hasannotations": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "requestId": "17888.2944",
+      "method": "GET",
+      "command": "listSnapshotCopyTargets",
+      "args": {
+        "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+        "sourcezoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "command": "listSnapshotCopyTargets",
+        "response": "json"
+      },
+      "status": 200,
+      "response": {
+        "listsnapshotcopytargetsresponse": {
+          "snapshotcopytargets": {
+            "snapshotid": "ca67daa2-391b-4459-90e8-345d13e42c41",
+            "sourcezoneid": "991d2f57-0f37-4445-b956-09773d064816",
+            "sourcezonename": "Zone",
+            "sourcestoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+            "sourcestorename": "Secondary",
+            "eligible": true,
+            "reason": "",
+            "scopehash": "16652006473d6d1d12e83003f967f316a4854aee200ae44bfe6daf1eb06103f8",
+            "destinations": []
+          }
+        }
+      }
+    }
+  ]
+}

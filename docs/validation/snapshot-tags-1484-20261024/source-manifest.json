@@ -1,0 +1,30 @@
+[
+  {
+    "path": "ui/src/components/view/InfoCard.vue",
+    "sha256": "67a5d84e90396dc21386e5a0bb78819e632ad406febb5255082d07275c57d003"
+  },
+  {
+    "path": "ui/src/components/view/ResourceTags.vue",
+    "sha256": "a2e5331688c0316b6af9e5421613ad90ba26642cedb95dbd84107889de54b880"
+  },
+  {
+    "path": "ui/src/utils/resourceTags.js",
+    "sha256": "1f4f9aa0b8c3ae4a1dc9495b8d3ec7613def2db43d126c45d5a12a17ef68a490"
+  },
+  {
+    "path": "ui/tests/unit/utils/resourceTags.spec.js",
+    "sha256": "9347e7e8d4b0ef2a82db01a93a27cc47e68dfb7fc6acc57d018e3f5b93a6030e"
+  },
+  {
+    "path": "ui/tests/unit/components/view/ResourceTags.spec.js",
+    "sha256": "647441904d8be409c7b4bdb367049843d1faa59843e49320b0438b48838efcb1"
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "df55f483e35a756b694db3680bdc972a3eea7f7d23a64496276f12a0851cce0d"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "af10def8eac415f7e4425eaa9305ebff245d38bd53269865a87e572657fba64a"
+  }
+]

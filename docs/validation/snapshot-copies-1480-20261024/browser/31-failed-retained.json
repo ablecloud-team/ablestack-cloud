@@ -1,0 +1,166 @@
+{
+  "copyRows": [
+    {
+      "key": "c6e0c48f-e93b-3afc-9b53-6d1f32f29e6f",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "1d46f5fe-c855-376a-8561-006982b53987",
+      "text": "Secondary\tSNAPC1480-31-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "0a4117e5-5ec0-363d-b3a3-f6f0ccce593a",
+      "text": "Secondary\tSNAPC1480-31-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "95dd2690-272b-391e-a4e8-2009e659f9a1",
+      "text": "Secondary\tSNAPC1480-31-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "7c199afc-7b34-37a2-acce-07ebbc79323d",
+      "text": "Secondary\tSNAPC1480-31-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "270720e9-a10a-3ee6-82ca-63d4e78489e5",
+      "text": "Secondary\tSNAPC1480-31-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "8811b8e5-66ec-30fb-a359-15fc7af77100",
+      "text": "Secondary\tSNAPC1480-31-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "043834a7-8239-39bb-8d1f-5845d175b51a",
+      "text": "Secondary\tSNAPC1480-31-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "553c5ec3-698e-33a7-87a9-91b96ba3e715",
+      "text": "Secondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "2728ac75-2856-374c-834e-a8f7627ab921",
+      "text": "Secondary\tSNAPC1480-31-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%"
+    },
+    {
+      "key": "aa6e5672-4790-344a-a5e5-1498308236e1",
+      "text": "Secondary\tSNAPC1480-31-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-31 controlled copy failure"
+    }
+  ],
+  "dialog": null,
+  "links": [
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": " Zone"
+    },
+    {
+      "href": "#/imagestore/dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "text": "Secondary"
+    },
+    {
+      "href": "#/imagestore/16dc309a-ad6e-4c5b-8d46-283f84e9d3fb",
+      "text": "SNAPC1480-31-STORE-01"
+    },
+    {
+      "href": "#/imagestore/58e1f4c4-7909-4c2d-bb57-c627c1d078bb",
+      "text": "SNAPC1480-31-STORE-02"
+    },
+    {
+      "href": "#/imagestore/db8f0473-2e45-4c9e-8406-94fa688fce73",
+      "text": "SNAPC1480-31-STORE-03"
+    },
+    {
+      "href": "#/imagestore/24a9f4bc-c451-45ab-a33c-e342fa89139a",
+      "text": "SNAPC1480-31-STORE-04"
+    },
+    {
+      "href": "#/imagestore/fd92cc31-0826-44c4-ad03-78ede0674eb9",
+      "text": "SNAPC1480-31-STORE-05"
+    },
+    {
+      "href": "#/imagestore/9b61164c-d9a8-4e85-aa58-a689e2e253ee",
+      "text": "SNAPC1480-31-STORE-06"
+    },
+    {
+      "href": "#/imagestore/5191ad42-a0bf-4a30-a9f0-b25faf61b07f",
+      "text": "SNAPC1480-31-STORE-07"
+    },
+    {
+      "href": "#/imagestore/a78f684a-136c-4208-bd73-2cb139e6479f",
+      "text": "SNAPC1480-31-STORE-08"
+    },
+    {
+      "href": "#/zone/668e4e2e-5b77-4838-8c62-31a9124be102",
+      "text": " SNAPC1480-31-ZONE2"
+    },
+    {
+      "href": "#/imagestore/12454d12-4f0b-4c42-9ab6-62814f904fbd",
+      "text": "SNAPC1480-31-STORE-09"
+    },
+    {
+      "href": "#/imagestore/e5077095-dab6-4fe0-abfb-867e2ce8021a",
+      "text": "SNAPC1480-31-STORE-10"
+    }
+  ],
+  "pagination": "전체 사본 조회 항목 11개\n1\n20 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n재시도\n현재 페이지: Zone 2개 · 조회 항목 11개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\t\n\t Zone\t9\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—\nSecondary\tSNAPC1480-31-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료\n\n\n\t\n\t SNAPC1480-31-ZONE2\t2\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSNAPC1480-31-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%\nSecondary\tSNAPC1480-31-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-31 controlled copy failure\n\n전체 사본 조회 항목 11개\n1\n20 / 쪽",
+  "url": "#/snapshot/da5b347e-0fca-490f-9f49-154a384536c9?tab=zones",
+  "zones": [
+    {
+      "key": "zone:7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "\t\n\t Zone\t9\t"
+    },
+    {
+      "key": "c6e0c48f-e93b-3afc-9b53-6d1f32f29e6f",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "1d46f5fe-c855-376a-8561-006982b53987",
+      "text": "Secondary\tSNAPC1480-31-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "0a4117e5-5ec0-363d-b3a3-f6f0ccce593a",
+      "text": "Secondary\tSNAPC1480-31-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "95dd2690-272b-391e-a4e8-2009e659f9a1",
+      "text": "Secondary\tSNAPC1480-31-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "7c199afc-7b34-37a2-acce-07ebbc79323d",
+      "text": "Secondary\tSNAPC1480-31-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "270720e9-a10a-3ee6-82ca-63d4e78489e5",
+      "text": "Secondary\tSNAPC1480-31-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "8811b8e5-66ec-30fb-a359-15fc7af77100",
+      "text": "Secondary\tSNAPC1480-31-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "043834a7-8239-39bb-8d1f-5845d175b51a",
+      "text": "Secondary\tSNAPC1480-31-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "553c5ec3-698e-33a7-87a9-91b96ba3e715",
+      "text": "Secondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "zone:668e4e2e-5b77-4838-8c62-31a9124be102",
+      "text": "\t\n\t SNAPC1480-31-ZONE2\t2\t"
+    },
+    {
+      "key": "2728ac75-2856-374c-834e-a8f7627ab921",
+      "text": "Secondary\tSNAPC1480-31-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%"
+    },
+    {
+      "key": "aa6e5672-4790-344a-a5e5-1498308236e1",
+      "text": "Secondary\tSNAPC1480-31-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-31 controlled copy failure"
+    }
+  ],
+  "cluster": "31",
+  "phase": "failed-retained",
+  "viewport": {
+    "width": 1280,
+    "height": 1200
+  }
+}

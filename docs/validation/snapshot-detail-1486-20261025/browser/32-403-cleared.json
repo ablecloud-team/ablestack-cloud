@@ -1,0 +1,27 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 720,
+  "labels": [],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/snapshot",
+      "text": "스냅샷"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots",
+      "text": ""
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "text": "/스냅샷/45cc7507-26bd-402c-8fc4-85663cc099f7업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\nSS-13 controlled test 403\n\n재시도",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/45cc7507-26bd-402c-8fc4-85663cc099f7",
+  "width": 1280,
+  "fault": "controlled HTTP 403"
+}

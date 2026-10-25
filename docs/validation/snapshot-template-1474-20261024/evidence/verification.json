@@ -1,0 +1,268 @@
+{
+  "status": "PASS",
+  "issue": 1474,
+  "epic": 1473,
+  "tests": 116,
+  "testClasses": 8,
+  "formatCombinations": 8,
+  "metadataCases": 12,
+  "patternCases": 19,
+  "fullRootComparisons": 4,
+  "newRootVMsBooted": 4,
+  "manualLegacyRemediation": {
+    "31": [
+      {
+        "path": "/nfs/secondary/template/tmpl/2/403",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      },
+      {
+        "path": "/nfs/secondary/template/tmpl/2/404",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      },
+      {
+        "path": "/nfs/secondary/template/tmpl/2/405",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      }
+    ],
+    "32": [
+      {
+        "path": "/nfs/secondary/template/tmpl/2/227",
+        "files": [
+          {
+            "name": "ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+            "size": 2490368,
+            "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+            "patternCheck": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.678 GiB/sec and 3765.8401 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.841 GiB/sec and 3932.7964 ops/sec)\n"
+          },
+          {
+            "name": "template.properties",
+            "size": 54,
+            "sha256": "7a95186e8dc467d67da2c33e91d446b81c9af054dcf61bd79e7c69378eb8d49c"
+          }
+        ],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      },
+      {
+        "path": "/nfs/secondary/template/tmpl/2/232",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      },
+      {
+        "path": "/nfs/secondary/template/tmpl/2/233",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      },
+      {
+        "path": "/nfs/secondary/template/tmpl/2/234",
+        "files": [],
+        "deleted": true,
+        "reason": "Legacy test deployment/failure artifact; not final product automatic cleanup"
+      }
+    ]
+  },
+  "fullCloudBuild": "not requested, not run",
+  "uiSourcesChanged": false,
+  "checks": [
+    {
+      "check": "eight source/test files match",
+      "passed": true
+    },
+    {
+      "check": "8 format/storage/type combinations",
+      "passed": true
+    },
+    {
+      "check": "core-tests.log success",
+      "passed": true
+    },
+    {
+      "check": "secondary-complete-tests.log success",
+      "passed": true
+    },
+    {
+      "check": "kvm-complete-tests.log success",
+      "passed": true
+    },
+    {
+      "check": "UI metadata 4 observations",
+      "passed": true
+    },
+    {
+      "check": "new VM UI starts 4",
+      "passed": true
+    },
+    {
+      "check": "preserved Windows/WSL FT trees",
+      "passed": true
+    },
+    {
+      "check": "31 header/API/DB/properties/extension",
+      "passed": true
+    },
+    {
+      "check": "31 data patterns",
+      "passed": true
+    },
+    {
+      "check": "31 full root compare",
+      "passed": true
+    },
+    {
+      "check": "31 root-boot real guest boot",
+      "passed": true
+    },
+    {
+      "check": "31 root-raw-boot real guest boot",
+      "passed": true
+    },
+    {
+      "check": "31 unsupported not Ready",
+      "passed": true
+    },
+    {
+      "check": "31 corrupt not Ready",
+      "passed": true
+    },
+    {
+      "check": "31 missing not Ready",
+      "passed": true
+    },
+    {
+      "check": "31 active DB zero",
+      "passed": true
+    },
+    {
+      "check": "31 physical/cache/domain zero",
+      "passed": true
+    },
+    {
+      "check": "31 counters",
+      "passed": true
+    },
+    {
+      "check": "31 operations preserved/API zero",
+      "passed": true
+    },
+    {
+      "check": "31 fixture backups removed",
+      "passed": true
+    },
+    {
+      "check": "31 active runtime",
+      "passed": true
+    },
+    {
+      "check": "31 five agents Up",
+      "passed": true
+    },
+    {
+      "check": "31-1 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "31-2 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "31-3 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "31 final failure auto cleanup",
+      "passed": true
+    },
+    {
+      "check": "32 header/API/DB/properties/extension",
+      "passed": true
+    },
+    {
+      "check": "32 data patterns",
+      "passed": true
+    },
+    {
+      "check": "32 full root compare",
+      "passed": true
+    },
+    {
+      "check": "32 root-boot real guest boot",
+      "passed": true
+    },
+    {
+      "check": "32 root-raw-boot real guest boot",
+      "passed": true
+    },
+    {
+      "check": "32 unsupported not Ready",
+      "passed": true
+    },
+    {
+      "check": "32 corrupt not Ready",
+      "passed": true
+    },
+    {
+      "check": "32 missing not Ready",
+      "passed": true
+    },
+    {
+      "check": "32 active DB zero",
+      "passed": true
+    },
+    {
+      "check": "32 physical/cache/domain zero",
+      "passed": true
+    },
+    {
+      "check": "32 counters",
+      "passed": true
+    },
+    {
+      "check": "32 operations preserved/API zero",
+      "passed": true
+    },
+    {
+      "check": "32 fixture backups removed",
+      "passed": true
+    },
+    {
+      "check": "32 active runtime",
+      "passed": true
+    },
+    {
+      "check": "32 five agents Up",
+      "passed": true
+    },
+    {
+      "check": "32-1 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "32-2 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "32-3 deployment preservation",
+      "passed": true
+    },
+    {
+      "check": "32 final failure auto cleanup",
+      "passed": true
+    },
+    {
+      "check": "UI failed job/API agreement",
+      "passed": true
+    },
+    {
+      "check": "116 module tests",
+      "passed": true
+    }
+  ]
+}

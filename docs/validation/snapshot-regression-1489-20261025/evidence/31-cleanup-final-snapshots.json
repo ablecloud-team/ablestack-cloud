@@ -1,0 +1,254 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "17d79b57-637e-44e7-bbea-ababb6751b2b",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "95830056-6ac4-47bb-908a-181603f85ca0",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e379291f-679f-4256-9925-08b1d43a588f",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6917bb55-8fee-4a0f-a4de-85b9713a28e3",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "390ef8e5-84bc-4c02-b54e-ac5c531d7656",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "842faf2d-5d58-474f-84d9-a42e77da94f1",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "eff8d91b-7fc4-4a04-a385-046dcea487d0",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "dced8abe-3c86-48f7-8a9c-2aebe7839b39",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "24a435a7-47b8-4719-a363-1ba321ffab65",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "765578e8-b42e-4761-aba5-160097cd2462",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "14a2960f-1e57-46ef-a2d3-b993e36ba913",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "d2b8958a-bbb8-43a3-9566-c61511dcd8cd",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "0cbd3e3d-904a-4cfd-979d-885e63209e9b",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "842faf2d-5d58-474f-84d9-a42e77da94f1",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "eff8d91b-7fc4-4a04-a385-046dcea487d0",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "dced8abe-3c86-48f7-8a9c-2aebe7839b39",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "24a435a7-47b8-4719-a363-1ba321ffab65",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "765578e8-b42e-4761-aba5-160097cd2462",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "0cbd3e3d-904a-4cfd-979d-885e63209e9b",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6a9147aa-fcf1-46e0-ab00-608864e6bc3d",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "79e48934-c2c6-4be9-83de-17231909d59b",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "2a77aa18-df31-4102-804a-bdf9d0f11c1a",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "370f40a9-bb1f-4243-a8a7-cd379f3eb628",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6f448292-3056-4090-b3e9-f13a39500ab7",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a2bdf669-f409-4e43-8b42-c9490d9adf7e",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e895b520-d3c0-4d40-9421-9c04ced5bb75",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "b22be3f4-8d2d-4dbe-99e7-ba75aaeb729c",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "fd6ed31c-f3bc-40cb-84db-c4fb95db06af",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "329cc5a6-6cad-42b8-a69c-5e043d9b003e",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6e92df7c-bdda-4f20-a2f6-c69e3d878c8f",
+    "alreadyTerminal": true,
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "d2d2bc24-bc6e-466a-aa6f-e0cd72a09f08",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a2e6436a-9686-48f9-b423-01268ea15ead",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "09c1a979-d302-4242-bd91-645214073ec2",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "ae0283a3-6fff-4609-a103-f5cc8a918fde",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  }
+]

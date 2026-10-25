@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Running source permits creation and blocks revert",
+    "status": "PASS",
+    "details": {
+      "version": 1,
+      "sourceavailable": true,
+      "volumeid": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "volumename": "SNAP1479-31-source",
+      "volumestate": "Ready",
+      "virtualmachineid": "d6a10e93-6c62-41f3-8b85-c83a2004555d",
+      "virtualmachinename": "SNAP1479-31-vm",
+      "virtualmachinestate": "Running",
+      "revertreason": "VM_MUST_BE_STOPPED",
+      "createreason": ""
+    }
+  },
+  {
+    "name": "Backend rejects Running-source revert",
+    "status": "PASS",
+    "details": {
+      "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domainpath": "ROOT",
+      "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 431,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 431,
+        "errortext": "VM_MUST_BE_STOPPED: Snapshot source is not available for revert"
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "c581a625-ee69-4f4f-952a-427dd5af6486",
+      "created": "2026-10-23T19:11:09+0900",
+      "completed": "2026-10-23T19:11:09+0900",
+      "jobid": "1e7b3c1c-3e4a-4fee-9939-29ef70214df9",
+      "jobstatus": 2
+    }
+  },
+  {
+    "name": "Running attached volume creates a real snapshot",
+    "status": "PASS",
+    "details": {
+      "id": "b33928f0-11af-43af-95f6-811d77eba840"
+    }
+  },
+  {
+    "name": "Existing list contract remains unchanged without opt-in",
+    "status": "PASS"
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary//mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/978/5e0b1bf7-06f9-4836-a748-1ff7154e05ff",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/979/c349e01d-f24a-4403-8f3e-45382fcb997d",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/980/32120945-1d45-4144-8aa9-aa54f439c369",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/7aa2a13f-8acf-48cd-8876-36363b660eb5",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "sourceVolumePaths": [
+    "/mnt/glue-gfs/0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+    "/mnt/glue-gfs/0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+    "/mnt/glue-gfs/5c01d4c7-cf65-4d56-bf30-95a27a5eed84"
+  ]
+}

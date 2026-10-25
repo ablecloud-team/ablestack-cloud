@@ -1,0 +1,178 @@
+Browser tab: 14, Title: "대시보드 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/dashboard".
+1 AXWebArea 대시보드 - ABLESTACK-Mold, URL: localhost:18031/client/#/dashboard
+	2 container
+		192 container
+			193 image
+			194 menu
+				195 dashboard 대시보드
+					196 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				197 container
+					198 image cloud
+					199 text 컴퓨트
+				200 container
+					201 image hdd
+					202 text 스토리지
+				203 container
+					204 image wifi
+					205 text 네트워크
+				206 container
+					207 image picture
+					208 text 이미지
+				209 container
+					210 image lock
+					211 text 키 관리
+				212 schedule 이벤트
+					213 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				214 project 프로젝트
+					215 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				216 team 계정
+					217 link Description: team 계정, Value: localhost:18031/client/#/account
+				218 global Zone
+					219 link Description: global Zone, Value: localhost:18031/client/#/zones
+				220 container
+					221 image shopping
+					222 text 서비스 오퍼링
+				223 container
+					224 image tool
+					225 text 도구
+				226 read API 문서
+					227 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			189 container
+				228 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				190 image project
+				191 text SNAP1479-31-project
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		60 container
+			229 container
+				230 heading dashboard 리소스 more, Value: 3
+					231 image dashboard
+					232 text  리소스
+					233 button more
+						234 image more
+				235 container
+					236 link Description: 가상머신 cloud-server   0, Value: localhost:18031/client/#/vm
+					237 link Description: 쿠버네티스 클러스터 cluster   0, Value: localhost:18031/client/#/kubernetes
+					238 link Description: 볼륨 hdd   0, Value: localhost:18031/client/#/volume
+					239 link Description: 스냅샷 build   0, Value: localhost:18031/client/#/snapshot
+					240 link Description: 가상머신용 네트워크 apartment   0, Value: localhost:18031/client/#/guestnetwork
+					241 link Description: VPCs deployment-unit   0, Value: localhost:18031/client/#/vpc
+					242 link Description: Public IP 주소 environment   0, Value: localhost:18031/client/#/publicip
+					243 link Description: 템플릿 picture   0, Value: localhost:18031/client/#/template?templatefilter=self&filter=self
+			244 container
+				245 heading cloud 컴퓨트, Value: 3
+					246 image cloud
+					247 text  컴퓨트
+				248 container
+					249 link Description: 실행 중 가상머신 0, Value: localhost:18031/client/#/vm?state=running&filter=running
+					250 link Description: 정지된 VM 가상머신 0, Value: localhost:18031/client/#/vm?state=stopped&filter=stopped
+					251 text 가상머신
+					252 text 0 사용됨
+					253 text 0%
+					254 text 20 사용 가능 | 20 제한
+					255 text CPU 코어
+					256 text 0 사용됨
+					257 text 0%
+					258 text 40 사용 가능 | 40 제한
+					259 text 메모리
+					260 text 0.00 GiB 사용됨
+					261 text 0%
+					262 text 40.00 GiB 사용 가능 | 40.00 GiB 제한
+					263 text GPU
+					264 text 0 사용됨
+					265 text 0%
+					266 text 20 사용 가능 | 20 제한
+			267 container
+				268 heading hdd 스토리지, Value: 3
+					269 image hdd
+					270 text  스토리지
+				271 container
+					272 text 볼륨
+					273 text 0 사용됨
+					274 text 0%
+					275 text 20 사용 가능 | 20 제한
+					276 text 스냅샷
+					277 text 0 사용됨
+					278 text 0%
+					279 text 20 사용 가능 | 20 제한
+					280 text 템플릿
+					281 text 0 사용됨
+					282 text 0%
+					283 text 20 사용 가능 | 20 제한
+					284 text 기본 스토리지
+					285 text 0.00 GiB 사용됨
+					286 text 0%
+					287 text 200.00 GiB 사용 가능 | 200.00 GiB 제한
+					288 text 2차 스토리지
+					289 text 0.00 GiB 사용됨
+					290 text 0%
+					291 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+					292 text 백업
+					293 text 0 사용됨
+					294 text 0%
+					295 text 20 사용 가능 | 20 제한
+					296 text 백업 스토리지
+					297 text 0.00 GiB 사용됨
+					298 text 0%
+					299 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+					300 text 버킷
+					301 text 0 사용됨
+					302 text 0%
+					303 text 20 사용 가능 | 20 제한
+					304 text Object 스토리지
+					305 text 0.00 GiB 사용됨
+					306 text 0%
+					307 text 400.00 GiB 사용 가능 | 400.00 GiB 제한
+			308 container
+				309 heading apartment 네트워크, Value: 3
+					310 image apartment
+					311 text  네트워크
+				312 container
+					313 text Public IP 주소
+					314 text 0 사용됨
+					315 text 0%
+					316 text 20 사용 가능 | 20 제한
+					317 text 네트워크
+					318 text 0 사용됨
+					319 text 0%
+					320 text 20 사용 가능 | 20 제한
+					321 text VPCs
+					322 text 0 사용됨
+					323 text 0%
+					324 text 20 사용 가능 | 20 제한
+			325 container
+				326 heading question-circle 도움말, Value: 3
+					327 image question-circle
+					328 text  도움말
+				329 container
+					330 content list
+						331 container
+							332 image read
+							333 heading Documentation, Value: 4
+								334 link Description: Documentation, Value: docs.ablecloud.io/latest
+							335 text ABLESTACK documentation website
+						336 container
+							337 image mail
+							338 heading Email Support, Value: 4
+								339 link Description: Email Support, Value: mailto:support@ablecloud.io
+							340 text Join ABLESTACK users mailing list to seek and provide support
+						341 container
+							342 image bug
+							343 heading Report Issue, Value: 4
+								344 link Description: Report Issue, Value: github.com/ablecloud-team/ablestack-cloud/issues/new
+							345 text Submit a bug or improvement request
+			346 container
+				347 heading schedule 이벤트, Value: 3
+					348 image schedule
+					349 text  이벤트
+				350 container
+					351 link Description: 보기 이벤트, Value: localhost:18031/client/#/event
+
+The focused UI element is 1 AXWebArea 대시보드 - ABLESTACK-Mold, URL: localhost:18031/client/#/dashboard

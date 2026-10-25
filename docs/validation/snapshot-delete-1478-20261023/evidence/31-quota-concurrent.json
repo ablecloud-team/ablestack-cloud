@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    }
+  ],
+  "after": {
+    "success": true,
+    "snapshotid": "e2385437-9338-458e-a48a-c9d4c6eb0321",
+    "name": "SNAP1478-31-quota-final",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "9298bcffada11596db189ca09184a717071e07c97e64e807c32cda7f22da5878"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "dialogBackground": "rgb(34, 40, 47)",
+  "fields": [],
+  "focus": {
+    "inDialog": true,
+    "tag": "DIV"
+  },
+  "overlaps": [],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "스냅샷 생성 이후의 변경 데이터가 사라집니다.\nSNAPDIALOG1488-32-owner 볼륨을 SNAPDI"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

@@ -1,0 +1,18 @@
+{
+  "db": [
+    {
+      "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/1096/d9f813e5-f8f0-49de-9c57-38a774e1e535",
+      "role": "Image",
+      "state": "Destroyed",
+      "global": "Destroyed",
+      "snapshot": "765578e8-b42e-4761-aba5-160097cd2462"
+    }
+  ],
+  "physical": [
+    {
+      "path": "/nfs/secondary/snapshots/2/1096/d9f813e5-f8f0-49de-9c57-38a774e1e535",
+      "exists": false
+    }
+  ],
+  "passed": true
+}

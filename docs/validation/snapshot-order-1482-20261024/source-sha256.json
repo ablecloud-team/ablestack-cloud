@@ -1,0 +1,38 @@
+[
+  {
+    "path": "server/src/main/java/com/cloud/api/query/SnapshotListOrdering.java",
+    "sha256": "9b9b042992f6db299b59d32f6b7ad10c9d7ed0f534edd4b18f1c9940eaabbd14"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/query/SnapshotListOrderingTest.java",
+    "sha256": "ee8a10c1411092307f073ed8d145d2052ec8c00ab4621c21f57703ebd2ee99fd"
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotList.js",
+    "sha256": "3897de9b5df8c085f89001d75556c0f20050a1a33426eea4277b1c6b34306582"
+  },
+  {
+    "path": "ui/tests/unit/views/AutogenStorageSnapshotSort.spec.js",
+    "sha256": "315fd0202bf9818efa6981c97b9cd96546398bd7c2d809146012794d7b5bc4f9"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/ListSnapshotsCmd.java",
+    "sha256": "ffe48e38f90c00e5fbf54480c73223ab152d3ed0644c0f867897a6af34d2fba9"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java",
+    "sha256": "336bd541fc12fc62837509194a8559a5e28c3667567716cdd5d358e335af06fb"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/dao/SnapshotJoinDaoImpl.java",
+    "sha256": "5013185aa5f010327e0c77d29fb3b282a3340664fd8d84728cf6dac91d26873a"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/query/dao/SnapshotJoinDaoImplTest.java",
+    "sha256": "484e670c572d862aea74f53d982d639715ab4c4c7682107f8c8b6b17d2c758ce"
+  },
+  {
+    "path": "ui/src/views/AutogenView.vue",
+    "sha256": "7f2c8c45f8410ac07900015ca25786ce8230734ba7af32a84c6f0279d17ad4d1"
+  }
+]

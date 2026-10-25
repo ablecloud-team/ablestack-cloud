@@ -1,0 +1,303 @@
+Browser tab: 19, Title: "가상머신 - ABLESTACK-Mold", URL: "http://127.0.0.1:18031/client/#/vm/c9b7186a-a58a-4c0b-b5f3-84213afacb1d".
+1 AXWebArea 가상머신 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/vm/c9b7186a-a58a-4c0b-b5f3-84213afacb1d
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 127.0.0.1:18031/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				287 content list sub_menu_1_$$_/compute-popup
+					288 cloud-server 가상머신
+						289 link Description: cloud-server 가상머신, Value: 127.0.0.1:18031/client/#/vm
+					290 camera VM 스냅샷
+						291 link Description: camera VM 스냅샷, Value: 127.0.0.1:18031/client/#/vmsnapshot
+					292 쿠버네티스
+						293 link Description: 쿠버네티스, Value: 127.0.0.1:18031/client/#/kubernetes
+					294 fullscreen 오토스케일 VM 그룹
+						295 link Description: fullscreen 오토스케일 VM 그룹, Value: 127.0.0.1:18031/client/#/autoscalevmgroup
+					296 gold 가상머신 그룹
+						297 link Description: gold 가상머신 그룹, Value: 127.0.0.1:18031/client/#/vmgroup
+					298 key SSH 키 쌍
+						299 link Description: key SSH 키 쌍, Value: 127.0.0.1:18031/client/#/ssh
+					300 solution 사용자 데이터 라이브러리
+						301 link Description: solution 사용자 데이터 라이브러리, Value: 127.0.0.1:18031/client/#/userdata
+					302 solution CNI 구성
+						303 link Description: solution CNI 구성, Value: 127.0.0.1:18031/client/#/cniconfiguration
+					304 swap Affinity 그룹
+						305 link Description: swap Affinity 그룹, Value: 127.0.0.1:18031/client/#/affinitygroup
+				11 container
+					12 image hdd
+					13 text 스토리지
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 127.0.0.1:18031/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 127.0.0.1:18031/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 127.0.0.1:18031/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 127.0.0.1:18031/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 127.0.0.1:18031/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 127.0.0.1:18031/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 127.0.0.1:18031/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 1
+					71 image check
+				72 container
+					73 image
+					74 container
+						75 radio button (settable, integer) Description:  , Value: 0
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 button 알림
+				123 image bell
+				286 text 1
+			124 container
+				125 text AC admin cloud
+		126 container
+			127 container
+				128 container
+					129 link Description: home, Value: 127.0.0.1:18031/client/#/
+					130 text /
+					131 link Description: 가상머신, Value: 127.0.0.1:18031/client/#/vm
+					132 text / SNAP1479UI-31-vm
+					133 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/virtual_machines.html
+					134 button reload 업데이트
+						306 image reload
+						136 text 업데이트
+				137 button down 작업
+					138 image down
+					139 text 작업
+			307 container
+				308 image edit
+				309 heading SNAP1479UI-31-vm, Value: 4
+					310 text SNAP1479UI-31-vm
+				311 text i-2-757-VM x86_64 KVM 동적으로 확장 가능
+				312 link code
+					313 button (disabled) code
+						314 image code
+				315 text 상태 정지된 상태 아이디
+				316 button 아이디 복사
+					317 image barcode
+				318 link Description: c9b7186a-a58a-4c0b-b5f3-84213afacb1d , Value: javascript:;
+				319 text CPU 2 CPU x 2.00 GHz 
+				320 image question-circle
+				321 text x86_64 메모리 2048 MB 메모리 네트워크
+				322 image wifi
+				323 text 1 NIC(s)
+				324 text eth0
+				325 link Description:  , Value: javascript:;
+				326 text 기본
+				327 image apartment
+				328 link Description: ADMIN-L2-Network, Value: 127.0.0.1:18031/client/#/guestnetwork/d2fb4fd9-e933-4862-8527-5c2d92bf8c71
+				329 text 템플릿
+				330 image save
+				351 link Description: nginx-lb-test.qcow2, Value: 127.0.0.1:18031/client/#/template/83232fe8-c0bd-4ed3-b29e-5ae054a3ee02
+				352 text 컴퓨트 오퍼링
+				332 image cloud
+				333 link Description: AS-PROD-31-AS01-2C2G-Sparse, Value: 127.0.0.1:18031/client/#/computeoffering/39c3aa33-5632-4dea-bd84-ba794d292c87
+				334 text Zone
+				335 image global
+				336 link Description: Zone, Value: 127.0.0.1:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				337 text 계정
+				338 image user
+				339 link Description: admin, Value: 127.0.0.1:18031/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f
+				340 text 도메인
+				341 image block
+				342 link Description: ROOT, Value: 127.0.0.1:18031/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+				343 text 생성일
+				344 image calendar
+				345 text 2026. 10. 23. 오후 9:49:13
+				346 container
+					347 text 태그
+					348 container
+						349 image plus
+						350 text  새 태그
+			353 container
+				354 tab group
+					355 container
+						356 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						357 tab (selectable, settable, boolean) IP 구성, Value: 0, ID: rc-tabs-1-tab-guestnetwork
+						358 tab (selectable, settable, boolean) 메트릭, Value: 0, ID: rc-tabs-1-tab-stats
+						359 tab (selectable, settable, boolean) 프로세스, Value: 0, ID: rc-tabs-1-tab-processes
+						360 tab (selectable, settable, boolean) 스케줄, Value: 0, ID: rc-tabs-1-tab-schedules
+						361 tab (selectable, settable, boolean) ISO, Value: 0, ID: rc-tabs-1-tab-cdrom
+						362 tab (selectable, settable, boolean) 볼륨, Value: 0, ID: rc-tabs-1-tab-volumes
+						363 tab (selectable, settable, boolean) NIC, Value: 0, ID: rc-tabs-1-tab-nics
+						364 tab (selectable, settable, boolean) 설정, Value: 0, ID: rc-tabs-1-tab-settings
+						365 tab (selectable, settable, boolean) 호스트 장치, Value: 0, ID: rc-tabs-1-tab-hostdevices
+						366 tab (selectable, settable, boolean) VM 스냅샷, Value: 0, ID: rc-tabs-1-tab-vmsnapshots
+						367 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						368 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				369 container Description: 상세, ID: rc-tabs-1-panel-details
+					370 content list
+						371 container
+							372 text VM 호스트 명
+							373 text SNAP1479UI-31-vm
+						374 container
+							375 text VM 표시 명
+							376 text SNAP1479UI-31-vm
+						377 container
+							378 text 아이디
+							379 text c9b7186a-a58a-4c0b-b5f3-84213afacb1d
+						380 container
+							381 text 상태
+							382 text Stopped
+						383 container
+							384 text 템플릿
+							385 text nginx-lb-test.qcow2
+						386 container
+							387 text 템플릿 형식
+							388 text USER
+						389 container
+							390 text 컴퓨트 오퍼링
+							391 text AS-PROD-31-AS01-2C2G-Sparse
+						392 container
+							393 text 동적으로 확장 가능
+							394 text true
+						395 container
+							396 text HA 활성화
+							397 text false
+						398 container
+							399 text 하이퍼바이저
+							400 text KVM
+						401 container
+							402 text CPU 아키텍처
+							403 text x86_64
+						404 container
+							405 text 계정
+							406 text admin
+						407 container
+							408 text 도메인
+							409 text ROOT
+						410 container
+							411 text Zone
+							412 text Zone
+						413 container
+							414 text VBMC 포트
+							415 text 미할당
+						416 container
+							417 text 삭제 보호
+							418 text false
+	206 container
+		207 image info-circle
+		208 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	419 container
+		420 container 작업 상세
+			421 container
+				422 button Close
+					423 image close
+				424 text 작업 상세
+				425 container
+					426 table
+						427 row
+							428 cell
+								429 text 동작
+							430 cell
+								431 text 볼륨 생성
+						432 row
+							433 cell
+								434 text 작업 대상
+							435 cell
+								436 text SNAP1479UI-31-orphan-source-snapshot
+						437 row
+							438 cell
+								439 text 상태
+							440 cell
+								441 text 접수 또는 결과 미확인 · 재제출 차단
+						442 row
+							443 cell
+								444 text 생성일
+							445 cell
+								446 text 2026. 10. 23. 오후 10:11:17
+					447 image exclamation-circle
+					448 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 이 알림을 클릭하면 결과를 다시 조회합니다.
+					449 image exclamation-circle
+					450 text 기존 작업의 결과만 조회합니다. 결과가 확인될 때까지 동일 대상의 재제출은 차단됩니다.
+					451 button 기존 작업 결과 조회
+					452 link Description: 작업 이력 확인, Value: 127.0.0.1:18031/client/#/event?resourceid=bd7f4750-bde7-47d1-86c1-b3de612060d9
+					453 button (collapsed) right 고급 · 작업 식별 및 복구, Secondary Actions: Expand
+						454 image right
+						455 text 고급 · 작업 식별 및 복구
+				456 button 닫기
+
+The focused UI element is 457 container

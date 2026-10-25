@@ -1,0 +1,34 @@
+{
+  "agents": [
+    {
+      "name": "SNAPREG1489-32-a",
+      "pid": 898450,
+      "stopped": true,
+      "mountsRemoved": true,
+      "physicalFilesBeforeUnmount": 0,
+      "originalIdentityNetworkAndCertificatesPreserved": true,
+      "generatedPropertiesHashChangedOnReconnect": false
+    },
+    {
+      "name": "SNAPREG1489-32-b",
+      "pid": 900851,
+      "stopped": true,
+      "mountsRemoved": true,
+      "physicalFilesBeforeUnmount": 0,
+      "originalIdentityNetworkAndCertificatesPreserved": true,
+      "generatedPropertiesHashChangedOnReconnect": false
+    }
+  ],
+  "originalAgentPid": "795515",
+  "originalAgentAlive": true,
+  "remainingNfs": {
+    "filesystems": [
+      {
+        "target": "/mnt/SecStorage/043add34-29ed-3802-812b-a93d814e67a4",
+        "source": "10.10.32.10:/nfs/secondary",
+        "fstype": "nfs4",
+        "options": "rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acdirmin=0,acdirmax=0,soft,proto=tcp,timeo=133,retrans=2147483647,sec=sys,clientaddr=10.10.32.7,local_lock=none,addr=10.10.32.10"
+      }
+    ]
+  }
+}

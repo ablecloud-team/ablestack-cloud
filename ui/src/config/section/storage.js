@@ -258,6 +258,8 @@ export default {
           disabled: isFastCloneFlattenActive,
           tooltip: (record) => isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.take.snapshot',
           popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/TakeSnapshot.vue')))
         },
         {
@@ -372,6 +374,8 @@ export default {
           disabled: record => !!allocationIntent(record) || isFastCloneFlattenActive(record),
           tooltip: (record) => allocationIntent(record) ? 'message.allocation.lifecycle.unsupported' : isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.create.template.from.volume',
           popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateTemplate.vue')))
         },
         {
@@ -423,8 +427,9 @@ export default {
       docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
       permission: ['listSnapshots'],
       resourceType: 'Snapshot',
-      columns: () => {
-        const fields = ['name', 'state', 'volumename', 'intervaltype', 'physicalsize', 'created']
+      columns: (getters, route) => {
+        const fields = ['name', 'state', 'volumename', 'intervaltype', 'physicalsize', 'virtualsize', 'created']
+        if (route?.query.showunique === 'false') fields.splice(1, 0, { field: 'copy', customTitle: 'snapshot.search.location' }, { field: 'datastorename', customTitle: 'storage' })
         if (store.getters.features.snapshotshowchainsize) {
           fields.splice(fields.indexOf('created'), 0, 'chainsize', 'parentname')
         }
@@ -450,7 +455,7 @@ export default {
       tabs: [
         {
           name: 'details',
-          component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageSnapshotDetails.vue')))
         },
         {
           name: 'zones',
@@ -468,7 +473,7 @@ export default {
         }
       ],
       searchFilters: () => {
-        const filters = ['name', 'domainid', 'account', 'tags', 'zoneid']
+        const filters = ['name', 'volumeid', 'snapshottype', 'intervaltype', 'showunique', 'locationtype', 'domainid', 'account', 'tags', 'zoneid']
         if (['Admin', 'DomainAdmin'].includes(store.getters.userInfo.roletype)) {
           filters.push('storageid')
           filters.push('imagestoreid')
@@ -477,12 +482,24 @@ export default {
       },
       actions: [
         {
+          api: 'deleteSnapshot',
+          icon: 'tool-outlined',
+          label: 'label.snapshot.recovery',
+          listView: true,
+          popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotDeletionRecovery.vue')))
+        },
+        {
           api: 'createTemplate',
           icon: 'picture-outlined',
           label: 'label.create.template',
           dataView: true,
           show: (record) => { return record.state === 'BackedUp' },
           popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateTemplate.vue')))
         },
         {
@@ -492,10 +509,15 @@ export default {
           dataView: true,
           show: (record) => { return record.state === 'BackedUp' },
           popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateVolume.vue')))
         },
         {
           api: 'revertSnapshot',
+          storageSnapshotMode: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageSnapshotActionDialog.vue'))),
           icon: 'sync-outlined',
           label: 'label.action.revert.snapshot',
           message: 'message.action.revert.snapshot',
@@ -503,7 +525,20 @@ export default {
           show: (record) => { return record.state === 'BackedUp' && record.revertable }
         },
         {
+          api: 'archiveSnapshot',
+          storageSnapshotMode: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageSnapshotActionDialog.vue'))),
+          icon: 'inbox-outlined',
+          label: 'label.action.archive.snapshot',
+          dataView: true,
+          show: record => ['BackedUp', 'CreatedOnPrimary', 'Error'].includes(record.state)
+        },
+        {
           api: 'extractSnapshot',
+          storageSnapshotMode: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageSnapshotActionDialog.vue'))),
           icon: 'cloud-download-outlined',
           label: 'label.action.download.snapshot',
           message: 'message.action.download.snapshot',
@@ -513,19 +548,16 @@ export default {
               ((record.domainid === store.userInfo.domainid && record.account === store.userInfo.account) ||
                 (record.domainid === store.userInfo.domainid && record.projectid && store.project && store.project.id && record.projectid === store.project.id))) &&
               record.state === 'BackedUp'
-          },
-          args: ['zoneid'],
-          mapping: {
-            zoneid: {
-              value: (record) => { return record.zoneid }
-            }
-          },
-          response: (result) => { return `Please click <a href="${result.snapshot.url}" target="_blank">${result.snapshot.url}</a> to download.` }
+          }
         },
         {
           api: 'deleteSnapshot',
+          storageSnapshotMode: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageSnapshotActionDialog.vue'))),
           icon: 'delete-outlined',
           label: 'label.action.delete.snapshot',
+          toolbarLabel: 'label.action.delete.snapshot',
           message: 'message.action.delete.snapshot',
           dataView: true,
           show: (record) => { return record.state !== 'Destroyed' },

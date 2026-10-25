@@ -1,0 +1,33 @@
+{
+  "count": 1,
+  "snapshot": [
+    {
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": false,
+        "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "createreason": "SOURCE_VOLUME_UNAVAILABLE"
+      },
+      "id": "c92c1e88-9e20-424d-a0b8-171ce9dd5823",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "006b063d-008c-4413-941d-77ef00a41c01",
+      "volumename": "SNAPDIALOG-32-orphan-source",
+      "volumetype": "DATADISK",
+      "volumestate": "Expunged",
+      "created": "2026-10-23T23:18:04+0900",
+      "name": "SNAPDIALOG-32-orphan-source-snapshot",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 1376256,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "revertable": false,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false
+    }
+  ]
+}

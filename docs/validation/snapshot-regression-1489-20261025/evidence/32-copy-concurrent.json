@@ -1,0 +1,162 @@
+{
+  "args": {
+    "id": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+    "sourcezoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "destzoneids": "821e7589-35b8-4a4d-b190-454836e35485",
+    "expectedscopehash": "b0cf746e20a26c5c7472267fa6b8e44ae8d0554f94d6dc2e03285a04a3e44c46"
+  },
+  "results": [
+    {
+      "status": "rejected",
+      "error": {
+        "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domainpath": "ROOT",
+        "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 431,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 431,
+          "errortext": "Snapshot copy source or destinations changed; refresh the target list"
+        },
+        "jobinstancetype": "Snapshot",
+        "jobinstanceid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+        "created": "2026-10-25T22:48:02+0900",
+        "completed": "2026-10-25T22:48:05+0900",
+        "jobid": "72a18f19-fb3a-4ad1-898f-39ba237390fb",
+        "jobstatus": 2
+      }
+    },
+    {
+      "status": "fulfilled",
+      "result": {
+        "snapshot": {
+          "copy": {
+            "role": "Image",
+            "datastoreknown": "true",
+            "downloadstate": "DOWNLOADED",
+            "id": "89cad883-72b3-3c6e-ae5d-311a98939471",
+            "state": "Ready",
+            "availability": "Ready",
+            "error": "",
+            "virtualsize": "1073741824"
+          },
+          "id": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+          "account": "SNAPREG1489-32-owner",
+          "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+          "domain": "SNAPREG1489-32-domain",
+          "domainpath": "ROOT/SNAPREG1489-32-domain",
+          "volumeid": "f3b72221-0933-468e-a8a8-26e5c8361595",
+          "volumename": "SNAPREG1489-32-owner",
+          "volumetype": "DATADISK",
+          "volumestate": "Expunged",
+          "created": "2026-10-25T17:53:31+0900",
+          "name": "SNAPREG1489-32-pattern",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "821e7589-35b8-4a4d-b190-454836e35485",
+          "zonename": "SNAPREG1489-32-Zone-a",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "4dc84609-8c5e-4a81-9f83-0a96f38aeb58",
+          "datastorename": "SNAPREG1489-32-Secondary-a",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOADED",
+            "downloadPercent": "100"
+          },
+          "tags": [
+            {
+              "key": "qa-kind",
+              "value": "HOURLY",
+              "resourcetype": "Snapshot",
+              "resourceid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+              "account": "SNAPREG1489-32-owner",
+              "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+              "domain": "SNAPREG1489-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      }
+    }
+  ],
+  "target": [
+    {
+      "copy": {
+        "id": "89cad883-72b3-3c6e-ae5d-311a98939471",
+        "role": "Image",
+        "state": "Ready",
+        "datastoreknown": true,
+        "availability": "Ready",
+        "virtualsize": 1073741824,
+        "downloadstate": "DOWNLOADED",
+        "error": ""
+      },
+      "id": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+      "account": "SNAPREG1489-32-owner",
+      "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+      "domain": "SNAPREG1489-32-domain",
+      "domainpath": "ROOT/SNAPREG1489-32-domain",
+      "volumeid": "f3b72221-0933-468e-a8a8-26e5c8361595",
+      "volumename": "SNAPREG1489-32-owner",
+      "volumetype": "DATADISK",
+      "volumestate": "Expunged",
+      "created": "2026-10-25T17:53:31+0900",
+      "name": "SNAPREG1489-32-pattern",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "status": "BackedUp",
+      "physicalsize": 0,
+      "zoneid": "821e7589-35b8-4a4d-b190-454836e35485",
+      "zonename": "SNAPREG1489-32-Zone-a",
+      "revertable": false,
+      "virtualsize": 1073741824,
+      "datastoreid": "4dc84609-8c5e-4a81-9f83-0a96f38aeb58",
+      "datastorename": "SNAPREG1489-32-Secondary-a",
+      "datastorestate": "Ready",
+      "datastoretype": "Image",
+      "downloaddetails": {
+        "downloadState": "DOWNLOADED",
+        "downloadPercent": "100"
+      },
+      "tags": [
+        {
+          "key": "qa-kind",
+          "value": "HOURLY",
+          "resourcetype": "Snapshot",
+          "resourceid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+          "account": "SNAPREG1489-32-owner",
+          "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+          "domain": "SNAPREG1489-32-domain"
+        },
+        {
+          "key": "qa-order",
+          "value": "SNAPREG1489-32",
+          "resourcetype": "Snapshot",
+          "resourceid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+          "account": "SNAPREG1489-32-owner",
+          "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+          "domain": "SNAPREG1489-32-domain"
+        },
+        {
+          "key": "qa-search",
+          "value": "SNAPREG1489-32",
+          "resourcetype": "Snapshot",
+          "resourceid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+          "account": "SNAPREG1489-32-owner",
+          "domainid": "58217a61-215b-4a44-a326-ed35dede63e2",
+          "domain": "SNAPREG1489-32-domain"
+        }
+      ],
+      "hasannotations": false
+    }
+  ],
+  "pass": true
+}

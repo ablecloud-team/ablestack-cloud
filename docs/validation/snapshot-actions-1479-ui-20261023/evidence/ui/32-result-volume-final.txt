@@ -1,0 +1,264 @@
+Browser tab: 20, Title: "볼륨 - ABLESTACK-Mold", URL: "http://localhost:18032/client/#/volume/c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: localhost:18032/client/#/volume/c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1
+	2 container
+		355 container
+			401 image
+			357 menu
+				358 dashboard 대시보드
+					359 link Description: dashboard 대시보드, Value: localhost:18032/client/#/dashboard
+				360 container
+					361 image cloud
+					362 text 컴퓨트
+				363 container
+					364 image hdd
+					365 text 스토리지
+				402 content list sub_menu_20_$$_/storage-popup
+					403 hdd 볼륨
+						404 link Description: hdd 볼륨, Value: localhost:18032/client/#/volume
+					405 build 스냅샷
+						406 link Description: build 스냅샷, Value: localhost:18032/client/#/snapshot
+					407 build 스냅샷 정책
+						408 link Description: build 스냅샷 정책, Value: localhost:18032/client/#/snapshotpolicy
+					409 funnel-plot 버킷
+						410 link Description: funnel-plot 버킷, Value: localhost:18032/client/#/buckets
+					411 file-text 공유 파일 시스템
+						412 link Description: file-text 공유 파일 시스템, Value: localhost:18032/client/#/sharedfs
+				366 container
+					367 image wifi
+					368 text 네트워크
+				369 container
+					370 image picture
+					371 text 이미지
+				372 container
+					373 image lock
+					374 text 키 관리
+				375 schedule 이벤트
+					376 link Description: schedule 이벤트, Value: localhost:18032/client/#/event
+				377 project 프로젝트
+					378 link Description: project 프로젝트, Value: localhost:18032/client/#/project
+				379 idcard 역할
+					380 link Description: idcard 역할, Value: localhost:18032/client/#/role
+				381 team 계정
+					382 link Description: team 계정, Value: localhost:18032/client/#/account
+				383 block 도메인
+					384 link Description: block 도메인, Value: localhost:18032/client/#/domain
+				385 container
+					386 image bank
+					387 text 인프라스트럭쳐
+				388 container
+					389 image shopping
+					390 text 서비스 오퍼링
+				391 container
+					392 image setting
+					393 text 구성
+				394 appstore-add 확장
+					395 link Description: appstore-add 확장, Value: localhost:18032/client/#/extension
+				396 container
+					397 image tool
+					398 text 도구
+				399 read API 문서
+					400 link Description: read API 문서, Value: localhost:18032/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			413 container
+				414 heading 페이지 스타일 설정, Value: 3
+					415 text 페이지 스타일 설정
+				416 container
+					417 image
+					418 container
+						419 radio button (settable, integer) Description:  , Value: 0
+				420 container
+					421 image
+					422 container
+						423 radio button (settable, integer) Description:  , Value: 1
+					424 image check
+				425 heading 테마 색상, Value: 3
+					426 text 테마 색상
+				427 container
+					428 radio button (settable, integer) Description:  , Value: 0
+					429 image check
+				430 container
+					431 radio button (settable, integer) Description:  , Value: 0
+				432 container
+					433 radio button (settable, integer) Description:  , Value: 0
+				434 container
+					435 radio button (settable, integer) Description:  , Value: 0
+				436 container
+					437 radio button (settable, integer) Description:  , Value: 0
+				438 container
+					439 radio button (settable, integer) Description:  , Value: 0
+				440 container
+					441 radio button (settable, integer) Description:  , Value: 0
+				442 container
+					443 radio button (settable, integer) Description:  , Value: 0
+				444 heading 네비게이션 설정, Value: 3
+					445 text 네비게이션 설정
+				446 container
+					447 container
+						448 text 배경색
+						449 color well (disabled, settable) #ffffff
+					450 container
+						451 text 텍스트 색상
+						452 color well (disabled, settable) #000000
+				453 image exclamation-circle
+				454 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				455 button download 세팅값 다운로드(json)
+					456 image download
+					457 text 세팅값 다운로드(json)
+				458 button undo 기본값으로 재설정
+					459 image undo
+					460 text 기본값으로 재설정
+		112 container
+			461 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			462 button 생성 down
+				463 text 생성
+				464 image down
+			121 image translation
+			122 button 알림
+				123 image bell
+				253 text 1
+			125 container
+				126 text AC admin cloud
+		127 container
+			465 container
+				466 link Description: home, Value: localhost:18032/client/#/
+				467 text /
+				468 link Description: 볼륨, Value: localhost:18032/client/#/volume
+				469 text / SNAP1479UI-32-lost-ui-volume
+				470 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				471 button reload 업데이트
+					472 image reload
+					473 text 업데이트
+			474 button down 작업
+				475 image down
+				476 text 작업
+			477 container
+				478 image hdd
+				479 heading SNAP1479UI-32-lost-ui-volume, Value: 4
+					480 text SNAP1479UI-32-lost-ui-volume
+				481 text DATADISK KVM
+				482 text 상태 사용 가능 아이디
+				483 button 아이디 복사
+					484 image barcode
+				485 link Description: c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1 , Value: javascript:;
+				486 text 디스크 크기(GB 단위)
+				487 image hdd
+				488 text 1.00 GiB 스토리지 풀
+				489 image database
+				490 link Description: Primary, Value: localhost:18032/client/#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122
+				491 text Shared (DATADISK) 클러스터
+				492 image cluster
+				493 link Description: Cluster, Value: localhost:18032/client/#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9
+				494 text Pod
+				495 image appstore
+				496 link Description: Pod, Value: localhost:18032/client/#/pod/6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad
+				497 text Zone
+				498 image global
+				499 link Description: Zone, Value: localhost:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				500 text 계정
+				501 image user
+				502 link Description: admin, Value: localhost:18032/client/#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				503 text 도메인
+				504 image block
+				505 link Description: ROOT, Value: localhost:18032/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				506 text 생성일
+				507 image calendar
+				508 text 2026. 10. 23. 오후 10:11:23
+				509 link Description: build 스냅샷 보기, Value: localhost:18032/client/#/snapshot?volumeid=c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1
+				510 container
+					511 text 태그
+					512 container
+						513 image plus
+						514 text  새 태그
+			515 container
+				516 tab group
+					517 container
+						518 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						519 tab (selectable, settable, boolean) 스냅샷, Value: 0, ID: rc-tabs-1-tab-snapshots
+						520 tab (selectable, settable, boolean) 정기스냅샷, Value: 0, ID: rc-tabs-1-tab-recurringsnapshots
+						521 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						522 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				523 container Description: 상세, ID: rc-tabs-1-panel-details
+					524 content list
+						525 container
+							526 text 이름
+							527 text SNAP1479UI-32-lost-ui-volume
+						528 container
+							529 text 아이디
+							530 text c60c0b07-9c2e-4bcf-9db4-ccb38f1d90d1
+						531 container
+							532 text 유형
+							533 text DATADISK
+						534 container
+							535 text 스토리지 유형
+							536 text Shared (DATADISK)
+						537 container
+							538 text 디스크 오퍼링
+							539 text Custom
+						540 container
+							541 text 크기
+							542 text 1.00 GiB
+						543 container
+							544 text 프로비저닝 유형
+							545 text thin
+						546 container
+							547 text Write-Cache 유형
+							548 text none
+						549 container
+							550 text 압축/중복제거
+							551 text false
+						552 container
+							553 text 압축 사용 상태
+							554 text false
+						555 container
+							556 text 중복제거 사용 상태
+							557 text false
+						558 container
+							559 text 경로
+							560 text f04e6637-e0c6-40e6-8828-f2836c6160db
+						561 container
+							562 text 삭제 보호
+							563 text false
+						564 container
+							565 text 요청 정책 / 형식
+							566 text 기존 호환 값: thin
+						567 container
+							568 text 확정 정책
+							569 text 알 수 없음
+						570 container
+							571 text 실제 적용 정책
+							572 text 알 수 없음
+						573 container
+							574 text 실제 적용 방식
+							575 text 알 수 없음
+						576 container
+							577 text 실제 이미지 형식
+							578 text RAW
+						579 container
+							580 text 논리 용량
+							581 text 1.00 GiB
+						582 container
+							583 text 관측 할당량
+							584 image question-circle
+							585 text 알 수 없음
+						586 container
+							587 text 관측 시각
+							588 text 알 수 없음
+						589 container
+							590 text 할당 증거
+							591 text 미검증
+	207 container
+		208 image exclamation-circle
+		209 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		210 button 세부 경보 내용 확인
+		211 button 경보 규칙으로 이동
+		212 button 닫기
+			213 image close
+
+The focused UI element is 122 button 알림

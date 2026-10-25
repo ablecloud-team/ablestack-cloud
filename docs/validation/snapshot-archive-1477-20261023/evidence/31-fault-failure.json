@@ -1,0 +1,45 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "951f5854-65c6-457e-bf09-8be34a675d84",
+    "name": "SNAP1477-31-partial",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 115,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "8854b247b87b72f271bcd62b051987abb4aa2bb636f93c8402a925754d87b852",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "failure": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Failed to delete snapshot chain.\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"951f5854-65c6-457e-bf09-8be34a675d84\",\"created\":\"2026-10-23T17:25:25+0900\",\"completed\":\"2026-10-23T17:25:25+0900\",\"jobid\":\"ef6ba43c-a168-46a4-b92c-e8c1d5984d63\",\"jobstatus\":2}",
+  "after": {
+    "success": true,
+    "snapshotid": "951f5854-65c6-457e-bf09-8be34a675d84",
+    "name": "SNAP1477-31-partial",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 115,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "8854b247b87b72f271bcd62b051987abb4aa2bb636f93c8402a925754d87b852",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

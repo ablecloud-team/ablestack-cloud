@@ -1,0 +1,30 @@
+{
+  "counts": {
+    "activeVolumes": 0,
+    "activeSnapshots": 0,
+    "nonterminalSnapshotRefs": 0,
+    "activeVms": 0,
+    "activeTemplates": 0,
+    "activeAccounts": 0,
+    "activeDomains": 0,
+    "activeProjects": 0,
+    "activeZones": 0,
+    "activeImageStores": 0,
+    "activeHosts": 0,
+    "activeOfferings": 0,
+    "roles": 0,
+    "policies": 0,
+    "schedules": 0,
+    "snapshotTags": 0,
+    "accountCleanupNeeded": 0,
+    "unconfirmedForcedCleanup": 0,
+    "nonterminalAsyncJobs": 0
+  },
+  "snapshotHistoryRowsPreserved": 30,
+  "snapshotDeleteUsageEvents": 30,
+  "configuration": {
+    "name": "account.cleanup.interval",
+    "value": "86400"
+  },
+  "pass": true
+}

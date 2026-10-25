@@ -22,7 +22,7 @@ let vm
 const deferred = () => { let release, fail; const promise = new Promise((resolve, reject) => { release = resolve; fail = reject }); return { promise, resolve: release, reject: fail } }
 beforeEach(() => {
   postAPI.mockReset()
-  vm = { resource: { id: 'A' }, annotationType: 'USER_DATA', annotation: 'draft', annotationAdminsOnly: true, annotationVersion: 0, annotationSaving: false, notes: [1], itemCount: 1, page: 2, $store: { state: { user: { token: 'session' } }, getters: { userInfo: { id: 'user' }, project: {} } }, $notifyError: jest.fn(), getAnnotations: jest.fn() }
+  vm = { ...Notes.methods, annotationReady: true, resource: { id: 'A' }, annotationType: 'USER_DATA', annotation: 'draft', annotationAdminsOnly: true, annotationVersion: 0, annotationSaving: false, notes: [1], itemCount: 1, page: 2, $store: { state: { user: { token: 'session' } }, getters: { userInfo: { id: 'user' }, apis: { listAnnotations: {}, addAnnotation: {} }, project: {} } }, $notifyError: jest.fn(), getAnnotations: jest.fn() }
   Object.defineProperty(vm, 'annotationContext', { get: () => Notes.computed.annotationContext.call(vm) })
 })
 test('failure retains the draft and visibility, and displays a real failure without inventing success', async () => {
@@ -31,7 +31,7 @@ test('failure retains the draft and visibility, and displays a real failure with
 })
 test('successful submission clears only the submitted snapshot and resets the controlled visibility checkbox', async () => {
   postAPI.mockResolvedValue({}); await Notes.methods.saveNote.call(vm)
-  expect(postAPI).toHaveBeenCalledWith('addAnnotation', { entityid: 'A', entitytype: 'USER_DATA', annotation: 'draft', adminsonly: true }, { preserveOnFailure: true })
+  expect(postAPI).toHaveBeenCalledWith('addAnnotation', { entityid: 'A', entitytype: 'USER_DATA', annotation: 'draft', adminsonly: true }, { preserveOnFailure: true, timeout: 20000 })
   expect(vm.annotation).toBe(''); expect(vm.annotationAdminsOnly).toBe(false)
 })
 test('new typing during a pending success is not discarded; duplicate sends share a lock', async () => {
@@ -46,5 +46,5 @@ test.each(['resource', 'user', 'project', 'session', 'unmount'])('late %s comple
   if (kind === 'session') vm.$store.state.user.token = 'other'
   if (kind === 'unmount') vm.listRefreshDisposed = true
   Notes.watch.annotationContext.call(vm); vm.annotation = 'new scope'; wait.reject(new Error('old failure')); await pending
-  expect(vm.annotation).toBe('new scope'); expect(vm.notes).toEqual([]); expect(vm.page).toBe(1); expect(vm.$notifyError).not.toHaveBeenCalled(); expect(vm.getAnnotations).not.toHaveBeenCalled()
+  expect(vm.annotation).toBe('new scope'); expect(vm.notes).toEqual([]); expect(vm.page).toBe(1); expect(vm.$notifyError).not.toHaveBeenCalled(); expect(vm.getAnnotations).toHaveBeenCalledTimes(kind === 'unmount' ? 0 : 1)
 })

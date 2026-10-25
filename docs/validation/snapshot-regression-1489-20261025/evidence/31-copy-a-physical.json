@@ -1,0 +1,94 @@
+{
+  "pass": true,
+  "snapshot": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+  "refs": [
+    {
+      "id": 514,
+      "url": "nfs://10.10.31.10/nfs/secondary",
+      "path": "snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "role": "Image",
+      "zone": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "state": "Ready",
+      "store": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8"
+    },
+    {
+      "id": 541,
+      "url": "nfs://10.10.31.10/nfs/secondary/SNAPREG1489-31/b",
+      "path": "snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "role": "Image",
+      "zone": "9b2a63c0-e8bd-48f1-92ff-a810aa4416c5",
+      "state": "Ready",
+      "store": "1d7853cc-57cd-4ca7-9c6f-646d165cd60d"
+    },
+    {
+      "id": 548,
+      "url": "nfs://10.10.31.10/nfs/secondary/SNAPREG1489-31/a",
+      "path": "snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "role": "Image",
+      "zone": "79cc3335-db1a-4c15-9e3d-e32ad6032395",
+      "state": "Ready",
+      "store": "8acb6c48-3028-4660-a565-c0ac6791aea7"
+    }
+  ],
+  "physical": {
+    "source": "/nfs/secondary/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+    "target": "/nfs/secondary/SNAPREG1489-31/a/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+    "sourceSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "targetSha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/SNAPREG1489-31/a/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/SNAPREG1489-31/a/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "compare": "Images are identical.\n",
+    "pattern": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.814 GiB/sec and 2881.3130 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.278 GiB/sec and 2332.2038 ops/sec)\n"
+  },
+  "jobs": [
+    {
+      "uuid": "0c00851b-0f92-4edd-a8a7-8d136def5888",
+      "result": "org.apache.cloudstack.api.response.ExceptionResponse/null/{\"uuidList\":[],\"errorcode\":431,\"errortext\":\"Snapshot copy source or destinations changed; refresh the target list\"}",
+      "status": 2
+    },
+    {
+      "uuid": "eb4c9e31-bd2c-4903-aa5c-9a09e14b16af",
+      "result": "org.apache.cloudstack.api.response.SnapshotResponse/snapshot/{\"copy\":{\"id\":\"e789f6d5-57c0-3c68-8bc0-aee3de9258f1\",\"role\":\"Image\",\"state\":\"Ready\",\"datastoreknown\":true,\"availability\":\"Ready\",\"virtualsize\":1073741824,\"downloadstate\":\"DOWNLOADED\",\"error\":\"\"},\"id\":\"b468a951-6705-434e-b3b0-22c49e23f2d6\",\"account\":\"SNAPREG1489-31-owner\",\"domainid\":\"0cb3ed60-18db-4e58-a249-131f54db2cc9\",\"domain\":\"SNAPREG1489-31-domain\",\"domainpath\":\"ROOT/SNAPREG1489-31-domain\",\"volumeid\":\"58cc8fa3-b048-4a77-88ba-5847b26cbe1e\",\"volumename\":\"SNAPREG1489-31-owner\",\"volumetype\":\"DATADISK\",\"volumestate\":\"Expunged\",\"created\":\"2026-10-25T17:53:59+0900\",\"name\":\"SNAPREG1489-31-pattern\",\"intervaltype\":\"MANUAL\",\"state\":\"BackedUp\",\"status\":\"BackedUp\",\"physicalsize\":0,\"zoneid\":\"79cc3335-db1a-4c15-9e3d-e32ad6032395\",\"zonename\":\"SNAPREG1489-31-Zone-a\",\"revertable\":false,\"virtualsize\":1073741824,\"datastoreid\":\"8acb6c48-3028-4660-a565-c0ac6791aea7\",\"datastorename\":\"SNAPREG1489-31-Secondary-a\",\"datastorestate\":\"Ready\",\"datastoretype\":\"Image\",\"downloaddetails\":{\"downloadState\":\"DOWNLOADED\",\"downloadPercent\":\"100\"},\"tags\":[{\"key\":\"qa-kind\",\"value\":\"HOURLY\",\"resourcetype\":\"Snapshot\",\"resourceid\":\"b468a951-6705-434e-b3b0-22c49e23f2d6\",\"account\":\"SNAPREG1489-31-owner\",\"domainid\":\"0cb3ed60-18db-4e58-a249-131f54db2cc9\",\"domain\":\"SNAPREG1489-31-domain\"}],\"hasannotations\":false}",
+      "status": 1
+    },
+    {
+      "uuid": "180e58f2-c61b-4794-bfbc-d46dbabfdb7e",
+      "result": "org.apache.cloudstack.api.response.SnapshotResponse/snapshot/{\"copy\":{\"id\":\"117a2610-0ba4-32c2-84d2-ecae4e1ff634\",\"role\":\"Image\",\"state\":\"Ready\",\"datastoreknown\":true,\"availability\":\"Ready\",\"virtualsize\":1073741824,\"downloadstate\":\"DOWNLOADED\",\"error\":\"\"},\"id\":\"b468a951-6705-434e-b3b0-22c49e23f2d6\",\"account\":\"SNAPREG1489-31-owner\",\"domainid\":\"0cb3ed60-18db-4e58-a249-131f54db2cc9\",\"domain\":\"SNAPREG1489-31-domain\",\"domainpath\":\"ROOT/SNAPREG1489-31-domain\",\"volumeid\":\"58cc8fa3-b048-4a77-88ba-5847b26cbe1e\",\"volumename\":\"SNAPREG1489-31-owner\",\"volumetype\":\"DATADISK\",\"volumestate\":\"Ready\",\"created\":\"2026-10-25T17:53:59+0900\",\"name\":\"SNAPREG1489-31-pattern\",\"intervaltype\":\"MANUAL\",\"state\":\"BackedUp\",\"status\":\"BackedUp\",\"physicalsize\":0,\"zoneid\":\"9b2a63c0-e8bd-48f1-92ff-a810aa4416c5\",\"zonename\":\"SNAPREG1489-31-Zone-b\",\"revertable\":false,\"virtualsize\":1073741824,\"datastoreid\":\"1d7853cc-57cd-4ca7-9c6f-646d165cd60d\",\"datastorename\":\"SNAPREG1489-31-Secondary-b\",\"datastorestate\":\"Ready\",\"datastoretype\":\"Image\",\"downloaddetails\":{\"downloadState\":\"DOWNLOADED\",\"downloadPercent\":\"100\"},\"tags\":[],\"hasannotations\":false}",
+      "status": 1
+    }
+  ]
+}

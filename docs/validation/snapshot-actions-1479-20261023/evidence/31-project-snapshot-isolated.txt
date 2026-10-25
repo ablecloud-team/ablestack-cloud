@@ -1,0 +1,141 @@
+Browser tab: 14, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot
+	2 container
+		229 container
+			230 image
+			231 menu
+				232 dashboard 대시보드
+					233 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				234 container
+					235 image cloud
+					236 text 컴퓨트
+				237 container
+					238 image hdd
+					239 text 스토리지
+				240 content list sub_menu_2_$$_/storage-popup
+					241 hdd 볼륨
+						242 link Description: hdd 볼륨, Value: localhost:18031/client/#/volume
+					243 build 스냅샷
+						244 link Description: build 스냅샷, Value: localhost:18031/client/#/snapshot
+					245 build 스냅샷 정책
+						246 link Description: build 스냅샷 정책, Value: localhost:18031/client/#/snapshotpolicy
+					247 funnel-plot 버킷
+						248 link Description: funnel-plot 버킷, Value: localhost:18031/client/#/buckets
+					249 file-text 공유 파일 시스템
+						250 link Description: file-text 공유 파일 시스템, Value: localhost:18031/client/#/sharedfs
+				251 container
+					252 image wifi
+					253 text 네트워크
+				254 container
+					255 image picture
+					256 text 이미지
+				257 container
+					258 image lock
+					259 text 키 관리
+				260 schedule 이벤트
+					261 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				262 project 프로젝트
+					263 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				264 team 계정
+					265 link Description: team 계정, Value: localhost:18031/client/#/account
+				266 global Zone
+					267 link Description: global Zone, Value: localhost:18031/client/#/zones
+				268 container
+					269 image shopping
+					270 text 서비스 오퍼링
+				271 container
+					272 image tool
+					273 text 도구
+				274 read API 문서
+					275 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			189 container
+				228 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				190 image project
+				191 text SNAP1479-31-project
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		60 container
+			276 container
+				277 container
+					278 link Description: home, Value: localhost:18031/client/#/
+					279 text /
+					280 link Description: 스냅샷, Value: localhost:18031/client/#/snapshot
+					281 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					282 button reload 업데이트
+						283 image reload
+						284 text 업데이트
+				285 button 삭제 잔여 복구
+					286 image tool
+				287 container
+					288 button 고급 검색
+						289 image filter
+					290 text field (settable)
+					291 button search
+						292 image search
+			293 table
+				294 row
+					295 cell
+						296 container
+							297 checkbox (disabled, settable, integer) Description:  , Value: 0
+					298 cell
+						299 container
+							300 text 이름
+							301 image caret-up
+							302 image caret-down
+					303 cell
+						304 container
+							305 text 상태
+							306 image caret-up
+							307 image caret-down
+					308 cell
+						309 container
+							310 text 볼륨 이름
+							311 image caret-up
+							312 image caret-down
+					313 cell
+						314 container
+							315 text 간격 유형
+							316 image caret-up
+							317 image caret-down
+					318 cell
+						319 container
+							320 text 물리적 크기
+							321 image caret-up
+							322 image caret-down
+					323 cell
+						324 container
+							325 text 생성일
+							326 image caret-up
+							327 image caret-down
+					328 cell
+						329 container
+							330 text Zone
+							331 image caret-up
+							332 image caret-down
+					333 cell
+						334 button filter
+							335 image filter
+				336 row
+					337 cell
+						338 text 데이터 없음
+			339 content list
+				340 text 전체 0 개 항목 중 0-0 표시
+				341 container 이전 페이지
+					342 button (disabled) left
+						343 image left
+				344 text 1
+				345 container 다음 페이지
+					346 button (disabled) right
+						347 image right
+				348 container
+					349 combo box (settable) rc_select_2
+					350 text 20 / 쪽
+
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot

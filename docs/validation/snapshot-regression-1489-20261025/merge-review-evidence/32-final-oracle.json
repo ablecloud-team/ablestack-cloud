@@ -1,0 +1,31 @@
+{
+  "nfs": [
+    {
+      "path": "/nfs/secondary/snapshots/105/460/9e837069-0e82-4283-ac59-6ec3853bf374",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/106/461/710012d1-a37b-48f1-a69a-f1c7fef52120",
+      "exists": false
+    }
+  ],
+  "primary": {
+    "checked": [
+      "77cb595a-9970-4b3f-9707-9961f84dfa32",
+      "9de38a5e-a5be-4fcf-8042-ae5f839b9d93"
+    ],
+    "active": [],
+    "trash": []
+  },
+  "counts": {
+    "jobs": 0,
+    "refs": 0,
+    "cleanup": 0,
+    "pending": 0,
+    "activeDomain": 0,
+    "activeVolumes": 0,
+    "activeAccounts": 0,
+    "activeSnapshots": 0
+  },
+  "pass": true
+}

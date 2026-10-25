@@ -1,0 +1,10 @@
+{
+  "copyParentSha256": "be80c7656a38527896c06ff11b2ea3a0acdcd693de23498f827b2e03888c733c",
+  "status": 403,
+  "mode": "restore",
+  "path": "/nfs/secondary/snapshots/95/436/.htaccess",
+  "file": "33618116-2e48-4b69-9364-45afb0b8f4df",
+  "onlyClient": "10.10.32.6",
+  "fixtureOnly": true,
+  "originalAclUnchanged": true
+}

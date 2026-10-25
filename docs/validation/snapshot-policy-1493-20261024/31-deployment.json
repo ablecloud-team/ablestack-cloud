@@ -1,0 +1,58 @@
+{
+  "management": [
+    {
+      "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+      "before": "e22b37d655f00e2959f3db8264f0f219623127f7fdcd3149a26bc643d137534a",
+      "after": "ae2896c258f21ee7f3e46f7002ff4a0bc94a249aebf2b875396936e92317dbdd",
+      "updatedClasses": [
+        "com/cloud/storage/Snapshot.class",
+        "org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotCmd.class",
+        "org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotBackupCmd.class",
+        "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+        "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class"
+      ],
+      "otherEntriesUnchanged": true
+    }
+  ],
+  "runtime": {
+    "mold": "active",
+    "clientHttp": 200,
+    "webappFilesUnchanged": 15164,
+    "classes": [
+      {
+        "group": "management",
+        "path": "com/cloud/storage/Snapshot.class",
+        "sha256": "78325421442e47fd56adbd2ef54e11091cc832c95ac9a5f67cd97424988dabba"
+      },
+      {
+        "group": "management",
+        "path": "org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotCmd.class",
+        "sha256": "42cfa847fb2a10a5b9fbd2c00b69e02b7127bd216b72420ed8f2c36f113f944c"
+      },
+      {
+        "group": "management",
+        "path": "org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotBackupCmd.class",
+        "sha256": "2e0a82811ea5873051355b26b7389983cc68830b44d64f907300b8636529c174"
+      },
+      {
+        "group": "management",
+        "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+        "sha256": "fdf927a9d3821f1ef3559172e8c1423b27bab72e56477712f4cf60a343fe1b54"
+      },
+      {
+        "group": "management",
+        "path": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+        "sha256": "2a74091339913aa8c1796ca5ef7f330b8a55c58da34a23a157ff3e621372693f"
+      }
+    ],
+    "otherJarEntriesUnchanged": true
+  },
+  "webapp": {
+    "files": 15164,
+    "byteHashedFiles": 15164,
+    "largeFileMetadata": {},
+    "beforeAfterEqual": true,
+    "rawBeforeSha256": "34c5ab7fb3817762420989d5cb9ad121abb43ff462cf0cef49dce172adadab57"
+  },
+  "originalHostsUp": 5
+}

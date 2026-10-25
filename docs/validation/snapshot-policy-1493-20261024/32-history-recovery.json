@@ -1,0 +1,722 @@
+{
+  "readOnlyPlanNoArchive": {
+    "plan_sha256": "b5287a65f54478549afae4c1d94c5a21460fb252edfa01daabe872d27a6bba2c",
+    "plan": {
+      "version": 1,
+      "archive_evidence": [],
+      "entries": [
+        {
+          "snapshot": {
+            "id": 143,
+            "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+            "volume_id": 387,
+            "account_id": 73,
+            "domain_id": 19,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "Destroyed",
+            "created": "2026-10-24 10:23:32",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        },
+        {
+          "snapshot": {
+            "id": 147,
+            "uuid": "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:18",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        },
+        {
+          "snapshot": {
+            "id": 148,
+            "uuid": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:22",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        },
+        {
+          "snapshot": {
+            "id": 149,
+            "uuid": "dc92398f-597b-473b-adb0-61b51392c823",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:26",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        },
+        {
+          "snapshot": {
+            "id": 150,
+            "uuid": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:29",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 415,
+            "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3617,
+            "uuid": "bc8eca60-e796-4e84-bbca-3e68577164d6",
+            "account_id": 2,
+            "instance_id": 150,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "150",
+              "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+              "policyid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "3e4857d9297e2b7dfc5dde2c3d05d81e4a072ae8e35b0c51bd72d199ef079f27"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "interval": 3
+          },
+          "archived": false,
+          "target_type": 6,
+          "target_description": "MONTHLY"
+        },
+        {
+          "snapshot": {
+            "id": 151,
+            "uuid": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749",
+            "volume_id": 416,
+            "account_id": 79,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:33",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "explicit-non-policy-intent"
+        },
+        {
+          "snapshot": {
+            "id": 152,
+            "uuid": "67600087-cb20-4b32-99fd-8f160d36b6fa",
+            "volume_id": 416,
+            "account_id": 79,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:37",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        }
+      ]
+    }
+  },
+  "reviewedWithArchive": {
+    "plan_sha256": "a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7",
+    "plan": {
+      "version": 1,
+      "archive_evidence": [
+        {
+          "id": 8,
+          "uuid": "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+          "volume_id": 415,
+          "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+          "account_id": 78,
+          "domain_id": 21,
+          "interval": 0,
+          "evidence_sha256": "1542b4e1241bc8bcad3b427a14ebb3aed9f90cd380bb5df5707cef632c73aa01"
+        },
+        {
+          "id": 8,
+          "uuid": "6543184f-8ac0-4f70-a91f-d033597902db",
+          "volume_id": 415,
+          "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+          "account_id": 78,
+          "domain_id": 21,
+          "interval": 1,
+          "evidence_sha256": "ac5f5d8c828d3ccf409d1d55a7dea18baa375b399bad6c6d65efc3c6b8369b4b"
+        },
+        {
+          "id": 8,
+          "uuid": "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+          "volume_id": 415,
+          "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+          "account_id": 78,
+          "domain_id": 21,
+          "interval": 2,
+          "evidence_sha256": "b1b5046e2282bc2def6c0e866ef956228622694f0139e390b9c8d7864935d2d6"
+        },
+        {
+          "id": 8,
+          "uuid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+          "volume_id": 415,
+          "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+          "account_id": 78,
+          "domain_id": 21,
+          "interval": 3,
+          "evidence_sha256": "88d9a94e8deb611dc3fc466f844a8a1890410e3a3b705eac9e69a79f3eb234a4"
+        },
+        {
+          "id": 8,
+          "uuid": "b3ced245-73f4-4e4c-b465-80ad3aff67fe",
+          "volume_id": 387,
+          "volume_uuid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+          "account_id": 73,
+          "domain_id": 19,
+          "interval": 1,
+          "evidence_sha256": "f4f44523d55cdb683c70406c5ae2939034e31e1f9c8f2393a6347d999ac19229"
+        }
+      ],
+      "entries": [
+        {
+          "snapshot": {
+            "id": 143,
+            "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+            "volume_id": 387,
+            "account_id": 73,
+            "domain_id": 19,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "Destroyed",
+            "created": "2026-10-24 10:23:32",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 387,
+            "uuid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+            "account_id": 73,
+            "domain_id": 19
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3520,
+            "uuid": "d6dfa4f1-9694-4683-bb17-01c350561066",
+            "account_id": 2,
+            "instance_id": 143,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "143",
+              "volumeid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+              "policyid": "b3ced245-73f4-4e4c-b465-80ad3aff67fe",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "520f85ed1eae75699470d4e060c88cf7bda7f8d27b127eb44550d2506116ca71"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "b3ced245-73f4-4e4c-b465-80ad3aff67fe",
+            "volume_id": 387,
+            "volume_uuid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+            "account_id": 73,
+            "domain_id": 19,
+            "interval": 1,
+            "evidence_sha256": "f4f44523d55cdb683c70406c5ae2939034e31e1f9c8f2393a6347d999ac19229"
+          },
+          "archived": true,
+          "target_type": 4,
+          "target_description": "DAILY"
+        },
+        {
+          "snapshot": {
+            "id": 147,
+            "uuid": "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:18",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 415,
+            "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3614,
+            "uuid": "4ebee2b1-6818-4e36-ba3c-90dba860fc21",
+            "account_id": 2,
+            "instance_id": 147,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "147",
+              "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+              "policyid": "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "3b6adefa2b9e574fc23e1757189e16980059059bf97f3c3b6edd201398d25a15"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+            "volume_id": 415,
+            "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21,
+            "interval": 0,
+            "evidence_sha256": "1542b4e1241bc8bcad3b427a14ebb3aed9f90cd380bb5df5707cef632c73aa01"
+          },
+          "archived": true,
+          "target_type": 3,
+          "target_description": "HOURLY"
+        },
+        {
+          "snapshot": {
+            "id": 148,
+            "uuid": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:22",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 415,
+            "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3615,
+            "uuid": "21e1dcdf-cd56-4505-9b82-9d60e3ec3ca1",
+            "account_id": 2,
+            "instance_id": 148,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "148",
+              "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+              "policyid": "6543184f-8ac0-4f70-a91f-d033597902db",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "ef8da1951dff6c79149ffb56a3d3651b0adf4554c513e1de8f3e91c14c83104c"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "6543184f-8ac0-4f70-a91f-d033597902db",
+            "volume_id": 415,
+            "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21,
+            "interval": 1,
+            "evidence_sha256": "ac5f5d8c828d3ccf409d1d55a7dea18baa375b399bad6c6d65efc3c6b8369b4b"
+          },
+          "archived": true,
+          "target_type": 4,
+          "target_description": "DAILY"
+        },
+        {
+          "snapshot": {
+            "id": 149,
+            "uuid": "dc92398f-597b-473b-adb0-61b51392c823",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:26",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 415,
+            "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3616,
+            "uuid": "74bf589a-871f-4c72-adbf-6e8c7a6dcb58",
+            "account_id": 2,
+            "instance_id": 149,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "149",
+              "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+              "policyid": "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "2931ba6a491a08cafb19f63328da167b75a2b1fcfd5a7a27fa85eb75d3de99b6"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+            "volume_id": 415,
+            "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21,
+            "interval": 2,
+            "evidence_sha256": "b1b5046e2282bc2def6c0e866ef956228622694f0139e390b9c8d7864935d2d6"
+          },
+          "archived": true,
+          "target_type": 5,
+          "target_description": "WEEKLY"
+        },
+        {
+          "snapshot": {
+            "id": 150,
+            "uuid": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:29",
+            "removed": null
+          },
+          "action": "repair",
+          "volume": {
+            "id": 415,
+            "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "account_id": 78,
+            "domain_id": 21
+          },
+          "details": {
+            "vm.creation.source.volumetype": "DATADISK",
+            "vm.creation.source.sizebytes": "1073741824",
+            "vm.creation.source.sourcevolumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+            "vm.creation.source.imageformat": "RAW"
+          },
+          "job": {
+            "id": 3617,
+            "uuid": "bc8eca60-e796-4e84-bbca-3e68577164d6",
+            "account_id": 2,
+            "instance_id": 150,
+            "instance_type": "Snapshot",
+            "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+            "status": 1,
+            "parameters": {
+              "id": "150",
+              "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+              "policyid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+              "ctxAccountId": "2"
+            },
+            "command_sha256": "3e4857d9297e2b7dfc5dde2c3d05d81e4a072ae8e35b0c51bd72d199ef079f27"
+          },
+          "policy": {
+            "id": 8,
+            "uuid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+            "volume_id": 415,
+            "account_id": 78,
+            "domain_id": 21,
+            "interval": 3
+          },
+          "archived": false,
+          "target_type": 6,
+          "target_description": "MONTHLY"
+        },
+        {
+          "snapshot": {
+            "id": 151,
+            "uuid": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749",
+            "volume_id": 416,
+            "account_id": 79,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:33",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "explicit-non-policy-intent"
+        },
+        {
+          "snapshot": {
+            "id": 152,
+            "uuid": "67600087-cb20-4b32-99fd-8f160d36b6fa",
+            "volume_id": 416,
+            "account_id": 79,
+            "domain_id": 21,
+            "snapshot_type": 8,
+            "type_description": "INTERNAL",
+            "status": "BackedUp",
+            "created": "2026-10-24 11:48:37",
+            "removed": null
+          },
+          "action": "skip",
+          "reason": "insufficient-policy-and-successful-creation-job-evidence"
+        }
+      ]
+    }
+  },
+  "stalePlanRejected": {
+    "expectedFailure": true
+  },
+  "applied": {
+    "changed": [
+      "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+      "73f4697d-bf73-4ef3-b255-f80f62032a09",
+      "dc92398f-597b-473b-adb0-61b51392c823",
+      "7e32de1e-7941-4865-abf6-e6d2990e6a8f"
+    ],
+    "already_applied": [],
+    "plan_sha256": "a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7"
+  },
+  "idempotent": {
+    "changed": [],
+    "already_applied": [
+      "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+      "73f4697d-bf73-4ef3-b255-f80f62032a09",
+      "dc92398f-597b-473b-adb0-61b51392c823",
+      "7e32de1e-7941-4865-abf6-e6d2990e6a8f"
+    ],
+    "plan_sha256": "a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7"
+  },
+  "before": [
+    {
+      "id": 143,
+      "type": 8,
+      "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "status": "Destroyed",
+      "volume": 387,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 147,
+      "type": 8,
+      "uuid": "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 148,
+      "type": 8,
+      "uuid": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 149,
+      "type": 8,
+      "uuid": "dc92398f-597b-473b-adb0-61b51392c823",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 150,
+      "type": 8,
+      "uuid": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 151,
+      "type": 8,
+      "uuid": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749",
+      "status": "BackedUp",
+      "volume": 416,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 152,
+      "type": 8,
+      "uuid": "67600087-cb20-4b32-99fd-8f160d36b6fa",
+      "status": "BackedUp",
+      "volume": 416,
+      "removed": null,
+      "description": "INTERNAL"
+    }
+  ],
+  "after": [
+    {
+      "id": 143,
+      "type": 4,
+      "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "status": "Destroyed",
+      "volume": 387,
+      "removed": null,
+      "description": "DAILY"
+    },
+    {
+      "id": 147,
+      "type": 3,
+      "uuid": "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "HOURLY"
+    },
+    {
+      "id": 148,
+      "type": 4,
+      "uuid": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "DAILY"
+    },
+    {
+      "id": 149,
+      "type": 5,
+      "uuid": "dc92398f-597b-473b-adb0-61b51392c823",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "WEEKLY"
+    },
+    {
+      "id": 150,
+      "type": 6,
+      "uuid": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+      "status": "BackedUp",
+      "volume": 415,
+      "removed": null,
+      "description": "MONTHLY"
+    },
+    {
+      "id": 151,
+      "type": 8,
+      "uuid": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749",
+      "status": "BackedUp",
+      "volume": 416,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "id": 152,
+      "type": 8,
+      "uuid": "67600087-cb20-4b32-99fd-8f160d36b6fa",
+      "status": "BackedUp",
+      "volume": 416,
+      "removed": null,
+      "description": "INTERNAL"
+    },
+    {
+      "name": "snapshot.type.recovery.1493",
+      "value": "{\"from\":8,\"job\":3520,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"b3ced245-73f4-4e4c-b465-80ad3aff67fe\",\"to\":4}",
+      "display": 0,
+      "detailId": 848,
+      "snapshot": 143
+    },
+    {
+      "name": "snapshot.type.recovery.1493",
+      "value": "{\"from\":8,\"job\":3614,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"e5082238-9521-4f1a-abd4-b20c0cbf4d70\",\"to\":3}",
+      "display": 0,
+      "detailId": 849,
+      "snapshot": 147
+    },
+    {
+      "name": "snapshot.type.recovery.1493",
+      "value": "{\"from\":8,\"job\":3615,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"6543184f-8ac0-4f70-a91f-d033597902db\",\"to\":4}",
+      "display": 0,
+      "detailId": 850,
+      "snapshot": 148
+    },
+    {
+      "name": "snapshot.type.recovery.1493",
+      "value": "{\"from\":8,\"job\":3616,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"5b89f40f-ce1e-471d-9374-44a0cd04a0ca\",\"to\":5}",
+      "display": 0,
+      "detailId": 851,
+      "snapshot": 149
+    },
+    {
+      "name": "snapshot.type.recovery.1493",
+      "value": "{\"from\":8,\"job\":3617,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"84dbb02b-ab08-41b9-b706-0d75747d298d\",\"to\":6}",
+      "display": 0,
+      "detailId": 852,
+      "snapshot": 150
+    }
+  ],
+  "onlyTypeDescriptionAndHiddenAuditChanged": true
+}

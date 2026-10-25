@@ -1,0 +1,74 @@
+{
+  "url": "[HTTP URL OMITTED]",
+  "filename": "SNAPREG1489-31-root.qcow2",
+  "fullHeaders": "HTTP/1.1 200 OK\nDate: Sun, 25 Oct 2026 09:10:23 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Sun, 25 Oct 2026 08:28:11 GMT\nETag: \"903a0000-65ea5fe6d1a1a\"\nAccept-Ranges: bytes\nContent-Length: 2419720192\n\n",
+  "partialHeaders": "HTTP/1.1 206 Partial Content\nDate: Sun, 25 Oct 2026 09:10:33 GMT\nServer: Apache\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: POST, OPTIONS\nAccess-Control-Allow-Headers: x-requested-with, content-type, origin, authorization, accept, client-security-token, x-signature, x-metadata, x-expires, x-host\nLast-Modified: Sun, 25 Oct 2026 08:28:11 GMT\nETag: \"903a0000-65ea5fe6d1a1a\"\nAccept-Ranges: bytes\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/2419720192\n\n",
+  "qemu": {
+    "children": [
+      {
+        "name": "file",
+        "info": {
+          "children": [],
+          "virtual-size": 2419720192,
+          "filename": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-root.qcow2",
+          "format": "file",
+          "actual-size": 2419720192,
+          "format-specific": {
+            "type": "file",
+            "data": {}
+          },
+          "dirty-flag": false
+        }
+      }
+    ],
+    "virtual-size": 107374182400,
+    "filename": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-root.qcow2",
+    "cluster-size": 65536,
+    "format": "qcow2",
+    "actual-size": 2419720192,
+    "format-specific": {
+      "type": "qcow2",
+      "data": {
+        "compat": "1.1",
+        "compression-type": "zlib",
+        "lazy-refcounts": false,
+        "refcount-bits": 16,
+        "corrupt": false,
+        "extended-l2": false
+      }
+    },
+    "dirty-flag": false
+  },
+  "fileSize": 2419720192,
+  "magic": "514649fb00000003",
+  "sourceSha256": "0ca0e5bcd8200195f3b4c1fb31c4e440478c121467b4c04b2879dd7b5805a250",
+  "downloadSha256": "0ca0e5bcd8200195f3b4c1fb31c4e440478c121467b4c04b2879dd7b5805a250",
+  "sourceUnchanged": true,
+  "dataPattern": "ROOT backup verified by independent template and guest boot evidence",
+  "verified": true,
+  "db": {
+    "url": "[HTTP URL OMITTED]",
+    "path": "snapshots/2/1097/25113133-ee48-4961-894c-be8f50dfc8ed",
+    "size": 107374182400,
+    "uuid": "842faf2d-5d58-474f-84d9-a42e77da94f1",
+    "refid": 506,
+    "state": "Ready",
+    "status": "BackedUp",
+    "urlCreated": "2026-10-25 09:10:20.000000",
+    "sourceformat": "QCOW2",
+    "sourceRemoved": null
+  },
+  "api": {
+    "id": "842faf2d-5d58-474f-84d9-a42e77da94f1",
+    "name": "SNAPREG1489-31-root",
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "state": "DOWNLOAD_URL_CREATED",
+    "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "zonename": "Zone",
+    "url": "[HTTP URL OMITTED]",
+    "filename": "SNAPREG1489-31-root.qcow2",
+    "format": "QCOW2",
+    "size": 107374182400,
+    "physicalsize": 2419720192
+  }
+}

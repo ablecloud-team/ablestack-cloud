@@ -1,0 +1,12 @@
+[
+  {
+    "id": 510,
+    "url": "nfs://10.10.31.10/nfs/secondary",
+    "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/1096/cf1188ae-56d2-41e3-9839-0510249e3363",
+    "role": "Image",
+    "state": "Ready",
+    "storeid": 1,
+    "checkpoint": null,
+    "snapshotid": "dced8abe-3c86-48f7-8a9c-2aebe7839b39"
+  }
+]

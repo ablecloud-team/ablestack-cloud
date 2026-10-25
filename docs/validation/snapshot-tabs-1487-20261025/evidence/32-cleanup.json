@@ -1,0 +1,238 @@
+[
+  {
+    "command": "removeAnnotation",
+    "id": "8b1ce573-bd32-46b3-bcc5-ace2080737c3",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "88661442-b81b-465b-987d-abdba26c21fc",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "c9009b02-f3ad-42a6-bc84-a3c87551cebd",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "bee482ff-5767-46ea-80f1-c6110ba8020a",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "74c24d6c-a018-48c5-802c-fd1065c9e647",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "3dd60fc3-ebf6-417e-9e4c-68befd1bbb3e",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "d9d6e475-b5ce-40fb-8f17-9c207af6de06",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "01e84399-201e-49ab-bb38-8ef26e6f1c5c",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "51dfded6-e0eb-467e-a994-f698ec834b18",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "3d8bbb45-5ab8-42ad-b679-e34852f03b1d",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "dfa89380-eb32-4fcd-b01b-1f147c36f3ad",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "28c5050d-d392-4983-83fa-3ac780344fe0",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "8da5a453-ba4e-4057-9ca6-c21af15af80b",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "96714ba7-1ce0-4081-933f-42d223362639",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "ca8e01a1-26f6-48fd-8252-94c3e5d24ae6",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "9704e38f-84af-4811-b227-9f0da256df8f",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "bba275f0-d4d6-4b54-b259-0a5e56d8e6bc",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "59b3b096-c308-4e49-9d3b-7b9a2b00ee45",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "36bf02b6-1313-4347-b2b2-829136b30943",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "f51cba18-3929-44d1-baa4-e13974130865",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "98b5f9f0-8543-4cd3-b0a8-31780f0b58ec",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "3a1643f7-b97c-44aa-aed9-ce01d0a001e4",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "36d00f62-e795-4653-9d51-e374ae6ab90b",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "50f61ece-6703-4c02-91df-93bfdee48ae2",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "fe39859d-f123-4570-8516-7d75929a33fd",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "1add7aa8-82c3-4222-af02-530f9e3acaa5",
+    "complete": true
+  },
+  {
+    "command": "removeAnnotation",
+    "id": "1a929f2e-519b-4a60-a39c-ef96936c0cbe",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "135a8843-0156-4236-a986-7f21a3416bd4",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "5cdb17c8-c6c4-4b21-ac2f-208c7fbae0f1",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "1b8ba4e4-a8fe-4b87-bde0-0f0b0a92a8df",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "c39e56ba-0394-4c60-ad93-29bab2935c0d",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "2a63b280-0452-486f-b123-00948080b885",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "63ae6fe2-e969-430c-a813-c5044de2c774",
+    "complete": true,
+    "alreadyDeletedByUi": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "ca67daa2-391b-4459-90e8-345d13e42c41",
+    "complete": true
+  },
+  {
+    "command": "detachVolume",
+    "id": "84de6f53-80f8-47af-ae5b-1e70a95f8072",
+    "complete": true
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "69c9ad4f-8f30-4e42-aa07-684d73464760",
+    "complete": true
+  },
+  {
+    "command": "expungeVirtualMachine",
+    "id": "69c9ad4f-8f30-4e42-aa07-684d73464760",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "f969404f-79a7-4c48-8101-27d91d793256",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "492751f4-74d8-4e6a-ac47-72036a48ce88",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "31829b78-0f4b-417d-ad60-2275c5ef398b",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "84de6f53-80f8-47af-ae5b-1e70a95f8072",
+    "complete": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "2f785dd7-f3b3-4766-bf50-0ce11a7a1c40",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "a32869ee-6592-450b-8cc7-de1327a02e9b",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "584ef63b-3827-4159-9680-2b12234d5da1",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "9f5addc7-2807-4cfb-a44b-167a99a97cde",
+    "complete": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "c50222a4-4d3b-455e-b326-46f3a6bf19b2",
+    "complete": true
+  },
+  {
+    "command": "deleteRole",
+    "id": "087b2ddc-a9b9-4d37-83bc-9ef9520d4f11",
+    "complete": true
+  }
+]

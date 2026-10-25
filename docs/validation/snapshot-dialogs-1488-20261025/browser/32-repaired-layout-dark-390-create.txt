@@ -1,0 +1,218 @@
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-unfold":
+- combobox
+- img "project":
+- text: 기본 보기
+- img "translation":
+- button "알림":
+  - img "bell":
+  - superscript:
+    - paragraph: "1"
+    - paragraph: "8"
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "볼륨":
+    - /url: "#/volume"
+  - text: /
+  - generic: SNAPDIALOG1488-32-owner
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "hdd":
+  - heading "SNAPDIALOG1488-32-owner" [level=4]
+  - generic: DATADISK
+  - generic: KVM
+  - separator
+  - generic: 상태
+  - generic: 사용 가능
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "582c13ce-12d6-421d-88db-c251f62ac47d":
+    - /url: javascript:;
+  - generic: 디스크 크기(GB 단위)
+  - img "hdd":
+  - generic: 1.00 GiB
+  - generic: 스토리지 풀
+  - img "database":
+  - link "Primary":
+    - /url: "#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122"
+  - generic: Shared (DATADISK)
+  - generic: 클러스터
+  - img "cluster":
+  - link "Cluster":
+    - /url: "#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9"
+  - generic: Pod
+  - img "appstore":
+  - link "Pod":
+    - /url: "#/pod/6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad"
+  - generic: Zone
+  - img "global":
+  - link "Zone":
+    - /url: "#/zone/991d2f57-0f37-4445-b956-09773d064816"
+  - generic: 계정
+  - img "user":
+  - link "SNAPDIALOG1488-32-owner":
+    - /url: "#/account?name=SNAPDIALOG1488-32-owner&domainid=be54b4a6-af29-4ec3-ae43-e39fc074fd8e"
+  - generic: 도메인
+  - img "block":
+  - link "SNAPDIALOG1488-32-domain":
+    - /url: "#/domain/be54b4a6-af29-4ec3-ae43-e39fc074fd8e?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 25. 오전 8:39:26
+  - separator
+  - link "build 스냅샷 보기":
+    - /url: "#/snapshot?volumeid=582c13ce-12d6-421d-88db-c251f62ac47d"
+    - button "build 스냅샷 보기":
+      - img "build":
+      - generic: 스냅샷 보기
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - generic: 태그가 없습니다.
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "스냅샷"
+    - tab "정기스냅샷"
+    - tab "이벤트"
+    - tab "코멘트"
+    - button:
+  - tabpanel "상세":
+    - list:
+      - strong: 이름
+      - generic: SNAPDIALOG1488-32-owner
+      - strong: 아이디
+      - generic: 582c13ce-12d6-421d-88db-c251f62ac47d
+      - strong: 유형
+      - generic: DATADISK
+      - strong: 스토리지 유형
+      - generic: Shared (DATADISK)
+      - strong: 디스크 오퍼링
+      - generic: Custom
+      - strong: 크기
+      - generic: 1.00 GiB
+      - strong: 프로비저닝 유형
+      - generic: thin
+      - strong: Write-Cache 유형
+      - generic: none
+      - strong: 압축/중복제거
+      - generic: "false"
+      - strong: 압축 사용 상태
+      - generic: "false"
+      - strong: 중복제거 사용 상태
+      - generic: "false"
+      - strong: 경로
+      - generic: 582c13ce-12d6-421d-88db-c251f62ac47d
+      - strong: 삭제 보호
+      - generic: "false"
+      - strong: 요청 정책 / 형식
+      - generic: "기존 호환 값: thin"
+      - strong: 확정 정책
+      - generic: 알 수 없음
+      - strong: 실제 적용 정책
+      - generic: 알 수 없음
+      - strong: 실제 적용 방식
+      - generic: 알 수 없음
+      - strong: 실제 이미지 형식
+      - generic: RAW
+      - strong: 논리 용량
+      - generic: 1.00 GiB
+      - strong: 관측 할당량
+      - img "question-circle":
+      - generic: 알 수 없음
+      - strong: 관측 시각
+      - generic: 알 수 없음
+      - strong: 할당 증거
+      - generic: 미검증
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (1건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":
+- dialog "스냅샷 생성도움말":
+  - document:
+    - button "Close":
+      - img "close":
+    - text: 스냅샷 생성
+    - link "도움말":
+      - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+      - img "question-circle":
+    - alert:
+      - img "info-circle":
+      - generic: 이 볼륨의 스냅샷을 만드시겠습니까?
+    - generic "이름"
+    - textbox "이름" [active]:
+      - /placeholder: 스냅샷 이름
+    - generic: Zone
+    - alert:
+      - generic: 스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.
+    - combobox
+    - text: 비동기 백업
+    - img "info-circle":
+    - switch "비동기 백업 info-circle"
+    - separator
+    - generic: 태그
+    - button "plus 새 태그":
+      - img "plus":
+      - generic: 새 태그
+    - button "취소":
+      - generic: 취소
+    - button "스냅샷 생성":
+      - generic: 스냅샷 생성
+- tooltip "Asynchronous backup if true"

@@ -1,0 +1,37 @@
+{
+  "preserved": [
+    {
+      "command": "listTemplates",
+      "baselineCount": 6,
+      "unchanged": true
+    },
+    {
+      "command": "listProjects",
+      "baselineCount": 2,
+      "unchanged": true
+    }
+  ],
+  "fixtures": [
+    {
+      "command": "listTemplates",
+      "count": 0
+    },
+    {
+      "command": "listProjects",
+      "count": 0
+    },
+    {
+      "command": "listAccounts",
+      "count": 0
+    },
+    {
+      "command": "listDomains",
+      "count": 0
+    },
+    {
+      "command": "listRoles",
+      "count": 0
+    }
+  ],
+  "pass": true
+}

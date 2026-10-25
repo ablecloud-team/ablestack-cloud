@@ -1,0 +1,129 @@
+{
+  "identity": {
+    "username": "SNAPREG1489-31-owner",
+    "type": "0"
+  },
+  "checks": [
+    {
+      "filters": {
+        "id": "446b7816-b4d7-4d1d-8110-0ae3c4b46521"
+      },
+      "hidden": true
+    },
+    {
+      "filters": {
+        "volumeid": "c92a3078-6e3e-4958-b0ee-5cbc32060966"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "filters": {
+        "keyword": "SNAPREG1489-31-other"
+      },
+      "hidden": true
+    },
+    {
+      "filters": {
+        "account": "SNAPREG1489-31-other",
+        "domainid": "0cb3ed60-18db-4e58-a249-131f54db2cc9"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      }
+    },
+    {
+      "command": "deleteSnapshot",
+      "args": {
+        "id": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "dryrun": true
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [deleteSnapshot] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "command": "archiveSnapshot",
+      "args": {
+        "id": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "dryrun": true
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [archiveSnapshot] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "command": "createVolume",
+      "args": {
+        "snapshotid": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "name": "SNAPREG1489-31-forbidden",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [createVolume] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "command": "createTemplate",
+      "args": {
+        "snapshotid": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "name": "SNAPREG1489-31-forbidden",
+        "displaytext": "SNAPREG1489-31-forbidden",
+        "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [createTemplate] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "command": "revertSnapshot",
+      "args": {
+        "id": "b468a951-6705-434e-b3b0-22c49e23f2d6"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [revertSnapshot] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "command": "createTags",
+      "args": {
+        "resourceids": "b468a951-6705-434e-b3b0-22c49e23f2d6",
+        "resourcetype": "Snapshot",
+        "tags[0].key": "forbidden",
+        "tags[0].value": "denied"
+      },
+      "rejected": {
+        "uuidList": [],
+        "errorcode": 432,
+        "cserrorcode": 9999,
+        "errortext": "The API [createTags] does not exist or is not available for the account SNAPREG1489-31-owner."
+      }
+    },
+    {
+      "ownProjectVisible": true
+    }
+  ],
+  "status": "PASS"
+}

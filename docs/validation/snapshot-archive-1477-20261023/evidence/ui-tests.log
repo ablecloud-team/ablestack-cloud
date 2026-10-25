@@ -1,0 +1,14 @@
+
+> cloudstack-ui@4.22.0 test:unit /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/ui
+> vue-cli-service test:unit "--silent" "--coverage=false" "--runInBand" "--runTestsByPath" "tests/unit/views/storage/SnapshotDeletionRecovery.spec.js" "tests/unit/views/storage/SnapshotDialogZones.spec.js"
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/storage/SnapshotDeletionRecovery.spec.js
+PASS tests/unit/views/storage/SnapshotDialogZones.spec.js
+
+Test Suites: 2 passed, 2 total
+Tests:       34 passed, 34 total
+Snapshots:   0 total
+Time:        12.07s

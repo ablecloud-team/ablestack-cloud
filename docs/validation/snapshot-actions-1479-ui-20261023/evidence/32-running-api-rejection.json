@@ -1,0 +1,25 @@
+{
+  "snapshot": "31a072ac-ab8c-4044-8c6e-6b52114bd904",
+  "status": "PASS",
+  "rejection": {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.RevertSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 431,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 431,
+      "errortext": "VM_MUST_BE_STOPPED: Snapshot source is not available for revert"
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "31a072ac-ab8c-4044-8c6e-6b52114bd904",
+    "created": "2026-10-23T22:17:51+0900",
+    "completed": "2026-10-23T22:17:51+0900",
+    "jobid": "838c9caf-1dda-4f3f-9301-667ec8224d69",
+    "jobstatus": 2
+  }
+}

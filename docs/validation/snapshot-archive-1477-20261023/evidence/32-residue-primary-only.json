@@ -1,0 +1,30 @@
+{
+  "snapshot": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+  "scenario": "residue",
+  "kind": "primary-only",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/394fcd5c-53fb-43b3-a55a-a253283302df",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 33,
+      "referenceid": 62
+    },
+    {
+      "path": "snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 33,
+      "referenceid": 63
+    }
+  ],
+  "fixtureOnly": true,
+  "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8",
+  "path": "/nfs/secondary/snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+  "backup": "/home/ablecloud/snapshot-1477-faults/84ff4450-2746-4e5d-9c05-3fde9fe166ef.image",
+  "referenceid": 63
+}

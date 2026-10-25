@@ -1,0 +1,1328 @@
+{
+  "cases": [
+    {
+      "name": "owner-identity-source-size",
+      "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+      "sourceAvailable": true,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "owner-copies",
+      "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "owner-next-identity-source-size",
+      "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+      "sourceAvailable": true,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "owner-next-copies",
+      "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "other-identity-source-size",
+      "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+      "sourceAvailable": true,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "other-copies",
+      "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "project-identity-source-size",
+      "id": "598e0747-ec05-472a-874d-0919cefb1693",
+      "sourceAvailable": true,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "project-copies",
+      "id": "598e0747-ec05-472a-874d-0919cefb1693",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "deleted-identity-source-size",
+      "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+      "sourceAvailable": false,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "deleted-copies",
+      "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+      "count": 1,
+      "roles": [
+        "Image"
+      ],
+      "pass": true
+    },
+    {
+      "name": "vmdata-identity-source-size",
+      "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+      "sourceAvailable": true,
+      "physical": 196624,
+      "virtual": 1073741824,
+      "pass": true
+    },
+    {
+      "name": "vmdata-copies",
+      "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "vmdata-vm-link",
+      "vm": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+      "state": "Stopped",
+      "pass": true
+    },
+    {
+      "name": "root-identity-source-size",
+      "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+      "sourceAvailable": true,
+      "physical": 2419720192,
+      "virtual": 107374182400,
+      "pass": true
+    },
+    {
+      "name": "root-copies",
+      "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+      "count": 2,
+      "roles": [
+        "Image",
+        "Primary"
+      ],
+      "pass": true
+    },
+    {
+      "name": "root-vm-link",
+      "vm": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+      "state": "Stopped",
+      "pass": true
+    },
+    {
+      "name": "owner-chain-contract",
+      "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "owner-next-chain-contract",
+      "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "other-chain-contract",
+      "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "project-chain-contract",
+      "id": "598e0747-ec05-472a-874d-0919cefb1693",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "deleted-chain-contract",
+      "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "vmdata-chain-contract",
+      "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "root-chain-contract",
+      "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+      "parent": null,
+      "chainsize": null,
+      "pass": true
+    },
+    {
+      "name": "owner-owner-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "owner-owner-next-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "owner-other-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "owner-project-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "owner-deleted-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "owner-vmdata-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "owner-root-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-owner-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-owner-next-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-other-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "other-project-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-deleted-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-vmdata-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "other-root-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-owner-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-owner-next-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-other-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-project-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-deleted-scope",
+      "allowed": true,
+      "deniedOrEmpty": false,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-vmdata-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    },
+    {
+      "name": "domainadmin-root-scope",
+      "allowed": false,
+      "deniedOrEmpty": true,
+      "pass": true
+    }
+  ],
+  "observed": [
+    {
+      "scenario": "owner",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+        "account": "SNAPDETAIL1486-32-owner",
+        "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+        "domain": "SNAPDETAIL1486-32-domain",
+        "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+        "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+        "volumename": "SNAPDETAIL1486-32-owner",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:16+0900",
+        "name": "SNAPDETAIL1486-32-owner",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-owner",
+            "resourcetype": "Snapshot",
+            "resourceid": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+            "account": "SNAPDETAIL1486-32-owner",
+            "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+            "domain": "SNAPDETAIL1486-32-domain"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "543c2c1d-b767-3478-9069-b59a017b8bf4",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+          "account": "SNAPDETAIL1486-32-owner",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:16+0900",
+          "name": "SNAPDETAIL1486-32-owner",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+              "account": "SNAPDETAIL1486-32-owner",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "c6f9cdf5-cc4a-3f8a-822e-5a70a02904bb",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+          "account": "SNAPDETAIL1486-32-owner",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:16+0900",
+          "name": "SNAPDETAIL1486-32-owner",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "f4edffe0-26de-47f9-aa10-0483f5ed3241",
+              "account": "SNAPDETAIL1486-32-owner",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "owner-next",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+        "account": "SNAPDETAIL1486-32-owner",
+        "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+        "domain": "SNAPDETAIL1486-32-domain",
+        "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+        "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+        "volumename": "SNAPDETAIL1486-32-owner",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:19+0900",
+        "name": "SNAPDETAIL1486-32-owner-next",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-owner-next",
+            "resourcetype": "Snapshot",
+            "resourceid": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+            "account": "SNAPDETAIL1486-32-owner",
+            "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+            "domain": "SNAPDETAIL1486-32-domain"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "d3be0bee-5b3c-3cad-82ce-5de64967942a",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+          "account": "SNAPDETAIL1486-32-owner",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:19+0900",
+          "name": "SNAPDETAIL1486-32-owner-next",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-owner-next",
+              "resourcetype": "Snapshot",
+              "resourceid": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+              "account": "SNAPDETAIL1486-32-owner",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "f6f93f9b-85cf-31aa-9434-c6705c1e73be",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+          "account": "SNAPDETAIL1486-32-owner",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "75448e0c-2f2d-4553-9f42-f3bbd53acaaf",
+          "volumename": "SNAPDETAIL1486-32-owner",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:19+0900",
+          "name": "SNAPDETAIL1486-32-owner-next",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-owner-next",
+              "resourcetype": "Snapshot",
+              "resourceid": "d77ce736-1bf2-479d-871f-a40f81a0ba15",
+              "account": "SNAPDETAIL1486-32-owner",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "other",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+          "volumename": "SNAPDETAIL1486-32-other",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+        "account": "SNAPDETAIL1486-32-other",
+        "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+        "domain": "SNAPDETAIL1486-32-domain",
+        "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+        "volumeid": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+        "volumename": "SNAPDETAIL1486-32-other",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:22+0900",
+        "name": "SNAPDETAIL1486-32-other",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-other",
+            "resourcetype": "Snapshot",
+            "resourceid": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+            "account": "SNAPDETAIL1486-32-other",
+            "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+            "domain": "SNAPDETAIL1486-32-domain"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "fa4f0d8b-665b-3c3c-a3b7-4f4ad0ec84b1",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+          "account": "SNAPDETAIL1486-32-other",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+          "volumename": "SNAPDETAIL1486-32-other",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:22+0900",
+          "name": "SNAPDETAIL1486-32-other",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-other",
+              "resourcetype": "Snapshot",
+              "resourceid": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+              "account": "SNAPDETAIL1486-32-other",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "2162c093-b677-3454-9bf1-95fcab48b519",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+          "account": "SNAPDETAIL1486-32-other",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "ef88afe9-2c1f-417d-b7ba-813358012cfc",
+          "volumename": "SNAPDETAIL1486-32-other",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:22+0900",
+          "name": "SNAPDETAIL1486-32-other",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-other",
+              "resourcetype": "Snapshot",
+              "resourceid": "71a00655-0d9f-4cb6-9d4f-7bd096f1aeb7",
+              "account": "SNAPDETAIL1486-32-other",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "project",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+          "volumename": "SNAPDETAIL1486-32-project",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "598e0747-ec05-472a-874d-0919cefb1693",
+        "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+        "domain": "SNAPDETAIL1486-32-domain",
+        "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+        "projectid": "f8799846-abcc-4781-b1cb-6d6fe3afaf88",
+        "project": "SNAPDETAIL1486-32-project",
+        "volumeid": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+        "volumename": "SNAPDETAIL1486-32-project",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:26+0900",
+        "name": "SNAPDETAIL1486-32-project",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-project",
+            "resourcetype": "Snapshot",
+            "resourceid": "598e0747-ec05-472a-874d-0919cefb1693",
+            "account": "PrjAcct-SNAPDETAIL1486-32-project-24",
+            "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+            "domain": "SNAPDETAIL1486-32-domain"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "09528ccd-14d9-3e7f-a8b0-49f0439a70e0",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "598e0747-ec05-472a-874d-0919cefb1693",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "projectid": "f8799846-abcc-4781-b1cb-6d6fe3afaf88",
+          "project": "SNAPDETAIL1486-32-project",
+          "volumeid": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+          "volumename": "SNAPDETAIL1486-32-project",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:26+0900",
+          "name": "SNAPDETAIL1486-32-project",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-project",
+              "resourcetype": "Snapshot",
+              "resourceid": "598e0747-ec05-472a-874d-0919cefb1693",
+              "account": "PrjAcct-SNAPDETAIL1486-32-project-24",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "be34d52f-c77f-356a-a900-7d47eb079444",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "598e0747-ec05-472a-874d-0919cefb1693",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "projectid": "f8799846-abcc-4781-b1cb-6d6fe3afaf88",
+          "project": "SNAPDETAIL1486-32-project",
+          "volumeid": "24785cd7-8017-461d-a039-ae9b78bf3e48",
+          "volumename": "SNAPDETAIL1486-32-project",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:26+0900",
+          "name": "SNAPDETAIL1486-32-project",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-project",
+              "resourcetype": "Snapshot",
+              "resourceid": "598e0747-ec05-472a-874d-0919cefb1693",
+              "account": "PrjAcct-SNAPDETAIL1486-32-project-24",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "deleted",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": false,
+          "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+          "createreason": "SOURCE_VOLUME_UNAVAILABLE",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+        "account": "SNAPDETAIL1486-32-owner",
+        "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+        "domain": "SNAPDETAIL1486-32-domain",
+        "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+        "volumeid": "82bcb113-bf6e-4b9f-bec0-a701c085248f",
+        "volumename": "SNAPDETAIL1486-32-deleted",
+        "volumetype": "DATADISK",
+        "volumestate": "Expunged",
+        "created": "2026-10-25T01:10:29+0900",
+        "name": "SNAPDETAIL1486-32-deleted",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": false,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-deleted",
+            "resourcetype": "Snapshot",
+            "resourceid": "b9525db3-c130-45b5-a929-4864401c54c7",
+            "account": "SNAPDETAIL1486-32-owner",
+            "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+            "domain": "SNAPDETAIL1486-32-domain"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "4d3e51e6-6507-36a2-91b5-bab6e74486f2",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "b9525db3-c130-45b5-a929-4864401c54c7",
+          "account": "SNAPDETAIL1486-32-owner",
+          "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+          "domain": "SNAPDETAIL1486-32-domain",
+          "domainpath": "ROOT/SNAPDETAIL1486-32-domain",
+          "volumeid": "82bcb113-bf6e-4b9f-bec0-a701c085248f",
+          "volumename": "SNAPDETAIL1486-32-deleted",
+          "volumetype": "DATADISK",
+          "volumestate": "Expunged",
+          "created": "2026-10-25T01:10:29+0900",
+          "name": "SNAPDETAIL1486-32-deleted",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-deleted",
+              "resourcetype": "Snapshot",
+              "resourceid": "b9525db3-c130-45b5-a929-4864401c54c7",
+              "account": "SNAPDETAIL1486-32-owner",
+              "domainid": "a188cbd1-ff8e-495b-a64d-a8ec9fbe8f35",
+              "domain": "SNAPDETAIL1486-32-domain"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "vmdata",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+          "volumename": "SNAPDETAIL1486-32-vmdata",
+          "volumestate": "Ready",
+          "virtualmachineid": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+          "virtualmachinename": "SNAPDETAIL1486-32-vm",
+          "virtualmachinestate": "Stopped",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 1073741824,
+            "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+            "diskofferingname": "Custom",
+            "available": true
+          }
+        },
+        "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+        "volumename": "SNAPDETAIL1486-32-vmdata",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:32+0900",
+        "name": "SNAPDETAIL1486-32-vmdata",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-vmdata",
+            "resourcetype": "Snapshot",
+            "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "d9e85fef-8fab-3158-87ac-6b15a109f042",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+          "volumename": "SNAPDETAIL1486-32-vmdata",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:32+0900",
+          "name": "SNAPDETAIL1486-32-vmdata",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "a247107b-fbb8-38aa-a4c6-8f5e79f5c831",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "cbf91978-6b0b-45e2-aebf-ef7b8882d55b",
+          "volumename": "SNAPDETAIL1486-32-vmdata",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:32+0900",
+          "name": "SNAPDETAIL1486-32-vmdata",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-vmdata",
+              "resourcetype": "Snapshot",
+              "resourceid": "45cc7507-26bd-402c-8fc4-85663cc099f7",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    },
+    {
+      "scenario": "root",
+      "record": {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "d6361215-81fe-41ac-a7f3-bf6f7c572200",
+          "volumename": "ROOT-236",
+          "volumestate": "Ready",
+          "virtualmachineid": "df62d63e-d168-4a08-9a39-4ffa49f2141f",
+          "virtualmachinename": "SNAPDETAIL1486-32-vm",
+          "virtualmachinestate": "Stopped",
+          "revertreason": "",
+          "createreason": "",
+          "restore": {
+            "size": 107374182400,
+            "diskofferingid": "df8b085a-1515-4b08-8f9e-da668d08af7b",
+            "diskofferingname": "AS-PROD-32-AS01-2C2G",
+            "available": true
+          }
+        },
+        "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "d6361215-81fe-41ac-a7f3-bf6f7c572200",
+        "volumename": "ROOT-236",
+        "volumetype": "ROOT",
+        "volumestate": "Ready",
+        "created": "2026-10-25T01:10:36+0900",
+        "name": "SNAPDETAIL1486-32-root",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 2419720192,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+        "virtualsize": 107374182400,
+        "tags": [
+          {
+            "key": "baseline",
+            "value": "SNAPDETAIL1486-32-root",
+            "resourcetype": "Snapshot",
+            "resourceid": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT"
+          }
+        ],
+        "hasannotations": false
+      },
+      "copies": [
+        {
+          "copy": {
+            "id": "328bd261-d88a-38d6-bfe4-182fdc1e9f2f",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 107374182400
+          },
+          "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "d6361215-81fe-41ac-a7f3-bf6f7c572200",
+          "volumename": "ROOT-236",
+          "volumetype": "ROOT",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:36+0900",
+          "name": "SNAPDETAIL1486-32-root",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "virtualsize": 107374182400,
+          "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-root",
+              "resourcetype": "Snapshot",
+              "resourceid": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "c5c19392-0ab6-371d-9e9a-a2282804fbc7",
+            "role": "Primary",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 107374182400
+          },
+          "id": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "d6361215-81fe-41ac-a7f3-bf6f7c572200",
+          "volumename": "ROOT-236",
+          "volumetype": "ROOT",
+          "volumestate": "Ready",
+          "created": "2026-10-25T01:10:36+0900",
+          "name": "SNAPDETAIL1486-32-root",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": false,
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "virtualsize": 107374182400,
+          "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "datastorename": "Primary",
+          "datastorestate": "Ready",
+          "datastoretype": "Primary",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "baseline",
+              "value": "SNAPDETAIL1486-32-root",
+              "resourcetype": "Snapshot",
+              "resourceid": "93b9f231-c7e3-4435-927a-c3a9847d01bd",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    }
+  ]
+}

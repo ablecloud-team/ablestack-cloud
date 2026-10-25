@@ -1,0 +1,18 @@
+{
+  "pass": true,
+  "nativeRbdSnapshotAbsent": true,
+  "db": [
+    {
+      "role": "Primary",
+      "uuid": "db30cf10-412a-405d-8355-957947e958f2",
+      "state": "Destroyed",
+      "removed": null,
+      "refstate": "Destroyed"
+    }
+  ],
+  "job": {
+    "uuid": "e792cab6-9bdb-4a61-93f3-4dd39bb035b1",
+    "result": "org.apache.cloudstack.api.response.SnapshotDeletionResponse/deletesnapshotresponse/{\"success\":true,\"snapshotid\":\"db30cf10-412a-405d-8355-957947e958f2\",\"name\":\"SNAPREG1489-32-force-primary\",\"state\":\"Destroyed\",\"dryrun\":false,\"reference\":[],\"force\":true,\"dbcleanupcomplete\":true,\"physicalcleanupcomplete\":true,\"pendingcleanup\":0,\"cleanupresult\":[{\"referenceid\":476,\"role\":\"Primary\",\"action\":\"PHYSICAL_DELETED\",\"reason\":\"IDENTIFIED_TARGET_DELETED_OR_ABSENT\"}]}",
+    "status": 1
+  }
+}

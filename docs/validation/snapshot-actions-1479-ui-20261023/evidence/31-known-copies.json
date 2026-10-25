@@ -1,0 +1,20 @@
+[
+  {
+    "uuid": "35a571b5-eda8-4032-ade1-9109060b2216",
+    "name": "SNAP1479UI-31-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/987/7376b457-d9a6-4035-a4df-71eef39fe896"
+  },
+  {
+    "uuid": "27a03fbc-770b-4723-aca0-6e34eb7e60e8",
+    "name": "SNAP1479UI-31-other-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/988/c48a516b-5f06-4985-8f85-9c1ed262e107"
+  },
+  {
+    "uuid": "bd7f4750-bde7-47d1-86c1-b3de612060d9",
+    "name": "SNAP1479UI-31-orphan-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/989/c32f56d6-1a18-406a-a534-4e205f620bd4"
+  }
+]

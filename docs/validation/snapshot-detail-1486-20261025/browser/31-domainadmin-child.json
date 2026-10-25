@@ -1,0 +1,113 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [
+    {
+      "id": "65deb111-063e-3612-9859-45b6926c83ef",
+      "text": "Secondary\n정보 비공개 저장소 · Zone\n사용 가능\n준비됨\n가상 크기: 1.00 GiB"
+    }
+  ],
+  "height": 870,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "가상 크기",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "Secondary 백업 물리 크기",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "볼륨",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "VM 이름",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "사본 Zone",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "계정",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "도메인",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "생성일",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/snapshot",
+      "text": "스냅샷"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "0cab8bff-b235-4e8e-ba0b-f4703afa0dc4 "
+    },
+    {
+      "href": "#/volume/d9496979-32e8-4d33-b827-1bc9cdcc7786",
+      "text": "SNAPDETAIL1486-31-owner"
+    },
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "Zone"
+    },
+    {
+      "href": "#/account?name=SNAPDETAIL1486-31-owner&domainid=1cac552b-d775-4fcd-9ca4-7b72b589271a",
+      "text": "SNAPDETAIL1486-31-owner"
+    },
+    {
+      "href": "#/domain/1cac552b-d775-4fcd-9ca4-7b72b589271a?tab=details",
+      "text": "SNAPDETAIL1486-31-domain"
+    }
+  ],
+  "properties": true,
+  "scrollWidth": 891,
+  "summary": true,
+  "tag": "태그태그 새로고침baseline = SNAPDETAIL1486-31-owner",
+  "text": "/스냅샷/SNAPDETAIL1486-31-owner업데이트\n작업\nSNAPDETAIL1486-31-owner\n상태\n백업 됨\n아이디\n0cab8bff-b235-4e8e-ba0b-f4703afa0dc4 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPDETAIL1486-31-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPDETAIL1486-31-owner\n도메인\nSNAPDETAIL1486-31-domain\n생성일\n2026. 10. 25. 오전 1:10:13\n태그\n태그 새로고침\nbaseline = SNAPDETAIL1486-31-owner\n상세\nZone\n이벤트\n코멘트\n스냅샷 유형\n수동\n생성 주기\n수동\n원본 볼륨 유형\n데이터 디스크\n원본 볼륨 현재 상태\n\n사용 가능\n원본 되돌리기\n현재 원본 되돌리기 조건을 충족합니다.\n\n가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다.\n\n체인 물리 크기\n미확인\n부모 스냅샷\nAPI에서 체인 정보를 제공하지 않았습니다.\n스토리지 사본\n\n스토리지 사본 1개. API는 사본별 물리 크기를 제공하지 않습니다.\n\nSecondary\n정보 비공개 저장소 · Zone\n사용 가능\n준비됨\n가상 크기: 1.00 GiB",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/0cab8bff-b235-4e8e-ba0b-f4703afa0dc4",
+  "width": 901
+}

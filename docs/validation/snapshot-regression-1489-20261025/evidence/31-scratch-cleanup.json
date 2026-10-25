@@ -1,0 +1,11 @@
+{
+  "removedScratchFiles": [
+    {
+      "path": "/nfs/snapshot-regression-1489-format-backups/d2b8958a-bbb8-43a3-9566-c61511dcd8cd.qcow2",
+      "bytes": 2490368,
+      "testHarnessScratch": true
+    }
+  ],
+  "ownZoneEmptyDirectoriesRemoved": true,
+  "noProductImageDeletionByHarness": true
+}

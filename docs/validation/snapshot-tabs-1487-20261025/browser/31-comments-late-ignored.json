@@ -1,0 +1,64 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (2)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [
+    {
+      "id": "d85a2bf3-ea8d-4622-8eff-14d13f004c77",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-01\n모든 사람에게 표시"
+    },
+    {
+      "id": "6fc0358c-a138-4277-9f13-75762b8b7eee",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-00\n모든 사람에게 표시"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 2개 항목 중 1-2 표시\n1"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n관리자만 표시\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-01\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-00\n모든 사람에게 표시\n전체 2개 항목 중 1-2 표시\n1",
+  "text": "/스냅샷/SNAPTABS1487-31-other업데이트\n작업\nSNAPTABS1487-31-other\n상태\n백업 됨\n아이디\n74dd642f-9c12-4090-96de-e390f844f90a \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-other\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-31-other\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:20\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-other\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n관리자만 표시\n코멘트 (2)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-01\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-other-comment-00\n모든 사람에게 표시\n전체 2개 항목 중 1-2 표시\n1",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 260
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/74dd642f-9c12-4090-96de-e390f844f90a?tab=comments",
+  "width": 1280,
+  "heldResponses": 1,
+  "expectedTarget": "74dd642f-9c12-4090-96de-e390f844f90a"
+}

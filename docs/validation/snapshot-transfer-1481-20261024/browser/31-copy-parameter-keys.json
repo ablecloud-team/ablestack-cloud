@@ -1,0 +1,30 @@
+[
+  {
+    "keys": [
+      "command",
+      "response",
+      "destzoneids",
+      "id",
+      "sourcezoneid",
+      "expectedscopehash",
+      "customjobid",
+      "sessionkey"
+    ],
+    "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "destzoneids": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f,b996acc3-d67a-40ad-b70c-daee4b93c6d1"
+  },
+  {
+    "keys": [
+      "command",
+      "response",
+      "destzoneids",
+      "id",
+      "sourcezoneid",
+      "expectedscopehash",
+      "customjobid",
+      "sessionkey"
+    ],
+    "sourcezoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+    "destzoneids": "b996acc3-d67a-40ad-b70c-daee4b93c6d1"
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "snapshot": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+  "scenario": "force-no-mapping",
+  "kind": "unmapped",
+  "before": [
+    {
+      "path": "snapshots/2/975/7a1bc4fc-2ab0-472b-820e-4981b6f40ce4",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 66,
+      "referenceid": 125
+    }
+  ],
+  "fixtureOnly": true
+}

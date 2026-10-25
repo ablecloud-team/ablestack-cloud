@@ -1,0 +1,38 @@
+[
+  {
+    "uuid": "31a072ac-ab8c-4044-8c6e-6b52114bd904",
+    "name": "SNAP1479UI-32-source-snapshot",
+    "role": "Primary",
+    "path": "rbd/226aee48-ee5c-47cb-bf79-fbc8349e4a07/07c9e418-a6c9-4eee-9db2-f740e0126dbb"
+  },
+  {
+    "uuid": "31a072ac-ab8c-4044-8c6e-6b52114bd904",
+    "name": "SNAP1479UI-32-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/338/07c9e418-a6c9-4eee-9db2-f740e0126dbb"
+  },
+  {
+    "uuid": "095f433c-a37c-40f5-adaf-20ca86b19395",
+    "name": "SNAP1479UI-32-other-snapshot",
+    "role": "Primary",
+    "path": "rbd/228b4d23-e845-4943-a8f2-60ca7bf5eef9/986af65a-e684-4991-b9ce-0d59855969e7"
+  },
+  {
+    "uuid": "095f433c-a37c-40f5-adaf-20ca86b19395",
+    "name": "SNAP1479UI-32-other-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/339/986af65a-e684-4991-b9ce-0d59855969e7"
+  },
+  {
+    "uuid": "bd417e75-7e0f-44ae-a54d-d7617cd22527",
+    "name": "SNAP1479UI-32-orphan-source-snapshot",
+    "role": "Primary",
+    "path": "rbd/cb6e93f1-5913-4698-8aaa-780c7b8fdbb2/316f44cd-5a38-4293-a703-1555ba1c1e5d"
+  },
+  {
+    "uuid": "bd417e75-7e0f-44ae-a54d-d7617cd22527",
+    "name": "SNAP1479UI-32-orphan-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/340/316f44cd-5a38-4293-a703-1555ba1c1e5d"
+  }
+]

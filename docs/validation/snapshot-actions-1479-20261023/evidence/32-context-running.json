@@ -1,0 +1,113 @@
+{
+  "source": {
+    "count": 1,
+    "snapshot": [
+      {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+          "volumename": "SNAP1479-32-source",
+          "volumestate": "Ready",
+          "virtualmachineid": "c27c7bcf-0036-41cf-be04-3f855a0a4a1c",
+          "virtualmachinename": "SNAP1479-32-vm",
+          "virtualmachinestate": "Running",
+          "revertreason": "VM_MUST_BE_STOPPED",
+          "createreason": ""
+        },
+        "id": "bc35f098-29a3-4b7e-bfe0-ed9632f3c2bb",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+        "volumename": "SNAP1479-32-source",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T19:05:39+0900",
+        "name": "SNAP1479-32-source-snapshot",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 1376256,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    ]
+  },
+  "other": {
+    "count": 1,
+    "snapshot": [
+      {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+          "volumename": "SNAP1479-32-other",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": ""
+        },
+        "id": "9d9bc9c6-3639-4870-9390-0ee3f37b9d01",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+        "volumename": "SNAP1479-32-other",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T19:05:42+0900",
+        "name": "SNAP1479-32-other-snapshot",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 1376256,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    ]
+  },
+  "orphan-source": {
+    "count": 1,
+    "snapshot": [
+      {
+        "snapshotcontext": {
+          "version": 1,
+          "sourceavailable": true,
+          "volumeid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+          "volumename": "SNAP1479-32-orphan-source",
+          "volumestate": "Ready",
+          "revertreason": "",
+          "createreason": ""
+        },
+        "id": "a7e4f067-81a2-4deb-bcab-d5e9c5706d1b",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+        "volumename": "SNAP1479-32-orphan-source",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T19:05:45+0900",
+        "name": "SNAP1479-32-orphan-source-snapshot",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 1376256,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    ]
+  }
+}

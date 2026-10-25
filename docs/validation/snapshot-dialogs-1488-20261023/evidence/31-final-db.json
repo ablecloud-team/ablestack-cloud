@@ -1,0 +1,196 @@
+{
+  "snapshots": [
+    {
+      "id": 82,
+      "name": "SNAPDIALOG-31-source-snapshot",
+      "path": "snapshots/2/992/031ee175-ef6b-4ea3-9b2a-de25467b1ae1",
+      "role": "Image",
+      "uuid": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 156
+    },
+    {
+      "id": 83,
+      "name": "SNAPDIALOG-31-other-snapshot",
+      "path": "snapshots/2/993/8b46cd05-6f2f-4412-86e1-32b43ea1aab5",
+      "role": "Image",
+      "uuid": "fa82668f-978e-4052-9688-b0d4500d8551",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 158
+    },
+    {
+      "id": 84,
+      "name": "SNAPDIALOG-31-orphan-source-snapshot",
+      "path": "snapshots/2/994/1c45cd7f-13d5-49ad-93bb-85e43b6df64c",
+      "role": "Image",
+      "uuid": "a936f658-2ec0-470b-90e6-145bce23d7f1",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 160
+    },
+    {
+      "id": 85,
+      "name": "SNAPDIALOG-31-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "path": "snapshots/2/993/579a4bb5-c5d8-48d4-94e0-b75ee671d181",
+      "role": "Image",
+      "uuid": "bb15af01-58a0-4529-947c-fcc9ccfaeef2",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Destroyed",
+      "referenceid": 162
+    }
+  ],
+  "volumes": [
+    {
+      "id": 992,
+      "name": "SNAPDIALOG-31-source",
+      "path": "5ee23f54-0c6d-4429-bb43-0516d4311131",
+      "uuid": "5ee23f54-0c6d-4429-bb43-0516d4311131",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 16:02:16.000000",
+      "instanceid": null
+    },
+    {
+      "id": 993,
+      "name": "SNAPDIALOG-31-other",
+      "path": "f51fdbc4-41aa-4514-b7ff-dab5d627c440",
+      "uuid": "f51fdbc4-41aa-4514-b7ff-dab5d627c440",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 16:02:16.000000",
+      "instanceid": null
+    },
+    {
+      "id": 994,
+      "name": "SNAPDIALOG-31-orphan-source",
+      "path": "4e30b824-0e97-4490-bd1d-55e7f943902c",
+      "uuid": "4e30b824-0e97-4490-bd1d-55e7f943902c",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 14:18:04.000000",
+      "instanceid": null
+    },
+    {
+      "id": 995,
+      "name": "SNAPDIALOG-31-normal-ui-volume",
+      "path": "5139d3a4-312f-4f64-8761-2afebcf29b1a",
+      "uuid": "7edd8768-4879-4416-bb12-0682cefbf860",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 16:02:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 996,
+      "name": "SNAPDIALOG-31-lost-ui-volume",
+      "path": "292703f5-8c15-40fc-9fdf-d94934e4dbea",
+      "uuid": "9f6d4dc8-2d22-4a9e-8e5d-0f5c7b68286a",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 16:02:12.000000",
+      "instanceid": null
+    },
+    {
+      "id": 997,
+      "name": "SNAPDIALOG-31-keyboard-ui-volume",
+      "path": "7a755531-908d-4149-beb1-3b3eca906194",
+      "uuid": "1b5e28c6-dd97-448a-a130-1294984523aa",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 16:02:12.000000",
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 21,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1206229790736,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [
+    {
+      "name": "SNAPDIALOG-31-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "bb15af01-58a0-4529-947c-fcc9ccfaeef2"
+    },
+    {
+      "name": "SNAPDIALOG-31-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "bb15af01-58a0-4529-947c-fcc9ccfaeef2"
+    },
+    {
+      "name": "SNAPDIALOG-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "a936f658-2ec0-470b-90e6-145bce23d7f1"
+    },
+    {
+      "name": "SNAPDIALOG-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "a936f658-2ec0-470b-90e6-145bce23d7f1"
+    },
+    {
+      "name": "SNAPDIALOG-31-other-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "fa82668f-978e-4052-9688-b0d4500d8551"
+    },
+    {
+      "name": "SNAPDIALOG-31-other-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "fa82668f-978e-4052-9688-b0d4500d8551"
+    },
+    {
+      "name": "SNAPDIALOG-31-source-snapshot",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c"
+    },
+    {
+      "name": "SNAPDIALOG-31-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "df68f239-a62b-459a-9a0c-bf06b0afb91c"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "admin",
+      "snapshot": 21,
+      "secondary_storage": 1206229790736
+    }
+  ]
+}

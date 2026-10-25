@@ -1,0 +1,36 @@
+{
+  "deletedQaDownloadScratchOnly": [
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-pattern.qcow2",
+      "bytes": 2490368,
+      "allocated": 2490368
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-pattern.qcow2.front",
+      "bytes": 1048576,
+      "allocated": 1048576
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-root.qcow2",
+      "bytes": 2419720192,
+      "allocated": 2419720192
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-root.qcow2.front",
+      "bytes": 1048576,
+      "allocated": 1048576
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-pattern-raw-source.raw",
+      "bytes": 1073741824,
+      "allocated": 1073741824
+    },
+    {
+      "path": "/root/snapshot-regression1489-downloads/SNAPREG1489-31-pattern-raw-source.raw.front",
+      "bytes": 1048576,
+      "allocated": 1048576
+    }
+  ],
+  "total": 375626137600,
+  "free": 33311809536
+}

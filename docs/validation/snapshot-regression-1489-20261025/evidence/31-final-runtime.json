@@ -1,0 +1,12 @@
+{
+  "service": "active",
+  "clientHttp": 200,
+  "webInfPreserved": true,
+  "metaInfPresent": false,
+  "jarAndConfigUnchangedAcrossConfigurationRestore": {
+    "/usr/share/cloudstack-management/webapp/config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13",
+    "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "532b65da6ae19f521226ebdf55664e6be30477170f376b97c678383224993fb7"
+  },
+  "accountCleanupIntervalRestoredBeforeRestart": "86400",
+  "pass": true
+}

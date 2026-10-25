@@ -1,0 +1,752 @@
+{
+  "snapshots": [
+    {
+      "id": 164,
+      "name": "SNAPLIST1485-32-owner-00",
+      "size": 1073741824,
+      "type": 3,
+      "uuid": "bd00c94d-50ec-4df8-9840-f3246fa6b6e4",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "HOURLY"
+    },
+    {
+      "id": 165,
+      "name": "SNAPLIST1485-32-owner-01",
+      "size": 1073741824,
+      "type": 4,
+      "uuid": "b3276857-ebbf-4f5a-aa06-4b7109dc9eeb",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "DAILY"
+    },
+    {
+      "id": 166,
+      "name": "SNAPLIST1485-32-owner-02",
+      "size": 1073741824,
+      "type": 5,
+      "uuid": "a85c88d8-b242-4ab3-9dd1-e91bb20b5de6",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "WEEKLY"
+    },
+    {
+      "id": 167,
+      "name": "SNAPLIST1485-32-owner-03",
+      "size": 1073741824,
+      "type": 6,
+      "uuid": "06c792b5-fb9a-43e0-b70e-bd996fe51323",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MONTHLY"
+    },
+    {
+      "id": 168,
+      "name": "SNAPLIST1485-32-owner-04",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "5c6a4d82-2221-4af5-8e72-e32fcafdff99",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 169,
+      "name": "SNAPLIST1485-32-owner-05",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "25158ad2-542c-4a8d-8ca5-e91c2a9f70c9",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 170,
+      "name": "SNAPLIST1485-32-owner-06",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "9c7d8786-f25d-47a8-b300-2d42f611eaf9",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 171,
+      "name": "SNAPLIST1485-32-owner-07",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "7907c5d1-90f2-4ee1-b2cc-f6aa403119e1",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 172,
+      "name": "SNAPLIST1485-32-owner-08",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "90fbf897-a0a5-4de2-92f5-dfa77d4623c2",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 173,
+      "name": "SNAPLIST1485-32-owner-09",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "d15a1b0b-5378-4807-a6b9-3ff761230978",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 174,
+      "name": "SNAPLIST1485-32-owner-10",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "efb5cdbc-bbf1-4b1a-b4f6-7e1c3dd376a9",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 175,
+      "name": "SNAPLIST1485-32-owner-11",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "10a3db33-416b-4baa-a5dd-250e90fdc8f0",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 176,
+      "name": "SNAPLIST1485-32-owner-12",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "23b9966c-131a-4380-b3cb-a4de7d9a733c",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 177,
+      "name": "SNAPLIST1485-32-owner-13",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "3669df7b-8f2d-45a9-b095-b6efe88bcf17",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 178,
+      "name": "SNAPLIST1485-32-owner-14",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "73bb13da-12ae-4294-9093-0007ff1147df",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 179,
+      "name": "SNAPLIST1485-32-owner-15",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "51a13995-bb54-4444-a67f-9274ff34fbab",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 180,
+      "name": "SNAPLIST1485-32-owner-16",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "b5db94be-fe05-4b31-a465-c69980a4ab50",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 181,
+      "name": "SNAPLIST1485-32-owner-17",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "d5d04b74-b58a-4dd0-93bd-0f6c324e62ea",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 182,
+      "name": "SNAPLIST1485-32-owner-18",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "55c79039-ac47-4c4b-9c32-32fa46ac08ae",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 183,
+      "name": "SNAPLIST1485-32-owner-19",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "8b914db2-3a54-4ad5-a7bc-08476db2cc88",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 184,
+      "name": "SNAPLIST1485-32-owner-20",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 185,
+      "name": "SNAPLIST1485-32-owner-21",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+      "status": "Destroyed",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 186,
+      "name": "SNAPLIST1485-32-owner-22",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+      "status": "Destroyed",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 187,
+      "name": "SNAPLIST1485-32-other-00",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "cae03eee-c739-4f20-88c0-6396794c8c86",
+      "status": "BackedUp",
+      "volume": "8fa40c6c-2fb0-4c22-a90d-85f691dae276",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 188,
+      "name": "SNAPLIST1485-32-project-00",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "eafa861f-f833-4b6c-ab99-052b8e8a9537",
+      "status": "BackedUp",
+      "volume": "39a38bdb-e5f6-48f1-90f1-a34694d2259b",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 189,
+      "name": "SNAPLIST1485-32-project-01",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "1945aa24-ac9a-4f73-869b-fe518426a626",
+      "status": "BackedUp",
+      "volume": "39a38bdb-e5f6-48f1-90f1-a34694d2259b",
+      "removed": null,
+      "description": "MANUAL"
+    },
+    {
+      "id": 190,
+      "name": "SNAPLIST1485-32-ui-create",
+      "size": 1073741824,
+      "type": 0,
+      "uuid": "2fd27a90-043c-476e-9c6c-ea2a3edd65fe",
+      "status": "BackedUp",
+      "volume": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+      "removed": null,
+      "description": "MANUAL"
+    }
+  ],
+  "references": [
+    {
+      "path": "rbd/8fa40c6c-2fb0-4c22-a90d-85f691dae276/efddaf05-5bae-4a6f-9c04-da831694238e",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "cae03eee-c739-4f20-88c0-6396794c8c86"
+    },
+    {
+      "path": "snapshots/85/422/efddaf05-5bae-4a6f-9c04-da831694238e",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "cae03eee-c739-4f20-88c0-6396794c8c86"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/a623ce8e-d726-4630-94b9-f5a6b70c8e9c",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "bd00c94d-50ec-4df8-9840-f3246fa6b6e4"
+    },
+    {
+      "path": "snapshots/84/421/a623ce8e-d726-4630-94b9-f5a6b70c8e9c",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "bd00c94d-50ec-4df8-9840-f3246fa6b6e4"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/cfc08249-a60c-43e1-b64e-221dffe7c32d",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "b3276857-ebbf-4f5a-aa06-4b7109dc9eeb"
+    },
+    {
+      "path": "snapshots/84/421/cfc08249-a60c-43e1-b64e-221dffe7c32d",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "b3276857-ebbf-4f5a-aa06-4b7109dc9eeb"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/722fa1dd-57dc-40f3-ac4b-d2d6fcb613cb",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "a85c88d8-b242-4ab3-9dd1-e91bb20b5de6"
+    },
+    {
+      "path": "snapshots/84/421/722fa1dd-57dc-40f3-ac4b-d2d6fcb613cb",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "a85c88d8-b242-4ab3-9dd1-e91bb20b5de6"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/b6621d8d-430e-4984-88ab-e42c243edbca",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "06c792b5-fb9a-43e0-b70e-bd996fe51323"
+    },
+    {
+      "path": "snapshots/84/421/b6621d8d-430e-4984-88ab-e42c243edbca",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "06c792b5-fb9a-43e0-b70e-bd996fe51323"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/4e432f04-dc5c-4144-b976-2236cbbe7046",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "5c6a4d82-2221-4af5-8e72-e32fcafdff99"
+    },
+    {
+      "path": "snapshots/84/421/4e432f04-dc5c-4144-b976-2236cbbe7046",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "5c6a4d82-2221-4af5-8e72-e32fcafdff99"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/076853e1-2ec5-471c-bccd-3c0a7b5d6b1d",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "25158ad2-542c-4a8d-8ca5-e91c2a9f70c9"
+    },
+    {
+      "path": "snapshots/84/421/076853e1-2ec5-471c-bccd-3c0a7b5d6b1d",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "25158ad2-542c-4a8d-8ca5-e91c2a9f70c9"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/5cee017c-7a81-485d-aef2-997227159877",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "9c7d8786-f25d-47a8-b300-2d42f611eaf9"
+    },
+    {
+      "path": "snapshots/84/421/5cee017c-7a81-485d-aef2-997227159877",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "9c7d8786-f25d-47a8-b300-2d42f611eaf9"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/c0393530-a73c-43c5-9528-5abcb8992267",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "7907c5d1-90f2-4ee1-b2cc-f6aa403119e1"
+    },
+    {
+      "path": "snapshots/84/421/c0393530-a73c-43c5-9528-5abcb8992267",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "7907c5d1-90f2-4ee1-b2cc-f6aa403119e1"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/cc3d716e-e36a-482a-b90d-9d0d58be877c",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "90fbf897-a0a5-4de2-92f5-dfa77d4623c2"
+    },
+    {
+      "path": "snapshots/84/421/cc3d716e-e36a-482a-b90d-9d0d58be877c",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "90fbf897-a0a5-4de2-92f5-dfa77d4623c2"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/b4cdf187-7dd4-43b2-b461-6ad5218bc31f",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "d15a1b0b-5378-4807-a6b9-3ff761230978"
+    },
+    {
+      "path": "snapshots/84/421/b4cdf187-7dd4-43b2-b461-6ad5218bc31f",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "d15a1b0b-5378-4807-a6b9-3ff761230978"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/ce283666-aba6-48cd-b575-02106162f441",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "efb5cdbc-bbf1-4b1a-b4f6-7e1c3dd376a9"
+    },
+    {
+      "path": "snapshots/84/421/ce283666-aba6-48cd-b575-02106162f441",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "efb5cdbc-bbf1-4b1a-b4f6-7e1c3dd376a9"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/457ce634-5336-466c-b0ad-27255a4d6d88",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "10a3db33-416b-4baa-a5dd-250e90fdc8f0"
+    },
+    {
+      "path": "snapshots/84/421/457ce634-5336-466c-b0ad-27255a4d6d88",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "10a3db33-416b-4baa-a5dd-250e90fdc8f0"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/0641b8c6-e842-41a8-b1c1-d06124467c85",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "23b9966c-131a-4380-b3cb-a4de7d9a733c"
+    },
+    {
+      "path": "snapshots/84/421/0641b8c6-e842-41a8-b1c1-d06124467c85",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "23b9966c-131a-4380-b3cb-a4de7d9a733c"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/854c9765-4b0b-4c46-a499-812c50fd7976",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "3669df7b-8f2d-45a9-b095-b6efe88bcf17"
+    },
+    {
+      "path": "snapshots/84/421/854c9765-4b0b-4c46-a499-812c50fd7976",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "3669df7b-8f2d-45a9-b095-b6efe88bcf17"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/674919a3-8164-4a01-abb0-5f8c46a5c793",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "73bb13da-12ae-4294-9093-0007ff1147df"
+    },
+    {
+      "path": "snapshots/84/421/674919a3-8164-4a01-abb0-5f8c46a5c793",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "73bb13da-12ae-4294-9093-0007ff1147df"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/342265e6-ad0b-423d-b426-0c97d938b9eb",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "51a13995-bb54-4444-a67f-9274ff34fbab"
+    },
+    {
+      "path": "snapshots/84/421/342265e6-ad0b-423d-b426-0c97d938b9eb",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "51a13995-bb54-4444-a67f-9274ff34fbab"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/b5e6da79-ace8-456e-b52e-f186d119bb0a",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "b5db94be-fe05-4b31-a465-c69980a4ab50"
+    },
+    {
+      "path": "snapshots/84/421/b5e6da79-ace8-456e-b52e-f186d119bb0a",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "b5db94be-fe05-4b31-a465-c69980a4ab50"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/5c37b5b6-f705-4bb6-bf8c-1b39c338282f",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "d5d04b74-b58a-4dd0-93bd-0f6c324e62ea"
+    },
+    {
+      "path": "snapshots/84/421/5c37b5b6-f705-4bb6-bf8c-1b39c338282f",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "d5d04b74-b58a-4dd0-93bd-0f6c324e62ea"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/b250ec4a-9697-4e32-bb35-7645bcc73c6a",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "55c79039-ac47-4c4b-9c32-32fa46ac08ae"
+    },
+    {
+      "path": "snapshots/84/421/b250ec4a-9697-4e32-bb35-7645bcc73c6a",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "55c79039-ac47-4c4b-9c32-32fa46ac08ae"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/11e4eefe-2938-490b-bbcf-3a259d0706a1",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "8b914db2-3a54-4ad5-a7bc-08476db2cc88"
+    },
+    {
+      "path": "snapshots/84/421/11e4eefe-2938-490b-bbcf-3a259d0706a1",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "8b914db2-3a54-4ad5-a7bc-08476db2cc88"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/133f37a1-ca46-4414-a4e2-7966656f7d6c",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751"
+    },
+    {
+      "path": "snapshots/84/421/133f37a1-ca46-4414-a4e2-7966656f7d6c",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/cac30cad-67a5-429b-94ad-65c256b25d45",
+      "role": "Primary",
+      "state": "Destroyed",
+      "physical": 1073741824,
+      "snapshot": "3519e7d1-4de2-4088-9d11-bc044604ce41"
+    },
+    {
+      "path": "snapshots/84/421/cac30cad-67a5-429b-94ad-65c256b25d45",
+      "role": "Image",
+      "state": "Destroyed",
+      "physical": 196624,
+      "snapshot": "3519e7d1-4de2-4088-9d11-bc044604ce41"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/2a52439b-5fbb-4e81-b139-8fcacaee59a5",
+      "role": "Primary",
+      "state": "Destroyed",
+      "physical": 1073741824,
+      "snapshot": "bcf3a10a-89b8-4de0-a858-6701d61b416f"
+    },
+    {
+      "path": "snapshots/84/421/2a52439b-5fbb-4e81-b139-8fcacaee59a5",
+      "role": "Image",
+      "state": "Destroyed",
+      "physical": 196624,
+      "snapshot": "bcf3a10a-89b8-4de0-a858-6701d61b416f"
+    },
+    {
+      "path": "rbd/39a38bdb-e5f6-48f1-90f1-a34694d2259b/bc2bb078-f221-4714-8dfc-1eeee53410a8",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "eafa861f-f833-4b6c-ab99-052b8e8a9537"
+    },
+    {
+      "path": "snapshots/86/423/bc2bb078-f221-4714-8dfc-1eeee53410a8",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "eafa861f-f833-4b6c-ab99-052b8e8a9537"
+    },
+    {
+      "path": "rbd/39a38bdb-e5f6-48f1-90f1-a34694d2259b/441508dd-e8c0-4f79-b9bf-eb54c382c158",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "1945aa24-ac9a-4f73-869b-fe518426a626"
+    },
+    {
+      "path": "snapshots/86/423/441508dd-e8c0-4f79-b9bf-eb54c382c158",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "1945aa24-ac9a-4f73-869b-fe518426a626"
+    },
+    {
+      "path": "rbd/ddc6304c-e71e-4935-a07e-2421a1be2e51/c8c0a7ca-bfc5-4eb6-8fc8-d090dce83464",
+      "role": "Primary",
+      "state": "Ready",
+      "physical": 1073741824,
+      "snapshot": "2fd27a90-043c-476e-9c6c-ea2a3edd65fe"
+    },
+    {
+      "path": "snapshots/84/421/c8c0a7ca-bfc5-4eb6-8fc8-d090dce83464",
+      "role": "Image",
+      "state": "Ready",
+      "physical": 196624,
+      "snapshot": "2fd27a90-043c-476e-9c6c-ea2a3edd65fe"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 3792,
+      "uuid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3789,
+      "uuid": "435315f9-c4ab-48d1-a074-aebbda3a1ef7",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3790,
+      "uuid": "613e8937-5461-4d0d-85f1-64430dab9778",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3793,
+      "uuid": "6a68e4bd-04a3-46da-b053-7e3dfb6bdc7b",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3794,
+      "uuid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3787,
+      "uuid": "b6452041-ed40-405b-a35e-d10619960168",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3791,
+      "uuid": "d2abf43d-6c07-4398-9bb9-18f97202e583",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3786,
+      "uuid": "e7b37bc5-93bd-4a8a-a2be-0186b24ccd95",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "resultCode": 0
+    },
+    {
+      "id": 3788,
+      "uuid": "f1e84666-83f4-41d3-8a84-c4d03e3c9542",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+      "resultCode": 0
+    }
+  ],
+  "activeAfterUi": 25,
+  "created": "2fd27a90-043c-476e-9c6c-ea2a3edd65fe",
+  "deleted": [
+    "3519e7d1-4de2-4088-9d11-bc044604ce41",
+    "bcf3a10a-89b8-4de0-a858-6701d61b416f"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "volume": "b2d98c72-69fd-409d-8af3-3fca83f7e23d",
+  "scenario": "restore-ui-lost-response",
+  "phase": "verify",
+  "image": "rbd:rbd/035f2563-70cf-4833-bc3a-6c20cb6e3f97",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (276.430 MiB/sec and 276.4305 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (274.481 MiB/sec and 274.4808 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

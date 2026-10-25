@@ -1,0 +1,33 @@
+{
+  "issue": 1486,
+  "base": "5ed664e6c7e4d0cdcacc18794dddae3c405a16ff",
+  "branch": "dhslove/epic-1473-storage-snapshots",
+  "tests": 162,
+  "suites": 10,
+  "sourceFiles": 14,
+  "lint": "PASS",
+  "uiBuild": "PASS",
+  "artifactSha256": "a36c08cf73bac5d0598200486363313581165e106390b09fcfc37917db112de0",
+  "clusters": {
+    "31": {
+      "apiDbAclCases": 44,
+      "readOnlyApiCases": 5,
+      "uiDbCases": 39,
+      "actualTagJobs": 2,
+      "backupImages": 7,
+      "trackedVolumes": 6,
+      "screenshots": 6,
+      "activeResidual": 0
+    },
+    "32": {
+      "apiDbAclCases": 44,
+      "readOnlyApiCases": 5,
+      "uiDbCases": 40,
+      "actualTagJobs": 2,
+      "backupImages": 7,
+      "trackedVolumes": 6,
+      "screenshots": 6,
+      "activeResidual": 0
+    }
+  }
+}

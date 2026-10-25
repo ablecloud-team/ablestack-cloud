@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 2,
+  "configurations": [
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "surfaces": 13,
+      "dialogs": 6,
+      "pass": true
+    }
+  ],
+  "surfaces": 156,
+  "dialogs": 72,
+  "pass": true
+}

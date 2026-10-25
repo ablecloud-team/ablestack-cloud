@@ -1,0 +1,176 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": ""
+  },
+  "body": {
+    "bottom": 578.5,
+    "height": 447,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 131.5
+  },
+  "bodyScroll": {
+    "clientHeight": 447,
+    "clientWidth": 364,
+    "height": 447,
+    "overflowY": "auto",
+    "width": 364
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 124.5,
+        "height": 48,
+        "right": 377,
+        "width": 48,
+        "x": 329,
+        "y": 76.5
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 506.5,
+        "height": 32,
+        "right": 175.546875,
+        "width": 146.546875,
+        "x": 29,
+        "y": 474.5
+      },
+      "text": "기존 작업 결과 조회"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 627.5,
+        "height": 32,
+        "right": 361,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 595.5
+      },
+      "text": "닫기"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 114.5,
+        "height": 22,
+        "right": 353,
+        "width": 316,
+        "x": 37,
+        "y": 92.5
+      },
+      "text": "작업 상세"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 187,
+        "height": 38.5,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 148.5
+      },
+      "text": "스냅샷 삭제"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 380,
+        "height": 193,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 187
+      },
+      "text": "SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 419,
+        "height": 39,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 380
+      },
+      "text": "작업 완료"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 457.5,
+        "height": 38.5,
+        "right": 360,
+        "width": 210,
+        "x": 150,
+        "y": 419
+      },
+      "text": "2026. 10. 25. 오전 9:51:02"
+    }
+  ],
+  "dialog": {
+    "bottom": 644.5,
+    "height": 569,
+    "right": 378,
+    "width": 366,
+    "x": 12,
+    "y": 75.5
+  },
+  "documentWidth": 380,
+  "footer": {
+    "bottom": 643.5,
+    "height": 65,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 578.5
+  },
+  "groups": [],
+  "header": {
+    "bottom": 131.5,
+    "height": 55,
+    "right": 377,
+    "width": 364,
+    "x": 13,
+    "y": 76.5
+  },
+  "height": 720,
+  "inputs": [],
+  "tables": [],
+  "text": "작업 상세\n동작\t스냅샷 삭제\n작업 대상\tSNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\n상태\t작업 완료\n생성일\t2026. 10. 25. 오전 9:51:02\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기",
+  "title": "작업 상세",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f",
+  "width": 390
+}

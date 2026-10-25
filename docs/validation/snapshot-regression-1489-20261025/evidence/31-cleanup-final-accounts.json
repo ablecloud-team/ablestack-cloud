@@ -1,0 +1,66 @@
+[
+  {
+    "command": "deleteProject",
+    "id": "b87d9b32-53ba-4247-9186-111d9308e04f",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "id": "8e8d040c-4b6c-445d-9192-6f80fb5bbce9",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "id": "4a65b170-3a82-4164-b73b-dd376943b41d",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "id": "f2c3667c-d658-45df-8d29-7dc1f3aad078",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteDomain",
+    "id": "0cb3ed60-18db-4e58-a249-131f54db2cc9",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteRole",
+    "id": "8608cf90-28d2-4eeb-9586-e817050d5f8b",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteRole",
+    "id": "1fce2ba5-978f-4374-8f97-60fdc71e4475",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteDiskOffering",
+    "id": "f5b6cff8-3787-4796-a648-7246a2ec0710",
+    "complete": true,
+    "result": {
+      "success": true
+    }
+  }
+]

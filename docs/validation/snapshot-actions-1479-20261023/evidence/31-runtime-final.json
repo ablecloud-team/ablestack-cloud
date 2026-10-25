@@ -1,0 +1,18 @@
+{
+  "cluster": "31",
+  "backendClasses": 20,
+  "uiFiles": 920,
+  "jarSha256": "865a42e2b4de55c4c022dbf081f0e29703a684f895fab457b81d4ecd3b32041d",
+  "WEB-INF": true,
+  "configurationPreserved": true,
+  "markers": [
+    "blockingLoadingState",
+    "fetchSyncProgress",
+    "extractJobId",
+    "snapshot-deletion-recovery",
+    "storage-snapshot-operations",
+    "customjobid"
+  ],
+  "unmodifiedJarEntries": 204511,
+  "verified": true
+}

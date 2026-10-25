@@ -1,0 +1,56 @@
+{
+  "database": {
+    "vms": 0,
+    "tags": 0,
+    "zones": 0,
+    "agents": 0,
+    "stores": 0,
+    "domains": 0,
+    "volumes": 0,
+    "accounts": 0,
+    "projects": 0,
+    "snapshots": 0,
+    "templates": 0,
+    "references": 0,
+    "templateReferences": 0
+  },
+  "fixtureNfs": {
+    "fixtureNfsDirectoryAbsent": true
+  },
+  "physical": {
+    "secondaryAndTemplateFilesChecked": 12,
+    "primaryVolumesChecked": 7,
+    "remaining": [],
+    "rbdTrash": [],
+    "fixtureVmDomainsAbsentOnAllHosts": true
+  },
+  "agents": {
+    "agents": [
+      {
+        "name": "SNAPDIALOG1488-31-a",
+        "pid": 1473260,
+        "stopped": true,
+        "mountsRemoved": true,
+        "physicalFilesBeforeUnmount": 0,
+        "originalIdentityNetworkAndCertificatesPreserved": true,
+        "generatedPropertiesHashChangedOnReconnect": false
+      }
+    ],
+    "originalAgentPid": "693272",
+    "originalAgentAlive": true,
+    "remainingNfs": {
+      "filesystems": [
+        {
+          "target": "/mnt/SecStorage/81fa5a45-c569-3c48-a1b4-bc07942a8866",
+          "source": "10.10.31.10:/nfs/secondary",
+          "fstype": "nfs4",
+          "options": "rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acdirmin=0,acdirmax=0,soft,proto=tcp,timeo=133,retrans=2147483647,sec=sys,clientaddr=10.10.31.8,local_lock=none,addr=10.10.31.10"
+        }
+      ]
+    }
+  },
+  "runtime": {
+    "mold": "active",
+    "http": 200
+  }
+}

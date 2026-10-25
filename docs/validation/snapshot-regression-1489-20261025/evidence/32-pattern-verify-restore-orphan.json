@@ -1,0 +1,19 @@
+{
+  "volume": "66370702-eb27-48c3-928e-4bcacd9f8df3",
+  "scenario": "restore-orphan",
+  "phase": "verify",
+  "image": "rbd:rbd/2a0429ba-f758-4d78-9480-1052fa75a59c",
+  "virtualSize": 1073741824,
+  "patterns": [
+    "0x5a",
+    "0xa5"
+  ],
+  "outputs": [
+    "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (308.161 MiB/sec and 308.1611 ops/sec)",
+    "read 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (311.852 MiB/sec and 311.8515 ops/sec)"
+  ],
+  "checksum": {
+    "sha256": "7e95e6f5cd1446eb003c8d4c006f9d7fb286ec9550851dde1430a23f206e7f7f",
+    "decodedBytes": 1073741824
+  }
+}

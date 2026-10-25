@@ -1,0 +1,49 @@
+{
+  "diagnosis": {
+    "success": true,
+    "snapshotid": "dced8abe-3c86-48f7-8a9c-2aebe7839b39",
+    "name": "SNAPREG1489-31-running-ui",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 510,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Missing"
+      }
+    ],
+    "scopehash": "cd23c030312e1fce596185471d980f5a2ae3d10ba84707e16847322c4b81b868",
+    "force": true,
+    "pendingcleanup": 1,
+    "cleanupresult": [
+      {
+        "referenceid": 510,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "RETRY_RETAINED_PHYSICAL_TARGET"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "dced8abe-3c86-48f7-8a9c-2aebe7839b39",
+    "name": "SNAPREG1489-31-running-ui",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 510,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "RETAINED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  }
+}

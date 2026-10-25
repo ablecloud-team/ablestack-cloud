@@ -1,0 +1,32 @@
+[
+  {
+    "key": "list-qa",
+    "value": "SNAPLIST1485-31",
+    "snapshot": "11c549a7-37a3-4038-8d32-b5a5864856ba",
+    "tagDomain": 66,
+    "tagAccount": 272,
+    "ownerDomain": 66,
+    "ownerAccount": 272,
+    "snapshotName": "SNAPLIST1485-31-owner-00"
+  },
+  {
+    "key": "list-qa",
+    "value": "SNAPLIST1485-31",
+    "snapshot": "923d9327-1280-4636-9d40-cfcdea58e4a9",
+    "tagDomain": 66,
+    "tagAccount": 272,
+    "ownerDomain": 66,
+    "ownerAccount": 272,
+    "snapshotName": "SNAPLIST1485-31-owner-01"
+  },
+  {
+    "key": "list-qa",
+    "value": "SNAPLIST1485-31",
+    "snapshot": "6a315db6-2d20-47c0-a624-864926627fc5",
+    "tagDomain": 66,
+    "tagAccount": 274,
+    "ownerDomain": 66,
+    "ownerAccount": 274,
+    "snapshotName": "SNAPLIST1485-31-project-00"
+  }
+]

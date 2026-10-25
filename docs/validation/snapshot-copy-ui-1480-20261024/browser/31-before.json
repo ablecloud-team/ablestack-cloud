@@ -1,0 +1,58 @@
+{
+  "dialog": {
+    "body": {
+      "height": 220,
+      "text": "Zone\nZone 선택\n프라이머리 스토리지 복제 사용",
+      "width": 718,
+      "x": 281,
+      "y": 245
+    },
+    "class": "ant-modal mold-dialog mold-dialog-standard",
+    "confirmDisabled": true,
+    "fields": [
+      {
+        "height": 62,
+        "text": "Zone\nZone 선택",
+        "width": 662,
+        "x": 309,
+        "y": 269
+      },
+      {
+        "height": 62,
+        "text": "프라이머리 스토리지 복제 사용",
+        "width": 662,
+        "x": 309,
+        "y": 355
+      }
+    ],
+    "footer": {
+      "height": 65,
+      "text": "취소\n확인",
+      "width": 718,
+      "x": 281,
+      "y": 465
+    },
+    "header": {
+      "height": 55,
+      "text": "스냅샷 복사",
+      "width": 718,
+      "x": 281,
+      "y": 190
+    },
+    "height": 342,
+    "storageSelect": false,
+    "switchCount": 1,
+    "text": "스냅샷 복사\nZone\nZone 선택\n프라이머리 스토리지 복제 사용\n취소\n확인",
+    "width": 720,
+    "x": 280,
+    "y": 189,
+    "zoneSelect": true
+  },
+  "url": "#/snapshot/7c6f2d77-f775-470b-b7f8-908acc65c84d?tab=zones",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "cluster": "31",
+  "phase": "before"
+}

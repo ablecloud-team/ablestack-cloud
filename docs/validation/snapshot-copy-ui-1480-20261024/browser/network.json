@@ -1,0 +1,37 @@
+[
+  {
+    "cluster": "31",
+    "fields": 1,
+    "switches": 0,
+    "zoneSelect": true,
+    "storageSelect": false,
+    "confirmDisabled": true,
+    "commands": [
+      "listZones",
+      "listApis",
+      "listSnapshots",
+      "listSnapshots",
+      "readyForShutdown"
+    ],
+    "poolLookups": 0,
+    "copySubmissions": 0
+  },
+  {
+    "cluster": "32",
+    "fields": 1,
+    "switches": 0,
+    "zoneSelect": true,
+    "storageSelect": false,
+    "confirmDisabled": true,
+    "commands": [
+      "listZones",
+      "listApis",
+      "listSnapshots",
+      "listSnapshots",
+      "readyForShutdown",
+      "listWallAlertRules"
+    ],
+    "poolLookups": 0,
+    "copySubmissions": 0
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "path": "api/src/main/java/com/cloud/storage/Snapshot.java",
+    "sha256": "ead2349ae2e0894c1f31f132d0ac11709874546eebc374a303e924bb0b7c6acd"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotCmd.java",
+    "sha256": "6a31df324203c52f435b2785b0295946bec8c2e099dd5082103198adadaad0b4"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotBackupCmd.java",
+    "sha256": "9ff0235d5c25e1bc9a206ad75aa907e9617ccb04b17a910c62c930d7d8bf34e4"
+  },
+  {
+    "path": "api/src/test/java/org/apache/cloudstack/api/command/user/snapshot/SnapshotPolicyIntentTest.java",
+    "sha256": "a0e8551f7b6d11120f17b262cf6b6450efb73d84e28cdaf4ad291588f9863125"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/snapshot/SnapshotManagerImpl.java",
+    "sha256": "90563deefd90b1264ee8596a734d2271e4728e83b07053b021fd3e4268552333"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotPolicyClassificationTest.java",
+    "sha256": "bbfee63a0f9a731c1a132400bf22d20432df6d9048e2f9ef5a13fb95aa1b3362"
+  },
+  {
+    "path": "scripts/util/repair-snapshot-policy-types.py",
+    "sha256": "10269f9e7619cedea7ff151464e92808a69ba160cd85dc8db08baada9933eb44"
+  },
+  {
+    "path": "scripts/util/test_repair_snapshot_policy_types.py",
+    "sha256": "830f9ace21df79c9adbe3a8ebf553968337e62fa1254aa2fa444e4938f6f99ca"
+  }
+]

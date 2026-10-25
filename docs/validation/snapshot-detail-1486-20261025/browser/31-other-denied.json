@@ -1,0 +1,26 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 870,
+  "labels": [],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/snapshot",
+      "text": "스냅샷"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots",
+      "text": ""
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 891,
+  "summary": false,
+  "text": "/스냅샷/0cab8bff-b235-4e8e-ba0b-f4703afa0dc4업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\n현재 권한 범위에서 스냅샷을 찾을 수 없습니다.\n\n재시도",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/0cab8bff-b235-4e8e-ba0b-f4703afa0dc4",
+  "width": 901
+}

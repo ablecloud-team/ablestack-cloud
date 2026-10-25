@@ -1,0 +1,14 @@
+[
+  {
+    "source": "/mnt/SNAPDIALOG1488-31-a",
+    "target": "/mnt/SecStorage/SNAPDIALOG1488-31-a",
+    "mounted": true,
+    "store": {
+      "id": 14,
+      "url": "nfs://10.10.31.10/nfs/secondary/SNAPDIALOG1488-31/a",
+      "uuid": "fd3f2671-f522-4014-92a5-50dc6a4f44b8",
+      "parent": null
+    },
+    "registeredParent": "SNAPDIALOG1488-31-a"
+  }
+]

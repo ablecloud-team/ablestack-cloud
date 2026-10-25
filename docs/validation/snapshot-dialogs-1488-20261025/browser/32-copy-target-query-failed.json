@@ -1,0 +1,284 @@
+{
+  "active": {
+    "id": "",
+    "inDialog": true,
+    "label": null,
+    "tag": "DIV",
+    "text": "복사 대상을 조회하지 못했습니다. 연결 상태를 확인하고 다시 시도하세요. 복사는 제출되지 않았습니다.재시도다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.스냅샷 \"SNAPDIALOG1488-32-"
+  },
+  "body": {
+    "bottom": 616.703125,
+    "height": 523.421875,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 93.28125
+  },
+  "bodyScroll": {
+    "clientHeight": 523,
+    "clientWidth": 718,
+    "height": 523,
+    "overflowY": "auto",
+    "width": 718
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "label": "Close",
+      "rect": {
+        "bottom": 86.28125,
+        "height": 48,
+        "right": 999,
+        "width": 48,
+        "x": 951,
+        "y": 38.28125
+      },
+      "text": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 211.5625,
+        "height": 24,
+        "right": 413.640625,
+        "width": 40.640625,
+        "x": 373,
+        "y": 187.5625
+      },
+      "text": "재시도"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 592.703125,
+        "height": 24,
+        "right": 402.953125,
+        "width": 93.953125,
+        "x": 309,
+        "y": 568.703125
+      },
+      "text": "대상 다시 조회"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 665.703125,
+        "height": 32,
+        "right": 854.75,
+        "width": 57.765625,
+        "x": 796.984375,
+        "y": 633.703125
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 665.703125,
+        "height": 32,
+        "right": 971,
+        "width": 100.25,
+        "x": 870.75,
+        "y": 633.703125
+      },
+      "text": "스냅샷 복사"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 76.28125,
+        "height": 22,
+        "right": 975,
+        "width": 670,
+        "x": 305,
+        "y": 54.28125
+      },
+      "text": "스냅샷 복사"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(112, 27, 27)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 183.5625,
+        "height": 50.28125,
+        "right": 955,
+        "width": 582,
+        "x": 373,
+        "y": 133.28125
+      },
+      "text": "복사 대상을 조회하지 못했습니다. 연결 상태를 확인하고 다시 시도하세요. 복사는 제출되지 않았습니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(112, 27, 27)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 211.5625,
+        "height": 24,
+        "right": 955,
+        "width": 582,
+        "x": 373,
+        "y": 187.5625
+      },
+      "text": "재시도"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(11, 59, 102)",
+      "fill": "",
+      "font": "16px",
+      "rect": {
+        "bottom": 292.703125,
+        "height": 25.140625,
+        "right": 955,
+        "width": 582,
+        "x": 373,
+        "y": 267.5625
+      },
+      "text": "다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다."
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(11, 59, 102)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 362.703125,
+        "height": 66,
+        "right": 955,
+        "width": 582,
+        "x": 373,
+        "y": 296.703125
+      },
+      "text": "스냅샷 \"SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 424.703125,
+        "height": 22,
+        "right": 381.03125,
+        "width": 72.03125,
+        "x": 309,
+        "y": 402.703125
+      },
+      "text": "대상 Zone"
+    },
+    {
+      "background": "rgb(245, 245, 245)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 460.703125,
+        "height": 24,
+        "right": 516.265625,
+        "width": 202.265625,
+        "x": 314,
+        "y": 436.703125
+      },
+      "text": "SNAPDIALOG1488-32-Zone-a"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(75, 85, 99)",
+      "fill": "",
+      "font": "14px",
+      "rect": {
+        "bottom": 460.703125,
+        "height": 24,
+        "right": 524.359375,
+        "width": 4.09375,
+        "x": 520.265625,
+        "y": 436.703125
+      },
+      "text": ""
+    }
+  ],
+  "dialog": {
+    "bottom": 682.703125,
+    "height": 645.421875,
+    "right": 1000,
+    "width": 720,
+    "x": 280,
+    "y": 37.28125
+  },
+  "documentWidth": 1270,
+  "footer": {
+    "bottom": 681.703125,
+    "height": 65,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 616.703125
+  },
+  "groups": [
+    {
+      "controlRect": {
+        "bottom": 464.703125,
+        "height": 32,
+        "right": 971,
+        "width": 662,
+        "x": 309,
+        "y": 432.703125
+      },
+      "label": "대상 Zone",
+      "labelRect": {
+        "bottom": 432.703125,
+        "height": 30,
+        "right": 971,
+        "width": 662,
+        "x": 309,
+        "y": 402.703125
+      }
+    }
+  ],
+  "header": {
+    "bottom": 93.28125,
+    "height": 55,
+    "right": 999,
+    "width": 718,
+    "x": 281,
+    "y": 38.28125
+  },
+  "height": 720,
+  "inputs": [
+    {
+      "checked": false,
+      "disabled": true,
+      "id": "snapshot-copy-destinations",
+      "label": null,
+      "placeholder": null,
+      "rect": {
+        "bottom": 460.703125,
+        "height": 24,
+        "right": 524.359375,
+        "width": 4.09375,
+        "x": 520.265625,
+        "y": 436.703125
+      },
+      "value": ""
+    }
+  ],
+  "tables": [],
+  "text": "스냅샷 복사\n복사 대상을 조회하지 못했습니다. 연결 상태를 확인하고 다시 시도하세요. 복사는 제출되지 않았습니다.\n재시도\n다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n스냅샷 \"SNAPDIALOG1488-32-ui-긴대상-스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름스냅샷이름\" · 원본 Zone Zone / Secondary\n대상 Zone\nSNAPDIALOG1488-32-Zone-a\nSNAPDIALOG1488-32-Zone-a\nSNAPDIALOG1488-32-Secondary-a · 복사 가능\n대상 다시 조회\n취소\n스냅샷 복사",
+  "title": "스냅샷 복사",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/adcc0782-b1cb-44c7-82a9-c2f5a733341f?tab=zones",
+  "width": 1280
+}

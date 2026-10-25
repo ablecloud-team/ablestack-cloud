@@ -1,0 +1,10 @@
+{
+  "31": {
+    "hasDownloadLink": false,
+    "text": "작업 상세\n동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-31-negative\n상태\t서버 작업 실패\n생성일\t2026. 10. 24. 오전 8:07:44\nUnable to inspect snapshot backup: Snapshot download failed: Truncated snapshot backup image header\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기"
+  },
+  "32": {
+    "hasDownloadLink": false,
+    "text": "작업 상세\n동작\t스냅샷 다운로드\n작업 대상\tSNAPD1475-32-negative\n상태\t서버 작업 실패\n생성일\t2026. 10. 24. 오전 8:07:45\nUnable to inspect snapshot backup: Snapshot download failed: Truncated snapshot backup image header\n기존 작업 결과 조회\n작업 이력 확인\n고급 · 작업 식별 및 복구\n닫기"
+  }
+}

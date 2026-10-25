@@ -1,0 +1,25 @@
+{
+  "db": [
+    {
+      "path": "rbd/4977aef9-bb3f-4cd7-9fed-58cb7e401871/3c751066-0f13-4cbb-8ebb-75f72f8baeec",
+      "role": "Primary",
+      "state": "Destroyed",
+      "global": "Destroyed",
+      "snapshot": "82e2bf40-74ae-4bb4-af3a-e3f0c731cfc0"
+    },
+    {
+      "path": "snapshots/2/447/3c751066-0f13-4cbb-8ebb-75f72f8baeec",
+      "role": "Image",
+      "state": "Destroyed",
+      "global": "Destroyed",
+      "snapshot": "82e2bf40-74ae-4bb4-af3a-e3f0c731cfc0"
+    }
+  ],
+  "physical": [
+    {
+      "path": "/nfs/secondary/snapshots/2/447/3c751066-0f13-4cbb-8ebb-75f72f8baeec",
+      "exists": false
+    }
+  ],
+  "passed": true
+}

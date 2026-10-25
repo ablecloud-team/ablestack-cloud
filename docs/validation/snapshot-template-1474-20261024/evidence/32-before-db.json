@@ -1,0 +1,164 @@
+{
+  "snapshots": [
+    {
+      "id": 63,
+      "name": "SNAPT1474-32-native",
+      "path": "rbd/3f2827ef-71a2-4ff5-a3af-c60b82a10aa5/ad832a2c-31b7-4fbc-a599-a95dc4817cee",
+      "role": "Primary",
+      "size": 1073741824,
+      "uuid": "6ac1afbb-0dbd-40bf-a52a-c03e96d8506e",
+      "refid": 121,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 8388608
+    },
+    {
+      "id": 63,
+      "name": "SNAPT1474-32-native",
+      "path": "snapshots/2/350/ad832a2c-31b7-4fbc-a599-a95dc4817cee",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "6ac1afbb-0dbd-40bf-a52a-c03e96d8506e",
+      "refid": 122,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    },
+    {
+      "id": 64,
+      "name": "SNAPT1474-32-raw",
+      "path": "rbd/49fb92d7-19f5-4009-9034-7dd2c7d53c43/56e26108-8d5d-4046-b216-f9e8f55685c3",
+      "role": "Primary",
+      "size": 1073741824,
+      "uuid": "278b6184-696e-45d0-b830-8a582ab83911",
+      "refid": 123,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 8388608
+    },
+    {
+      "id": 64,
+      "name": "SNAPT1474-32-raw",
+      "path": "snapshots/2/351/56e26108-8d5d-4046-b216-f9e8f55685c3",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "278b6184-696e-45d0-b830-8a582ab83911",
+      "refid": 124,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    },
+    {
+      "id": 65,
+      "name": "SNAPT1474-32-negative",
+      "path": "rbd/ffcd3ee1-a741-4669-be22-f34eb7eaada5/3b4fe607-2d28-4cce-9c58-2a3f606cdc56",
+      "role": "Primary",
+      "size": 1073741824,
+      "uuid": "a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44",
+      "refid": 125,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 8388608
+    },
+    {
+      "id": 65,
+      "name": "SNAPT1474-32-negative",
+      "path": "snapshots/2/352/3b4fe607-2d28-4cce-9c58-2a3f606cdc56",
+      "role": "Image",
+      "size": 1073741824,
+      "uuid": "a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44",
+      "refid": 126,
+      "state": "BackedUp",
+      "removed": null,
+      "refstate": "Ready",
+      "physicalsize": 2490368
+    }
+  ],
+  "templates": [
+    {
+      "id": 225,
+      "name": "SNAPT1474-32-native-before",
+      "path": "template/tmpl/2/225/ad832a2c-31b7-4fbc-a599-a95dc4817cee.raw",
+      "size": 2490368,
+      "uuid": "6c79bab3-2446-4400-951c-3e571f74f1db",
+      "error": null,
+      "state": "Ready",
+      "format": "RAW",
+      "refsize": 2490368,
+      "removed": null,
+      "destroyed": 0,
+      "physicalsize": 2490368,
+      "downloadstate": "DOWNLOADED"
+    }
+  ],
+  "vms": [
+    {
+      "id": 230,
+      "name": "SNAPT1474-32-root-source",
+      "uuid": "c8064a43-c47a-45dd-8adb-1f8c17cefa65",
+      "state": "Stopped",
+      "hostid": null,
+      "removed": null,
+      "instance": "i-2-230-VM"
+    }
+  ],
+  "volumes": [
+    {
+      "id": 349,
+      "vm": "SNAPT1474-32-root-source",
+      "name": "ROOT-230",
+      "path": null,
+      "pool": null,
+      "size": 107374182400,
+      "uuid": "059145e4-cb51-4d76-84ac-385c9dd45d51",
+      "state": "Allocated",
+      "format": "QCOW2",
+      "removed": null,
+      "instanceid": 230
+    },
+    {
+      "id": 350,
+      "vm": null,
+      "name": "SNAPT1474-32-native",
+      "path": "3f2827ef-71a2-4ff5-a3af-c60b82a10aa5",
+      "pool": 3,
+      "size": 1073741824,
+      "uuid": "3f2827ef-71a2-4ff5-a3af-c60b82a10aa5",
+      "state": "Ready",
+      "format": "RAW",
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 351,
+      "vm": null,
+      "name": "SNAPT1474-32-raw",
+      "path": "49fb92d7-19f5-4009-9034-7dd2c7d53c43",
+      "pool": 3,
+      "size": 1073741824,
+      "uuid": "49fb92d7-19f5-4009-9034-7dd2c7d53c43",
+      "state": "Ready",
+      "format": "RAW",
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 352,
+      "vm": null,
+      "name": "SNAPT1474-32-negative",
+      "path": "ffcd3ee1-a741-4669-be22-f34eb7eaada5",
+      "pool": 3,
+      "size": 1073741824,
+      "uuid": "ffcd3ee1-a741-4669-be22-f34eb7eaada5",
+      "state": "Ready",
+      "format": "RAW",
+      "removed": null,
+      "instanceid": null
+    }
+  ]
+}

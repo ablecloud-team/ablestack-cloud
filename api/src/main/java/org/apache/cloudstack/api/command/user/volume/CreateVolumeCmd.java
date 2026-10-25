@@ -84,7 +84,7 @@ public class CreateVolumeCmd extends BaseAsyncCreateCustomIdCmd implements UserC
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "The name of the disk volume")
     private String volumeName;
 
-    @Parameter(name = ApiConstants.SIZE, type = CommandType.LONG, description = "Arbitrary volume size")
+    @Parameter(name = ApiConstants.SIZE, type = CommandType.LONG, description = "Volume size in GiB for a custom disk offering. Snapshot restore preserves snapshot size; resize the restored volume separately")
     private Long size;
 
     @Parameter(name = ApiConstants.MIN_IOPS, type = CommandType.LONG, description = "Min IOPS")

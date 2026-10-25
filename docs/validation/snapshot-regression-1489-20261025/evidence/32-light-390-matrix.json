@@ -1,0 +1,1889 @@
+{
+  "schemaVersion": 2,
+  "cluster": "32",
+  "width": 390,
+  "height": 844,
+  "theme": "light",
+  "actualBrowserViewport": true,
+  "themeVerified": true,
+  "complete": true,
+  "surfaces": [
+    {
+      "surface": "vm-list-standard",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 278,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 58,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BODY"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "snapshot-list",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 276,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 56,
+            "right": 345,
+            "width": 308,
+            "x": 37,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BODY"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "advanced-search",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 276,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 56,
+            "right": 345,
+            "width": 308,
+            "x": 37,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": "고급 검색",
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "detail-상세",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "detail-Zone",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "표시 Zone 3개 · 현재 페이지 전체 사본 4개"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "detail-이벤트",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "detail-코멘트",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "관리자만 표시"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "등록된 코멘트가 없습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-볼륨 생성",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 808,
+          "height": 772,
+          "right": 378,
+          "width": 366,
+          "x": 12,
+          "y": 36
+        },
+        "focus": {
+          "insideDialog": true,
+          "label": null,
+          "tag": "INPUT"
+        },
+        "formItems": [
+          {
+            "bottom": 170,
+            "height": 62,
+            "right": 361,
+            "text": "이름",
+            "width": 332,
+            "x": 29,
+            "y": 108
+          },
+          {
+            "bottom": 256,
+            "height": 62,
+            "right": 361,
+            "text": "Zone\n Zone",
+            "width": 332,
+            "x": 29,
+            "y": 194
+          },
+          {
+            "bottom": 342,
+            "height": 62,
+            "right": 361,
+            "text": "소유자 유형\n계정",
+            "width": 332,
+            "x": 29,
+            "y": 280
+          },
+          {
+            "bottom": 428,
+            "height": 62,
+            "right": 361,
+            "text": "도메인\n ROOT",
+            "width": 332,
+            "x": 29,
+            "y": 366
+          },
+          {
+            "bottom": 514,
+            "height": 62,
+            "right": 361,
+            "text": "계정\n admin",
+            "width": 332,
+            "x": 29,
+            "y": 452
+          },
+          {
+            "bottom": 702,
+            "height": 32,
+            "right": 361,
+            "text": "가상머신에 연결",
+            "width": 332,
+            "x": 29,
+            "y": 670
+          }
+        ],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "이름"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "Zone"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "소유자 유형"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "도메인"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "계정"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "크기"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "1 GiB"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "디스크 오퍼링"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "Custom"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스냅샷 생성 시의 크기와 디스크 오퍼링을 상속합니다. 크기 변경은 복원 완료 후 볼륨에서 수행하세요."
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가상머신에 연결"
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 20,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-스냅샷 복원",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 598.1097412109375,
+          "height": 352.2110900878906,
+          "right": 377.9543762207031,
+          "width": 365.9270935058594,
+          "x": 12.02728271484375,
+          "y": 245.89865112304688
+        },
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "LI"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "복원 대상과 데이터 변경 영향을 확인했습니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 2,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-템플릿 생성",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 830.08837890625,
+          "height": 818.0813598632812,
+          "right": 377.4641723632813,
+          "width": 365.14361572265625,
+          "x": 12.320556640625,
+          "y": 12.00701904296875
+        },
+        "focus": {
+          "insideDialog": true,
+          "label": null,
+          "tag": "INPUT"
+        },
+        "formItems": [
+          {
+            "bottom": 145.6934814453125,
+            "height": 61.85493469238281,
+            "right": 350.52733039855957,
+            "text": "이름",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 83.83854675292969
+          },
+          {
+            "bottom": 231.49224853515625,
+            "height": 61.85491943359375,
+            "right": 350.52733039855957,
+            "text": "설명",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 169.6373291015625
+          },
+          {
+            "bottom": 317.291015625,
+            "height": 61.85491943359375,
+            "right": 350.52733039855957,
+            "text": "Zone\n Zone",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 255.43609619140625
+          },
+          {
+            "bottom": 403.0898132324219,
+            "height": 61.854949951171875,
+            "right": 350.52733039855957,
+            "text": "도메인\n도메인",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 341.23486328125
+          },
+          {
+            "bottom": 488.8885803222656,
+            "height": 61.854949951171875,
+            "right": 350.52733039855957,
+            "text": "OS 유형\nOS 유형",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 427.03363037109375
+          },
+          {
+            "bottom": 574.6873779296875,
+            "height": 61.85498046875,
+            "right": 350.52733039855957,
+            "text": "CPU 아키텍처\nCPU 아키텍처",
+            "width": 321.2465515136719,
+            "x": 29.280778884887695,
+            "y": 512.8323974609375
+          },
+          {
+            "bottom": 660.4861450195312,
+            "height": 61.85498046875,
+            "right": 155.70303535461426,
+            "text": "동적으로 확장 가능",
+            "width": 126.42225646972656,
+            "x": 29.280778884887695,
+            "y": 598.6311645507812
+          },
+          {
+            "bottom": 746.284912109375,
+            "height": 61.85491943359375,
+            "right": 155.70303535461426,
+            "text": "HVM",
+            "width": 126.42225646972656,
+            "x": 29.280778884887695,
+            "y": 684.4299926757812
+          },
+          {
+            "bottom": 832.0836791992188,
+            "height": 61.85491943359375,
+            "right": 155.70303535461426,
+            "text": "비밀번호 관리 사용",
+            "width": 126.42225646972656,
+            "x": 29.280778884887695,
+            "y": 770.228759765625
+          },
+          {
+            "bottom": 917.8824462890624,
+            "height": 61.85491943359375,
+            "right": 155.70303535461426,
+            "text": "공개",
+            "width": 126.42225646972656,
+            "x": 29.280778884887695,
+            "y": 856.0275268554688
+          },
+          {
+            "bottom": 1003.6812133789062,
+            "height": 61.85491943359375,
+            "right": 155.70303535461426,
+            "text": "추천",
+            "width": 126.42225646972656,
+            "x": 29.280778884887695,
+            "y": 941.8262939453124
+          }
+        ],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "이름"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "설명"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "Zone"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "도메인"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "OS 유형"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "CPU 아키텍처"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "동적으로 확장 가능"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "HVM"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "비밀번호 관리 사용"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "공개"
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "추천"
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 2,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-스냅샷 다운로드",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 598.140625,
+          "height": 352.28125,
+          "right": 378,
+          "width": 366,
+          "x": 12,
+          "y": 245.859375
+        },
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BODY"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "스냅샷 이름: SNAPREG1489-32-pattern"
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 2,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-스냅샷 보관",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 611.140625,
+          "height": 378.28125,
+          "right": 378,
+          "width": 366,
+          "x": 12,
+          "y": 232.859375
+        },
+        "focus": {
+          "insideDialog": true,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "스냅샷 이름: SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "세컨더리 사본 검증이 완료된 후 프라이머리 스냅샷 데이터가 정리됨을 확인했습니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": true,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 2,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    },
+    {
+      "surface": "dialog-스냅샷 삭제",
+      "metrics": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": {
+          "bottom": 791,
+          "height": 738,
+          "right": 378,
+          "width": 366,
+          "x": 12,
+          "y": 53
+        },
+        "focus": {
+          "insideDialog": true,
+          "label": null,
+          "tag": "DIV"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": "rgb(255, 255, 255)",
+        "textColors": [
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "고정된 작업 대상 1개를 확인하세요."
+          },
+          {
+            "color": "rgb(31, 41, 55)",
+            "disabled": false,
+            "text": "표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": ""
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      },
+      "keyboardSteps": 2,
+      "afterClose": {
+        "bodyWidth": 380,
+        "breadcrumb": [
+          {
+            "bottom": 271,
+            "class": "ant-breadcrumb breadcrumb",
+            "height": 51,
+            "right": 357,
+            "width": 332,
+            "x": 25,
+            "y": 220
+          }
+        ],
+        "dark": false,
+        "dialog": null,
+        "focus": {
+          "insideDialog": false,
+          "label": null,
+          "tag": "BUTTON"
+        },
+        "formItems": [],
+        "formOverlaps": [],
+        "height": 844,
+        "mainBackground": "rgb(245, 247, 250)",
+        "modalBackground": null,
+        "textColors": [
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "SNAPREG1489-32-pattern"
+          },
+          {
+            "color": "rgba(0, 0, 0, 0.65)",
+            "disabled": false,
+            "text": "가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다."
+          },
+          {
+            "color": "rgb(75, 85, 99)",
+            "disabled": false,
+            "text": "스토리지 사본 4개. API는 사본별 물리 크기를 제공하지 않습니다."
+          }
+        ],
+        "url": "[HTTP URL OMITTED]",
+        "width": 390
+      }
+    }
+  ]
+}

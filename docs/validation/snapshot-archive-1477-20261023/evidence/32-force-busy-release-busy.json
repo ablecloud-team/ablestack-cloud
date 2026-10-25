@@ -1,0 +1,26 @@
+{
+  "snapshot": "1bd281e3-436c-41bf-b0bd-95efded5a1db",
+  "scenario": "force-busy",
+  "kind": "release-busy",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/60751a63-28fe-4b2a-ba75-7a48cf532afe",
+      "role": "Primary",
+      "state": "Destroyed",
+      "refstate": "Destroyed",
+      "volumeid": 323,
+      "snapshotid": 37,
+      "referenceid": 70
+    },
+    {
+      "path": "snapshots/2/323/60751a63-28fe-4b2a-ba75-7a48cf532afe",
+      "role": "Image",
+      "state": "Destroyed",
+      "refstate": "Destroyed",
+      "volumeid": 323,
+      "snapshotid": 37,
+      "referenceid": 71
+    }
+  ],
+  "fixtureOnly": true
+}

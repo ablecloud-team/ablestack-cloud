@@ -1,0 +1,16 @@
+[
+  {
+    "cluster": "31",
+    "pid": 1210,
+    "port": 18031,
+    "terminated": true,
+    "portClosed": true
+  },
+  {
+    "cluster": "32",
+    "pid": 1217,
+    "port": 18032,
+    "terminated": true,
+    "portClosed": true
+  }
+]

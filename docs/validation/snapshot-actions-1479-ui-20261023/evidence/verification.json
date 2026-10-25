@@ -1,0 +1,580 @@
+{
+  "status": "PASS",
+  "uiTests": 144,
+  "uiSuites": 11,
+  "newNotificationTests": 15,
+  "clusters": [
+    "31 GFS2",
+    "32 RBD"
+  ],
+  "checks": [
+    {
+      "name": "source ui/public/locales/en.json",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/public/locales/ko_KR.json",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/components/header/HeaderNotice.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/components/view/StorageSnapshotJobDialog.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/components/view/StorageSnapshotOperations.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/utils/storageSnapshotNotices.js",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/utils/storageSnapshotOperations.js",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/src/views/AutogenView.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "source ui/tests/unit/components/header/StorageSnapshotNotifications.spec.js",
+      "status": "PASS"
+    },
+    {
+      "name": "VM standard ui/src/layouts/ResourceLayout.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "VM standard ui/src/components/view/InfoCard.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "VM standard ui/src/components/view/ResourceView.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "VM standard ui/src/components/view/MoldDialog.vue",
+      "status": "PASS"
+    },
+    {
+      "name": "144 UI tests / 11 suites",
+      "status": "PASS"
+    },
+    {
+      "name": "full UI no-fix lint",
+      "status": "PASS"
+    },
+    {
+      "name": "final changed files no-fix lint",
+      "status": "PASS"
+    },
+    {
+      "name": "production UI build",
+      "status": "PASS"
+    },
+    {
+      "name": "31 deployment/webapp/config/backend preservation",
+      "status": "PASS"
+    },
+    {
+      "name": "31 duplicate transport → one job/resource",
+      "status": "PASS"
+    },
+    {
+      "name": "31 forced cleanup DB and physical evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "31 physical pattern source",
+      "status": "PASS"
+    },
+    {
+      "name": "31 physical pattern other",
+      "status": "PASS"
+    },
+    {
+      "name": "31 physical pattern lost-ui-volume",
+      "status": "PASS"
+    },
+    {
+      "name": "31 fixture DB counters zero",
+      "status": "PASS"
+    },
+    {
+      "name": "31 known physical objects/domain absent",
+      "status": "PASS"
+    },
+    {
+      "name": "31 operational inventory preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "31 resource counters consistent",
+      "status": "PASS"
+    },
+    {
+      "name": "31 runtime API/Agents healthy",
+      "status": "PASS"
+    },
+    {
+      "name": "31 UI empty snapshots",
+      "status": "PASS"
+    },
+    {
+      "name": "31 UI empty volumes",
+      "status": "PASS"
+    },
+    {
+      "name": "31 common md dialog job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 advanced IDs collapsed job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 common md dialog job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 advanced IDs collapsed job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 common md dialog f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 advanced IDs collapsed f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 common md dialog job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 advanced IDs collapsed job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 frozen target and result link job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 frozen target and result link f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "31 final unknown guidance",
+      "status": "PASS"
+    },
+    {
+      "name": "31 final F5/clear lease blocks confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "31 foreign project job hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "31 Zone tab preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "31 ESC focus restored",
+      "status": "PASS"
+    },
+    {
+      "name": "31 VM header/tab layout matches reference",
+      "status": "PASS"
+    },
+    {
+      "name": "32 deployment/webapp/config/backend preservation",
+      "status": "PASS"
+    },
+    {
+      "name": "32 duplicate transport → one job/resource",
+      "status": "PASS"
+    },
+    {
+      "name": "32 forced cleanup DB and physical evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "32 physical pattern source",
+      "status": "PASS"
+    },
+    {
+      "name": "32 physical pattern other",
+      "status": "PASS"
+    },
+    {
+      "name": "32 physical pattern lost-ui-volume",
+      "status": "PASS"
+    },
+    {
+      "name": "32 fixture DB counters zero",
+      "status": "PASS"
+    },
+    {
+      "name": "32 known physical objects/domain absent",
+      "status": "PASS"
+    },
+    {
+      "name": "32 operational inventory preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "32 resource counters consistent",
+      "status": "PASS"
+    },
+    {
+      "name": "32 runtime API/Agents healthy",
+      "status": "PASS"
+    },
+    {
+      "name": "32 UI empty snapshots",
+      "status": "PASS"
+    },
+    {
+      "name": "32 UI empty volumes",
+      "status": "PASS"
+    },
+    {
+      "name": "32 common md dialog job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 advanced IDs collapsed job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 common md dialog job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 advanced IDs collapsed job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 common md dialog f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 advanced IDs collapsed f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 common md dialog job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 advanced IDs collapsed job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 frozen target and result link job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 frozen target and result link f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "32 final unknown guidance",
+      "status": "PASS"
+    },
+    {
+      "name": "32 final F5/clear lease blocks confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "32 foreign project job hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "32 Zone tab preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "32 ESC focus restored",
+      "status": "PASS"
+    },
+    {
+      "name": "32 VM header/tab layout matches reference",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-vm-standard-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-f5-project-return-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-snapshot-standard-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-force-complete-initial",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-unknown-collapsed",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-mobile-initial",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-cleanup-volumes-empty",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-tablet-initial",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-force-recovery-complete",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-cleanup-snapshots-empty",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-zone-preserved-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-state-drift-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-f5-project-return-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-f5-notification-retained",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-f5-notification-retained",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-snapshot-standard-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-final-f5-clear-still-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-mobile-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-result-volume-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-completed-notices-cleared-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-running-reason-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-project-job-hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-tablet-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-mobile-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-vm-pending-no-panel",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-unknown-collapsed",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-unknown-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-force-complete-initial",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-escape-focus",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-vm-reference",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-completed-notices-cleared-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-project-job-hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-vm-standard-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-escape-focus",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-unknown-identification",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-stopped-revert-confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-force-recovery-complete",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-vm-reference",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-tablet-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-stopped-revert-confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-job-force-complete-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-job-unknown-identification",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-final-f5-clear-still-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-vm-pending-no-panel",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-f5-result-link-restored-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-zone-preserved-final",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-state-drift-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-submit-lost",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-cleanup-snapshots-empty",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-running-reason-blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-submit-lost",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 31-cleanup-volumes-empty",
+      "status": "PASS"
+    },
+    {
+      "name": "no body panel/overflow 32-result-volume-final",
+      "status": "PASS"
+    },
+    {
+      "name": "responsive raster 31-job-mobile-final",
+      "status": "PASS"
+    },
+    {
+      "name": "responsive raster 31-job-tablet-final",
+      "status": "PASS"
+    },
+    {
+      "name": "responsive raster 32-job-mobile-final",
+      "status": "PASS"
+    },
+    {
+      "name": "responsive raster 32-job-tablet-final",
+      "status": "PASS"
+    },
+    {
+      "name": "existing activity panel link",
+      "status": "PASS"
+    },
+    {
+      "name": "protected Windows FTCTL unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "protected WSL FTCTL unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "temporary proxies stopped",
+      "status": "PASS"
+    }
+  ],
+  "fullCloudBuildRun": false,
+  "actionsDispatched": false,
+  "javaChangedOrRebuiltThisRound": false,
+  "prMerged": false
+}

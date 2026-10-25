@@ -1,0 +1,158 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "레벨"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "사용자 이름"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "계정"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "도메인"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "생성일"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/event/ba3f650f-e4d4-402c-acd0-d97a3f1bc642",
+      "text": "INFO"
+    },
+    {
+      "href": "#/event/d340c7f3-f6db-4ba1-9699-e975abc5024b",
+      "text": "INFO"
+    },
+    {
+      "href": "#/event/4341862e-f7c3-49b2-8814-701a8058d1fd",
+      "text": "INFO"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 3개 항목 중 1-3 표시\n1\n10 / 쪽"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "INFO",
+        "주석 제거",
+        "완료",
+        "SNAPTABS1487-32-owner",
+        "SNAPTABS1487-32-owner",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:52:19"
+      ],
+      "id": "ba3f650f-e4d4-402c-acd0-d97a3f1bc642",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "주석 생성",
+        "완료",
+        "SNAPTABS1487-32-owner",
+        "SNAPTABS1487-32-owner",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:52:18"
+      ],
+      "id": "d340c7f3-f6db-4ba1-9699-e975abc5024b",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "예정됨",
+        "admin",
+        "SNAPTABS1487-32-owner",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:06:55"
+      ],
+      "id": "4341862e-f7c3-49b2-8814-701a8058d1fd",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 제거\t\n완료\n\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:52:19\nINFO\t주석 생성\t\n완료\n\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:52:18\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:06:55\n전체 3개 항목 중 1-3 표시\n1\n10 / 쪽",
+  "text": "/스냅샷/SNAPTABS1487-32-owner업데이트\nSNAPTABS1487-32-owner\n상태\n백업 됨\n아이디\nca67daa2-391b-4459-90e8-345d13e42c41 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-owner\n\n원본 볼륨의 현재 상태를 조회할 권한이 없습니다.\n\nVM 이름\n가상머신 조회 권한이 없습니다.\n사본 Zone\nZone\n계정\nSNAPTABS1487-32-owner\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:06:55\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-owner\n상세\nZone\n이벤트\n코멘트\n업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t주석 제거\t\n완료\n\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:52:19\nINFO\t주석 생성\t\n완료\n\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:52:18\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\tSNAPTABS1487-32-owner\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:06:55\n전체 3개 항목 중 1-3 표시\n1\n10 / 쪽",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 676.96875,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 790.5,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": 219
+      },
+      "tag": "INPUT",
+      "text": "관련 자원 이벤트 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/ca67daa2-391b-4459-90e8-345d13e42c41?tab=events",
+  "width": 1280,
+  "actualReadOnlyRole": true
+}

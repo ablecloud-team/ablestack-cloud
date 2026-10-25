@@ -1,0 +1,116 @@
+{
+  "pass": true,
+  "clusters": [
+    "31",
+    "32"
+  ],
+  "crossLayerChecks": [
+    {
+      "cluster": "31",
+      "evidence": "31-final-db-zero.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-final-physical-zero.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-final-api-extra.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-final-runtime.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-final-download-revoked.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-ui-safety-db-oracle.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-policy-history-recovery.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-policy-collision-after.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-scheduler-retention.json",
+      "pass": true
+    },
+    {
+      "cluster": "31",
+      "evidence": "31-copy-concurrent.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-final-db-zero.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-final-physical-zero.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-final-api-extra.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-final-runtime.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-final-download-revoked.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-ui-safety-db-oracle.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-policy-history-recovery.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-policy-collision-after.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-scheduler-retention.json",
+      "pass": true
+    },
+    {
+      "cluster": "32",
+      "evidence": "32-copy-concurrent.json",
+      "pass": true
+    }
+  ],
+  "uiConfigurations": 12,
+  "uiSurfaces": 156,
+  "uiDialogs": 72,
+  "osClipboard": "User verified real Windows copy/paste on both clusters",
+  "remainingRequiredItems": [],
+  "fullCloudCiRun": false,
+  "mergePerformed": false
+}

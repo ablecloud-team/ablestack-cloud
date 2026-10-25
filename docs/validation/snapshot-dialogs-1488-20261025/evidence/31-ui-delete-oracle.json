@@ -1,0 +1,38 @@
+{
+  "deleted": [
+    {
+      "snapshot": "4f70bd8b-df70-49a7-ac0c-a86e4ac1c133",
+      "state": "Destroyed",
+      "activeReferences": 0,
+      "removedBackupFiles": [
+        "/nfs/secondary/snapshots/283/1085/09cfe09f-1ddd-45a8-b51d-a262962461c9"
+      ]
+    },
+    {
+      "snapshot": "36d308ba-0e13-4cf2-b3e3-155c85d11cae",
+      "state": "Destroyed",
+      "activeReferences": 0,
+      "removedBackupFiles": [
+        "/nfs/secondary/snapshots/284/1086/d74be64d-05fa-4ffc-aef5-0e6eca562f4a"
+      ]
+    },
+    {
+      "snapshot": "3c985f6a-63af-4cbb-bb9a-47a20277a351",
+      "state": "Destroyed",
+      "activeReferences": 0,
+      "removedBackupFiles": [
+        "/nfs/secondary/snapshots/2/1089/0cc2299b-3d31-477e-9868-65e390239108"
+      ]
+    },
+    {
+      "snapshot": "c442f11f-c701-40a6-b512-21384fd3d6b1",
+      "state": "Destroyed",
+      "activeReferences": 0,
+      "removedBackupFiles": [
+        "/nfs/secondary/snapshots/283/1088/8c5ded91-0923-45da-bb8e-fef2faac5d1d"
+      ]
+    }
+  ],
+  "primaryRemoved": [],
+  "status": "PASS"
+}

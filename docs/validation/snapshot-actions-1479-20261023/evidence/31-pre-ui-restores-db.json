@@ -1,0 +1,204 @@
+{
+  "snapshots": [
+    {
+      "id": 68,
+      "name": "SNAP1479-31-source-snapshot",
+      "path": "snapshots/2/978/5e0b1bf7-06f9-4836-a748-1ff7154e05ff",
+      "role": "Image",
+      "uuid": "c581a625-ee69-4f4f-952a-427dd5af6486",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 130
+    },
+    {
+      "id": 69,
+      "name": "SNAP1479-31-other-snapshot",
+      "path": "snapshots/2/979/c349e01d-f24a-4403-8f3e-45382fcb997d",
+      "role": "Image",
+      "uuid": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 132
+    },
+    {
+      "id": 70,
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "path": "snapshots/2/980/32120945-1d45-4144-8aa9-aa54f439c369",
+      "role": "Image",
+      "uuid": "140bc334-a5a9-4538-a652-d9c76a36ef91",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 134
+    },
+    {
+      "id": 71,
+      "name": "SNAP1479-31-running-snapshot",
+      "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+      "role": "Image",
+      "uuid": "b33928f0-11af-43af-95f6-811d77eba840",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 0,
+      "refstate": "Ready",
+      "referenceid": 136
+    },
+    {
+      "id": 72,
+      "name": "SNAP1479-31-tenant-snapshot",
+      "path": "snapshots/250/982/7aa2a13f-8acf-48cd-8876-36363b660eb5",
+      "role": "Image",
+      "uuid": "db2a8229-b521-441f-9d1c-1fe4c44b0bce",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Ready",
+      "referenceid": 138
+    }
+  ],
+  "volumes": [
+    {
+      "id": 978,
+      "name": "SNAP1479-31-source",
+      "path": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "uuid": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": 756
+    },
+    {
+      "id": 979,
+      "name": "SNAP1479-31-other",
+      "path": "5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+      "uuid": "5c01d4c7-cf65-4d56-bf30-95a27a5eed84",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 980,
+      "name": "SNAP1479-31-orphan-source",
+      "path": "c1125109-a685-4280-91b9-e1ccd481cc30",
+      "uuid": "c1125109-a685-4280-91b9-e1ccd481cc30",
+      "state": "Expunged",
+      "poolid": 1,
+      "removed": "2026-10-23 10:20:20.000000",
+      "instanceid": null
+    },
+    {
+      "id": 981,
+      "name": "SNAP1479-31-orphan-api-volume",
+      "path": "c0f04321-39a4-44b7-a0a8-33cfdb2bbd28",
+      "uuid": "5e0a3b34-56e5-4bc4-8cff-1cc2ae5520b8",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 982,
+      "name": "SNAP1479-31-tenant-source",
+      "path": "0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+      "uuid": "0e51c938-b2c0-4101-8a7f-ba071ad20e53",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null,
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 1,
+      "owner": "snap1479-31-tenant"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1073741824,
+      "owner": "snap1479-31-tenant"
+    },
+    {
+      "type": "snapshot",
+      "count": 25,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1207307661328,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [
+    {
+      "name": "SNAP1479-31-orphan-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "140bc334-a5a9-4538-a652-d9c76a36ef91"
+    },
+    {
+      "name": "SNAP1479-31-other-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "4c5a9bb8-1dc1-4245-ae3f-0ae51d141a26"
+    },
+    {
+      "name": "SNAP1479-31-running-snapshot",
+      "type": "SNAPSHOT.CREATE",
+      "count": 1,
+      "snapshot": "b33928f0-11af-43af-95f6-811d77eba840"
+    },
+    {
+      "name": "SNAP1479-31-running-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "b33928f0-11af-43af-95f6-811d77eba840"
+    },
+    {
+      "name": "SNAP1479-31-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "c581a625-ee69-4f4f-952a-427dd5af6486"
+    },
+    {
+      "name": "SNAP1479-31-tenant-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "db2a8229-b521-441f-9d1c-1fe4c44b0bce"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "snap1479-31-tenant",
+      "snapshot": 1,
+      "secondary_storage": 196624
+    },
+    {
+      "owner": "admin",
+      "snapshot": 25,
+      "secondary_storage": 1207307661328
+    }
+  ]
+}

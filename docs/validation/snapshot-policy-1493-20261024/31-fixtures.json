@@ -1,0 +1,284 @@
+{
+  "cluster": "31",
+  "prefix": "SNAPPOL1493-31",
+  "domain": {
+    "id": "144644eb-a7a8-4417-86d9-58825f63b1fb",
+    "name": "SNAPPOL1493-31-domain"
+  },
+  "accounts": [
+    {
+      "id": "565bf757-264e-40ee-ae1d-4ab22754c892",
+      "name": "SNAPPOL1493-31-owner",
+      "scenario": "owner"
+    },
+    {
+      "id": "742bb335-9616-492b-b401-a4804ed54b86",
+      "name": "SNAPPOL1493-31-other",
+      "scenario": "other"
+    }
+  ],
+  "volumes": [
+    {
+      "id": "2f135bab-210c-4928-a834-99fe00888575",
+      "name": "SNAPPOL1493-31-owner",
+      "scenario": "owner",
+      "size": 1073741824
+    },
+    {
+      "id": "4c76a4ec-0ba4-490d-9397-d3e23695feb5",
+      "name": "SNAPPOL1493-31-other",
+      "scenario": "other",
+      "size": 1073741824
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "a3682677-a2df-4dd1-a82d-babc9dc11296",
+      "name": "SNAPPOL1493-31-legacy-HOURLY",
+      "scenario": "legacy-HOURLY",
+      "createdResponseType": "INTERNAL"
+    },
+    {
+      "id": "3b633b91-a502-4994-8ca9-22401a440cf4",
+      "name": "SNAPPOL1493-31-legacy-DAILY",
+      "scenario": "legacy-DAILY",
+      "createdResponseType": "INTERNAL"
+    },
+    {
+      "id": "250eccc4-4825-42a6-bb12-748ff9f30594",
+      "name": "SNAPPOL1493-31-legacy-WEEKLY",
+      "scenario": "legacy-WEEKLY",
+      "createdResponseType": "INTERNAL"
+    },
+    {
+      "id": "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+      "name": "SNAPPOL1493-31-legacy-MONTHLY",
+      "scenario": "legacy-MONTHLY",
+      "createdResponseType": "INTERNAL"
+    },
+    {
+      "id": "6359a1aa-0a75-4dcd-8203-4b5335ed1740",
+      "name": "SNAPPOL1493-31-internal-control",
+      "scenario": "internal-control",
+      "createdResponseType": "MANUAL"
+    },
+    {
+      "id": "db028709-89e6-4141-9db5-d99d01189765",
+      "name": "SNAPPOL1493-31-insufficient-proof",
+      "scenario": "insufficient-proof",
+      "createdResponseType": "MANUAL"
+    },
+    {
+      "id": "c6013039-8dea-4247-b467-54c86034ae2b",
+      "name": "SNAPPOL1493-31-fixed-HOURLY",
+      "scenario": "fixed-HOURLY",
+      "createdResponseType": "HOURLY"
+    },
+    {
+      "id": "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+      "name": "SNAPPOL1493-31-fixed-DAILY",
+      "scenario": "fixed-DAILY",
+      "createdResponseType": "DAILY"
+    },
+    {
+      "id": "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+      "name": "SNAPPOL1493-31-fixed-WEEKLY",
+      "scenario": "fixed-WEEKLY",
+      "createdResponseType": "WEEKLY"
+    },
+    {
+      "id": "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+      "name": "SNAPPOL1493-31-fixed-MONTHLY",
+      "scenario": "fixed-MONTHLY",
+      "createdResponseType": "MONTHLY"
+    },
+    {
+      "id": "1d341809-04f6-45d8-8ab7-98262e88e132",
+      "name": "SNAPPOL1493-31-manual",
+      "scenario": "manual",
+      "createdResponseType": "MANUAL"
+    },
+    {
+      "id": "bf6600cb-b3e8-4212-9261-e5bb0dd974e4",
+      "name": "SNAPPOL1493-31-retention-0",
+      "scenario": "retention-0",
+      "createdResponseType": "HOURLY"
+    },
+    {
+      "id": "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+      "name": "SNAPPOL1493-31-retention-1",
+      "scenario": "retention-1",
+      "createdResponseType": "HOURLY"
+    },
+    {
+      "id": "30182885-952e-4f4e-9b36-168e741aae63",
+      "name": "detached_SNAPPOL1493-31-owner_20261024115646",
+      "scenario": "scheduler",
+      "createdResponseType": "HOURLY"
+    }
+  ],
+  "policies": [
+    {
+      "uuid": "5617db94-f07e-46f3-b569-32124519097e",
+      "scenario": "legacy-HOURLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "5617db94-f07e-46f3-b569-32124519097e",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 0,
+        "previous_id": 13
+      }
+    },
+    {
+      "uuid": "2f78c148-7dad-402d-9a9e-00094c8c7944",
+      "scenario": "legacy-DAILY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "2f78c148-7dad-402d-9a9e-00094c8c7944",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 1,
+        "previous_id": 14
+      }
+    },
+    {
+      "uuid": "a9e3c737-6fb6-4ecc-9c19-6480b462d53f",
+      "scenario": "legacy-WEEKLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "a9e3c737-6fb6-4ecc-9c19-6480b462d53f",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 2,
+        "previous_id": 15
+      }
+    },
+    {
+      "uuid": "31a48062-4c6d-4eaa-a9d9-b6ca4ec39f20",
+      "scenario": "legacy-MONTHLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "31a48062-4c6d-4eaa-a9d9-b6ca4ec39f20",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 3,
+        "previous_id": 16
+      }
+    },
+    {
+      "uuid": "d686a2b9-22b3-4989-9724-07b989ae4981",
+      "scenario": "fixed-HOURLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "d686a2b9-22b3-4989-9724-07b989ae4981",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 0,
+        "previous_id": 17
+      }
+    },
+    {
+      "uuid": "2abfff3b-ec7f-49ef-881d-c80b076d6500",
+      "scenario": "fixed-DAILY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "2abfff3b-ec7f-49ef-881d-c80b076d6500",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 1,
+        "previous_id": 18
+      }
+    },
+    {
+      "uuid": "e4a19af0-e96d-4732-8e84-a2c5eb41c73c",
+      "scenario": "fixed-WEEKLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "e4a19af0-e96d-4732-8e84-a2c5eb41c73c",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 2,
+        "previous_id": 19
+      }
+    },
+    {
+      "uuid": "34637876-5b43-4b18-8440-c36c01fd1f51",
+      "scenario": "fixed-MONTHLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "34637876-5b43-4b18-8440-c36c01fd1f51",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 3,
+        "previous_id": 20
+      }
+    },
+    {
+      "uuid": "212b268e-ca5f-4b9b-82e0-75761489a755",
+      "scenario": "fixed-DAILY",
+      "deleted": true,
+      "database": null
+    },
+    {
+      "uuid": "93b139f0-49cb-4761-b2fd-dae74f604e96",
+      "scenario": "retention-HOURLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "93b139f0-49cb-4761-b2fd-dae74f604e96",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 0,
+        "previous_id": 22
+      }
+    },
+    {
+      "uuid": "58683a93-756c-4786-9f52-4db9f59f0e57",
+      "scenario": "scheduler-start-HOURLY",
+      "deleted": true,
+      "database": {
+        "id": 8,
+        "uuid": "58683a93-756c-4786-9f52-4db9f59f0e57",
+        "volume_id": 1064,
+        "volume_uuid": "2f135bab-210c-4928-a834-99fe00888575",
+        "account_id": 266,
+        "domain_id": 64,
+        "interval": 0,
+        "previous_id": 23
+      }
+    },
+    {
+      "uuid": "9ad20741-e81f-4266-b607-137ef9d68d3a",
+      "scenario": "acl",
+      "deleted": true,
+      "database": null
+    }
+  ]
+}

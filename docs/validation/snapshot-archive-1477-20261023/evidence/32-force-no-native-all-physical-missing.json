@@ -1,0 +1,26 @@
+{
+  "snapshot": "33ace438-7857-4acc-aada-a57294a7ae8f",
+  "scenario": "force-no-native",
+  "kind": "all-physical-missing",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/11801d4d-9be7-473c-bfb3-3032fe8d9957",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 38,
+      "referenceid": 72
+    },
+    {
+      "path": "snapshots/2/323/11801d4d-9be7-473c-bfb3-3032fe8d9957",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 38,
+      "referenceid": 73
+    }
+  ],
+  "fixtureOnly": true
+}

@@ -1,0 +1,9 @@
+/* Licensed to the Apache Software Foundation (ASF) under the Apache License,
+Version 2.0. See the NOTICE file. http://www.apache.org/licenses/LICENSE-2.0 */
+.resource-detail-item { margin-bottom: 20px; word-break: break-all; }
+.resource-detail-item__details { display: flex; align-items: center; }
+.resource-detail-item__details--start { align-items: flex-start; }
+.resource-detail-item__details--start i { margin-top: 4px; }
+.resource-detail-item__details--column { align-items: stretch; flex-direction: column; }
+.resource-detail-item .anticon { margin-right: 10px; }
+.resource-detail-item__label { margin-bottom: 5px; font-weight: bold; }

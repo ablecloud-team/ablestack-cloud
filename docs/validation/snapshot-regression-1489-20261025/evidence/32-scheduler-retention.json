@@ -1,0 +1,198 @@
+{
+  "pass": true,
+  "policy": {
+    "id": "b07add33-7218-479e-834f-88444cb14ef1",
+    "volumeid": "f3b72221-0933-468e-a8a8-26e5c8361595",
+    "volumename": "SNAPREG1489-32-owner",
+    "schedule": "59",
+    "intervaltype": 0,
+    "maxsnaps": 2,
+    "timezone": "UTC",
+    "fordisplay": true,
+    "zone": [
+      {
+        "id": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "Zone",
+        "localstorageenabled": false,
+        "isnsxenabled": false,
+        "ismultiarch": false,
+        "routedmodeenabled": false
+      }
+    ],
+    "storage": [
+      {
+        "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "name": "Primary"
+      }
+    ],
+    "tags": [],
+    "scenario": "scheduler"
+  },
+  "history": [
+    {
+      "id": 237,
+      "name": "detached_SNAPREG1489-32-owner_20261025122446",
+      "path": "snapshots/99/443/0105e509-9772-413d-a66a-48d2eb9b3536",
+      "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+      "state": "BackedUp",
+      "created": "2026-10-25 12:24:46.000000",
+      "removed": null,
+      "refstate": "Ready"
+    },
+    {
+      "id": 238,
+      "name": "detached_SNAPREG1489-32-owner_20261025123446",
+      "path": "snapshots/99/443/165691af-674f-4b7b-ba11-4b159b64ae98",
+      "uuid": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+      "state": "BackedUp",
+      "created": "2026-10-25 12:34:46.000000",
+      "removed": null,
+      "refstate": "Ready"
+    },
+    {
+      "id": 239,
+      "name": "detached_SNAPREG1489-32-owner_20261025124446",
+      "path": "snapshots/99/443/1cc8133b-3613-4c82-b568-17fb6e464019",
+      "uuid": "760bf942-7040-486d-a12a-f52d5d1d1112",
+      "state": "BackedUp",
+      "created": "2026-10-25 12:44:46.000000",
+      "removed": null,
+      "refstate": "Ready"
+    }
+  ],
+  "rounds": [
+    {
+      "cycle": 1,
+      "new": {
+        "id": 237,
+        "name": "detached_SNAPREG1489-32-owner_20261025122446",
+        "path": "snapshots/99/443/0105e509-9772-413d-a66a-48d2eb9b3536",
+        "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+        "state": "BackedUp",
+        "created": "2026-10-25 12:24:46.000000",
+        "removed": null,
+        "refstate": "Ready"
+      },
+      "visibleRefs": [
+        {
+          "id": 237,
+          "name": "detached_SNAPREG1489-32-owner_20261025122446",
+          "path": "snapshots/99/443/0105e509-9772-413d-a66a-48d2eb9b3536",
+          "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+          "state": "BackedUp",
+          "created": "2026-10-25 12:24:46.000000",
+          "removed": null,
+          "refstate": "Ready"
+        }
+      ],
+      "due": {
+        "policy": 32,
+        "fixtureScheduleMadeDue": true
+      }
+    },
+    {
+      "cycle": 2,
+      "new": {
+        "id": 238,
+        "name": "detached_SNAPREG1489-32-owner_20261025123446",
+        "path": "snapshots/99/443/165691af-674f-4b7b-ba11-4b159b64ae98",
+        "uuid": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+        "state": "BackedUp",
+        "created": "2026-10-25 12:34:46.000000",
+        "removed": null,
+        "refstate": "Ready"
+      },
+      "visibleRefs": [
+        {
+          "id": 237,
+          "name": "detached_SNAPREG1489-32-owner_20261025122446",
+          "path": "snapshots/99/443/0105e509-9772-413d-a66a-48d2eb9b3536",
+          "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+          "state": "BackedUp",
+          "created": "2026-10-25 12:24:46.000000",
+          "removed": null,
+          "refstate": "Ready"
+        },
+        {
+          "id": 238,
+          "name": "detached_SNAPREG1489-32-owner_20261025123446",
+          "path": "snapshots/99/443/165691af-674f-4b7b-ba11-4b159b64ae98",
+          "uuid": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+          "state": "BackedUp",
+          "created": "2026-10-25 12:34:46.000000",
+          "removed": null,
+          "refstate": "Ready"
+        }
+      ],
+      "due": {
+        "policy": 32,
+        "fixtureScheduleMadeDue": true
+      }
+    },
+    {
+      "cycle": 3,
+      "new": {
+        "id": 239,
+        "name": "detached_SNAPREG1489-32-owner_20261025124446",
+        "path": "snapshots/99/443/1cc8133b-3613-4c82-b568-17fb6e464019",
+        "uuid": "760bf942-7040-486d-a12a-f52d5d1d1112",
+        "state": "BackedUp",
+        "created": "2026-10-25 12:44:46.000000",
+        "removed": null,
+        "refstate": "Ready"
+      },
+      "visibleRefs": [
+        {
+          "id": 237,
+          "name": "detached_SNAPREG1489-32-owner_20261025122446",
+          "path": "snapshots/99/443/0105e509-9772-413d-a66a-48d2eb9b3536",
+          "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+          "state": "Destroyed",
+          "created": "2026-10-25 12:24:46.000000",
+          "removed": null,
+          "refstate": "Destroyed"
+        },
+        {
+          "id": 238,
+          "name": "detached_SNAPREG1489-32-owner_20261025123446",
+          "path": "snapshots/99/443/165691af-674f-4b7b-ba11-4b159b64ae98",
+          "uuid": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+          "state": "BackedUp",
+          "created": "2026-10-25 12:34:46.000000",
+          "removed": null,
+          "refstate": "Ready"
+        },
+        {
+          "id": 239,
+          "name": "detached_SNAPREG1489-32-owner_20261025124446",
+          "path": "snapshots/99/443/1cc8133b-3613-4c82-b568-17fb6e464019",
+          "uuid": "760bf942-7040-486d-a12a-f52d5d1d1112",
+          "state": "BackedUp",
+          "created": "2026-10-25 12:44:46.000000",
+          "removed": null,
+          "refstate": "Ready"
+        }
+      ],
+      "due": {
+        "policy": 32,
+        "fixtureScheduleMadeDue": true
+      }
+    }
+  ],
+  "final": [
+    {
+      "uuid": "760bf942-7040-486d-a12a-f52d5d1d1112",
+      "state": "BackedUp"
+    },
+    {
+      "uuid": "93182193-848c-4826-a82b-0ebd2f1faaff",
+      "state": "Destroyed"
+    },
+    {
+      "uuid": "b4289e47-8f2e-4df7-bafb-2e8f9cdab989",
+      "state": "BackedUp"
+    }
+  ],
+  "oldestSecondaryAbsent": true,
+  "actualBackendScheduler": true
+}

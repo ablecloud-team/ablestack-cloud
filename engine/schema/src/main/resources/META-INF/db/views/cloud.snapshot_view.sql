@@ -80,7 +80,7 @@ SELECT
            '_',
            IFNULL(`snapshot_store_ref`.`store_role`, 'UNKNOWN'),
            '_',
-           IFNULL(`snapshot_store_ref`.`store_id`, 0)) AS `snapshot_store_pair`
+           IFNULL(`snapshot_store_ref`.`store_id`, CONCAT('zone_', IFNULL(`snapshot_zone_ref`.`zone_id`, 0)))) AS `snapshot_store_pair`
 FROM
     ((((((((((`snapshots`
         JOIN `account` ON ((`account`.`id` = `snapshots`.`account_id`)))

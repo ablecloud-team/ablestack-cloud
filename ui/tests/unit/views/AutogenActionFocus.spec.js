@@ -97,3 +97,25 @@ test('tab toolbar actions retain their original trigger instead of the global me
   AutogenView.methods.handleDataViewAction.call(context, { api: 'scaleKubernetesCluster' })
   expect(context.actionTrigger).toBe(trigger)
 })
+
+test('a snapshot form closes before route reuse changes its resource context', () => {
+  const order = []
+  const context = { ...view(), showAction: true, $refs: {}, $route: { fullPath: '/snapshot/old' }, closeAction: () => order.push('close') }
+  AutogenView.beforeRouteUpdate.call(context, { path: '/snapshot/new' }, { path: '/snapshot/old', name: 'snapshot' }, () => order.push('next'))
+  expect(order).toEqual(['close', 'next'])
+})
+
+test('leaving a snapshot screen unmounts its pending form before navigation', () => {
+  const order = []
+  const context = { ...view(), showAction: true, $refs: {}, $route: { fullPath: '/snapshot/old' }, closeAction: () => order.push('close'), resetSelection: jest.fn(), clearAutoRefresh: jest.fn(), listRequestVersion: 0 }
+  AutogenView.beforeRouteLeave.call(context, { path: '/volume/other' }, { name: 'snapshot' }, () => order.push('next'))
+  expect(order).toEqual(['close', 'next'])
+})
+
+test('a self-managed blocking action retains its confirmation when navigation is denied', () => {
+  const context = { ...view(), showAction: true, $refs: { selfManagedAction: { blocksNavigation: true } }, closeAction: jest.fn() }
+  const next = jest.fn()
+  AutogenView.beforeRouteUpdate.call(context, { path: '/snapshot/new' }, { path: '/snapshot/old', name: 'snapshot' }, next)
+  expect(next).toHaveBeenCalledWith(false)
+  expect(context.closeAction).not.toHaveBeenCalled()
+})

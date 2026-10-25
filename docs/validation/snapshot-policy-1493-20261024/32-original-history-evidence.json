@@ -1,0 +1,50 @@
+{
+  "legacy_snapshot": {
+    "id": 143,
+    "name": "SNAPSEARCH1483-32-recurring-DAILY",
+    "type": 8,
+    "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+    "domain": 19,
+    "status": "Destroyed",
+    "volume": 387,
+    "account": 73,
+    "created": "2026-10-24 10:23:32.000000",
+    "removed": null,
+    "description": "INTERNAL"
+  },
+  "archived_policy_response": {
+    "id": "b3ced245-73f4-4e4c-b465-80ad3aff67fe",
+    "volumeid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+    "volumename": "SNAPSEARCH1483-32-owner",
+    "schedule": "0:0",
+    "intervaltype": 1,
+    "maxsnaps": 2,
+    "timezone": "UTC",
+    "fordisplay": true,
+    "zone": [
+      {
+        "id": "991d2f57-0f37-4445-b956-09773d064816",
+        "name": "Zone",
+        "localstorageenabled": false,
+        "isnsxenabled": false,
+        "ismultiarch": false,
+        "routedmodeenabled": false
+      }
+    ],
+    "storage": [
+      {
+        "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "name": "Primary"
+      }
+    ],
+    "tags": [],
+    "scenario": "DAILY"
+  },
+  "volume": {
+    "id": 387,
+    "uuid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+    "domain_id": 19,
+    "account_id": 73
+  },
+  "source": "#1483 preserved creation evidence; original #1493 collision reproduction"
+}

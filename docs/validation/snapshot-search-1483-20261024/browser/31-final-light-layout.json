@@ -1,0 +1,172 @@
+{
+  "body": {
+    "h": 534,
+    "w": 718,
+    "x": 281,
+    "y": 88
+  },
+  "bodyColor": "rgb(255, 255, 255)",
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "재설정"
+    },
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "text": "검색"
+    }
+  ],
+  "class": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "dark": false,
+  "footer": {
+    "h": 65,
+    "w": 718,
+    "x": 281,
+    "y": 622
+  },
+  "gap": "16px 20px",
+  "grid": "316px 316px",
+  "inputColors": [
+    {
+      "color": "rgb(31, 41, 55)",
+      "text": "SNAPSEARCH1483-31"
+    },
+    {
+      "color": "rgb(31, 41, 55)",
+      "text": ""
+    },
+    {
+      "color": "rgb(31, 41, 55)",
+      "text": "논리 스냅샷"
+    },
+    {
+      "color": "rgb(31, 41, 55)",
+      "text": "ROOT/SNAPSEARCH1483-31-domain · 2429c3b9"
+    },
+    {
+      "color": "rgb(31, 41, 55)",
+      "text": "SNAPSEARCH1483-31-owner · 376d30de"
+    }
+  ],
+  "items": [
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "검색",
+      "w": 316,
+      "x": 309,
+      "y": 112
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "이름",
+      "w": 316,
+      "x": 645,
+      "y": 112
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "스냅샷 유형",
+      "w": 316,
+      "x": 309,
+      "y": 190
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "간격 유형",
+      "w": 316,
+      "x": 645,
+      "y": 190
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "조회 단위",
+      "w": 316,
+      "x": 309,
+      "y": 268
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "사본 저장 위치",
+      "w": 316,
+      "x": 645,
+      "y": 268
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "볼륨",
+      "w": 316,
+      "x": 309,
+      "y": 346
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "Zone",
+      "w": 316,
+      "x": 645,
+      "y": 346
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "도메인",
+      "w": 316,
+      "x": 309,
+      "y": 448
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "계정",
+      "w": 316,
+      "x": 645,
+      "y": 448
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "기본 스토리지",
+      "w": 316,
+      "x": 309,
+      "y": 550
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 86,
+      "label": "2차 스토리지",
+      "w": 316,
+      "x": 645,
+      "y": 550
+    },
+    {
+      "color": "rgb(75, 85, 99)",
+      "h": 62,
+      "label": "하위 도메인 포함",
+      "w": 316,
+      "x": 309,
+      "y": 652
+    }
+  ],
+  "modal": {
+    "h": 656,
+    "w": 720,
+    "x": 280,
+    "y": 32
+  },
+  "overlaps": [],
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

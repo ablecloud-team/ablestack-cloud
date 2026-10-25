@@ -669,7 +669,7 @@
                   <resource-icon :image="getImage(images.project)" size="1x" style="margin-right: 5px"/>
                 </span>
                 <project-outlined v-else />
-                <router-link v-if="!isStatic && resource.projectid" :to="{ path: '/project/' + resource.projectid }">{{ resource.project || resource.projectname || resource.projectid }}</router-link>
+                <router-link v-if="!isStatic && resource.projectid && ($route.meta.name !== 'snapshot' || 'listProjects' in $store.getters.apis)" :to="{ path: '/project/' + resource.projectid }">{{ resource.project || resource.projectname || resource.projectid }}</router-link>
                 <span v-else>{{ resource.projectname || resource.projectid }}</span>
               </div>
             </div>
@@ -713,7 +713,7 @@
                 <resource-label :resourceType="resource.resourcetype" :resourceId="resource.resourceid" :resourceName="resource.resourcename" />
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.virtualmachineid">
+            <div class="resource-detail-item" v-if="resource.virtualmachineid && $route.meta.name !== 'snapshot'">
               <div class="resource-detail-item__label">{{ $t('label.vmname') }}</div>
               <div class="resource-detail-item__details">
                 <desktop-outlined />
@@ -722,7 +722,7 @@
                 <status class="status status--end" :text="resource.vmstate" v-if="resource.vmstate"/>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.volumeid">
+            <div class="resource-detail-item" v-if="resource.volumeid && $route.meta.name !== 'snapshot'">
               <div class="resource-detail-item__label">{{ $t('label.volume') }}</div>
               <div class="resource-detail-item__details">
                 <hdd-outlined />
@@ -937,7 +937,7 @@
                 <span v-else>{{ resource.podname || resource.pod || resource.podid }}</span>
               </div>
             </div>
-            <div class="resource-detail-item" v-if="resource.zoneid && !['template', 'iso'].includes($route.path.split('/')[1])">
+            <div class="resource-detail-item" v-if="resource.zoneid && !['template', 'iso', 'snapshot'].includes($route.path.split('/')[1])">
               <div class="resource-detail-item__label">{{ $t('label.zone') }}</div>
               <div class="resource-detail-item__details">
                 <span v-if="images.zone">
@@ -987,7 +987,7 @@
                   <resource-icon :image="images.account" size="1x" style="margin-right: 5px"/>
                 </span>
                 <user-outlined v-else />
-                <router-link v-if="!isStatic && $store.getters.userInfo.roletype !== 'User'" :to="{ path: '/account', query: { name: resource.account, domainid: resource.domainid } }">{{ resource.account }}</router-link>
+                <router-link v-if="!isStatic && $store.getters.userInfo.roletype !== 'User' && ($route.meta.name !== 'snapshot' || 'listAccounts' in $store.getters.apis)" :to="{ path: '/account', query: { name: resource.account, domainid: resource.domainid } }">{{ resource.account }}</router-link>
                 <span v-else>{{ resource.account }}</span>
               </div>
             </div>
@@ -1012,7 +1012,7 @@
               <div class="resource-detail-item__details">
                 <resource-icon v-if="images.domain" :image="images.domain" size="1x" style="margin-right: 5px"/>
                 <block-outlined v-else />
-                <router-link v-if="!isStatic && $store.getters.userInfo.roletype !== 'User'" :to="{ path: '/domain/' + resource.domainid, query: { tab: 'details'}  }">{{ resource.domain || resource.domainid }}</router-link>
+                <router-link v-if="!isStatic && $store.getters.userInfo.roletype !== 'User' && ($route.meta.name !== 'snapshot' || 'listDomains' in $store.getters.apis)" :to="{ path: '/domain/' + resource.domainid, query: { tab: 'details'}  }">{{ resource.domain || resource.domainid }}</router-link>
                 <span v-else>{{ resource.domain || resource.domainid }}</span>
               </div>
             </div>
@@ -1118,45 +1118,11 @@
               :osCategoryId="osCategoryId" />
           </div>
 
-          <div class="account-center-tags" v-if="!isStatic && resourceType && tagsSupportingResourceTypes.includes(this.resourceType) && 'listTags' in $store.getters.apis">
-            <a-divider/>
-            <a-spin :spinning="loadingTags">
-              <div class="title">{{ $t('label.tags') }}</div>
-              <div>
-                <template v-for="(tag, index) in tags" :key="index">
-                  <a-tag :closable="isAdminOrOwner() && 'deleteTags' in $store.getters.apis" @close="() => handleDeleteTag(tag)">
-                    {{ tag.key }} = {{ tag.value }}
-                  </a-tag>
-                </template>
-
-                <div v-if="inputVisible">
-                  <a-input-group
-                    type="text"
-                    size="small"
-                    @blur="handleInputConfirm"
-                    @keyup.enter="handleInputConfirm"
-                    compact>
-                    <a-input ref="input" :value="inputKey" @change="handleKeyChange" style="width: 30%; text-align: center" :placeholder="$t('label.key')" />
-                    <a-input
-                      class="tag-disabled-input"
-                      style="width: 30px; border-left: 0; pointer-events: none; text-align: center"
-                      placeholder="="
-                      disabled />
-                    <a-input :value="inputValue" @change="handleValueChange" style="width: 30%; text-align: center; border-left: 0" :placeholder="$t('label.value')" />
-                    <tooltip-button :tooltip="$t('label.ok')" icon="CheckOutlined" size="small" @onClick="handleInputConfirm" />
-                    <tooltip-button :tooltip="$t('label.cancel')" icon="CloseOutlined" size="small" @onClick="inputVisible=false" />
-                  </a-input-group>
-                </div>
-                <a-tag
-                  @click="showInput"
-                  class="btn-add-tag"
-                  style="borderStyle: dashed;"
-                  v-else-if="isAdminOrOwner() && 'createTags' in $store.getters.apis">
-                  <plus-outlined  /> {{ $t('label.new.tag') }}
-                </a-tag>
-              </div>
-            </a-spin>
-          </div>
+          <resource-tags
+            v-if="!isStatic && resourceType && tagsSupportingResourceTypes.includes(resourceType) && 'listTags' in $store.getters.apis"
+            :resource="resource"
+            :resource-type="resourceType"
+            :can-edit="isAdminOrOwner()" />
         </div>
         <div class="card-footer" v-if="footerVisible">
           <slot name="footer-content"></slot>
@@ -1179,8 +1145,8 @@ import { creationVmOsName } from '@/utils/creationVmPresentation'
 import AffinityGroupPolicy from '@/views/compute/AffinityGroupPolicy'
 import { sshKeyPairNameLink, sshKeyPairVmQuery } from '@/utils/sshKeyPairIdentity'
 import { attachedIsos } from '@/utils/vmIsoActions'
-import { getAPI, postAPI } from '@/api'
-import axios from 'axios'
+import { getAPI } from '@/api'
+import ResourceTags from '@/components/view/ResourceTags'
 import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinksAsync } from '@/utils/links'
 import Console from '@/components/widgets/Console'
@@ -1217,7 +1183,8 @@ export default {
     ImageDeployInstanceButton,
     FileTextOutlined,
     ActionButton,
-    ResourceContextMenu
+    ResourceContextMenu,
+    ResourceTags
   },
   props: {
     resource: {
@@ -1259,12 +1226,7 @@ export default {
       ipaddressSource: '',
       drclusterip: '',
       resourceType: '',
-      inputVisible: false,
-      inputKey: '',
-      inputValue: '',
-      tags: [],
       showKeys: false,
-      loadingTags: false,
       showUpload: false,
       images: {
         zone: '',
@@ -1421,13 +1383,6 @@ export default {
     updateResourceAdditionalData () {
       if (!this.resource) return
       this.resourceType = this.$route.meta.resourceType
-      if (this.tagsSupportingResourceTypes.includes(this.resourceType)) {
-        if ('tags' in this.resource) {
-          this.tags = this.resource.tags
-        } else if (this.resourceType) {
-          this.getTags()
-        }
-      }
       this.fetchOsCategoryAndIcon()
       this.getIcons()
     },
@@ -1608,30 +1563,6 @@ export default {
         this.$emit('change-resource', this.newResource)
       })
     },
-    getTags () {
-      if (!('listTags' in this.$store.getters.apis) || !this.resource || !this.resource.id) {
-        return
-      }
-      this.loadingTags = true
-      this.tags = []
-      const params = {
-        listall: true,
-        resourceid: this.resource.id,
-        resourcetype: this.resourceType
-      }
-      if (this.$route.meta.name === 'project') {
-        params.projectid = this.resource.id
-      }
-      getAPI('listTags', params).then(json => {
-        if (json.listtagsresponse && json.listtagsresponse.tag) {
-          this.tags = json.listtagsresponse.tag
-        }
-      }).catch(error => {
-        if (!axios.isCancel(error)) this.$notifyError(error)
-      }).finally(() => {
-        this.loadingTags = false
-      })
-    },
     isAdminOrOwner () {
       return ['Admin'].includes(this.$store.getters.userInfo.roletype) ||
         (this.resource.domainid === this.$store.getters.userInfo.domainid && this.resource.account === this.$store.getters.userInfo.account) ||
@@ -1639,46 +1570,6 @@ export default {
     },
     isAdmin () {
       return ['Admin'].includes(this.$store.getters.userInfo.roletype)
-    },
-    showInput () {
-      this.inputVisible = true
-      this.$nextTick(function () {
-        this.$refs.input.focus()
-      })
-    },
-    handleKeyChange (e) {
-      this.inputKey = e.target.value
-    },
-    handleValueChange (e) {
-      this.inputValue = e.target.value
-    },
-    handleInputConfirm () {
-      const args = {}
-      this.loadingTags = true
-      args.resourceids = this.resource.id
-      args.resourcetype = this.resourceType
-      args['tags[0].key'] = this.inputKey
-      args['tags[0].value'] = this.inputValue
-      postAPI('createTags', args).then(json => {
-      }).finally(e => {
-        this.getTags()
-      })
-
-      this.inputVisible = false
-      this.inputKey = ''
-      this.inputValue = ''
-    },
-    handleDeleteTag (tag) {
-      const args = {}
-      this.loadingTags = true
-      args.resourceids = this.resource.id
-      args.resourcetype = this.resourceType
-      args['tags[0].key'] = tag.key
-      args['tags[0].value'] = tag.value
-      postAPI('deleteTags', args).then(json => {
-      }).finally(e => {
-        this.getTags()
-      })
     },
     getRouterQuery (item) {
       const query = {}
@@ -1783,40 +1674,7 @@ export default {
 
   }
 }
-.resource-detail-item {
-  margin-bottom: 20px;
-  word-break: break-all;
 
-  &__details {
-    display: flex;
-    align-items: center;
-
-    &--start {
-      align-items: flex-start;
-
-      i {
-        margin-top: 4px;
-      }
-
-    }
-
-    &--column {
-      align-items: stretch;
-      flex-direction: column;
-    }
-
-  }
-
-  .anticon {
-    margin-right: 10px;
-  }
-
-  &__label {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-
-}
 .user-keys {
   word-wrap: break-word;
 }
@@ -1918,3 +1776,5 @@ export default {
 }
 
 </style>
+
+<style scoped src="@/style/components/view/resource-detail-fields.css"></style>

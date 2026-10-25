@@ -1,0 +1,182 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": ""
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": ""
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "Zone"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "간격 유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "현재 페이지 조회 항목"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "Zone 작업"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "스토리지"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "참조 상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "준비 상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "가상 용량"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "8px",
+      "text": "진행·오류"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": " Zone"
+    },
+    {
+      "href": "#/imagestore/dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "text": "Secondary"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 스토리지 사본 1개 중 1-1 표시\n1\n10 / 쪽"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "",
+        "",
+        " Zone",
+        "백업 됨",
+        "수동",
+        "1",
+        ""
+      ],
+      "disabled": false,
+      "id": "zone:7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "selected": true
+    },
+    {
+      "cells": [
+        "Secondary",
+        "Secondary",
+        "사용 가능",
+        "준비됨",
+        "1.00 GiB",
+        "확인 불가"
+      ],
+      "id": "3c21dce1-ebe0-39f1-9abc-cbab0a2ca061",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "선택한 Zone의 모든 사본 삭제\n업데이트\n열 선택\n\n사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n표시 Zone 1개 · 현재 페이지 전체 사본 1개\n\n\t\n\tZone\t상태\t간격 유형\t현재 페이지 조회 항목\tZone 작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n\t Zone\t\n백업 됨\n\t수동\t1\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSecondary\t\n사용 가능\n\t준비됨\t1.00 GiB\t확인 불가\n전체 스토리지 사본 1개 중 1-1 표시\n1\n10 / 쪽",
+  "text": "/스냅샷/SNAPTABS1487-31-owner-next업데이트\n작업\nSNAPTABS1487-31-owner-next\n상태\n백업 됨\n아이디\n9ec7dc74-eafe-4c86-8e95-68c23bd63e87 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-31-owner\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:19\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-owner-next\n새 태그\n상세\nZone\n이벤트\n코멘트\n선택한 Zone의 모든 사본 삭제\n업데이트\n열 선택\n\n사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n표시 Zone 1개 · 현재 페이지 전체 사본 1개\n\n\t\n\tZone\t상태\t간격 유형\t현재 페이지 조회 항목\tZone 작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\t\n\t Zone\t\n백업 됨\n\t수동\t1\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSecondary\t\n사용 가능\n\t준비됨\t1.00 GiB\t확인 불가\n전체 스토리지 사본 1개 중 1-1 표시\n1\n10 / 쪽",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 229.578125,
+        "x": 676.96875,
+        "y": 234
+      },
+      "tag": "BUTTON",
+      "text": "선택한 Zone의 모든 사본 삭제"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 914.546875,
+        "y": 234
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 1028.078125,
+        "y": 234
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": 279
+      },
+      "tag": "INPUT",
+      "text": "현재 페이지 Zone·스토리지 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": 274
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/9ec7dc74-eafe-4c86-8e95-68c23bd63e87?tab=zones",
+  "width": 1280,
+  "dialog": "스냅샷 삭제\n현재 스냅샷을 삭제하시겠습니까?\n이름\tSNAPTABS1487-31-owner-next · 9ec7dc74-eafe-4c86-8e95-68c23bd63e87\n상태\tBackedUp\n볼륨\tSNAPTABS1487-31-owner · ac8771dc-e1f4-4dbb-9fa1-30c4016d2c03 · Ready\n가상머신\t없음\n계정\tSNAPTABS1487-31-owner · SNAPTABS1487-31-domain\nZone\t7013f5a1-de59-4cea-a596-f4f58815f31c\n현재 대상 다시 확인\n표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.\n닫기\n현재 대상 다시 확인\n스냅샷 삭제"
+}

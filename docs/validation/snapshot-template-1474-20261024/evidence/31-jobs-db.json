@@ -1,0 +1,252 @@
+[
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.vm.DeployVMCmdByAdmin",
+    "name": "SNAPT1474-31-root-source",
+    "uuid": "4ad3cdba-0f4f-49ee-900b-46d8de61ed1a",
+    "status": 1,
+    "instanceid": 759,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "VirtualMachine"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-native",
+    "uuid": "b8b2452e-bd21-4492-a624-50301afa7fba",
+    "status": 1,
+    "instanceid": 999,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-raw",
+    "uuid": "a763d232-90e1-4541-b85e-bd72ba70a8c4",
+    "status": 1,
+    "instanceid": 1000,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-negative",
+    "uuid": "efaea111-64a6-4000-88a0-109923e4d95e",
+    "status": 1,
+    "instanceid": 1001,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+    "name": "SNAPT1474-31-native",
+    "uuid": "af31265e-a5b2-423d-826e-51c7083dfd78",
+    "status": 1,
+    "instanceid": 86,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Snapshot"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+    "name": "SNAPT1474-31-raw",
+    "uuid": "e895687b-6d48-403c-a43e-a5eaf584a42b",
+    "status": 1,
+    "instanceid": 87,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Snapshot"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+    "name": "SNAPT1474-31-negative",
+    "uuid": "cbfc198e-70f7-4dfc-89e0-7d1cb2446a14",
+    "status": 1,
+    "instanceid": 88,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Snapshot"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-native-after",
+    "uuid": "1c03209c-167b-42aa-93b7-1fea67495517",
+    "status": 1,
+    "instanceid": 400,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+    "name": "SNAPT1474-31-root",
+    "uuid": "fe9ebfea-d55d-4914-bfc0-e262c1f6b305",
+    "status": 1,
+    "instanceid": 89,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "Snapshot"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-root-ui-template",
+    "uuid": "5207bdf9-33a0-4a5b-ac7e-0804c346803e",
+    "status": 1,
+    "instanceid": 401,
+    "resultCode": 0,
+    "snapshotid": "81cef367-b1c2-4f82-a6da-8346b827eb96",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-raw-after",
+    "uuid": "620a60da-1c05-468a-b5af-aa2e2870942a",
+    "status": 1,
+    "instanceid": 402,
+    "resultCode": 0,
+    "snapshotid": "918a1b51-ea18-445f-be1c-956416a715d8",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.vm.DeployVMCmdByAdmin",
+    "name": "SNAPT1474-31-root-boot",
+    "uuid": "ebfda7b5-9a92-4c9a-a472-5305d265c314",
+    "status": 1,
+    "instanceid": 760,
+    "resultCode": 0,
+    "snapshotid": null,
+    "instancetype": "VirtualMachine"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-native-restored",
+    "uuid": "74eea5ad-857b-4420-b401-29a670c6d8ae",
+    "status": 1,
+    "instanceid": 1003,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-raw-restored",
+    "uuid": "c31e6383-7a28-459d-82d0-60ac90aa624d",
+    "status": 2,
+    "instanceid": 1004,
+    "resultCode": 530,
+    "snapshotid": "918a1b51-ea18-445f-be1c-956416a715d8",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-negative-unsupported",
+    "uuid": "936fa2e2-1e41-4a73-b4f1-12438d9deb13",
+    "status": 2,
+    "instanceid": 403,
+    "resultCode": 530,
+    "snapshotid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-negative-corrupt",
+    "uuid": "f036a352-a996-46f7-8d1b-5f6f82f12561",
+    "status": 2,
+    "instanceid": 404,
+    "resultCode": 530,
+    "snapshotid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-negative-missing",
+    "uuid": "2c29d3da-568e-44f2-802e-475aacf04009",
+    "status": 2,
+    "instanceid": 405,
+    "resultCode": 530,
+    "snapshotid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-native-restore-final",
+    "uuid": "e638c1f4-494b-4091-abc7-4025e2a08da5",
+    "status": 1,
+    "instanceid": 1005,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-raw-restore-final",
+    "uuid": "08f7ff65-c245-436b-b05c-38cac9a55eb7",
+    "status": 1,
+    "instanceid": 1006,
+    "resultCode": 0,
+    "snapshotid": "918a1b51-ea18-445f-be1c-956416a715d8",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-native-orphan",
+    "uuid": "b8d743d4-3261-4d2b-bdce-0ea49d1e5a53",
+    "status": 1,
+    "instanceid": 406,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-native-restore-orphans",
+    "uuid": "cc44848d-3fec-4722-ae60-cc77c3fa7061",
+    "status": 1,
+    "instanceid": 1007,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+    "name": "SNAPT1474-31-raw-restore-orphans",
+    "uuid": "5e3f8bdf-ea4a-4074-900f-8cb980e4f1ed",
+    "status": 1,
+    "instanceid": 1008,
+    "resultCode": 0,
+    "snapshotid": "918a1b51-ea18-445f-be1c-956416a715d8",
+    "instancetype": "Volume"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-negative-corrupt",
+    "uuid": "531322f8-b507-437f-9189-7c3f3d3788c6",
+    "status": 2,
+    "instanceid": 407,
+    "resultCode": 530,
+    "snapshotid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-negative-missing",
+    "uuid": "9d8f8923-7bb3-43b2-9eb9-ac41405a2745",
+    "status": 2,
+    "instanceid": 408,
+    "resultCode": 530,
+    "snapshotid": "635fe7e1-1d98-4f70-aca3-fec816de1a56",
+    "instancetype": "Template"
+  },
+  {
+    "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+    "name": "SNAPT1474-31-native-final-code",
+    "uuid": "a3227487-0549-4d18-b956-5b9d0a74a148",
+    "status": 1,
+    "instanceid": 409,
+    "resultCode": 0,
+    "snapshotid": "fdb5081f-839d-43df-b39c-b9518a4d9962",
+    "instancetype": "Template"
+  }
+]

@@ -1,0 +1,201 @@
+{
+  "nfs": [
+    {
+      "path": "/nfs/secondary/SNAPREG1489-31/a/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/SNAPREG1489-31/b/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/1096/9a980280-473d-4a04-9925-0afc77276c2a",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/1097/171c9580-6f53-400e-87ad-70acce31aa77",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/1097/25113133-ee48-4961-894c-be8f50dfc8ed",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/1100/a2ae1eee-38e4-49c7-a7f3-e886895fa90f",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/5c83e449-67e0-4cb2-a531-7949a4af21dd",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/68226db9-532b-4003-ba50-b73e36b1a1a8",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/6b8bb86a-0582-46aa-8e34-b5661ef18be1",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/6f5dc749-8b6a-4be4-b22a-d3e54e3437a7",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/7746793e-fe2b-49fe-be82-a83bfdd4694c",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/7e7cdd7d-a250-4088-b66c-e5feeb939dda",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/a3d8f154-3666-436f-ab44-dc845ef7dd98",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/c3cb101e-c07b-4e41-869c-ac58e2542b2e",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/cf179990-6f8e-4ec1-8d98-fb80e08f4905",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/dae2bd3a-0269-46c6-be70-ec884c8b340d",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/dd74e6a5-9204-4fbc-9bc5-5d8ed4ab62dd",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/e574c55e-366f-4f72-8a44-da1fc2e747a6",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1092/e5af573f-3009-4d92-8c30-daca4e2d3b93",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/287/1095/65f0499c-ec9f-4938-ab51-ed26cb17b360",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/288/1093/4e36e313-e816-4c98-bbae-dc7f99f4f057",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/288/1093/69f2e8f4-23ee-41f6-afce-458ed2657e34",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/288/1093/ee284609-fc39-4d31-8601-94bc8054284b",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/snapshots/290/1094/0f79b7d8-179d-451b-bc83-fc991e08c2ea",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/412/dae2bd3a-0269-46c6-be70-ec884c8b340d.qcow2",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/413/25113133-ee48-4961-894c-be8f50dfc8ed.qcow2",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/414/7746793e-fe2b-49fe-be82-a83bfdd4694c.raw",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/415/171c9580-6f53-400e-87ad-70acce31aa77.raw",
+      "exists": false
+    }
+  ],
+  "primary": [
+    {
+      "path": "/mnt/glue-gfs/00715fff-c4ed-4cae-9540-b4097b425fe9",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/58cc8fa3-b048-4a77-88ba-5847b26cbe1e",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/59fa04c0-ae99-43e7-b761-36fd4c3c303f",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/6a68ce28-12e0-4cfb-967a-dc04b9ebc103",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/739002b8-3d2a-4171-9181-635a3dc5ed70",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/7bc51baf-1ca8-4afd-8e79-23ce68621067",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/7cc2044a-935e-490a-aed2-36a5cbf80370",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/84c323a8-46d2-4ba1-9a00-aa01a8caf85f",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/a6ebed78-af25-412d-87d5-9f189b2949c3",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/aaf069ba-c784-4475-91bf-91b6f583d283",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/ac91d744-647d-4e3c-8716-5b15e10a17bc",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/b2a20ecc-8709-4adb-8e2a-ce7b34f8ac11",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/c5c9a91d-2d0e-43d6-89e0-c6c3824f2152",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/c92a3078-6e3e-4958-b0ee-5cbc32060966",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/d1075929-6661-4c11-835c-9874944d7a54",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/d60b192b-a0f9-4978-8a59-e623d33cdf88",
+      "exists": false
+    },
+    {
+      "path": "/mnt/glue-gfs/f00d7500-822c-408c-b3ae-33ecf3987f23",
+      "exists": false
+    }
+  ],
+  "libvirt": [
+    {
+      "host": "10.10.31.1",
+      "matches": []
+    },
+    {
+      "host": "10.10.31.2",
+      "matches": []
+    },
+    {
+      "host": "10.10.31.3",
+      "matches": []
+    }
+  ],
+  "pass": true
+}

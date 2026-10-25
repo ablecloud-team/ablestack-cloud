@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -38,6 +39,9 @@ import com.cloud.agent.api.Answer;
 
 import com.cloud.agent.api.ConvertSnapshotCommand;
 import org.apache.cloudstack.storage.resource.SecondaryStorageResource;
+import org.apache.cloudstack.storage.to.SnapshotObjectTO;
+import org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadata;
+import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.agent.api.storage.CreateEntityDownloadURLAnswer;
@@ -268,6 +272,13 @@ public class UploadManagerImpl extends ManagerBase implements UploadManager {
     @Override
     public CreateEntityDownloadURLAnswer handleCreateEntityURLCommand(CreateEntityDownloadURLCommand cmd) {
 
+        if (cmd.getData() instanceof SnapshotObjectTO && cmd.getData().getHypervisorType() == HypervisorType.KVM) {
+            return createSnapshotDownload(cmd);
+        }
+        if (cmd.isInspectOnly()) {
+            return new CreateEntityDownloadURLAnswer("Snapshot image inspection is unsupported", CreateEntityDownloadURLAnswer.RESULT_FAILURE);
+        }
+
         boolean isApacheUp = checkAndStartApache();
         if (!isApacheUp) {
             String errorString = "Error in starting Apache server ";
@@ -326,8 +337,64 @@ public class UploadManagerImpl extends ManagerBase implements UploadManager {
 
     }
 
+    /** Confine links to this command's mounted secondary store, with no shell interpretation. */
+    protected Path snapshotDownloadSource(CreateEntityDownloadURLCommand cmd) throws IOException {
+        Path storageRoot = snapshotStorageRoot().toRealPath();
+        Path store = storageRoot.resolve(cmd.getParent()).normalize().toRealPath();
+        if (!store.startsWith(storageRoot) || store.equals(storageRoot)) throw new IOException("Invalid secondary storage mount");
+        Path source = store.resolve(cmd.getInstallPath()).normalize().toRealPath();
+        if (!source.startsWith(store) || !Files.isRegularFile(source) || !Files.isReadable(source)) throw new IOException("Snapshot backup is missing or outside its store");
+        return source;
+    }
+
+    protected Path snapshotExtractRoot() { return Path.of(BASE_EXTRACT_PATH); }
+    protected Path snapshotStorageRoot() { return Path.of("/mnt/SecStorage"); }
+
+    protected CreateEntityDownloadURLAnswer createSnapshotDownload(CreateEntityDownloadURLCommand cmd) {
+        Path directory = null;
+        Path link = null;
+        boolean created = false;
+        try {
+            SnapshotObjectTO snapshot = (SnapshotObjectTO)cmd.getData();
+            Path source = snapshotDownloadSource(cmd);
+            SnapshotImageMetadata metadata = SnapshotImageMetadata.inspect(source.toFile(), snapshot.getSize());
+            CreateEntityDownloadURLAnswer answer = new CreateEntityDownloadURLAnswer("", CreateEntityDownloadURLAnswer.RESULT_SUCCESS);
+            answer.setImageMetadata(metadata.getFormat(), metadata.getVirtualSize(), metadata.getFileSize());
+            if (cmd.isInspectOnly()) return answer;
+            String name = cmd.getFilenameInExtractURL();
+            String token = cmd.getFilepathInExtractURL();
+            if (name == null || !name.matches("[A-Za-z0-9-]+\\.(qcow2|raw)")
+                    || !name.endsWith("." + metadata.getFormat().getFileExtension())
+                    || token == null || !token.matches("[a-fA-F0-9]{8}(-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}")) {
+                throw new IOException("Download filename does not match the verified snapshot format or export token");
+            }
+            if (!checkAndStartApache()) throw new IOException("Unable to start snapshot download server");
+            directory = snapshotExtractRoot().resolve(token);
+            Files.createDirectory(directory, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+            created = true;
+            link = directory.resolve(name);
+            Files.createSymbolicLink(link, source);
+            // Apache must be able to traverse the snapshot directory and read the exported file.
+            // Do not rewrite file permissions: an unreadable backup is an explicit failed request.
+            Files.setPosixFilePermissions(source.getParent(), PosixFilePermissions.fromString("rwxr-xr-x"));
+            if (!Files.getPosixFilePermissions(source).contains(java.nio.file.attribute.PosixFilePermission.OTHERS_READ)) {
+                throw new IOException("Snapshot backup is not readable by the download server");
+            }
+            return answer;
+        } catch (Exception e) {
+            if (created) {
+                try { if (link != null) Files.deleteIfExists(link); Files.deleteIfExists(directory); }
+                catch (IOException cleanup) { logger.warn("Unable to clean failed snapshot download link", cleanup); }
+            }
+            logger.warn("Snapshot download failed", e);
+            return new CreateEntityDownloadURLAnswer("Snapshot download failed: " + e.getMessage(), CreateEntityDownloadURLAnswer.RESULT_FAILURE);
+        }
+    }
+
     @Override
     public Answer handleDeleteEntityDownloadURLCommand(DeleteEntityDownloadURLCommand cmd) {
+
+        if (Upload.Type.SNAPSHOT.equals(cmd.getType())) return deleteSnapshotDownload(cmd);
 
         //Delete the soft link. Example path = volumes/8/74eeb2c6-8ab1-4357-841f-2e9d06d1f360.vhd
         logger.warn("handleDeleteEntityDownloadURLCommand Path:" + cmd.getPath() + " Type:" + (cmd.getType() != null ? cmd.getType().toString(): ""));
@@ -383,6 +450,41 @@ public class UploadManagerImpl extends ManagerBase implements UploadManager {
         }
 
         return new Answer(cmd, true, "");
+    }
+
+    protected Answer deleteSnapshotDownload(DeleteEntityDownloadURLCommand cmd) {
+        try {
+            String path = URI.create(cmd.getExtractUrl()).getPath();
+            if (!path.matches("/userdata/[a-fA-F0-9]{8}(-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}/[A-Za-z0-9-]+\\.[a-zA-Z0-9]+")) {
+                throw new IOException("Invalid snapshot download URL path");
+            }
+            Path root = snapshotExtractRoot().toRealPath();
+            Path link = root.resolve(path.substring("/userdata/".length()));
+            Path directory = link.getParent();
+            if (Files.isSymbolicLink(directory)) throw new IOException("Unexpected symbolic export directory");
+            if (Files.exists(link, java.nio.file.LinkOption.NOFOLLOW_LINKS) && !Files.isSymbolicLink(link)) {
+                throw new IOException("Unexpected regular file at snapshot download link");
+            }
+            Files.deleteIfExists(link);
+            try { Files.deleteIfExists(directory); } catch (java.nio.file.DirectoryNotEmptyException e) {
+                // Other entries do not belong to this link. Never recursively remove them.
+                logger.warn("Retaining nonempty snapshot export directory {}", directory);
+            }
+            String installPath = cmd.getPath();
+            String temporaryPath = installPath.endsWith(ConvertSnapshotCommand.TEMP_SNAPSHOT_NAME) ? installPath : installPath + ConvertSnapshotCommand.TEMP_SNAPSHOT_NAME;
+            Path storageRoot = snapshotStorageRoot().toRealPath();
+            Path store = storageRoot.resolve(cmd.getParentPath()).normalize().toRealPath();
+            Path temporary = store.resolve(temporaryPath).normalize();
+            if (!store.startsWith(storageRoot) || store.equals(storageRoot) || !temporary.startsWith(store)) throw new IOException("Invalid temporary snapshot path");
+            if (Files.exists(temporary, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+                if (Files.isSymbolicLink(temporary) || !temporary.toRealPath().startsWith(store)) throw new IOException("Invalid temporary snapshot file");
+                Files.delete(temporary);
+            }
+            return new Answer(cmd, true, "");
+        } catch (Exception e) {
+            logger.warn("Unable to revoke snapshot download", e);
+            return new Answer(cmd, false, "Unable to revoke snapshot download: " + e.getMessage());
+        }
     }
 
     protected void deleteEntitySymlinkRootDirectoryIfNeeded(DeleteEntityDownloadURLCommand cmd, String linkPath) {
@@ -570,7 +672,7 @@ public class UploadManagerImpl extends ManagerBase implements UploadManager {
         }
     }
 
-    private boolean checkAndStartApache() {
+    protected boolean checkAndStartApache() {
         //Check whether the Apache server is running
         Script command = new Script("/bin/systemctl", logger);
         command.add("is-active");

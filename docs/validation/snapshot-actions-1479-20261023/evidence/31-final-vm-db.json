@@ -1,0 +1,11 @@
+[
+  {
+    "id": 756,
+    "name": "SNAP1479-31-vm",
+    "uuid": "d6a10e93-6c62-41f3-8b85-c83a2004555d",
+    "state": "Expunging",
+    "hostid": null,
+    "removed": "2026-10-23 11:44:12.000000",
+    "instance": "i-2-756-VM"
+  }
+]

@@ -16,179 +16,82 @@
 // under the License.
 
 <template>
-
-  <div class="account-center-team" v-if="annotationType && 'listAnnotations' in $store.getters.apis">
+  <div v-if="annotationType && 'listAnnotations' in $store.getters.apis" class="account-center-team" data-testid="annotations-tab">
     <div class="detail-tab-toolbar">
-      <a-button
-        v-if="'addAnnotation' in $store.getters.apis"
-        @click="saveNote"
-        type="primary"
-        :disabled="!annotation.trim() || loadingAnnotations || annotationSaving"
-        :loading="annotationSaving"
-        ref="submit">
-        {{ $t('label.submit') }}
-      </a-button>
-      <a-button :disabled="annotationSaving" :loading="loadingAnnotations || listRefreshing > 0" @click="getAnnotations">
-        <template #icon><reload-outlined /></template>{{ $t('label.refresh') }}
-      </a-button>
+      <a-button v-if="'addAnnotation' in $store.getters.apis" ref="submit" type="primary" :disabled="!annotation.trim() || !annotationReady" :loading="annotationSaving" @click="saveNote">{{ $t('label.submit') }}</a-button>
+      <a-button :disabled="annotationSaving" :loading="loadingAnnotations || listRefreshing > 0" @click="getAnnotations"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button>
     </div>
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+    <a-alert v-if="readError" type="error" show-icon class="detail-tab-notice" :message="$t(readDenied ? 'message.detail.tab.denied' : loadedContext ? 'message.list.refresh.stale' : 'error.fetching.data')">
+      <template #description><p>{{ readError.startsWith('message.') ? $t(readError) : readError }}</p><a-button size="small" :disabled="loadingAnnotations || annotationSaving || listRefreshing > 0" @click="getAnnotations">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
+    <a-alert v-if="mutationError" type="error" show-icon class="detail-tab-notice" :message="$t('message.detail.tab.write.failed')" :description="mutationError.startsWith('message.') ? $t(mutationError) : mutationError" />
     <a-spin :spinning="loadingAnnotations">
       <a-comment v-if="'addAnnotation' in $store.getters.apis">
-        <template #avatar>
-          <a-avatar @click="showNotesInput = true">
-            <template #icon><edit-outlined /></template>
-          </a-avatar>
-        </template>
-        <template #content>
-          <div v-ctrl-enter="saveNote">
-            <a-textarea
-              :rows="4"
-              @change="handleNoteChange"
-              v-model:value="annotation"
-              :placeholder="$t('label.add.note')" />
-            <a-checkbox :checked="annotationAdminsOnly" :disabled="annotationSaving" @change="toggleNoteVisibility" v-if="['Admin'].includes($store.getters.userInfo.roletype)" style="margin-top: 10px">
-              {{ $t('label.adminsonly') }}
-            </a-checkbox>
-          </div>
-        </template>
+        <template #avatar><a-avatar><template #icon><edit-outlined /></template></a-avatar></template>
+        <template #content><div>
+          <a-textarea :rows="4" v-model:value="annotation" :placeholder="$t('label.add.note')" :aria-label="$t('label.add.note')" @keydown.ctrl.enter.prevent="saveNote" />
+          <a-checkbox v-if="$store.getters.userInfo.roletype === 'Admin'" :checked="annotationAdminsOnly" :disabled="annotationSaving" class="annotation-visibility" @change="toggleNoteVisibility">{{ $t('label.adminsonly') }}</a-checkbox>
+        </div></template>
       </a-comment>
-      <div class="title">
-        {{ $t('label.comments') }} ({{ itemCount }})
-      </div>
-      <a-divider :dashed="true" />
-      <a-list
-        v-if="notes.length"
-        :dataSource="notes"
-        itemLayout="horizontal"
-        :pagination="false"
-        size="small" >
-        <template #renderItem="{ item }">
-          <a-list-item>
-            <a-comment
-              class="comment"
-              :content="annotationText(item)"
-              :datetime="$toLocaleDate(item.created)"
-              :author="item.username" >
-              <template #avatar>
-                <a-avatar><template #icon><message-outlined /></template></a-avatar>
-              </template>
-              <template #actions>
-                <a-popconfirm
-                  placement="topLeft"
-                  :title="this.$localStorage.get('LOCALE') == 'ko_KR' ?
-                          (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + $t('label.make') + '?' :
-                          $t('label.make') + ' ' + (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + '?'"
-                  v-if="['Admin'].includes($store.getters.userInfo.roletype) && 'updateAnnotationVisibility' in $store.getters.apis"
-                  key="visibility"
-                  @confirm="updateVisibility(item)"
-                  :okText="$t('label.yes')"
-                  :cancelText="$t('label.no')" >
-                  <eye-outlined
-                    :style="[{
-                      color: item.adminsonly ? $config.theme['@primary-color'] : $config.theme['@disabled-color']
-                    }]" />
-                  <span>
-                    {{ item.adminsonly ? $t('label.adminsonly') : $t('label.annotation.everyone') }}
-                  </span>
-                </a-popconfirm>
-              </template>
-            </a-comment>
+      <h4 class="annotation-title">{{ $t('label.comments') }} ({{ itemCount }})</h4>
+      <a-divider dashed />
+      <a-list v-if="notes.length" :data-source="notes" item-layout="horizontal" :pagination="false" size="small">
+        <template #renderItem="{ item }"><a-list-item :data-annotation-id="item.id">
+          <a-comment class="comment" :content="annotationText(item)" :datetime="$toLocaleDate(item.created)" :author="item.username">
+            <template #avatar><a-avatar><template #icon><message-outlined /></template></a-avatar></template>
             <template #actions>
-              <a-popconfirm
-                placement="topRight"
-                :title="$t('message.remove.annotation')"
-                v-if="'removeAnnotation' in $store.getters.apis && isAdminOrAnnotationOwner(item)"
-                key="visibility"
-                @confirm="deleteNote(item)"
-                :okText="$t('label.yes')"
-                :cancelText="$t('label.no')" >
-                <a-button type="primary" shape="circle" danger><template #icon><delete-outlined /></template></a-button>
+              <a-popconfirm v-if="$store.getters.userInfo.roletype === 'Admin' && 'updateAnnotationVisibility' in $store.getters.apis" placement="topLeft" :disabled="!annotationReady" :title="$t('message.detail.tab.visibility.confirm', [$t(item.adminsonly ? 'label.annotation.everyone' : 'label.adminsonly')])" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="updateVisibility(item)">
+                <a-button type="link" size="small" :disabled="!annotationReady"><template #icon><eye-outlined /></template>{{ $t(item.adminsonly ? 'label.adminsonly' : 'label.annotation.everyone') }}</a-button>
               </a-popconfirm>
             </template>
-          </a-list-item>
-        </template>
+          </a-comment>
+          <template #actions><a-popconfirm v-if="'removeAnnotation' in $store.getters.apis && isAdminOrAnnotationOwner(item)" placement="topRight" :disabled="!annotationReady" :title="$t('message.remove.annotation')" :ok-text="$t('label.yes')" :cancel-text="$t('label.no')" @confirm="deleteNote(item)">
+            <a-button type="primary" size="small" shape="circle" danger :disabled="!annotationReady" :aria-label="$t('label.detail.tab.comment.delete')"><template #icon><delete-outlined /></template></a-button>
+          </a-popconfirm></template>
+        </a-list-item></template>
       </a-list>
+      <a-empty v-else-if="!loadingAnnotations && !readError" :description="$t('message.detail.tab.comments.empty')" />
       <a-pagination
-        class="detail-tab-pagination"
-        size="small"
-        :current="page"
-        :pageSize="pageSize"
-        :total="itemCount"
-        :showTotal="total => this.$localStorage.get('LOCALE') == 'ko_KR' ?
-          `${$t('label.total')} ${total} ${$t('label.items')} ${$t('label.of')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.showing')}` :
-          `${$t('label.showing')} ${Math.min(total, 1+((page-1)*pageSize))}-${Math.min(page*pageSize, total)} ${$t('label.of')} ${total} ${$t('label.items')}`"
-        :pageSizeOptions="['10']"
-        @change="changePage"
-        showQuickJumper>
-        <template #buildOptionText="props">
-          <span>{{ props.value }} / {{ $t('label.page') }}</span>
-        </template>
+v-if="loadedContext"
+class="detail-tab-pagination"
+size="small"
+:current="page"
+:pageSize="pageSize"
+:total="itemCount"
+:disabled="annotationSaving"
+:showTotal="(total, range) => $t('message.detail.tab.total', [total, range[0], range[1]])"
+:pageSizeOptions="['10']"
+@change="changePage"
+showQuickJumper>
+        <template #buildOptionText="props"><span>{{ props.value }} / {{ $t('label.page') }}</span></template>
       </a-pagination>
     </a-spin>
   </div>
 </template>
-
 <script>
-import { listRefreshMixin, detailTabRouteKey } from '@/utils/listRefreshMixin'
-
+import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { detailTabContext, detailTabDenied, detailTabError, readDetailTabPage } from '@/utils/detailTabData'
 import { getAPI, postAPI } from '@/api'
-
+import { Empty } from 'ant-design-vue'
+const commands = ['listAnnotations', 'addAnnotation', 'removeAnnotation', 'updateAnnotationVisibility']
 export default {
-  mixins: [listRefreshMixin(['getAnnotations'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
+  mixins: [listRefreshMixin(['getAnnotations'], { routeKey: vm => vm.annotationContext, active: vm => !vm.annotationSaving })],
   name: 'AnnotationsTab',
-  props: {
-    resource: {
-      type: Object,
-      required: true
-    },
-    items: {
-      type: Array,
-      default: () => []
-    }
-  },
+  components: { AEmpty: Empty },
+  props: { resource: { type: Object, required: true }, items: { type: Array, default: () => [] } },
   inject: ['parentFetchData'],
-  data () {
-    return {
-      loadingAnnotations: false,
-      annotationSaving: false,
-      annotationVersion: 0,
-      notes: [],
-      annotation: '',
-      annotationType: '',
-      annotationAdminsOnly: false,
-      showNotesInput: false,
-      page: 1,
-      pageSize: 10,
-      itemCount: 0
-    }
-  },
+  data () { return { resourceType: '', loadingAnnotations: false, annotationSaving: false, annotationVersion: 0, notes: [], annotation: '', annotationType: '', annotationAdminsOnly: false, page: 1, pageSize: 10, itemCount: 0, loadedContext: '', readError: '', readDenied: false, mutationError: '' } },
   computed: {
-    annotationContext () { return JSON.stringify([this.resource?.id, this.annotationType, this.$store.getters.userInfo?.id, this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.project?.id]) }
+    annotationContext () { return JSON.stringify([detailTabContext(this, commands), this.annotationType]) },
+    annotationReady () { return this.loadedContext === this.annotationContext && !!this.resource.id && !this.loadingAnnotations && !this.annotationSaving && !this.listRefreshing && !this.readError && 'listAnnotations' in this.$store.getters.apis }
   },
   watch: {
-    annotationContext () {
-      this.annotationVersion++; this.annotationSaving = false; this.notes = []; this.annotation = ''; this.annotationAdminsOnly = false; this.page = 1; this.itemCount = 0
-    },
-    resource: {
-      deep: true,
-      handler () {
-        this.resourceType = this.$route.meta.resourceType
-        this.annotationType = this.generateAnnotationType()
-        if (this.annotationType) {
-          this.getAnnotations()
-        }
-      }
-    }
+    annotationContext () { this.annotationVersion++; this.annotationSaving = false; this.notes = []; this.annotation = ''; this.annotationAdminsOnly = false; this.page = 1; this.itemCount = 0; this.loadedContext = ''; this.readError = ''; this.readDenied = false; this.mutationError = ''; if (this.annotationType && !this.listRefreshDisposed) this.getAnnotations() },
+    resource: { deep: true, handler () { this.fetchData() } }
   },
-  created () {
-    this.fetchData()
-  },
+  created () { this.fetchData() },
   methods: {
-    annotationText (item) {
-      return this.$route.path?.startsWith('/cniconfiguration/') && item.annotation?.startsWith('MOLD_CNI_CLONE/1\n')
-        ? this.$t('label.cni.clone.relation') : item.annotation
-    },
+    annotationText (item) { return this.$route.path?.startsWith('/cniconfiguration/') && item.annotation?.startsWith('MOLD_CNI_CLONE/1\n') ? this.$t('label.cni.clone.relation') : item.annotation },
     generateAnnotationType () {
       switch (this.resourceType) {
         case 'UserVm': return 'VM'
@@ -224,134 +127,57 @@ export default {
         default: return ''
       }
     },
-    fetchData () {
-      this.resourceType = this.$route.meta.resourceType
-      this.annotationType = this.generateAnnotationType()
-      if (this.items.length) {
-        this.notes = this.items
-      } else {
-        this.getAnnotations()
-      }
+    fetchData () { this.resourceType = this.$route.meta.resourceType; this.annotationType = this.generateAnnotationType(); return this.getAnnotations() },
+    changePage (page, pageSize) { if (this.annotationSaving) return; this.page = page; this.pageSize = pageSize; return this.getAnnotations() },
+    async getAnnotations () {
+      const request = this.listRequestToken('getAnnotations')
+      if (!('listAnnotations' in this.$store.getters.apis) || !this.resource.id || !this.annotationType) { this.notes = []; this.itemCount = 0; this.loadedContext = ''; this.loadingAnnotations = false; return }
+      const context = this.annotationContext
+      this.loadingAnnotations = !request.loaded
+      if (!request.loaded) { this.notes = []; this.itemCount = 0; this.loadedContext = '' }
+      const params = { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}) }
+      try {
+        const json = await getAPI('listAnnotations', params, { preserveOnFailure: true, timeout: 20000 })
+        if (!this.isListRequestCurrent('getAnnotations', request)) return
+        const result = readDetailTabPage(json, 'listannotationsresponse', 'annotation', { page: this.page, pageSize: this.pageSize, resourceId: this.resource.id, entityType: this.annotationType })
+        if (this.page > result.lastPage) { this.page = result.lastPage; return this.getAnnotations() }
+        this.notes = result.rows; this.itemCount = result.count; this.loadedContext = context; this.readError = ''; this.readDenied = false; this.listRefreshFailed = false
+      } catch (error) {
+        if (!this.isListRequestCurrent('getAnnotations', request)) return
+        request.failed = true; this.listRefreshFailed = true; this.readError = detailTabError(error); this.readDenied = detailTabDenied(error)
+        if (!request.loaded || this.readDenied) { this.notes = []; this.itemCount = 0; this.loadedContext = '' }
+        if (this.readDenied) { this.annotation = ''; this.annotationAdminsOnly = false }
+      } finally { if (this.isListRequestCurrent('getAnnotations', request)) this.loadingAnnotations = false }
     },
-    changePage (page, pageSize) {
-      this.page = page
-      this.pageSize = pageSize
-      this.getAnnotations()
-    },
-    getAnnotations () {
-      const listRequest = this.listRequestToken('getAnnotations')
-      if (!('listAnnotations' in this.$store.getters.apis) || !this.resource || !this.resource.id) {
-        return
-      }
-      this.loadingAnnotations = !listRequest.loaded
-      return getAPI('listAnnotations', { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize }, { preserveOnFailure: true }).then(json => {
-        if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
-        this.notes = json.listannotationsresponse?.annotation || []
-        this.itemCount = json.listannotationsresponse?.count || 0
-      }).finally(() => {
-        if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
-
-        this.loadingAnnotations = false
-      }).catch(error => {
-        if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
-        listRequest.failed = true
-        this.listRefreshFailed = true
-        if (!listRequest.loaded) this.$notifyError(error)
-      }).finally(() => {
-        if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
-        this.loadingAnnotations = false
-      })
-    },
-    handleNoteChange (e) {
-      this.annotation = e.target.value
-    },
-    toggleNoteVisibility () {
-      this.annotationAdminsOnly = !this.annotationAdminsOnly
-    },
-    isAdminOrAnnotationOwner (annotation) {
-      return ['Admin'].includes(this.$store.getters.userInfo.roletype) || this.$store.getters.userInfo.id === annotation.userid
-    },
-    saveNote () {
-      if (this.annotationSaving || !this.annotation.trim()) return
-      const args = { entityid: this.resource.id, entitytype: this.annotationType, annotation: this.annotation, adminsonly: this.annotationAdminsOnly }
-      const scope = this.annotationContext; const version = this.annotationVersion
-      const current = () => !this.listRefreshDisposed && scope === this.annotationContext && version === this.annotationVersion
-      this.annotationSaving = true
-      return postAPI('addAnnotation', args, { preserveOnFailure: true }).then(() => {
+    handleNoteChange (e) { this.annotation = e.target.value },
+    toggleNoteVisibility () { this.annotationAdminsOnly = !this.annotationAdminsOnly },
+    isAdminOrAnnotationOwner (item) { return this.$store.getters.userInfo.roletype === 'Admin' || this.$store.getters.userInfo.id === item.userid },
+    saveNote () { if (!this.annotationReady || !this.annotation.trim() || !('addAnnotation' in this.$store.getters.apis)) return; return this.mutateAnnotation('addAnnotation', { entityid: this.resource.id, entitytype: this.annotationType, annotation: this.annotation, adminsonly: this.annotationAdminsOnly, ...(this.resource.projectid ? { projectid: this.resource.projectid } : {}) }) },
+    deleteNote (item) { if (!this.annotationReady || !('removeAnnotation' in this.$store.getters.apis) || !this.isAdminOrAnnotationOwner(item) || !this.notes.some(row => row.id === item.id)) return; return this.mutateAnnotation('removeAnnotation', { id: item.id }) },
+    updateVisibility (item) { if (!this.annotationReady || !('updateAnnotationVisibility' in this.$store.getters.apis) || this.$store.getters.userInfo.roletype !== 'Admin' || !this.notes.some(row => row.id === item.id)) return; return this.mutateAnnotation('updateAnnotationVisibility', { id: item.id, adminsonly: !item.adminsonly }) },
+    async mutateAnnotation (command, args) {
+      if (this.annotationSaving) return
+      const context = this.annotationContext; const version = this.annotationVersion
+      const current = () => !this.listRefreshDisposed && context === this.annotationContext && version === this.annotationVersion
+      this.annotationSaving = true; this.mutationError = ''
+      let succeeded = false
+      try {
+        await postAPI(command, args, { preserveOnFailure: true, timeout: 20000 })
         if (!current()) return
-        // Preserve anything typed while the submitted snapshot was in flight.
-        if (this.annotation === args.annotation) { this.annotation = ''; this.annotationAdminsOnly = false; this.showNotesInput = false }
-      }).catch(error => {
-        if (current()) this.$notifyError(error)
-      }).finally(() => {
-        if (!current()) return
-        this.annotationSaving = false
-        this.getAnnotations()
-      })
-    },
-    deleteNote (annotation) {
-      this.loadingAnnotations = true
-      const args = {}
-      args.id = annotation.id
-      postAPI('removeAnnotation', args, { preserveOnFailure: true }).catch(error => {
-        this.$notifyError(error)
-      }).finally(e => {
-        this.getAnnotations()
-      })
-    },
-    updateVisibility (annotation) {
-      this.loadingAnnotations = true
-      const args = {
-        id: annotation.id,
-        adminsonly: !annotation.adminsonly
-      }
-      postAPI('updateAnnotationVisibility', args, { preserveOnFailure: true }).catch(error => {
-        this.$notifyError(error)
-      }).finally(e => {
-        this.getAnnotations()
-      })
+        succeeded = true
+        if (command === 'addAnnotation' && this.annotation === args.annotation) { this.annotation = ''; this.annotationAdminsOnly = false }
+      } catch (error) { if (current()) { this.mutationError = detailTabError(error); this.$notifyError(error) } } finally { if (current()) { this.annotationSaving = false; if (succeeded && command === 'addAnnotation') this.page = 1; this.getAnnotations() } }
     }
   }
 }
 </script>
-
 <style lang="scss" scoped>
 @import '@/style/components/view/DetailTab.scss';
-
-.account-center-team {
-  .members {
-    a {
-      display: block;
-      margin: 12px 0;
-      line-height: 24px;
-      height: 24px;
-      .member {
-        font-size: 14px;
-        color: rgba(0, 0, 0, 0.65);
-        line-height: 24px;
-        max-width: 100px;
-        vertical-align: top;
-        margin-left: 12px;
-        transition: all 0.3s;
-        display: inline-block;
-      }
-      &:hover {
-        span {
-          color: #1890ff;
-        }
-      }
-    }
-  }
-}
-
-.title {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.comment {
-  display: inline-block;
-  text-overflow: ellipsis;
-  width: calc(95%);
-}
+.annotation-visibility { margin-top: 10px; }
+.annotation-title { font-weight: bold; margin: 0 0 5px; color: inherit; }
+.comment { min-width: 0; width: 100%; overflow-wrap: anywhere; }
+.account-center-team :deep(.ant-list-item) { align-items: flex-start; }
+.account-center-team :deep(.ant-comment) { min-width: 0; }
+.account-center-team :deep(.ant-comment-content-detail) { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 575px) { .account-center-team :deep(.ant-list-item-action) { margin-left: 8px; } }
 </style>

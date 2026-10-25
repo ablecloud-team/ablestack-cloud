@@ -1,0 +1,10 @@
+Browser tab: 22, Title: "가상머신 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/vm/6df58ee7-7b25-4da7-a646-350dec00e24e?tab=volumes".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 376, 380
++						402 text * 이름
++						403 text * 디스크 오퍼링
++					404 text 기존 호환 값: thin
++						405 text * 크기
+~						386 image info-circle
+~					387 text field (settable) * 크기 info-circle, ID: form_item_size
+The focused UI element is 378 text field (settable) * 이름 info-circle, ID: form_item_name

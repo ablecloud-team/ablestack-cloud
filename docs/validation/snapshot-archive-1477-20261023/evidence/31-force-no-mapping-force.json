@@ -1,0 +1,60 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+    "name": "SNAP1477-31-force-no-mapping",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "edef1904bda04daeef9dfd5b24934367cb92817f7e34b79a5e5fc406bf3a6526",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 0,
+        "role": "Unknown",
+        "action": "DB_ONLY",
+        "reason": "NO_IDENTIFIABLE_STORE_REFERENCE"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+    "name": "SNAP1477-31-force-no-mapping",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": false,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 0,
+        "role": "Unknown",
+        "action": "DB_ONLY",
+        "reason": "NO_IDENTIFIABLE_STORE_REFERENCE"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+    "name": "SNAP1477-31-force-no-mapping",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "5ff4fed6bcd6b59410b0ff32c94a6c08476077fded3b3a84a8e732074e9e3abb",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 0,
+        "role": "Unknown",
+        "action": "DB_ONLY",
+        "reason": "NO_IDENTIFIABLE_STORE_REFERENCE"
+      }
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [],
+  "fields": [
+    {
+      "disabled": false,
+      "value": ""
+    }
+  ],
+  "headings": [
+    "코멘트 (20)"
+  ],
+  "height": 720,
+  "links": [],
+  "notes": [
+    {
+      "id": "54f3bcf8-5ad8-4497-b58e-db1711fd389b",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-15\n모든 사람에게 표시"
+    },
+    {
+      "id": "4405014a-72b3-497e-a0f8-66dc2ec4bd14",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-14\n모든 사람에게 표시"
+    },
+    {
+      "id": "0d1920df-2c36-4276-821a-a3496ab73145",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-13\n모든 사람에게 표시"
+    },
+    {
+      "id": "062e853e-1d8d-4530-baf0-5b892e856bdb",
+      "text": "admin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-12\n모든 사람에게 표시"
+    },
+    {
+      "id": "5650e350-66d5-4d45-b757-61295ef51b57",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-11\n모든 사람에게 표시"
+    },
+    {
+      "id": "9fbeff34-487b-4f81-975a-7c5ec5e92461",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-10\n모든 사람에게 표시"
+    },
+    {
+      "id": "22ef1cde-2f30-424f-bb1e-44cf3a193d9e",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-09\n모든 사람에게 표시"
+    },
+    {
+      "id": "7d6b7aca-e990-4bb2-ac9a-346ea425bb65",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-08\n모든 사람에게 표시"
+    },
+    {
+      "id": "1b267429-af74-4102-985d-445e562e23b5",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-07\n모든 사람에게 표시"
+    },
+    {
+      "id": "9c2f9518-a796-4aae-a402-2ac695375ddf",
+      "text": "admin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-06\n모든 사람에게 표시"
+    }
+  ],
+  "pagination": [
+    {
+      "active": "2",
+      "text": "전체 20개 항목 중 11-20 표시\n1\n2\n이동하기"
+    }
+  ],
+  "rows": [],
+  "scrollWidth": 1270,
+  "tabText": "보내기\n업데이트\n관리자만 표시\n코멘트 (20)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-15\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-14\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-13\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-12\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-11\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-10\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-09\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-08\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-07\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-06\n모든 사람에게 표시\n전체 20개 항목 중 11-20 표시\n1\n2\n이동하기",
+  "text": "/스냅샷/SNAPTABS1487-31-owner업데이트\n작업\nSNAPTABS1487-31-owner\n상태\n백업 됨\n아이디\n83b1c043-b780-40ee-a143-f8bef390ce91 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-31-owner\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nSNAPTABS1487-31-owner\n도메인\nSNAPTABS1487-31-domain\n생성일\n2026. 10. 25. 오전 2:04:18\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-31-owner\n새 태그\n상세\nZone\n이벤트\n코멘트\n보내기\n업데이트\n관리자만 표시\n코멘트 (20)\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-15\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-14\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-13\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:05\nSNAPTABS1487-31-owner-comment-12\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-11\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-10\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-09\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-08\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-07\n모든 사람에게 표시\nadmin\n2026. 10. 25. 오전 2:09:04\nSNAPTABS1487-31-owner-comment-06\n모든 사람에게 표시\n전체 20개 항목 중 11-20 표시\n1\n2\n이동하기",
+  "tools": [
+    {
+      "disabled": true,
+      "rect": {
+        "height": 32,
+        "width": 70.640625,
+        "x": 676.96875,
+        "y": 106
+      },
+      "tag": "BUTTON",
+      "text": "보내기"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 755.609375,
+        "y": 106
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    }
+  ],
+  "url": "http://10.10.31.10:8080/client/#/snapshot/83b1c043-b780-40ee-a143-f8bef390ce91?tab=comments",
+  "width": 1280,
+  "uiDeletedNotes": [
+    "75a1feb3-9b4b-4081-a9c5-c68d7d888910",
+    "71559a4d-5c4f-4831-b71c-49da1ac160fc",
+    "b3903f9e-88ae-44c1-9ef1-7d67ff2cd2cf",
+    "34163f04-3655-4b61-9c93-9fee91e98e95",
+    "353dad3e-88a0-4ddd-9fd0-69a1ce4fb26f",
+    "3e9da0a8-0873-4404-8cc8-e103e3ab1014"
+  ]
+}

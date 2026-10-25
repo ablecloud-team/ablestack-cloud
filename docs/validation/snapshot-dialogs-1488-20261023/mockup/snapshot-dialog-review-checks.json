@@ -1,0 +1,479 @@
+{
+  "kind": "interactive-mockup-only",
+  "repoHeadReviewed": "1a15dff00cb2734ede750825fe2115315f3f2b9d",
+  "sourceReviewed": [
+    "CreateVolume.vue",
+    "StorageSnapshotActionDialog.vue",
+    "StorageSnapshotSafety.vue",
+    "MoldDialog.vue",
+    "mold-dialog.less"
+  ],
+  "checks": [
+    {
+      "scenario": "desktop-light-normal",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 536,
+          "width": 720
+        },
+        {
+          "height": 294,
+          "width": 720
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 4.82,
+      "overflow": [],
+      "scrollWidth": 736,
+      "width": 736
+    },
+    {
+      "scenario": "desktop-dark-query-errors",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 630,
+          "width": 720
+        },
+        {
+          "height": 396,
+          "width": 720
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 16,
+          "group": "md-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 5.52,
+      "overflow": [],
+      "scrollWidth": 736,
+      "width": 736
+    },
+    {
+      "scenario": "390-dark-conditional-form-and-state-change",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 912,
+          "width": 350
+        },
+        {
+          "height": 468,
+          "width": 350
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 16,
+          "group": "md-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-attachment-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 4.6,
+      "overflow": [],
+      "scrollWidth": 358,
+      "width": 358
+    },
+    {
+      "scenario": "320-light-long-errors",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 744,
+          "width": 280
+        },
+        {
+          "height": 512,
+          "width": 280
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 16,
+          "group": "md-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 4.94,
+      "overflow": [],
+      "scrollWidth": 288,
+      "width": 288
+    },
+    {
+      "scenario": "desktop-dark-pending-disabled-fields",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 536,
+          "width": 720
+        },
+        {
+          "height": 294,
+          "width": 720
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 5.37,
+      "overflow": [],
+      "scrollWidth": 736,
+      "width": 736
+    },
+    {
+      "scenario": "desktop-dark-normal",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 536,
+          "width": 720
+        },
+        {
+          "height": 294,
+          "width": 720
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 4.6,
+      "overflow": [],
+      "scrollWidth": 736,
+      "width": 736
+    },
+    {
+      "scenario": "desktop-dark-acknowledged",
+      "contrastFailures": [],
+      "dialogs": [
+        {
+          "height": 536,
+          "width": 720
+        },
+        {
+          "height": 294,
+          "width": 720
+        }
+      ],
+      "gaps": [
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 24,
+          "group": "md-fields"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-owner-group"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 8,
+          "group": "md-field"
+        },
+        {
+          "gap": 24,
+          "group": "md-body md-restore-body"
+        }
+      ],
+      "minimumContrast": 4.6,
+      "overflow": [],
+      "scrollWidth": 736,
+      "width": 736
+    }
+  ],
+  "interactions": {
+    "conditionalVmFields": true,
+    "projectSelection": true,
+    "restoreAcknowledgementGate": true,
+    "receiptBlocksResubmit": true
+  }
+}

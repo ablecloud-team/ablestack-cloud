@@ -236,6 +236,8 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
     @Inject
     private ApiDispatcher dispatcher;
     @Inject
+    private org.apache.cloudstack.framework.jobs.dao.AsyncJobDao storageSnapshotJobDao;
+    @Inject
     private AsyncJobManager asyncMgr;
     @Inject
     private DispatchChainFactory dispatchChainFactory;
@@ -858,6 +860,9 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
 
     @Override
     public AsyncCmdResult processAsyncCmd(BaseAsyncCmd asyncCmd, Map<String, String> params, CallContext ctx, Long callerUserId, Account caller) throws Exception {
+        if (com.cloud.storage.snapshot.StorageSnapshotRequestManager.supports(asyncCmd, params) && params.get(ApiConstants.CUSTOM_JOB_ID) != null) {
+            return new com.cloud.storage.snapshot.StorageSnapshotRequestManager(storageSnapshotJobDao).submit(asyncCmd, params, callerUserId, caller.getId(), () -> processAsyncCmdInternal(asyncCmd, params, ctx, callerUserId, caller));
+        }
         if (com.cloud.network.as.AutoScaleCreationRequestManager.supports(asyncCmd) && params.get(ApiConstants.CUSTOM_JOB_ID) != null) {
             return autoScaleCreationRequests.submit(asyncCmd, params, () -> processAsyncCmdInternal(asyncCmd, params, ctx, callerUserId, caller));
         }

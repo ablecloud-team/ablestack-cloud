@@ -1,0 +1,13 @@
+{
+  "before": {
+    "status": "6bdf515ba131316893f0ada5b61846ad0c225b9581bce54d31eccc7170102711",
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diff": "88c7228d86ef82f9fdbdda6c856f740414abec8dbe253c7f23380114ca567cf0"
+  },
+  "after": {
+    "status": "6bdf515ba131316893f0ada5b61846ad0c225b9581bce54d31eccc7170102711",
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diff": "88c7228d86ef82f9fdbdda6c856f740414abec8dbe253c7f23380114ca567cf0"
+  },
+  "unchanged": true
+}

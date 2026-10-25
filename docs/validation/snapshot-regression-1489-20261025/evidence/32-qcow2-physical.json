@@ -1,0 +1,584 @@
+[
+  {
+    "path": "/nfs/secondary/snapshots/99/443/2a95a1c4-14d4-473b-b447-87fafd806311",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/99/443/2a95a1c4-14d4-473b-b447-87fafd806311",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/443/2a95a1c4-14d4-473b-b447-87fafd806311",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "1a63fa28-4eea-49ff-8904-219fa9b0e9dc",
+    "name": "SNAPREG1489-32-owner"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/99/443/39e5e7cb-83d4-4268-9796-f5999e5b7f55",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/99/443/39e5e7cb-83d4-4268-9796-f5999e5b7f55",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/443/39e5e7cb-83d4-4268-9796-f5999e5b7f55",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "e31cdbbc-c1ce-43be-9873-8393bcfb30bf",
+    "name": "SNAPREG1489-32-owner-next"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/100/444/7e8e6255-f1d1-4a3b-81dd-0da7d995ec8f",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/100/444/7e8e6255-f1d1-4a3b-81dd-0da7d995ec8f",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/100/444/7e8e6255-f1d1-4a3b-81dd-0da7d995ec8f",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "a82aa7b5-f0d5-4146-a503-11dcdbaa0587",
+    "name": "SNAPREG1489-32-other"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/102/445/2f6f8ad8-21c6-4b07-baf1-c1a552068730",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/102/445/2f6f8ad8-21c6-4b07-baf1-c1a552068730",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/102/445/2f6f8ad8-21c6-4b07-baf1-c1a552068730",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "6378a024-c33c-4e68-b063-794c567a9e0a",
+    "name": "SNAPREG1489-32-project"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/99/446/808ee2dd-9c25-43b9-bc6a-d4d14ef2bc6b",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/99/446/808ee2dd-9c25-43b9-bc6a-d4d14ef2bc6b",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/446/808ee2dd-9c25-43b9-bc6a-d4d14ef2bc6b",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "c605326a-1bd5-44a4-b5d5-9bbbddfa3e98",
+    "name": "SNAPREG1489-32-deleted"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/447/f382a2b4-5234-464e-a023-c2b26772c6b0",
+    "exists": true,
+    "fileSize": 196624,
+    "blocks": 392,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/nfs/secondary/snapshots/2/447/f382a2b4-5234-464e-a023-c2b26772c6b0",
+            "format": "file",
+            "actual-size": 200704,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/2/447/f382a2b4-5234-464e-a023-c2b26772c6b0",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 200704,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "d91a4d59-78c9-43f9-aae7-950bc1a94b77",
+    "name": "SNAPREG1489-32-vmdata"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/448/eb413afa-dd54-492a-9a69-63b25140ae2f",
+    "exists": true,
+    "fileSize": 2419720192,
+    "blocks": 4908184,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2419720192,
+            "filename": "/nfs/secondary/snapshots/2/448/eb413afa-dd54-492a-9a69-63b25140ae2f",
+            "format": "file",
+            "actual-size": 2512990208,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 107374182400,
+      "filename": "/nfs/secondary/snapshots/2/448/eb413afa-dd54-492a-9a69-63b25140ae2f",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2512990208,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "08ba29d7-db45-48ef-ae7d-f5e94baf50d0",
+    "name": "SNAPREG1489-32-root"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/103/449/0c5dc069-1a18-4681-8cf6-7a375adbae79",
+    "exists": false,
+    "uuid": "021f8385-aaaa-45f5-a5af-dbc24bff4338",
+    "name": "SNAPREG1489-32-usage-before"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/104/450/f3dc69eb-e139-40a5-b1bd-a2a5a3d9a5f2",
+    "exists": false,
+    "uuid": "8b8ef214-ebcc-4bcd-8ee0-e88fd5c75e1e",
+    "name": "SNAPREG1489-32-usage-after"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4864,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/443/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "0d1473da-64c7-42bb-b7ec-5c5f3863976f",
+    "name": "SNAPREG1489-32-pattern"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/447/3c751066-0f13-4cbb-8ebb-75f72f8baeec",
+    "exists": false,
+    "uuid": "82e2bf40-74ae-4bb4-af3a-e3f0c731cfc0",
+    "name": "SNAPREG1489-32-running-after"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/451/cdbcfa15-bb95-4f69-9219-7bfd909edd6d",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4864,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/2/451/cdbcfa15-bb95-4f69-9219-7bfd909edd6d",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/2/451/cdbcfa15-bb95-4f69-9219-7bfd909edd6d",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "ff8a9a01-a8da-4b6c-9be4-b495c3f71cf2",
+    "name": "SNAPREG1489-32-fixed"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4864,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+            "format": "file",
+            "actual-size": 2490368,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/snapshots/99/443/3f76e2b8-e350-4fb6-be80-80ec524a14c0",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2490368,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": null,
+    "uuid": "7eee8768-0fc3-4bdb-9bab-39c5a33cc81c",
+    "name": "SNAPREG1489-32-primary-only"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/240/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6.qcow2",
+    "exists": true,
+    "fileSize": 2490368,
+    "blocks": 4744,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2490368,
+            "filename": "/nfs/secondary/template/tmpl/2/240/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6.qcow2",
+            "format": "file",
+            "actual-size": 2428928,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/nfs/secondary/template/tmpl/2/240/dfa4eeec-aeba-4ed8-a868-7f7723dc94a6.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2428928,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Sun Oct 25 09:00:10 UTC 2026\nuniquename=240-2-0d7fe72e-9857-36f8-9a9d-02e99dd34075\nqcow2.filename=dfa4eeec-aeba-4ed8-a868-7f7723dc94a6.qcow2\nfilename=dfa4eeec-aeba-4ed8-a868-7f7723dc94a6.qcow2\nqcow2.virtualsize=1073741824\npublic=true\nsize=2490368\nid=240\nqcow2.size=2490368\nvirtualsize=1073741824\nqcow2=true\n",
+    "uuid": "309a2fd0-9178-4ac5-af20-c844a9b37690",
+    "name": "SNAPREG1489-32-pattern-qcow2-template"
+  },
+  {
+    "path": "/nfs/secondary/template/tmpl/2/241/eb413afa-dd54-492a-9a69-63b25140ae2f.qcow2",
+    "exists": true,
+    "fileSize": 2419720192,
+    "blocks": 4710064,
+    "magic": "514649fb00000003",
+    "qemuExit": 0,
+    "qemu": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 2419720192,
+            "filename": "/nfs/secondary/template/tmpl/2/241/eb413afa-dd54-492a-9a69-63b25140ae2f.qcow2",
+            "format": "file",
+            "actual-size": 2411552768,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 107374182400,
+      "filename": "/nfs/secondary/template/tmpl/2/241/eb413afa-dd54-492a-9a69-63b25140ae2f.qcow2",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 2411552768,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "properties": "#\n#Sun Oct 25 09:00:11 UTC 2026\nuniquename=241-2-492dc276-15f2-35a7-8173-22590052a1c6\nqcow2.filename=eb413afa-dd54-492a-9a69-63b25140ae2f.qcow2\nfilename=eb413afa-dd54-492a-9a69-63b25140ae2f.qcow2\nqcow2.virtualsize=107374182400\npublic=true\nsize=2419720192\nid=241\nqcow2.size=2419720192\nvirtualsize=107374182400\nqcow2=true\n",
+    "uuid": "c3ce81ac-848d-4271-a3c4-7fc7bca6665f",
+    "name": "SNAPREG1489-32-root-qcow2-template"
+  }
+]

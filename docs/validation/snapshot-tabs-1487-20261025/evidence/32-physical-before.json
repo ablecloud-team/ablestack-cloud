@@ -1,0 +1,58 @@
+[
+  {
+    "path": "/nfs/secondary/snapshots/91/433/ef6d5666-0aa8-474d-b9e1-b92b08870b18",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/92/431/81bd48fc-d9df-4b2c-b079-845b7dce5a61",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/91/430/f3128508-c367-47be-8bc8-d87a252bad89",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/91/430/9f856ef3-118f-4021-be81-017bf79f6f1d",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/94/432/7558deb4-a4aa-4d99-bf63-7a3d57177e5f",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/435/8ff441ad-6704-4122-9dc7-3d295a1a5a06",
+    "exists": true,
+    "fileSize": 2419720192,
+    "virtualSize": 107374182400,
+    "allocatedSize": 2512990208,
+    "format": "qcow2"
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/434/3f909da5-e65a-4a3e-8570-9dfbbdc0b53c",
+    "exists": true,
+    "fileSize": 196624,
+    "virtualSize": 1073741824,
+    "allocatedSize": 200704,
+    "format": "qcow2"
+  }
+]

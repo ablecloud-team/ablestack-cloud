@@ -1,0 +1,125 @@
+{
+  "label": "31-last-page-clamp",
+  "network": {
+    "args": {
+      "listall": "true",
+      "keyword": "SNAPORD1482-31",
+      "account": "SNAPORD1482-31-owner",
+      "domainid": "aa1d06d2-6298-40ba-90cc-31c531f972a3",
+      "sortkey": "name",
+      "sortorder": "asc",
+      "page": "2",
+      "pagesize": "20",
+      "command": "listSnapshots",
+      "response": "json"
+    },
+    "id": "3232.1456",
+    "count": 24,
+    "rows": [
+      {
+        "id": "ea412402-3b6b-44b3-bdd3-aeebc39f0359",
+        "name": "SNAPORD1482-31-W-23",
+        "account": "SNAPORD1482-31-owner"
+      },
+      {
+        "id": "a4a7b5c2-cb91-4a3a-8bf6-80b2e7741289",
+        "name": "SNAPORD1482-31-X-22",
+        "account": "SNAPORD1482-31-owner"
+      },
+      {
+        "id": "410e5443-1444-4190-8b67-d89861cf12ab",
+        "name": "SNAPORD1482-31-Y-21",
+        "account": "SNAPORD1482-31-owner"
+      },
+      {
+        "id": "8520b900-4017-45e0-8f18-e579d5745187",
+        "name": "SNAPORD1482-31-Z-20",
+        "account": "SNAPORD1482-31-owner"
+      }
+    ]
+  },
+  "dom": {
+    "headers": [
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": "asc",
+        "sortable": true,
+        "text": "이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "상태"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "볼륨 이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "간격 유형"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "물리적 크기"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "생성일"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "계정"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "도메인"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "Zone"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "레벨"
+      }
+    ],
+    "paging": "전체 24 개 항목 중 21-24 표시1220 / 쪽이동하기",
+    "rows": [
+      {
+        "id": "ea412402-3b6b-44b3-bdd3-aeebc39f0359",
+        "name": "SNAPORD1482-31-W-23"
+      },
+      {
+        "id": "a4a7b5c2-cb91-4a3a-8bf6-80b2e7741289",
+        "name": "SNAPORD1482-31-X-22"
+      },
+      {
+        "id": "410e5443-1444-4190-8b67-d89861cf12ab",
+        "name": "SNAPORD1482-31-Y-21"
+      },
+      {
+        "id": "8520b900-4017-45e0-8f18-e579d5745187",
+        "name": "SNAPORD1482-31-Z-20"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPORD1482-31&account=SNAPORD1482-31-owner&domainid=aa1d06d2-6298-40ba-90cc-31c531f972a3&sortkey=name&sortorder=asc&page=2&pagesize=20"
+  }
+}

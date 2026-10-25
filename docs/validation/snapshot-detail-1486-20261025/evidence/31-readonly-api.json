@@ -1,0 +1,22 @@
+[
+  {
+    "name": "readonly-snapshot-readable",
+    "pass": true
+  },
+  {
+    "name": "readonly-listVolumes-denied",
+    "pass": true
+  },
+  {
+    "name": "readonly-listVirtualMachines-denied",
+    "pass": true
+  },
+  {
+    "name": "readonly-createTags-denied",
+    "pass": true
+  },
+  {
+    "name": "readonly-deleteTags-denied",
+    "pass": true
+  }
+]

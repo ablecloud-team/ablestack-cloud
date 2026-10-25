@@ -1,0 +1,96 @@
+{
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "backup": "/root/snapshot-delete-1478-backend-quota-20261023/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "before": "3990ded10e45c70bfd189893a93803b3f168991645ccdeb554e9a07da0a2c6a0",
+  "classes": [
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotApiService.class",
+      "sha256": "9aff4cd449df4ec9f5d14bba96c4197754d822cb41a0aa9e092fa81e80a8a192"
+    },
+    {
+      "path": "org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotCmd.class",
+      "sha256": "457ef2d8e8d45c0ff4cc3b951847dcbbb7bd236e7da500780b8c1feb53b1a27f"
+    },
+    {
+      "path": "org/apache/cloudstack/api/response/SnapshotDeletionResponse$Reference.class",
+      "sha256": "d98a38c5f4815e012de1f9e92d80f460db90912cb1205fe56d4b8a5166b16005"
+    },
+    {
+      "path": "org/apache/cloudstack/api/response/SnapshotDeletionResponse.class",
+      "sha256": "7e4b67652666515dcede6ead7a5205623dd4b64147ffed3807e8f63f3b5f6bbe"
+    },
+    {
+      "path": "org/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo.class",
+      "sha256": "ba3c2e674d8de429b75d7c92ff2b22908c72251ef3485b29272b090741746cb2"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/DefaultSnapshotStrategy.class",
+      "sha256": "9849102901cafa4516bc784a38db2db2eca4414e61eafbc8a38b908bdbb5033c"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/DefaultSnapshotStrategy$1.class",
+      "sha256": "b31a760d8646f6e202a9ee86d84b581e85c0a0698550170ff82fdaebd8c5198c"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotDataFactoryImpl.class",
+      "sha256": "519b1194c5e854d46f760696db5a771adeed5624bfbdaf772869405499c92628"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotObject.class",
+      "sha256": "a5909a91b763d7ca975c5df4eabe82c2cf5d861c4f73a44b3b4db941066ca84f"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$PrepareCopySnapshotContext.class",
+      "sha256": "d2d671bf864bd0536fe111f979ae9054ea1da1208a470f170956b9512f502d57"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$DeleteSnapshotContext.class",
+      "sha256": "94653e604de4b8accb03bd5ceedeef9031fc4df81ca911f2a4ef6b055af8b9ab"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CreateSnapshotContext.class",
+      "sha256": "6379487cc4ddc4df854e9483c4227eba11243a9c227f1f12cb07b949a72a1f49"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$RevertSnapshotContext.class",
+      "sha256": "ec390a0517d0c731237c2505277572e7c852939f1aff9f92239ad8b8549ba108"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl.class",
+      "sha256": "f92d1c7795a9dae80a5cfee4a6e0fa8ee62c056378e022c12bff24b573b4881f"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$FlattenSnapshotContext.class",
+      "sha256": "14dbb648e89b27f94403ea0964f78fb99bb17bafe0ac329f31c57baedc22e1a7"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CopySnapshotContext.class",
+      "sha256": "adaec1e8b1022f378a4d9c8ec1fbbae55cbc96d8d892996dd76a126eca9fa62f"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$1.class",
+      "sha256": "6ffdafcf9ea3acd520116612bc10d368ad051b2ec607b7b3645dda5c108ddd66"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/datastore/ObjectInDataStoreManagerImpl$1.class",
+      "sha256": "8552f5eb609fa5f0b7b3219dcb748e0b0221d98744d2dabf599e3b8b009049b2"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/datastore/ObjectInDataStoreManagerImpl.class",
+      "sha256": "20c819124363cc11af058ba4f2dcda3b66ccf14358517433fd37d5bf7ed291f2"
+    },
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+      "sha256": "f5b851ed0df3c0503281767a1d1187d2e95fc71b31266d05d18a8eed59af8145"
+    },
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+      "sha256": "d65766d53acb758dd2148adc28399a0e903204446f66e95679483161b5242f5a"
+    }
+  ],
+  "preservedConfig": {
+    "/usr/share/cloudstack-management/webapp/WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25",
+    "/usr/share/cloudstack-management/webapp/config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "after": "27aaffb3d2e9af8cf6b53cfcd341d451b6741530098be404859684429b809160"
+}

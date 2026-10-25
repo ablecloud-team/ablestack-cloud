@@ -1,0 +1,97 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "30182885-952e-4f4e-9b36-168e741aae63",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "bf6600cb-b3e8-4212-9261-e5bb0dd974e4",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "1d341809-04f6-45d8-8ab7-98262e88e132",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "c6013039-8dea-4247-b467-54c86034ae2b",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "db028709-89e6-4141-9db5-d99d01189765",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "6359a1aa-0a75-4dcd-8203-4b5335ed1740",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "250eccc4-4825-42a6-bb12-748ff9f30594",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "3b633b91-a502-4994-8ca9-22401a440cf4",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a3682677-a2df-4dd1-a82d-babc9dc11296",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "2f135bab-210c-4928-a834-99fe00888575",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "4c76a4ec-0ba4-490d-9397-d3e23695feb5",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "565bf757-264e-40ee-ae1d-4ab22754c892",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "742bb335-9616-492b-b401-a4804ed54b86",
+    "complete": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "144644eb-a7a8-4417-86d9-58825f63b1fb",
+    "complete": true
+  }
+]

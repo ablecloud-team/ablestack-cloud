@@ -1,0 +1,10 @@
+098ee6d1-3561-4fbf-ba90-ce429e18188c	SNAP1478-31-normal	Destroyed	93	Image	Destroyed	snapshots/2/972/5f098aa2-4aa0-483f-bd48-6ca0cb0a4beb
+1d0b8d4b-1b85-4f84-aff1-53e32f832f5f	SNAP1478-31-residue	Destroyed	95	Image	Destroyed	snapshots/2/972/7499de48-5061-48bc-bf47-ab2c239c0a9a
+1d0b8d4b-1b85-4f84-aff1-53e32f832f5f	SNAP1478-31-residue	Destroyed	100	Image	Destroyed	snapshots/2/972/7499de48-5061-48bc-bf47-ab2c239c0a9a
+2034db21-d0bf-4dac-8d0d-2ad81f0b8164	SNAP1478-31-partial	Destroyed	97	Image	Destroyed	snapshots/2/972/2f6e44a7-e5a3-4dbf-8a2e-57a63facacec
+2034db21-d0bf-4dac-8d0d-2ad81f0b8164	SNAP1478-31-partial	Destroyed	101	Image	Destroyed	snapshots/2/972/c1b9f1f9-74d2-473f-939d-5eae9bdab92e
+896083f2-0c9f-44a0-8449-c9bd4e81ff57	SNAP1478-31-control	BackedUp	99	Image	Ready	snapshots/2/972/e1860831-1a06-4099-8e5a-5670c93d098c
+ff555212-e487-4ea9-aeca-bf64f42b3546	SNAP1478-31-tenant	Destroyed	103	Image	Destroyed	snapshots/248/973/8f043994-6a86-4163-aff4-0109a517b1ae
+d84197a1-7865-49da-901e-aac28511739c	SNAP1478-31-missing	Destroyed	105	Image	Destroyed	snapshots/2/972/a4f8d187-557e-4dc5-aba8-9fc3cf5c85cf
+56dfe709-a12a-4016-b8fd-72102df16307	SNAP1478-31-quota	Destroyed	107	Image	Destroyed	snapshots/2/972/37d1c458-ea4f-458c-af18-38ff07187add
+e2385437-9338-458e-a48a-c9d4c6eb0321	SNAP1478-31-quota-final	Destroyed	109	Image	Destroyed	snapshots/2/972/9f2af538-fe87-4c1f-98fa-f59f1d7151c0

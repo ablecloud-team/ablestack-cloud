@@ -1,0 +1,72 @@
+[
+  {
+    "path": "/nfs/secondary/snapshots/87/427/709d3c63-06cf-49bd-ae9b-c4e8f7c321b9",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/88/425/c90cd7c2-395f-4895-8520-e94af9305362",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/87/424/f75964ad-1fba-4ca8-b09f-f2f29d9bd6ed",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/87/424/4081ab26-013b-41cb-9b44-e6f035b8683b",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/90/426/64a22588-e1ac-4870-a9ed-8a83e8fea63a",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/429/03659c3b-9d25-4601-b13a-1638005b9d2c",
+    "exists": true,
+    "virtualSize": 107374182400,
+    "actualSize": 2512990208,
+    "format": "qcow2",
+    "fileSize": 2419720192,
+    "dbPhysical": 2419720192,
+    "physicalMatchesApiDb": true
+  },
+  {
+    "path": "/nfs/secondary/snapshots/2/428/ead8b8c4-2ba7-4f55-b6d8-686a70c5bb11",
+    "exists": true,
+    "virtualSize": 1073741824,
+    "actualSize": 200704,
+    "format": "qcow2",
+    "fileSize": 196624,
+    "dbPhysical": 196624,
+    "physicalMatchesApiDb": true
+  }
+]

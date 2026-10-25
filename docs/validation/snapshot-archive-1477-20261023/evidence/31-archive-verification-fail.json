@@ -1,0 +1,27 @@
+{
+  "before": {
+    "snapshotid": "e42db153-0e91-4e77-9fee-f81f20a73213",
+    "name": "SNAP1477-31-normal",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "d2eb62f02fae9f108e1cf9797fd97049a0d390e793e928a3874db264d1dd8d4f",
+    "dryrun": true
+  },
+  "failure": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"SECONDARY_VERIFICATION_FAILED: primary preserved; exact Ready backup file could not be verified\"},\"created\":\"2026-10-23T16:57:29+0900\",\"completed\":\"2026-10-23T16:57:29+0900\",\"jobid\":\"a3e580b4-282b-4fb5-85c9-c30979ae5731\",\"jobstatus\":2}",
+  "after": {
+    "snapshotid": "e42db153-0e91-4e77-9fee-f81f20a73213",
+    "name": "SNAP1477-31-normal",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "d2eb62f02fae9f108e1cf9797fd97049a0d390e793e928a3874db264d1dd8d4f",
+    "dryrun": true
+  }
+}

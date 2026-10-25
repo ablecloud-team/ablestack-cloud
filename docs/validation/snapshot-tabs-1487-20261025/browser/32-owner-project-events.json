@@ -1,0 +1,174 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "color": "rgb(197, 204, 212)",
+  "columns": [
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "레벨"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "유형"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "상태"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "사용자 이름"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "계정"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "도메인"
+    },
+    {
+      "fontSize": "14px",
+      "padding": "12px 8px",
+      "text": "생성일"
+    }
+  ],
+  "fields": [],
+  "headings": [],
+  "height": 720,
+  "links": [
+    {
+      "href": "#/event/b7c0fae2-e9fa-4a31-af4d-0785f563061d",
+      "text": "INFO"
+    },
+    {
+      "href": "#/event/e9dd0508-4716-4782-9b17-22d05dad2c75",
+      "text": "INFO"
+    },
+    {
+      "href": "#/event/87091874-4a54-4fc9-9878-badf83b06750",
+      "text": "INFO"
+    },
+    {
+      "href": "#/event/4ba7706b-31ce-42a6-aea0-9bd16afdf925",
+      "text": "INFO"
+    }
+  ],
+  "notes": [],
+  "pagination": [
+    {
+      "active": "1",
+      "text": "전체 4개 항목 중 1-4 표시\n1\n10 / 쪽"
+    }
+  ],
+  "rows": [
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "완료",
+        "admin",
+        "",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:07:08"
+      ],
+      "id": "b7c0fae2-e9fa-4a31-af4d-0785f563061d",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "시작",
+        "admin",
+        "",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:07:05"
+      ],
+      "id": "e9dd0508-4716-4782-9b17-22d05dad2c75",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "예정됨",
+        "admin",
+        "",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:07:05"
+      ],
+      "id": "87091874-4a54-4fc9-9878-badf83b06750",
+      "selected": false
+    },
+    {
+      "cells": [
+        "INFO",
+        "스냅샷 생성",
+        "생성됨",
+        "admin",
+        "",
+        "SNAPTABS1487-32-domain",
+        "2026. 10. 25. 오전 2:07:05"
+      ],
+      "id": "4ba7706b-31ce-42a6-aea0-9bd16afdf925",
+      "selected": false
+    }
+  ],
+  "scrollWidth": 1270,
+  "tabText": "업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t스냅샷 생성\t\n완료\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:08\nINFO\t스냅샷 생성\t\n시작\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\nINFO\t스냅샷 생성\t\n생성됨\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽",
+  "text": "/스냅샷/SNAPTABS1487-32-project업데이트\n작업\nSNAPTABS1487-32-project\n상태\n백업 됨\n아이디\nc39e56ba-0394-4c60-ad93-29bab2935c0d \n프로젝트\nSNAPTABS1487-32-project\n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSNAPTABS1487-32-project\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n도메인\nSNAPTABS1487-32-domain\n생성일\n2026. 10. 25. 오전 2:07:05\n태그\n태그 새로고침\nbaseline = SNAPTABS1487-32-project\n새 태그\n상세\nZone\n이벤트\n코멘트\n업데이트\n열 선택\n레벨\n\t\n유형\n\t\n상태\n\t\n사용자 이름\n\t\n계정\n\t\n도메인\n\t\n생성일\n\nINFO\t스냅샷 생성\t\n완료\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:08\nINFO\t스냅샷 생성\t\n시작\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\nINFO\t스냅샷 생성\t\n예정됨\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\nINFO\t스냅샷 생성\t\n생성됨\n\tadmin\t\tSNAPTABS1487-32-domain\t2026. 10. 25. 오전 2:07:05\n전체 4개 항목 중 1-4 표시\n1\n10 / 쪽",
+  "tools": [
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 105.53125,
+        "x": 676.96875,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "업데이트"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 96.484375,
+        "x": 790.5,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": "열 선택"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 22,
+        "width": 200,
+        "x": 954.984375,
+        "y": 219
+      },
+      "tag": "INPUT",
+      "text": "관련 자원 이벤트 검색"
+    },
+    {
+      "disabled": false,
+      "rect": {
+        "height": 32,
+        "width": 32,
+        "x": 1189.984375,
+        "y": 214
+      },
+      "tag": "BUTTON",
+      "text": null
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/snapshot/c39e56ba-0394-4c60-ad93-29bab2935c0d?tab=events",
+  "width": 1280
+}

@@ -1,0 +1,81 @@
+{
+  "background": "rgb(22, 27, 34)",
+  "copies": [],
+  "height": 1000,
+  "labels": [
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "상태",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "아이디",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "CPU",
+      "weight": "700"
+    },
+    {
+      "color": "rgba(255, 255, 255, 0.65)",
+      "margin": "5px",
+      "text": "메모리",
+      "weight": "700"
+    }
+  ],
+  "links": [
+    {
+      "href": "#/",
+      "text": ""
+    },
+    {
+      "href": "#/domain",
+      "text": "도메인"
+    },
+    {
+      "href": "http://docs.ablecloud.io/latest/adminguide/accounts.html#domains",
+      "text": ""
+    },
+    {
+      "href": "javascript:;",
+      "text": "2246448b-b23b-11f1-990e-0024811f8935 "
+    },
+    {
+      "href": "#/account?domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "계정 보기"
+    },
+    {
+      "href": "#/vm?domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "VM 보기"
+    },
+    {
+      "href": "#/volume?domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "볼륨 보기"
+    },
+    {
+      "href": "#/guestnetwork?domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "네트워크 보기"
+    },
+    {
+      "href": "#/template?templatefilter=self&filter=self&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "템플릿 보기"
+    },
+    {
+      "href": "#/iso?isofilter=self&filter=self&domainid=2246448b-b23b-11f1-990e-0024811f8935",
+      "text": "ISO 보기"
+    }
+  ],
+  "properties": false,
+  "scrollWidth": 1270,
+  "summary": false,
+  "tag": "태그태그 새로고침태그가 없습니다.새 태그",
+  "text": "/도메인/ROOT업데이트\n작업\nROOT\n상태\n정상\n아이디\n2246448b-b23b-11f1-990e-0024811f8935 \nCPU\n102\n메모리\n153600 메모리\n계정 보기\nVM 보기\n볼륨 보기\n네트워크 보기\n템플릿 보기\nISO 보기\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n상세\n제한\n구성 제한\n설정\n이벤트\n코멘트\n이름\n\nROOT\n아이디\n\n2246448b-b23b-11f1-990e-0024811f8935\n경로\n\nROOT\n레벨\n\n0",
+  "url": "http://10.10.32.10:8080/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details",
+  "width": 1280,
+  "expectedHref": "#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details"
+}

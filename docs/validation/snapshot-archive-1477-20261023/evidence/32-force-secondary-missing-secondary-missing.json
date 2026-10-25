@@ -1,0 +1,30 @@
+{
+  "snapshot": "ba62370e-1790-45c8-b9ab-26d8d079d877",
+  "scenario": "force-secondary-missing",
+  "kind": "secondary-missing",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/3b6894e2-5415-42c2-becc-1405c6068fe9",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 41,
+      "referenceid": 80
+    },
+    {
+      "path": "snapshots/2/323/3b6894e2-5415-42c2-becc-1405c6068fe9",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 41,
+      "referenceid": 81
+    }
+  ],
+  "fixtureOnly": true,
+  "secondaryAbsent": true,
+  "primaryPhysicalPresent": true,
+  "native": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c@3b6894e2-5415-42c2-becc-1405c6068fe9",
+  "nativeSnapshotsUnchanged": true
+}

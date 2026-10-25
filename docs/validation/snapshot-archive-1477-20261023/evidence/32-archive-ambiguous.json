@@ -1,0 +1,27 @@
+{
+  "before": {
+    "snapshotid": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+    "name": "SNAP1477-32-residue",
+    "state": "BackedUp",
+    "eligible": false,
+    "reason": "AMBIGUOUS_REFERENCES",
+    "message": "Multiple or unsupported copy references require inspection before archiving",
+    "primaryreferences": 0,
+    "secondaryreferences": 2,
+    "scopehash": "0ef23b7683211631477932e2ca9b0b114ada94194aa4a2e4c8c82077ce3fc782",
+    "dryrun": true
+  },
+  "failure": "{\"accountid\":\"6d3ebcb0-b23b-11f1-990e-0024811f8935\",\"account\":\"admin\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"6d3f209b-b23b-11f1-990e-0024811f8935\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":431,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":431,\"errortext\":\"AMBIGUOUS_REFERENCES: Multiple or unsupported copy references require inspection before archiving\"},\"created\":\"2026-10-23T17:25:33+0900\",\"completed\":\"2026-10-23T17:25:33+0900\",\"jobid\":\"f399ce6a-f76d-4ecc-a4db-db908b958218\",\"jobstatus\":2}",
+  "after": {
+    "snapshotid": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+    "name": "SNAP1477-32-residue",
+    "state": "BackedUp",
+    "eligible": false,
+    "reason": "AMBIGUOUS_REFERENCES",
+    "message": "Multiple or unsupported copy references require inspection before archiving",
+    "primaryreferences": 0,
+    "secondaryreferences": 2,
+    "scopehash": "0ef23b7683211631477932e2ca9b0b114ada94194aa4a2e4c8c82077ce3fc782",
+    "dryrun": true
+  }
+}

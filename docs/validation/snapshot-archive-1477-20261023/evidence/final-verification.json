@@ -1,0 +1,74 @@
+{
+  "31": {
+    "fixtureSnapshots": 9,
+    "fixtureVolumes": 2,
+    "activeSnapshots": 0,
+    "unsettledReferences": 0,
+    "pendingPhysicalCleanup": 0,
+    "knownSecondaryFiles": 0,
+    "sourceVolumesRemaining": 0,
+    "fixtureClonesRemaining": 0,
+    "historicalUnmappedAudits": 1,
+    "resourceCountsMatchDao": true,
+    "usageEventsOnceBeforeAccountCleanup": true,
+    "knownAccountCleanupDuplicateDeleteEvents": [
+      {
+        "name": "SNAP1477-31-tenant",
+        "type": "SNAPSHOT.DELETE",
+        "count": 2,
+        "snapshot": "4b279f50-7b1b-4358-ad5d-f1e4548037d1"
+      }
+    ],
+    "routingHostsUp": 3,
+    "originalInventory": {
+      "snapshot": {
+        "beforeCount": 23,
+        "afterCount": 23,
+        "originalResourcesPreserved": true,
+        "projectionSha256": "6b46ad3919ab3a75d8332d0b9888c91dbcd8b97ca22f711b7ba34bb4cdf92b7b"
+      },
+      "volume": {
+        "beforeCount": 155,
+        "afterCount": 155,
+        "originalResourcesPreserved": true,
+        "projectionSha256": "3b91a69a2f848b50ab0c9cfe8d914a41a7edb905a5ea1775ce0349096dacbc90"
+      }
+    }
+  },
+  "32": {
+    "fixtureSnapshots": 11,
+    "fixtureVolumes": 2,
+    "activeSnapshots": 0,
+    "unsettledReferences": 0,
+    "pendingPhysicalCleanup": 0,
+    "knownSecondaryFiles": 0,
+    "sourceVolumesRemaining": 0,
+    "fixtureClonesRemaining": 0,
+    "historicalUnmappedAudits": 1,
+    "resourceCountsMatchDao": true,
+    "usageEventsOnceBeforeAccountCleanup": true,
+    "knownAccountCleanupDuplicateDeleteEvents": [
+      {
+        "name": "SNAP1477-32-tenant",
+        "type": "SNAPSHOT.DELETE",
+        "count": 2,
+        "snapshot": "141e60ae-55fd-4844-907c-9e91cf35ce13"
+      }
+    ],
+    "routingHostsUp": 3,
+    "originalInventory": {
+      "snapshot": {
+        "beforeCount": 12,
+        "afterCount": 12,
+        "originalResourcesPreserved": true,
+        "projectionSha256": "e988106c3df8f2c4b516d92fd4404fc6483dc980d4b515fb5c19d55a31ce9765"
+      },
+      "volume": {
+        "beforeCount": 48,
+        "afterCount": 48,
+        "originalResourcesPreserved": true,
+        "projectionSha256": "1631a8da12f69e0394d96151e9d7e03364bd54d3ea4f270ad57421e57521dec4"
+      }
+    }
+  }
+}

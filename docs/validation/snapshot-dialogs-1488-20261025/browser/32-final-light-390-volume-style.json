@@ -1,0 +1,137 @@
+{
+  "dialogBackground": "rgb(255, 255, 255)",
+  "fields": [
+    {
+      "control": {
+        "bottom": 146,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 114
+      },
+      "label": {
+        "bottom": 114,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 84
+      },
+      "text": "이름"
+    },
+    {
+      "control": {
+        "bottom": 232,
+        "height": 32,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 200
+      },
+      "label": {
+        "bottom": 200,
+        "height": 30,
+        "right": 351,
+        "width": 322,
+        "x": 29,
+        "y": 170
+      },
+      "text": "Zone"
+    },
+    {
+      "control": {
+        "bottom": 288,
+        "height": 32,
+        "right": 351,
+        "width": 160.75,
+        "x": 190.25,
+        "y": 256
+      },
+      "label": {
+        "bottom": 318,
+        "height": 62,
+        "right": 190.25,
+        "width": 161.25,
+        "x": 29,
+        "y": 256
+      },
+      "text": "소유자 유형"
+    },
+    {
+      "control": {
+        "bottom": 374,
+        "height": 32,
+        "right": 351,
+        "width": 184.125,
+        "x": 166.875,
+        "y": 342
+      },
+      "label": {
+        "bottom": 404,
+        "height": 62,
+        "right": 166.875,
+        "width": 137.875,
+        "x": 29,
+        "y": 342
+      },
+      "text": "도메인"
+    },
+    {
+      "control": {
+        "bottom": 460,
+        "height": 32,
+        "right": 351,
+        "width": 191.90625,
+        "x": 159.09375,
+        "y": 428
+      },
+      "label": {
+        "bottom": 490,
+        "height": 62,
+        "right": 159.09375,
+        "width": 130.09375,
+        "x": 29,
+        "y": 428
+      },
+      "text": "계정"
+    }
+  ],
+  "focus": {
+    "inDialog": true,
+    "tag": "INPUT"
+  },
+  "overlaps": [
+    "[Circular]",
+    "[Circular]",
+    "[Circular]"
+  ],
+  "tabindex": [
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    },
+    {
+      "index": "-1",
+      "tag": "DIV",
+      "text": "이름\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\n크기\n1 GiB\n디스크 오퍼링"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "-1",
+      "tag": "SPAN",
+      "text": "info-circle"
+    },
+    {
+      "index": "0",
+      "tag": "DIV",
+      "text": ""
+    }
+  ],
+  "theme": "ant-scrolling-effect"
+}

@@ -1,0 +1,104 @@
+{
+  "kind": "management",
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+  "before": "9084bc6a1c0f3f1c5836b60a659ca36ec9bb6bbedeb278ba5b284a2d1ce2fcd3",
+  "after": "1f78055c5bbef1488d416d8d16e6ba695c0ffe296e2e72a45d86d7c599f896e2",
+  "changedEntries": [
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobCheckAndRepairVolumeOutcome$1.class",
+      "sha256": "056605807e855aad996cb4702f72a253da0af6cbfa281710dcedaaaf2ec40355"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl.class",
+      "sha256": "9628e3d0c9ed1950835d4d9ce4cb62aae58f4c9a86c91706b4c97ccfd83827c3"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$1.class",
+      "sha256": "e5f99fa7e487b8e546e1db3fe3ba16d04ecbfe0b058d440e470f41d1886e8425"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobCheckAndRepairVolumeOutcome.class",
+      "sha256": "c71b54e8984b507c52921f9dfe175fa5f7602b1a4e239b159ee73948590f8798"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobVolumeUrlOutcome.class",
+      "sha256": "08999a5de7d57bea219d017f978fd71db565c9630f642674c9120dfd2443e579"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$2.class",
+      "sha256": "6a92a8c7643c0576abc172b38682278d795dc002f0a0701c55f47edeca1d5d48"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobVolumeUrlOutcome$1.class",
+      "sha256": "c39c1dec6d5421ff51c6496312eb567d11834cc5e5ffedb930d41502451fef52"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$4.class",
+      "sha256": "3550ad41a6cc3a5ff5ddfc62a9c52c8ebd766d024d2bd855ad65c4ee5a1769f4"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobSnapshotOutcome$1.class",
+      "sha256": "66b5d52ffb706cabb00873e72c7774ff7071dc8d595cb05ce1ca0a43f307d848"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobVolumeOutcome.class",
+      "sha256": "ec161bfee888b643df7a5ebdc7b93d8f11e04e7d00f1691419d18958cb4f29b6"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobSnapshotOutcome.class",
+      "sha256": "6352f469cba4f3cc185f19a46aa95e7e400aedbebd3f0b80a76dc74c9897e6fb"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$3.class",
+      "sha256": "210e2a4a48a58800d4ab4bade6b5da260871fb245c18fb50d22ada3f01ee2778"
+    },
+    {
+      "path": "com/cloud/storage/VolumeApiServiceImpl$VmJobVolumeOutcome$1.class",
+      "sha256": "4f91e40f3c75507ca161d8f52ddac222388a9f69ee18956e3d55ddeca5041695"
+    },
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+      "sha256": "c91e5bae95f774993806d3e7a92ec67c2bab8894de0e8b0ab77516b5910ef9d0"
+    },
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+      "sha256": "bbf95b8fcbd9d1b124e825a9eb1f788249e29ed5109e3aadab1d358402109248"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$PrepareCopySnapshotContext.class",
+      "sha256": "db5bff626fe70a659e23cbd242f1075869f7799f9388da729bc2d761208a081d"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$DeleteSnapshotContext.class",
+      "sha256": "94653e604de4b8accb03bd5ceedeef9031fc4df81ca911f2a4ef6b055af8b9ab"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CreateSnapshotContext.class",
+      "sha256": "6379487cc4ddc4df854e9483c4227eba11243a9c227f1f12cb07b949a72a1f49"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$RevertSnapshotContext.class",
+      "sha256": "004b518b1aae74dbc512ee8a9755d72839787dbf99504c0c6bd8fc4ca6f78e06"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl.class",
+      "sha256": "637e263b5acf7155264c068f545d8b857551ac79332819e8bb2b3c0340d939e2"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$FlattenSnapshotContext.class",
+      "sha256": "9113cc04434f096a27a9cd6f2f585af2070c2aa981ea33d6e64c6fde7bab716b"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CopySnapshotContext.class",
+      "sha256": "07cd7eed9da03b2fda424514891c561dd1071fb23c6c3d601cc3506ddf46bec0"
+    },
+    {
+      "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$1.class",
+      "sha256": "a1e1e1773fc443686da25e37f752a7acb98b6725258b252e6e080b6c48de9cda"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 0
+}

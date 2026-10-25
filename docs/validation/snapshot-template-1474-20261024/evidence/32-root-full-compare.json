@@ -1,0 +1,18 @@
+[
+  {
+    "template": "c7e1e8ad-7645-4992-a5bc-abaaa7e7d1d2",
+    "format": "QCOW2",
+    "sourceSnapshot": "/nfs/secondary/snapshots/2/349/5b8ed461-e8b3-4b96-af2b-d848e9a03615",
+    "path": "/nfs/secondary/template/tmpl/2/231/5b8ed461-e8b3-4b96-af2b-d848e9a03615.qcow2",
+    "result": "Images are identical.",
+    "identical": true
+  },
+  {
+    "template": "3b327842-c594-411d-a4b0-b2c70dcfdd27",
+    "format": "RAW",
+    "sourceSnapshot": "/nfs/secondary/snapshots/2/349/5b8ed461-e8b3-4b96-af2b-d848e9a03615",
+    "path": "/nfs/secondary/template/tmpl/2/238/5b8ed461-e8b3-4b96-af2b-d848e9a03615.raw",
+    "result": "Images are identical.",
+    "identical": true
+  }
+]

@@ -2511,11 +2511,18 @@ public class KubernetesClusterManagerImpl extends ManagerBase implements Kuberne
     }
 
     protected Account getProjectKubernetesAccount(final Account callerAccount, final boolean create) {
-        Project project = ApiDBUtils.findProjectByProjectAccountId(callerAccount.getId());
+        // Account cleanup runs after the project has been soft-deleted. Resolve
+        // its retained identity without recreating membership during teardown.
+        Project project = create ? ApiDBUtils.findProjectByProjectAccountId(callerAccount.getId())
+                : projectManager.findByProjectAccountIdIncludingRemoved(callerAccount.getId());
+        if (project == null) {
+            if (create) { throw new CloudRuntimeException("Cannot resolve the Kubernetes account's project"); }
+            return null;
+        }
         final String accountName = String.format("%s-%s", KUBEADMIN_ACCOUNT_NAME, UuidUtils.first(project.getUuid()));
         List<AccountVO> accounts = accountDao.findAccountsByName(accountName);
         for (AccountVO account : accounts) {
-            ensureProjectKubernetesAccountMembership(project, account);
+            if (create) { ensureProjectKubernetesAccountMembership(project, account); }
             return account;
         }
         return create ? createProjectKubernetesAccount(project, accountName) : null;

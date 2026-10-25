@@ -1,0 +1,12 @@
+{
+  "method": "User performed real Windows copy and paste from snapshot detail in both Mold clusters",
+  "clusters": [
+    "31",
+    "32"
+  ],
+  "userConfirmation": "31·32 모두 UUID 일치 확인",
+  "verification": "Actual pasted UUID equals displayed snapshot UUID",
+  "automaticBrowserVirtualClipboardNotUsedAsByteProof": true,
+  "nativeAutomationBlockedByApprovalReview": "Current Chrome URL could not be established with sufficient confidence",
+  "pass": true
+}

@@ -1,0 +1,82 @@
+{
+  "first": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+  "second": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+  "posts": [
+    {
+      "at": "2026-10-23T11:39:19.167Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+        "customjobid": "932310b7-6745-4739-bb52-24bf9b1f18ca"
+      },
+      "status": 200,
+      "jobid": "932310b7-6745-4739-bb52-24bf9b1f18ca",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T11:39:19.177Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+        "customjobid": "932310b7-6745-4739-bb52-24bf9b1f18ca"
+      },
+      "status": 200,
+      "jobid": "932310b7-6745-4739-bb52-24bf9b1f18ca",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T11:39:19.191Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+        "customjobid": "932310b7-6745-4739-bb52-24bf9b1f18ca"
+      },
+      "status": 200,
+      "jobid": "932310b7-6745-4739-bb52-24bf9b1f18ca",
+      "fault": "submit-response-dropped-after-forward"
+    }
+  ],
+  "secondMutationCount": 0,
+  "secondDbRows": [
+    {
+      "id": 55,
+      "name": "SNAP1479-32-query-project-ui",
+      "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc",
+      "role": "Primary",
+      "uuid": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 3,
+      "location": null,
+      "physical": 1073741824,
+      "refstate": "Ready",
+      "referenceid": 105
+    },
+    {
+      "id": 55,
+      "name": "SNAP1479-32-query-project-ui",
+      "path": "snapshots/62/332/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc",
+      "role": "Image",
+      "uuid": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Ready",
+      "referenceid": 106
+    }
+  ],
+  "secondPreserved": true
+}

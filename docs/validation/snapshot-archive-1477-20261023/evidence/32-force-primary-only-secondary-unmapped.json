@@ -1,0 +1,30 @@
+{
+  "snapshot": "4eccbaab-9aba-45b7-b7ed-e8cf8bf998c8",
+  "scenario": "force-primary-only",
+  "kind": "secondary-unmapped",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/396ecb6b-2b35-45d1-8cf1-db7efcc7a0b6",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 42,
+      "referenceid": 82
+    },
+    {
+      "path": "snapshots/2/323/396ecb6b-2b35-45d1-8cf1-db7efcc7a0b6",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 42,
+      "referenceid": 83
+    }
+  ],
+  "fixtureOnly": true,
+  "secondaryAbsent": true,
+  "primaryPhysicalPresent": true,
+  "native": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c@396ecb6b-2b35-45d1-8cf1-db7efcc7a0b6",
+  "nativeSnapshotsUnchanged": true
+}

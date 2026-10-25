@@ -44,6 +44,12 @@ import com.cloud.storage.Volume;
 @APICommand(name = "listVolumes", description = "Lists all volumes.", responseObject = VolumeResponse.class, responseView = ResponseView.Restricted, entityType = {
         Volume.class}, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class ListVolumesCmd extends BaseListRetrieveOnlyResourceCountCmd implements UserCmd {
+    @Parameter(name = "includesnapshotcontext", type = CommandType.BOOLEAN,
+            description = "Include current source volume and Instance snapshot-operation context for safe UI preflight")
+    private Boolean includeSnapshotContext;
+
+    public boolean isIncludeSnapshotContext() { return Boolean.TRUE.equals(includeSnapshotContext); }
+
 
     private static final String s_name = "listvolumesresponse";
 

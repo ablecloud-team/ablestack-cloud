@@ -1,0 +1,20 @@
+{
+  "kind": "management",
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "before": "46d5d6d3c60b1361cfe23a4ea6494f7941b697c24f5c941513995032278c70d3",
+  "after": "1538f85520142ac9706e26a7ab7aa9c15442a2ab482c4991e454abd91b1a138d",
+  "changedEntries": [
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+      "sha256": "447dbd04eab45b5e7da94ae31399f0cd0973a42b9752e459403a80ada08180f1"
+    },
+    {
+      "path": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+      "sha256": "1154b80be5cefd503f235d0d705ceedf7e6bc3c9919f65393d6146c747b0a5fb"
+    }
+  ],
+  "otherEntriesUnchanged": true,
+  "vmsUnchanged": true,
+  "ftctlUnchanged": true,
+  "ftctlFileCount": 0
+}

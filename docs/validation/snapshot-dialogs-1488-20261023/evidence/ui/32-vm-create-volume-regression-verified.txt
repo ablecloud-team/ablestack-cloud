@@ -1,0 +1,39 @@
+Browser tab: 23, Title: "가상머신 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/vm/06c94726-9a47-43ca-8b75-b6310f58cb66?tab=volumes".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1021-1035
+~		1018 container 생성 및 연결
+~			1019 container
+~				1020 button Close
++					1021 image close
++				1022 text 생성 및 연결
++				1023 container
++					1024 container
++						1025 text * 이름
++						1026 image info-circle
++					1027 text field (settable) * 이름 info-circle, ID: form_item_name
++					1028 container
++						1029 text * 디스크 오퍼링
++						1030 image info-circle
++					1031 container
++						1032 combo box (settable) * 디스크 오퍼링 info-circle, ID: form_item_diskofferingid
++						1033 text Custom
++					1034 text 기존 호환 값: thin
++					1035 container
++						1036 text * 크기
++						1037 image info-circle
++					1038 text field (settable) * 크기 info-circle, ID: form_item_size
++					1039 container
++						1040 text 스토리지에 생성
++						1041 image info-circle
++					1042 switch Description: 스토리지에 생성 info-circle, Value: 0, ID: form_item_createOnStorage
++					1043 text 볼륨 번호 (Device ID)
++					1044 container
++						1045 button Increase Value
++							1046 image up
++						1047 button Decrease Value
++							1048 image down
++						1049 stepper (settable, integer) 0
++					1050 text 비워두면 자동 배정합니다. 0은 ROOT, 3은 예약 번호입니다. 허용 범위와 게스트 디스크 매핑은 하이퍼바이저 정책에 따릅니다.
++				1051 button 취소
++				1052 button 확인
+The focused UI element is 1027 text field (settable) * 이름 info-circle, ID: form_item_name

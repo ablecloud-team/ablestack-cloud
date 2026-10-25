@@ -1,0 +1,48 @@
+[
+  {
+    "args": {
+      "command": "deleteSnapshot",
+      "response": "json",
+      "id": "9ec7dc74-eafe-4c86-8e95-68c23bd63e87",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "dryrun": "true"
+    },
+    "job": {
+      "id": "7038cd32-cecc-4b95-ab67-d61dc9807cf8",
+      "result": "org.apache.cloudstack.api.response.SnapshotDeletionResponse/deletesnapshotresponse/{\"success\":true,\"snapshotid\":\"9ec7dc74-eafe-4c86-8e95-68c23bd63e87\",\"name\":\"SNAPTABS1487-31-owner-next\",\"state\":\"BackedUp\",\"zoneid\":\"7013f5a1-de59-4cea-a596-f4f58815f31c\",\"dryrun\":true,\"reference\":[{\"referenceid\":460,\"storeid\":\"dd8d0666-cebe-4921-8b8f-0c7b12780ad8\",\"storename\":\"Secondary\",\"role\":\"Image\",\"state\":\"Ready\",\"zoneid\":\"7013f5a1-de59-4cea-a596-f4f58815f31c\"}],\"scopehash\":\"f157e51f1433fda4b00d43f256a91587f8e06fcbf0cd251336bd10f34f301abc\",\"force\":false,\"pendingcleanup\":0,\"cleanupresult\":[]}",
+      "status": 1,
+      "resultCode": 0
+    }
+  },
+  {
+    "args": {
+      "command": "deleteSnapshot",
+      "response": "json",
+      "id": "9ec7dc74-eafe-4c86-8e95-68c23bd63e87",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "dryrun": "true"
+    },
+    "job": {
+      "id": "eee42432-8fd7-4be0-bc0b-59204b332296",
+      "result": "org.apache.cloudstack.api.response.SnapshotDeletionResponse/deletesnapshotresponse/{\"success\":true,\"snapshotid\":\"9ec7dc74-eafe-4c86-8e95-68c23bd63e87\",\"name\":\"SNAPTABS1487-31-owner-next\",\"state\":\"BackedUp\",\"zoneid\":\"7013f5a1-de59-4cea-a596-f4f58815f31c\",\"dryrun\":true,\"reference\":[{\"referenceid\":460,\"storeid\":\"dd8d0666-cebe-4921-8b8f-0c7b12780ad8\",\"storename\":\"Secondary\",\"role\":\"Image\",\"state\":\"Ready\",\"zoneid\":\"7013f5a1-de59-4cea-a596-f4f58815f31c\"}],\"scopehash\":\"f157e51f1433fda4b00d43f256a91587f8e06fcbf0cd251336bd10f34f301abc\",\"force\":false,\"pendingcleanup\":0,\"cleanupresult\":[]}",
+      "status": 1,
+      "resultCode": 0
+    }
+  },
+  {
+    "args": {
+      "command": "deleteSnapshot",
+      "response": "json",
+      "id": "9ec7dc74-eafe-4c86-8e95-68c23bd63e87",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "expectedscopehash": "f157e51f1433fda4b00d43f256a91587f8e06fcbf0cd251336bd10f34f301abc",
+      "customjobid": "08fc092a-969e-4ada-a4f1-d70560c9ab7a"
+    },
+    "job": {
+      "id": "08fc092a-969e-4ada-a4f1-d70560c9ab7a",
+      "result": "org.apache.cloudstack.api.response.SuccessResponse/null/{\"success\":true}",
+      "status": 1,
+      "resultCode": 0
+    }
+  }
+]

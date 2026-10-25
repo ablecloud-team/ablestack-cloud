@@ -1,0 +1,11 @@
+{
+  "db": [
+    {
+      "id": 510,
+      "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/1096/cf1188ae-56d2-41e3-9839-0510249e3363",
+      "state": "Destroyed",
+      "global": "Destroyed"
+    }
+  ],
+  "physical": "/nfs/secondary/snapshots/2/1096/cf1188ae-56d2-41e3-9839-0510249e3363 196624 bytes"
+}
