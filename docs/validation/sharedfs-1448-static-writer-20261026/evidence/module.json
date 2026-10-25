@@ -1,0 +1,147 @@
+{
+  "sourceCommit": "02144a03a47105bb14d7355b92ed2a5085dedb45",
+  "baseSha256": "2318725d7316e225e5df5215482f8f948ee95502d856d3f33f120d83483eac31",
+  "sha256": "bc7044751fe17b4f382cab05c9dd56a788fe3bcbad3ae6132981114304fc9da7",
+  "cohortEntries": 27,
+  "changedEntries": [
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$1.class",
+      "before": "c8c17ea513f6b53cb5480032077a91502e354b05b329e320427efda3b9b3964b",
+      "after": "9cadcedf07662f54e80d617504314a6e2bff363747b81f1f2d640ad03768e10b"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$10.class",
+      "before": "d335bdd493382bafa6303f2c92512c83f65f8c10edf19df5ea8283d2d67c0877",
+      "after": "41ab80c8b493415769a9f0c56f50fd5a9bdcdbe01f443cc8a05eef3f87f97381"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$11.class",
+      "before": "dd49c354f2ae6811abefcd08375fb7fc96536dc286de5dc88daa02dcb46ce18f",
+      "after": "0c7b1a96d09573fd551eba04eadfb7481d5935114663e05924c17d9a738a1c28"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$12.class",
+      "before": "97b0d9b36eb9a33aace704fc6c32280a1a4232e0ec4ae2732ac4a4cc5e0399bc",
+      "after": "e05a24a1a5681dc1271d1a605c77f65e664b120711ede8bf2e4e8a4a5858c83b"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$13.class",
+      "before": "4eddead936dda7ffcf873ff87e445d99ad85ee2c73e14e745724f0b442a2a8a7",
+      "after": "b6c2a3040cf7720487756937d9c8272a40771fdfc639e7d4f85563aefababa9d"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$14.class",
+      "before": "f16b80803f25ad430bbad9ac51f57aa2e1af3b0fd832bf326ee04d908e9cc85f",
+      "after": "af70d7b771a1a5e067a0624b01031793c933881231a2775aa9002a7be9737c2f"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$15.class",
+      "before": "14c047806b9f9d2c7ec7ed097adc7247ce9702fe704eab5585e81bcaf37bc9e8",
+      "after": "2d8dae77c202d9006db7222647950cae1579d80cb147bda1bfc9669b0dea3a04"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$16.class",
+      "before": "d7dc982ee83ef26ec9d8dcd62cc0a91ff9af92022cf6910737ad58c24b320e8d",
+      "after": "1c7295baa31ba0a8673234de59c74faf307fb7ec018e0ea1547809672ec4f09f"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$17.class",
+      "before": "5a3e8f23feffb1b267fb3879af9929ef52834bce2d5508749bc842b88f97670c",
+      "after": "4c6a8738a3ce51220d950db99dec660337a943d32598de8b75848e93dd7b448a"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$2.class",
+      "before": "de5d71192a127799b8a88770876e95e74a25e09a32cb75863ea47dc50684ae15",
+      "after": "b9763b812ae71d3c226caa24b9dc196948c932368eab9311e7a55bc848845f09"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$3.class",
+      "before": "22fce367057acaca2fd99943b21ce765dcc60f13bcbbcccae9b304b1652ec633",
+      "after": "212150bb807fe8cbc9a596e46e3865c9cdddb9d7ddc6581f49ddf6a20fb0e25e"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$4.class",
+      "before": "dcaa24cb30055d3683bc0fa6234c0509bed1fbbfec97dd4d50176d4757718616",
+      "after": "4bb53099c8629e3e342bed0ebad2ffb0d0f4ed5949eeb52f6525060e033984cd"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$5.class",
+      "before": "8c06de01d311a48bc124097d54ba20b1908f03d43b97c7ffee285d1596c7d197",
+      "after": "d37d98de5880cebd05141877eb05d2cbe1766c00ff4f7f6615fc22edc4931199"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$6.class",
+      "before": "9fc41b1824256195c6c33a6db9412943f02d2abce1ed59430b450d58d45bf0d7",
+      "after": "dc604d63a6a95e1d9c44714a482db5101afbcd4f1584ca6608d4ae929a059904"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$7.class",
+      "before": "c54e46c9a17584e4089794bf6e9a2bd61d1cbd7069a02815656161b5c124c885",
+      "after": "e95651466f976e1acdcb90227e0b7fad1f11274f1b3178fc3ba55c05759b3823"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$8.class",
+      "before": "31970aa6c8e5a31f0e7221bd94069bb526d16cf5897243fd8ee59353094d724b",
+      "after": "6afbbdd9efde1216dbfe19a082cd04a313be5871071521ee432c0dd05318227e"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$9.class",
+      "before": "ab42662e2ec15f0a2a735811f29e8e3d41692b24c2bcbbb552ce325102f33306",
+      "after": "8f186e5384467c3c239a56b939ad5a0e6b65ec9836365960812f6b39adf36a66"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$DeployIsoSelection.class",
+      "before": "8ae281435acadd53d7f0313be7cfb9919459e69a64bccd4b89c161067af433d7",
+      "after": "9eee608004e6df780c8082292892c04eb3ef411acd3f414afb1152415261f96e"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$ExpungeTask.class",
+      "before": "73b84b27f97853edc6965801c972d4b6fa3f0c40f2c021e546018e448a7a5cc3",
+      "after": "560abdc0461ce08130b1fc78da8b9f4cb93efc85d3a0bf8c6f7daab69f76ff23"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryCheck.class",
+      "before": "7aebf7809312f7afefd4c2cd023dedcc9569fb88e4903f7fd450ead2a07d9ed2",
+      "after": "cfc9b51cceec115626014df483ce7cf1c399fdc3cbdaf34399eee135c5b54a54"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryPaths.class",
+      "before": "bb57d1d31f4247ee73ddb191b1a0127ab60961e00301142169fc02118d1b8c41",
+      "after": "a0f809f8165791ba913fe7d551f525adfb76034eb8219a418ea71c7bd72746b0"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$FlattenProgressTask.class",
+      "before": "72af4a43bac1090acb352c6e18af1d5980b76be23796c2a39a6dbb7de5d75c22",
+      "after": "ebdc586e9fa6a6d8759ad67c5c2e5b4266c3c9c7845e885748bd3224d44592e2"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$FlattenTask.class",
+      "before": "9cda12a4c6aa838153bdeb48bbda8a9f532b4054e564e561dad97ec85bc8489a",
+      "after": "a439dc962f9b82d2b0b130d9e4ea8157b210043cf782f89ddf2b653e2af9266b"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$VmAndCountDetails.class",
+      "before": "c7fe38bfd652d3da9a9ced55ff6e2572b7ce06914fe0bd8444fbad8ba6ab7a96",
+      "after": "3516c18d3de50c3c00c5b41089f419a59e99a7ffbe3f2b69e62960449326a1f1"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$VmIpAddrFetchThread.class",
+      "before": "9c32bb00cc308ec3e59a55c8f661c0e65ac9d907b190276de395bdd89ec4919b",
+      "after": "ef0487b3eec6283f551a058a6f7c6772a6eb8e6f0d42e47a422188b719a44cb2"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl$VmIpFetchTask.class",
+      "before": "e2757ba2b5b4ae1731457893be595df9ac3d6dcf85d8aa26b11948187afba0b6",
+      "after": "f10fdb30edca0bc63eadc854ff2d5339309e780350a2042d2e8f26984cd5597b"
+    },
+    {
+      "path": "com/cloud/vm/UserVmManagerImpl.class",
+      "before": "b0dfc2e38e20bf98c000686dceddc9a166f2ba5e6c03729542e4fc135293ade7",
+      "after": "e785d3918a6dacb2a7cd923b175986dceda7467d53844904ada5772e74719681"
+    }
+  ],
+  "unrelatedEntriesPreserved": true,
+  "schemaChanged": false,
+  "uiChangedByFix": false,
+  "guestFilesChangedByFix": false
+}

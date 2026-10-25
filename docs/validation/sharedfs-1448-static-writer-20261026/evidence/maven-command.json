@@ -1,0 +1,11 @@
+[
+  "mvn",
+  "-Dcheckstyle.skip=true",
+  "-pl",
+  "server,plugins/hypervisors/kvm",
+  "-am",
+  "-Dtest=UserVmStaticSharedFsIpFetchTest,LibvirtGetVmIpAddressCommandWrapperTest,SharedFSServiceImplTest,StorageServiceManagerImplTest",
+  "-Dsurefire.failIfNoSpecifiedTests=false",
+  "-DskipTests=false",
+  "package"
+]
