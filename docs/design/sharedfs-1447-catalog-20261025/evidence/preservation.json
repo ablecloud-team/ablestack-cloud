@@ -1,0 +1,19 @@
+{
+  "designOnly": true,
+  "nativeBeforeAfterEqual": true,
+  "sameBootId": "1221b5a9-63b6-42c9-a297-0a44d178c1f7",
+  "sameSambaPidsAndInvocation": "MainPID=1550\nInvocationID=7ce306ba64034d97acbedd841d3ef0fc",
+  "nineLiveManagedFilesEqual": true,
+  "sameCurrentVersion": "epic1438-1446-7f473dc06768",
+  "samePreviousVersion": "bootstrap-f858358b0e1b8eba",
+  "managementJarUnchanged": true,
+  "uiIndexUnchanged": true,
+  "actualUiRefreshedAfterProbes": true,
+  "existingTwoRuntimeOperationsPreserved": true,
+  "ownedManagementAndGuestProbeStagesRemoved": true,
+  "productFilesEdited": false,
+  "liveActivation": false,
+  "diskOrVmCreated": false,
+  "macChanged": false,
+  "existingSparseVolumesUiEvidence": "A-sparse-volumes-dark.png"
+}
