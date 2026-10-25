@@ -10335,5 +10335,6 @@
   "message.sharedfs.static.dns.invalid": "DNS에는 유효한 IPv4 유니캐스트 주소를 입력하세요.",
   "label.sharedfs.network.unknown": "미확인 · UNKNOWN",
   "label.sharedfs.network.owner": "관리 주체",
-  "label.sharedfs.network.destination": "대상"
+  "label.sharedfs.network.destination": "대상",
+  "label.restart": "재시작"
 }

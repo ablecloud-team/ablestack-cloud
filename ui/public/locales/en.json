@@ -10370,5 +10370,6 @@
   "message.sharedfs.static.dns.invalid": "Enter a valid IPv4 unicast DNS address.",
   "label.sharedfs.network.unknown": "Unknown",
   "label.sharedfs.network.owner": "Owner",
-  "label.sharedfs.network.destination": "Destination"
+  "label.sharedfs.network.destination": "Destination",
+  "label.restart": "Restart"
 }
