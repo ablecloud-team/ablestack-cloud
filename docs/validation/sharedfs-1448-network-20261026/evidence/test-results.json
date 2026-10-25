@@ -1,0 +1,36 @@
+{
+  "backend-prefix-package.log": [
+    "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.128 s - in org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest",
+    "[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.77 s - in org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+    "[INFO] Tests run: 45, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ],
+  "backend-tests.log": [
+    "[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.868 s - in org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+    "[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.184 s - in com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest",
+    "[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ],
+  "ui-actual-wire-tests.log": [
+    "Test Suites: 2 passed, 2 total",
+    "Tests:       16 passed, 16 total",
+    "Time:        101.226s"
+  ],
+  "ui-actual-wire-final-tests.log": [
+    "Test Suites: 1 passed, 1 total",
+    "Tests:       11 passed, 11 total",
+    "Time:        18.067s"
+  ],
+  "ui-locale-tests.log": [
+    "Test Suites: 1 passed, 1 total",
+    "Tests:       5 passed, 5 total",
+    "Time:        8.949s"
+  ],
+  "ui-lint-final.log": [
+    " DONE  No lint errors found!"
+  ],
+  "ui-observation-lint.log": [
+    " DONE  No lint errors found!"
+  ]
+}
