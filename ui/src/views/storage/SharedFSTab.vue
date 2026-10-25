@@ -1323,6 +1323,7 @@
         <SharedFSNetworkStatus
           :resource="resource"
 :health="storageService.health"
+          :unavailable="!!storageReadErrors.health"
 :protocols="storageService.protocols"
           :protected="configurationProtected || actionModal.loading"
 :refreshing="storageService.refreshing"
@@ -8488,8 +8489,25 @@ export default {
     },
     async refreshNetworkPolicy () {
       if (!this.storageService.instance || this.storageService.refreshing) return
+      const instanceid = this.storageService.instance.id
+      const scope = this.storageReadScope
+      const current = () => scope === this.storageReadScope && instanceid === this.storageService.instance?.id
       this.storageService.refreshing = true
-      try { await Promise.all([this.fetchRuntime('listStorageServiceHealth', 'health'), this.fetchInstances()]) } finally { this.storageService.refreshing = false }
+      try {
+        const results = await Promise.allSettled([
+          this.listApi('listStorageServiceHealth', { instanceid }, 'storageserviceruntime'),
+          this.fetchInstances()
+        ])
+        if (!current()) return
+        if (results[0].status === 'fulfilled') {
+          this.storageService.health = results[0].value
+          delete this.storageReadErrors.health
+        } else {
+          this.storageReadErrors.health = this.$t('message.sharedfs.network.observation.unavailable')
+          this.$notifyError(results[0].reason)
+        }
+        if (results[1].status === 'rejected') this.$notifyError(results[1].reason)
+      } finally { if (current()) this.storageService.refreshing = false }
     },
     parseRuntimeResult (item) {
       if (!item) {

@@ -3477,10 +3477,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 endpoint.addProperty("netmask", targetNic.getIPv4Netmask());
                 endpoint.addProperty("prefixlen", ipv4NetmaskToPrefixLength(targetNic.getIPv4Netmask()));
             }
-            final String cidr = findProtocolEndpointCidr(instance, targetNic, listenIp);
+            final String staticCidr = findStaticSharedFsEndpointCidr(instance, targetNic, listenIp);
+            final String cidr = StringUtils.isNotBlank(staticCidr) ? staticCidr : findProtocolEndpointCidr(instance, targetNic, listenIp);
             if (StringUtils.isNotBlank(cidr)) {
                 endpoint.addProperty("networkCidr", cidr);
-                if (!endpoint.has("prefixlen")) {
+                if (StringUtils.isNotBlank(staticCidr) || !endpoint.has("prefixlen")) {
                     endpoint.addProperty("prefixlen", cidrPrefixLength(cidr));
                 }
             }
@@ -3488,6 +3489,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             logger.warn("Unable to enrich Storage Service endpoint [{}] with guest network metadata; System VM will validate it at apply time",
                     listenIp, e);
         }
+    }
+
+    protected String findStaticSharedFsEndpointCidr(final StorageServiceInstanceVO instance, final NicVO nic, final String listenIp) {
+        if (instance == null || instance.getVmId() == null || nic == null) return null;
+        final SharedFSVO sharedFS = sharedFSDao.findByVm(instance.getVmId());
+        if (sharedFS != null && sharedFS.getNetworkMode() == SharedFS.NetworkMode.STATIC &&
+                StringUtils.equals(sharedFS.getIpAddress(), nic.getIPv4Address()) &&
+                isIpv4InCidr(listenIp, sharedFS.getCidr()) && isIpv4InCidr(nic.getIPv4Address(), sharedFS.getCidr())) {
+            return sharedFS.getCidr();
+        }
+        return null;
     }
 
     protected String findProtocolEndpointCidr(final StorageServiceInstanceVO instance, final NicVO targetNic, final String listenIp) {
@@ -5836,10 +5848,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("macAddress", targetNic.getMacAddress());
         payload.addProperty("netmask", targetNic.getIPv4Netmask());
         payload.addProperty("prefixlen", ipv4NetmaskToPrefixLength(targetNic.getIPv4Netmask()));
-        final String networkCidr = findProtocolEndpointCidr(instance, targetNic, listenIp);
+        final String staticCidr = findStaticSharedFsEndpointCidr(instance, targetNic, listenIp);
+        final String networkCidr = StringUtils.isNotBlank(staticCidr) ? staticCidr : findProtocolEndpointCidr(instance, targetNic, listenIp);
         if (StringUtils.isNotBlank(networkCidr)) {
             payload.addProperty("networkCidr", networkCidr);
-            if (StringUtils.isBlank(targetNic.getIPv4Netmask())) {
+            if (StringUtils.isNotBlank(staticCidr) || StringUtils.isBlank(targetNic.getIPv4Netmask())) {
                 payload.addProperty("prefixlen", cidrPrefixLength(networkCidr));
             }
         }

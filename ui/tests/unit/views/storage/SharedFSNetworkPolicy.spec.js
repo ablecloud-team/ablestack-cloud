@@ -3,6 +3,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import Network from '@/views/storage/SharedFSNetworkStatus'
 import Create from '@/views/storage/CreateSharedFS'
 import NicsTable from '@/views/network/NicsTable'
+import SharedFSTab from '@/views/storage/SharedFSTab'
 import { postAPI } from '@/api'
 import { staticNetworkError, networkPolicyObservation } from '@/utils/sharedfsNetwork'
 import wire from '../../../fixtures/storage-1448-network-wire.json'
@@ -26,7 +27,7 @@ describe('SharedFS network actual component contracts', () => {
     postAPI.mockReset()
     postAPI.mockResolvedValue({ restartsharedfilesystemresponse: { jobid: 'restart-original-job' } })
   })
-  afterEach(() => { if (wrapper) wrapper.unmount(); jest.restoreAllMocks() })
+  afterEach(() => { if (wrapper) wrapper.unmount(); jest.restoreAllMocks(); jest.useRealTimers() })
   it('uses real listStorageServiceHealth resultjson and does not invent an observation for legacy guests', async () => {
     const vm = await render()
     expect(vm.state).toBe('UNKNOWN')
@@ -49,6 +50,39 @@ describe('SharedFS network actual component contracts', () => {
     root.generatedEpoch -= 60; root.network.policy.status = 'READY'
     await wrapper.setProps({ health: [{ ...health[0], resultjson: JSON.stringify(root) }] })
     expect(vm.state).toBe('UNKNOWN')
+  })
+  it('expires an unchanged successful observation and marks failed reads unknown', async () => {
+    jest.useFakeTimers('legacy')
+    health = clone(wire.policyHealth)
+    wrapper = shallowMount(Network, { props: { resource: wire.resource, health }, global: { mocks: { $t: k => k, $store: { getters: { apis: {} } } } } })
+    expect(wrapper.vm.state).toBe('READY')
+    Date.now.mockReturnValue((wire.testNowEpoch + 60) * 1000)
+    jest.advanceTimersByTime(5000)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.state).toBe('UNKNOWN')
+    Date.now.mockReturnValue(wire.testNowEpoch * 1000)
+    jest.advanceTimersByTime(5000)
+    await wrapper.setProps({ unavailable: true })
+    expect(wrapper.vm.state).toBe('UNKNOWN')
+  })
+  it('discards a health response from a previous SharedFS scope', async () => {
+    let finish
+    const pending = new Promise(resolve => { finish = resolve })
+    const context = {
+      storageService: { instance: { id: 'one' }, refreshing: false, health: [] },
+      storageReadScope: 'scope-one',
+      storageReadErrors: {},
+      listApi: jest.fn(() => pending),
+      fetchInstances: jest.fn(async () => {}),
+      $t: k => k,
+      $notifyError: jest.fn()
+    }
+    const action = SharedFSTab.methods.refreshNetworkPolicy.call(context)
+    context.storageReadScope = 'scope-two'; context.storageService.instance = { id: 'two' }
+    finish(wire.policyHealth)
+    await action
+    expect(context.storageService.health).toEqual([])
+    expect(context.listApi).toHaveBeenCalledWith('listStorageServiceHealth', { instanceid: 'one' }, 'storageserviceruntime')
   })
   it('keeps duplicate submissions locked and restarts the same VM without cleanup', async () => {
     const vm = await render()

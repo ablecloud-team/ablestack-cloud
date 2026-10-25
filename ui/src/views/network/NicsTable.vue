@@ -83,7 +83,8 @@
         </a-tag>
       </template>
       <template v-if="column.key === 'enabled'">
-        <status :text="text ? 'enabled' : 'disabled'"/> {{ text ? 'Enabled' : 'Disabled' }}
+        <a-badge v-if="standard" :status="text ? 'success' : 'default'" :text="$t(text ? 'state.enabled' : 'state.disabled')" />
+        <template v-else><status :text="text ? 'enabled' : 'disabled'"/> {{ text ? 'Enabled' : 'Disabled' }}</template>
       </template>
     </template>
   </a-table>
