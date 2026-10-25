@@ -55,6 +55,12 @@ public class StorageServiceRuntimeBundleDaoImpl extends GenericDaoBase<StorageSe
         return findOneBy(criteria);
     }
 
+    public StorageServiceRuntimeBundleVO findVersionIncludingRemoved(String version) {
+        SearchCriteria<StorageServiceRuntimeBundleVO> criteria = versionSearch.create();
+        criteria.setParameters("version", version);
+        return findOneIncludingRemovedBy(criteria);
+    }
+
     public List<StorageServiceRuntimeBundleVO> listAvailable() {
         final SearchCriteria<StorageServiceRuntimeBundleVO> criteria = stateSearch.create();
         criteria.setParameters("state", StorageServiceRuntimeBundleVO.State.AVAILABLE);

@@ -37,6 +37,11 @@ import org.apache.cloudstack.api.command.admin.storage.dataservice.GetStorageSer
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeBundlesCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeUpgradesCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.PreflightStorageServiceRuntimeUpgradeCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.ValidateStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.TransitionStorageServiceRuntimeBundleCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeBundleValidationsCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeBundleUsagesCmd;
+import org.apache.cloudstack.api.command.admin.storage.dataservice.ListStorageServiceRuntimeBundleEventsCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RegisterStorageServiceRuntimeBundleCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RepairStorageServiceNicIdentityCmd;
 import org.apache.cloudstack.api.command.admin.storage.dataservice.RollbackStorageServiceRuntimeUpgradeCmd;
@@ -458,6 +463,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageNvmeOfHostAclsCmd.class);
         commands.add(RepairStorageServiceNicIdentityCmd.class);
         commands.add(RegisterStorageServiceRuntimeBundleCmd.class);
+        commands.add(ValidateStorageServiceRuntimeBundleCmd.class);
+        commands.add(TransitionStorageServiceRuntimeBundleCmd.class);
+        commands.add(ListStorageServiceRuntimeBundleValidationsCmd.class);
+        commands.add(ListStorageServiceRuntimeBundleUsagesCmd.class);
+        commands.add(ListStorageServiceRuntimeBundleEventsCmd.class);
         commands.add(ListStorageServiceRuntimeBundlesCmd.class);
         commands.add(GetStorageServiceRuntimeUpgradeCapabilitiesCmd.class);
         commands.add(PreflightStorageServiceRuntimeUpgradeCmd.class);

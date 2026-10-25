@@ -83,7 +83,8 @@ export default {
       tabs: [{
         name: 'details',
         component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
-      }, {
+      }, { name: 'runtime.catalog', component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeBundleCatalogSummary.vue'))), show: () => store.getters.userInfo.roletype === 'Admin' },
+      {
         name: 'zones',
         component: shallowRef(defineAsyncComponent(() => import('@/views/image/TemplateZones.vue')))
       }, {

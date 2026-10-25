@@ -27,4 +27,5 @@ public interface StorageServiceRuntimeBundleDao extends GenericDao<StorageServic
     StorageServiceRuntimeBundleVO findByUuid(String uuid);
     StorageServiceRuntimeBundleVO findByVersion(String version);
     List<StorageServiceRuntimeBundleVO> listAvailable();
+    StorageServiceRuntimeBundleVO findVersionIncludingRemoved(String version);
 }

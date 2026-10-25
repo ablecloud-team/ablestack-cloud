@@ -126,6 +126,58 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.run_updater("preflight", request, success=preflight_success)
         return request
 
+    def policy_entry(self, request, revision=1, state="PUBLISHED"):
+        return {"version": request["bundleVersion"], "bundleId": "bundle-" + request["bundleVersion"],
+                "manifestSha256": request["manifestSha256"], "revision": revision,
+                "state": state, "validation": "VERIFIED"}
+
+    def sync_policy(self, *entries, success=True, instance="instance-1"):
+        return self.run_updater("sync_catalog_policy", {"instanceUuid": instance, "bundles": list(entries)}, success=success)
+
+    def test_catalogue_blocks_unpublished_and_stale_identity_before_switch(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        entry = self.policy_entry(request, state="DRAFT")
+        self.sync_policy(entry)
+        result = self.run_updater("activate", request, success=False)
+        self.assertEqual("CATALOG_DESTINATION_BLOCKED", result["errorCode"])
+        self.assertEqual(baseline, self.run_updater("capabilities")["currentVersion"])
+        entry = self.policy_entry(request, revision=2)
+        self.sync_policy(entry)
+        result = self.sync_policy(self.policy_entry(request), success=False)
+        self.assertEqual("CATALOG_POLICY_STALE", result["errorCode"])
+        changed = dict(entry, bundleId="another-bundle", revision=3)
+        self.assertEqual("CATALOG_IDENTITY_CONFLICT", self.sync_policy(changed, success=False)["errorCode"])
+        self.assertEqual("CATALOG_INSTANCE_MISMATCH", self.sync_policy(entry, instance="another-instance", success=False)["errorCode"])
+        self.run_updater("activate", request)
+        self.run_updater("activate", dict(request, confirmActivation=True))
+        self.run_updater("rollback", request)
+        self.assertEqual(baseline, self.run_updater("capabilities")["currentVersion"])
+
+    def test_catalogue_suspend_allows_previous_but_security_revoke_blocks_boot_fallback(self):
+        self.run_updater("bootstrap")
+        one = self.stage_transaction()
+        self.sync_policy(self.policy_entry(one))
+        self.run_updater("activate", one)
+        self.run_updater("activate", dict(one, confirmActivation=True))
+        two = self.stage_transaction("tx-2", "v3")
+        self.sync_policy(self.policy_entry(two), self.policy_entry(one, 2, "SUSPENDED"))
+        self.run_updater("activate", two)
+        self.run_updater("activate", dict(two, confirmActivation=True))
+        self.run_updater("rollback", two)
+        self.assertEqual("v2", self.run_updater("capabilities")["currentVersion"])
+        three = self.stage_transaction("tx-3", "v4")
+        self.sync_policy(self.policy_entry(three))
+        self.run_updater("activate", three)
+        self.sync_policy(self.policy_entry(one, 3, "REVOKING"))
+        self.assertEqual("CATALOG_DESTINATION_BLOCKED", self.run_updater("rollback", three, success=False)["errorCode"])
+        # A fresh updater process / boot reconciliation reloads the persisted fence.
+        self.assertEqual("CATALOG_DESTINATION_BLOCKED", self.run_updater("bootstrap", success=False)["errorCode"])
+        self.assertEqual("v4", self.run_updater("capabilities")["currentVersion"])
+        saved = self.runtime_root / "catalog-policy.json"
+        self.assertEqual(0o600, saved.stat().st_mode & 0o777)
+        self.assertEqual("REVOKING", json.loads(saved.read_text())["bundles"]["v2"]["state"])
+
     def test_signed_bundle_activation_and_rollback(self):
         bootstrap = self.run_updater("bootstrap")
         self.assertEqual("BOOTSTRAPPED", bootstrap["phase"])

@@ -348,4 +348,6 @@
   <bean id="dnsNicJoinDao" class="org.apache.cloudstack.dns.dao.NicDnsJoinDaoImpl" />
   <bean id="dnsServerDetailsDao" class="org.apache.cloudstack.dns.dao.DnsServerDetailsDaoImpl" />
 
+    <bean id="storageServiceRuntimeBundleValidationDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleValidationDaoImpl" />
+    <bean id="storageServiceRuntimeBundleEventDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleEventDaoImpl" />
 </beans>

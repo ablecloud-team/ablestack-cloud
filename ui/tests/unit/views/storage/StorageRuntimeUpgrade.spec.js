@@ -11,7 +11,7 @@ describe('runtime mounted SFC using ApiResponseSerializer wire', () => {
   const render = async () => {
     wrapper = shallowMount(Runtime, {
       props: { resource: { id: 'sharedfs', name: 'service', templatename: 'template' } },
-      global: { mocks: { $t: x => x, $pollJob: poll, $notifyError: notify } }
+      global: { stubs: { RouterLink: true }, mocks: { $t: x => x, $pollJob: poll, $notifyError: notify } }
     })
     await flushPromises()
     return wrapper.vm
@@ -25,7 +25,7 @@ describe('runtime mounted SFC using ApiResponseSerializer wire', () => {
     postAPI.mockReset()
     getAPI.mockImplementation(async api => {
       if (api === 'getStorageServiceRuntimeUpgradeCapabilities') return clone(wire.capability)
-      if (api === 'listStorageServiceRuntimeBundles') return { liststorageserviceruntimebundlesresponse: { storageserviceruntimebundle: [{ id: 'bundle', version: 'v2', serviceimpact: 'NONE' }] } }
+      if (api === 'listStorageServiceRuntimeBundles') return { liststorageserviceruntimebundlesresponse: { storageserviceruntimebundle: [{ id: 'bundle', version: 'v2', serviceimpact: 'NONE', state: 'PUBLISHED', validationstatus: 'VERIFIED', eligible: true }] } }
       return { liststorageserviceruntimeupgradesresponse: { storageserviceruntimeupgrade: clone(rows) } }
     })
     postAPI.mockImplementation(async api => ({ [api.toLowerCase() + 'response']: { jobid: 'original-job' } }))
@@ -38,22 +38,11 @@ describe('runtime mounted SFC using ApiResponseSerializer wire', () => {
     expect(vm.integrity.files[0].path).toBe('ablestack-storagectl')
     expect(vm.supportDescription).toBe('검증 지원')
   })
-  it('registers signed artifact metadata through the existing API before staging', async () => {
-    const vm = await render()
-    vm.registrationOpen = true
-    vm.registration = {
-      version: 'v2', runtimeabiversion: '1', desiredstateschemaversion: '1', serviceimpact: 'NONE',
-      artifacturl: 'http://127.0.0.1/bundle', manifesturl: 'http://127.0.0.1/manifest', signatureurl: 'http://127.0.0.1/signature',
-      artifactsize: 123, sha256: 'a'.repeat(64), manifestsha256: 'b'.repeat(64), signingkeyid: 'operator-key'
-    }
-    expect(vm.registrationValid).toBe(true)
-    expect(vm.canPreflight).toBe(false)
-    postAPI.mockResolvedValueOnce(clone(wire.bundleRegistration))
-    await vm.registerBundle()
-    expect(postAPI).toHaveBeenCalledTimes(1)
-    expect(postAPI.mock.calls[0]).toEqual(['registerStorageServiceRuntimeBundle', vm.registration])
-    expect(vm.selectedBundleId).toBe('registered-bundle')
-    expect(vm.registrationOpen).toBe(false)
+  it('consumes only the shared published catalogue and never registers from SharedFS', async () => {
+    await render()
+    expect(getAPI).toHaveBeenCalledWith('listStorageServiceRuntimeBundles', { purpose: 'apply', sharedfilesystemid: 'sharedfs', page: 1, pagesize: 100 })
+    expect(wrapper.html()).not.toContain('서명 번들 정보 등록')
+    expect(postAPI).not.toHaveBeenCalled()
   })
   it('does not stage or activate from an update/read', async () => {
     const vm = await render()
@@ -97,7 +86,7 @@ describe('runtime mounted SFC using ApiResponseSerializer wire', () => {
     const vm = await render()
     expect(vm.canObserve).toBe(true)
     expect(vm.canPreflight).toBe(false)
-    expect(vm.canRollback).toBe(false)
+    expect(vm.canRollback).toBe(true)
     vm.openPreparation()
     await flushPromises()
     expect(postAPI.mock.calls[0][0]).toBe('upgradeStorageServiceRuntime')

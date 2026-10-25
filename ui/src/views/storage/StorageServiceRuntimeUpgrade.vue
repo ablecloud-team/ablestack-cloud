@@ -26,7 +26,7 @@ show-icon
 v-else-if="bundles.length === 0 && !loading"
 type="warning"
 show-icon
-      message="등록된 서명 번들이 없습니다."
+      :message="$t('message.runtime.catalog.no.published')"
 description="업그레이드 준비에서 승인된 서명 번들 정보를 등록한 뒤 검증할 수 있습니다." />
     <a-alert
 v-if="canObserve"
@@ -55,20 +55,13 @@ message="같은 작업의 결과 확인 또는 복구가 필요합니다."
     </a-table>
     <MoldDialog v-if="dialog" :visible="dialog" title="Storage Service 런타임 업그레이드" size="lg" form-actions @cancel="dialog = false">
       <a-alert type="info" show-icon message="전송·스테이징·서명 검증 후 명시적으로 적용합니다." />
-      <a-button :disabled="submitting || !!prepared" @click="registrationOpen = !registrationOpen">
-        서명 번들 정보 등록
-      </a-button>
-      <a-form v-if="registrationOpen" layout="vertical">
-        <a-alert type="info" show-icon message="관리 서버가 접근 가능한 서명된 세 파일의 주소와 검증 메타데이터를 등록합니다." />
-        <a-form-item v-for="field in registrationFields" :key="field.key" :label="field.label" required>
-          <a-input-number v-if="field.key === 'artifactsize'" v-model:value="registration[field.key]" :min="1" :max="67108864" style="width:100%" />
-          <a-input v-else v-model:value="registration[field.key]" :disabled="['runtimeabiversion','desiredstateschemaversion','serviceimpact'].includes(field.key)" />
-        </a-form-item>
-      </a-form>
-      <a-form v-else layout="vertical">
-        <a-form-item required label="대상 서명 번들">
+      <router-link to="/runtimebundle">{{ $t('label.runtime.catalog') }}</router-link>
+      <a-form layout="vertical">
+        <a-form-item required :label="$t('label.runtime.catalog.selection')">
           <a-select v-model:value="selectedBundleId" :disabled="submitting || !!prepared">
-            <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id">{{ bundle.version }} · ABI {{ bundle.runtimeabiversion }}</a-select-option>
+            <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id" :disabled="!bundle.eligible">
+              {{ bundle.version }} · {{ bundle.state }} · {{ bundle.compatibility }} · {{ bundle.eligibilityreason }}
+            </a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -92,8 +85,7 @@ show-icon
       <MoldDialogActions :busy="submitting">
         <a-button @click="dialog = false">취소</a-button>
         <a-button :disabled="submitting || loading" @click="fetchData"><ReloadOutlined />업데이트</a-button>
-        <a-button v-if="registrationOpen" type="primary" :disabled="!registrationValid" :loading="submitting" @click="registerBundle">등록</a-button>
-        <a-button v-else-if="prepared" type="primary" :disabled="!acknowledged" :loading="submitting" @click="runUpgrade">적용</a-button>
+        <a-button v-if="prepared" type="primary" :disabled="!acknowledged" :loading="submitting" @click="runUpgrade">적용</a-button>
         <a-button v-else type="primary" :disabled="!canPreflight" :loading="submitting" @click="runPreflight">다운로드·검증</a-button>
       </MoldDialogActions>
     </MoldDialog>
@@ -139,20 +131,6 @@ export default {
       dialog: false,
       rollbackDialog: false,
       detail: null,
-      registrationOpen: false,
-      registration: {
-        version: '',
-        runtimeabiversion: '1',
-        desiredstateschemaversion: '1',
-        serviceimpact: 'NONE',
-        artifacturl: '',
-        manifesturl: '',
-        signatureurl: '',
-        artifactsize: undefined,
-        sha256: '',
-        manifestsha256: '',
-        signingkeyid: ''
-      },
       acknowledged: false,
       requestid: null,
       epoch: 0,
@@ -160,21 +138,6 @@ export default {
     }
   },
   computed: {
-    registrationFields () {
-      return [
-        { key: 'version', label: '번들 버전' }, { key: 'signingkeyid', label: '서명키 ID' },
-        { key: 'runtimeabiversion', label: '런타임 ABI' }, { key: 'desiredstateschemaversion', label: '설정 스키마' },
-        { key: 'serviceimpact', label: '서비스 영향' }, { key: 'artifacturl', label: '번들 URL' },
-        { key: 'manifesturl', label: 'Manifest URL' }, { key: 'signatureurl', label: '서명 URL' },
-        { key: 'artifactsize', label: '번들 크기(bytes)' }, { key: 'sha256', label: '번들 SHA-256' },
-        { key: 'manifestsha256', label: 'Manifest SHA-256' }
-      ]
-    },
-    registrationValid () {
-      return this.registrationFields.every(field => !!this.registration[field.key]) &&
-        ['sha256', 'manifestsha256'].every(key => /^[0-9a-f]{64}$/.test(this.registration[key])) &&
-        ['artifacturl', 'manifesturl', 'signatureurl'].every(key => /^https?:\/\//.test(this.registration[key]))
-    },
     preparedFiles () { return this.parse(this.prepared?.preflightjson).verifiedFiles || [] },
     latestUpgrade () { return this.upgrades[0] || null },
     prepared () { return this.latestUpgrade?.state === 'PREFLIGHT_READY' ? this.latestUpgrade : null },
@@ -191,8 +154,8 @@ export default {
     },
     running () { return this.latestUpgrade?.state === 'RUNNING' && !this.canObserve },
     canObserve () { return this.latestUpgrade?.state === 'OBSERVATION_PENDING' || (this.latestUpgrade?.state === 'RUNNING' && ['ACTIVATING', 'VERIFYING', 'ROLLING_BACK'].includes(this.latestUpgrade.phase)) },
-    canPreflight () { return !this.registrationOpen && !this.loading && !this.submitting && !!this.selectedBundleId && this.selectedBundle?.version !== this.capability.currentversion && !this.prepared && !this.running && !this.canObserve },
-    canRollback () { return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' && !!this.capability.previousversion },
+    canPreflight () { return !this.loading && !this.submitting && !!this.selectedBundleId && this.selectedBundle?.eligible === true && this.selectedBundle?.version !== this.capability.currentversion && !this.prepared && !this.running && !this.canObserve },
+    canRollback () { return !this.loading && !this.submitting && ['COMPLETE', 'OBSERVATION_PENDING'].includes(this.latestUpgrade?.state) && !!this.capability.previousversion },
     supportDescription () {
       if (!this.capability.available) return '조회 불가'
       if ((this.capability.hosttransportversion || 1) < 2) return '안전한 전송을 위해 호스트 모듈 갱신 필요'
@@ -230,7 +193,7 @@ export default {
       try {
         const responses = await Promise.all([
           getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: this.resource.id }),
-          getAPI('listStorageServiceRuntimeBundles', { listall: true }),
+          getAPI('listStorageServiceRuntimeBundles', { purpose: 'apply', sharedfilesystemid: this.resource.id, page: 1, pagesize: 100 }),
           getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: this.resource.id, listall: true })
         ])
         if (this.epoch !== epoch) return
@@ -241,27 +204,10 @@ export default {
         if (['COMPLETE', 'ROLLED_BACK', 'FAILED'].includes(this.latestUpgrade?.state)) this.requestid = null
         if (['COMPLETE', 'ROLLED_BACK'].includes(this.latestUpgrade?.state)) { this.dialog = false; this.rollbackDialog = false }
         if (this.prepared) this.selectedBundleId = this.prepared.bundleid
-        else if (!this.selectedBundleId && this.bundles.length) this.selectedBundleId = this.bundles[0].id
+        else if (!this.selectedBundleId && this.bundles.length) this.selectedBundleId = this.bundles.find(x => x.eligible)?.id
       } catch (error) {
         if (this.epoch === epoch) { this.readError = '런타임 조회에 실패했습니다. 업데이트로 다시 확인하십시오.'; this.$notifyError(error) }
       } finally { if (this.epoch === epoch) this.loading = false }
-    },
-    async registerBundle () {
-      if (!this.registrationValid || this.submitting) return
-      this.submitting = true
-      const epoch = this.epoch
-      try {
-        const wire = await postAPI('registerStorageServiceRuntimeBundle', { ...this.registration })
-        if (this.epoch !== epoch) return
-        const bundle = wire.registerstorageserviceruntimebundleresponse?.storageserviceruntimebundle
-        if (!bundle?.id) throw new Error('Runtime bundle registration response is missing its identity')
-        await this.fetchData()
-        this.selectedBundleId = bundle.id
-        this.requestid = null
-        this.registrationOpen = false
-      } catch (error) {
-        if (this.epoch === epoch) this.$notifyError(error)
-      } finally { if (this.epoch === epoch) this.submitting = false }
     },
     openPreparation () {
       if (this.canObserve) { this.runUpgrade(); return }

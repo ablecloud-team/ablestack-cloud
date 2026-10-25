@@ -72,6 +72,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     private static final int MAX_SIGNATURE_BYTES = 16 * 1024;
 
     @Inject private StorageServiceRuntimeBundleDao bundleDao;
+    @Inject private StorageServiceRuntimeCatalogManagerImpl catalog;
     @Inject private StorageServiceRuntimeUpgradeDao upgradeDao;
     @Inject private StorageServiceInstanceDao instanceDao;
     @Inject private SharedFSDao sharedFSDao;
@@ -82,54 +83,12 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     @Override
     public StorageServiceRuntimeBundleResponse register(final RegisterStorageServiceRuntimeBundleCmd cmd) {
-        requireIdentifier(cmd.getVersion(), "version");
-        requireIdentifier(cmd.getRuntimeAbiVersion(), "runtime ABI version");
-        requireIdentifier(cmd.getDesiredStateSchemaVersion(), "desired-state schema version");
-        requireIdentifier(cmd.getSigningKeyId(), "signing key ID");
-        requireSha256(cmd.getSha256(), "bundle SHA-256");
-        requireSha256(cmd.getManifestSha256(), "manifest SHA-256");
-        final StorageServiceRuntimeBundleVO.ServiceImpact impact;
-        try {
-            impact = StorageServiceRuntimeBundleVO.ServiceImpact.valueOf(cmd.getServiceImpact().toUpperCase(Locale.ROOT));
-        } catch (final RuntimeException error) {
-            throw new IllegalArgumentException("Invalid Storage Service runtime service impact", error);
-        }
-        validateArtifactUrl(cmd.getArtifactUrl());
-        validateArtifactUrl(cmd.getManifestUrl());
-        validateArtifactUrl(cmd.getSignatureUrl());
-        final StorageServiceRuntimeBundleVO existing = bundleDao.findByVersion(cmd.getVersion());
-        if (existing != null) {
-            if (!existing.getSha256().equalsIgnoreCase(cmd.getSha256()) ||
-                    !existing.getManifestSha256().equalsIgnoreCase(cmd.getManifestSha256())) {
-                throw new CloudRuntimeException("Runtime bundle version already exists with different hashes");
-            }
-            return bundleResponse(existing);
-        }
-        final StorageServiceRuntimeBundleVO bundle = bundleDao.persist(new StorageServiceRuntimeBundleVO(
-                cmd.getVersion(), cmd.getRuntimeAbiVersion(), cmd.getDesiredStateSchemaVersion(), impact,
-                cmd.getArtifactUrl(), cmd.getManifestUrl(), cmd.getSignatureUrl(), cmd.getArtifactSize(),
-                cmd.getSha256().toLowerCase(Locale.ROOT), cmd.getManifestSha256().toLowerCase(Locale.ROOT), cmd.getSigningKeyId()));
-        CallContext.current().setEventResourceId(bundle.getId());
-        return bundleResponse(bundle);
+        return catalog.register(cmd);
     }
 
     @Override
     public ListResponse<StorageServiceRuntimeBundleResponse> listBundles(final ListStorageServiceRuntimeBundlesCmd cmd) {
-        final List<StorageServiceRuntimeBundleVO> bundles = new ArrayList<>();
-        if (cmd.getId() != null) {
-            final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(cmd.getId());
-            if (bundle != null) bundles.add(bundle);
-        } else if (cmd.getVersion() != null) {
-            final StorageServiceRuntimeBundleVO bundle = bundleDao.findByVersion(cmd.getVersion());
-            if (bundle != null) bundles.add(bundle);
-        } else {
-            bundles.addAll(bundleDao.listAvailable());
-        }
-        final List<StorageServiceRuntimeBundleResponse> responses = new ArrayList<>();
-        for (final StorageServiceRuntimeBundleVO bundle : bundles) responses.add(bundleResponse(bundle));
-        final ListResponse<StorageServiceRuntimeBundleResponse> response = new ListResponse<>();
-        response.setResponses(responses, responses.size());
-        return response;
+        return catalog.list(cmd);
     }
 
     @Override
@@ -162,6 +121,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     public StorageServiceRuntimeUpgradeResponse preflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(cmd.getBundleId());
+        catalog.requireDestination(bundle, false);
         if (instance.getCurrentRuntimeBundleId()!=null && instance.getCurrentRuntimeBundleId().equals(bundle.getId()))
             throw new CloudRuntimeException("RUNTIME_ALREADY_CURRENT");
         if (bundle.getServiceImpact() != StorageServiceRuntimeBundleVO.ServiceImpact.NONE) {
@@ -172,6 +132,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final boolean[] created = {false};
         final StorageServiceRuntimeUpgradeVO upgrade = com.cloud.utils.db.Transaction.execute(
                 (com.cloud.utils.db.TransactionCallback<StorageServiceRuntimeUpgradeVO>) ignored -> {
+            catalog.requireDestination(bundleDao.lockRow(bundle.getId(), true), false);
             instanceDao.lockRow(instance.getId(), true);
             final StorageServiceRuntimeUpgradeVO same = upgradeDao.findByTransactionId(transactionId);
             if (same != null) {
@@ -205,6 +166,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             }
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "BOOTSTRAPPING", 10);
             ensureBootstrap(instance, bundle, transactionId);
+            catalog.syncForOperation(instance, upgrade);
             final JsonObject begin = request(upgrade, bundle);
             begin.addProperty("archiveSha256", bundle.getSha256());
             begin.addProperty("manifestSha256", bundle.getManifestSha256());
@@ -242,6 +204,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                 java.util.Arrays.asList("ACTIVATING","VERIFYING").contains(upgrade.getPhase())))
             throw new CloudRuntimeException("Runtime upgrade is not ready for activation or observation");
         reserveWriter(instance,upgrade,"ACTIVATING");
+        if (activate) catalog.syncForOperation(instance, upgrade);
         try {
             JsonObject activated = activate ? invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,
                     upgrade.getTransactionId(),request(upgrade,bundle)) :
@@ -271,6 +234,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
                 finishRollback(instance,upgrade,result);
                 throw new CloudRuntimeException("Runtime health failed; previous code and configuration restored: " + health.getDetails());
             }
+            catalog.requireDestination(bundleDao.findByIdIncludingRemoved(bundle.getId()), false);
             JsonObject confirmation=request(upgrade,bundle);
             confirmation.addProperty("confirmActivation",true);
             JsonObject confirmed=invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,upgrade.getTransactionId(),confirmation);
@@ -309,6 +273,20 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     private void reserveWriter(StorageServiceInstanceVO instance,StorageServiceRuntimeUpgradeVO upgrade,String phase) {
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
+            java.util.SortedSet<Long> policyIds=new java.util.TreeSet<>();
+            policyIds.add(upgrade.getBundleId());
+            if(upgrade.getPreviousBundleId()!=null)policyIds.add(upgrade.getPreviousBundleId());
+            for(Long id:policyIds)bundleDao.lockRow(id,true);
+            if("ROLLING_BACK".equals(phase) && upgrade.getPreviousBundleId()!=null)
+                catalog.requireDestination(bundleDao.findByIdIncludingRemoved(upgrade.getPreviousBundleId()),true);
+            if("ACTIVATING".equals(phase) && upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY)
+                catalog.requireDestination(bundleDao.findByIdIncludingRemoved(upgrade.getBundleId()),false);
+            JsonObject policy=new JsonObject();
+            StorageServiceRuntimeBundleVO destination=bundleDao.findByIdIncludingRemoved(
+                    "ROLLING_BACK".equals(phase) && upgrade.getPreviousBundleId()!=null?upgrade.getPreviousBundleId():upgrade.getBundleId());
+            policy.addProperty("bundleId",destination.getUuid());policy.addProperty("manifestSha256",destination.getManifestSha256());
+            policy.addProperty("revision",destination.getStateRevision());policy.addProperty("kind",phase);
+            upgrade.setCatalogPolicyJson(policy.toString());
             StorageServiceInstanceVO locked=instanceDao.lockRow(instance.getId(),true);
             if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
             StorageServiceRuntimeUpgradeVO other=upgradeDao.findActiveByInstanceId(instance.getId());
@@ -356,6 +334,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (instance.getCurrentRuntimeBundleId()!=null && !instance.getCurrentRuntimeBundleId().equals(bundle.getId()))
             throw new CloudRuntimeException("ROLLBACK_STALE_OPERATION");
         reserveWriter(instance,upgrade,"ROLLING_BACK");
+        catalog.syncForOperation(instance,upgrade);
         try {
             return finishRollback(instance,upgrade,invoke(instance,StorageServiceRuntimeOperation.ROLLBACK,
                     upgrade.getTransactionId(),request(upgrade,bundle)));
@@ -432,9 +411,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (!observed.has("hostTransportVersion") || observed.get("hostTransportVersion").getAsInt()<2)
             throw new CloudRuntimeException("Atomic runtime host transport version 2 is required");
         byte[] updaterModule=resource("/storage-runtime/bootstrap/runtime_updater.py");
-        if (observed.has("updaterVersion") && observed.get("updaterVersion").getAsInt()>2)
+        if (observed.has("updaterVersion") && observed.get("updaterVersion").getAsInt()>3)
             throw new CloudRuntimeException("Newer trusted updater requires aligned management support");
-        if (!observed.has("updaterVersion") || observed.get("updaterVersion").getAsInt()<2 ||
+        if (!observed.has("updaterVersion") || observed.get("updaterVersion").getAsInt()<3 ||
                 !sha256(updaterModule).equals(stringValue(observed,"updaterSha256"))) {
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_MODULE, null,
                     updaterModule, 0, 4, null);
@@ -543,7 +522,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
 
     private StorageServiceRuntimeBundleVO requireBundle(final Long id) {
         final StorageServiceRuntimeBundleVO bundle = bundleDao.findById(id);
-        if (bundle == null || bundle.getState() != StorageServiceRuntimeBundleVO.State.AVAILABLE) throw new CloudRuntimeException("Runtime bundle is unavailable");
+        if (bundle == null) throw new CloudRuntimeException("Runtime bundle is unavailable");
         return bundle;
     }
 
@@ -575,6 +554,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         request.addProperty("serviceImpact", bundle.getServiceImpact().name());
         StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         request.addProperty("instanceUuid", instance.getUuid());
+        if(upgrade.getCatalogPolicyJson()!=null) request.add("catalogGrant",JsonParser.parseString(upgrade.getCatalogPolicyJson()));
         return request;
     }
 
