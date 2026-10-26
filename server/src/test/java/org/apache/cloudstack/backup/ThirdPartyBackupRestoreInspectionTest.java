@@ -177,6 +177,22 @@ public class ThirdPartyBackupRestoreInspectionTest {
     }
 
     @Test
+    public void externalCallbackFailureHistoryDoesNotBecomeAnInvalidVmRestorePlan() {
+        ThirdPartyExternalRestore.Attempt rejected = new ThirdPartyExternalRestore.Attempt();
+        rejected.provider = "ablestack-netbackup";
+        rejected.jobId = "359";
+        details.put(ThirdPartyExternalRestore.key(rejected.provider, rejected.jobId), gson.toJson(rejected));
+        details.put(ThirdPartyExternalRestore.LATEST_KEY, ThirdPartyExternalRestore.id(rejected.provider, rejected.jobId));
+        details.put(ThirdPartyExternalRestore.PENDING_KEY, "true");
+        details.put(ThirdPartyExternalRestore.STARTED_KEY, "1234");
+        BackupStagingInfoResponse info = inspect();
+        assertEquals(1, info.restoreattempt.size());
+        assertEquals(plan.jobId, info.restoreattempt.get(0).stagingjobid);
+        assertEquals("COMPLETED", info.hoststate);
+        verifyNoInteractions(agent, hosts);
+    }
+
+    @Test
     public void oldUnknownInspectionCanDisplayValidatedCommittedOutcomeAfterCleanup() {
         operation.hostState = operation.hostStep = "UNKNOWN";
         vmResult("COMMITTED", "COMPLETED", "COMPLETED");

@@ -421,6 +421,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     private java.util.List<BackupStagingInfoResponse.RestoreAttemptInfo> restoreAttempts(Backup backup, ThirdPartyBackupRestore.Plan current) {
         java.util.List<BackupStagingInfoResponse.RestoreAttemptInfo> attempts = new java.util.ArrayList<>();
         for (BackupDetailVO detail : backupDetailsDao.listDetails(backup.getId())) {
+            if (detail.getName().startsWith(ThirdPartyExternalRestore.PREFIX)) { continue; }
             if (!detail.getName().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX) || !detail.getName().endsWith(".operation")) { continue; }
             ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(detail.getValue(), ThirdPartyBackupRestore.Operation.class);
             if (operation == null || operation.plan == null || StringUtils.isBlank(operation.plan.jobId)
@@ -1571,6 +1572,17 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             }
             java.util.Map<String, ThirdPartyBackupRestore.Operation> attempts = new java.util.LinkedHashMap<>();
             for (BackupDetailVO detail : backupDetailsDao.listDetails(backup.getId())) {
+                if (detail.getName().startsWith(ThirdPartyExternalRestore.PREFIX)) {
+                    if (detail.getName().startsWith(ThirdPartyExternalRestore.PREFIX + "external-restore-")) {
+                        ThirdPartyExternalRestore.Attempt external = new Gson().fromJson(detail.getValue(), ThirdPartyExternalRestore.Attempt.class);
+                        if (external == null || external.version != 1 || !backup.getUuid().equals(external.backupUuid)
+                                || !detail.getName().equals(ThirdPartyExternalRestore.key(external.provider, external.jobId))
+                                || !"COMPLETED".equals(external.cleanupState)) {
+                            throw new CloudRuntimeException("External metadata restore cleanup must finish before deleting its history");
+                        }
+                    }
+                    continue;
+                }
                 if (!detail.getName().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX) || !detail.getName().endsWith(".operation")) { continue; }
                 ThirdPartyBackupRestore.Operation operation = new Gson().fromJson(detail.getValue(), ThirdPartyBackupRestore.Operation.class);
                 if (operation == null || operation.plan == null || StringUtils.isBlank(operation.plan.jobId)

@@ -290,6 +290,14 @@ wait_for_mold_async_job() {
   done
 }
 
+submit_volume_restore() {
+  local external_id="$1" netbackup_job_id="$2" restore_params="provider=ablestack-netbackup"
+  if [[ -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]]; then
+    restore_params+="&proof=$(urlencode_plus "${MOLD_EXTERNAL_RESTORE_PROOF}")"
+  fi
+  invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "restoreBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "${restore_params}"
+}
+
 main() {
   if [[ $# -lt 2 ]]; then
     fail "usage: netbackup-host-restore-notify <program_name> <external_id> [operation] [netbackup_job_id]"
@@ -352,7 +360,7 @@ main() {
       return 0
     fi
     [[ -n "${netbackup_job_id}" ]] || fail "Volume pipeline callback requires the exact NetBackup restore Job ID"
-    response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "restoreBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "provider=ablestack-netbackup")" || return 1
+    response="$(submit_volume_restore "${external_id}" "${netbackup_job_id}")" || return 1
     local pipeline_job_id
     pipeline_job_id="$(extract_json_value_by_key "${response}" "jobid" 2>/dev/null || true)"
     [[ -n "${pipeline_job_id}" ]] || fail "Mold restoreBackupArtifact returned no async jobid: ${response}"

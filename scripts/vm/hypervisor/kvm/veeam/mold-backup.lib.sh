@@ -2511,8 +2511,8 @@ PYTHON
   return "$rc"
 }
 
-mold_backup_report_rejected_volume_restore() {
-  local sid="$1" rp_id="$2" reason="$3" proof host output success
+mold_backup_volume_restore_proof() {
+  local sid="$1" proof host
   proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid")" || return 2
   host="$(mold_backup_local_kvm_name)"
   proof="$(python3 - "$sid" "$host" "$proof" <<'PYTHON'
@@ -2531,6 +2531,12 @@ except (ValueError, TypeError, KeyError) as error:
     sys.exit(1)
 PYTHON
 )" || return 2
+  printf '%s\n' "$proof"
+}
+
+mold_backup_report_rejected_volume_restore() {
+  local sid="$1" rp_id="$2" reason="$3" proof output success
+  proof="$(mold_backup_volume_restore_proof "$sid")" || return 2
   output="$(mold_backup_cmk_run rejectBackupArtifactRestore "provider=ablestack-veeam" "externalid=${rp_id}" \
     "jobid=${sid%%#*}" "reason=${reason:-Metadata restore precheck declined}" "proof=${proof}" 2>/dev/null)" || return 2
   success="$(mold_backup_api_json_field "$output" "rejectbackupartifactrestoreresponse.success")"
@@ -2539,7 +2545,7 @@ PYTHON
 
 mold_backup_handle_volume_restore_session() {
   local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}" result="${5:-}"
-  local json matched tracked allowed reason vm async_id artifact_type
+  local json matched tracked allowed reason vm async_id artifact_type proof
   result="$(printf '%s' "$result" | tr '[:upper:]' '[:lower:]')"
   [[ "$result" == success || "$result" == warning ]] || return 2
   local -a params=("provider=ablestack-veeam" "jobid=${sid%%#*}")
@@ -2576,7 +2582,8 @@ mold_backup_handle_volume_restore_session() {
   if [[ "$result" == warning ]]; then
     mold_backup_verify_veeam_warning "$sid" "$json" || return 2
   fi
-  json="$(mold_backup_cmk_run restoreBackupArtifact "provider=ablestack-veeam" "externalid=${rp_id}" "jobid=${sid%%#*}" 2>/dev/null)" || return 2
+  proof="$(mold_backup_volume_restore_proof "$sid")" || return 2
+  json="$(mold_backup_cmk_run restoreBackupArtifact "provider=ablestack-veeam" "externalid=${rp_id}" "jobid=${sid%%#*}" "proof=${proof}" 2>/dev/null)" || return 2
   async_id="$(mold_backup_api_json_field "$json" "restorebackupartifactresponse.jobid")"
   [[ -n "$async_id" ]] || return 2
   mold_backup_restore_session_mark_seen "$sid"

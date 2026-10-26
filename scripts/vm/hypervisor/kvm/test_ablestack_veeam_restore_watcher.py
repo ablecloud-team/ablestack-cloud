@@ -73,6 +73,9 @@ mold_backup_restore_session_mark_seen() { touch "$TEST_SEEN"; }
 mold_backup_emit_restore_event() { echo "EVENT $*" >&2; }
 mold_backup_cmk_run() {
   echo "API $1" >> "$TEST_CALLS"
+  if [[ "$1" == restoreBackupArtifact ]]; then
+    printf '%s\n' "$@" > "$TEST_ACCEPTED"
+  fi
   if [[ "$1" == resolveBackupArtifact ]]; then echo "$TEST_RESOLUTION";
   elif [[ "$1" == rejectBackupArtifactRestore ]]; then echo '{"rejectbackupartifactrestoreresponse":{"success":true}}';
   elif [[ "$1" == restoreBackupArtifact ]]; then echo '{"restorebackupartifactresponse":{"jobid":"async-test"}}';
@@ -87,7 +90,8 @@ fi
 '''
         env = dict(os.environ, TEST_LIBRARY=str(LIBRARY), TEST_SESSION=line, TEST_PROOF=json.dumps(self.proof if proof is None else proof),
                    TEST_RESOLUTION=json.dumps(dict(resolvebackupartifactresponse=dict(backupartifact=self.expected))),
-                   TEST_SEEN=str(self.base / "seen"), TEST_CALLS=str(self.base / "calls"), TEST_SID=sid, TEST_DIRECT=str(direct).lower(), TEST_TWICE=str(twice).lower(),
+                   TEST_SEEN=str(self.base / "seen"), TEST_CALLS=str(self.base / "calls"), TEST_ACCEPTED=str(self.base / "accepted"),
+                   TEST_SID=sid, TEST_DIRECT=str(direct).lower(), TEST_TWICE=str(twice).lower(),
                    VM_TARGETS="", VM_INCLUDE="", BACKUP_MODE="host")
         output = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env, timeout=20)
         self.assertEqual(0, output.returncode, output.stdout + output.stderr)
@@ -102,6 +106,21 @@ fi
     def test_success_submits_once_and_is_deduplicated(self):
         output = self.watch(result="Success", twice=True)
         self.assertEqual(1, output.count("API restoreBackupArtifact"))
+
+    def test_accepted_restore_includes_verified_completion_proof_for_failure_cleanup(self):
+        self.assertIn("API restoreBackupArtifact", self.watch(result="Success"))
+        params = dict(line.split("=", 1) for line in (self.base / "accepted").read_text().splitlines()[1:])
+        proof = json.loads(params["proof"])
+        self.assertEqual(SESSION, params["jobid"])
+        self.assertEqual(POINT, params["externalid"])
+        self.assertEqual("host-test", proof["hostName"])
+        self.assertEqual(int(self.proof["startedAt"] * 1000), proof["startedAt"])
+        self.assertEqual(int(self.proof["endedAt"] * 1000), proof["endedAt"])
+
+    def test_success_without_exact_completion_proof_is_retried(self):
+        for field, value in (("jobId", POINT), ("endedAt", 0), ("result", "Failed")):
+            with self.subTest(field=field):
+                self.assert_blocked(result="Success", proof=dict(self.proof, **{field: value}))
 
     def test_verified_attribute_warning_starts_volume_restore(self):
         output = self.watch()

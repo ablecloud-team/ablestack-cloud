@@ -18,15 +18,18 @@ package org.apache.cloudstack.backup;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -57,6 +60,7 @@ import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.storage.Volume;
 import com.cloud.utils.db.Transaction;
 import com.cloud.utils.db.TransactionCallback;
+import com.cloud.utils.db.DbUtil;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
@@ -240,5 +244,144 @@ public class ThirdPartyExternalRestoreCleanupTest {
         response = new BackupResponse();
         ReflectionTestUtils.invokeMethod(manager, "populateRejectedExternalRestore", backup, response);
         assertNull(response.getRestoreJobState());
+    }
+
+    private String callbackKey(String jobId) {
+        return "thirdparty.volume.ui.restore." + java.util.UUID.nameUUIDFromBytes(
+                (provider + ":" + jobId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private BackupManagerImpl callbackManager(String jobId) {
+        BackupManagerImpl manager = spy(new BackupManagerImpl());
+        ReflectionTestUtils.setField(manager, "backupDao", backups);
+        ReflectionTestUtils.setField(manager, "backupDetailsDao", details);
+        ReflectionTestUtils.setField(manager, "thirdPartyBackupVolumeService", volumes);
+        when(backups.findByUuid("backup-1")).thenReturn(backup);
+        var resolved = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+        resolved.matched = true;
+        resolved.restoreallowed = true;
+        resolved.id = "backup-1";
+        resolved.artifacttype = "METADATA";
+        doReturn(resolved).when(manager).resolveBackupArtifact(provider, "metadata-point", jobId, null);
+        doReturn(resolved).when(manager).resolveBackupArtifact(provider, "metadata-point", null, null);
+        doAnswer(call -> {
+            service.record(call.getArgument(0), call.getArgument(1), call.getArgument(2), call.getArgument(3),
+                    call.getArgument(4), call.getArgument(5));
+            return null;
+        }).when(volumes).rejectExternalRestore(eq(backup), eq(provider), eq("metadata-point"), eq(jobId), anyString(), anyString());
+        return manager;
+    }
+
+    private MockedStatic<DbUtil> mysqlLocks() {
+        MockedStatic<DbUtil> database = mockStatic(DbUtil.class);
+        database.when(() -> DbUtil.getGlobalLock(anyString(), anyInt()))
+                .thenAnswer(call -> ((String) call.getArgument(0)).length() <= 64);
+        database.when(() -> DbUtil.releaseGlobalLock(anyString())).thenReturn(true);
+        return database;
+    }
+
+    @Test public void externalCallbackUsesCompactLockAndKeepsItsPersistedReceiptKeyForBothProviders() {
+        for (String value : List.of("ablestack-netbackup", "ablestack-veeam")) {
+            prepare(value);
+            String jobId = provider.equals("ablestack-netbackup") ? "359" : "12345678-1234-1234-1234-123456789012";
+            BackupManagerImpl manager = callbackManager(jobId);
+            doReturn(true).when(manager).restoreBackup(1L, false, null);
+            try (MockedStatic<DbUtil> database = mysqlLocks()) {
+                assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", jobId, proof));
+                var tracked = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+                tracked.matched = tracked.tracked = true;
+                doReturn(tracked).when(manager).resolveBackupArtifact(provider, "metadata-point", jobId, null);
+                assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", jobId, proof));
+                verify(manager, times(1)).restoreBackup(1L, false, null);
+                String lock = ThirdPartyBackupRestore.externalLockName(provider, jobId);
+                assertEquals(38, lock.length());
+                database.verify(() -> DbUtil.getGlobalLock(lock, 5), times(2));
+                database.verify(() -> DbUtil.releaseGlobalLock(lock), times(2));
+                assertEquals(65, callbackKey(jobId).length());
+                assertEquals("SUBMITTED", gson.fromJson(saved.get(callbackKey(jobId)), Map.class).get("state"));
+                assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+            }
+        }
+    }
+
+    @Test public void callbackFailureReplacesPreviousUiFailureAndCleansItsMetadataForBothProviders() {
+        for (String value : List.of("ablestack-netbackup", "ablestack-veeam")) {
+            prepare(value);
+            record();
+            String jobId = provider.equals("ablestack-netbackup") ? "359" : "12345678-1234-1234-1234-123456789012";
+            BackupManagerImpl manager = callbackManager(jobId);
+            CloudRuntimeException failure = new CloudRuntimeException("Restore target capacity is unavailable");
+            doThrow(failure).when(manager).restoreBackup(1L, false, null);
+            try (MockedStatic<DbUtil> database = mysqlLocks()) {
+                assertSame(failure, assertThrows(CloudRuntimeException.class,
+                        () -> manager.restoreBackupArtifact(provider, "metadata-point", jobId, proof)));
+                assertEquals("FAILED", gson.fromJson(saved.get(callbackKey(jobId)), Map.class).get("state"));
+                var latest = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, jobId)), ThirdPartyExternalRestore.Attempt.class);
+                assertEquals("COMPLETED", latest.cleanupState);
+                assertEquals(failure.getMessage(), latest.reason);
+                assertEquals(latest.id, saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+                BackupResponse response = new BackupResponse();
+                ReflectionTestUtils.invokeMethod(manager, "populateRejectedExternalRestore", backup, response);
+                assertEquals("FAILED", response.getRestoreJobState());
+                assertTrue(gson.toJson(response).contains(jobId));
+                assertTrue(gson.toJson(response).contains(failure.getMessage()));
+                assertEquals(Backup.Status.BackedUp, backup.getStatus());
+                verify(backups, never()).update(anyLong(), any(BackupVO.class));
+            }
+        }
+    }
+
+    @Test public void declinedRestoreIsAlsoRecordedAsTheLatestFailure() {
+        BackupManagerImpl manager = callbackManager("359");
+        doReturn(false).when(manager).restoreBackup(1L, false, null);
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            assertEquals("Logical backup restore was not submitted", assertThrows(CloudRuntimeException.class,
+                    () -> manager.restoreBackupArtifact(provider, "metadata-point", "359", proof)).getMessage());
+            var latest = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, "359")), ThirdPartyExternalRestore.Attempt.class);
+            assertEquals("COMPLETED", latest.cleanupState);
+            assertEquals("Logical backup restore was not submitted", latest.reason);
+        }
+    }
+
+    @Test public void contendingCallbackCannotStartRestoreOrDeleteAnotherRequestsMetadata() {
+        BackupManagerImpl manager = callbackManager("359");
+        String lock = ThirdPartyBackupRestore.externalLockName(provider, "359");
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            database.when(() -> DbUtil.getGlobalLock(lock, 5)).thenReturn(false);
+            assertEquals("External restore callback is being claimed; retry shortly", assertThrows(CloudRuntimeException.class,
+                    () -> manager.restoreBackupArtifact(provider, "metadata-point", "359", proof)).getMessage());
+            verify(manager, never()).restoreBackup(anyLong(), eq(false), isNull());
+            verifyNoInteractions(agents);
+            database.verify(() -> DbUtil.releaseGlobalLock(lock), never());
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+        }
+    }
+
+    @Test public void failedCallbackCannotCleanAnAlreadySubmittedClaim() {
+        BackupManagerImpl manager = callbackManager("359");
+        saved.put(callbackKey("359"), gson.toJson(Map.of("state", "SUBMITTED")));
+        CloudRuntimeException failure = new CloudRuntimeException("Another request owns this callback");
+        doThrow(failure).when(manager).resolveBackupArtifact(provider, "metadata-point", "359", null);
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            assertSame(failure, assertThrows(CloudRuntimeException.class,
+                    () -> manager.restoreBackupArtifact(provider, "metadata-point", "359", proof)));
+            verifyNoInteractions(agents);
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+        }
+    }
+
+    @Test public void legacyCallbackWithoutProofStillWorksButCannotAuthorizeFailureCleanup() {
+        BackupManagerImpl manager = callbackManager("359");
+        doReturn(true).when(manager).restoreBackup(1L, false, null);
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", "359"));
+            BackupManagerImpl failedManager = callbackManager("360");
+            CloudRuntimeException failure = new CloudRuntimeException("Cannot prepare restore");
+            doThrow(failure).when(failedManager).restoreBackup(1L, false, null);
+            assertSame(failure, assertThrows(CloudRuntimeException.class,
+                    () -> failedManager.restoreBackupArtifact(provider, "metadata-point", "360")));
+            verifyNoInteractions(agents);
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+        }
     }
 }

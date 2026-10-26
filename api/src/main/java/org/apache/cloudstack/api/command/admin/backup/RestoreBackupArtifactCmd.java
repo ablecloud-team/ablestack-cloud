@@ -38,13 +38,15 @@ public class RestoreBackupArtifactCmd extends BaseAsyncCmd implements AdminCmd {
     @Parameter(name = "provider", type = CommandType.STRING, required = true, description = "ablestack-netbackup or ablestack-veeam") private String provider;
     @Parameter(name = ApiConstants.EXTERNAL_ID, type = CommandType.STRING, required = true, description = "Exact metadata catalog artifact ID or original metadata selection") private String externalId;
     @Parameter(name = ApiConstants.JOB_ID, type = CommandType.STRING, required = true, description = "External metadata restore Job ID") private String jobId;
+    @Parameter(name = "proof", type = CommandType.STRING,
+            description = "Verified external Job completion with destination hostName and startedAt/endedAt in epoch milliseconds") private String proof;
 
     @Override public long getEntityOwnerId() { return CallContext.current().getCallingAccount().getId(); }
     @Override public String getEventType() { return EventTypes.EVENT_VM_BACKUP_RESTORE; }
     @Override public String getEventDescription() { return "Restoring logical backup from " + provider + " metadata restore Job " + jobId; }
     @Override public void execute() {
         try {
-            if (!backupManager.restoreBackupArtifact(provider, externalId, jobId)) {
+            if (!backupManager.restoreBackupArtifact(provider, externalId, jobId, proof)) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Logical backup restore was not submitted");
             }
             SuccessResponse response = new SuccessResponse(getCommandName());

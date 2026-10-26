@@ -50,15 +50,17 @@ class NetBackupApiSigningTest(unittest.TestCase):
                         MOLD_API_SECRET="synthetic-secret", MOLD_RESTORE_API_URL="https://mold.test/client/api",
                         TEST_NOTIFY=str(self.notify), TEST_COMMON=str(DIRECTORY / "netbackup-host-common.sh"),
                         TEST_VEEAM=str(DIRECTORY / "veeam/mold-backup.lib.sh"), TEST_REASON=REASON, TEST_PROOF=PROOF,
-                        LOG_FILE=str(self.base / "notify.log"), MOLD_EXTERNAL_RESTORE_PROOF=PROOF)
+                        LOG_FILE=str(self.base / "notify.log"), MOLD_EXTERNAL_RESTORE_PROOF=PROOF, MOLD_RESTORE_API_METHOD="POST")
 
     def shell(self, script):
         return subprocess.run(["bash", "-c", script], env=self.env, text=True, capture_output=True, timeout=20)
 
-    def verify_signature(self, url, reason=REASON):
+    def verify_signature(self, url, reason=REASON, proof=PROOF):
         params = dict(parse_qsl(urlsplit(url.strip()).query, keep_blank_values=True))
-        self.assertEqual(reason, params["reason"])
-        self.assertEqual(PROOF, params["proof"])
+        if reason is not None:
+            self.assertEqual(reason, params["reason"])
+        if proof is not None:
+            self.assertEqual(proof, params["proof"])
         signature = params.pop("signature")
         # Java URLEncoder leaves '*' literal, encodes '~', and the server replaces '+' with '%20'.
         def server_encode(value):
@@ -127,6 +129,29 @@ invoke_mold_api POST rejectBackupArtifactRestore externalid ablecube4_1792958584
         self.assertNotEqual(0, result.returncode)
         self.assertIn("command=rejectBackupArtifactRestore", result.stderr)
         self.assertNotIn("SKIPPED", result.stdout)
+
+    def test_accepted_restore_forwards_completion_proof_with_a_valid_signature(self):
+        self.env["TEST_URL"] = str(self.base / "accepted-url")
+        for has_proof in (True, False):
+            with self.subTest(has_proof=has_proof):
+                self.env["MOLD_EXTERNAL_RESTORE_PROOF"] = PROOF if has_proof else ""
+                result = self.shell(r'''
+source "$TEST_NOTIFY"
+curl() {
+  printf '%s' "${@: -1}" > "$TEST_URL"
+  printf '%s\n200' '{"restorebackupartifactresponse":{"jobid":"async-test"}}'
+}
+submit_volume_restore ablecube4_1792958584 359
+''')
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertIn("async-test", result.stdout)
+                url = (self.base / "accepted-url").read_text()
+                self.verify_signature(url, reason=None, proof=PROOF if has_proof else None)
+                params = dict(parse_qsl(urlsplit(url).query))
+                self.assertEqual("restoreBackupArtifact", params["command"])
+                self.assertEqual("359", params["jobid"])
+                self.assertEqual("ablecube4_1792958584", params["externalid"])
+                self.assertEqual(has_proof, "proof" in params)
 
 
 if __name__ == "__main__":

@@ -128,6 +128,32 @@ public class ThirdPartyBackupRestoreHistoryDeletionTest {
     private void retire() { ReflectionTestUtils.invokeMethod(service, "retireRestoreHistoryForDeletion", backup); }
 
     @Test
+    public void externalFailureHistoryIsRetainedWithoutBeingParsedAsAVmRestorePlan() {
+        ThirdPartyExternalRestore.Attempt rejected = new ThirdPartyExternalRestore.Attempt();
+        rejected.provider = "ablestack-netbackup";
+        rejected.jobId = "359";
+        rejected.id = ThirdPartyExternalRestore.id(rejected.provider, rejected.jobId);
+        rejected.backupUuid = "backup-1";
+        rejected.cleanupState = "COMPLETED";
+        String key = ThirdPartyExternalRestore.key(rejected.provider, rejected.jobId);
+        details.put(key, gson.toJson(rejected));
+        details.put(ThirdPartyExternalRestore.LATEST_KEY, rejected.id);
+        details.put(ThirdPartyExternalRestore.PENDING_KEY, "true");
+        retire();
+        assertTrue(details.containsKey(key));
+        verifyNoInteractions(agents);
+        rejected.cleanupState = "WAITING";
+        details.put(key, gson.toJson(rejected));
+        assertEquals("External metadata restore cleanup must finish before deleting its history",
+                assertThrows(CloudRuntimeException.class, this::retire).getMessage());
+        rejected.cleanupState = "COMPLETED";
+        rejected.backupUuid = "another-backup";
+        details.put(key, gson.toJson(rejected));
+        assertThrows(CloudRuntimeException.class, this::retire);
+        verifyNoInteractions(agents);
+    }
+
+    @Test
     public void deletesAllAttemptsOnTheirOwnHostsAndPersistsEachAcknowledgement() throws Exception {
         attempt("older-attempt", 4L, "COMPLETED");
         attempt("latest-attempt", 5L, "COMPLETED");

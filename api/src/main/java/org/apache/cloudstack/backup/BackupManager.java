@@ -414,6 +414,10 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     boolean restoreBackupArtifact(String provider, String externalId, String jobId);
 
+    default boolean restoreBackupArtifact(String provider, String externalId, String jobId, String proof) {
+        return restoreBackupArtifact(provider, externalId, jobId);
+    }
+
     void rejectBackupArtifactRestore(String provider, String externalId, String jobId, String reason, String proof);
 
     BackupStagingInfoResponse reconcileBackupStagingJob(Long backupId, String operation,

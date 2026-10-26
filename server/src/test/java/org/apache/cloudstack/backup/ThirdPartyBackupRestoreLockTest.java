@@ -31,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -130,21 +129,30 @@ public class ThirdPartyBackupRestoreLockTest {
     }
 
     @Test
-    public void lockNamesPreserveValidNamesAndBoundLongIdentifiers() {
-        String prefix = "backup.volume.restore.";
-        for (int length : new int[] {63, 64, 65, 1024}) {
-            String jobId = "x".repeat(length - prefix.length());
+    public void allRestoreLocksUseCompactNamesAndKeepCompleteAttemptIdentities() {
+        for (int length : new int[] {1, 36, 63, 64, 65, 1024}) {
+            String jobId = "x".repeat(length);
             String key = ThirdPartyBackupRestore.lockName(jobId);
-            assertTrue(key.length() <= 64);
+            assertEquals(38, key.length());
             assertEquals(key, ThirdPartyBackupRestore.lockName(jobId));
-            if (length <= 64) { assertEquals(prefix + jobId, key); }
+            assertEquals(38, ThirdPartyBackupRestore.prepareLockName(jobId).length());
+            assertEquals(38, ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", jobId).length());
         }
-        assertTrue(ThirdPartyBackupRestore.prepareLockName(BACKUP_UUID).length() <= 64);
         assertNotEquals(ThirdPartyBackupRestore.prepareLockName(BACKUP_UUID),
                 ThirdPartyBackupRestore.prepareLockName("47f20b21-8b7a-40a5-852a-ea536830b22e"));
         String longJobId = "restore-" + BACKUP_UUID + "-" + "x".repeat(256);
         assertNotEquals(ThirdPartyBackupRestore.lockName(longJobId + "-attempt-1"),
                 ThirdPartyBackupRestore.lockName(longJobId + "-attempt-2"));
         assertNotEquals(ThirdPartyBackupRestore.prepareLockName(longJobId), ThirdPartyBackupRestore.lockName(longJobId));
+        assertNotEquals(ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", "359"),
+                ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", "358"));
+        assertNotEquals(ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", "359"),
+                ThirdPartyBackupRestore.externalLockName("ablestack-veeam", "359"));
+        assertNotEquals(ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", "359"),
+                ThirdPartyBackupRestore.lockName("ablestack-netbackup:359"));
+        assertThrows(IllegalArgumentException.class, () -> ThirdPartyBackupRestore.lockName(""));
+        assertThrows(IllegalArgumentException.class, () -> ThirdPartyBackupRestore.prepareLockName(null));
+        assertThrows(IllegalArgumentException.class, () -> ThirdPartyBackupRestore.externalLockName(null, "359"));
+        assertThrows(IllegalArgumentException.class, () -> ThirdPartyBackupRestore.externalLockName("ablestack-netbackup", ""));
     }
 }

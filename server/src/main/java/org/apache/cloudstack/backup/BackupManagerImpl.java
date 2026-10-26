@@ -2123,6 +2123,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "restoring VM from external metadata job", async = true)
     public boolean restoreBackupArtifact(String provider, String externalId, String jobId) {
+        return restoreBackupArtifact(provider, externalId, jobId, null);
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "restoring VM from external metadata job", async = true)
+    public boolean restoreBackupArtifact(String provider, String externalId, String jobId, String proof) {
         if (!java.util.Set.of("ablestack-netbackup", "ablestack-veeam").contains(provider)
                 || StringUtils.isBlank(externalId) || StringUtils.isBlank(jobId)) {
             throw new CloudRuntimeException("Specify NetBackup or Veeam and the exact metadata artifact and restore Job IDs");
@@ -2134,8 +2140,18 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             try { jobId = java.util.UUID.fromString(StringUtils.strip(jobId, "{}")).toString(); }
             catch (IllegalArgumentException e) { throw new CloudRuntimeException("Veeam restore requires a session UUID", e); }
         }
+        try {
+            return claimExternalMetadataRestore(provider, externalId, jobId);
+        } catch (RuntimeException failure) {
+            recordFailedExternalMetadataRestore(provider, externalId, jobId, proof, failure);
+            throw failure;
+        }
+    }
+
+    private boolean claimExternalMetadataRestore(String provider, String externalId, String jobId) {
         String key = externalUiRestoreKey(provider, jobId);
-        GlobalLock lock = GlobalLock.getInternLock(key);
+        // Keep the persisted receipt key compatible, independently of the compact DB lock name.
+        GlobalLock lock = GlobalLock.getInternLock(ThirdPartyBackupRestore.externalLockName(provider, jobId));
         boolean acquired = false;
         BackupVO backup;
         Map<String, Object> receipt = new java.util.LinkedHashMap<>();
@@ -2162,7 +2178,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         try {
             boolean submitted = restoreBackup(backup.getId(), false, null);
-            receipt.put("state", submitted ? "SUBMITTED" : "FAILED");
+            if (!submitted) { throw new CloudRuntimeException("Logical backup restore was not submitted"); }
+            receipt.put("state", "SUBMITTED");
             backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
             return submitted;
         } catch (RuntimeException e) {
@@ -2170,6 +2187,46 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             receipt.put("reason", StringUtils.defaultString(e.getMessage()));
             backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
             throw e;
+        }
+    }
+
+    private void recordFailedExternalMetadataRestore(String provider, String externalId, String jobId,
+            String proof, RuntimeException failure) {
+        if (StringUtils.isBlank(proof)) {
+            logger.warn("External metadata restore Job [{}] failed without completion proof; its metadata cleanup cannot be authorized", jobId);
+            return;
+        }
+        GlobalLock lock = GlobalLock.getInternLock(ThirdPartyBackupRestore.externalLockName(provider, jobId));
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(5);
+            if (!acquired) { throw new CloudRuntimeException("External restore callback is still owned by another request"); }
+            // Resolve the metadata owner independently of this callback's claim receipt.
+            var resolved = resolveBackupArtifact(provider, externalId, null, null);
+            if (!resolved.matched || !"METADATA".equals(resolved.artifacttype)) {
+                throw new CloudRuntimeException("Failed external request does not identify an exact metadata artifact");
+            }
+            BackupVO backup = backupDao.findByUuid(resolved.id);
+            if (backup == null) { throw new CloudRuntimeException("Logical backup no longer exists"); }
+            try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(backup.getVmId())) {
+                backupDao.loadDetails(backup);
+                String claimed = backup.getDetail(externalUiRestoreKey(provider, jobId));
+                if (StringUtils.isNotBlank(claimed)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> receipt = new Gson().fromJson(claimed, Map.class);
+                    if (!"FAILED".equals(receipt.get("state"))) {
+                        throw new CloudRuntimeException("External restore callback has an active or submitted claim; cleanup is deferred");
+                    }
+                }
+                thirdPartyBackupVolumeService.rejectExternalRestore(backup, provider, externalId, jobId,
+                        StringUtils.defaultIfBlank(failure.getMessage(), "External metadata restore request failed"), proof);
+            }
+        } catch (RuntimeException recordingFailure) {
+            logger.warn("Unable to record failed external metadata restore Job [{}] and reconcile its cleanup: {}",
+                    jobId, recordingFailure.getMessage(), recordingFailure);
+        } finally {
+            if (acquired) { lock.unlock(); }
+            lock.releaseRef();
         }
     }
 
