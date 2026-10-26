@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/** External metadata restores rejected before a VM restore worker exists. */
+/** External metadata ownership, independent of the VM restore worker's staging directory. */
 public class ThirdPartyExternalRestore {
     // Restore history is preserved by BackupDetailsDao even when a stale provider saves its details.
+    // Retain the existing prefix for receipts created before accepted restores were tracked.
     public static final String PREFIX = ThirdPartyBackupRestore.HISTORY_PREFIX + "external-rejected.";
     public static final String LATEST_KEY = PREFIX + "latest.operation";
     public static final String PENDING_KEY = PREFIX + "pending.operation";
@@ -34,6 +35,10 @@ public class ThirdPartyExternalRestore {
     }
 
     public static String key(String provider, String jobId) { return PREFIX + id(provider, jobId) + ".operation"; }
+
+    public static String claimKey(String provider, String jobId) {
+        return "thirdparty.volume.ui.restore." + UUID.nameUUIDFromBytes((provider + ":" + jobId).getBytes(StandardCharsets.UTF_8));
+    }
 
     public static class Proof {
         public String hostName;
@@ -58,6 +63,8 @@ public class ThirdPartyExternalRestore {
         public long hostId;
         public Proof proof;
         public long recordedAt;
+        /** Accepted metadata must wait for VM writers and their staging cleanup to finish. */
+        public boolean accepted;
         public String state = "FAILED";
         public String step = "PRECHECK";
         public String reason;

@@ -410,6 +410,28 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
                 self.assertLess(proof["startedAt"], proof["endedAt"])
                 self.assertAlmostEqual(time.time() * 1000, proof["endedAt"], delta=2000)
 
+    def test_explicit_cleanup_reconciles_only_the_exact_successful_local_restore_without_changing_watcher_state(self):
+        self.watcher.save_state({"processed": {"200": {"status": "submitted"}}, "initialJobBaselineCompleted": True})
+        original = (self.base / "state.json").read_bytes()
+        for release in ("10.5", "11.1"):
+            with self.subTest(release=release), patch.dict(self.watcher.CONFIG, RESTORE_NOTIFY_SCRIPT="notify", MOLD_HOST_NAME="host-test"), \
+                    patch.object(self.watcher.subprocess, "run", return_value=MagicMock(returncode=0, stdout="SUBMITTED metadata cleanup jobid=async-test", stderr="")) as notify:
+                job = self.job(0, release=release)
+                self.assertEqual("submitted", self.watcher.invoke_restore_notify("host-test_1792458000", "200", job, operation="cleanup"))
+                self.assertEqual(["notify", "netbackup-host-restore-watcher", "host-test_1792458000", "cleanup", "200"], notify.call_args.args[0])
+                self.assertIn("MOLD_EXTERNAL_RESTORE_PROOF", notify.call_args.kwargs["env"])
+                self.assertEqual(original, (self.base / "state.json").read_bytes())
+        with patch.dict(self.watcher.CONFIG, RESTORE_NOTIFY_SCRIPT="notify"), patch.object(self.watcher.subprocess, "run") as notify:
+            for job in (self.job(1), self.job(5), self.job(0, state="ACTIVE"), dict(self.job(0), id="201")):
+                with self.assertRaises(ValueError):
+                    self.watcher.invoke_restore_notify("host-test_1792458000", "200", job, operation="cleanup")
+            for field, value in (("jobType", "BACKUP"), ("destinationClient", "different-host")):
+                job = self.job(0)
+                job["attributes"][field] = value
+                with self.assertRaises(ValueError):
+                    self.watcher.invoke_restore_notify("host-test_1792458000", "200", job, operation="cleanup")
+            notify.assert_not_called()
+
     def test_baseline_failure_exits_with_error_without_polling_and_can_retry(self):
         with patch.object(self.watcher, "fetch_restore_jobs", side_effect=RuntimeError("API unavailable")), \
                 patch.object(self.watcher, "poll_once") as poll:

@@ -2090,8 +2090,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private String externalUiRestoreKey(String provider, String jobId) {
-        return "thirdparty.volume.ui.restore." + java.util.UUID.nameUUIDFromBytes(
-                (provider + ":" + jobId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return ThirdPartyExternalRestore.claimKey(provider, jobId);
     }
 
     @Override
@@ -2129,6 +2128,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "restoring VM from external metadata job", async = true)
     public boolean restoreBackupArtifact(String provider, String externalId, String jobId, String proof) {
+        return restoreBackupArtifact(provider, externalId, jobId, proof, false);
+    }
+
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VM_BACKUP_RESTORE, eventDescription = "handling external metadata restore", async = true)
+    public boolean restoreBackupArtifact(String provider, String externalId, String jobId, String proof, boolean cleanupMetadataOnly) {
         if (!java.util.Set.of("ablestack-netbackup", "ablestack-veeam").contains(provider)
                 || StringUtils.isBlank(externalId) || StringUtils.isBlank(jobId)) {
             throw new CloudRuntimeException("Specify NetBackup or Veeam and the exact metadata artifact and restore Job IDs");
@@ -2140,15 +2145,18 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             try { jobId = java.util.UUID.fromString(StringUtils.strip(jobId, "{}")).toString(); }
             catch (IllegalArgumentException e) { throw new CloudRuntimeException("Veeam restore requires a session UUID", e); }
         }
+        if (cleanupMetadataOnly && StringUtils.isBlank(proof)) {
+            throw new CloudRuntimeException("Metadata cleanup reconciliation requires the original external Job completion proof");
+        }
         try {
-            return claimExternalMetadataRestore(provider, externalId, jobId);
+            return claimExternalMetadataRestore(provider, externalId, jobId, proof, cleanupMetadataOnly);
         } catch (RuntimeException failure) {
-            recordFailedExternalMetadataRestore(provider, externalId, jobId, proof, failure);
+            if (!cleanupMetadataOnly) { recordFailedExternalMetadataRestore(provider, externalId, jobId, proof, failure); }
             throw failure;
         }
     }
 
-    private boolean claimExternalMetadataRestore(String provider, String externalId, String jobId) {
+    private boolean claimExternalMetadataRestore(String provider, String externalId, String jobId, String proof, boolean cleanupMetadataOnly) {
         String key = externalUiRestoreKey(provider, jobId);
         // Keep the persisted receipt key compatible, independently of the compact DB lock name.
         GlobalLock lock = GlobalLock.getInternLock(ThirdPartyBackupRestore.externalLockName(provider, jobId));
@@ -2160,7 +2168,27 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             if (!acquired) { throw new CloudRuntimeException("External restore callback is being claimed; retry shortly"); }
             org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolved = resolveBackupArtifact(provider, externalId, jobId, null);
             if (!resolved.matched) { throw new CloudRuntimeException("No exact volume pipeline artifact matches this external restore"); }
-            if (resolved.tracked) { return true; }
+            if (resolved.tracked) {
+                // A verified replay can register missing cleanup for an older accepted callback,
+                // without launching another VM restore or resetting watcher state.
+                backup = backupDao.findByUuid(resolved.id);
+                if (backup != null && StringUtils.isNotBlank(proof)) {
+                    String claimed = backup.getDetail(key);
+                    if (StringUtils.isNotBlank(claimed)) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> previous = new Gson().fromJson(claimed, Map.class);
+                        if (provider.equals(previous.get("provider")) && jobId.equals(previous.get("jobId"))
+                                && externalId.equals(previous.get("externalId")) && backup.getUuid().equals(previous.get("backupUuid"))
+                                && "SUBMITTED".equals(previous.get("state"))) {
+                            trackExternalMetadataRestore(backup, provider, externalId, jobId, proof);
+                            return true;
+                        }
+                    }
+                }
+                if (cleanupMetadataOnly) { throw new CloudRuntimeException("No exact submitted external metadata claim authorizes cleanup"); }
+                return true;
+            }
+            if (cleanupMetadataOnly) { throw new CloudRuntimeException("No submitted external metadata claim exists; VM restore was not started"); }
             if (!resolved.restoreallowed) { throw new CloudRuntimeException(resolved.reason); }
             backup = backupDao.findByUuid(resolved.id);
             if (backup == null) { throw new CloudRuntimeException("Logical backup no longer exists"); }
@@ -2177,6 +2205,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             lock.releaseRef();
         }
         try {
+            trackExternalMetadataRestore(backup, provider, externalId, jobId, proof);
             boolean submitted = restoreBackup(backup.getId(), false, null);
             if (!submitted) { throw new CloudRuntimeException("Logical backup restore was not submitted"); }
             receipt.put("state", "SUBMITTED");
@@ -2187,6 +2216,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             receipt.put("reason", StringUtils.defaultString(e.getMessage()));
             backupDetailsDao.addDetail(backup.getId(), key, new Gson().toJson(receipt), false);
             throw e;
+        }
+    }
+
+    private void trackExternalMetadataRestore(BackupVO backup, String provider, String externalId, String jobId, String proof) {
+        if (StringUtils.isBlank(proof)) { return; }
+        try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(backup.getVmId())) {
+            backupDao.loadDetails(backup);
+            thirdPartyBackupVolumeService.trackExternalRestoreMetadata(backup, provider, externalId, jobId, proof);
         }
     }
 
@@ -7366,6 +7403,23 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
         populateRejectedExternalRestore(backup, response);
+        populateExternalMetadataCleanup(backup, response);
+    }
+
+    private void populateExternalMetadataCleanup(Backup backup, BackupResponse response) {
+        if (!"true".equals(backup.getDetail(ThirdPartyExternalRestore.PENDING_KEY))
+                || !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) { return; }
+        for (BackupDetailVO detail : backupDetailsDao.listDetails(backup.getId())) {
+            if (!detail.getName().startsWith(ThirdPartyExternalRestore.PREFIX + "external-restore-")) { continue; }
+            ThirdPartyExternalRestore.Attempt attempt = new Gson().fromJson(detail.getValue(), ThirdPartyExternalRestore.Attempt.class);
+            if (attempt != null && attempt.accepted && backup.getUuid().equals(attempt.backupUuid)
+                    && !"COMPLETED".equals(attempt.cleanupState)) {
+                response.setRestoreCleanupState("WAITING");
+                response.setRestoreCleanupDetails("External metadata cleanup pending for Job " + attempt.jobId + ": "
+                        + StringUtils.defaultIfBlank(attempt.cleanupDetails, "Waiting for metadata cleanup confirmation"));
+                return;
+            }
+        }
     }
 
     private void populateRejectedExternalRestore(Backup backup, BackupResponse response) {
@@ -7373,7 +7427,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (StringUtils.isBlank(id)) { return; }
         ThirdPartyExternalRestore.Attempt attempt = new Gson().fromJson(
                 backup.getDetail(ThirdPartyExternalRestore.PREFIX + id + ".operation"), ThirdPartyExternalRestore.Attempt.class);
-        if (attempt == null || !backup.getUuid().equals(attempt.backupUuid)) { return; }
+        if (attempt == null || attempt.accepted || !backup.getUuid().equals(attempt.backupUuid)) { return; }
         long newerRestore = org.apache.commons.lang3.math.NumberUtils.toLong(backup.getDetail(ThirdPartyExternalRestore.STARTED_KEY), 0);
         String current = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         if (newerRestore > attempt.recordedAt || java.util.Set.of("RUNNING", "STARTING", "CANCEL_PENDING").contains(StringUtils.defaultString(current))) {

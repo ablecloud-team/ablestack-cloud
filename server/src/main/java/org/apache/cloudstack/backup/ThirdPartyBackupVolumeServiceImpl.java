@@ -75,6 +75,11 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     }
 
     @Override
+    public void trackExternalRestoreMetadata(Backup backup, String provider, String externalId, String jobId, String proof) {
+        externalRestoreCleanup().trackAccepted(backup, provider, externalId, jobId, proof);
+    }
+
+    @Override
     public void persistBackupPlan(Backup backup) {
         withStagingConfigurationLock(() -> {
             persistBackupPlanLocked(backup);

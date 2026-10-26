@@ -32,7 +32,7 @@ import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.commons.lang3.StringUtils;
 
-/** A rejected file restore owns neither a VM restore plan nor any image payload. */
+/** External file metadata is separate from the VM restore plan and never owns image payloads. */
 class ThirdPartyExternalRestoreCleanup {
     private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger(ThirdPartyExternalRestoreCleanup.class);
     private final BackupDao backups;
@@ -57,10 +57,22 @@ class ThirdPartyExternalRestoreCleanup {
 
     /** The caller holds the VM lifecycle lease and has resolved the exact metadata artifact. */
     void record(Backup backup, String provider, String externalId, String jobId, String reason, String proofJson) {
+        cleanup(backup, recordAttempt(backup, provider, externalId, jobId, reason, proofJson, false));
+    }
+
+    /** Persist ownership before dispatch, but never clean between callback claim and VM worker start. */
+    void trackAccepted(Backup backup, String provider, String externalId, String jobId, String proofJson) {
+        recordAttempt(backup, provider, externalId, jobId, null, proofJson, true);
+    }
+
+    private ThirdPartyExternalRestore.Attempt recordAttempt(Backup backup, String provider, String externalId, String jobId,
+            String reason, String proofJson, boolean accepted) {
         String key = ThirdPartyExternalRestore.key(provider, jobId);
         ThirdPartyExternalRestore.Attempt attempt = gson.fromJson(backup.getDetail(key), ThirdPartyExternalRestore.Attempt.class);
+        boolean changed = attempt == null;
         if (attempt != null) {
             requireIdentity(backup, attempt, provider, externalId, jobId);
+            changed = attempt.accepted && !accepted;
         } else {
             ThirdPartyExternalRestore.Proof proof = gson.fromJson(proofJson, ThirdPartyExternalRestore.Proof.class);
             if (proof == null || StringUtils.isBlank(proof.hostName) || proof.startedAt <= 0 || proof.endedAt < proof.startedAt
@@ -88,8 +100,6 @@ class ThirdPartyExternalRestoreCleanup {
             attempt.vmUuid = vm.getUuid();
             attempt.hostId = host.getId();
             attempt.proof = proof;
-            attempt.reason = reason;
-            attempt.recordedAt = System.currentTimeMillis();
             attempt.manifest = manifest;
             ThirdPartyBackupStagingService.Snapshot original = gson.fromJson(backup.getDetail(ThirdPartyBackupStagingService.SNAPSHOT_KEY),
                     ThirdPartyBackupStagingService.Snapshot.class);
@@ -102,15 +112,23 @@ class ThirdPartyExternalRestoreCleanup {
                     addDestination(attempt, manifest.getMetadata().path, current);
                 }
             }
+        }
+        if (changed) {
+            attempt.accepted = accepted;
+            attempt.state = accepted ? "SUBMITTED" : "FAILED";
+            attempt.step = accepted ? "VM_RESTORE" : "PRECHECK";
+            attempt.reason = reason;
+            attempt.recordedAt = System.currentTimeMillis();
+            attempt.cleanupDetails = accepted ? "Waiting for the VM restore and its staging cleanup to finish" : null;
             ThirdPartyExternalRestore.Attempt created = attempt;
             Transaction.execute((TransactionCallback<Boolean>) status -> {
                 details.addDetail(backup.getId(), key, gson.toJson(created), false);
-                details.addDetail(backup.getId(), ThirdPartyExternalRestore.LATEST_KEY, created.id, false);
+                if (!accepted) { details.addDetail(backup.getId(), ThirdPartyExternalRestore.LATEST_KEY, created.id, false); }
                 details.addDetail(backup.getId(), ThirdPartyExternalRestore.PENDING_KEY, "true", false);
                 return true;
             });
         }
-        cleanup(backup, attempt);
+        return attempt;
     }
 
     private void addDestination(ThirdPartyExternalRestore.Attempt attempt, String path, ThirdPartyBackupStagingService.Snapshot configuration) {
@@ -159,6 +177,7 @@ class ThirdPartyExternalRestoreCleanup {
     private void cleanup(Backup backup, ThirdPartyExternalRestore.Attempt attempt) {
         if ("COMPLETED".equals(attempt.cleanupState)) { return; }
         try {
+            if (attempt.accepted) { requireSubmittedCallback(backup, attempt); }
             requireNoWriters(backup);
             HostVO host = hosts.findById(attempt.hostId);
             if (host == null || host.getStatus() != com.cloud.host.Status.Up || host.getRemoved() != null) {
@@ -180,6 +199,17 @@ class ThirdPartyExternalRestoreCleanup {
             attempt.cleanupDetails = StringUtils.defaultIfBlank(e.getMessage(), "Rejected metadata cleanup is unconfirmed");
         }
         details.addDetail(backup.getId(), ThirdPartyExternalRestore.key(attempt.provider, attempt.jobId), gson.toJson(attempt), false);
+    }
+
+    private void requireSubmittedCallback(Backup backup, ThirdPartyExternalRestore.Attempt attempt) {
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> claim = gson.fromJson(backup.getDetail(ThirdPartyExternalRestore.claimKey(attempt.provider, attempt.jobId)),
+                java.util.Map.class);
+        if (claim == null || !attempt.provider.equals(claim.get("provider")) || !attempt.jobId.equals(claim.get("jobId"))
+                || !attempt.externalId.equals(claim.get("externalId")) || !attempt.backupUuid.equals(claim.get("backupUuid"))
+                || !"SUBMITTED".equals(claim.get("state"))) {
+            throw new CloudRuntimeException("External metadata cleanup is waiting for confirmed VM restore submission");
+        }
     }
 
     private void requireNoWriters(Backup backup) {

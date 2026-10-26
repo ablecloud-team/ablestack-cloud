@@ -153,6 +153,23 @@ submit_volume_restore ablecube4_1792958584 359
                 self.assertEqual("ablecube4_1792958584", params["externalid"])
                 self.assertEqual(has_proof, "proof" in params)
 
+    def test_metadata_cleanup_request_cannot_fall_back_to_starting_a_new_vm_restore(self):
+        self.env["TEST_URL"] = str(self.base / "cleanup-url")
+        result = self.shell(r'''
+source "$TEST_NOTIFY"
+curl() {
+  printf '%s' "${@: -1}" > "$TEST_URL"
+  printf '%s\n200' '{"restorebackupartifactresponse":{"jobid":"async-cleanup"}}'
+}
+submit_volume_restore ablecube4_1792958584 364 true
+''')
+        self.assertEqual(0, result.returncode, result.stderr)
+        url = (self.base / "cleanup-url").read_text()
+        self.verify_signature(url, reason=None)
+        params = dict(parse_qsl(urlsplit(url).query))
+        self.assertEqual("true", params["cleanupmetadataonly"])
+        self.assertEqual("364", params["jobid"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,6 +17,7 @@
 package org.apache.cloudstack.backup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
@@ -269,6 +270,10 @@ public class ThirdPartyExternalRestoreCleanupTest {
                     call.getArgument(4), call.getArgument(5));
             return null;
         }).when(volumes).rejectExternalRestore(eq(backup), eq(provider), eq("metadata-point"), eq(jobId), anyString(), anyString());
+        doAnswer(call -> {
+            service.trackAccepted(call.getArgument(0), call.getArgument(1), call.getArgument(2), call.getArgument(3), call.getArgument(4));
+            return null;
+        }).when(volumes).trackExternalRestoreMetadata(eq(backup), eq(provider), eq("metadata-point"), eq(jobId), anyString());
         return manager;
     }
 
@@ -382,6 +387,147 @@ public class ThirdPartyExternalRestoreCleanupTest {
                     () -> failedManager.restoreBackupArtifact(provider, "metadata-point", "360")));
             verifyNoInteractions(agents);
             assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+        }
+    }
+
+    private void submittedClaim(String jobId, String state) {
+        saved.put(callbackKey(jobId), gson.toJson(Map.of("state", state, "provider", provider, "jobId", jobId,
+                "externalId", "metadata-point", "backupUuid", "backup-1")));
+    }
+
+    @Test public void acceptedMetadataWaitsForSubmissionVmTerminationAndStagingCleanupAcrossRestartForBothProviders() throws Exception {
+        for (String value : List.of("ablestack-netbackup", "ablestack-veeam")) {
+            prepare(value);
+            service.trackAccepted(backup, provider, "metadata-point", "121", proof);
+            assertTrue(attempt().accepted);
+            assertEquals("WAITING", attempt().cleanupState);
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+            submittedClaim("121", "CLAIMED");
+            service.resumePending();
+            assertEquals("WAITING", attempt().cleanupState);
+            submittedClaim("121", "SUBMITTED");
+            when(backup.getStatus()).thenReturn(Backup.Status.Restoring);
+            service.resumePending();
+            assertEquals("WAITING", attempt().cleanupState);
+            when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
+            saved.put(ThirdPartyBackupRestore.PLAN_KEY, "{}");
+            saved.put(ThirdPartyBackupRestore.CLEANUP_STATE_KEY, "WAITING");
+            service.resumePending();
+            assertEquals("WAITING", attempt().cleanupState);
+            saved.put(ThirdPartyBackupRestore.CLEANUP_STATE_KEY, "COMPLETED");
+            saved.put(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "RUNNING");
+            service.resumePending();
+            assertEquals("WAITING", attempt().cleanupState);
+            saved.put(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "COMPLETED");
+            new ThirdPartyExternalRestoreCleanup(backups, details, hosts, vms, agents, staging, volumes).resumePending();
+            assertEquals("COMPLETED", attempt().cleanupState);
+            assertEquals("COMPLETED", saved.get(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL));
+            assertNull(saved.get(ThirdPartyExternalRestore.PENDING_KEY));
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+            assertEquals(4L, attempt().hostId);
+        }
+        verify(agents, times(2)).send(eq(4L), any(AblestackVolumeStagingCommand.class));
+    }
+
+    @Test public void callbackPersistsAcceptedMetadataBeforeTheVmRestoreCanStart() {
+        BackupManagerImpl manager = callbackManager("364");
+        doAnswer(call -> {
+            var accepted = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, "364")), ThirdPartyExternalRestore.Attempt.class);
+            assertTrue(accepted.accepted);
+            assertEquals("WAITING", accepted.cleanupState);
+            assertEquals("CLAIMED", gson.fromJson(saved.get(callbackKey("364")), Map.class).get("state"));
+            service.resumePending();
+            verifyNoInteractions(agents);
+            return true;
+        }).when(manager).restoreBackup(1L, false, null);
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", "364", proof));
+        }
+        service.resumePending();
+        var accepted = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, "364")), ThirdPartyExternalRestore.Attempt.class);
+        assertEquals("COMPLETED", accepted.cleanupState);
+        assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+    }
+
+    @Test public void acceptedCleanupIsVisibleWithoutReplacingTheSuccessfulVmResult() {
+        BackupManagerImpl manager = callbackManager("121");
+        service.trackAccepted(backup, provider, "metadata-point", "121", proof);
+        saved.put(ThirdPartyBackupRestore.CLEANUP_STATE_KEY, "COMPLETED");
+        BackupResponse response = new BackupResponse();
+        response.setRestoreJobState("COMPLETED");
+        response.setRestoreCleanupState("COMPLETED");
+        ReflectionTestUtils.invokeMethod(manager, "populateExternalMetadataCleanup", backup, response);
+        assertEquals("COMPLETED", response.getRestoreJobState());
+        assertTrue(gson.toJson(response).contains("External metadata cleanup pending for Job 121"));
+        assertTrue(gson.toJson(response).contains("\"restorecleanupstate\":\"WAITING\""));
+        assertFalse(gson.toJson(response).contains("externalrestorefailure"));
+        submittedClaim("121", "SUBMITTED");
+        service.resumePending();
+        response = new BackupResponse();
+        response.setRestoreJobState("COMPLETED");
+        response.setRestoreCleanupState("COMPLETED");
+        ReflectionTestUtils.invokeMethod(manager, "populateExternalMetadataCleanup", backup, response);
+        assertTrue(gson.toJson(response).contains("\"restorecleanupstate\":\"COMPLETED\""));
+        assertFalse(gson.toJson(response).contains("External metadata cleanup pending"));
+    }
+
+    @Test public void metadataCleanupDoesNotHideAnUnfinishedVmOrPrimaryStorageCleanupReason() {
+        BackupManagerImpl manager = callbackManager("121");
+        service.trackAccepted(backup, provider, "metadata-point", "121", proof);
+        saved.put(ThirdPartyBackupRestore.CLEANUP_STATE_KEY, "WAITING");
+        BackupResponse response = new BackupResponse();
+        response.setRestoreCleanupState("WAITING");
+        response.setRestoreCleanupDetails("Primary volume rollback must be reconciled");
+        ReflectionTestUtils.invokeMethod(manager, "populateExternalMetadataCleanup", backup, response);
+        assertTrue(gson.toJson(response).contains("Primary volume rollback must be reconciled"));
+        assertFalse(gson.toJson(response).contains("External metadata cleanup pending"));
+    }
+
+    @Test public void cleanupOnlyReconcilesAnOlderSubmittedCallbackWithoutStartingAnotherRestoreForBothProviders() {
+        for (String value : List.of("ablestack-netbackup", "ablestack-veeam")) {
+            prepare(value);
+            String jobId = provider.equals("ablestack-netbackup") ? "364" : "12345678-1234-1234-1234-123456789012";
+            BackupManagerImpl manager = callbackManager(jobId);
+            submittedClaim(jobId, "SUBMITTED");
+            var tracked = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+            tracked.matched = tracked.tracked = true;
+            tracked.id = "backup-1";
+            doReturn(tracked).when(manager).resolveBackupArtifact(provider, "metadata-point", jobId, null);
+            try (MockedStatic<DbUtil> database = mysqlLocks()) {
+                assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", jobId, proof, true));
+                verify(manager, never()).restoreBackup(anyLong(), eq(false), isNull());
+                service.resumePending();
+                var accepted = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, jobId)), ThirdPartyExternalRestore.Attempt.class);
+                assertTrue(accepted.accepted);
+                assertEquals("COMPLETED", accepted.cleanupState);
+                // A replay never replaces the original proof or creates another VM restore.
+                assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", jobId, "{}", true));
+                assertEquals(gson.fromJson(proof, Map.class), gson.fromJson(gson.toJson(gson.fromJson(
+                        saved.get(ThirdPartyExternalRestore.key(provider, jobId)), ThirdPartyExternalRestore.Attempt.class).proof), Map.class));
+                assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+            }
+        }
+    }
+
+    @Test public void cleanupOnlyRequiresAnExactPreviouslySubmittedClaimAndNeverLaunchesAVmRestore() {
+        BackupManagerImpl manager = callbackManager("364");
+        try (MockedStatic<DbUtil> database = mysqlLocks()) {
+            assertThrows(CloudRuntimeException.class, () -> manager.restoreBackupArtifact(provider, "metadata-point", "364", proof, true));
+            var tracked = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+            tracked.matched = tracked.tracked = true;
+            tracked.id = "backup-1";
+            doReturn(tracked).when(manager).resolveBackupArtifact(provider, "metadata-point", "364", null);
+            assertThrows(CloudRuntimeException.class, () -> manager.restoreBackupArtifact(provider, "metadata-point", "364", proof, true));
+            for (String state : List.of("CLAIMED", "FAILED")) {
+                submittedClaim("364", state);
+                assertThrows(CloudRuntimeException.class, () -> manager.restoreBackupArtifact(provider, "metadata-point", "364", proof, true));
+            }
+            submittedClaim("364", "SUBMITTED");
+            assertThrows(CloudRuntimeException.class, () -> manager.restoreBackupArtifact(provider, "metadata-point", "364", null, true));
+            verify(manager, never()).restoreBackup(anyLong(), eq(false), isNull());
+            verifyNoInteractions(agents);
+            assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+            assertNull(saved.get(ThirdPartyExternalRestore.key(provider, "364")));
         }
     }
 }

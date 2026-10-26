@@ -72,6 +72,15 @@ class RejectedMetadataCleanupTest(unittest.TestCase):
                 self.assertFalse(root.exists())
                 self.validate.assert_called()
 
+    def test_successful_vm_restore_metadata_uses_the_same_ownership_checks_and_replay_protection(self):
+        self.plan.update(accepted=True, state="SUBMITTED", step="VM_RESTORE")
+        self.write_metadata()
+        helper.cleanup(self.plan, self.receipts)
+        self.assertFalse(self.root.exists())
+        self.write_metadata()
+        helper.cleanup(self.plan, self.receipts)
+        self.assertTrue((self.root / 'backup-manifest.json').exists())
+
     def test_completed_replay_preserves_a_later_restore_to_the_same_directory(self):
         helper.cleanup(self.plan, self.receipts)
         self.write_metadata()

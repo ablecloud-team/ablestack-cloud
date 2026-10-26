@@ -418,6 +418,11 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
         return restoreBackupArtifact(provider, externalId, jobId);
     }
 
+    default boolean restoreBackupArtifact(String provider, String externalId, String jobId, String proof, boolean cleanupMetadataOnly) {
+        if (cleanupMetadataOnly) { throw new UnsupportedOperationException("External metadata cleanup reconciliation is unavailable"); }
+        return restoreBackupArtifact(provider, externalId, jobId, proof);
+    }
+
     void rejectBackupArtifactRestore(String provider, String externalId, String jobId, String reason, String proof);
 
     BackupStagingInfoResponse reconcileBackupStagingJob(Long backupId, String operation,

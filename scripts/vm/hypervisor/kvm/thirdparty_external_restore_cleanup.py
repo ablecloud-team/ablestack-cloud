@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""Remove only the verified metadata of a rejected external file restore.
+"""Remove only the verified original metadata of an external file restore.
 
 A durable inventory is recorded before unlinking anything. Replaying a completed
 receipt cannot remove files subsequently restored to the same timestamp path.

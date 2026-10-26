@@ -40,13 +40,18 @@ public class RestoreBackupArtifactCmd extends BaseAsyncCmd implements AdminCmd {
     @Parameter(name = ApiConstants.JOB_ID, type = CommandType.STRING, required = true, description = "External metadata restore Job ID") private String jobId;
     @Parameter(name = "proof", type = CommandType.STRING,
             description = "Verified external Job completion with destination hostName and startedAt/endedAt in epoch milliseconds") private String proof;
+    @Parameter(name = "cleanupmetadataonly", type = CommandType.BOOLEAN,
+            description = "Register metadata cleanup for an already submitted external restore; never start a VM restore") private Boolean cleanupMetadataOnly;
 
     @Override public long getEntityOwnerId() { return CallContext.current().getCallingAccount().getId(); }
     @Override public String getEventType() { return EventTypes.EVENT_VM_BACKUP_RESTORE; }
-    @Override public String getEventDescription() { return "Restoring logical backup from " + provider + " metadata restore Job " + jobId; }
+    @Override public String getEventDescription() {
+        return (Boolean.TRUE.equals(cleanupMetadataOnly) ? "Reconciling metadata cleanup from " : "Restoring logical backup from ")
+                + provider + " metadata restore Job " + jobId;
+    }
     @Override public void execute() {
         try {
-            if (!backupManager.restoreBackupArtifact(provider, externalId, jobId, proof)) {
+            if (!backupManager.restoreBackupArtifact(provider, externalId, jobId, proof, Boolean.TRUE.equals(cleanupMetadataOnly))) {
                 throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Logical backup restore was not submitted");
             }
             SuccessResponse response = new SuccessResponse(getCommandName());

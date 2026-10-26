@@ -292,6 +292,9 @@ wait_for_mold_async_job() {
 
 submit_volume_restore() {
   local external_id="$1" netbackup_job_id="$2" restore_params="provider=ablestack-netbackup"
+  if [[ "${3:-false}" == true ]]; then
+    restore_params+="&cleanupmetadataonly=true"
+  fi
   if [[ -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]]; then
     restore_params+="&proof=$(urlencode_plus "${MOLD_EXTERNAL_RESTORE_PROOF}")"
   fi
@@ -326,7 +329,7 @@ main() {
     return 0
   fi
 
-  if [[ -n "${operation}" && "${operation,,}" != "restore" && "${operation,,}" != "resolve" ]]; then
+  if [[ -n "${operation}" && "${operation,,}" != "restore" && "${operation,,}" != "resolve" && "${operation,,}" != "cleanup" ]]; then
     log_line "RESTORE skip externalid=${external_id} operation=${operation} reason=unsupported-operation"
     return 0
   fi
@@ -337,6 +340,15 @@ main() {
   response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "resolveBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "provider=ablestack-netbackup")" || return 1
   if [[ "${operation,,}" == "resolve" ]]; then
     printf '%s\n' "${response}"
+    return 0
+  fi
+  if [[ "${operation,,}" == "cleanup" ]]; then
+    [[ -n "${netbackup_job_id}" && -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]] || fail "Metadata cleanup requires the original external Job completion proof"
+    response="$(submit_volume_restore "${external_id}" "${netbackup_job_id}" true)" || return 1
+    local cleanup_job_id
+    cleanup_job_id="$(extract_json_value_by_key "${response}" "jobid" 2>/dev/null || true)"
+    [[ -n "${cleanup_job_id}" ]] || fail "Mold metadata cleanup reconciliation returned no async jobid: ${response}"
+    printf 'SUBMITTED metadata cleanup jobid=%s\n' "${cleanup_job_id}"
     return 0
   fi
   local matched tracked allowed reason artifact_type rejected_success

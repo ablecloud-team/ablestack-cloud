@@ -135,6 +135,9 @@ public interface ThirdPartyBackupVolumeService {
     /** Called with the VM lifecycle lease held; no VM restore worker is launched. */
     void rejectExternalRestore(Backup backup, String provider, String externalId, String jobId, String reason, String proof);
 
+    /** Called with the VM lifecycle lease held; durably register metadata cleanup before VM restore dispatch. */
+    void trackExternalRestoreMetadata(Backup backup, String provider, String externalId, String jobId, String proof);
+
     /** Persist the initial volume plan and its pending resource accounting before Host dispatch. */
     void persistBackupPlan(Backup backup);
 

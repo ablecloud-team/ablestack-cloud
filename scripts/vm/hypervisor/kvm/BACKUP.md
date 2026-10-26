@@ -1735,6 +1735,10 @@ GFS2·NFS를 공유하는 Host들은 같은 파일시스템의 예약분을 함�
 | `RELEASED` | 작업의 자원 예약이 해제됐다. 복원 성공 여부는 별도 결과로 확인한다. |
 
 **복원 정리 상태**는 실행 허용과 별개로 복원용 스테이징 파일의 정리 상태를 표시한다.
+외부 UI 복원에서는 Mold 작업 경로인 `<root>/<provider>/restore/<복원 작업 ID>`와
+외부 UI가 메타데이터를 복원한 `<root>/<provider>/<VM 이름>/<백업 시점>`을 각각 정리한다.
+Mold 작업 경로 정리가 끝나도 원래 메타데이터 정리가 남으면 `WAITING`과 외부 Job·세션의 정리 사유를 표시한다.
+이때 실제 VM 복원의 `COMMITTED / COMPLETED` 결과는 유지한다.
 복원 중 `WAITING`과 `Restore job has not finished`가 함께 나오는 것은
 복원에 필요한 파일을 아직 정리하지 않고 있다는 정상 표시다. 이때 정리 재시도를 할 필요는 없다.
 작업 종료 후에도 정리가 `WAITING`으로 남으면 정리 사유와 외부 작업 종료 여부를 확인한다.
@@ -2047,13 +2051,19 @@ Mold 비동기 작업에서 VM 복원을 시작하지 못하면 해당 Job·세�
 이 동작은 관리 서버와 NetBackup 알림 스크립트 또는 Veeam 라이브러리를 함께 갱신해야 한다.
 종료 증거를 보내지 않는 이전 알림 스크립트의 요청은 호환되지만, 실패 시 메타데이터 자동 정리는 허용하지 않는다.
 
-차단된 외부 파일 복원의 잔여 메타데이터는 자동 정리한다. 백업 UUID·VM UUID·시점·매니페스트·완료 마커와
+성공한 외부 UI 복원의 원래 메타데이터 경로도 정리한다. Mold는 VM 복원을 시작하기 전에 외부 Job·세션의
+종료 증거와 수신 Host를 기록하고, 실제 VM 작업 종료·스테이징 정리·자원 반환을 확인한 뒤 메타데이터를 정리한다.
+실패·사전 차단뿐 아니라 성공 후에도 같은 소유권 검사를 적용한다. 수신 Host와 실제 VM 복원 Worker가 다르면
+원래 수신 Host에서 메타데이터를 정리한다. 관리 서버를 재시작해도 미완료 정리 기록부터 재개한다.
+
+잔여 메타데이터는 백업 UUID·VM UUID·시점·매니페스트·완료 마커와
 외부 작업의 실제 기록 시각이 일치하는 작은 메타데이터 파일 및 checkpoint XML만 대상이다.
 볼륨 이미지나 알 수 없는 파일이 있거나 다른 백업·복원 작업이 사용 중이면 `WAITING`과 사유를 남기고
 관리 서버가 30초 주기로 다시 확인한다. Host 단절, 종료 미확인, 소유권 불일치도 정리를 보류한다.
 정리 완료 후 `COMPLETED`를 표시하며, NetBackup/Veeam 보관 백업과 카탈로그·Restore Point는 이 정리로 삭제하지 않는다.
 Host의 `/var/lib/ablestack/backup/external-restore-cleanup/`에 작업별 정리 영수증을 남겨
 재시도나 재시작 후 같은 경로에 새로 복원된 파일을 이전 요청으로 삭제하지 않는다.
+백업 시점 디렉터리가 제거된 뒤에도 빈 VM 상위 디렉터리와 `restore`·`bootstrap` 상위 디렉터리는 남을 수 있다.
 
 이 개선은 **관리 서버, KVM Agent·공통 스크립트, NetBackup 복원 감시기·알림 스크립트 또는 Veeam 연동 라이브러리,
 Mold UI**를 함께 업데이트한다. 관리 서버는 `mold.service`를 재시작한다.
@@ -2070,6 +2080,32 @@ API 실패로 아직 처리 완료되지 않은 외부 Job은 감시기의 다�
 이미 남아 있는 파일의 소유권이나 종료 증거를 확인할 수 없으면 자동 삭제하지 않고 로그와 정리 대기 사유를 먼저 확인한다.
 이미 `SUBMITTED`로 처리된 요청의 Mold 비동기 작업이 실패했다면, 업데이트 후 새 외부 복원 Job·세션으로 검증한다.
 기존 보관 백업을 다시 생성할 필요는 없으며 감시 상태 파일을 삭제해 이전 요청을 강제로 재실행하지 않는다.
+
+업데이트 전에 **성공한** 외부 복원이 남긴 메타데이터는 기존 `SUBMITTED` 영수증을 확인하여 정리만 등록할 수 있다.
+`restoreBackupArtifact`의 `cleanupmetadataonly=true`는 provider·외부 Backup ID·Job ID가 기존 제출 기록과 정확히
+일치하고 완료 증거가 있을 때만 허용하며, 해당 기록이 없으면 VM 복원을 새로 시작하지 않고 거부한다.
+NetBackup는 관리 서버와 Host의 감시기·알림 스크립트를 갱신하고 사전구성을 다시 실행한 뒤 다음처럼 요청한다.
+예시의 `364`와 Backup ID는 실제 **최초 외부 UI 복원 Job** 값으로 지정하며, Mold가 이어서 실행한 볼륨 복원 Job을 사용하지 않는다.
+
+```bash
+python3 - <<'PY'
+import runpy
+
+watcher = runpy.run_path('/usr/local/sbin/netbackup-host-restore-watcher')
+job_id = '364'
+external_id = 'ablecube4_1792958584'
+job = watcher['fetch_restore_job'](job_id)
+result = watcher['invoke_restore_notify'](external_id, job_id, job, operation='cleanup')
+if result != 'submitted':
+    raise SystemExit('Metadata cleanup registration failed; inspect the restore watcher log')
+print('Metadata cleanup registered; VM restore was not started')
+PY
+```
+
+등록 후 관리 서버가 30초 주기로 정리한다. 파일 소유권·종료 시각 불일치나 다른 작업이 있으면 `WAITING`으로 남긴다.
+이미 `SKIPPED`로 차단됐거나 Mold 제출 영수증이 없는 옛 요청은 이 방법으로 복원·정리를 강제하지 않는다.
+Veeam도 기존 제출된 외부 세션과 검증된 완료 증거로 같은 API를 사용할 수 있다.
+
 `matched=false`나 백업 ID 조회 오류는 VM 상태 차단이 아니므로 별도로 확인한다.
 Commvault의 Mold UI 전체 VM 복원도 실행 중인 VM은 공통 사전 검사에서 거부한다.
 
