@@ -1,0 +1,157 @@
+{
+  "designOnly": true,
+  "sourceCtl": "/opt/ablestack/storage-runtime/releases/epic1438-1449-smb-r2-2e24f2514d96/ablestack-storagectl",
+  "sourceCtlSha256": "011f92122503f843914fe82b76fc9a5ad3d905566129cca41d5144a1606f7856",
+  "helperSha256": "6f7efc80740dc7e311d7c5ef3f96fb9ebe3d1a27bfcbad8dabfdbd444bd0603a",
+  "results": [
+    {
+      "case": "current_missing_posix_is_auto_initialized",
+      "reproduced": true,
+      "before": {
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0750",
+        "dev": 2054,
+        "ino": 134567
+      },
+      "after": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "dev": 2054,
+        "ino": 134567
+      }
+    },
+    {
+      "case": "candidate_policy_only_edit_preserves_root_and_child",
+      "pass": true
+    },
+    {
+      "case": "candidate_permission_change_requires_ack",
+      "pass": true
+    },
+    {
+      "case": "candidate_stale_observation_rejected_child_preserved",
+      "pass": true
+    },
+    {
+      "case": "actual_deployed_root_metadata_rollback_branch",
+      "pass": true,
+      "scope": "real chown/chmod/setfacl, other phases stubbed"
+    },
+    {
+      "case": "six_policy_readonly_matrix_and_custom_numeric_identity",
+      "pass": true,
+      "matrix": [
+        {
+          "policy": "ROOT",
+          "readOnly": false,
+          "recommendation": {
+            "ownerUid": 65534,
+            "ownerGid": 65534,
+            "mode": "0775",
+            "recursivePermission": false
+          },
+          "renderedSquash": "Root_Squash",
+          "renderedAccess": "RW",
+          "effectiveUid": 65534,
+          "kernelRead": true,
+          "kernelWrite": true,
+          "roValidation": null
+        },
+        {
+          "policy": "ROOT",
+          "readOnly": true,
+          "recommendation": {
+            "ownerUid": 0,
+            "ownerGid": 0,
+            "mode": "0755",
+            "recursivePermission": false
+          },
+          "renderedSquash": "Root_Squash",
+          "renderedAccess": "RO",
+          "effectiveUid": 65534,
+          "kernelRead": true,
+          "kernelWrite": false,
+          "roValidation": "renderer_contract_only"
+        },
+        {
+          "policy": "NONE",
+          "readOnly": false,
+          "recommendation": {
+            "ownerUid": 0,
+            "ownerGid": 0,
+            "mode": "0755",
+            "recursivePermission": false
+          },
+          "renderedSquash": "No_Root_Squash",
+          "renderedAccess": "RW",
+          "effectiveUid": 0,
+          "kernelRead": true,
+          "kernelWrite": true,
+          "roValidation": null
+        },
+        {
+          "policy": "NONE",
+          "readOnly": true,
+          "recommendation": {
+            "ownerUid": 0,
+            "ownerGid": 0,
+            "mode": "0755",
+            "recursivePermission": false
+          },
+          "renderedSquash": "No_Root_Squash",
+          "renderedAccess": "RO",
+          "effectiveUid": 0,
+          "kernelRead": true,
+          "kernelWrite": false,
+          "roValidation": "renderer_contract_only"
+        },
+        {
+          "policy": "ALL",
+          "readOnly": false,
+          "recommendation": {
+            "ownerUid": 65534,
+            "ownerGid": 65534,
+            "mode": "0775",
+            "recursivePermission": false
+          },
+          "renderedSquash": "All_Squash",
+          "renderedAccess": "RW",
+          "effectiveUid": 65534,
+          "kernelRead": true,
+          "kernelWrite": true,
+          "roValidation": null
+        },
+        {
+          "policy": "ALL",
+          "readOnly": true,
+          "recommendation": {
+            "ownerUid": 0,
+            "ownerGid": 0,
+            "mode": "0755",
+            "recursivePermission": false
+          },
+          "renderedSquash": "All_Squash",
+          "renderedAccess": "RO",
+          "effectiveUid": 65534,
+          "kernelRead": true,
+          "kernelWrite": false,
+          "roValidation": "renderer_contract_only"
+        }
+      ],
+      "rootSquashNonRootWriteDenied": true,
+      "customAnonymous1234Write": true,
+      "current_all_true_root_false_missing_defaults": true
+    },
+    {
+      "case": "existing_uid_range_mode_validation_preserved",
+      "pass": true
+    }
+  ],
+  "protectedFilesUnchanged": true,
+  "productionGaneshaPidUnchanged": true,
+  "newDisks": 0,
+  "liveExportsChanged": 0,
+  "temporaryDirectoryRemoved": true
+}
