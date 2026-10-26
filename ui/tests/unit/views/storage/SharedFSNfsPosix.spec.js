@@ -6,7 +6,9 @@ import SharedFSTab from '@/views/storage/SharedFSTab'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-1450-nfs-wire.json'
 import { nfsPosixRecommendation, nfsPermissionDelta, nfsSquashFlags, nfsMappingDelta } from '@/utils/nfsPosixPolicy'
-import { decodeConfigurationPreflight } from '@/utils/storageConfigPreflight'
+import { decodeConfigurationPreflight, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
+import errorWire from '../../../fixtures/storage-1450-preflight-api-error.json'
+import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const dto = () => ({ ...JSON.parse(JSON.stringify(wire.liststoragenfsexportsresponse.storagenfsexport[0])), path: '/export/fixture' })
 describe('NFS POSIX mounted request and actual serializer contract', () => {
@@ -23,14 +25,20 @@ describe('NFS POSIX mounted request and actual serializer contract', () => {
         ? { liststorageserviceconfigurationoperationsresponse: { count: 1, configurationoperation: [{ id: 'operation', state: 'COMMITTED', result: {} }] } }
         : {})
     postAPI.mockImplementation(async api => ({ [api.toLowerCase() + 'response']: { jobid: 'job' } }))
-    wrapper = shallowMount(SharedFSTab, { props: { resource: { id: 'sharedfs' } }, global: {
-      provide: { parentFetchData: jest.fn() }, mocks: {
-        $t: k => k, $route: { fullPath: '/sharedfs/sharedfs?tab=nfs', query: { tab: 'nfs' }, params: { id: 'sharedfs' } },
-        $router: { push: jest.fn(), replace: jest.fn() },
-        $store: { state: { app: { device: 'desktop' } }, getters: { apis: {}, userInfo: { id: 'user' } } },
-        $message: { error: jest.fn(), success: jest.fn() }, $notifyError: jest.fn()
+    wrapper = shallowMount(SharedFSTab, {
+      props: { resource: { id: 'sharedfs' } },
+      global: {
+        provide: { parentFetchData: jest.fn() },
+        mocks: {
+          $t: k => k,
+          $route: { fullPath: '/sharedfs/sharedfs?tab=nfs', query: { tab: 'nfs' }, params: { id: 'sharedfs' } },
+          $router: { push: jest.fn(), replace: jest.fn() },
+          $store: { state: { app: { device: 'desktop' } }, getters: { apis: {}, userInfo: { id: 'user' } } },
+          $message: { error: jest.fn(), success: jest.fn() },
+          $notifyError: jest.fn()
+        }
       }
-    } })
+    })
     wrapper.vm.storageService.instance = { id: 'instance', configurationrevision: 0 }
     wrapper.vm.storageService.protocols = [{ id: 'listener', protocol: 'NFS', enabled: true, port: 2049 }]
     wrapper.vm.selectedNfsListenerPorts = () => [2049]
@@ -114,5 +122,32 @@ describe('NFS POSIX mounted request and actual serializer contract', () => {
     const report = decodeConfigurationPreflight(wire)
     expect(report.posixobservation.owneruid).toBe(0)
     expect(report.posixchanges).toEqual({ ownerUid: 1666 })
+  })
+  test('actual 431 wrapper stays an API rejection with its cause and cannot submit a mutation', async () => {
+    await edit()
+    wrapper.vm.forms.nfsExport.volumeid = 'volume'
+    await flushPromises()
+    const error = { response: { status: 431, data: errorWire }, config: { data: 'password=should_not_show' } }
+    postAPI.mockRejectedValueOnce(error)
+    await wrapper.vm.checkConfigurationPreflight()
+    expect(wrapper.vm.configurationPreflight.status).toBe('BLOCKED')
+    expect(wrapper.vm.configurationPreflight.checks[0]).toEqual(expect.objectContaining({
+      code: 'PREFLIGHT_API_REJECTED',
+      blocking: true,
+      httpstatus: 431,
+      message: expect.stringContaining('max allowed length 255')
+    }))
+    expect(wrapper.vm.actionModalOkButtonProps.disabled).toBe(true)
+    expect(postAPI.mock.calls.filter(([api]) => api === 'updateStorageNfsExport')).toHaveLength(0)
+    expect(JSON.stringify(wrapper.vm.configurationPreflight)).not.toContain('should_not_show')
+    const panel = shallowMount(StorageConfigurationPreflightPanel, { props: { report: wrapper.vm.configurationPreflight }, global: { mocks: { $t: key => key } } })
+    expect(panel.find('.check-message').text()).toContain('HTTP 431')
+    expect(panel.find('.check-message').text()).toContain('max allowed length 255')
+    panel.unmount()
+  })
+  test('a transport failure remains UNKNOWN and is not mislabelled as API input rejection', () => {
+    const report = configurationPreflightFailure(new Error('NetworkError'), 20)
+    expect(report.status).toBe('UNKNOWN')
+    expect(report.checks[0].code).toBe('RESOURCE_OBSERVATION_UNAVAILABLE')
   })
 })

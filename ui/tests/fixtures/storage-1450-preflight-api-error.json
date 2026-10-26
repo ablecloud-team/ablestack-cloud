@@ -1,0 +1,8 @@
+{
+  "preflightstorageserviceconfigurationresponse": {
+    "uuidList": [],
+    "errorcode": 431,
+    "cserrorcode": 9999,
+    "errortext": "Unable to execute API command preflightstorageserviceconfiguration due to invalid value. Value greater than max allowed length 255 for param: intent"
+  }
+}

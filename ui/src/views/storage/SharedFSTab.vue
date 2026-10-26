@@ -2331,7 +2331,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
 import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
 import { nfsSquashPolicy, nfsSquashFlags, nfsPosixRecommendation, nfsPermissionDelta, nfsMappingDelta, nfsPermissionIntent, nfsPosixObservation } from '@/utils/nfsPosixPolicy'
-import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey } from '@/utils/storageConfigPreflight'
+import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
 import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
   DeleteOutlined,
@@ -5644,13 +5644,7 @@ export default {
         this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
       } catch (error) {
         if (read === this.configurationPreflightRead && scope === this.storageReadScope && instanceid === this.storageService.instance?.id) {
-          this.configurationPreflight = {
-            status: 'UNKNOWN',
-            revision: this.storageService.instance.configurationrevision,
-            observedat: '-',
-            checks: [{ code: 'RESOURCE_OBSERVATION_UNAVAILABLE', blocking: true }],
-            cancellationsupported: false
-          }
+          this.configurationPreflight = configurationPreflightFailure(error, this.storageService.instance.configurationrevision)
           this.$notifyError(error)
         }
       } finally { if (read === this.configurationPreflightRead) this.configurationPreflightLoading = false }

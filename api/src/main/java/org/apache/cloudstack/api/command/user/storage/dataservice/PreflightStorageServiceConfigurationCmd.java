@@ -33,7 +33,7 @@ public class PreflightStorageServiceConfigurationCmd extends BaseCmd implements 
     @Parameter(name = "instanceid", type = CommandType.UUID, entityType = StorageServiceInstanceResponse.class,
             required = true, description = "Storage Service instance ID")
     private Long instanceId;
-    @Parameter(name = "intent", type = CommandType.STRING, required = true, description = "Bounded credential-free configuration intent")
+    @Parameter(name = "intent", type = CommandType.STRING, required = true, length = 4096, description = "Bounded credential-free configuration intent")
     private String intent;
     public Long getInstanceId() { return instanceId; }
     public String getIntent() { return intent; }

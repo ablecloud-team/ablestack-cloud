@@ -52,3 +52,25 @@ export function preparedVolumeKey (user, instance, type, params) {
   return 'sharedfs-prepared:' + JSON.stringify([user, instance, type, params.name, params.zoneid,
     params.diskofferingid, params.storageid, params.size])
 }
+
+// Keep public API rejection details separate from an unknown guest observation.
+// Never copy request parameters, headers or stack traces into the UI report.
+export function configurationPreflightFailure (error, revision) {
+  const data = error?.response?.data || {}
+  const body = data.errorresponse || Object.values(data).find(value => value?.errortext) || error?.errorresponse || error || {}
+  const http = Number(error?.response?.status || 0)
+  const api = Number(body.errorcode || 0)
+  const rejected = !!body.errortext && ((http >= 400 && http < 500) || (api >= 400 && api < 500))
+  return {
+    status: rejected ? 'BLOCKED' : 'UNKNOWN',
+    revision,
+    observedat: '-',
+    checks: [{
+      code: rejected ? 'PREFLIGHT_API_REJECTED' : 'RESOURCE_OBSERVATION_UNAVAILABLE',
+      blocking: true,
+      severity: 'ERROR',
+      ...(rejected ? { message: String(body.errortext).slice(0, 1024), httpstatus: http || api } : {})
+    }],
+    cancellationsupported: false
+  }
+}
