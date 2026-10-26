@@ -3482,6 +3482,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         return offering != null && StringUtils.equalsIgnoreCase(ABLESTACK_NETBACKUP_PROVIDER_NAME, offering.getProvider());
     }
 
+    private boolean selectsVolumeRestoreWorker(final BackupVO backup, final BackupOffering offering) {
+        if (offering == null || !ThirdPartyBackupStagingService.isStagingProvider(offering.getProvider())) { return false; }
+        backupDao.loadDetails(backup);
+        return ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY));
+    }
+
 
     /**
      * Tries to restore a VM from a backup. <br/>
@@ -3917,7 +3923,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             String host = null;
             String dataStore = null;
-            if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
+            if (!selectsVolumeRestoreWorker(backup, offering) && !BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
                     !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
                     !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
                     !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider())) {
@@ -4026,8 +4032,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         BackupProvider backupProvider = getBackupProvider(offering.getProvider());
         VolumeVO backedUpVolume = volumeDao.findByUuidIncludingRemoved(backedUpVolumeUuid);
+        final boolean providerSelectsWorker = selectsVolumeRestoreWorker(backup, offering);
         Pair<HostVO, StoragePoolVO> restoreInfo;
-        if (isAblestackHostSideRestoreProvider(offering) && isAblestackSourceVolumeRemoved(backedUpVolume)) {
+        if (providerSelectsWorker) {
+            restoreInfo = BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) && !isAblestackSourceVolumeRemoved(backedUpVolume)
+                    ? getRestoreVolumeHostAndDatastoreForNas(vm, backedUpVolume, false)
+                    : getRestoreVolumeHostAndDatastore(vm, false);
+        } else if (isAblestackHostSideRestoreProvider(offering) && isAblestackSourceVolumeRemoved(backedUpVolume)) {
             restoreInfo = getAblestackRetainedVolumeRestoreTarget(vm);
         } else if ((BackupProviderNameUtils.isNasFamily(offering.getProvider()) ||
                 BackupProviderNameUtils.isCommvaultFamily(offering.getProvider())) && backedUpVolume != null) {
@@ -4040,11 +4051,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
         HostVO host = restoreInfo.first();
         StoragePoolVO datastore = restoreInfo.second();
+        final String restoreHostName = host == null ? null : host.getName();
 
         logger.debug("Asking provider to restore volume {} from backup {} (with external" +
                 " ID {}) and attach it to VM: {}", backedUpVolumeUuid, backup, backup.getExternalId(), vm);
 
-        logger.debug(String.format("Trying to restore volume using host private IP address: [%s].", host.getPrivateIpAddress()));
+        logger.debug("Restoring volume with Worker Host [{}].", host == null ? "automatic" : host.getPrivateIpAddress());
 
         final boolean netBackupRestore = isAblestackNetBackupOffering(offering);
         final boolean snapshotSensitiveVolumeRestore = isSnapshotSensitiveVolumeRestoreOffering(offering);
@@ -4052,7 +4064,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             validateNoVmSnapshotsForRestoreVolumeAttach(vm);
         }
         final boolean singleRestoreTargetAttempt = isAblestackRestoreVolumeProvider(offering);
-        String[] hostPossibleValues = singleRestoreTargetAttempt
+        String[] hostPossibleValues = providerSelectsWorker ? new String[]{null} : singleRestoreTargetAttempt
                 ? new String[]{host.getPrivateIpAddress()}
                 : new String[]{host.getPrivateIpAddress(), host.getName()};
         String[] datastoresPossibleValues = singleRestoreTargetAttempt
@@ -4069,12 +4081,12 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     ? RestorePhase.CHAIN_RESTORE_IN_PROGRESS
                     : RestorePhase.ROOT_RESTORE_IN_PROGRESS;
             netBackupRestoreCoordinator.persistRestoreContext(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier,
-                    phase, host.getName(), backup.getExternalId());
+                    phase, restoreHostName, backup.getExternalId());
         }
 
         if (netBackupRestore) {
             netBackupRestoreCoordinator.persistRestoreContext(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier,
-                    RestorePhase.HOST_RESTORE_IN_PROGRESS, host.getName(), backup.getExternalId());
+                    RestorePhase.HOST_RESTORE_IN_PROGRESS, restoreHostName, backup.getExternalId());
         }
         initializeRestoreOperation(backup.getId(), offering, AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH,
                 vm.getId(), backedUpVolumeUuid, datastore.getUuid());
@@ -4088,7 +4100,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 netBackupRestoreCoordinator.persistRestoreFailure(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier, result.second());
             }
             throw new CloudRuntimeException(String.format("Error restoring Volume [%s] of Instance [%s] to host [%s] using backup provider [%s] due to: [%s].",
-                    backedUpVolumeUuid, vm.getUuid(), host.getUuid(), backupProvider.getName(), result.second()));
+                    backedUpVolumeUuid, vm.getUuid(), host == null ? "automatic" : host.getUuid(), backupProvider.getName(), result.second()));
         }
         if (detachedRestore) {
             persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_TARGET_VOLUME_UUID_DETAIL, result.second());
@@ -4100,7 +4112,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             persistRestoreOperationPhase(backup.getId(), "RUNNING", "ATTACH_VOLUME", 85);
             if (netBackupRestore) {
                 netBackupRestoreCoordinator.persistRestoreContext(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier,
-                        RestorePhase.ATTACH_VOLUME_IN_PROGRESS, host.getName(), backup.getExternalId());
+                        RestorePhase.ATTACH_VOLUME_IN_PROGRESS, restoreHostName, backup.getExternalId());
             }
             if (!attachVolumeToVM(vm.getDataCenterId(), result.second(), backupVolumeInfo,
                                 backedUpVolumeUuid, vm, datastore.getUuid(), backup, backupProvider)) {
@@ -4110,7 +4122,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             persistRestoreOperationPhase(backup.getId(), "RUNNING", "FINALIZING", 95);
             if (netBackupRestore) {
                 netBackupRestoreCoordinator.persistRestoreContext(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier,
-                        RestorePhase.COMPLETED, host.getName(), backup.getExternalId());
+                        RestorePhase.COMPLETED, restoreHostName, backup.getExternalId());
             }
             persistRestoreOperationPhase(backup.getId(), "COMPLETED", "COMPLETED", 100);
             clearTrackedRestoreJobDetails(backup);
@@ -4415,22 +4427,30 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
      * Get the pair: hostIp, datastoreUuid in which to restore the volume, based on the VM to be attached information
      */
     private Pair<HostVO, StoragePoolVO> getRestoreVolumeHostAndDatastore(VMInstanceVO vm) {
+        return getRestoreVolumeHostAndDatastore(vm, true);
+    }
+
+    private Pair<HostVO, StoragePoolVO> getRestoreVolumeHostAndDatastore(VMInstanceVO vm, boolean selectHost) {
         List<VolumeVO> rootVmVolume = volumeDao.findIncludingRemovedByInstanceAndType(vm.getId(), Volume.Type.ROOT);
         Long poolId = rootVmVolume.get(0).getPoolId();
         StoragePoolVO storagePoolVO = primaryDataStoreDao.findById(poolId);
         if (storagePoolVO == null) {
             throw new CloudRuntimeException("The volume of the virtual machine to which you are trying to attach the backup volume is not in the Ready state, and the storage pool for the volume cannot be found.");
         }
-        HostVO hostVO = vm.getHostId() == null ?
+        HostVO hostVO = !selectHost ? null : vm.getHostId() == null ?
                             getFirstHostFromStoragePool(storagePoolVO) :
                             hostDao.findById(vm.getHostId());
         return new Pair<>(hostVO, storagePoolVO);
     }
 
     private Pair<HostVO, StoragePoolVO> getRestoreVolumeHostAndDatastoreForNas(VMInstanceVO vm, VolumeVO backedVolume) {
+        return getRestoreVolumeHostAndDatastoreForNas(vm, backedVolume, true);
+    }
+
+    private Pair<HostVO, StoragePoolVO> getRestoreVolumeHostAndDatastoreForNas(VMInstanceVO vm, VolumeVO backedVolume, boolean selectHost) {
         Long poolId = backedVolume.getPoolId();
         StoragePoolVO storagePoolVO = primaryDataStoreDao.findById(poolId);
-        HostVO hostVO = vm.getHostId() == null ?
+        HostVO hostVO = !selectHost ? null : vm.getHostId() == null ?
                 getFirstHostFromStoragePool(storagePoolVO) :
                 hostDao.findById(vm.getHostId());
         return new Pair<>(hostVO, storagePoolVO);

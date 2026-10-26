@@ -132,6 +132,9 @@ public interface ThirdPartyBackupVolumeService {
     /** Serialize parent selection with deletion of artifacts shared by an incremental chain. */
     Lease acquireLifecycle(long vmId);
 
+    /** Hold only across restore Worker selection and durable queue registration, never during the restore. */
+    Lease acquireRestorePlacement();
+
     /** Called with the VM lifecycle lease held; no VM restore worker is launched. */
     void rejectExternalRestore(Backup backup, String provider, String externalId, String jobId, String reason, String proof);
 
@@ -257,6 +260,10 @@ public interface ThirdPartyBackupVolumeService {
 
     Host selectRestoreHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
             String hostIdentifier, long requiredBytes);
+
+    /** Provider-specific destination Client eligibility is checked before selecting a Worker. */
+    Host selectRestoreHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
+            String hostIdentifier, long requiredBytes, java.util.function.Predicate<Host> eligible);
 
     Host selectBackupHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds, long requiredBytes);
 

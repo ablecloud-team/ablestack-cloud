@@ -30,7 +30,6 @@ under the License.
 - [공통 스테이징 경로 변경](#공통-스테이징-경로-변경)
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
-- [기존 NetBackup 구성 환경의 업데이트](#기존-netbackup-구성-환경의-업데이트)
 - [Veeam 13.0 VM별 스케줄 검증 시나리오](#veeam-130-vm별-스케줄-검증-시나리오)
 - [NetBackup·Veeam 사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)
 - [Full 및 증분 백업 운영](#full-및-증분-백업-운영)
@@ -101,9 +100,7 @@ RAW 파일은 sparse여도 논리적 크기가 원본 가상 용량과 같을 �
 성공 후 최초 FULL의 모든 외부 보관본이 정리되고 최근 두 백업은 복원 가능한지 확인한다.
 추가로 공유 VM 하나가 실행 중인 경우, 복사 중 VM 시작·디스크 연결 시도, 취소·재시작 후 정리 재시도를 검증한다.
 
-배포 시 관리 서버와 **해당 GFS2 클러스터의 모든 Host Agent·공통 스크립트**를 같은 버전으로 업데이트하고 재시작한다.
-`ablestack_shared_raw.py`, `thirdparty_volume_backup.py`, `thirdparty_backup_source_support.py`, `ablestack_nasbackup.sh`를 함께 배포한다.
-구형 Agent나 검사 불가능한 Host가 포함된 클러스터에서는 이 신규 백업을 시작하지 않는다.
+GFS2 클러스터에 필요한 디스크 검사를 지원하지 않거나 검사할 수 없는 Host가 있으면 백업을 시작하지 않는다.
 기존 GFS2 QCOW2·RBD RAW의 온라인 FULL·증분 백업은 해당 경로를 유지한다.
 
 ## 배포 정책을 보존하는 백업·복원
@@ -141,7 +138,6 @@ GFS2 RAW는 위의 정지 상태 FULL 조건을 적용하고, 할당 정책은 �
 
 기존 `thin / sparse / fat` 볼륨과 정책 정보가 없는 구형 백업은 기존 경로를 유지한다.
 신규 `falloc`과 `full`은 호환용 `fat` 컬럼만으로 판단하지 않으며 별도 계약 값을 전달한다.
-관리 서버, 모든 복원 Worker Host의 Agent·공통 스크립트를 함께 업데이트하고 각 서비스를 재시작해야 한다.
 실제 GFS2·Ceph 환경에서는 각 조합별 복원과 실제 할당량을 추가 확인한다. GFS2 RAW는 FULL만 시험한다.
 
 ## 운영자용 백업 구성 요약
@@ -227,7 +223,6 @@ GFS2·LOCAL은 Host의 `/etc/fstab`에 마운트 정보가 있어야 자동으�
 
 Commvault·NetBackup·Veeam의 `backup.thirdparty.staging.*`는 공통 글로벌 설정이다.
 한 솔루션만 테스트하더라도 변경 범위에 포함된 모든 솔루션과 백업 Host를 함께 확인한다.
-이 변경 버전으로 업그레이드할 때도 진행 중인 백업·복원을 먼저 종료하고, 관리 서버와 Host 업데이트 후 사전구성을 갱신한다.
 NAS 백업 저장소의 경로 변경은 이 절의 대상이 아니다.
 
 현재 글로벌 설정을 변경하면 이후 작업은 새 스테이징 설정을 읽는다.
@@ -520,12 +515,11 @@ Veeam의 `veeam-host-config.py`도 같은 VM 대상 선택 옵션을 받는다.
 `0`으로 설정해도 최소 `10 GiB`의 추가 여유 공간은 유지한다.
 Full의 예상 필요량은 Ready 상태인 대상 볼륨의 논리 용량 합계이며, 증분은 현재 그 합계의 10%로 추정한다.
 따라서 실제 게스트 사용량이나 실제 증분 파일 크기를 사전에 측정한 값은 아니다.
-설정값 변경은 이후 백업 공간 검사부터 적용하며 재기동이 필요 없다. 신규 설정 등록을 위한 업그레이드 시 관리 서버 재기동은 필요하다.
+설정값 변경은 이후 백업 공간 검사부터 적용한다.
 이 설정은 NAS 백업 저장소용이며, RBD를 포함한 복원 대상 기본스토리지의
 `backup.restore.primary.storage.capacity.buffer.percent`와는 독립적이다.
 
-Europa 업데이트 후 Mold 관리 서버를 시작하면 버전 번호가 같은 `4.23.0.0` 설치에서도 다음 구형 글로벌 설정을 마이그레이션으로 한 번 정리한다.
-이름이 현재 코드에 없다는 이유만으로 모든 설정을 삭제하지 않으며, 확인된 항목만 정리한다.
+구형 백업 설정과 현재 사용하는 설정의 대응은 다음과 같다.
 
 | 정리하는 구형 설정 | 현재 기준 |
 | --- | --- |
@@ -922,7 +916,7 @@ Job 상세의 `Overview`에서 파일 목록·상태 코드를, `Details`에서 
 | 기준 Job만 있고 VM 백업 요청도 없음 | 해당 Host의 실행 중인 VM, 오퍼링 연결, `VM_SCHEDULE_BACKUP`, 예약 도래 여부와 Hook 로그를 확인한다. |
 | Mold는 `Failed`, `mold-transfer` Job은 없음 | 해당 정책의 User Backup 스케줄·Start window, Host의 `bpbackup` 설치와 요청 기록, Mold 실패 상세와 관리 서버 로그를 확인한다. |
 | `NetBackup artifact query failed with status 401` | API key·계정 권한과 관리 서버의 API 인증 코드 반영 여부를 확인한다. 기준 Job의 성공만으로 REST API 연결을 판단하지 않는다. |
-| 볼륨 Job은 성공했지만 `NETBACKUP_TRANSFER`에서 HTTP `400`, `Limit must be less than 100.` | `/catalog/images`의 페이지 크기를 확인한다. 수정본은 카탈로그를 `99`, Job 목록을 `1000`으로 조회한다. 아래 카탈로그 조회 오류 복구 안내를 따른다. |
+| 볼륨 Job은 성공했지만 `NETBACKUP_TRANSFER`에서 HTTP `400`, `Limit must be less than 100.` | `/catalog/images`의 페이지 크기를 확인한다. 카탈로그는 `99`, Job 목록은 `1000`으로 조회한다. 아래 카탈로그 조회 오류 확인 절차를 따른다. |
 | bootstrap 경로 없음 | 해당 Host의 GFS2 마운트와 사전구성 완료 여부, 정책에 입력한 경로를 확인한다. |
 
 실제 백업을 실행한 Host에서 Hook 로그와 해당 백업 UUID의 작업 로그를 확인한다.
@@ -957,7 +951,7 @@ NetBackup의 `Failed / Done` 작업은 종료됐으며 source 준비를 막지 �
 대기 중 재시도 Job이 있으면 해당 부모 Job을 확인하고 취소한 뒤 새 기준 백업을 실행한다.
 실제 볼륨 전송 Job이나 진행 중인 Mold 작업을 일괄 취소하거나 `volume-start` 파일을 수동 생성하지 않는다.
 
-이전 Pre Hook이 비정상 종료해 context가 남았으면 수정본은 context 잠금을 확보한 뒤
+이전 Pre Hook이 비정상 종료해 context가 남았으면 context 잠금을 확보한 뒤
 기록된 부팅 ID·PID·프로세스 시작 시각과 NetBackup Backup ID를 확인한다.
 이전 프로세스가 종료된 다른 백업의 context만 보관 디렉터리로 옮기며, 실행 중이거나 확인할 수 없으면 중단한다.
 소유 프로세스 정보가 없는 구형 `.inprogress`는 자동 정리하지 않는다.
@@ -966,7 +960,6 @@ NetBackup의 `Failed / Done` 작업은 종료됐으며 source 준비를 막지 �
 Post Hook은 Pre 실패 `73`·시간 초과 `74` 또는 다른 Job의 context로 오래된 Mold 백업을 갱신하지 않는다.
 
 첫 Full과 후속 증분이 완료된 뒤 테스트 복원까지 확인한다.
-운영 중 수정본을 적용할 때는 [기존 NetBackup 구성 환경의 업데이트](#기존-netbackup-구성-환경의-업데이트)를 따른다.
 10.5와 11.1의 실서버 검증 범위는 [API 호환성 확인](#netbackup-105111-api-호환성-확인)을 참고한다.
 
 **실패 후 자동 재시도와 Frequency를 함께 구성한다.**
@@ -1048,106 +1041,9 @@ RBD는 기록된 원본 디스크의 해당 백업 체크포인트 이름만 삭
 2. Mold에서 기존 VM 백업본을 삭제하고 삭제 대기·정리 오류가 없는지 확인한다.
 3. NetBackup Catalog에서 남은 테스트 이미지를 조회하고 파일 목록이 bootstrap만 포함하는지 확인한 뒤 만료 처리한다.
 4. 전체 테스트 기간으로 조회해 남은 Catalog 이미지를 확인한다. Host 기준 정책은 유지한다.
-5. 수정본 배포와 Host 사전구성을 마친 뒤 테스트 VM의 예약 시각 이후 기준 정책을 실행한다.
+5. Host 구성과 정책 설정을 확인한 뒤 테스트 VM의 예약 시각 이후 기준 정책을 실행한다.
 
 Catalog를 비우기 위해 NetBackup 내부 DB나 이미지 파일을 파일 시스템에서 직접 삭제하지 않는다.
-
-#### 기존 NetBackup 구성 환경의 업데이트
-
-이미 사전구성을 완료한 환경에서 관리 서버의 NetBackup 플러그인이나 Host 연동 스크립트를 수정한 버전을 적용할 때는
-아래 절차를 따른다. 관리 서버의 Java 코드는 서비스 재시작으로 반영하고,
-Host에 복사·생성된 실행 파일은 패키지 업데이트 후 사전구성을 다시 실행하여 반영한다.
-
-| 수정 대상 | 업데이트 후 필요한 작업 |
-| --- | --- |
-| 관리 서버의 NetBackup Java 플러그인 | 수정본이 포함된 관리 서버 패키지를 설치하고 Mold 관리 서비스를 재시작한다. 관리 서버가 여러 대이면 모두 반영한다. |
-| Host의 `netbackup-host-restore-watcher.py` 및 사전구성에서 설치하는 파일 | 수정본이 포함된 Host 패키지를 설치하고 각 Host에서 `netbackup-host-config.py`를 다시 실행한다. |
-| Host Agent의 전송 명령 처리와 `netbackup-volume-backup.py` | 모든 백업 Host의 Agent·스크립트 패키지를 함께 업데이트하고 Agent를 재시작한다. 관리 서버 재시작만으로는 반영되지 않는다. |
-| 공통 `thirdparty_volume_backup.py`와 NetBackup Pre/Post·common 스크립트 | NetBackup과 Veeam을 사용하는 모든 대상 Host의 스크립트를 함께 업데이트한다. 이번 bootstrap 생성 순서와 context 처리 수정이 포함된다. |
-| Mold 상태 툴팁 | 수정한 UI 정적 파일도 배포하여 진행 중인 백업의 대기 상세를 표시한다. |
-
-패키지의 감시기 원본은 `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-restore-watcher.py`이며,
-실제 service는 `/usr/local/sbin/netbackup-host-restore-watcher`를 실행한다.
-**RPM 업데이트나 Agent 재시작만으로는 이 복사본이 교체되지 않는다.**
-사전구성을 다시 실행하면 감시기 복사본과 Hook·구성·service·timer 파일을 갱신하고 timer를 활성화한다.
-
-**1. 새 작업 유입을 중단하고 기존 작업을 완료한다.**
-
-NetBackup 기준 정책(예: `ablecube1`~`ablecube4`)의 자동 실행을 일시 중지하고 수동 백업·복원 요청도 중단한다.
-기준 정책의 종료뿐 아니라 Mold의 VM 백업·복원과 외부 UI 복원 작업까지 완료됐는지 확인한다.
-사전구성은 `bp.conf` 갱신 시 NetBackup Client를 재시작할 수 있으므로 진행 중인 작업이 없는 시간에 수행한다.
-기존 정책명, 인증정보, VM 스케줄 모드, include/exclude, 증분 설정과 별도 조정한 감시 설정을 보관한다.
-
-**2. 관리 서버와 Host 패키지를 업데이트한다.**
-
-수정본이 포함된 관리 서버 패키지를 설치한 뒤 해당 서버에서 관리 서비스를 재시작한다.
-Mold 관리 서비스는 다음과 같이 재시작하고 상태를 확인한다.
-
-```bash
-systemctl restart mold.service
-systemctl is-active mold.service
-```
-
-각 대상 Host에도 수정본이 포함된 Host 패키지를 설치한다.
-GFS2 스테이징을 공유해도 실행 파일·설정은 Host 로컬에 있으므로 백업·복원을 수행할 모든 Host에 반영한다.
-
-**3. 각 Host에서 기존 설정으로 사전구성을 다시 실행한다.**
-
-사전구성 실행 전에 NetBackup UI에서 각 기존 Host 정책에 `mold-transfer` / `User Backup` 스케줄을 추가한다.
-Start window는 매일 전체 시간으로 열고 실제 VM 데이터의 저장소·Retention을 지정한다.
-기존 `Full Backup` 스케줄과 bootstrap Backup Selections는 유지하며, 동시 실행 제한은 위 설정 표를 확인한다.
-수정된 사전구성은 이 User Backup 스케줄이 없으면 설정 변경 전에 중단한다.
-
-아래는 기존에 VM별 스케줄과 증분 백업을 사용하던 `ablecube1`의 예시다.
-`ablecube2`~`ablecube4`에서는 각 Host의 기존 정책명으로 바꾸고, Host별로 순서대로 실행한다.
-
-```bash
-python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-config.py \
-  --policy-name 'ablecube1' \
-  --mold-url 'http://<Mold>:8080/client/api' \
-  --admin-apikey '<기존 Mold 관리자 API key>' \
-  --admin-secretkey '<기존 Mold 관리자 secret key>' \
-  --netbackup-url 'https://<NetBackup>:1556/netbackup' \
-  --netbackup-apikey '<기존 NetBackup API key>' \
-  --vm-schedule-backup true \
-  --incremental-backup true
-```
-
-`--vm-schedule-backup`과 `--incremental-backup`은 기존 운영 값으로 명시한다.
-호스트 필터 방식이면 `--vm-schedule-backup false`와 기존 `--vm-include`·`--vm-exclude`도 지정한다.
-`--backup-chain-size`는 변경할 때만 지정하며, 위 예시처럼 생략하면 기존 체인 길이를 유지한다.
-관리 서버 재기동을 요구하며 중단되면 재기동 후 같은 명령을 다시 실행한다.
-감시 조회가 진행 중이라는 안내로 중단되면 조회 종료 후 다시 실행한다. 이때 timer는 중지된 상태일 수 있다.
-완료 메시지 `[ OK ] Completed NetBackup host configuration`까지 확인한다.
-
-사전구성은 전송용 `bpstart_notify.<정책>.mold-transfer`와 `bpend_notify.<정책>.mold-transfer`도 설치한다.
-업데이트 전에 시작된 작업은 저장된 기존 프로토콜로 재개한다. 기존 `ABLESTACK-<UUID>-...` 정책과
-그 Backup ID는 해당 백업본의 Mold 삭제가 완료되기 전까지 일괄 삭제하지 않는다.
-새 백업은 Host 정책만 사용하며, 새 이미지의 삭제는 저장된 정확한 Backup ID만 만료하고 Host 정책은 유지한다.
-
-기존 감시 옵션을 별도 조정했다면 생성된 `.bak`와 비교하여 필요한 값을 다시 반영한다.
-감시 상태·잠금 파일과 사용자 지정 경로 보존은
-[NetBackup 및 Veeam 서비스 운영](#netbackup-및-veeam-서비스-운영)의 기존 NetBackup 상시 서비스 전환 안내를 따른다.
-
-**4. 실행 파일과 감시 상태를 확인하고 스케줄을 재개한다.**
-
-각 Host에서 기본 설치 경로 기준으로 원본과 실행 파일이 같은지 확인한다.
-`cmp`가 출력 없이 종료 코드 `0`으로 끝나면 동일한 파일이다.
-
-```bash
-cmp /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-restore-watcher.py \
-  /usr/local/sbin/netbackup-host-restore-watcher
-systemctl is-enabled netbackup-host-restore-watcher.timer
-systemctl is-active netbackup-host-restore-watcher.timer
-systemctl start netbackup-host-restore-watcher.service
-journalctl -u netbackup-host-restore-watcher.service -n 100 --no-pager
-```
-
-timer는 `enabled`·`active`인지 확인한다. service는 한 번 조회한 뒤 종료하므로 조회 사이에 `inactive`인 것은 정상이다.
-로그에서 조회 오류가 없는지 확인하고, NetBackup 기준 정책을 수동 실행하여 Mold의 VM 백업이 `BackedUp`으로 완료되는지 검증한다.
-VM별 스케줄 모드에서는 테스트 VM의 예약 시각이 지난 뒤 기준 정책을 실행한다.
-증분 사용 환경은 후속 증분과 복원을 확인하고, 외부 UI 복원을 운영한다면 감시기를 통한 Mold 복원 연결도 확인한다.
-검증 후 중지했던 기준 정책 스케줄을 재개한다.
 
 #### NetBackup 10.5·11.1 API 호환성 확인
 
@@ -1208,8 +1104,6 @@ WebUI에서 관리자 계정으로 성공한 것만으로 Mold API key의 복원
   이 경우 Mold는 확인 대기와 스테이징 보존을 유지하므로 Primary의 실제 복원 작업을 확인해야 한다.
 - 업데이트 전에 접수된 KVM 복원은 기존 Job ID를 조회하거나 Host의 기존 제출 기록만 조회한다. 새 복원은 REST로 요청한다.
 
-이 전환에는 공통 복원 조정 코드와 NetBackup 플러그인이 포함된 **관리 서버 패키지 업데이트 및 `mold.service` 재시작**이 필요하다.
-관리 서버가 여러 대이면 모두 반영한다. 이 전환 자체에는 Host 스크립트 변경·Agent/감시 서비스 재시작·사전구성 재실행이 필요하지 않다.
 기존 백업은 다시 생성하지 않고 사용할 수 있지만, 상태 코드 `135`로 이미 실패한 복원은 rollback·정리가 끝난 뒤 새로 요청한다.
 Client 상호 복원 허용 파일을 추가하는 작업은 새 REST 흐름의 필수 설정이 아니다.
 
@@ -1224,7 +1118,7 @@ Client 상호 복원 허용 파일을 추가하는 작업은 새 REST 흐름의 
 **카탈로그 조회 페이지 크기 오류와 기존 작업 확인**
 
 NetBackup 10.5 실서버에서 `GET /catalog/images?page[limit]=1000`은 HTTP `400`, 오류 코드 `8961`,
-`Limit must be less than 100.`을 반환했다. 수정본은 이 목록을 `page[limit]=99`로 조회하며,
+`Limit must be less than 100.`을 반환한다. 이 목록은 `page[limit]=99`로 조회하며,
 기존 이미지별 정책의 백업 완료 확인과 삭제 전 확인에 같은 제한을 적용한다.
 새 User Backup은 Job에 기록된 정확한 이미지 ID를 개별 조회한다.
 Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로 후속 페이지까지 조회한다.
@@ -1234,10 +1128,8 @@ Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로
 
 볼륨 Job이 성공해도 카탈로그 참조를 저장하지 못하면 Mold는 `NETBACKUP_TRANSFER`와 정리 `WAITING`을 유지할 수 있다.
 같은 Host의 후속 작업은 실행 슬롯을 기다리다가 `Staging queue timeout expired`로 실패할 수 있다.
-이 수정만 적용할 때는 관리 서버의 NetBackup 플러그인을 업데이트하고 `mold.service`를 재시작한다.
-Host 스크립트 변경은 없으므로 이 수정 때문에 Host 사전구성을 다시 실행할 필요는 없다.
-적용 중 새 기준 정책 실행은 중단하고 기존 스테이징 파일과 외부 볼륨 Job을 보존한다.
-적용 후 `RUNNING` 작업이 저장된 외부 Job 참조로 재조회되어 다음 볼륨과 metadata까지 완료되는지 확인한다.
+기존 스테이징 파일과 외부 볼륨 Job을 보존하고 `RUNNING` 작업의 저장된 외부 Job 참조를 확인한다.
+조회가 정상화되면 다음 볼륨과 metadata까지 완료되는지 확인한다.
 이미 대기 시간 만료로 `Failed`가 된 작업은 자동 재개 대상이 아니므로 별도 백업을 다시 요청한다.
 
 ### Veeam: `ablestack-veeam`
@@ -1285,7 +1177,7 @@ Restore Point 개수 기반 보존만으로 Orphaned 백업이 계속 만료된�
 #### Veeam 13.0 VM별 스케줄 검증 시나리오
 
 third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·복원까지 검증하는 순서다.
-대상은 Veeam **13.0**이며, 관리 서버 플러그인과 아래 공통 Host 수정본을 함께 배포한다.
+대상은 Veeam **13.0**이다.
 공식 `ver=13` 문서는 이후 13.x 빌드로 갱신될 수 있으므로 실제 13.0 빌드 번호와 PowerShell 지원 옵션을 기록한다.
 
 | 항목 | 테스트 환경 |
@@ -1300,8 +1192,7 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
 | 실제 볼륨·metadata staging | `/mnt/glue-gfs/ablestack-veeam/<VM 내부 이름>/<백업 timestamp>`; Mold가 관리 |
 | VM 선택 / 체인 | `--vm-schedule-backup true --incremental-backup true --backup-chain-size 8` |
 
-1. 관리 서버와 `ablecube1`의 패키지를 업데이트한다. 관리 서버는 공통 API·백업 처리와 Veeam 플러그인을 포함하고
-   `mold.service`를 재시작한다. Host는 Agent·공통 백업 스크립트·Veeam 런타임을 함께 반영한다.
+1. `ablecube1`의 공통 스테이징 마운트와 Veeam Agent 준비 상태를 확인한다.
    VM을 다른 Host로 이동할 테스트까지 수행하려면 이동 대상 Host도 같은 방식으로 구성한다.
 2. VBR에서 저장소와 `ablecube1` Linux Agent 연결을 확인하고, Host별 기준 파일 백업 Job을 준비한다.
    GFS2에서는 snapshot-less 파일 백업을 사용한다. Job 자동 실행은 구성이 끝날 때까지 보류한다.
@@ -1462,7 +1353,7 @@ Mold의 백업 유형과 외부 작업의 유형을 각각 확인한다.
 Mold가 부모 백업 관계와 복원 체인을 관리하고, 외부 솔루션은 이번에 생성된 파일 전체를 보관한다.
 현재 방식의 비동기 작업은 관리 서버 재시작 후에도 저장된 볼륨 계획과 외부 Job 참조로 이어서 처리한다.
 구형 디렉터리 스테이징에서 외부 Job ID 없이 남은 작업에 백업 요청을 새로 보내는 경로는 사용하지 않는다.
-업데이트는 진행 중인 백업·복원을 완료한 뒤 수행한다. 기존에 저장이 끝난 백업의 조회·복원과 외부 Job 상태 확인은 유지한다.
+기존에 저장이 끝난 백업의 조회·복원과 외부 Job 상태 확인은 유지한다.
 
 Commvault·NetBackup·Veeam의 보관·만료는 외부 솔루션 정책을 따른다.
 Mold는 만료 결과를 동기화하며, 필요한 Full이나 증분 파일이 사라진 복원 시점은 복원 불가로 표시한다.
@@ -1790,9 +1681,9 @@ ABLESTACK KVM 복원 후에는 VM에 이미 연결된 볼륨의 디스크 번호
 이전 코드에서는 연결된 DATA 볼륨을 다시 연결하면서 자기 번호를 사용 중으로 계산해 다음 빈 번호로 바꿀 수 있었다.
 예를 들어 백업의 DATA `deviceId=1`이 복원 후 DB에서 `2`가 되면, 다음 복원은
 `VM volume device or capacity differs from the selected backup`으로 차단된다.
-이미 바뀐 값은 코드 업데이트만으로 소급 변경하지 않는다. VM을 Mold에서 정지하고, 원본 매니페스트와 현재 볼륨의
+이미 바뀐 디스크 번호는 자동으로 정정하지 않는다. VM을 Mold에서 정지하고, 원본 매니페스트와 현재 볼륨의
 UUID·용량이 일치하며 원래 번호가 비어 있는지 확인한 뒤 해당 DATA 볼륨의 `volumes.device_id`만 원래 값으로 정정한다.
-재발 방지 코드는 관리 서버 업데이트·재시작으로 반영한다. Windows에서 디스크를 Online으로 전환하는 동작은
+Windows에서 디스크를 Online으로 전환하는 동작은
 이 DB 번호 변경의 원인이 아니며, 게스트 디스크가 오프라인인 이유는 별도로 확인한다.
 
 ### 대역폭 조정과 백업 취소
@@ -1896,6 +1787,28 @@ Mold의 작업 예약 정보와 스테이징의 `.volume-reservations/<jobId>.js
 실패·취소 시에는 외부 쓰기 작업의 종료와 정리를 확인한 뒤 예약을 해제하며, 종료가 불확실하면 예약을 유지한다.
 따라서 정리 작업으로 `df` 사용량이 크게 줄었어도 예약 수치만 해제되어 공간이 반환된 것으로 해석해서는 안 된다.
 
+### Commvault·NetBackup·Veeam 복원 Worker 선택과 대기
+
+볼륨별 복원을 사용하는 세 Provider는 새 인스턴스 생성·단일 볼륨 복원에서도 공통 Worker 선택을 사용한다.
+관리 서버가 기본스토리지의 첫 Host를 먼저 지정하지 않고, 접근 가능한 KVM Host 중 실행 슬롯이 허용되는 Host를 우선한다.
+그다음 실행·대기 작업 수를 비교한다. Host·Cluster·전체 동시 실행 제한을 함께 반영한다.
+정리되지 않은 실행 슬롯과 대기 요청도 부하에 반영하며, 동률이면 대상 VM의 이전 Host와 Host ID 순서를 참고한다.
+동시에 요청해도 앞 요청의 배정을 반영하여 다음 Worker를 선택한다.
+
+- 모든 복원 대상 기본스토리지에 연결된 같은 Zone의 활성 KVM Host만 후보가 된다.
+- 실행 중 VM의 볼륨 복원은 해당 VM의 Host에서 수행한다. 명시적으로 지정한 Host도 다른 Host로 자동 변경하지 않는다.
+- GFS2·NFS도 후보 Host에서 설정된 파일 시스템의 마운트와 여유 공간을 확인한다.
+- LOCAL은 선택된 Worker의 로컬 스테이징에 파일을 받는다. 로컬 기본스토리지는 접근 가능한 Host로 후보가 제한된다.
+- Commvault는 대상 Host 이름에 대응하는 등록 Client와 Linux File System application `29`, 준비 완료 상태를 확인한다.
+  원본 백업 Client·Subclient·백업 Job 참조는 매니페스트대로 유지하고, 선택된 대상 Client의 작업 전용 경로로 복원한다.
+  등록되지 않았거나 준비되지 않은 Host는 분산 후보에서 제외하며, 확인 오류를 준비 완료로 취급하지 않는다.
+- 모든 적격 Host가 작업 중이거나 공간·Cluster·전체 동시 실행 수가 부족하면 대기할 수 있다.
+  Commvault의 적격 Client가 한 대뿐이거나 로컬 기본스토리지가 한 Host에만 연결된 경우에도 그 Host에서 대기한다.
+
+이미 계획과 대기열이 등록된 복원은 기록된 Worker를 유지한다. `HOST_CONCURRENCY_LIMIT`이라는 이유로
+진행 중이거나 접수 여부가 불확실한 외부 복원을 다른 Host에 다시 제출하지 않는다.
+Worker는 새 복원 요청을 접수할 때 선택하며, 이미 등록된 대기 작업은 기록된 Host에서 실행을 기다린다.
+
 ### Commvault·NetBackup·Veeam 볼륨별 복원 단계
 
 | 단계 | 수행하는 작업 |
@@ -1908,6 +1821,13 @@ Mold의 작업 예약 정보와 스테이징의 `.volume-reservations/<jobId>.js
 | `FINALIZING` | Host 작업 종료 후 Mold가 최종 결과를 반영 중일 때 UI에서 표시할 수 있다. |
 
 파일 가져오기와 적용은 같은 볼륨에서도 반복된다.
+
+**백업 볼륨 복원 후 VM 연결**은 요청 접수 후 백그라운드에서 진행한다.
+이벤트 목록의 `Successfully completed restoring Volume from Backup to Instance`는 요청 처리 완료 시점에도 표시될 수 있다.
+`NETBACKUP_RESTORE` 등의 단계에서 `Fetching volume 1`이 표시되면 실제 볼륨 파일을 가져오는 중이며,
+데이터 적용과 `ATTACH_VOLUME` 처리가 끝나야 대상 VM에 볼륨이 연결된다.
+최종 복원 상태가 `COMPLETED`인지, 대상 VM의 볼륨 목록에 연결된 볼륨이 있는지 함께 확인한다.
+진행 중에는 같은 복원 요청을 중복 실행하지 않는다.
 
 외부 솔루션에서 볼륨 파일을 가져올 때 Veeam은 `Success`, Commvault는 `Completed`만 정상 성공으로 인정한다.
 경고·부분 성공·실패·취소는 VM 볼륨에 적용하지 않으며, 확인한 상세 오류를 복원 실패 사유에 포함한다.
@@ -1974,7 +1894,6 @@ RBD 대상도 같은 이름 규칙의 별도 이미지로 준비·보관한다.
 복구 기록은 Host의 `/var/lib/ablestack/backup/jobs/restore-transactions/<VM 내부 이름>/`에 남긴다.
 이 파일·이미지를 수동 삭제하면 원복 또는 정리 재시도에 필요한 정보가 사라질 수 있다.
 개별 볼륨 복원은 해당 볼륨만 교체하며, 파일 대상의 `.csrestore.<시각>.bak`은 해당 볼륨의 원복 용도다.
-새 동작은 수정된 Agent에서 새로 실행하는 VM 복원에 적용한다. 이미 진행 중인 구버전 작업은 기존 방식을 따른다.
 
 | 단계 | 수행하는 작업 |
 | --- | --- |
@@ -1991,7 +1910,6 @@ RBD 대상도 같은 이름 규칙의 별도 이미지로 준비·보관한다.
 
 #### NAS 복원 확인
 
-Management Server와 복원 Host의 Agent에 수정본을 적용한 뒤 새 복원 작업으로 확인한다.
 볼륨 할당 정책은 Management Server가 전달하고 실제 변환·교체는 Agent가 수행한다.
 테스트할 VM은 Mold에서 정지한 뒤 같은 백업 시점을 선택한다.
 
@@ -2093,7 +2011,6 @@ Mold 백업 목록의 실패 안내 아이콘에서 **최근 복원 실패 사�
 사전 검사에서 허용된 요청도 `restoreBackupArtifact`에 외부 파일 복원의 수신 Host와 시작·종료 시각(`proof`)을 전달한다.
 Mold 비동기 작업에서 VM 복원을 시작하지 못하면 해당 Job·세션의 실제 실패 사유를 최근 복원 실패로 기록하고,
 동일한 소유권 검사로 복원된 메타데이터를 정리한다. 따라서 이전에 차단된 Job의 사유만 계속 표시되지 않는다.
-이 동작은 관리 서버와 NetBackup 알림 스크립트 또는 Veeam 라이브러리를 함께 갱신해야 한다.
 종료 증거를 보내지 않는 이전 알림 스크립트의 요청은 호환되지만, 실패 시 메타데이터 자동 정리는 허용하지 않는다.
 
 성공한 외부 UI 복원의 원래 메타데이터 경로도 정리한다. Mold는 VM 복원을 시작하기 전에 외부 Job·세션의
@@ -2108,34 +2025,22 @@ RBD `.meta`는 해당 백업 매니페스트의 `RBD_DIFF` 엔진 볼륨·checkp
 볼륨 이미지나 알 수 없는 파일이 있거나 다른 백업·복원 작업이 사용 중이면 `WAITING`과 사유를 남기고
 관리 서버가 30초 주기로 다시 확인한다. Host 단절, 종료 미확인, 소유권 불일치도 정리를 보류한다.
 실행 중인 VM 복원이 차단되어 `FAILED`인 상태에서 `Unknown checkpoint content`가 함께 표시되면,
-복원 차단 사유와 잔여 메타데이터 정리 보류 사유를 구분한다. RBD `.meta` 지원 누락에 대한 이 수정은
-수신 Host의 `thirdparty_external_restore_cleanup.py`만 갱신하면 되며 사전구성 재실행·서비스 재시작은 필요하지 않다.
+복원 차단 사유와 잔여 메타데이터 정리 보류 사유를 구분한다.
 기존 정리 대기 건은 다음 주기부터 재시도하므로 새 파일 복원이나 백업 재생성 없이 정리 결과를 확인한다.
 정리 완료 후 `COMPLETED`를 표시하며, NetBackup/Veeam 보관 백업과 카탈로그·Restore Point는 이 정리로 삭제하지 않는다.
 Host의 `/var/lib/ablestack/backup/external-restore-cleanup/`에 작업별 정리 영수증을 남겨
 재시도나 재시작 후 같은 경로에 새로 복원된 파일을 이전 요청으로 삭제하지 않는다.
 백업 시점 디렉터리가 제거된 뒤에도 빈 VM 상위 디렉터리와 `restore`·`bootstrap` 상위 디렉터리는 남을 수 있다.
 
-이 개선은 **관리 서버, KVM Agent·공통 스크립트, NetBackup 복원 감시기·알림 스크립트 또는 Veeam 연동 라이브러리,
-Mold UI**를 함께 업데이트한다. 관리 서버는 `mold.service`를 재시작한다.
-NetBackup Host는 기존 사전구성 명령을 다시 실행하여 `/usr/local/sbin/netbackup-host-restore-watcher`와
-복원 알림 스크립트·감시 설정을 새 버전으로 생성한다. Veeam Host도 연동 라이브러리를 새 버전으로 배포하고 복원 에이전트를 재시작한다.
-업데이트 전에 이미 `SKIPPED`로 기록된 외부 요청을 소급 실행하지 않으므로 새 복원 Job·세션으로 검증한다.
-패키지의 `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-restore-notify`만 갱신하고
-사전구성을 다시 실행하지 않으면 `/usr/local/sbin/netbackup-host-restore-notify` 실행본은 이전 버전으로 남을 수 있다.
-`restore-watcher.conf`의 `RESTORE_NOTIFY_SCRIPT` 경로에서 `rejectBackupArtifactRestore` 호출이 있는지 확인한다.
-`resolveBackupArtifact`는 성공하지만 실패 기록 API가 서명 오류 `401`을 반환하면 공백·JSON 인자의 서명 인코딩도 확인한다.
-Mold는 공백을 `%20`으로 정규화해 서명하므로 폼 전송의 `+`를 그대로 서명하면 안 된다.
-알림·공통 스크립트를 수정 버전으로 배포하고 사전구성을 다시 실행한다. 이 서명 수정만으로 관리 서버 재시작은 필요하지 않다.
 API 실패로 아직 처리 완료되지 않은 외부 Job은 감시기의 다음 조회에서 재시도하므로 상태 파일을 삭제하지 않는다.
 이미 남아 있는 파일의 소유권이나 종료 증거를 확인할 수 없으면 자동 삭제하지 않고 로그와 정리 대기 사유를 먼저 확인한다.
-이미 `SUBMITTED`로 처리된 요청의 Mold 비동기 작업이 실패했다면, 업데이트 후 새 외부 복원 Job·세션으로 검증한다.
+이미 `SUBMITTED`로 처리된 요청의 Mold 비동기 작업이 실패했다면 실패 사유와 정리 결과를 확인한 뒤 새 외부 복원 Job·세션으로 요청한다.
 기존 보관 백업을 다시 생성할 필요는 없으며 감시 상태 파일을 삭제해 이전 요청을 강제로 재실행하지 않는다.
 
-업데이트 전에 **성공한** 외부 복원이 남긴 메타데이터는 기존 `SUBMITTED` 영수증을 확인하여 정리만 등록할 수 있다.
+**성공한** 외부 복원이 남긴 메타데이터는 기존 `SUBMITTED` 영수증을 확인하여 정리만 등록할 수 있다.
 `restoreBackupArtifact`의 `cleanupmetadataonly=true`는 provider·외부 Backup ID·Job ID가 기존 제출 기록과 정확히
 일치하고 완료 증거가 있을 때만 허용하며, 해당 기록이 없으면 VM 복원을 새로 시작하지 않고 거부한다.
-NetBackup는 관리 서버와 Host의 감시기·알림 스크립트를 갱신하고 사전구성을 다시 실행한 뒤 다음처럼 요청한다.
+NetBackup에서는 다음처럼 메타데이터 정리만 요청한다.
 예시의 `364`와 Backup ID는 실제 **최초 외부 UI 복원 Job** 값으로 지정하며, Mold가 이어서 실행한 볼륨 복원 Job을 사용하지 않는다.
 
 ```bash
@@ -2300,7 +2205,6 @@ ABLESTACK 볼륨 복원의 준비·실행·외부 메타데이터 요청 잠금�
 긴 DB 이력 키나 VM·볼륨 이름을 잠금 이름에 붙이지 않으며, DB 이력 키는 이전 백업과 호환되도록 유지한다.
 MySQL `GET_LOCK`의 64자 제한 초과로 `External restore callback is being claimed; retry shortly`가 발생하던 경로를 수정한다.
 실제 다른 요청이 같은 잠금을 점유한 경우에는 중복 복원을 차단하고 그 요청이 사용하는 파일을 정리하지 않는다.
-잠금 이름 변경을 반영할 때는 진행 중인 복원을 마친 뒤 모든 관리 서버를 같은 버전으로 업데이트·재시작한다.
 Host의 `job-history.sqlite`는 중앙 DB와 별개인 로컬 종료 색인이며, DB라는 이름만으로 Mold의 MySQL 기록과 혼동하지 않는다.
 
 Host 파일은 실제 프로세스 실행·종료 확인, 뒤늦은 재실행 차단, 볼륨 이름 교체 중 장애 복구에도 사용한다.
@@ -2442,7 +2346,6 @@ NAS는 저장소 파일과 기존 호스트 정리 절차의 성공을 확인한
 카탈로그의 `AVAILABLE`과 확인 시간은 마지막 조회 결과이므로 삭제 도중의 현재 보관 상태를 보장하지 않는다.
 삭제를 재시도하면 저장된 진행 상황을 이어서 처리하며, 삭제가 확인된 외부 항목은 다시 삭제하지 않는다.
 
-삭제 완료 확인을 전달하는 Management Server와 이를 처리하는 KVM Agent를 함께 업데이트한다.
 삭제 후 작업 기록 정리는 작업 종료, 스테이징 디렉터리 부재, 용량 예약 해제와 실행 허용 종료를 확인한다.
 보관할 백업의 완료 증빙과 이전 증분 기준 정리 증빙은 이 단계에서 요구하지 않는다.
 계속 대기하면 오류 문구 뒤에 표시되는 Host의 상세 사유와 Agent 로그를 확인한다.
@@ -2460,6 +2363,9 @@ NAS는 저장소 파일과 기존 호스트 정리 절차의 성공을 확인한
 증분 백업이 참조하는 Full·이전 증분 파일은 후속 복원 시점에 필요하므로 개별적으로 삭제하지 않는다.
 
 **스테이징 관리**는 자동 처리만으로 작업 결과나 정리를 확정하지 못한 경우 사용하는 관리자 화면이다.
+Commvault·NetBackup·Veeam의 볼륨별 백업·복원에 공통으로 제공한다.
+루트 관리자 계정에서 해당 백업을 선택했을 때, 외부 작업 접수·상태가 불확실하거나 임시 파일·예약·작업 기록 등의 정리가 미완료이면 표시한다.
+정상 진행 중인 작업, `HOST_CONCURRENCY_LIMIT` 등 일반적인 용량·실행 슬롯 대기, 정리가 완료된 과거 실패만으로는 표시하지 않는다.
 작업 상태 다시 확인은 외부 작업과 파일을 조회하며, 새 백업을 시작하는 기능이 아니다.
 정리 재시도는 종료가 확인된 작업의 남은 임시 파일과 작업 기록 정리를 시도한다.
 외부 작업 번호의 수동 연결은 실제 솔루션에서 해당 VM·볼륨·시점의 작업임을 확인한 경우에만 사용한다.
@@ -2522,21 +2428,7 @@ RBD·QCOW2 모두 같은 서비스를 통해 메타데이터 복원 완료를 Mo
 - NetBackup Client의 `netbackup` 서비스는 별도이다. 구성 스크립트는 Client를 설치하지 않으며,
   기존 `bp.conf`를 갱신한 경우 Client 서비스를 재시작한다.
 
-**기존 NetBackup 상시 서비스에서 전환**
-
-일반적인 수정 버전 반영 순서는 [기존 NetBackup 구성 환경의 업데이트](#기존-netbackup-구성-환경의-업데이트)를 따른다.
-아래는 구형 상시 서비스 전환과 재구성 시 감시 설정을 보존하기 위한 추가 사항이다.
-
-RPM 업데이트만으로 `/usr/local/sbin`에 복사된 감시 프로그램과 호스트의 기존 unit 파일은 전환되지 않는다.
-실행 중인 백업·복원과 외부 UI 복원 요청을 먼저 완료하고, 각 Host에서
-`netbackup-host-config.py`를 기존 정책명·인증정보·스케줄 모드·증분 설정으로 다시 실행한다.
-명령 형식과 설정 유지 옵션은 [사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)를 따른다.
-
-구성 도구는 기존 timer를 중지하고, 상시 서비스의 자동 실행을 해제·중지한 뒤 oneshot service와 timer를 설치한다.
-이미 oneshot 조회가 실행 중이면 파일을 교체하지 않고 대기 후 재실행하도록 안내한다.
-이때 timer는 중지된 상태이므로 조회 완료 후 반드시 사전구성을 재실행한다.
-기존 구성·unit 파일은 `.bak.<시각>`으로 보관하며, 활성화 단계가 실패해도 같은 사전구성을 다시 실행할 수 있다.
-중간 실패 시 timer가 계속 중지되어 있을 수 있으므로 완료 메시지와 활성 상태를 함께 확인한다.
+**NetBackup 감시 설정 관리**
 
 `/var/lib/ablestack/netbackup/restore-watcher-state.json`과 `restore-watcher.lock`은 지우지 않는다.
 처리 기록과 최초 기준 기록을 보존하며, 잠금 파일 자체는 감시 작업이 끝나도 재사용한다.
@@ -2641,7 +2533,7 @@ SelectedFiles는 `/mnt/glue-gfs/ablestack-veeam/bootstrap/ablecube1/veeam-ablecu
 Host와 Job 이름을 모두 `ablecube1`로 지정하면 `bootstrap/ablecube1/ablecube1`이 되며,
 두 폴더는 각각 Host와 Job을 구분한다.
 기본 경로를 사용할 때는 `--agent-payload-path`를 생략한다.
-기존 Host는 진행 중인 작업이 종료된 뒤 업데이트·재구성하고 Veeam UI의 SelectedFiles가 출력된 경로와 같은지 확인한다.
+Veeam UI의 SelectedFiles가 사전구성에서 출력된 경로와 같은지 확인한다.
 명시적 경로를 유지하려면 `--agent-payload-path`에 기존 경로를 지정한다.
 완료된 볼륨·metadata Job과 기존 복원 지점은 경로 변경 대상이 아니다.
 사전 Hook은 `createAblestackVeeamBackup`을 요청하고 Mold가 볼륨별 Job과 최종 metadata Job을 관리한다.
@@ -2744,8 +2636,7 @@ Veeam 실행 파일은 RPM이 설치한 패키지 경로에서 직접 실행한�
 - 실제 systemd service·timer: `/etc/systemd/system/`
 
 실행 스크립트와 Python 모듈은 `/etc`로 복사하지 않는다. 생성한 Hook은 패키지 경로의 스크립트를 호출하며,
-복원 감시 서비스도 같은 패키지 경로를 사용한다. 패키지 업데이트로 실행 파일을 갱신하고,
-설정이나 생성 Hook을 변경할 때 사전구성을 다시 실행한다.
+복원 감시 서비스도 같은 패키지 경로를 사용한다. 설정이나 생성 Hook을 변경할 때 사전구성을 다시 실행한다.
 구성 디렉터리는 `ABLESTACK_VEEAM_ETC_DIR`, 상태 디렉터리는 `ABLESTACK_VEEAM_STATE_DIR`로 별도 지정할 수 있다.
 생성 Hook과 systemd 서비스에도 해당 경로를 반영한다.
 일반 사전구성에는 `--install-only`를 지정하지 않는다. Veeam UI의 Agent Job 생성과 Pre/Post 등록은 수동 단계다.

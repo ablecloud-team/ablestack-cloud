@@ -1654,16 +1654,6 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         }
         DiskOffering offering = diskOfferingDao.findByUuid(source.getDiskOfferingId());
         if (offering == null) { throw new CloudRuntimeException("The backed up volume's disk offering is missing"); }
-        Host host = thirdPartyBackupVolumeService.selectRestoreHost(targetVm, getName(), Collections.singletonList(pool.getId()),
-                hostIdentifier, source.getSize());
-        if (host == null || !Status.Up.equals(host.getStatus()) || host.getDataCenterId() != targetVm.getDataCenterId()
-                || !Hypervisor.HypervisorType.KVM.equals(host.getHypervisorType())) {
-            throw new CloudRuntimeException("Restore Worker Host is unavailable or belongs to another zone");
-        }
-        if (VirtualMachine.State.Running.equals(targetVm.getState())
-                && !java.util.Objects.equals(targetVm.getHostId(), host.getId())) {
-            throw new CloudRuntimeException("A restored volume must be attached on the running VM's Host");
-        }
         final VolumeVO sourceVolume = volumeDao.findByUuid(source.getUuid());
         VolumeVO restored = new VolumeVO(Volume.Type.DATADISK, null, backup.getZoneId(), backup.getDomainId(),
                 backup.getAccountId(), 0, null, source.getSize(), null, null, null);
@@ -1687,7 +1677,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             DiskOffering rootOffering = diskOfferingDao.findById(roots.get(0).getDiskOfferingId());
             if (rootOffering != null && rootOffering.getCacheMode() != null) { cacheMode = rootOffering.getCacheMode().toString(); }
         }
-        Pair<Boolean, String> result = restoreStagedVolumes(targetVm, backup, host, Collections.singletonList(restored),
+        Pair<Boolean, String> result = restoreStagedVolumes(targetVm, backup, hostIdentifier, Collections.singletonList(restored),
                 Collections.singletonList(source.getUuid()), true, cacheMode);
         if (Boolean.TRUE.equals(result.first())) {
             volumeDao.persist(restored);
@@ -1709,16 +1699,24 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 throw new CloudRuntimeException("VM volume device or capacity differs from the selected backup");
             }
         }
-        Host host = thirdPartyBackupVolumeService.selectRestoreHost(vm, getName(),
-                targets.stream().map(VolumeVO::getPoolId).collect(Collectors.toList()), hostIdentifier, manifest.getRequiredStagingBytes());
-        return restoreStagedVolumes(vm, backup, host, targets, sources.stream().map(v -> v.uuid).collect(Collectors.toList()), false, null);
+        return restoreStagedVolumes(vm, backup, hostIdentifier, targets, sources.stream().map(v -> v.uuid).collect(Collectors.toList()), false, null);
     }
 
-    private Pair<Boolean, String> restoreStagedVolumes(VirtualMachine vm, Backup backup, Host host, List<VolumeVO> targets,
+    private Pair<Boolean, String> restoreStagedVolumes(VirtualMachine vm, Backup backup, String hostIdentifier, List<VolumeVO> targets,
             List<String> sourceUuids, boolean singleVolume, String cacheMode) {
         Pair<List<PrimaryDataStoreTO>, List<String>> destinations = getVolumePoolsAndPaths(targets);
-        ThirdPartyBackupRestore.Plan plan = thirdPartyBackupVolumeService.prepareRestore(backup, host, sourceUuids,
-                targets.stream().map(VolumeVO::getSize).collect(Collectors.toList()), vm.getInstanceName(), BackupDataOperationTimeout.value());
+        final Host host;
+        final ThirdPartyBackupRestore.Plan plan;
+        // Queue registration must precede another request's load comparison, including across management servers.
+        try (ThirdPartyBackupVolumeService.Lease lifecycle = thirdPartyBackupVolumeService.acquireLifecycle(backup.getVmId());
+                ThirdPartyBackupVolumeService.Lease placement = thirdPartyBackupVolumeService.acquireRestorePlacement()) {
+            long requiredBytes = singleVolume ? targets.get(0).getSize()
+                    : ThirdPartyBackupManifest.fromJson(getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY)).getRequiredStagingBytes();
+            host = thirdPartyBackupVolumeService.selectRestoreHost(vm, getName(),
+                    targets.stream().map(VolumeVO::getPoolId).collect(Collectors.toList()), hostIdentifier, requiredBytes);
+            plan = thirdPartyBackupVolumeService.prepareRestore(backup, host, sourceUuids,
+                    targets.stream().map(VolumeVO::getSize).collect(Collectors.toList()), vm.getInstanceName(), BackupDataOperationTimeout.value());
+        }
         AblestackVeeamRestoreBackupCommand command = new AblestackVeeamRestoreBackupCommand();
         command.setPrimaryStorageCapacityBufferPercent(plan.getPrimaryStorageCapacityBufferPercent());
         command.setVolumeRestorePlan(plan);

@@ -2006,6 +2006,45 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testVolumeStagingCreateInstanceLetsEachProviderSelectItsWorker() throws NoTransitionException {
+        for (String provider : List.of("ablestack-netbackup", "ablestack-veeam", "ablestack-commvault")) {
+            BackupVO backup = mock(BackupVO.class);
+            when(backup.getId()).thenReturn(1L);
+            when(backup.getBackupOfferingId()).thenReturn(4L);
+            when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
+            when(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY)).thenReturn(ThirdPartyBackupManifest.VOLUME_MODE);
+            when(backup.getBackedUpVolumes()).thenReturn(List.of(mock(Backup.VolumeInfo.class)));
+            VMInstanceVO vm = mock(VMInstanceVO.class);
+            when(vm.getId()).thenReturn(2L);
+            when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+            BackupOfferingVO offering = mock(BackupOfferingVO.class);
+            when(offering.getProvider()).thenReturn(provider);
+            BackupProvider selectedProvider = mock(BackupProvider.class);
+            when(selectedProvider.supportsInstanceFromBackup()).thenReturn(true);
+            when(selectedProvider.supportsDetachedRestoreOrchestration()).thenReturn(true);
+            when(backupDao.findById(1L)).thenReturn(backup);
+            when(vmInstanceDao.findByIdIncludingRemoved(2L)).thenReturn(vm);
+            when(backupOfferingDao.findByIdIncludingRemoved(4L)).thenReturn(offering);
+            doReturn(selectedProvider).when(backupManager).getBackupProvider(provider);
+            VolumeVO root = mock(VolumeVO.class);
+            when(volumeDao.findByInstance(2L)).thenReturn(List.of(root));
+            when(volumeDao.findIncludingRemovedByInstanceAndType(2L, null)).thenReturn(List.of(root));
+            when(volumeApiService.stateTransitTo(any(VolumeVO.class), any(Volume.Event.class))).thenReturn(true);
+            when(virtualMachineManager.stateTransitTo(eq(vm), eq(VirtualMachine.Event.RestoringRequested), any())).thenReturn(true);
+            when(selectedProvider.startRestoreBackupToVM(vm, backup, null, null, false)).thenReturn(new Pair<>(true, null));
+            overrideBackupFrameworkConfigValue();
+            try (MockedStatic<ActionEventUtils> ignored = Mockito.mockStatic(ActionEventUtils.class)) {
+                assertEquals(BackupManager.RestoreRequestStatus.ACCEPTED,
+                        backupManager.requestRestoreBackupToVM(1L, 2L, false, false));
+                verify(selectedProvider).startRestoreBackupToVM(vm, backup, null, null, false);
+            }
+        }
+        // No legacy first-Host lookup may preempt the providers' admission-aware selection.
+        verify(hostDao, never()).findByClusterId(anyLong());
+        verify(hostDao, never()).findByDataCenterId(anyLong());
+    }
+
+    @Test
     public void testFinalizeDetachedCreateInstanceStartsVmWhenRequested() throws Exception {
         BackupVO backup = mock(BackupVO.class);
         VMInstanceVO vm = mock(VMInstanceVO.class);

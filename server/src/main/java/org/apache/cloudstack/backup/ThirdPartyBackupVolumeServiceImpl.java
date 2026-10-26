@@ -1468,6 +1468,16 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     }
 
     @Override
+    public Lease acquireRestorePlacement() {
+        GlobalLock lock = GlobalLock.getInternLock("backup.thirdparty.restore.placement");
+        if (!lock.lock(30)) {
+            lock.releaseRef();
+            throw new CloudRuntimeException("Restore Worker placement is being prepared; retry the request shortly");
+        }
+        return () -> { try { lock.unlock(); } finally { lock.releaseRef(); } };
+    }
+
+    @Override
     public boolean delete(Backup backup, ArtifactCleanup cleanup) {
         try (Lease lease = acquireLifecycle(backup.getVmId())) {
             return deleteLocked(backup.getId(), cleanup);
@@ -1899,11 +1909,22 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     @Override
     public Host selectRestoreHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
             String hostIdentifier, long requiredBytes) {
-        return selectWorkerHost(vm, provider, poolIds, hostIdentifier, requiredBytes, "restore");
+        return selectRestoreHost(vm, provider, poolIds, hostIdentifier, requiredBytes, host -> true);
+    }
+
+    @Override
+    public Host selectRestoreHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
+            String hostIdentifier, long requiredBytes, java.util.function.Predicate<Host> eligible) {
+        return selectWorkerHost(vm, provider, poolIds, hostIdentifier, requiredBytes, "restore", eligible);
     }
 
     private Host selectWorkerHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
             String hostIdentifier, long requiredBytes, String operation) {
+        return selectWorkerHost(vm, provider, poolIds, hostIdentifier, requiredBytes, operation, host -> true);
+    }
+
+    private Host selectWorkerHost(com.cloud.vm.VirtualMachine vm, String provider, java.util.List<Long> poolIds,
+            String hostIdentifier, long requiredBytes, String operation, java.util.function.Predicate<Host> eligible) {
         stagingService.requireEnabled();
         java.util.List<Long> connected = poolHostDao.findHostsConnectedToPools(poolIds.stream().distinct()
                 .collect(java.util.stream.Collectors.toList()));
@@ -1922,7 +1943,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             });
             Long preferred = vm.getHostId() != null ? vm.getHostId() : vm.getLastHostId();
             java.util.List<ThirdPartyBackupAdmission.Entry> jobs = admissionEntries();
-            candidates.sort(java.util.Comparator.comparingLong((com.cloud.host.HostVO host) -> jobs.stream()
+            candidates.sort(java.util.Comparator.comparingInt((com.cloud.host.HostVO host) -> restorePlacementSlotRank(host, jobs))
+                    .thenComparingLong(host -> jobs.stream()
                     .filter(entry -> entry.hostId == host.getId() && (entry.occupiesSlot() || "WAITING".equals(entry.state))).count())
                     .thenComparingInt(host -> java.util.Objects.equals(preferred, host.getId()) ? 0 : 1).thenComparingLong(Host::getId));
         }
@@ -1937,6 +1959,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     || (com.cloud.vm.VirtualMachine.State.Running.equals(vm.getState())
                             && !java.util.Objects.equals(vm.getHostId(), host.getId()))) { continue; }
             try {
+                if (!eligible.test(host)) { continue; }
                 if (stagingService.getAvailableBytes(host, java.nio.file.Path.of(stagingService.getStageRootPath(provider))
                         .resolve(operation).toString()) >= required) { return host; }
                 if (waitingHost == null) { waitingHost = host; }
@@ -1946,6 +1969,13 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         }
         if (waitingHost != null) { return waitingHost; }
         throw new CloudRuntimeException("No available KVM Worker Host can access every " + operation + " datastore and the configured staging storage");
+    }
+
+    private int restorePlacementSlotRank(Host host, java.util.List<ThirdPartyBackupAdmission.Entry> jobs) {
+        ThirdPartyBackupAdmission.Entry candidate = new ThirdPartyBackupAdmission.Entry();
+        candidate.hostId = host.getId();
+        candidate.clusterId = host.getClusterId();
+        return slotReason(candidate, jobs) == null ? 0 : 1;
     }
 
     @Override

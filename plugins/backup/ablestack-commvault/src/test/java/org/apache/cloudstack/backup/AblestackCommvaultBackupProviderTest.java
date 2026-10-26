@@ -61,6 +61,28 @@ import com.cloud.vm.VirtualMachine;
 
 public class AblestackCommvaultBackupProviderTest {
     @Test
+    public void restoreCandidatesRequireARegisteredReadyLinuxFileSystemClient() {
+        AblestackCommvaultClient client = mock(AblestackCommvaultClient.class);
+        AblestackCommvaultBackupProvider provider = new AblestackCommvaultBackupProvider() {
+            @Override AblestackCommvaultClient getOrCreateClient(Long zoneId, ClientSettings settings) { return client; }
+        };
+        HostVO ready = mock(HostVO.class);
+        when(ready.getName()).thenReturn("ablecube4");
+        HostVO unregistered = mock(HostVO.class);
+        when(unregistered.getName()).thenReturn("ablecube1");
+        when(client.getClientId("ablecube4")).thenReturn("44");
+        when(client.getApplicationId("44")).thenReturn("29");
+        when(client.getClientProps("44")).thenReturn(true);
+        assertTrue(ReflectionTestUtils.invokeMethod(provider, "isRestoreClientReady", ready, 1L));
+        assertFalse(ReflectionTestUtils.invokeMethod(provider, "isRestoreClientReady", unregistered, 1L));
+        when(client.getApplicationId("44")).thenReturn("33");
+        assertFalse(ReflectionTestUtils.invokeMethod(provider, "isRestoreClientReady", ready, 1L));
+        when(client.getApplicationId("44")).thenReturn("29");
+        when(client.getClientProps("44")).thenReturn(false);
+        assertFalse(ReflectionTestUtils.invokeMethod(provider, "isRestoreClientReady", ready, 1L));
+    }
+
+    @Test
     public void volumeReconciliationResumesTheSavedPlanThroughTheAsyncService() {
         AblestackCommvaultBackupProvider provider = new AblestackCommvaultBackupProvider();
         ThirdPartyBackupVolumeService volumes = mock(ThirdPartyBackupVolumeService.class);
