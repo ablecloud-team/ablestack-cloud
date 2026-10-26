@@ -1,0 +1,8 @@
+{
+  "actualCandidateWithDaoStub": true,
+  "currentSmbEndpointDeleteUnsupported": true,
+  "currentOverwritesSameUuidAndLosesFirstTuple": true,
+  "prototypeAddsDifferentTuple": true,
+  "repeatReusesSameUuid": true,
+  "controlledFailurePreservesEarlierRows": true
+}
