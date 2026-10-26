@@ -36,6 +36,7 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanFactory;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
@@ -59,9 +60,14 @@ public class AblestackSharedRawMutationInterceptorTest {
         interceptor.setBeanFactory(factory);
         when(factory.getBean(AblestackSharedRawBackupService.class)).thenReturn(guards);
     }
+    private Object proxy(Object target) {
+        ProxyFactory factory = new ProxyFactory(target);
+        factory.addAdvisor(interceptor);
+        return factory.getProxy();
+    }
     @Test public void attachmentIsGuardedBeforeAnyApiSideEffectAndLeaseClosesAfterward() {
         VolumeApiService original = mock(VolumeApiService.class);
-        VolumeApiService proxy = (VolumeApiService) interceptor.postProcessAfterInitialization(original, "volumes");
+        VolumeApiService proxy = (VolumeApiService) proxy(original);
         AtomicBoolean held = new AtomicBoolean();
         when(guards.guardVolume(20L, 10L, null, null)).thenAnswer(call -> {
             held.set(true); return (AblestackSharedRawBackupService.Lease) () -> held.set(false);
@@ -74,21 +80,21 @@ public class AblestackSharedRawMutationInterceptorTest {
     }
     @Test public void protectedDestinationRejectsAttachmentBeforeTheNativeApiIsCalled() {
         VolumeApiService original = mock(VolumeApiService.class);
-        VolumeApiService proxy = (VolumeApiService) interceptor.postProcessAfterInitialization(original, "volumes");
+        VolumeApiService proxy = (VolumeApiService) proxy(original);
         when(guards.guardVolume(20L, 10L, null, null)).thenThrow(new CloudRuntimeException("protected"));
         assertThrows(CloudRuntimeException.class, () -> proxy.attachVolumeToVM(20L, 10L, 1L, false, false));
         verify(original, never()).attachVolumeToVM(anyLong(), anyLong(), anyLong(), anyBoolean(), anyBoolean());
     }
     @Test public void unchangedCloudStackCommandsKeepTheirOriginalWireMessageAndAnswer() throws Exception {
         AgentManager original = mock(AgentManager.class);
-        AgentManager proxy = (AgentManager) interceptor.postProcessAfterInitialization(original, "agent");
+        AgentManager proxy = (AgentManager) proxy(original);
         Command command = mock(Command.class); Answer answer = new Answer(command, true, "ok");
         when(original.send(1L, command)).thenReturn(answer);
         assertSame(answer, proxy.send(1L, command)); verifyNoInteractions(guards);
     }
     @Test public void sharedFileStartUsesEnvelopeAndKeepsOriginalStartAnswer() throws Exception {
         AgentManager original = mock(AgentManager.class);
-        AgentManager proxy = (AgentManager) interceptor.postProcessAfterInitialization(original, "agent");
+        AgentManager proxy = (AgentManager) proxy(original);
         StartCommand start = mock(StartCommand.class); VirtualMachineTO vm = mock(VirtualMachineTO.class);
         DiskTO disk = mock(DiskTO.class); VolumeObjectTO volume = mock(VolumeObjectTO.class);
         PrimaryDataStoreTO pool = mock(PrimaryDataStoreTO.class);
@@ -106,7 +112,7 @@ public class AblestackSharedRawMutationInterceptorTest {
     }
     @Test public void persistenceAttachCannotBypassTheGuard() {
         VolumeDao original = mock(VolumeDao.class);
-        VolumeDao proxy = (VolumeDao) interceptor.postProcessAfterInitialization(original, "dao");
+        VolumeDao proxy = (VolumeDao) proxy(original);
         when(guards.guardVolume(20L, 10L, null, null)).thenThrow(new CloudRuntimeException("protected"));
         assertThrows(CloudRuntimeException.class, () -> proxy.attachVolume(10L, 20L, 1L));
         verify(original, never()).attachVolume(anyLong(), anyLong(), anyLong());

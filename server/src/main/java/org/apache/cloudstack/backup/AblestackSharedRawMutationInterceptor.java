@@ -17,6 +17,7 @@
 
 package org.apache.cloudstack.backup;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,8 +27,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.cloudstack.storage.command.AttachCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
-import org.springframework.aop.TargetSource;
-import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
+import org.springframework.aop.support.StaticMethodMatcherPointcutAdvisor;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.core.Ordered;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.StartCommand;
@@ -39,19 +42,32 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.dao.VMInstanceDao;
 
 /** ABLESTACK extension wiring; no changes to CloudStack power or attach implementations. */
-public class AblestackSharedRawMutationInterceptor extends AbstractAutoProxyCreator {
-    @Override
-    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, TargetSource targetSource) {
-        if (!AgentManager.class.isAssignableFrom(beanClass) && !VolumeDao.class.isAssignableFrom(beanClass)
-                && !VolumeApiService.class.isAssignableFrom(beanClass)) return DO_NOT_PROXY;
-        // Spring also exposes this proxy for circular references, preserving both identity and the guard.
-        return new Object[]{(MethodInterceptor) this::invoke};
+public class AblestackSharedRawMutationInterceptor extends StaticMethodMatcherPointcutAdvisor implements BeanFactoryAware {
+    private BeanFactory beanFactory;
+
+    public AblestackSharedRawMutationInterceptor() {
+        // Join CloudStack's existing AOP proxy; a second proxy creator breaks circular references.
+        setClassFilter(beanClass -> AgentManager.class.isAssignableFrom(beanClass)
+                || VolumeDao.class.isAssignableFrom(beanClass) || VolumeApiService.class.isAssignableFrom(beanClass));
+        setAdvice((MethodInterceptor) this::invoke);
+        setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
+
     @Override
-    protected boolean shouldProxyTargetClass(Class<?> beanClass, String name) {
-        return !java.lang.reflect.Proxy.isProxyClass(beanClass);
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
-    private AblestackSharedRawBackupService service() { return getBeanFactory().getBean(AblestackSharedRawBackupService.class); }
+
+    @Override
+    public boolean matches(Method method, Class<?> beanClass) {
+        String name = method.getName();
+        if (VolumeDao.class.isAssignableFrom(beanClass)) return "attachVolume".equals(name) || "detachVolume".equals(name);
+        if (VolumeApiService.class.isAssignableFrom(beanClass))
+            return "attachVolumeToVM".equals(name) || "detachVolumeFromVM".equals(name) || "updateVolume".equals(name);
+        return AgentManager.class.isAssignableFrom(beanClass) && method.getParameterCount() >= 2
+                && ("send".equals(name) || "easySend".equals(name));
+    }
+    private AblestackSharedRawBackupService service() { return beanFactory.getBean(AblestackSharedRawBackupService.class); }
     private boolean sharedFile(VolumeObjectTO volume) {
         return volume.getDataStore() instanceof PrimaryDataStoreTO
                 && ((PrimaryDataStoreTO) volume.getDataStore()).getPoolType() == Storage.StoragePoolType.SharedMountPoint;
@@ -70,7 +86,7 @@ public class AblestackSharedRawMutationInterceptor extends AbstractAutoProxyCrea
     private AblestackSharedRawBackupService.Lease commandLease(Command command) {
         if (!sharedFile(command)) return () -> {};
         if (command instanceof StartCommand) {
-            var vm = getBeanFactory().getBean(VMInstanceDao.class).findVMByInstanceName(((StartCommand) command).getVirtualMachine().getName());
+            var vm = beanFactory.getBean(VMInstanceDao.class).findVMByInstanceName(((StartCommand) command).getVirtualMachine().getName());
             if (vm == null) { if (sharedFile(command)) throw new CloudRuntimeException("SHARED_RAW_UNKNOWN: start VM identity is unavailable"); return () -> {}; }
             return service().guardStart(vm.getId());
         }
