@@ -57,7 +57,7 @@ def read_file(path):
 
 def validate_rbd_checkpoint(path, content, plan):
     manifest = plan['manifest']
-    artifacts = [artifact for volume in manifest['volumes'] if volume.get('engine') == 'RBD'
+    artifacts = [artifact for volume in manifest['volumes'] if volume.get('engine') in ('RBD_DIFF', 'RBD')
                  for artifact in volume.get('chain', [])
                  if artifact.get('backupUuid') == plan['backupUuid'] and artifact.get('checkpointName') == path.stem]
     if not artifacts:

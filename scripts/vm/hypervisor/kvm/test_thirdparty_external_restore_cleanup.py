@@ -27,6 +27,7 @@ import unittest
 from unittest.mock import patch
 
 import thirdparty_external_restore_cleanup as helper
+import thirdparty_volume_backup as pipeline
 
 
 class RejectedMetadataCleanupTest(unittest.TestCase):
@@ -64,17 +65,31 @@ class RejectedMetadataCleanupTest(unittest.TestCase):
         manifest = plan['manifest']
         checkpoint = manifest['timestamp']
         parent = 'previous-checkpoint' if manifest['backupType'] == 'INCREMENTAL' else ''
-        manifest['volumes'] = [dict(engine='RBD', chain=[dict(backupUuid=plan['backupUuid'],
-                                      checkpointName=checkpoint, parentCheckpointName=parent)])]
+        artifact = dict(backupUuid=plan['backupUuid'], checkpointName=checkpoint, parentCheckpointName=parent,
+                        path=str(root / 'root.disk.raw'))
+        # ABLESTACK providers persist BACKUP_ENGINE_RBD_DIFF in the manifest.
+        manifest['volumes'] = [dict(engine='RBD_DIFF', chain=[artifact])]
         self.write_metadata(plan)
         (root / 'checkpoints/disk.xml').unlink()
-        metadata = ('vm_name=%s\nbackup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n'
-                    'parent_checkpoint_name=%s\ndisk_paths=pool/image\nbackup_files=root.disk.raw\nbackup_dir=%s\n' %
-                    (plan['vmName'], manifest['backupType'], checkpoint, parent, root))
-        (root / 'rbd-backup.meta').write_text(metadata)
-        path = root / 'checkpoints' / (checkpoint + '.meta')
-        path.write_text(metadata)
-        return path
+        (root / 'checkpoints').rmdir()
+        job = self.base / 'pipeline-jobs' / plan['provider'] / manifest['backupType']
+        job.mkdir(parents=True, exist_ok=True)
+        plan_file = job / 'volume-plan.json'
+        plan_file.write_text(json.dumps(dict(manifest=manifest, backupPath=str(root), timeout=300,
+                                             vmName=plan['vmName'], checkpointName=checkpoint,
+                                             parentCheckpointName=parent, diskPaths=['rbd:pool/image'])))
+        worker = pipeline.Backup(plan_file)
+        # Exercise the real RBD metadata writer; only the external Ceph commands are mocked.
+        with patch.object(pipeline, 'run', return_value=json.dumps([dict(name=parent)])):
+            worker.begin_rbd()
+        return root / 'checkpoints' / (checkpoint + '.meta')
+
+    def test_rbd_engine_alias_remains_compatible(self):
+        self.write_rbd_metadata()
+        self.plan['manifest']['volumes'][0]['engine'] = 'RBD'
+        (self.root / 'backup-manifest.json').write_text(json.dumps(self.plan['manifest']))
+        helper.cleanup(self.plan, self.receipts)
+        self.assertFalse(self.root.exists())
 
     def test_rbd_full_and_incremental_metadata_cleanup_for_accepted_and_rejected_restores(self):
         for provider in ('ablestack-netbackup', 'ablestack-veeam'):
