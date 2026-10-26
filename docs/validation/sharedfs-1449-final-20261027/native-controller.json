@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "checks": [
+    "real_systemd_owned_pid_and_local_auth",
+    "add_exact_tuple_preserves_authenticated_session",
+    "duplicate_reapply_same_pid",
+    "bind_failure_rollback_preserves_both_authenticated_sessions",
+    "stable_uuid_edit_and_no_cartesian_bindings",
+    "SMB2_3_cross_profile_share_mode_lock",
+    "delete_finalizes_only_target_after_commit",
+    "new_secondary_ownership_proved_by_before_image",
+    "only_owned_unreferenced_alias_released_and_not_replayed",
+    "canonical_manifest_boot_recreates_listener"
+  ],
+  "locking": {
+    "held": {
+      "opened": true,
+      "errno": 0,
+      "mode": 1
+    },
+    "sameEndpoint": {
+      "opened": false,
+      "errno": 16,
+      "mode": 4
+    },
+    "otherEndpoint": {
+      "opened": false,
+      "errno": 16,
+      "mode": 4
+    },
+    "afterRelease": {
+      "opened": true,
+      "errno": 0,
+      "mode": 4
+    },
+    "ok": true
+  },
+  "productionHashesUnchanged": true,
+  "productionPidUnchanged": true,
+  "dataSha256": "15064e84f70d15a1f8e49b30438be75dc778e9d0b00da2ca065817b65267db00",
+  "mode": "0o660",
+  "uid": 65534,
+  "protectedStateAfterCleanupUnchanged": true
+}

@@ -1,0 +1,20 @@
+{
+  "management": {
+    "beforeSha256": "53c880bb160d45b27a5252552d1f3b67e01123953fca194c4e709df31dfe0571",
+    "afterSha256": "dd155223894579a2eb6e8c6a1f315a8faf4b4c9987715b0f261a9c4ef6f1be36",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "before": "dfde1932edf5f34d2d82e97003e5a05d369680c29125010f4c8eb76e7e6727d0",
+        "after": "3852e215b510578bb26ba7380ffa79915c7b63aa8b2253d36aa8c544452ea44e"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+        "before": "ccddad48a179c1c7d0ac7bdc85815c1b90fe13c589d7a639e2bc3b0bc51838ef",
+        "after": "d3792a43f4fb60db94f39f41765539f9c037a988115ca5a12f7c29f1365e059e"
+      }
+    ],
+    "unrelatedEntriesByteIdentical": true
+  },
+  "schemaMigration": false
+}

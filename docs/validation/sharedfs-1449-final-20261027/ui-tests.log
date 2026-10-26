@@ -1,0 +1,80 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runInBand --watch=false --forceExit SharedFSSmbEndpoint.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[BABEL] Note: The code generator has deoptimised the styling of /root/work/ablestack-cloud/ui/src/views/storage/SharedFSTab.vue as it exceeds the max of 500KB.
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/storage/SharedFSSmbEndpoint.spec.js (11.767s)
+  mounted SMB endpoint request and API observation contract
+    ✓ editing custom port preserves the selected UUID across the protocol watcher and submits the exact tuple (108ms)
+    ✓ adding after edit cannot accidentally target the previous UUID (23ms)
+    ✓ delete and its preflight keep UUID plus old tuple and do not disable another live share path (33ms)
+    ✓ DB Ready is not an observed listener and PENDING is preserved (15ms)
+    ✓ covered UUID remains visible and its wildcard owner stays protected (16ms)
+    ✓ editing the tuple invalidates an accepted preflight before submission (22ms)
+    ✓ actual service-list serializer fixture exposes the covered UUID for edit (28ms)
+    ✓ actual service-list serializer fixture exposes the covered UUID for delete (24ms)
+
+
+=============================== Coverage summary ===============================
+Statements   : 1.64% ( 1336/81496 )
+Branches     : 0.66% ( 488/73901 )
+Functions    : 0.52% ( 109/21158 )
+Lines        : 1.81% ( 1291/71460 )
+================================================================================
+Test Suites: 1 passed, 1 total
+Tests:       8 passed, 8 total
+Snapshots:   0 total
+Time:        105.463s
+Ran all test suites matching /SharedFSSmbEndpoint.spec.js/i.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

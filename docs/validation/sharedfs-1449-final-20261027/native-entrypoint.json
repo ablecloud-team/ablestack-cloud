@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "capability": 1,
+  "observations": {
+    "health": "READY",
+    "inventory": "READY"
+  },
+  "childCode": "DUPLICATE_SMB_ENDPOINT",
+  "state": "ROLLED_BACK",
+  "rollback": "SUCCEEDED",
+  "protectedFilesUnchanged": true,
+  "productionSmbPidUnchanged": true,
+  "realFailedJournalVerifiedReadOnly": true
+}

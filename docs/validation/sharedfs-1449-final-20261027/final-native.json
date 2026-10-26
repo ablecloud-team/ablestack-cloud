@@ -1,0 +1,55 @@
+{
+  "runtime": {
+    "version": 1,
+    "configured": true,
+    "listeners": [
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "listenIp": "0.0.0.0",
+        "port": 445,
+        "state": "READY",
+        "coveredBy": null,
+        "pid": 1174
+      }
+    ],
+    "ownedAliases": [
+      {
+        "interface": "eth0",
+        "listenIp": "10.10.13.181",
+        "macAddress": "02:0d:00:cc:00:52",
+        "prefixlen": 16
+      },
+      {
+        "interface": "eth0",
+        "listenIp": "10.10.13.182",
+        "macAddress": "02:0d:00:cc:00:52",
+        "prefixlen": 16
+      },
+      {
+        "interface": "eth0",
+        "listenIp": "10.10.13.183",
+        "macAddress": "02:0d:00:cc:00:52",
+        "prefixlen": 16
+      }
+    ],
+    "pending": false,
+    "observedEpoch": 1793033798.6466157
+  },
+  "customSockets": [],
+  "managedUnits": "",
+  "data": {
+    "ui-preserve.txt": {
+      "sha256": "4db09637a676b95f7008b98c34be71219dbee588e38d7de6f174da82eb4fd350",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660"
+    },
+    "epic1449-ui-data.bin": {
+      "sha256": "cac3b341aa03bdd0baeaa0f893008b78a863d3724766bb8663f87d9a4fb09b76",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660"
+    }
+  },
+  "mac": "02:0d:00:cc:00:52"
+}
