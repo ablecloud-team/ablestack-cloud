@@ -60,11 +60,18 @@ public class ThirdPartyBackupRestoreLockTest {
         return backup;
     }
 
+    private void currentBackup(ThirdPartyBackupVolumeServiceImpl service) {
+        BackupDao backups = mock(BackupDao.class);
+        when(backups.findById(1L)).thenReturn(mock(BackupVO.class));
+        ReflectionTestUtils.setField(service, "backupDao", backups);
+    }
+
     @Test
     public void realBackupUuidCanAcquirePreparationLockOnMySql() {
         ThirdPartyBackupVolumeServiceImpl service = new ThirdPartyBackupVolumeServiceImpl();
         ThirdPartyBackupStagingService staging = mock(ThirdPartyBackupStagingService.class);
         ReflectionTestUtils.setField(service, "stagingService", staging);
+        currentBackup(service);
         RuntimeException reachedPreparation = new RuntimeException("Preparation lock acquired");
         doThrow(reachedPreparation).when(staging).requireEnabled();
 
@@ -83,6 +90,7 @@ public class ThirdPartyBackupRestoreLockTest {
         ThirdPartyBackupVolumeServiceImpl service = new ThirdPartyBackupVolumeServiceImpl();
         ThirdPartyBackupStagingService staging = mock(ThirdPartyBackupStagingService.class);
         ReflectionTestUtils.setField(service, "stagingService", staging);
+        currentBackup(service);
         String key = ThirdPartyBackupRestore.prepareLockName(BACKUP_UUID);
 
         try (MockedStatic<DbUtil> database = mockMySqlLocks()) {
