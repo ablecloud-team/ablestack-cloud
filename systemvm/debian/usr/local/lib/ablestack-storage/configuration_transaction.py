@@ -769,6 +769,99 @@ class SmbListenerProfiles:
                 "observedEpoch": time.time()}
 
 
+# NFS POSIX application is an operation intent, never a side effect of rendering.
+NFS_POSIX_VERSION = 1
+NFS_POSIX_KEYS = ("ownerUid", "ownerGid", "mode", "recursivePermission")
+
+
+def nfs_posix_observe(export, managed_root=Path("/srv/ablestack-storage/volumes")):
+    import stat
+    config = export.get("config") or {}
+    result = {"resourceuuid": export.get("uuid"), "status": "UNAVAILABLE", "observedat": time.time()}
+    try:
+        mount = Path(config["volumeMountPath"])
+        backing = Path(config["backingPath"])
+        root = Path(managed_root).resolve()
+        # Neither a root filesystem path nor an arbitrary caller-provided path.
+        if mount.parent.resolve() != root or mount.is_symlink() or not mount.is_dir():
+            return result
+        if backing == mount or backing.is_relative_to(mount):
+            if backing.is_symlink() or not backing.resolve().is_relative_to(mount.resolve()):
+                return result
+        else:
+            return result
+        fs = subprocess.run(["findmnt", "-n", "-o", "UUID", "--mountpoint", str(mount)],
+                            capture_output=True, text=True, timeout=5)
+        if fs.returncode or not fs.stdout.strip():
+            return result
+        filesystem = fs.stdout.strip()
+        if config.get("filesystemUuid") and filesystem != config["filesystemUuid"]:
+            return result
+        identity = {"path": str(backing.resolve()), "volume": mount.name, "filesystem": filesystem}
+        if not backing.exists():
+            result["status"] = "PATH_MISSING"
+        else:
+            info = backing.lstat()
+            if not stat.S_ISDIR(info.st_mode):
+                return result
+            acl = subprocess.run(["getfacl", "-cpn", str(backing)], capture_output=True, timeout=5)
+            if acl.returncode:
+                return result
+            result.update(status="OBSERVED", owneruid=info.st_uid, ownergid=info.st_gid,
+                          mode=format(stat.S_IMODE(info.st_mode), "04o"))
+            identity.update(uid=info.st_uid, gid=info.st_gid, mode=result["mode"],
+                            device=info.st_dev, inode=info.st_ino, acl=hashlib.sha256(acl.stdout).hexdigest())
+        result["fingerprint"] = public_hash(identity)
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError):
+        pass
+    return result
+
+
+def nfs_posix_observations(desired):
+    return [nfs_posix_observe(row) for row in (desired or {}).get("exports", [])]
+
+
+def nfs_posix_apply_config(export, payload, directory_created=False):
+    """Return only the permitted chown/chmod intent; normal render/boot preserves roots."""
+    config = export.get("config") or {}
+    intent = payload.get("posixIntent") or {}
+    selected = intent.get("targetUuid") == export.get("uuid")
+    fields = (intent.get("fields") or {}) if selected else {}
+    initialization = directory_created
+    receipt = config.get("lastInspection") or {}
+    initialization = initialization or (
+        selected and intent.get("create") is True and receipt.get("directoryCreated") is True
+        and receipt.get("configurationOperationId")
+        and receipt.get("configurationOperationId") == payload.get("configurationOperationId"))
+    if config.get("posixPolicy") == "PRESERVE_EXISTING_INITIAL" and not fields:
+        return {}
+    if initialization:
+        # A genuinely new managed directory keeps the established initial behavior.
+        result = {k: config[k] for k in NFS_POSIX_KEYS if config.get(k) not in (None, "")}
+        mapped = not config.get("readOnly", False) and (config.get("allSquash", False) or config.get("rootSquash", True))
+        result.setdefault("ownerUid", config.get("anonUid", 65534) if mapped else 0)
+        result.setdefault("ownerGid", config.get("anonGid", 65534) if mapped else 0)
+        result.setdefault("mode", "0775" if mapped else "0755")
+        result["recursivePermission"] = False
+        if not fields:
+            return result
+    if not fields:
+        return {}
+    if any(k not in NFS_POSIX_KEYS for k in fields):
+        raise Rejected("INVALID_NFS_POSIX_INTENT")
+    if not initialization:
+        observed = nfs_posix_observe(export)
+        if observed["status"] != "OBSERVED":
+            raise Rejected("POSIX_OBSERVATION_UNAVAILABLE")
+        if not intent.get("expectedObservation") or observed.get("fingerprint") != intent["expectedObservation"]:
+            raise Rejected("POSIX_OBSERVATION_CHANGED")
+    # Recursive execution is never inherited from the stored export config.
+    return {**(result if initialization else {}),
+            **({k: config[k] for k in NFS_POSIX_KEYS if k in config} if fields.get("recursivePermission") is True else {}),
+            **{k: v for k, v in fields.items() if v is not None},
+            "recursivePermission": fields.get("recursivePermission") is True}
+
+
 class RuntimeAdapter:
     """Existing storagectl render/apply engines with bounded private before-images."""
     def __init__(self, private):
@@ -1459,7 +1552,7 @@ def main(argv):
         return 0
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
-                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION}))
+                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect

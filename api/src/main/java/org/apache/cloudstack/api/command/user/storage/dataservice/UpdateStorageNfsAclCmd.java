@@ -37,6 +37,10 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class UpdateStorageNfsAclCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
+    @Parameter(name = "inheritpolicy", type = CommandType.BOOLEAN, description = "inherit export squash and anonymous identity instead of ACL overrides")
+    private Boolean inheritPolicy;
+    public Boolean getInheritPolicy() { return inheritPolicy; }
+
     @Inject
     StorageService storageService;
 

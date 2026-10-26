@@ -101,6 +101,8 @@ final class StorageServiceConfigurationCoordinator {
             // A version gate precedes candidate preparation and any guest/configuration mutation.
             if (instance.getVmId() != null) {
                 JsonObject capability = rpc(instance, "configuration capability show", new JsonObject());
+                if (protocol == StorageServiceInstance.Protocol.NFS && (!capability.has("nfsPosixIntentVersion") || capability.get("nfsPosixIntentVersion").getAsInt() != 1))
+                    throw new CloudRuntimeException("NFS_POSIX_CAPABILITY_REQUIRED");
                 if (smbEndpointCommand(cmd) && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt() != 1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationPreflightVersion") || capability.get("configurationPreflightVersion").getAsInt()!=1)
@@ -123,6 +125,7 @@ final class StorageServiceConfigurationCoordinator {
             op.setGuestObservationJson(report.toString()); save(op);
             plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules,
                     snapshot -> { op.setCandidateSnapshot(snapshot); save(op); });
+            plan.operationUuid = op.getUuid();
             op.setResourceUuid(plan.resourceUuid(cmd.getClass().getSimpleName(), publicRequest(cmd)));
             op.setBeforeSnapshot(plan.snapshot()); op.setState("RUNNING"); op.setPhase("VALIDATING"); save(op);
             context.accept(plan);
@@ -146,6 +149,11 @@ final class StorageServiceConfigurationCoordinator {
             JsonObject payload = identity(op, instance);
             if (vmUuid != null) payload.addProperty("vmUuid", vmUuid);
             payload.add("before", beforeCommands); payload.add("candidate", commandJson(plan.commands));
+            if (protocol == StorageServiceInstance.Protocol.NFS && payload.getAsJsonObject("candidate").has("nfs export apply")) {
+                JsonObject nfs = payload.getAsJsonObject("candidate").getAsJsonObject("nfs export apply");
+                nfs.addProperty("configurationOperationId", op.getUuid());
+                nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
+            }
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
