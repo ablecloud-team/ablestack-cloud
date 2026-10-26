@@ -199,6 +199,12 @@ public class BackupManagerTest {
     VolumeApiService volumeApiService;
 
     @Mock
+    private com.cloud.hypervisor.HypervisorGuruManager hypervisorGuruManager;
+
+    @Mock
+    private com.cloud.vm.snapshot.dao.VMSnapshotDao vmSnapshotDao;
+
+    @Mock
     VolumeDao volumeDao;
 
     @Mock
@@ -2155,6 +2161,183 @@ public class BackupManagerTest {
         verify(backupDetailsDao).addDetail(backupId,
                 AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL, failureReason, false);
         verify(backupDetailsDao).removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
+    }
+
+    @Test
+    public void testDetachedVolumeRestoreRequestReportsAcceptance() throws Exception {
+        for (String provider : List.of("ablestack-netbackup", "ablestack-veeam", "ablestack-commvault")) {
+            BackupVO backup = volumeRestoreEventBackup(provider);
+            CallContext.current().setStartEventId(11L);
+            try (MockedStatic<ActionEventUtils> events = Mockito.mockStatic(ActionEventUtils.class)) {
+                assertTrue(backupManager.restoreBackupVolumeAndAttachToVM("source-volume", 1L, 2L, false, null));
+                assertTrue(CallContext.current().getEventDescription().contains("submitting a background volume restore and attach request"));
+                assertTrue(CallContext.current().getEventDescription().contains("accepted; restoration is still in progress"));
+                assertEquals("11", backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL));
+                events.verifyNoInteractions();
+            }
+        }
+        verify(hypervisorGuruManager, never()).getGuru(any());
+    }
+
+    @Test
+    public void testDetachedVolumeRestoreCompletionEventAfterAttachment() throws Exception {
+        for (String provider : List.of("ablestack-netbackup", "ablestack-veeam", "ablestack-commvault", "ablestack-nas")) {
+            BackupVO backup = volumeRestoreEventBackup(provider);
+            VMInstanceVO vm = vmInstanceDao.findById(2L);
+            com.cloud.hypervisor.HypervisorGuru guru = mock(com.cloud.hypervisor.HypervisorGuru.class);
+            when(hypervisorGuruManager.getGuru(Hypervisor.HypervisorType.KVM)).thenReturn(guru);
+            VolumeVO restored = mock(VolumeVO.class);
+            when(volumeDao.findByUuid("restored-volume")).thenReturn(restored);
+            when(guru.attachRestoredVolumeToVirtualMachine(eq(1L), eq("restored-volume"), any(), eq(vm), eq(8L), eq(backup), eq(backupProvider)))
+                    .thenAnswer(call -> {
+                        when(restored.getInstanceId()).thenReturn(2L);
+                        return true;
+                    });
+            try (MockedStatic<ActionEventUtils> events = Mockito.mockStatic(ActionEventUtils.class)) {
+                events.when(() -> ActionEventUtils.onCompletedActionEvent(eq(User.UID_SYSTEM), eq(5L), eq("INFO"),
+                        eq(EventTypes.EVENT_VM_BACKUP_RESTORE_VOLUME_TO_VM), anyString(), eq(2L), eq("VirtualMachine"), eq(11L)))
+                        .thenAnswer(call -> {
+                            assertEquals(Long.valueOf(2L), restored.getInstanceId());
+                            verify(backupVolumeAllocationService, atLeastOnce()).completeRestore(backup);
+                            return 12L;
+                        });
+                BackupManagerImpl.BackupSyncTask task = backupManager.new BackupSyncTask(backupManager);
+                task.finalizeDetachedRestoreOperation(backupProvider, backupOfferingDao.findById(4L), backup, vm,
+                        AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH);
+                // Reconciliation after a restart or while cleanup is pending must not repeat the event.
+                task.finalizeDetachedRestoreOperation(backupProvider, backupOfferingDao.findById(4L), backup, vm,
+                        AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH);
+                events.verify(() -> ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, 5L, "INFO",
+                        EventTypes.EVENT_VM_BACKUP_RESTORE_VOLUME_TO_VM,
+                        "Successfully restored Volume restored-volume from Backup backup-1 and attached it to Instance i-2-330-VM (source Volume source-volume)",
+                        2L, "VirtualMachine", 11L), times(1));
+                events.verifyNoMoreInteractions();
+            }
+            verify(guru, times(1)).attachRestoredVolumeToVirtualMachine(eq(1L), eq("restored-volume"), any(), eq(vm), eq(8L), eq(backup), eq(backupProvider));
+        }
+    }
+
+    @Test
+    public void testDetachedVolumeRestoreFinalizationFailureEventIsNotRepeated() throws Exception {
+        BackupVO backup = volumeRestoreEventBackup("ablestack-veeam");
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL, "restore-job");
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL, "7");
+        backup.getDetails().put(ThirdPartyBackupRestore.PLAN_KEY, "{\"jobId\":\"restore-job\"}");
+        com.cloud.hypervisor.HypervisorGuru guru = mock(com.cloud.hypervisor.HypervisorGuru.class);
+        when(hypervisorGuruManager.getGuru(Hypervisor.HypervisorType.KVM)).thenReturn(guru);
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(7L);
+        when(hostDao.findById(7L)).thenReturn(host);
+        when(thirdPartyBackupVolumeService.getWorkerHost(backup, "RESTORE")).thenReturn(host);
+        BackupAnswer answer = mock(BackupAnswer.class);
+        when(answer.getState()).thenReturn("COMPLETED");
+        when(agentManager.send(eq(7L), any(AblestackRestoreJobStatusCommand.class))).thenReturn(answer);
+        try (MockedStatic<ActionEventUtils> events = Mockito.mockStatic(ActionEventUtils.class)) {
+            BackupManagerImpl.BackupSyncTask task = backupManager.new BackupSyncTask(backupManager);
+            task.reconcileInterruptedRestoreJob(backupProvider, restoreZone(), 1L);
+            task.reconcileInterruptedRestoreJob(backupProvider, restoreZone(), 1L);
+            events.verify(() -> ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, 5L, "ERROR",
+                    EventTypes.EVENT_VM_BACKUP_RESTORE_VOLUME_TO_VM,
+                    "Backup volume restore and attach failed for Instance i-2-330-VM (Backup backup-1, source Volume source-volume): Failed to attach restored volume [restored-volume] to Instance [i-2-330-VM]",
+                    2L, "VirtualMachine", 11L), times(1));
+            events.verifyNoMoreInteractions();
+        }
+    }
+
+    @Test
+    public void testRunningDetachedVolumeRestoreDoesNotPublishCompletion() throws Exception {
+        BackupVO backup = volumeRestoreEventBackup("ablestack-veeam");
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL, "restore-job");
+        backup.getDetails().put(AblestackBackupFrameworkUtils.RESTORE_HOST_ID_DETAIL, "7");
+        backup.getDetails().put(ThirdPartyBackupRestore.PLAN_KEY, "{\"jobId\":\"restore-job\"}");
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(7L);
+        when(hostDao.findById(7L)).thenReturn(host);
+        when(thirdPartyBackupVolumeService.getWorkerHost(backup, "RESTORE")).thenReturn(host);
+        BackupAnswer answer = mock(BackupAnswer.class);
+        when(answer.getState()).thenReturn("RUNNING");
+        when(agentManager.send(eq(7L), any(AblestackRestoreJobStatusCommand.class))).thenReturn(answer);
+        try (MockedStatic<ActionEventUtils> events = Mockito.mockStatic(ActionEventUtils.class)) {
+            backupManager.new BackupSyncTask(backupManager).reconcileInterruptedRestoreJob(backupProvider, restoreZone(), 1L);
+            events.verifyNoInteractions();
+        }
+        verify(hypervisorGuruManager, never()).getGuru(any());
+    }
+
+    @Test
+    public void testNativeVolumeRestoreRequestKeepsEventDescription() throws Exception {
+        volumeRestoreEventBackup("veeam");
+        CallContext.current().setEventDescription("restoring Volume from Backup to Instance");
+        assertTrue(backupManager.restoreBackupVolumeAndAttachToVM("source-volume", 1L, 2L, false, null));
+        assertEquals("restoring Volume from Backup to Instance", CallContext.current().getEventDescription());
+        verify(backupDetailsDao, never()).addDetail(eq(1L), eq(AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL), anyString(), eq(false));
+    }
+
+    private BackupVO volumeRestoreEventBackup(String provider) {
+        BackupVO backup = mock(BackupVO.class);
+        Map<String, String> details = new HashMap<>();
+        details.put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
+        details.put(AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL, AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH);
+        details.put(AblestackBackupFrameworkUtils.RESTORE_SOURCE_VOLUME_UUID_DETAIL, "source-volume");
+        details.put(AblestackBackupFrameworkUtils.RESTORE_TARGET_VOLUME_UUID_DETAIL, "restored-volume");
+        details.put(AblestackBackupFrameworkUtils.RESTORE_TARGET_VM_ID_DETAIL, "2");
+        details.put(AblestackBackupFrameworkUtils.RESTORE_TARGET_DATASTORE_UUID_DETAIL, "pool-8");
+        details.put(AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL, "11");
+        when(backup.getId()).thenReturn(1L);
+        when(backup.getUuid()).thenReturn("backup-1");
+        when(backup.getVmId()).thenReturn(2L);
+        when(backup.getZoneId()).thenReturn(1L);
+        when(backup.getBackupOfferingId()).thenReturn(4L);
+        when(backup.getStatus()).thenReturn(Backup.Status.BackedUp);
+        when(backup.getDetails()).thenReturn(details);
+        when(backup.getDetail(anyString())).thenAnswer(call -> details.get(call.getArgument(0)));
+        when(backupDetailsDao.findDetail(eq(1L), anyString())).thenAnswer(call -> {
+            String key = call.getArgument(1);
+            return details.containsKey(key) ? new BackupDetailVO(1L, key, details.get(key), false) : null;
+        });
+        Mockito.doAnswer(call -> { details.put(call.getArgument(1), call.getArgument(2)); return null; })
+                .when(backupDetailsDao).addDetail(eq(1L), anyString(), anyString(), eq(false));
+        Mockito.doAnswer(call -> { details.remove(call.getArgument(1)); return null; })
+                .when(backupDetailsDao).removeDetail(eq(1L), anyString());
+        Backup.VolumeInfo selection = mock(Backup.VolumeInfo.class);
+        when(selection.getUuid()).thenReturn("source-volume");
+        when(backup.getBackedUpVolumes()).thenReturn(List.of(selection));
+        when(backupDao.findById(1L)).thenReturn(backup);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(vm.getId()).thenReturn(2L);
+        when(vm.getUuid()).thenReturn("vm-2");
+        when(vm.getInstanceName()).thenReturn("i-2-330-VM");
+        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        when(vm.getPowerState()).thenReturn(VirtualMachine.PowerState.PowerOff);
+        when(vm.getDataCenterId()).thenReturn(1L);
+        when(vm.getAccountId()).thenReturn(5L);
+        when(vm.getBackupOfferingId()).thenReturn(null);
+        when(vm.getHostId()).thenReturn(7L);
+        when(vm.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
+        when(vmInstanceDao.findById(2L)).thenReturn(vm);
+        when(vmInstanceDao.findByIdIncludingRemoved(2L)).thenReturn(vm);
+        BackupOfferingVO offering = mock(BackupOfferingVO.class);
+        when(offering.getProvider()).thenReturn(provider);
+        when(backupOfferingDao.findById(4L)).thenReturn(offering);
+        when(backupOfferingDao.findByIdIncludingRemoved(4L)).thenReturn(offering);
+        when(backupProvider.getName()).thenReturn(provider);
+        when(backupProvider.supportsDetachedRestoreOrchestration()).thenReturn(true);
+        doReturn(backupProvider).when(backupManager).getBackupProvider(provider);
+        VolumeVO root = mock(VolumeVO.class);
+        when(root.getPoolId()).thenReturn(8L);
+        when(volumeDao.findIncludingRemovedByInstanceAndType(2L, Volume.Type.ROOT)).thenReturn(List.of(root));
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        when(pool.getId()).thenReturn(8L);
+        when(pool.getUuid()).thenReturn("pool-8");
+        when(primaryDataStoreDao.findById(8L)).thenReturn(pool);
+        when(primaryDataStoreDao.findByUuid("pool-8")).thenReturn(pool);
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(7L);
+        when(hostDao.findById(7L)).thenReturn(host);
+        doNothing().when(backupManager).validateBackupForZone(1L);
+        doReturn(new Pair<>(true, "restored-volume")).when(backupManager).restoreBackedUpVolume(
+                any(), eq(backup), eq(backupProvider), any(), any(), eq(vm), eq(false), eq(true));
+        return backup;
     }
 
     @Test

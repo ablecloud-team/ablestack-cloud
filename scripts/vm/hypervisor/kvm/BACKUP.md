@@ -1823,9 +1823,14 @@ Worker는 새 복원 요청을 접수할 때 선택하며, 이미 등록된 대�
 파일 가져오기와 적용은 같은 볼륨에서도 반복된다.
 
 **백업 볼륨 복원 후 VM 연결**은 요청 접수 후 백그라운드에서 진행한다.
-이벤트 목록의 `Successfully completed restoring Volume from Backup to Instance`는 요청 처리 완료 시점에도 표시될 수 있다.
+요청 접수 이벤트에는 `submitting a background volume restore and attach request`와
+`accepted; restoration is still in progress`를 표시한다. 이 이벤트의 시각은 접수 처리 시각이다.
 `NETBACKUP_RESTORE` 등의 단계에서 `Fetching volume 1`이 표시되면 실제 볼륨 파일을 가져오는 중이며,
 데이터 적용과 `ATTACH_VOLUME` 처리가 끝나야 대상 VM에 볼륨이 연결된다.
+연결 완료 후에는 같은 **백업 볼륨 가상머신복원** 유형으로
+`Successfully restored Volume ... and attached it to Instance ...` 완료 이벤트를 별도로 남긴다.
+이 이벤트의 생성 시각으로 실제 완료가 확인된 시각을 확인한다. 실패 시에는 실패 사유를 포함한 `ERROR` 이벤트를 남긴다.
+볼륨·백업·대상 VM을 함께 기록하며, 반복 상태 확인만으로 같은 결과 이벤트를 다시 생성하지 않는다.
 최종 복원 상태가 `COMPLETED`인지, 대상 VM의 볼륨 목록에 연결된 볼륨이 있는지 함께 확인한다.
 진행 중에는 같은 복원 요청을 중복 실행하지 않는다.
 

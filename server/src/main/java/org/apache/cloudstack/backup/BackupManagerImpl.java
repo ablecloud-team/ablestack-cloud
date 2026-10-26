@@ -347,6 +347,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private static final String RETENTION_CLEANUP_REASON = "retention.cleanup.reason";
     private static final long MIN_ACTIVE_JOB_SYNC_INTERVAL_SECONDS = 5L;
     private static final long RESTORE_JOB_START_GRACE_PERIOD_MS = TimeUnit.SECONDS.toMillis(60);
+    private static final String RESTORE_VOLUME_EVENT_RESULT_DETAIL = "ablestack.restore.volume.event.result";
 
     private static Map<String, BackupProvider> backupProvidersMap = new HashMap<>();
     private static final String ABLESTACK_NETBACKUP_PROVIDER_NAME = "ablestack-netbackup";
@@ -4091,6 +4092,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         initializeRestoreOperation(backup.getId(), offering, AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH,
                 vm.getId(), backedUpVolumeUuid, datastore.getUuid());
         final boolean detachedRestore = backupProvider.supportsDetachedRestoreOrchestration();
+        if (detachedRestore && isAblestackHostSideRestoreProvider(offering)) {
+            persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL,
+                    String.valueOf(CallContext.current().getStartEventId()));
+        }
         Pair<Boolean, String> result = restoreBackedUpVolume(backupVolumeInfo, backup, backupProvider,
                 hostPossibleValues, datastoresPossibleValues, vm, isQuickRestore, detachedRestore);
 
@@ -4105,6 +4110,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (detachedRestore) {
             persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_TARGET_VOLUME_UUID_DETAIL, result.second());
             persistRestoreOperationPhase(backup.getId(), "RUNNING", "QUEUED", 10);
+            if (isAblestackHostSideRestoreProvider(offering)) {
+                CallContext.current().setEventDescription(String.format(
+                        "submitting a background volume restore and attach request for Volume %s from Backup %s to Instance %s (accepted; restoration is still in progress)",
+                        backedUpVolumeUuid, backup.getUuid(), vm.getInstanceName()));
+            }
             return true;
         }
         try {
@@ -5298,6 +5308,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                             startFailed ? 98 : 95);
                     persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_FAILURE_REASON_DETAIL, reason);
                     reconcileExternalRestoreTracking(offering, backup, vm, false, e.getMessage());
+                    if (volumeAttach) {
+                        publishRestoreFailureEvent(backup, reason);
+                    }
                     if (startFailed) {
                         completeFailedRestoreTracking(backup, reason);
                         cleanupTerminalRestoreJobFiles(backup, restoreHost, restoreJobId, backupProvider.getName());
@@ -5346,6 +5359,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             if (AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH.equals(operationType)) {
                 finalizeDetachedVolumeRestore(backupProvider, backup, vm);
+                if (isAblestackHostSideRestoreProvider(offering)) {
+                    publishVolumeRestoreResultEvent(backup, vm, null);
+                }
                 return;
             }
 
@@ -6616,6 +6632,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void clearPreviousRestoreResult(final Long backupId) {
+        backupDetailsDao.removeDetail(backupId, RESTORE_VOLUME_EVENT_RESULT_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_CREATE_INSTANCE_PROGRESS_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
         backupDetailsDao.removeDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_JOB_STEP_DETAIL);
@@ -6809,11 +6826,52 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             operationDescription = "Instance backup restore failed";
         }
         try {
+            if (AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH.equals(operationType)) {
+                publishVolumeRestoreResultEvent(backup, vm,
+                        StringUtils.defaultIfBlank(failureReason, "Backup volume restore and attach failed"));
+                return;
+            }
             ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventVO.LEVEL_ERROR, eventType,
                     String.format("%s for Instance %s: %s", operationDescription, vm.getInstanceName(), failureReason),
                     vm.getId(), ApiCommandResourceType.VirtualMachine.toString(), 0);
         } catch (Exception e) {
             logger.warn("Failed to publish restore failure event for backup [{}]: {}", backup.getUuid(), e.getMessage(), e);
+        }
+    }
+
+    private void publishVolumeRestoreResultEvent(final BackupVO backup, final VMInstanceVO vm, final String failureReason) {
+        // Share initialization's lock so another attempt cannot reset the result during publication.
+        final GlobalLock lock = GlobalLock.getInternLock("backup.restore." + backup.getId());
+        try {
+            if (!lock.lock(5)) {
+                throw new CloudRuntimeException("Unable to record the volume restore result; retry shortly");
+            }
+            try {
+                final String result = StringUtils.isBlank(failureReason) ? "COMPLETED" : "FAILED";
+                final BackupDetailVO published = backupDetailsDao.findDetail(backup.getId(), RESTORE_VOLUME_EVENT_RESULT_DETAIL);
+                if (published != null && result.equals(published.getValue())) {
+                    return;
+                }
+                backupDao.loadDetails(backup);
+                final String sourceVolume = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_SOURCE_VOLUME_UUID_DETAIL);
+                final String description = "COMPLETED".equals(result)
+                        ? String.format("Successfully restored Volume %s from Backup %s and attached it to Instance %s (source Volume %s)",
+                                backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_TARGET_VOLUME_UUID_DETAIL),
+                                backup.getUuid(), vm.getInstanceName(), sourceVolume)
+                        : String.format("Backup volume restore and attach failed for Instance %s (Backup %s, source Volume %s): %s",
+                                vm.getInstanceName(), backup.getUuid(), sourceVolume, failureReason);
+                ActionEventUtils.onCompletedActionEvent(User.UID_SYSTEM, vm.getAccountId(),
+                        "COMPLETED".equals(result) ? EventVO.LEVEL_INFO : EventVO.LEVEL_ERROR,
+                        EventTypes.EVENT_VM_BACKUP_RESTORE_VOLUME_TO_VM, description,
+                        vm.getId(), ApiCommandResourceType.VirtualMachine.toString(), NumberUtils.toLong(
+                                backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_EVENT_ID_DETAIL), 0));
+                // Keep this receipt through Host cleanup; reset it only when a new restore is initialized.
+                persistBackupDetail(backup.getId(), RESTORE_VOLUME_EVENT_RESULT_DETAIL, result);
+            } finally {
+                lock.unlock();
+            }
+        } finally {
+            lock.releaseRef();
         }
     }
 
