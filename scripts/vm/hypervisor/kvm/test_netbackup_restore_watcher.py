@@ -384,6 +384,21 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
         self.assertEqual("skipped", self.watcher.load_state()["processed"]["200"]["status"])
         self.assertIn(reason, (self.base / "watcher.log").read_text())
 
+    def test_rejected_restore_api_failure_is_retried_after_watcher_restart(self):
+        self.watcher.save_state({"initialJobBaselineCompleted": True, "processed": {}})
+        failure = MagicMock(returncode=1, stdout="", stderr="command=rejectBackupArtifactRestore httpCode=401")
+        accepted = MagicMock(returncode=0, stdout="SKIPPED restoreBackupArtifact reason=VM must be Stopped", stderr="")
+        with patch.dict(self.watcher.CONFIG, RESTORE_NOTIFY_SCRIPT="synthetic-restore-notify"), \
+                patch.object(self.watcher, "fetch_restore_jobs", return_value=[self.job(0)]), \
+                patch.object(self.watcher, "candidate_restore_identifiers", return_value=["host-test_1792458000"]), \
+                patch.object(self.watcher.subprocess, "run", side_effect=[failure, accepted]) as notify:
+            self.assertEqual(0, self.watcher.main([]))
+            self.assertNotIn("200", self.watcher.load_state()["processed"])
+            self.assertEqual(0, self.watcher.main([]))
+            self.assertEqual("skipped", self.watcher.load_state()["processed"]["200"]["status"])
+            self.assertEqual(0, self.watcher.main([]))
+        self.assertEqual(2, notify.call_count)
+
     def test_notification_carries_the_exact_external_completion_window_for_both_releases(self):
         for release in ("10.5", "11.1"):
             with self.subTest(release=release), patch.dict(self.watcher.CONFIG, RESTORE_NOTIFY_SCRIPT="notify", MOLD_HOST_NAME="host-test"), \

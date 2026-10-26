@@ -853,19 +853,20 @@ import base64
 import hashlib
 import hmac
 import sys
-from urllib.parse import quote_plus
+from urllib.parse import parse_qsl, quote_plus
 
 base_url = sys.argv[1]
 api_params = sys.argv[2]
 api_key = sys.argv[3]
 secret_key = sys.argv[4]
 
-sorted_params = [f"apikey={quote_plus(api_key).lower()}"]
-for token in api_params.split("&"):
-    key, value = token.split("=", 1)
-    sorted_params.append(f"{key.lower()}={value.lower()}")
+params = [("apikey", api_key)] + parse_qsl(api_params, keep_blank_values=True)
 
-sorted_url = "&".join(sorted(sorted_params))
+def encode(value):
+    # Match ApiServer.verifyRequest, including spaces and Java's '*'/'~' handling.
+    return quote_plus(value, safe="*").replace("~", "%7E").replace("+", "%20")
+
+sorted_url = "&".join(f"{key}={encode(value)}" for key, value in sorted(params)).lower()
 signature = base64.b64encode(
     hmac.new(secret_key.encode(), sorted_url.encode(), hashlib.sha256).digest()
 ).decode()

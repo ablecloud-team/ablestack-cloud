@@ -135,24 +135,12 @@ load_secret() {
 }
 
 urlencode_plus() {
-  local value="$1"
-  local encoded="" char i code
-  for ((i = 0; i < ${#value}; i++)); do
-    char="${value:i:1}"
-    case "${char}" in
-      [a-zA-Z0-9.~_-])
-        encoded+="${char}"
-        ;;
-      ' ')
-        encoded+="+"
-        ;;
-      *)
-        printf -v code '%%%02X' "'${char}"
-        encoded+="${code}"
-        ;;
-    esac
-  done
-  printf '%s' "${encoded}"
+  python3 - "$1" <<'PY'
+import sys
+from urllib.parse import quote_plus
+
+print(quote_plus(sys.argv[1]), end="")
+PY
 }
 
 build_api_params() {
@@ -164,29 +152,24 @@ build_api_params() {
 
 build_signed_url() {
   local api_params="$1"
-  local sorted_url signature
-  sorted_url="$(
-    {
-      printf 'apikey=%s\n' "$(printf '%s' "${ADMIN_APIKEY}" | tr '[:upper:]' '[:lower:]')"
-      IFS='&' read -r -a tokens <<< "${api_params}"
-      for token in "${tokens[@]}"; do
-        local key value
-        key="${token%%=*}"
-        value="${token#*=}"
-        printf '%s=%s\n' "$(printf '%s' "${key}" | tr '[:upper:]' '[:lower:]')" "$(printf '%s' "${value}" | tr '[:upper:]' '[:lower:]')"
-      done
-    } | sort | paste -sd '&' -
-  )"
-  signature="$(
-    printf '%s' "${sorted_url}" \
-      | openssl dgst -sha256 -hmac "${ADMIN_SECRETKEY}" -binary \
-      | openssl base64 -A
-  )"
-  printf '%s?%s&apiKey=%s&signature=%s' \
-    "${MOLD_RESTORE_API_URL}" \
-    "${api_params}" \
-    "$(urlencode_plus "${ADMIN_APIKEY}")" \
-    "$(urlencode_plus "${signature}")"
+  python3 - "$MOLD_RESTORE_API_URL" "$api_params" "$ADMIN_APIKEY" "$ADMIN_SECRETKEY" <<'PY'
+import base64
+import hashlib
+import hmac
+import sys
+from urllib.parse import parse_qsl, quote_plus
+
+base_url, api_params, api_key, secret_key = sys.argv[1:]
+params = [("apikey", api_key)] + parse_qsl(api_params, keep_blank_values=True)
+
+def encode(value):
+    # ApiServer.verifyRequest uses Java URLEncoder, then replaces spaces with %20.
+    return quote_plus(value, safe="*").replace("~", "%7E").replace("+", "%20")
+
+canonical = "&".join(f"{key}={encode(value)}" for key, value in sorted(params)).lower()
+signature = base64.b64encode(hmac.new(secret_key.encode(), canonical.encode(), hashlib.sha256).digest()).decode()
+print(f"{base_url}?{api_params}&apiKey={quote_plus(api_key)}&signature={quote_plus(signature)}", end="")
+PY
 }
 
 invoke_mold_api() {
@@ -320,7 +303,7 @@ main() {
   local response
 
   log_line "START script=netbackup-host-restore-notify args=$*"
-  require_commands openssl base64 od sed tr curl date mkdir sleep
+  require_commands python3 openssl base64 od sed tr curl date mkdir sleep
   load_config
   load_secret
   log_line "RESTORE config-loaded program=${program_name} externalid=${external_id} operation=${operation} mold_url=${MOLD_RESTORE_API_URL} log_file=${LOG_FILE}"

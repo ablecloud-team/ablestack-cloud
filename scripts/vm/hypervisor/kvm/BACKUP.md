@@ -2052,6 +2052,13 @@ Mold UI**를 함께 업데이트한다. 관리 서버는 `mold.service`를 재�
 NetBackup Host는 기존 사전구성 명령을 다시 실행하여 `/usr/local/sbin/netbackup-host-restore-watcher`와
 복원 알림 스크립트·감시 설정을 새 버전으로 생성한다. Veeam Host도 연동 라이브러리를 새 버전으로 배포하고 복원 에이전트를 재시작한다.
 업데이트 전에 이미 `SKIPPED`로 기록된 외부 요청을 소급 실행하지 않으므로 새 복원 Job·세션으로 검증한다.
+패키지의 `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-restore-notify`만 갱신하고
+사전구성을 다시 실행하지 않으면 `/usr/local/sbin/netbackup-host-restore-notify` 실행본은 이전 버전으로 남을 수 있다.
+`restore-watcher.conf`의 `RESTORE_NOTIFY_SCRIPT` 경로에서 `rejectBackupArtifactRestore` 호출이 있는지 확인한다.
+`resolveBackupArtifact`는 성공하지만 실패 기록 API가 서명 오류 `401`을 반환하면 공백·JSON 인자의 서명 인코딩도 확인한다.
+Mold는 공백을 `%20`으로 정규화해 서명하므로 폼 전송의 `+`를 그대로 서명하면 안 된다.
+알림·공통 스크립트를 수정 버전으로 배포하고 사전구성을 다시 실행한다. 이 서명 수정만으로 관리 서버 재시작은 필요하지 않다.
+API 실패로 아직 처리 완료되지 않은 외부 Job은 감시기의 다음 조회에서 재시도하므로 상태 파일을 삭제하지 않는다.
 이미 남아 있는 파일의 소유권이나 종료 증거를 확인할 수 없으면 자동 삭제하지 않고 로그와 정리 대기 사유를 먼저 확인한다.
 `matched=false`나 백업 ID 조회 오류는 VM 상태 차단이 아니므로 별도로 확인한다.
 Commvault의 Mold UI 전체 VM 복원도 실행 중인 VM은 공통 사전 검사에서 거부한다.
