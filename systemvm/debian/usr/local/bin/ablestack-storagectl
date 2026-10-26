@@ -801,7 +801,7 @@ def collect_smb_listener_profiles():
     import sys
     import time
     try:
-        sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+        sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
         from configuration_transaction import SmbListenerProfiles
         return SmbListenerProfiles().show()
     except Exception:
@@ -1574,7 +1574,7 @@ def collect_smb_listener_profiles():
     import sys
     import time
     try:
-        sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+        sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
         from configuration_transaction import SmbListenerProfiles
         return SmbListenerProfiles().show()
     except Exception:
@@ -4677,7 +4677,7 @@ apply_smb_shares() {
 
   # A listener operation must not reapply users, ACLs or the shared service policy.
   if [[ "$(python3 -c 'import json,sys; print(1 if json.load(open(sys.argv[1])).get("listenerOnly") is True else 0)' "$payload_file")" == "1" ]]; then
-    python3 /usr/local/lib/ablestack-storage/configuration_transaction.py smb-listeners apply "$payload_file"
+    python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" smb-listeners apply "$payload_file"
     while read -r smb_port; do
       [[ -n "$smb_port" ]] && open_tcp_firewall_port "$smb_port"
     done < <(python3 -c 'import json,sys; print("\n".join(str(v) for v in sorted({int(x.get("port") or 445) for x in json.load(open(sys.argv[1])).get("listeners", [])})))' "$payload_file")
@@ -5053,7 +5053,7 @@ PY
   if [[ -f /etc/ablestack-storage/smb-listeners.json ]]; then
     systemctl restart nmbd >/dev/null 2>&1 || true
     systemctl restart winbind >/dev/null 2>&1 || true
-    python3 /usr/local/lib/ablestack-storage/configuration_transaction.py smb-listeners full "$payload_file"
+    python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" smb-listeners full "$payload_file"
   elif command -v systemctl >/dev/null 2>&1; then
     systemctl enable --now smbd >/dev/null 2>&1 || true
     systemctl enable --now nmbd >/dev/null 2>&1 || true
