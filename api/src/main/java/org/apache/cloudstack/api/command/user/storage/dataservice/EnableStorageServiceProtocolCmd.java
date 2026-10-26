@@ -55,6 +55,14 @@ public class EnableStorageServiceProtocolCmd extends BaseStorageServiceConfigura
     @Parameter(name = "protocolmode", type = CommandType.STRING, description = "NFS protocol mode. Supported values are V4_ONLY and V3V4_DUAL")
     private String protocolMode;
 
+    @Parameter(name = "endpointid", type = CommandType.STRING,
+            description = "SMB endpoint UUID to replace or remove within the selected instance")
+    private String endpointId;
+
+    public String getEndpointId() {
+        return endpointId;
+    }
+
     public Long getInstanceId() {
         return instanceId;
     }

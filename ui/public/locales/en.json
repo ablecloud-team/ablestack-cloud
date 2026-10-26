@@ -10371,5 +10371,11 @@
   "label.sharedfs.network.unknown": "Unknown",
   "label.sharedfs.network.owner": "Owner",
   "label.sharedfs.network.destination": "Destination",
-  "label.restart": "Restart"
+  "label.restart": "Restart",
+  "label.storage.service.smb.endpoint.edit": "Edit endpoint",
+  "label.storage.service.smb.endpoint.add": "Add endpoint",
+  "message.storage.service.smb.endpoint.last": "The last SMB endpoint used by shares or a domain cannot be deleted.",
+  "message.storage.service.smb.endpoint.preserve": "Only the selected SMB binding changes. Shares, accounts, ACLs and other endpoint sessions are preserved.",
+  "message.storage.service.smb.endpoint.delete": "Remove only the selected SMB endpoint. Primary, shared or unconfirmed addresses are retained.",
+  "message.storage.service.smb.endpoint.wildcard": "A wildcard listener referenced by other SMB endpoints cannot be removed or reduced."
 }

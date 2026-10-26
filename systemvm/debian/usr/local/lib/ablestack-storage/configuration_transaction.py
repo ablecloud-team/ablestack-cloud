@@ -167,6 +167,8 @@ class Transaction:
                     raise Rejected("COMMIT_REQUIRES_VERIFIED_OPERATION")
                 if current["targetRevision"] != int(payload["targetRevision"]):
                     raise Rejected("REVISION_CONFLICT")
+                if current.get("smbListenerOnly"):
+                    self.adapter_factory(private).finalize_smb_listeners(payload)
                 atomic_json(directory / "revision.json", {"revision": current["targetRevision"],
                             "operationid": current["operationid"]})
                 current.update(state="COMMITTED", phase="COMPLETED")
@@ -222,6 +224,8 @@ class Transaction:
                        "requestHash": public_hash(payload["candidate"]),
                        "state": "RUNNING", "phase": "VALIDATING",
                        "rollback": {"state": "NOT_NEEDED"}, "updated": time.time()}
+            if payload.get("candidate", {}).get("smb share apply", {}).get("listenerOnly"):
+                current["smbListenerOnly"] = True
             atomic_json(status_path, current)
             adapter = self.adapter_factory(private)
             try:
@@ -277,6 +281,453 @@ def checked(args, **kwargs):
     return result.stdout
 
 
+class SmbListenerProfiles:
+    """SMB binding overlays. Shared auth/locking; individually owned process groups."""
+    VERSION = 1
+
+    def __init__(self, root=Path("/etc/ablestack-storage/smb-listeners"),
+                 base=Path("/etc/samba/smb.conf"), namespace=None):
+        self.root, self.base, self.namespace = Path(root), Path(base), namespace
+        self.manifest = self.root.parent / (self.root.name + ".json")
+        self.desired = self.root.parent / "desired-state/smb-share-apply.json"
+
+    @contextlib.contextmanager
+    def locked(self):
+        if self.root.is_symlink() or self.manifest.is_symlink():
+            raise Rejected("SMB_PROFILE_IDENTITY_CHANGED")
+        self.root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(self.root, 0o700)
+        with (self.root / ".lock").open("a") as stream:
+            os.chmod(self.root / ".lock", 0o600)
+            fcntl.flock(stream, fcntl.LOCK_EX)
+            yield
+
+    @staticmethod
+    def normalized(value):
+        import ipaddress
+        rows, seen, identities = [], set(), set()
+        for item in value.get("listeners", []):
+            if item.get("state") in ("Disabled", "Destroyed", "Error"):
+                continue
+            identity = token(item.get("id"))
+            try:
+                ip = ipaddress.IPv4Address(str(item.get("listenIp") or "0.0.0.0"))
+                port = int(item.get("port") or 445)
+                if ip.is_multicast or ip.is_loopback or not 1 <= port <= 65535:
+                    raise ValueError()
+            except (ValueError, TypeError):
+                raise Rejected("INVALID_SMB_ENDPOINT")
+            pair = (str(ip), port)
+            if pair in seen or identity in identities:
+                raise Rejected("DUPLICATE_SMB_ENDPOINT")
+            seen.add(pair); identities.add(identity)
+            rows.append({"id": identity, "listenIp": str(ip), "port": port})
+        return sorted(rows, key=lambda row: (row["listenIp"], row["port"], row["id"]))
+
+    @staticmethod
+    def key(row):
+        return token(row["id"]) + "-" + public_hash([row["listenIp"], row["port"]])[:12]
+
+    @staticmethod
+    def sockets(pid=None, namespace_pid=None):
+        import socket
+        owned = None
+        if pid:
+            try:
+                owned = {os.readlink(p) for p in Path("/proc/%s/fd" % pid).iterdir()}
+            except OSError:
+                return set()
+        result = set()
+        for line in Path("/proc/%s/net/tcp" % (pid or namespace_pid)).read_text().splitlines()[1:] if pid or namespace_pid else Path("/proc/net/tcp").read_text().splitlines()[1:]:
+            fields = line.split()
+            if fields[3] != "0A" or owned is not None and "socket:[" + fields[9] + "]" not in owned:
+                continue
+            raw, port = fields[1].split(":")
+            result.add((socket.inet_ntoa(bytes.fromhex(raw)[::-1]), int(port, 16)))
+        return result
+
+    def ctl(self, *args):
+        return checked(["systemctl"] + list(args)).decode().strip()
+
+    def validated_unit(self, row):
+        self.normalized({"listeners": [row]})
+        expected = "smbd.service" if row.get("kind") == "legacy" else "ablestack-smb-" + self.key(row) + ".service"
+        if row.get("unit") != expected or row.get("key") != (row["id"] + "-legacy" if row.get("kind") == "legacy" else self.key(row)):
+            raise Rejected("SMB_PROFILE_IDENTITY_CHANGED")
+        return expected
+
+    def raw_pid(self, row):
+        self.validated_unit(row)
+        result = subprocess.run(["systemctl", "show", row["unit"], "-p", "MainPID", "-p", "LoadState"],
+                                capture_output=True, text=True, timeout=10, env={**os.environ, "LC_ALL": "C"})
+        values = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
+        if values.get("LoadState") == "not-found" or result.returncode and "could not be found" in result.stderr:
+            return 0
+        if result.returncode:
+            raise Rejected("SMB_UNIT_OBSERVATION_UNAVAILABLE")
+        return int(values.get("MainPID") or 0)
+
+    def pid(self, row):
+        try:
+            pid = self.raw_pid(row)
+            if pid <= 1 or Path("/proc/%d/exe" % pid).resolve() != Path("/usr/sbin/smbd").resolve():
+                return None
+            args = Path("/proc/%d/cmdline" % pid).read_bytes().split(b"\0")
+            if row.get("kind") != "legacy":
+                config = self.root / (row["key"] + ".conf")
+                if row["unit"] != "ablestack-smb-" + row["key"] + ".service":
+                    return None
+                if str(config).encode() not in args and ("--configfile=" + str(config)).encode() not in args:
+                    return None
+                if config.is_symlink() or hashlib.sha256(config.read_bytes()).hexdigest() != row.get("configHash"):
+                    return None
+                if os.getpgid(pid) != pid:
+                    return None
+                # systemd already creates the isolated process group.  Keep its
+                # cgroup ownership proof when Samba skips its own setsid().
+                group = self.ctl("show", row["unit"], "-p", "ControlGroup", "--value")
+                memberships = {line.split(":", 2)[2] for line in
+                               Path("/proc/%d/cgroup" % pid).read_text().splitlines()}
+                if not group or group not in memberships:
+                    return None
+            return pid
+        except (OSError, ValueError, Rejected):
+            return None
+
+    def ready(self, row, profiles):
+        if row.get("kind") == "covered":
+            owner = profiles.get(row.get("coveredBy"))
+            return bool(owner and owner.get("kind") != "covered" and self.ready(owner, profiles))
+        pid = self.pid(row)
+        return bool(pid and (row["listenIp"], row["port"]) in self.sockets(pid))
+
+    def record(self, row):
+        key = self.key(row)
+        return {**row, "key": key, "kind": "profile", "unit": "ablestack-smb-" + key + ".service"}
+
+    def configuration(self, row):
+        key = row["key"]
+        if key != self.key(row):
+            raise Rejected("INVALID_SMB_PROFILE_KEY")
+        pid_dir = self.root / key
+        pid_dir.mkdir(mode=0o700, exist_ok=True)
+        binding = (" interfaces = " + row["listenIp"] + "\n bind interfaces only = yes\n"
+                   if row["listenIp"] != "0.0.0.0" else " bind interfaces only = no\n interfaces =\n")
+        text = ("[global]\n include = " + str(self.base) + "\n[global]\n"
+                " smb ports = " + str(row["port"]) + "\n" + binding +
+                " pid directory = " + str(pid_dir) + "\n")
+        path = self.root / (key + ".conf")
+        if path.is_symlink():
+            raise Rejected("SMB_PROFILE_IDENTITY_CHANGED")
+        if not path.exists() or path.read_text() != text:
+            fd, temporary = tempfile.mkstemp(prefix=".smb-", dir=self.root)
+            try:
+                os.fchmod(fd, 0o600)
+                with os.fdopen(fd, "w") as stream:
+                    stream.write(text); stream.flush(); os.fsync(stream.fileno())
+                checked(["testparm", "-s", temporary])
+                os.replace(temporary, path)
+            finally:
+                if os.path.exists(temporary):
+                    os.unlink(temporary)
+        row["configHash"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        return path
+
+    def start(self, row, profiles):
+        if self.ready(row, profiles):
+            return
+        if row.get("kind") == "covered":
+            if not self.ready(row, profiles):
+                raise Rejected("SMB_COVERING_LISTENER_UNAVAILABLE")
+            return
+        if row.get("kind") == "legacy":
+            if self.namespace:
+                raise Rejected("SMB_LEGACY_OUTSIDE_SCOPE")
+            checked(["systemctl", "start", "smbd"])
+        else:
+            pair = (row["listenIp"], row["port"])
+            if any(port == pair[1] and (ip == pair[0] or ip == "0.0.0.0" or pair[0] == "0.0.0.0")
+                   for ip, port in self.sockets(namespace_pid=int(self.namespace.parent.parent.name) if self.namespace else None)):
+                raise Rejected("SMB_ENDPOINT_IN_USE")
+            config = self.configuration(row)
+            args = ["systemd-run", "--quiet", "--collect", "--unit=" + row["unit"],
+                    "--property=Type=simple", "--property=Restart=no",
+                    "--property=KillMode=control-group"]
+            if self.namespace:
+                args.append("--property=NetworkNamespacePath=" + str(self.namespace))
+            args += ["/usr/sbin/smbd", "-F", "--no-process-group", "--configfile=" + str(config)]
+            checked(args)
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline:
+            if self.ready(row, profiles):
+                return
+            time.sleep(.1)
+        # Stop only the unit whose executable/config proves ownership.
+        if self.pid(row):
+            self.stop(row)
+        raise Rejected("SMB_ENDPOINT_NOT_OWNED_OR_READY")
+
+    def stop(self, row):
+        if row.get("kind") == "covered":
+            return
+        raw_pid = self.raw_pid(row)
+        if raw_pid and not self.pid(row):
+            raise Rejected("SMB_PROFILE_OWNERSHIP_CHANGED")
+        if raw_pid:
+            checked(["systemctl", "stop", row["unit"]])
+        if row.get("kind") == "legacy":
+            checked(["systemctl", "disable", "smbd"])
+        elif row["key"] != self.key(row):
+            raise Rejected("INVALID_SMB_PROFILE_KEY")
+        else:
+            path = self.root / (row["key"] + ".conf")
+            if path.exists():
+                if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != row.get("configHash"):
+                    raise Rejected("SMB_PROFILE_OWNERSHIP_CHANGED")
+                path.unlink()
+            with contextlib.suppress(FileNotFoundError):
+                (self.root / row["key"]).rmdir()
+
+    def bootstrap(self, value, before):
+        state = load(self.manifest)
+        if state:
+            if state.get("instanceUuid") != token(value.get("instanceUuid")):
+                raise Rejected("SMB_INSTANCE_IDENTITY_CHANGED")
+            return state
+        profiles = {}
+        previous = self.normalized(before)
+        legacy_pid = 0 if self.namespace else int(self.ctl("show", "smbd", "-p", "MainPID", "--value") or 0)
+        if legacy_pid:
+            desired = load(self.desired, {})
+            if len(previous) != 1 or desired.get("instanceUuid") != value.get("instanceUuid"):
+                raise Rejected("SMB_LEGACY_IDENTITY_UNCONFIRMED")
+            row = {**previous[0], "key": previous[0]["id"] + "-legacy", "kind": "legacy", "unit": "smbd.service"}
+            observed = {(ip, port) for ip, port in self.sockets(legacy_pid) if not ip.startswith("127.")}
+            if observed != {(row["listenIp"], row["port"])} or not self.pid(row):
+                raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+            profiles[row["key"]] = row
+        elif not self.namespace and self.base == Path("/etc/samba/smb.conf") and not load(self.desired):
+            if value.get("shares") or (value.get("identityDomain") or {}).get("domainName"):
+                raise Rejected("SMB_BASE_CONFIGURATION_UNCONFIRMED")
+            self.base.write_text("[global]\n security = user\n workgroup = WORKGROUP\n"
+                                 " passdb backend = tdbsam\n load printers = no\n"
+                                 " printing = bsd\n disable spoolss = yes\n")
+            os.chmod(self.base, 0o644)
+        for old in previous:
+            if not any(row["id"] == old["id"] for row in profiles.values()):
+                row = self.record(old); profiles[row["key"]] = row
+                self.configuration(row); self.start(row, profiles)
+        return {"schemaVersion": self.VERSION, "instanceUuid": token(value["instanceUuid"]), "profiles": profiles}
+
+    def remember_added_aliases(self, state, desired, original):
+        old = {address.get("local") for row in original for address in row.get("addr_info", [])}
+        current = json.loads(checked(["ip", "-j", "addr", "show"]))
+        network = load(self.root.parent / "network-endpoints.json", {}).get("endpoints", [])
+        wanted = {row["listenIp"] for row in desired}
+        owned = state.setdefault("ownedAliases", {})
+        for link in current:
+            for address in link.get("addr_info", []):
+                ip = address.get("local")
+                if ip not in wanted or ip in old or not address.get("secondary"):
+                    continue
+                entry = next((e for e in network if e.get("listenIp") == ip), None)
+                if not entry or str(entry.get("macAddress", "")).lower() != str(link.get("address", "")).lower():
+                    continue
+                if int(entry.get("prefixlen", -1)) != int(address["prefixlen"]):
+                    continue
+                owned[ip] = {"listenIp": ip, "interface": link["ifname"], "macAddress": link["address"].lower(),
+                             "prefixlen": address["prefixlen"]}
+
+    def release_owned_aliases(self, state, value):
+        requested = value.get("releaseAddresses", [])
+        if not requested:
+            return
+        owned = state.setdefault("ownedAliases", {})
+        desired = self.normalized(value)
+        path = self.root.parent / "network-endpoints.json"
+        for ip in requested:
+            alias = owned.get(ip)
+            # A server-side reference check is required too. The guest additionally
+            # rejects arbitrary/manual/primary addresses and active SMB bindings.
+            if not alias or any(row["listenIp"] in (ip, "0.0.0.0") for row in desired):
+                raise Rejected("SMB_ALIAS_RELEASE_NOT_OWNED")
+            network = load(path, {})
+            entries = network.get("endpoints", [])
+            entry = next((e for e in entries if e.get("listenIp") == ip), None)
+            if entry and (str(entry.get("macAddress", "")).lower() != alias["macAddress"] or
+                          int(entry.get("prefixlen", -1)) != alias["prefixlen"]):
+                raise Rejected("SMB_ALIAS_IDENTITY_CHANGED")
+            current = json.loads(checked(["ip", "-j", "addr", "show"]))
+            link = next((row for row in current if row.get("ifname") == alias["interface"] and
+                         str(row.get("address", "")).lower() == alias["macAddress"]), None)
+            if link is None:
+                raise Rejected("SMB_ALIAS_IDENTITY_CHANGED")
+            address = next((a for a in link.get("addr_info", []) if a.get("local") == ip), None)
+            if address:
+                if not entry or not address.get("secondary") or address.get("prefixlen") != alias["prefixlen"]:
+                    raise Rejected("SMB_ALIAS_RELEASE_NOT_SECONDARY")
+                checked(["ip", "addr", "del", ip + "/" + str(alias["prefixlen"]), "dev", alias["interface"]])
+            if entry:
+                network["endpoints"] = [e for e in entries if e.get("listenIp") != ip]
+                atomic_json(path, network)
+            owned.pop(ip)
+            atomic_json(self.manifest, state)
+
+    def stage(self, value, before, operation, original_network=None):
+        operation = token(operation)
+        desired = self.normalized(value)
+        with self.locked():
+            state = self.bootstrap(value, before)
+            pending = state.get("pending")
+            if pending and (pending["operationid"] != operation or pending["hash"] != public_hash(value)):
+                raise Rejected("SMB_LISTENER_OPERATION_PENDING")
+            if not pending:
+                pending = {"operationid": operation, "hash": public_hash(value),
+                           "before": json.loads(json.dumps(state["profiles"])), "value": redact(value)}
+                state["pending"] = pending
+            profiles = state["profiles"]
+            pending.setdefault("beforeOwnedAliases", json.loads(json.dumps(state.get("ownedAliases", {}))))
+            if original_network is not None:
+                self.remember_added_aliases(state, desired, original_network)
+            wanted = []
+            wildcards = {row["port"]: row for row in desired if row["listenIp"] == "0.0.0.0"}
+            for item in desired:
+                existing = next((row for row in profiles.values()
+                                 if row["id"] == item["id"] and row["listenIp"] == item["listenIp"] and row["port"] == item["port"]), None)
+                row = existing or self.record(item)
+                owner = wildcards.get(item["port"])
+                if owner and item["listenIp"] != "0.0.0.0":
+                    cover = next((p for p in profiles.values() if p["id"] == owner["id"] and p["listenIp"] == "0.0.0.0"), None)
+                    if not cover:
+                        raise Rejected("SMB_WILDCARD_TRANSITION_REQUIRES_REVIEW")
+                    row = {**row, "kind": "covered", "coveredBy": cover["key"]}
+                elif item["listenIp"] == "0.0.0.0" and not existing:
+                    if any(p["port"] == item["port"] and p["listenIp"] != "0.0.0.0" for p in profiles.values()):
+                        raise Rejected("SMB_WILDCARD_TRANSITION_REQUIRES_REVIEW")
+                if row.get("kind") == "profile":
+                    self.configuration(row)
+                profiles[row["key"]] = row; wanted.append(row["key"])
+                pending["wanted"] = wanted
+                atomic_json(self.manifest, state)
+                self.start(row, profiles)
+                atomic_json(self.manifest, state)
+            pending["wanted"] = wanted
+            atomic_json(self.manifest, state)
+            self.verify(value, state)
+            return {"success": True, "runtimeReady": True, "listeners": len(wanted)}
+
+    def verify(self, value, state=None):
+        state = state or load(self.manifest, {})
+        profiles = state.get("profiles", {})
+        for desired in self.normalized(value):
+            row = next((p for p in profiles.values() if p["id"] == desired["id"] and
+                        p["listenIp"] == desired["listenIp"] and p["port"] == desired["port"]), None)
+            if not row or not self.ready(row, profiles):
+                raise Rejected("SMB_LISTENER_NOT_READY")
+
+    def commit(self, operation):
+        with self.locked():
+            state = load(self.manifest, {})
+            pending = state.get("pending")
+            if not pending:
+                return
+            if pending["operationid"] != token(operation):
+                raise Rejected("SMB_LISTENER_OPERATION_IDENTITY_CHANGED")
+            wanted = set(pending.get("wanted", []))
+            for key, row in list(state["profiles"].items()):
+                if key not in wanted:
+                    if any(p.get("coveredBy") == key for k, p in state["profiles"].items() if k in wanted):
+                        raise Rejected("SMB_WILDCARD_STILL_REFERENCED")
+                    self.stop(row); state["profiles"].pop(key)
+                    atomic_json(self.manifest, state)
+            self.verify(pending["value"], state)
+            self.release_owned_aliases(state, pending["value"])
+            value = pending["value"]
+            atomic_json(self.desired, {k: v for k, v in value.items()
+                                       if k not in ("configurationOperationId", "releaseAddresses")})
+            state.pop("pending")
+            atomic_json(self.manifest, state)
+
+    def rollback(self, operation):
+        with self.locked():
+            state = load(self.manifest, {})
+            pending = state.get("pending")
+            if not pending:
+                return
+            if pending["operationid"] != token(operation):
+                raise Rejected("SMB_LISTENER_OPERATION_IDENTITY_CHANGED")
+            previous = pending["before"]
+            for key, row in state["profiles"].items():
+                if key not in previous:
+                    self.stop(row)
+            state["profiles"] = previous
+            state["ownedAliases"] = pending.get("beforeOwnedAliases", state.get("ownedAliases", {}))
+            state.pop("pending")
+            atomic_json(self.manifest, state)
+
+    def boot(self, value):
+        state = load(self.manifest, {})
+        if state.get("pending"):
+            with self.locked():
+                for row in sorted(state["profiles"].values(), key=lambda row: row.get("kind") == "covered"):
+                    self.start(row, state["profiles"])
+                atomic_json(self.manifest, state)
+            return
+        operation = str(uuid.UUID(int=0))
+        self.stage(value, value, operation)
+        self.commit(operation)
+
+    def stop_all(self):
+        with self.locked():
+            state = load(self.manifest, {})
+            for row in state.get("profiles", {}).values():
+                self.stop(row)
+
+    def refresh(self, value):
+        # Full share/auth changes retain their existing all-SMB restart semantics.
+        with self.locked():
+            old = load(self.manifest, {})
+            if old.get("pending"):
+                for row in sorted(old["profiles"].values(), key=lambda row: row.get("kind") == "covered"):
+                    self.start(row, old["profiles"])
+                return
+            for row in old.get("profiles", {}).values():
+                self.stop(row)
+            state = {"schemaVersion": 1, "instanceUuid": token(value["instanceUuid"]), "profiles": {},
+                     "ownedAliases": old.get("ownedAliases", {})}
+            atomic_json(self.manifest, state)
+            for item in self.normalized(value):
+                row = self.record(item)
+                wildcard = next((r for r in state["profiles"].values() if r["listenIp"] == "0.0.0.0" and r["port"] == row["port"]), None)
+                if wildcard and row["listenIp"] != "0.0.0.0":
+                    row.update(kind="covered", coveredBy=wildcard["key"])
+                self.configuration(row) if row["kind"] != "covered" else None
+                state["profiles"][row["key"]] = row
+                atomic_json(self.manifest, state)
+                self.start(row, state["profiles"])
+                atomic_json(self.manifest, state)
+            self.verify(value, state)
+
+    def show(self):
+        state = load(self.manifest, {})
+        profiles = state.get("profiles", {})
+        if not state and not self.namespace:
+            desired = load(self.desired, {})
+            rows = self.normalized(desired)
+            if len(rows) == 1:
+                row = {**rows[0], "key": rows[0]["id"] + "-legacy", "kind": "legacy", "unit": "smbd.service"}
+                profiles[row["key"]] = row
+        result = []
+        for row in profiles.values():
+            ready = self.ready(row, profiles)
+            result.append({"id": row["id"], "listenIp": row["listenIp"], "port": row["port"],
+                           "state": ("COVERED" if row.get("kind") == "covered" else "READY") if ready else "UNKNOWN",
+                           "coveredBy": profiles.get(row.get("coveredBy"), {}).get("id"), "pid": self.pid(row) if row.get("kind") != "covered" else None})
+        return {"version": self.VERSION, "configured": bool(state or result), "listeners": result,
+                "ownedAliases": list(state.get("ownedAliases", {}).values()), "pending": bool(state.get("pending")),
+                "observedEpoch": time.time()}
+
+
 class RuntimeAdapter:
     """Existing storagectl render/apply engines with bounded private before-images."""
     def __init__(self, private):
@@ -312,6 +763,16 @@ class RuntimeAdapter:
         self.payload = payload
         atomic_json(self.payload_path, redact(payload))
 
+    @staticmethod
+    def listener_only(payload):
+        value = payload.get("candidate", {}).get("smb share apply", {})
+        return value.get("listenerOnly") is True
+
+    def finalize_smb_listeners(self, payload):
+        saved = load(self.payload_path, {})
+        if self.listener_only(saved):
+            SmbListenerProfiles().commit(payload["operationid"])
+
     def file_paths(self, payload):
         paths = {Path("/etc/ablestack-storage/network-endpoints.json")}
         for operation in payload["candidate"]:
@@ -323,6 +784,7 @@ class RuntimeAdapter:
                 paths.add(Path("/etc/fstab"))
             if operation.startswith("smb"):
                 paths.update(Path("/etc/ablestack-storage").glob("smb*.json"))
+                paths.update(Path("/etc/ablestack-storage/smb-listeners").glob("*.conf"))
                 paths.add(Path("/etc/samba/smb.conf"))
                 paths.add(Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"))
             if operation.startswith("iscsi"):
@@ -354,7 +816,7 @@ class RuntimeAdapter:
         import base64
         import grp
         import pwd
-        paths, users, groups = self.directories(payload)
+        paths, users, groups = (set(), set(), set()) if self.listener_only(payload) else self.directories(payload)
         snapshot = {"files": {}, "metadata": {}, "users": {}, "groups": {}, "network": []}
         for path in self.file_paths(payload):
             if path.is_file() and not path.is_symlink():
@@ -522,6 +984,12 @@ class RuntimeAdapter:
 
     def apply(self, commands):
         for operation, value in commands.items():
+            if operation == "smb share apply" and value.get("listenerOnly"):
+                value = dict(value)
+                saved = load(self.payload_path)
+                value["configurationOperationId"] = saved["operationid"]
+                value["listenerBefore"] = saved.get("before", {}).get(operation, {})
+                value["listenerOriginalNetwork"] = load(self.snapshot_path, {}).get("network", [])
             self.run(operation, value)
         payload = load(self.payload_path)
         if commands == payload["candidate"]:
@@ -529,6 +997,10 @@ class RuntimeAdapter:
 
     def verify(self, commands):
         if not commands:
+            return
+        smb = commands.get("smb share apply", {})
+        if smb.get("listenerOnly"):
+            SmbListenerProfiles().verify(smb)
             return
         result = load(self.private / "runner-result.json")
         if not result or result["returncode"] != 0:
@@ -538,6 +1010,9 @@ class RuntimeAdapter:
             raise Rejected("RUNTIME_VERIFICATION_FAILED")
         for operation, value in commands.items():
             if not value.get("enabled", True):
+                continue
+            if operation.startswith("smb") and SmbListenerProfiles().manifest.exists():
+                SmbListenerProfiles().verify(value)
                 continue
             if operation.startswith("smb") and value.get("shares"):
                 checked(["smbcontrol", "smbd", "ping"])
@@ -613,6 +1088,13 @@ class RuntimeAdapter:
         payload = load(self.payload_path)
         if not snapshot or not payload:
             raise Rejected("BEFORE_IMAGE_UNAVAILABLE")
+        if self.listener_only(payload):
+            SmbListenerProfiles().rollback(payload["operationid"])
+            self.restore_files(snapshot)
+            self.restore_network(snapshot, payload)
+            return
+        if "smb share apply" in payload.get("candidate", {}) and SmbListenerProfiles().manifest.exists():
+            SmbListenerProfiles().stop_all()
         self.restore_files(snapshot)
         self.restore_accounts(snapshot)
         self.capture_new_ports_for_restore(snapshot, payload)
@@ -907,9 +1389,29 @@ def run_child(private, operation, descriptor):
 
 
 def main(argv):
+    if argv == ["smb-listeners", "show"]:
+        print(json.dumps(SmbListenerProfiles().show()))
+        return 0
+    if len(argv) == 3 and argv[0] == "smb-listeners" and argv[1] in ("apply", "full"):
+        source = Path(argv[2])
+        if source.stat().st_size > 4 * 1024 * 1024:
+            raise Rejected("PAYLOAD_LIMIT")
+        value = load(source)
+        profiles = SmbListenerProfiles()
+        if argv[1] == "full":
+            profiles.refresh(value)
+        elif os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION") == "1":
+            before = value.pop("listenerBefore", {})
+            operation = value.pop("configurationOperationId", None)
+            original = value.pop("listenerOriginalNetwork", None)
+            profiles.stage(value, before, operation, original)
+        else:
+            profiles.boot(value)
+        print(json.dumps({"success": True, "runtimeReady": True}))
+        return 0
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
-                          "configurationObservationVersion": 1}))
+                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
