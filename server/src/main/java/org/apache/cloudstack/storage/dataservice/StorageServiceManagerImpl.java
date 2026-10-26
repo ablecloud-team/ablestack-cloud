@@ -789,7 +789,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final List<StorageServiceProtocolVO> canonical = new ArrayList<>();
         for (final StorageServiceProtocolVO candidate : protocols) {
             final String candidateIp = StringUtils.defaultIfBlank(candidate.getListenIp(), "0.0.0.0");
-            if ("0.0.0.0".equals(candidateIp)) {
+            // SMB endpoints remain individual UUID resources even when a wildcard owns their socket.
+            if (candidate.getProtocol() == StorageServiceInstance.Protocol.SMB || "0.0.0.0".equals(candidateIp)) {
                 canonical.add(candidate);
                 continue;
             }
