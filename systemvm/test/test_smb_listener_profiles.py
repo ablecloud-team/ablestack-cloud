@@ -146,6 +146,91 @@ class SmbListenerLaunchTests(unittest.TestCase):
                 self.controller.release_owned_aliases(state, {"listeners": [], "releaseAddresses": [ip]})
             self.assertEqual(1, commands.call_count)
 
+class SmbLegacyRollbackTests(unittest.TestCase):
+    def setUp(self):
+        import base64
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.controller = configuration.SmbListenerProfiles(self.root / "profiles", self.root / "smb.conf")
+        self.controller.base.write_text("[global]\n smb ports = 445\n")
+        self.controller.desired.parent.mkdir(parents=True)
+        self.value = {"instanceUuid": str(uuid.uuid4()), "listenerOnly": True,
+                      "listeners": [{"id": str(uuid.uuid4()), "listenIp": "0.0.0.0", "port": 445}]}
+        self.controller.desired.write_text(json.dumps(self.value))
+        files = {}
+        for path in (self.controller.base, self.controller.desired):
+            s = path.stat()
+            files[str(path)] = {"content": base64.b64encode(path.read_bytes()).decode(),
+                                "mode": s.st_mode & 0o777, "uid": s.st_uid, "gid": s.st_gid}
+        self.snapshot = {"files": files, "metadata": {}}
+        self.read_bytes = Path.read_bytes
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def verify(self, config=None, pid=123):
+        def read(path):
+            if str(path) == "/proc/123/cmdline":
+                return b"/usr/sbin/smbd\0--configfile=" + os.fsencode(config or self.controller.base) + b"\0"
+            return self.read_bytes(path)
+        with patch.object(self.controller, "pid", return_value=pid), \
+             patch.object(self.controller, "sockets", return_value={("0.0.0.0", 445)}), \
+             patch.object(Path, "read_bytes", new=read), \
+             patch.object(self.controller, "start") as start, patch.object(self.controller, "stop") as stop:
+            self.controller.verify_legacy_restored(self.value, self.snapshot)
+            start.assert_not_called(); stop.assert_not_called()
+
+    def test_manifest_was_never_created_and_unchanged_owned_legacy_is_restored(self):
+        self.verify()
+        self.assertFalse(self.controller.manifest.exists())
+
+    def test_missing_or_changed_before_configuration_cannot_be_accepted(self):
+        image = self.snapshot["files"].pop(str(self.controller.base))
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_BEFORE_IMAGE_UNAVAILABLE"):
+            self.verify()
+        self.snapshot["files"][str(self.controller.base)] = image
+        self.controller.base.write_text("changed")
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_BEFORE_IMAGE_CHANGED"):
+            self.verify()
+
+    def test_wrong_instance_listener_process_or_running_configuration_cannot_be_accepted(self):
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_BINDING_UNCONFIRMED"):
+            self.verify(pid=None)
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_CONFIGURATION_UNCONFIRMED"):
+            self.verify(config=self.root / "other.conf")
+        self.snapshot["smbListeners"] = {"listeners": [{"id": self.value["listeners"][0]["id"], "pid": 122}]}
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_PROCESS_CHANGED"):
+            self.verify()
+        self.snapshot.pop("smbListeners")
+        self.value["instanceUuid"] = str(uuid.uuid4())
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_LEGACY_IDENTITY_UNCONFIRMED"):
+            self.verify()
+
+    def test_a_missing_managed_manifest_does_not_fall_back_to_legacy(self):
+        self.snapshot["files"][str(self.controller.manifest)] = {}
+        with self.assertRaisesRegex(configuration.Rejected, "SMB_PROFILE_BEFORE_IMAGE_MISSING"):
+            self.verify()
+
+    def test_runtime_adapter_uses_before_image_for_failed_first_migration(self):
+        private = self.root / "operation"
+        private.mkdir()
+        adapter = configuration.RuntimeAdapter(private)
+        configuration.atomic_json(adapter.payload_path, {"instanceUuid": self.value["instanceUuid"],
+            "before": {"smb share apply": self.value}, "candidate": {"smb share apply": self.value}})
+        configuration.atomic_json(adapter.snapshot_path, self.snapshot)
+        with patch.object(configuration, "SmbListenerProfiles", return_value=self.controller), \
+             patch.object(self.controller, "verify_legacy_restored", wraps=self.controller.verify_legacy_restored), \
+             patch.object(adapter, "verify") as managed:
+            def read(path):
+                if str(path) == "/proc/123/cmdline":
+                    return b"/usr/sbin/smbd\0--configfile=" + os.fsencode(self.controller.base) + b"\0"
+                return self.read_bytes(path)
+            with patch.object(self.controller, "pid", return_value=123), \
+                 patch.object(self.controller, "sockets", return_value={("0.0.0.0", 445)}), \
+                 patch.object(Path, "read_bytes", new=read):
+                adapter.verify_restored()
+            managed.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

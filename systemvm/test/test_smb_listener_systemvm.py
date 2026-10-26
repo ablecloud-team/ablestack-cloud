@@ -38,6 +38,35 @@ class SmbListenerSystemVMTests(unittest.TestCase):
             self.assertTrue(result["protectedStateAfterCleanupUnchanged"])
             self.assertEqual(10, len(result["checks"]))
 
+    def test_signed_release_entrypoint_does_not_use_the_legacy_helper(self):
+        import ast
+        module = Path(os.environ.get("CONFIGURATION_MODULE", Path(__file__).resolve().parents[1] /
+                      "debian/usr/local/lib/ablestack-storage/configuration_transaction.py"))
+        local = Path(__file__).resolve().parents[1] / "debian/usr/local"
+        tree = ast.parse((local / "lib/ablestack-storage/runtime_updater.py").read_text())
+        managed = next(ast.literal_eval(node.value) for node in tree.body if isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name) and target.id == "MANAGED_FILES" for target in node.targets))
+        with tempfile.TemporaryDirectory(prefix="smb-entrypoint-driver-") as name:
+            root = Path(name)
+            release = root / "release"
+            for filename, mode in managed.items():
+                source = local / ("bin/" + filename if "/" not in filename else filename)
+                if filename.endswith("configuration_transaction.py"):
+                    source = module
+                target = release / filename
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
+                target.chmod(mode)
+            probe = Path(__file__).parent / "fixtures/smb_runtime_entrypoint_probe.py"
+            run = subprocess.run(["python3", str(probe), str(release)],
+                                 capture_output=True, text=True, timeout=90)
+            self.assertEqual(0, run.returncode, run.stderr)
+            result = json.loads(run.stdout)
+            self.assertTrue(result["ok"])
+            self.assertEqual("DUPLICATE_SMB_ENDPOINT", result["childCode"])
+            self.assertEqual("SUCCEEDED", result["rollback"])
+            self.assertTrue(result["protectedFilesUnchanged"])
+
 
 if __name__ == "__main__":
     unittest.main()

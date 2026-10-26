@@ -616,6 +616,47 @@ class SmbListenerProfiles:
             self.verify(value, state)
             return {"success": True, "runtimeReady": True, "listeners": len(wanted)}
 
+    def verify_legacy_restored(self, value, snapshot):
+        # A failed first migration may never have created a profile manifest.
+        # Prove the original configuration and actual legacy listener read-only.
+        import base64
+        rows = self.normalized(value)
+        if str(self.manifest) in snapshot["files"]:
+            raise Rejected("SMB_PROFILE_BEFORE_IMAGE_MISSING")
+        for path in (self.base, self.desired):
+            image = snapshot["files"].get(str(path))
+            if rows and not image:
+                raise Rejected("SMB_LEGACY_BEFORE_IMAGE_UNAVAILABLE")
+            if image:
+                info = path.stat()
+                if (path.is_symlink() or path.read_bytes() != base64.b64decode(image["content"]) or
+                        (info.st_uid, info.st_gid, info.st_mode & 0o777) !=
+                        (image["uid"], image["gid"], image["mode"])):
+                    raise Rejected("SMB_LEGACY_BEFORE_IMAGE_CHANGED")
+        if not rows:
+            if int(self.ctl("show", "smbd", "-p", "MainPID", "--value") or 0):
+                raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+            return
+        persisted = load(self.desired, {})
+        if len(rows) != 1 or persisted.get("instanceUuid") != value.get("instanceUuid") or self.normalized(persisted) != rows:
+            raise Rejected("SMB_LEGACY_IDENTITY_UNCONFIRMED")
+        row = {**rows[0], "key": rows[0]["id"] + "-legacy", "kind": "legacy", "unit": "smbd.service"}
+        pid = self.pid(row)
+        if not pid or {(ip, port) for ip, port in self.sockets(pid) if not ip.startswith("127.")} != {(row["listenIp"], row["port"])}:
+            raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+        args = Path("/proc/%s/cmdline" % pid).read_bytes().split(b"\0")
+        config = None
+        for index, arg in enumerate(args):
+            if arg in (b"-s", b"--configfile") and index + 1 < len(args):
+                config = os.fsdecode(args[index + 1])
+            elif arg.startswith(b"--configfile="):
+                config = os.fsdecode(arg.split(b"=", 1)[1])
+        if (Path(config).resolve() if config else Path("/etc/samba/smb.conf")) != self.base.resolve():
+            raise Rejected("SMB_LEGACY_CONFIGURATION_UNCONFIRMED")
+        for observed in snapshot.get("smbListeners", {}).get("listeners", []):
+            if observed.get("id") == row["id"] and observed.get("pid") and observed["pid"] != pid:
+                raise Rejected("SMB_LEGACY_PROCESS_CHANGED")
+
     def verify(self, value, state=None):
         state = state or load(self.manifest, {})
         profiles = state.get("profiles", {})
@@ -849,6 +890,8 @@ class RuntimeAdapter:
                 snapshot["groups"][group] = {"gid": entry.gr_gid, "members": entry.gr_mem}
             except KeyError:
                 snapshot["groups"][group] = None
+        if self.listener_only(payload):
+            snapshot["smbListeners"] = SmbListenerProfiles().show()
         snapshot["network"] = json.loads(checked(["ip", "-j", "-4", "addr", "show"]))
         snapshot["mounts"] = json.loads(checked(["findmnt", "-J", "-o", "TARGET,SOURCE,FSTYPE,OPTIONS"]))
         # The kernel snapshot contains attributes/links, never ordinary file copies into configfs.
@@ -1321,8 +1364,13 @@ class RuntimeAdapter:
             Path(directory).rmdir()
 
     def verify_restored(self):
-        self.verify(load(self.payload_path)["before"])
+        payload = load(self.payload_path)
         snapshot = load(self.snapshot_path)
+        profiles = SmbListenerProfiles() if self.listener_only(payload) else None
+        if profiles is not None and not profiles.manifest.exists():
+            profiles.verify_legacy_restored(payload["before"].get("smb share apply", {}), snapshot)
+        else:
+            self.verify(payload["before"])
         for name, value in snapshot["metadata"].items():
             if value:
                 stat = Path(name).stat()
