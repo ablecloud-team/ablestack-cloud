@@ -1,9 +1,9 @@
 {
-  "sourceCommit": "086d5603ba12718725f094c674a98d9a9a41e920",
+  "sourceCommit": "1af85bd056dc38f4b37232e280bed4a400ada8c7",
   "files": [
     {
       "path": "ablestack-storagectl",
-      "sha256": "011f92122503f843914fe82b76fc9a5ad3d905566129cca41d5144a1606f7856",
+      "sha256": "a9bcb86a0dd9cfc9d2a1c42e9cebebbbfe24384bf2883c830437490bf5859c0c",
       "mode": 493
     },
     {
@@ -33,12 +33,12 @@
     },
     {
       "path": "lib/ablestack-storage/configuration_transaction.py",
-      "sha256": "6f7efc80740dc7e311d7c5ef3f96fb9ebe3d1a27bfcbad8dabfdbd444bd0603a",
+      "sha256": "3f928c61d8c6024b65025841e85d6003f645e49d96f5ff667e3a39ce0c25de19",
       "mode": 420
     },
     {
       "path": "lib/ablestack-storage/configuration_preflight.py",
-      "sha256": "a99c77e9cf84d7592c85d10a8e2fea9c5370c7bcb40c0b391074f2d1877de186",
+      "sha256": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06",
       "mode": 420
     },
     {
