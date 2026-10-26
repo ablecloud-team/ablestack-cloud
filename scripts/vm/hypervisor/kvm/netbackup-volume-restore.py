@@ -29,6 +29,26 @@ import uuid
 
 from thirdparty_volume_backup import atomic
 
+BPRESTORE = Path('/usr/openv/netbackup/bin/bprestore')
+BPCLNTCMD = Path('/usr/openv/netbackup/bin/bpclntcmd')
+CONTROL_ROOT = Path('/usr/openv/netbackup/logs/user_ops')
+
+
+def require_local_client(expected):
+    try:
+        result = subprocess.run([str(BPCLNTCMD), '-pn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                text=True, timeout=10, check=False, env=dict(os.environ, LC_ALL='C'))
+    except (OSError, subprocess.TimeoutExpired):
+        raise RuntimeError('NetBackup local Client could not be verified with bpclntcmd -pn') from None
+    if result.returncode:
+        raise RuntimeError('NetBackup local Client verification failed: bpclntcmd status %s' % result.returncode)
+    # The Primary returns: peer-name configured-client source-address source-port.
+    clients = {fields[1].casefold().rstrip('.') for line in result.stdout.splitlines()
+               if len(fields := line.split()) == 4 and fields[3].isdigit()}
+    if clients != {expected.casefold().rstrip('.')}:
+        raise RuntimeError('NetBackup local Client differs from the restore destination: expected=%s, actual=%s' %
+                           (expected, ','.join(sorted(clients)) or 'unconfirmed'))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -90,9 +110,9 @@ def restore(file, plan, recover_only):
         raise RuntimeError("NetBackup submission outcome is unknown; original request will not be resubmitted")
     if recover_only:
         raise RuntimeError("NetBackup restore receipt is not available; waiting for submission reconciliation")
-    executable = Path("/usr/openv/netbackup/bin/bprestore")
-    if not executable.is_file() or not os.access(executable, os.X_OK):
+    if not BPRESTORE.is_file() or not os.access(BPRESTORE, os.X_OK):
         raise RuntimeError("NetBackup bprestore is not installed or executable on the Restore Worker Host")
+    require_local_client(plan['destinationClient'])
     stamp = artifact.get("backupTime")
     if not stamp:
         # NetBackup's Standard catalog image ID ends in its exact backup start epoch.
@@ -103,7 +123,7 @@ def restore(file, plan, recover_only):
     selections = file.with_suffix(".selections")
     rename = file.with_suffix(".rename")
     # Keep control files in NetBackup's allowed user_ops tree; no shell expansion of paths or client names.
-    control = Path("/usr/openv/netbackup/logs/user_ops") / "ablestack" / request["jobId"]
+    control = CONTROL_ROOT / "ablestack" / request["jobId"]
     control.mkdir(parents=True, mode=0o700, exist_ok=True)
     selections = control / selections.name
     rename = control / rename.name
@@ -116,10 +136,12 @@ def restore(file, plan, recover_only):
     with log.open("w") as output, errors.open("w") as error:
         os.chmod(log, 0o600)
         os.chmod(errors, 0o600)
-        subprocess.run(["/usr/openv/netbackup/bin/bprestore", "-t", "0", "-C", artifact["sourceHost"],
-                             "-D", plan["destinationClient"], "-S", plan["server"], "-s", date, "-e", date,
+        # This runs on the destination KVM Client. -D is for Primary-directed restores;
+        # let bprestore restore locally, using -C and altnames for the original image.
+        subprocess.run([str(BPRESTORE), "-t", "0", "-C", artifact["sourceHost"],
+                             "-S", plan["server"], "-s", date, "-e", date,
                              "-R", str(rename), "-f", str(selections), "-print_jobid"],
-                            env=dict(os.environ, TZ="UTC", LC_ALL="C"), stdout=output, stderr=error, timeout=110)
+                            env=dict(os.environ, TZ="UTC", LC_ALL="C"), stdout=output, stderr=error, timeout=100)
         output.flush()
         os.fsync(output.fileno())
     job_id = read_job_id(log.read_text())

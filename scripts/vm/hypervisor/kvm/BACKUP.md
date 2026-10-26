@@ -1179,82 +1179,9 @@ User Backup 전송의 `bpbackup -p`, `-s`, `-S`, `-t 0`, `-f`, `-k`, `-L` 옵션
 [11.1 명령 참조](https://www.veritas.com/content/support/en_US/doc/15263389-170177412-0/v14659534-170177412)에 정의되어 있다.
 `-i`는 파일 목록을 받는 User Backup과 함께 사용하지 않는다.
 실제 10.5·11.1 서버에서 요청 파일 목록의 응답 형식, Client 식별, User Backup 창과 보존기간을 검증한다.
-볼륨별 복원에 사용하는 `bprestore`의 `-C`, `-D`, `-S`, `-s`, `-e`, `-R`, `-f`, `-print_jobid` 옵션은
+볼륨별 복원에 사용하는 `bprestore`의 `-C`, `-S`, `-s`, `-e`, `-R`, `-f`, `-print_jobid` 옵션은
 [10.5 명령 참조](https://www.veritas.com/content/support/en_US/doc/49576572-166692681-0/v14666184-166692681)와
 [11.1 명령 참조](https://www.veritas.com/content/support/zh_CN/doc/49576306-170304269-0/v14666184-170304269)에 모두 정의되어 있다.
-
-**Host 4대의 상호 복원 권한 설정 (NetBackup 10.5·11.1)**
-
-백업에서 새 인스턴스를 생성하거나 다른 Host에서 복원할 때는 **원본 백업 Client와 복원 Worker Client 사이의 복원 권한**도 확인한다.
-Mold는 스토리지 접근성·Host 상태·작업 수를 기준으로 복원 Worker를 고르므로 원본 백업 Host와 다른 Host가 선택될 수 있다.
-예를 들어 원본 Client가 `ablecube4`, Worker가 `ablecube1`이면 `ablecube1`에서 `-C ablecube4 -D ablecube1`로 파일을 요청한다.
-이는 두 KVM Host 사이의 SSH 권한이나 Mold REST API key 권한과 별개인 NetBackup의 client-redirected restore다.
-NetBackup Job이 `DONE`이어도 상태 코드가 `135`이면 성공이 아니며, 요청 Client의 복원 권한과 이름 식별을 확인한다.
-
-`ablecube1`~`ablecube4` 모두 다른 세 Host의 백업을 복원하도록 운영한다면,
-**NetBackup Primary 서버에서 root로 한 번** 아래 명령을 실행한다. 각 KVM Host에서 실행하는 명령이 아니다.
-배열에는 정책명이 아닌 실제 NetBackup Client 이름을 입력하며, 모든 Client는 같은 Primary 서버에 등록되어 있어야 한다.
-요청 Client별 `altnames` 파일에 복원을 허용할 원본 Client 세 개를 추가한다.
-기존 항목은 보존하고 같은 항목은 중복 추가하지 않으므로, 앞서 한 방향만 설정했어도 그대로 실행할 수 있다.
-
-```bash
-bash <<'SH'
-set -euo pipefail
-clients=(ablecube1 ablecube2 ablecube3 ablecube4)
-altnames_dir=/usr/openv/netbackup/db/altnames
-mkdir -p "$altnames_dir"
-
-for requesting_client in "${clients[@]}"; do
-  client_file="$altnames_dir/$requesting_client"
-  if [[ -s "$client_file" && -n "$(tail -c 1 "$client_file")" ]]; then
-    printf '\n' >> "$client_file"
-  fi
-  for backup_client in "${clients[@]}"; do
-    if [[ "$requesting_client" == "$backup_client" ]]; then
-      continue
-    fi
-    if ! grep -Fxq -- "$backup_client" "$client_file" 2>/dev/null; then
-      printf '%s\n' "$backup_client" >> "$client_file"
-    fi
-  done
-done
-SH
-```
-
-설정 결과는 다음과 같다. 파일 이름은 **복원을 요청하는 Client**, 파일 내용은 **가져올 백업의 원본 Client**다.
-자기 자신의 백업 복원에는 별도의 교차 Client 허용 항목이 필요하지 않다.
-
-```text
-altnames/ablecube1: ablecube2, ablecube3, ablecube4
-altnames/ablecube2: ablecube1, ablecube3, ablecube4
-altnames/ablecube3: ablecube1, ablecube2, ablecube4
-altnames/ablecube4: ablecube1, ablecube2, ablecube3
-```
-
-Primary 서버에서 네 파일에 추가된 항목을 확인한다.
-
-```bash
-grep -H -x 'ablecube[1-4]' /usr/openv/netbackup/db/altnames/ablecube{1,2,3,4}
-```
-
-파일 이름은 NetBackup이 확인한 요청 Client의 peer name을 사용한다. 짧은 Host 이름과 FQDN이 다르면
-Primary의 실제 Client 식별과 `bprd` 로그를 비교하며, 백업 원본 Client는 카탈로그에 기록된 이름을 유지한다.
-전역 `CLIENT_NAME`을 다른 Host 이름으로 바꾸지 않는다. 요청의 원본 Client는 `bprestore -C`로 지정한다.
-Host를 추가하거나 NetBackup Client 이름을 변경하면 요청 Client 파일과 원본 Client 항목을 함께 갱신한다.
-이 명령은 명시한 네 Host 사이의 권한을 추가하며, 기존에 다른 Client에 부여한 항목은 유지한다.
-
-[NetBackup 10.5 공식 안내](https://origin-www.veritas.com/support/en_US/doc/150157642-165935937-0/v41612911-165935937)와
-[NetBackup 11.1 공식 안내](https://www.veritas.com/support/en_US/doc/150157642-170198590-0/v41612911-170198590) 모두
-Primary의 `/usr/openv/netbackup/db/altnames/<요청 Client>`에 원본 Client를 명시하는 동일한 방식을 설명한다.
-이는 이 권한 설정 방식의 문서상 호환성 확인이며, 11.1 실서버의 전체 백업·복원 테스트 완료를 의미하지 않는다.
-이 설정을 추가하기 위해 Mold 관리 서버를 업데이트·재시작하거나 Host 사전구성을 다시 실행할 필요는 없다.
-
-허용 후에는 이전 실패 작업의 rollback·정리가 끝났는지 확인하고 새 Mold 복원 요청으로 검증한다.
-각 원본 Client의 테스트 백업을 다른 세 Worker Host에서 복원하여 12개 방향을 확인한다.
-각 요청의 실제 Worker Client와 외부 Job ID를 기록하고, NetBackup Job의 최종 상태 코드 `0`,
-Mold의 VM 복원 결과 `COMMITTED / COMPLETED` 및 정리 완료를 확인한다.
-Host 선택을 자동으로 두면 같은 Worker만 선택될 수 있으므로 실제 실행 Host까지 확인해야 한다.
-이미 `FAILED`로 끝난 Mold 복원은 권한 설정만으로 다시 실행되지 않는다.
 
 사전 구성 후 `NetBackup artifact query failed with status 401`이 발생하면,
 키의 유효성과 함께 **관리 서버에 반영된 Java 클라이언트의 Authorization 헤더**를 확인한다.
