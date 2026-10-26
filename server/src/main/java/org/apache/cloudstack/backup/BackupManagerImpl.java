@@ -2173,6 +2173,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 // without launching another VM restore or resetting watcher state.
                 backup = backupDao.findByUuid(resolved.id);
                 if (backup != null && StringUtils.isNotBlank(proof)) {
+                    backupDao.loadDetails(backup);
                     String claimed = backup.getDetail(key);
                     if (StringUtils.isNotBlank(claimed)) {
                         @SuppressWarnings("unchecked")

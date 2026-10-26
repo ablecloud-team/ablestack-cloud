@@ -530,4 +530,40 @@ public class ThirdPartyExternalRestoreCleanupTest {
             assertNull(saved.get(ThirdPartyExternalRestore.key(provider, "364")));
         }
     }
+
+    @Test public void trackedCallbacksLoadDetailsOnFreshDatabaseObjectsForBothProviders() {
+        for (String value : List.of("ablestack-netbackup", "ablestack-veeam")) {
+            for (boolean cleanupOnly : List.of(false, true)) {
+                prepare(value);
+                String jobId = provider.equals("ablestack-netbackup") ? "364" : "12345678-1234-1234-1234-123456789012";
+                BackupManagerImpl manager = callbackManager(jobId);
+                submittedClaim(jobId, "SUBMITTED");
+                BackupVO fresh = new BackupVO();
+                ReflectionTestUtils.setField(fresh, "id", 1L);
+                ReflectionTestUtils.setField(fresh, "uuid", "backup-1");
+                fresh.setVmId(2L);
+                fresh.setZoneId(3L);
+                fresh.setStatus(Backup.Status.BackedUp);
+                assertNull(fresh.getDetails());
+                when(backups.findByUuid("backup-1")).thenReturn(fresh);
+                doAnswer(call -> { fresh.setDetails(new HashMap<>(saved)); return null; }).when(backups).loadDetails(fresh);
+                doAnswer(call -> {
+                    service.trackAccepted(fresh, provider, "metadata-point", jobId, proof);
+                    return null;
+                }).when(volumes).trackExternalRestoreMetadata(eq(fresh), eq(provider), eq("metadata-point"), eq(jobId), eq(proof));
+                var tracked = new org.apache.cloudstack.api.response.BackupArtifactResolutionResponse();
+                tracked.matched = tracked.tracked = true;
+                tracked.id = "backup-1";
+                doReturn(tracked).when(manager).resolveBackupArtifact(provider, "metadata-point", jobId, null);
+                try (MockedStatic<DbUtil> database = mysqlLocks()) {
+                    assertTrue(manager.restoreBackupArtifact(provider, "metadata-point", jobId, proof, cleanupOnly));
+                    verify(manager, never()).restoreBackup(anyLong(), eq(false), isNull());
+                    service.resumePending();
+                    var accepted = gson.fromJson(saved.get(ThirdPartyExternalRestore.key(provider, jobId)), ThirdPartyExternalRestore.Attempt.class);
+                    assertEquals("COMPLETED", accepted.cleanupState);
+                    assertNull(saved.get(ThirdPartyExternalRestore.LATEST_KEY));
+                }
+            }
+        }
+    }
 }

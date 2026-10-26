@@ -2098,11 +2098,14 @@ job = watcher['fetch_restore_job'](job_id)
 result = watcher['invoke_restore_notify'](external_id, job_id, job, operation='cleanup')
 if result != 'submitted':
     raise SystemExit('Metadata cleanup registration failed; inspect the restore watcher log')
-print('Metadata cleanup registered; VM restore was not started')
+print('Metadata cleanup requested; check the Mold async job result')
 PY
 ```
 
-등록 후 관리 서버가 30초 주기로 정리한다. 파일 소유권·종료 시각 불일치나 다른 작업이 있으면 `WAITING`으로 남긴다.
+위 명령의 성공 메시지는 비동기 요청 접수를 뜻한다. 감시 로그의 `SUBMITTED metadata cleanup jobid=...`에 기록된
+Mold 작업 ID를 `queryAsyncJobResult` 또는 `async_job`에서 조회하여 등록 결과도 확인한다.
+`job_status=1`이면 등록 성공, `2`이면 `job_result`의 오류로 등록 실패이며 파일이 남을 수 있다.
+실제 등록 후 관리 서버가 30초 주기로 정리한다. 파일 소유권·종료 시각 불일치나 다른 작업이 있으면 `WAITING`으로 남긴다.
 이미 `SKIPPED`로 차단됐거나 Mold 제출 영수증이 없는 옛 요청은 이 방법으로 복원·정리를 강제하지 않는다.
 Veeam도 기존 제출된 외부 세션과 검증된 완료 증거로 같은 API를 사용할 수 있다.
 
