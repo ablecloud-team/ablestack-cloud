@@ -5,6 +5,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-1449-smb-wire.json'
+import serviceWire from '../../../fixtures/storage-1449-smb-list-service-wire.json'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const rows = () => JSON.parse(JSON.stringify(wire.liststorageserviceprotocolsresponse.storageserviceprotocol))
@@ -29,7 +30,7 @@ describe('mounted SMB endpoint request and API observation contract', () => {
     wrappers.splice(0).forEach(wrapper => wrapper.unmount())
     jest.restoreAllMocks()
   })
-  const render = async () => {
+  const render = async (protocols = rows()) => {
     const wrapper = shallowMount(SharedFSTab, {
       props: { resource: { id: 'sharedfs', zoneid: 'zone' } },
       global: {
@@ -46,7 +47,7 @@ describe('mounted SMB endpoint request and API observation contract', () => {
     })
     wrappers.push(wrapper)
     wrapper.vm.storageService.instance = { id: 'instance', configurationrevision: 0 }
-    wrapper.vm.storageService.protocols = rows()
+    wrapper.vm.storageService.protocols = protocols
     wrapper.vm.virtualmachines = [{ id: 'vm', nic: [{ ipaddress: '192.0.2.10' }, { ipaddress: '192.0.2.11' }] }]
     await flushPromises()
     return wrapper
@@ -141,5 +142,34 @@ describe('mounted SMB endpoint request and API observation contract', () => {
     expect(wrapper.vm.configurationImpactAcknowledged).toBe(false)
     await wrapper.vm.submitActionModal()
     expect(postAPI.mock.calls.some(([api]) => api === 'enableStorageServiceProtocol')).toBe(false)
+  })
+
+  test.each(['edit', 'delete'])('actual service-list serializer fixture exposes the covered UUID for %s', async action => {
+    const protocols = JSON.parse(JSON.stringify(serviceWire.liststorageserviceprotocolsresponse.storageserviceprotocol))
+    const wrapper = await render(protocols)
+    const listeners = wrapper.vm.smbListenerRows
+    expect(listeners).toHaveLength(2)
+    const owner = listeners.find(row => row.listenIp === '0.0.0.0')
+    const child = listeners.find(row => row.listenIp === '192.0.2.11')
+    expect(owner.canDelete).toBe(false)
+    expect(child.state).toBe('COVERED')
+    expect(child.id).toBe('22222222-2222-4222-8222-222222222222')
+    expect(child.canDelete).toBe(true)
+    if (action === 'edit') {
+      wrapper.vm.openSmbEndpointEdit(child)
+      await flushPromises()
+      accepted(wrapper)
+      await wrapper.vm.enableProtocol()
+      expect(postAPI.mock.calls.find(([api]) => api === 'enableStorageServiceProtocol')[1])
+        .toEqual(expect.objectContaining({ endpointid: child.id, listenip: child.listenIp, port: 445 }))
+    } else {
+      wrapper.vm.openSmbEndpointDelete(child)
+      wrapper.vm.forms.deleteEndpoint.confirmation = child.listenIp
+      await flushPromises()
+      accepted(wrapper)
+      await wrapper.vm.deleteStorageEndpoint()
+      expect(postAPI.mock.calls.find(([api]) => api === 'deleteStorageServiceProtocol')[1])
+        .toEqual(expect.objectContaining({ endpointid: child.id, listenip: child.listenIp, port: 445 }))
+    }
   })
 })
