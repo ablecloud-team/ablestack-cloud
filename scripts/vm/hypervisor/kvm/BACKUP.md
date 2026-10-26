@@ -1750,6 +1750,16 @@ Mold 작업 경로 정리가 끝나도 원래 메타데이터 정리가 남으�
 조회해서 `UNKNOWN` 또는 `Staging admission request is not ready`가 표시되면 조회 처리 문제를 확인한다.
 이 문구만으로 이미 확정된 `COMMITTED / COMPLETED` 결과가 취소되거나 복원이 다시 실패한 것은 아니다.
 
+ABLESTACK KVM 복원 후에는 VM에 이미 연결된 볼륨의 디스크 번호를 유지한다. NetBackup·Veeam·Commvault의
+볼륨별 스테이징 복원과 ABLESTACK NAS에 적용하며, 기존 CloudStack 공급자의 복원 경로는 유지한다.
+이전 코드에서는 연결된 DATA 볼륨을 다시 연결하면서 자기 번호를 사용 중으로 계산해 다음 빈 번호로 바꿀 수 있었다.
+예를 들어 백업의 DATA `deviceId=1`이 복원 후 DB에서 `2`가 되면, 다음 복원은
+`VM volume device or capacity differs from the selected backup`으로 차단된다.
+이미 바뀐 값은 코드 업데이트만으로 소급 변경하지 않는다. VM을 Mold에서 정지하고, 원본 매니페스트와 현재 볼륨의
+UUID·용량이 일치하며 원래 번호가 비어 있는지 확인한 뒤 해당 DATA 볼륨의 `volumes.device_id`만 원래 값으로 정정한다.
+재발 방지 코드는 관리 서버 업데이트·재시작으로 반영한다. Windows에서 디스크를 Online으로 전환하는 동작은
+이 DB 번호 변경의 원인이 아니며, 게스트 디스크가 오프라인인 이유는 별도로 확인한다.
+
 ### 대역폭 조정과 백업 취소
 
 Commvault·NetBackup·Veeam의 QCOW2 백업은 실행 중인 VM과 정지 VM 모두
