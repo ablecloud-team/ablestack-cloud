@@ -1,0 +1,41 @@
+{
+  "designOnly": true,
+  "pathContractUnchanged": true,
+  "checks": [
+    {
+      "path": "export/team",
+      "result": "existing_supported"
+    },
+    {
+      "path": "/export/team",
+      "result": "existing_supported"
+    },
+    {
+      "path": "../escape",
+      "result": "existing_guard_rejected"
+    },
+    {
+      "path": "export/team/nested",
+      "result": "existing_guard_rejected"
+    },
+    {
+      "path": "export",
+      "result": "existing_guard_rejected"
+    },
+    {
+      "path": "export/team",
+      "directoryExistedBefore": true,
+      "directoryCreated": false,
+      "note": "prototype receipt computed around actual resolver; no product receipt added"
+    },
+    {
+      "path": "export/newteam",
+      "directoryExistedBefore": false,
+      "directoryCreated": true,
+      "note": "prototype receipt computed around actual resolver; no product receipt added"
+    }
+  ],
+  "newDisks": 0,
+  "liveExportsChanged": 0,
+  "temporaryDirectoryRemoved": true
+}
