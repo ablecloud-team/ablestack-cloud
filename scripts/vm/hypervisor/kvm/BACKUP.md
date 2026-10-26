@@ -1167,7 +1167,7 @@ NetBackup API key는 `Authorization: <API key>`로 전달한다. API key에 `Bea
 | 기준 정책 조회 | `GET /config/policies/<Host 정책명>` | 활성 `Standard`, 해당 Host Client 하나와 `mold-transfer` / `User Backup` 스케줄을 확인한다. |
 | 준비된 파일 전송 | Host의 `netbackup-volume-backup.py` → `bpbackup -p <정책> -s mold-transfer -f <목록>` | 정책·Backup Selections 변경 없이 정확한 파일만 전송된다. 요청 기록을 남기며 재시작·응답 유실 후 중복 실행하지 않는다. |
 | 저장 완료·카탈로그 | `GET /admin/jobs/`, `GET /admin/jobs/<Job ID>/file-lists`, `GET /admin/jobs/<Job ID>`, `GET /catalog/images/<Backup ID>` | 정확한 정책·스케줄·Client·파일 목록, 명시적인 성공 코드 `0`과 그 Job의 이미지 ID를 확인한다. 공유 정책의 다른 이미지를 선택하지 않는다. |
-| 볼륨별 복원 | Host의 `netbackup-volume-restore.py`가 `bprestore` 실행, REST API로 Job 조회 | 정확한 원본 Client·백업 시점·파일과 대상 경로를 사용하여 Full·증분을 각각 복원한다. |
+| 볼륨별 복원 | 관리 서버의 Primary REST `POST /recovery/workloads/physical/scenarios/granular-files-folders/recover`, `GET /admin/jobs/<Job ID>` | 정확한 원본 Client·백업 시점·파일을 지정하고 `destinationClient`와 `renameFile`로 기록된 Worker의 작업 전용 경로에 받는다. Full·증분을 각각 복원한다. |
 | 외부 UI 복원 | 메타데이터 복원 후 Host 감시기 실행 | 성공 코드 `0` 또는 검증된 부분 성공만 Mold 복원으로 연결한다. |
 | 이미지 삭제 | `POST /catalog/expire-images` | HTTP `202` 승인 대기는 삭제 완료로 처리하지 않는다. 외부 이미지 부재 확인 후 정리한다. |
 
@@ -1179,9 +1179,43 @@ User Backup 전송의 `bpbackup -p`, `-s`, `-S`, `-t 0`, `-f`, `-k`, `-L` 옵션
 [11.1 명령 참조](https://www.veritas.com/content/support/en_US/doc/15263389-170177412-0/v14659534-170177412)에 정의되어 있다.
 `-i`는 파일 목록을 받는 User Backup과 함께 사용하지 않는다.
 실제 10.5·11.1 서버에서 요청 파일 목록의 응답 형식, Client 식별, User Backup 창과 보존기간을 검증한다.
-볼륨별 복원에 사용하는 `bprestore`의 `-C`, `-S`, `-s`, `-e`, `-R`, `-f`, `-print_jobid` 옵션은
-[10.5 명령 참조](https://www.veritas.com/content/support/en_US/doc/49576572-166692681-0/v14666184-166692681)와
-[11.1 명령 참조](https://www.veritas.com/content/support/zh_CN/doc/49576306-170304269-0/v14666184-170304269)에 모두 정의되어 있다.
+복원 요청은 기존에 두 제품 버전에서 사용하던 API 미디어 버전 `12.0`을 유지한다.
+제품 버전 `10.5`·`11.1`과 API 미디어 버전은 별개이며, 10.5 WebUI에서 관찰한 `5.0`으로 변경하지 않는다.
+[10.5 Recovery API 정의](https://sort.veritas.com/public/documents/nbu/10.5/windowsandunix/productguides/html/recovery/recovery.yaml)의
+최신 미디어 버전은 `12.0`, [11.1 Recovery API 정의](https://sort.veritas.com/public/documents/nbu/11.1/windowsandunix/productguides/html/recovery/recovery.yaml)는 `14.0`이다.
+**향후 11.1 설치 후 테스트 메모:** 현재 요청은 `12.0`으로 유지한다. 미디어 버전 관련 오류가 발생하면
+`Accept`, 외부 multipart `Content-Type`, 각 part의 `Content-Type`을 함께 확인하고 `14.0` 적용 여부를 검토한다.
+단순히 제품이 11.1이라는 이유로 자동 변경하거나, 응답이 불명확한 복원 요청을 다른 버전으로 재제출하지 않는다.
+두 정의 모두 `physicalFilesFoldersRecoveryRequest`, 파일별 `path`·`backupTime`, `renameFile`의 `from`·`to` 구조를 제공한다.
+이 비교는 요청 구조 확인이며, 새 볼륨별 경로 변경 동작까지 두 실서버에서 재검증했다는 의미는 아니다.
+
+**볼륨별 복원의 Primary REST 전환**
+
+기존 VM 단위 복원은 관리 서버가 Primary REST로 요청했으나, 볼륨별 스테이징 초기 구현은 KVM에서
+`bprestore`를 실행했다. 서로 다른 Client 사이의 복원에서는 요청 주체와 권한 확인 방식이 달라
+Client 상태 코드 `135`가 발생할 수 있었다. 새 요청은 기존 VM 단위 복원과 같은 Primary REST 경로를 사용한다.
+관리 서버에 설정된 API key의 원본 Client `RESTORE`와 대상 Client `RESTORE_DESTINATION` 권한을 확인한다.
+WebUI에서 관리자 계정으로 성공한 것만으로 Mold API key의 복원 권한이 확인된 것은 아니다.
+
+- 원본 Client·시점은 각 매니페스트 artifact의 `sourceHost`·`backupTime`으로 지정한다.
+- 대상 Client는 저장된 복원 계획의 Worker Host이며, 파일 수신과 VM 볼륨 적용·정리를 같은 Host에서 수행한다.
+- `renameFile`은 선택한 파일/디렉터리의 부모 경로를 작업 전용 `restore/<작업 ID>/metadata/` 또는 `payload/`로 바꾼다.
+- GFS2·NFS는 해당 Worker에서 설정된 공유 파일 시스템의 마운트를 확인한다. 같은 경로 문자열만으로 같은 저장소라고 간주하지 않는다.
+- LOCAL은 원본 백업 Host의 로컬 디렉터리를 읽지 않는다. NetBackup 저장소의 파일을 선택한 Worker의 로컬 스테이징으로 받는다.
+  대상 Worker는 모든 복원 대상 기본 스토리지와 스테이징에 접근할 수 있어야 하며, 기본 스토리지도 로컬이면 그 접근성에 따라 후보가 제한된다.
+- REST 응답의 정확한 Job ID를 저장한 뒤 비동기로 조회하고, 명시적인 성공 코드 `0`을 확인한 후 Host에 다음 단계 진행을 알린다.
+- 요청 전에 전송 방식과 제출 의도를 저장한다. 응답 유실로 Job ID를 확인할 수 없으면 재제출하거나 KVM 명령으로 전환하지 않는다.
+  이 경우 Mold는 확인 대기와 스테이징 보존을 유지하므로 Primary의 실제 복원 작업을 확인해야 한다.
+- 업데이트 전에 접수된 KVM 복원은 기존 Job ID를 조회하거나 Host의 기존 제출 기록만 조회한다. 새 복원은 REST로 요청한다.
+
+이 전환에는 공통 복원 조정 코드와 NetBackup 플러그인이 포함된 **관리 서버 패키지 업데이트 및 `mold.service` 재시작**이 필요하다.
+관리 서버가 여러 대이면 모두 반영한다. 이 전환 자체에는 Host 스크립트 변경·Agent/감시 서비스 재시작·사전구성 재실행이 필요하지 않다.
+기존 백업은 다시 생성하지 않고 사용할 수 있지만, 상태 코드 `135`로 이미 실패한 복원은 rollback·정리가 끝난 뒤 새로 요청한다.
+Client 상호 복원 허용 파일을 추가하는 작업은 새 REST 흐름의 필수 설정이 아니다.
+
+두 제품 버전에서 원본 Client와 같은 Host 및 다른 Host로 복원하고, LOCAL·공유 스테이징의 실제 파일 수신 Host와 경로를 확인한다.
+검증 항목에는 기존 VM 복원, 단일 볼륨 복원, 백업에서 새 인스턴스 생성, Full·증분 체인 적용과 정리 완료를 포함한다.
+테스트 중 외부 UI 메타데이터 복원으로 감시기를 중지했다면, 원래 경로에 남은 테스트 메타데이터와 처리 기록을 먼저 확인한 뒤 감시를 재개한다.
 
 사전 구성 후 `NetBackup artifact query failed with status 401`이 발생하면,
 키의 유효성과 함께 **관리 서버에 반영된 Java 클라이언트의 Authorization 헤더**를 확인한다.

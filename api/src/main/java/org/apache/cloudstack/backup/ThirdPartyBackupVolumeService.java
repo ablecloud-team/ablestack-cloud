@@ -223,6 +223,9 @@ public interface ThirdPartyBackupVolumeService {
         /** Submit once when saved.jobId is empty; otherwise poll that exact external restore. */
         ThirdPartyBackupRestore.Result restore(ThirdPartyBackupRestore.Request request, ThirdPartyBackupRestore.Result saved);
 
+        /** Persist with the first submission intent; null keeps existing providers and legacy receipts unchanged. */
+        default String submissionProtocol() { return null; }
+
         /** Recover a durable receipt or an exact external reference without starting another restore. */
         default ThirdPartyBackupRestore.Result recover(ThirdPartyBackupRestore.Request request, ThirdPartyBackupRestore.Result saved) {
             saved.recoveryOnly = true;

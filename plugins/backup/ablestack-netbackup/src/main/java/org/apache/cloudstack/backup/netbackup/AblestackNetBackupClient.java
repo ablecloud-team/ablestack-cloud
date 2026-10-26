@@ -20,6 +20,8 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException;
 import org.apache.cloudstack.backup.ThirdPartyBackupVolumeService;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +70,8 @@ public class AblestackNetBackupClient {
     private static final int NETBACKUP_CATALOG_PAGE_LIMIT = 99;
     private static final int NETBACKUP_JOBS_PAGE_LIMIT = 1000;
     public static final String USER_BACKUP_SCHEDULE = "mold-transfer";
+    // Keep the existing v12 contract. NetBackup 11.1 publishes v14; if its testing exposes a media-version
+    // incompatibility, review Accept, the outer multipart Content-Type and every part together.
     private static final String NETBACKUP_PART_CONTENT_TYPE = "multipart/vnd.netbackup+form-data;version=12.0";
     private static final String NETBACKUP_RECOVER_CONTENT_TYPE = "multipart/vnd.netbackup+form-data;version=12.0";
     private static final String NETBACKUP_EXPIRE_PART_CONTENT_TYPE = "application/vnd.netbackup+json;version=12.0";
@@ -769,6 +773,89 @@ public class AblestackNetBackupClient {
     }
 
     public String getPrimaryServerName() { return apiUri.getHost(); }
+
+    /** Submit one exact artifact without waiting for data transfer; the coordinator persists and polls its Job ID. */
+    public ThirdPartyBackupRestore.Result submitVolumeRestore(ThirdPartyBackupRestore.Request selection, String destinationClient) {
+        final String boundary = "----AbleStackNetBackup" + UUID.randomUUID().toString().replace("-", "");
+        final String body;
+        try {
+            body = buildVolumeRestoreBody(boundary, selection, destinationClient);
+        } catch (RuntimeException e) {
+            throw new ThirdPartyBackupSubmissionException("NetBackup REST restore request was not submitted: " + e.getMessage());
+        }
+        final HttpPost request = new HttpPost(resolvePath(NETBACKUP_RECOVER_PATH));
+        request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        // Keep the same API media version as the existing REST restore path tested on 10.5 and 11.1.
+        request.setHeader(HttpHeaders.CONTENT_TYPE, NETBACKUP_RECOVER_CONTENT_TYPE + "; boundary=" + boundary);
+        applyAuthenticationHeaders(request);
+        request.setEntity(new StringEntity(body, ContentType.create("multipart/vnd.netbackup+form-data", "UTF-8")));
+        try {
+            final HttpResponse response = httpClient.execute(request);
+            final int status = response.getStatusLine().getStatusCode();
+            final String responseBody = response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (Set.of(400, 401, 403, 404, 405, 406, 413, 415, 422).contains(status)) {
+                throw new ThirdPartyBackupSubmissionException("NetBackup REST restore request was rejected with status " + status
+                        + artifactQueryContext(NETBACKUP_RECOVER_PATH, responseBody));
+            }
+            if (!Set.of(200, 201, 202).contains(status)) {
+                throw new CloudRuntimeException("NetBackup REST restore submission is unconfirmed: HTTP " + status
+                        + "; the request will not be resubmitted");
+            }
+            final String jobId = extractRecoveryJobId(responseBody, response);
+            if (jobId == null || !jobId.matches("[0-9]+")) {
+                throw new CloudRuntimeException("NetBackup REST restore accepted the request without a confirmed Job ID; the request will not be resubmitted");
+            }
+            LOG.info("NetBackup artifact restore accepted. jobId=[{}], stagingJobId=[{}], sequence=[{}], sourceClient=[{}], destinationClient=[{}], destination=[{}]",
+                    jobId, selection.jobId, selection.sequence, selection.artifact.sourceHost, destinationClient, selection.destination);
+            return new ThirdPartyBackupRestore.Result(jobId, false);
+        } catch (IOException | org.json.JSONException e) {
+            throw new CloudRuntimeException("NetBackup REST restore submission outcome is unknown; the request will not be resubmitted", e);
+        }
+    }
+
+    private String buildVolumeRestoreBody(String boundary, ThirdPartyBackupRestore.Request selection, String destinationClient) {
+        if (selection == null || selection.artifact == null || StringUtils.isBlank(selection.jobId) || selection.sequence < 0
+                || StringUtils.isBlank(destinationClient) || StringUtils.isBlank(selection.artifact.sourceHost)) {
+            throw new IllegalArgumentException("Missing restore request, source Client or destination Worker Client");
+        }
+        final ThirdPartyBackupManifest.Artifact artifact = selection.artifact;
+        final java.nio.file.Path source = restoreArtifactPath(artifact.path);
+        final java.nio.file.Path destination = restoreArtifactPath(selection.destination);
+        if (!source.getFileName().equals(destination.getFileName()) || source.equals(destination)) {
+            throw new IllegalArgumentException("Restore destination must preserve the artifact basename in its operation directory");
+        }
+        final String backupTime = StringUtils.isNotBlank(artifact.backupTime)
+                ? java.time.Instant.parse(artifact.backupTime).toString()
+                : java.time.Instant.ofEpochSecond(Long.parseLong(StringUtils.substringAfterLast(artifact.externalId, "_"))).toString();
+        final JSONObject recoveryPoint = new JSONObject().put("client", artifact.sourceHost).put("policyType", NETBACKUP_POLICY_TYPE_STANDARD)
+                .put("startDate", backupTime).put("endDate", backupTime);
+        final JSONObject recoveryOptions = new JSONObject().put("server", apiUri.getHost()).put("destinationClient", destinationClient)
+                .put("overwriteExistingFiles", false).put("restrictMountPoints", false).put("renameHardLinks", true)
+                .put("renameSoftLinks", true).put("accessControlAttributes", false).put("jobPriorityOverride", 90000);
+        final JSONObject payload = new JSONObject().put("data", new JSONObject().put("type", "physicalFilesFoldersRecoveryRequest")
+                .put("attributes", new JSONObject().put("recoveryPoint", recoveryPoint).put("recoveryOptions", recoveryOptions)));
+        final JSONArray selections = new JSONArray().put(new JSONObject()
+                .put("path", selection.metadata ? ensureTrailingSlash(source.toString()) : source.toString()).put("backupTime", backupTime));
+        final JSONArray rename = new JSONArray().put(new JSONObject()
+                .put("from", ensureTrailingSlash(source.getParent().toString()))
+                .put("to", ensureTrailingSlash(destination.getParent().toString())));
+        final StringBuilder builder = new StringBuilder();
+        appendFormPart(builder, boundary, "recoveryRequest", payload.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        appendFormPart(builder, boundary, "selectionsFile", selections.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        appendFormPart(builder, boundary, "renameFile", rename.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        return builder.append("--").append(boundary).append("--\r\n").toString();
+    }
+
+    private java.nio.file.Path restoreArtifactPath(String value) {
+        if (StringUtils.isBlank(value) || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0 || value.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("Invalid restore artifact path");
+        }
+        java.nio.file.Path path = java.nio.file.Path.of(value);
+        if (!path.isAbsolute() || path.getParent() == null || !path.normalize().equals(path)) {
+            throw new IllegalArgumentException("Restore artifact paths must be normalized absolute paths");
+        }
+        return path;
+    }
 
     public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result pollVolumeRestore(String jobId) {
         JSONObject response = getRecoveryJob(jobId);

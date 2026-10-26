@@ -229,6 +229,8 @@ public final class ThirdPartyBackupRestore {
 
     public static class Result {
         public String jobId;
+        /** Recorded before submission so an uncertain request cannot switch transports after an upgrade. */
+        public String submissionProtocol;
         public boolean completed;
         public boolean submissionPending;
         public boolean notSubmitted;

@@ -2580,6 +2580,10 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         if (saved != null && ((saved.completed && !result.completed) || (saved.externalTerminal && !result.externalTerminal && !result.completed))) {
             throw new CloudRuntimeException("External restore reconciliation would regress a confirmed terminal result");
         }
+        if (result.submissionProtocol != null && saved != null && !java.util.Objects.equals(saved.submissionProtocol, result.submissionProtocol)) {
+            throw new CloudRuntimeException("External restore reconciliation would change its recorded submission protocol");
+        }
+        result.submissionProtocol = saved == null ? null : saved.submissionProtocol;
         result.sequence = record.request.sequence;
         result.submittedAt = saved == null ? 0 : saved.submittedAt;
         result.submissionPending = false;
@@ -2812,6 +2816,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     }
                     saved.submissionPending = true;
                     saved.submittedAt = System.currentTimeMillis();
+                    saved.submissionProtocol = transfer.submissionProtocol();
                     persistRestoreRecord(tracked, savedPlan, record);
                 }
                 try {

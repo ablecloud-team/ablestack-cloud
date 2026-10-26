@@ -2173,7 +2173,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         command.setTimeout(BackupDataOperationTimeout.value());
         command.setWaitForCompletion(false);
         trackRestoreJob(backup, plan.jobId, host);
-        thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host));
+        thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host, plan));
         try {
             thirdPartyBackupVolumeService.markRestoreDispatch(backup, plan);
             BackupAnswer answer = sendAndWaitForRestore(host.getId(), command, plan.jobId);
@@ -2186,33 +2186,12 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
     }
 
-    private ThirdPartyBackupVolumeService.RestoreTransfer volumeRestoreTransfer(Backup backup, Host host) {
-        return (request, saved) -> {
-            final AblestackNetBackupClient client = getClient(backup.getZoneId());
-            if (StringUtils.isNotBlank(saved.jobId)) { return client.pollVolumeRestore(saved.jobId); }
-            final java.util.Map<String, String> options = new java.util.HashMap<>();
-            options.put("server", client.getPrimaryServerName());
-            options.put("destinationClient", host.getName());
-            options.put("request", new Gson().toJson(request));
-            try {
-                final Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(request.jobId,
-                        saved.recoveryOnly ? "RESTORE_NETBACKUP_RECOVER" : "RESTORE_NETBACKUP", request.sequence, new Gson().toJson(options)));
-                if (answer != null && !answer.getResult() && StringUtils.startsWith(answer.getDetails(), "ABLESTACK_NOT_SUBMITTED=")) {
-                    @SuppressWarnings("unchecked")
-                    java.util.Map<String, Object> rejected = new Gson().fromJson(
-                            answer.getDetails().substring("ABLESTACK_NOT_SUBMITTED=".length()), java.util.Map.class);
-                    if (Boolean.TRUE.equals(rejected.get("notSubmitted"))) {
-                        throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException(String.valueOf(rejected.get("failure")));
-                    }
-                }
-                if (answer == null || !answer.getResult() || StringUtils.isBlank(answer.getDetails())) {
-                    throw new CloudRuntimeException("NetBackup artifact restore submission was not confirmed");
-                }
-                return new ThirdPartyBackupRestore.Result(answer.getDetails(), false);
-            } catch (AgentUnavailableException | OperationTimedoutException e) {
-                throw new CloudRuntimeException("Unable to submit NetBackup restore on the Worker Host", e);
-            }
-        };
+    private ThirdPartyBackupVolumeService.RestoreTransfer volumeRestoreTransfer(Backup backup, Host host, ThirdPartyBackupRestore.Plan plan) {
+        if (plan == null || (host != null && host.getId() != plan.hostId) || StringUtils.isBlank(plan.hostName)) {
+            throw new CloudRuntimeException("NetBackup restore destination must identify the recorded Worker Host");
+        }
+        return new org.apache.cloudstack.backup.netbackup.AblestackNetBackupRestoreTransfer(
+                () -> getClient(backup.getZoneId()), agentManager, plan.hostId, plan.hostName);
     }
 
     @Override
@@ -2226,7 +2205,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         if (StringUtils.isBlank(json)) { return; }
         ThirdPartyBackupRestore.Plan plan = new Gson().fromJson(json, ThirdPartyBackupRestore.Plan.class);
         Host host = hostDao.findById(plan.hostId);
-        if (host != null) { thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host)); }
+        if (host != null) { thirdPartyBackupVolumeService.trackRestore(backup, host, volumeRestoreTransfer(backup, host, plan)); }
     }
 
     private void validateRestoreChainIntegrity(final Backup backup) {
@@ -2430,7 +2409,8 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
         return thirdPartyBackupVolumeService.manage(backup, host, operation, jobId, action, artifactIndex, externalJobId,
                 "BACKUP".equals(operation) ? volumeTransfer(vm, backup, host) : null,
-                "RESTORE".equals(operation) ? volumeRestoreTransfer(backup, host) : null,
+                "RESTORE".equals(operation) ? volumeRestoreTransfer(backup, host,
+                        new Gson().fromJson(getBackupDetail(backup, ThirdPartyBackupRestore.PLAN_KEY), ThirdPartyBackupRestore.Plan.class)) : null,
                 artifact -> getClient(backup.getZoneId()).backupImageExists(artifact.externalId));
     }
 
