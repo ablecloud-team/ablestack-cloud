@@ -1,0 +1,25 @@
+{
+  "bootChanged": true,
+  "beforeBoot": "f958c88e-2da3-43d5-bb21-ecd999470489",
+  "afterBoot": "b06efb49-23d6-4097-a7d5-0bfe3d53424b",
+  "macUnchanged": true,
+  "mac": "02:0d:00:cc:00:52",
+  "previousMac": "02:0d:00:cc:00:52",
+  "data": {
+    "ui-preserve.txt": {
+      "sha256": "4db09637a676b95f7008b98c34be71219dbee588e38d7de6f174da82eb4fd350",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "bytes": 24
+    },
+    "epic1449-ui-data.bin": {
+      "sha256": "cac3b341aa03bdd0baeaa0f893008b78a863d3724766bb8663f87d9a4fb09b76",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "bytes": 4124
+    }
+  },
+  "smbPid": "1174"
+}
