@@ -15,6 +15,7 @@ show-icon
     </a-descriptions>
     <div v-for="(check, index) in report.checks" :key="index" class="check">
       <a-tag :color="check.blocking ? 'red' : check.severity === 'WARNING' ? 'orange' : 'green'">{{ check.code }}</a-tag>
+      <span v-if="check.message" class="check-message">{{ check.httpstatus ? 'HTTP ' + check.httpstatus + ' · ' : '' }}{{ check.message }}</span>
       <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
       <span v-if="check.connections !== undefined"> · {{ check.connections }} TCP</span>
     </div>
@@ -57,5 +58,6 @@ export default {
 <style scoped>
 .configuration-preflight { margin-bottom: 24px; color: var(--text-color); }
 .summary, .check, .ack { margin-top: 12px; }
+.check-message { overflow-wrap: anywhere; white-space: normal; }
 p { margin-top: 12px; color: var(--text-color-secondary); }
 </style>
