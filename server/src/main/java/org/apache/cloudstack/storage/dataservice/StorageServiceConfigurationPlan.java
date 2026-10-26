@@ -57,6 +57,7 @@ final class StorageServiceConfigurationPlan {
     final List<JsonObject> networkChanges = new ArrayList<>();
     final Map<Class<?>, Table<?>> tables = new LinkedHashMap<>();
     final long instanceId;
+    String operationUuid;
     private final Consumer<String> checkpoint;
     private boolean recordingBaseline;
 

@@ -63,7 +63,15 @@ persist_nfs_desired_state() {
   fi
   mkdir -p "$DESIRED_STATE_DIR"
   tmp="$(mktemp "${DESIRED_STATE_DIR}/.nfs-export-apply.XXXXXX")"
-  cp "$payload_file" "$tmp"
+  python3 - "$payload_file" "$tmp" <<'PY'
+import json, sys
+with open(sys.argv[1]) as source:
+    value = json.load(source)
+value.pop("posixIntent", None)
+value.pop("configurationOperationId", None)
+with open(sys.argv[2], "w") as target:
+    json.dump(value, target, sort_keys=True)
+PY
   chmod 0600 "$tmp"
   mv "$tmp" "$NFS_DESIRED_STATE_FILE"
 }
@@ -1584,6 +1592,9 @@ def collect_smb_listener_profiles():
 smb_runtime = collect_smb_listener_profiles()
 
 iscsi_runtime_snapshot = targetcli_iscsi_runtime_snapshot()
+sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
+from configuration_transaction import nfs_posix_observations
+nfs_posix = nfs_posix_observations(load_json("/etc/ablestack-storage/desired-state/nfs-export-apply.json", {}))
 iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-targets.json", {}), iscsi_runtime_snapshot)
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
 nvmeof_ports = desired_nvmeof_ports(nvmeof_subsystems)
@@ -1597,6 +1608,7 @@ print(json.dumps({
     "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
+    "nfsPosixObservations": nfs_posix,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
@@ -2998,6 +3010,7 @@ def resolve_backing_path(volume_mount_path, relative_path, create_missing):
         os.makedirs(target, exist_ok=True)
     return target
 
+directory_existed = os.path.isdir(os.path.join(mount_path, relative_share_path.strip("/")))
 backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
 
 print(json.dumps({
@@ -3019,6 +3032,8 @@ print(json.dumps({
     "mountPath": mount_path,
     "volumeMountPath": mount_path,
     "relativeSharePath": relative_share_path,
+    "directoryCreated": not directory_existed,
+    "configurationOperationId": payload.get("configurationOperationId"),
     "backingPath": backing_path,
     "persistentMount": import_mode != "INSPECT_ONLY",
     "importMode": import_mode,
@@ -3433,6 +3448,8 @@ import time
 import socket
 import zlib
 
+sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
+from configuration_transaction import nfs_posix_apply_config
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
@@ -4496,6 +4513,7 @@ for export in payload.get("exports", []):
     if enabled and path and state not in ("Disabled", "Destroyed", "Error"):
         export_config = effective_nfs_export_config(export.get("config") or {})
         backing_path = str(export_config.get("backingPath") or "").strip().rstrip("/")
+        directory_created = bool(backing_path) and not os.path.exists(backing_path)
         exposed_path = ensure_export_alias(export)
         root_name = safe_export_root_name(export.get("exportPath") or export.get("name"), exposed_path)
         next_alias_state[uuid] = {
@@ -4503,7 +4521,7 @@ for export in payload.get("exports", []):
             "backingPath": backing_path,
             "name": export.get("name"),
         }
-        apply_posix_permissions(backing_path, export_config)
+        apply_posix_permissions(backing_path, nfs_posix_apply_config(dict(export, config=export_config), payload, directory_created))
         rendered_acl_keys = set()
         clients = []
         for acl in export.get("acls", []):

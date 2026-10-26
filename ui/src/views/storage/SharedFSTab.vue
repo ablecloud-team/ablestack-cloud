@@ -70,28 +70,12 @@
       <a-tab-pane v-if="hasStorageServiceApi" tab="NFS" key="nfs">
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
-            <protocol-header protocol="NFS" />
-            <a-space v-if="storageService.instance" class="protocol-toolbar protocol-toolbar--right" wrap>
-              <a-button @click="toggleProtocolWideLayout">
-                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
-                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
-              </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NFS' })">
-                <template #icon><PoweroffOutlined /></template>
-                {{ $t('label.storage.service.enable.protocol') }}
-              </a-button>
-              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })">
-                <template #icon><DeleteOutlined /></template>
-                {{ $t('label.storage.service.delete.endpoint') }}
-              </a-button>
-              <a-button @click="openActionModal('nfsExport')">
-                <template #icon><PlusOutlined /></template>
-                {{ $t('label.storage.service.create.nfs.export') }}
-              </a-button>
-              <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
-                <template #icon><ReloadOutlined /></template>
-                {{ $t('label.refresh') }}
-              </a-button>
+            <a-space v-if="storageService.instance" class="protocol-toolbar" wrap>
+              <a-button type="primary" @click="openActionModal('nfsExport')"><PlusOutlined />{{ $t('label.storage.service.create.nfs.export') }}</a-button>
+              <a-button @click="openActionModal('enableProtocol', { protocol: 'NFS' })"><PoweroffOutlined />{{ $t('label.storage.service.enable.protocol') }}</a-button>
+              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })"><DeleteOutlined />{{ $t('label.storage.service.delete.endpoint') }}</a-button>
+              <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData"><ReloadOutlined />{{ $t('label.refresh') }}</a-button>
+              <a-button @click="toggleProtocolWideLayout"><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else />{{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}</a-button>
             </a-space>
           </div>
           <template v-if="storageService.instance">
@@ -1620,8 +1604,7 @@ class="storage-service-inline-alert"
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.export.options') }}</div>
             <div class="storage-action-checkbox-grid">
               <a-checkbox v-model:checked="forms.nfsExport.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.rootsquash">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.allsquash">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
+              <a-select v-model:value="nfsExportSquashPolicy" style="min-width: 180px" :aria-label="$t('label.storage.nfs.mapping')"><a-select-option value="ROOT">Root Squash</a-select-option><a-select-option value="NONE">No Root Squash</a-select-option><a-select-option value="ALL">All Squash</a-select-option></a-select>
               <a-checkbox v-model:checked="forms.nfsExport.sync">{{ $t('label.storage.service.sync') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsExport.secure">
                 <a-tooltip :title="$t('message.storage.service.secure.help')">
@@ -1630,22 +1613,46 @@ class="storage-service-inline-alert"
               </a-checkbox>
             </div>
             <a-alert
-              v-if="forms.nfsExport.rootsquash"
               class="storage-action-context-alert"
               type="info"
               show-icon
-              :message="$t('message.storage.service.nfs.posix.permission.help')" />
+              :message="$t('message.storage.nfs.mapping.' + nfsExportSquashPolicy.toLowerCase())" />
           </section>
           <section class="storage-action-section">
-            <div class="storage-action-section__title">{{ $t('label.storage.service.posix.permission') }}</div>
-            <a-row :gutter="12">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.current.posix') }}</div>
+            <a-descriptions bordered size="small" :column="3">
+              <a-descriptions-item :label="$t('label.storage.service.owner.uid')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.owneruid : '-' }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.service.owner.gid')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.ownergid : '-' }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.service.directory.mode')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.mode : $t('label.storage.nfs.posix.unavailable') }}</a-descriptions-item>
+            </a-descriptions>
+            <p class="storage-panel__description">{{ $t('message.storage.nfs.posix.observation') }} {{ nfsPosixObserved.observedat || '' }}</p>
+            <a-alert v-if="nfsAnonymousWriteMismatch" type="warning" show-icon class="storage-service-inline-alert" :message="$t('message.storage.nfs.anonymous.mismatch')" />
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.recommendation') }}</div>
+            <div class="storage-action-summary-box">
+              <code>{{ nfsRecommendedPosix.owneruid }}:{{ nfsRecommendedPosix.ownergid }} / {{ nfsRecommendedPosix.mode }}</code>
+              <a-button :disabled="actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED'" @click="useNfsRecommendedPosix">{{ $t('label.storage.nfs.use.recommendation') }}</a-button>
+              <p class="storage-panel__description">{{ $t('message.storage.nfs.recommendation.help') }}</p>
+            </div>
+            <a-form-item :label="$t('label.storage.nfs.change.permissions')">
+              <a-switch v-model:checked="nfsPosixEdit" :disabled="actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED'" />
+              <span style="margin-left: 12px">{{ $t(nfsPosixEdit ? 'label.storage.nfs.explicit.change' : 'label.storage.nfs.preserve.permissions') }}</span>
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" :disabled="!nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" :disabled="!nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" placeholder="0775" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" :disabled="!nfsPosixEdit" placeholder="0775" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" :disabled="!nfsPosixEdit" /></a-form-item></a-col>
             </a-row>
+          </section>
+          <section class="storage-action-section">
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.permission.preview') }}</div>
+            <a-descriptions bordered size="small" :column="1">
+              <a-descriptions-item :label="$t('label.storage.nfs.current.posix')">{{ nfsCurrentPosixSummary }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ nfsNextPosixSummary }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.nfs.permission.scope')">{{ $t(nfsPosixParameters.recursivepermission ? 'message.storage.nfs.recursive.scope' : Object.keys(nfsPosixParameters).length ? 'message.storage.nfs.root.only' : 'message.storage.nfs.policy.only') }}</a-descriptions-item>
+            </a-descriptions>
           </section>
         </div>
         <div v-if="actionModal.type === 'nfsAcl' || actionModal.type === 'editNfsAcl'" class="storage-action-form storage-action-form--vertical">
@@ -1702,8 +1709,7 @@ class="storage-service-inline-alert"
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.access.options') }}</div>
             <div class="storage-action-checkbox-grid">
-              <a-checkbox v-model:checked="forms.nfsAcl.rootsquash">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsAcl.allsquash">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
+              <a-select v-model:value="forms.nfsAcl.squashpolicy" style="min-width: 200px" :aria-label="$t('label.storage.nfs.mapping')"><a-select-option value="INHERIT">{{ $t('label.storage.nfs.inherit.policy') }}</a-select-option><a-select-option value="ROOT">Root Squash</a-select-option><a-select-option value="NONE">No Root Squash</a-select-option><a-select-option value="ALL">All Squash</a-select-option></a-select>
               <a-checkbox v-model:checked="forms.nfsAcl.sync">{{ $t('label.storage.service.sync') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsAcl.secure">
                 <a-tooltip :title="$t('message.storage.service.secure.help')">
@@ -1713,10 +1719,10 @@ class="storage-service-inline-alert"
             </div>
           </section>
           <section class="storage-action-section">
-            <div class="storage-action-section__title">{{ $t('label.storage.service.squash.user.mapping') }}</div>
+            <div class="storage-action-section__title">{{ $t('label.storage.service.squash.user.mapping') }}</div><a-alert type="info" show-icon class="storage-service-inline-alert" :message="$t('message.storage.nfs.acl.permissions.unchanged')" />
             <a-row :gutter="12">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anonuid" :disabled="forms.nfsAcl.squashpolicy === 'INHERIT'" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anongid" :disabled="forms.nfsAcl.squashpolicy === 'INHERIT'" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
             </a-row>
           </section>
         </div>
@@ -2324,6 +2330,7 @@ import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
 import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
+import { nfsSquashPolicy, nfsSquashFlags, nfsPosixRecommendation, nfsPermissionDelta, nfsMappingDelta, nfsPermissionIntent, nfsPosixObservation } from '@/utils/nfsPosixPolicy'
 import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey } from '@/utils/storageConfigPreflight'
 import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
@@ -2623,6 +2630,11 @@ export default {
       },
       configurationAcceptedPreflight: null,
       configurationFormStamp: '',
+      nfsPosixEdit: false,
+      nfsPosixBaseline: {},
+      nfsAnonBaseline: {},
+      nfsPosixObserved: { status: 'UNAVAILABLE' },
+      nfsAclMappingBaseline: {},
       configurationPreflight: null,
       configurationPreflightLoading: false,
       configurationPreflightRead: 0,
@@ -3734,8 +3746,8 @@ export default {
         { title: this.$t('label.storage.service.nfs.protocol.mode'), dataIndex: 'protocolMode', key: 'protocolMode', width: 150 },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
         { title: this.$t('label.storage.service.permission'), dataIndex: 'permission', key: 'permission', width: 130 },
-        { title: this.$t('label.storage.service.root.squash'), dataIndex: 'rootSquash', key: 'rootSquash', width: 130 },
-        { title: this.$t('label.storage.service.posix.permission'), dataIndex: 'posixPermission', key: 'posixPermission', width: 220, code: true },
+        { title: this.$t('label.storage.nfs.mapping'), dataIndex: 'rootSquash', key: 'rootSquash', width: 150 },
+        { title: this.$t('label.storage.nfs.current.posix'), dataIndex: 'posixPermission', key: 'posixPermission', width: 220, code: true },
         { title: this.$t('label.storage.service.access.rules'), dataIndex: 'aclSummary', key: 'aclSummary', width: 220 },
         { title: this.$t('label.storage.service.capacity'), dataIndex: 'capacity', key: 'capacity', width: 150 },
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
@@ -3854,8 +3866,8 @@ export default {
           endpoint: this.formatNfsExportEndpoints(share),
           protocolMode: this.nfsProtocolModeLabel(protocolMode),
           permission: this.permissionLabel(share.permission || (share.readonly || config.readOnly ? 'READ_ONLY' : 'READ_WRITE')),
-          rootSquash: this.booleanLabel(config.rootSquash),
-          posixPermission: this.posixPermissionSummary(config),
+          rootSquash: { ROOT: 'Root Squash', NONE: 'No Root Squash', ALL: 'All Squash' }[nfsSquashPolicy(config)],
+          posixPermission: this.nfsObservationSummary(share.posixobservation),
           aclSummary: this.aclSummary(acls),
           capacity: this.formatCapacityValue(share.quotabytes || share.quotaBytes || share.capacitybytes || share.sizebytes),
           volumeName: volume.name || volume.displayname || share.volumename || share.volumeName || share.volumeid || '-',
@@ -4523,8 +4535,39 @@ export default {
       }
       return this.$t(titles[this.actionModal.type] || 'label.action')
     },
+    nfsExportSquashPolicy: {
+      get () { return nfsSquashPolicy(this.forms.nfsExport) },
+      set (value) { Object.assign(this.forms.nfsExport, nfsSquashFlags(value)) }
+    },
+    nfsRecommendedPosix () {
+      const f = this.forms.nfsExport
+      return nfsPosixRecommendation(this.nfsExportSquashPolicy, f.readonly, f.anonuid, f.anongid)
+    },
+    nfsPosixParameters () { return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
+    nfsAclPolicyParameters () {
+      if (this.forms.nfsAcl.squashpolicy === 'INHERIT') return { inheritpolicy: true }
+      return { ...nfsSquashFlags(this.forms.nfsAcl.squashpolicy || 'ROOT'), ...nfsMappingDelta(this.nfsAclMappingBaseline, this.forms.nfsAcl) }
+    },
+    nfsCurrentPosixSummary () { return this.nfsObservationSummary(this.nfsPosixObserved) },
+    nfsNextPosixSummary () {
+      if (!Object.keys(this.nfsPosixParameters).length) return this.$t('label.storage.nfs.preserve.permissions')
+      const f = { ...this.nfsPosixBaseline, ...(this.nfsPosixObserved.status === 'OBSERVED' ? this.nfsPosixObserved : {}), ...this.nfsPosixParameters }
+      return `${f.owneruid ?? '-'}:${f.ownergid ?? '-'} / ${f.mode || '-'}`
+    },
+    nfsAnonymousWriteMismatch () {
+      const f = this.forms.nfsExport; const o = this.nfsPosixObserved
+      if (f.readonly || this.nfsExportSquashPolicy === 'NONE' || o.status !== 'OBSERVED') return false
+      const uid = f.anonuid ?? 65534; const gid = f.anongid ?? 65534; const mode = parseInt(o.mode, 8)
+      return !(uid === 0 || (uid === o.owneruid && (mode & 128)) || (gid === o.ownergid && (mode & 16)) || (mode & 2))
+    },
     configurationIntent () {
-      return configurationModalIntent(this.actionModal.type, this.forms, this.actionModal.context)
+      const value = configurationModalIntent(this.actionModal.type, this.forms, this.actionModal.context)
+      if (value && ['nfsExport', 'editNfsExport'].includes(this.actionModal.type)) {
+        value.posixchanges = nfsPermissionIntent(this.nfsPosixParameters)
+        value.name = this.forms.nfsExport.name
+        value.path = this.forms.nfsExport.path
+      }
+      return value
     },
     actionModalOkText () {
       if (this.actionModal.loading || this.configurationProtected) return this.$t('label.storage.configuration.state.running')
@@ -5594,6 +5637,9 @@ export default {
         if (read !== this.configurationPreflightRead || scope !== this.storageReadScope || instanceid !== this.storageService.instance?.id || intent !== JSON.stringify(this.configurationIntent)) return
         const report = decodeConfigurationPreflight(wire)
         if (!report) throw new Error('Invalid configuration preflight response')
+        if (['nfsExport', 'editNfsExport'].includes(this.actionModal.type) && report.posixobservation) {
+          this.nfsPosixObserved = nfsPosixObservation(report.posixobservation)
+        }
         this.configurationPreflight = report
         this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
       } catch (error) {
@@ -7389,13 +7435,17 @@ export default {
         allsquash: false,
         anonuid: 65534,
         anongid: 65534,
-        owneruid: 65534,
-        ownergid: 65534,
-        mode: '0775',
+        owneruid: null,
+        ownergid: null,
+        mode: '',
         recursivepermission: false,
         sync: true,
         secure: false
       })
+      this.nfsPosixEdit = false
+      this.nfsPosixObserved = { status: 'UNAVAILABLE' }
+      this.nfsPosixBaseline = {}
+      this.nfsAnonBaseline = {}
     },
     resetNfsAclForm () {
       Object.assign(this.forms.nfsAcl, {
@@ -7404,6 +7454,7 @@ export default {
         principal: '',
         principals: [],
         permission: 'READ_WRITE',
+        squashpolicy: 'INHERIT',
         rootsquash: true,
         allsquash: false,
         anonuid: null,
@@ -7411,6 +7462,7 @@ export default {
         sync: true,
         secure: false
       })
+      this.nfsAclMappingBaseline = {}
     },
     nextSmbShareName () {
       let index = this.storageService.smbShares.length + 1
@@ -7497,7 +7549,7 @@ export default {
     },
     populateNfsExportForm (record) {
       const share = record?.raw || record || {}
-      const config = this.effectiveNfsExportConfig(this.parseStorageConfig(share.config || share.configjson || share.configJson))
+      const config = this.parseStorageConfig(share.config || share.configjson || share.configJson)
       const quota = this.capacityBytesToInput(share.quotabytes || share.quotaBytes || share.capacitybytes || share.sizebytes)
       const rawListenIps = this.normalizeEndpointIps(share.listenips ?? share.listenIps ?? config.listenIps ?? config.listenips)
       const endpointMode = this.nfsExportEndpointMode(share, config, rawListenIps)
@@ -7523,17 +7575,24 @@ export default {
         listenips: endpointMode === 'SELECTED' ? rawListenIps : [],
         listenerports: listenerPorts,
         readonly: this.boolValue(config.readOnly ?? config.readonly),
-        rootsquash: this.boolValue(config.rootSquash ?? config.rootsquash),
+        rootsquash: config.rootSquash === undefined && config.rootsquash === undefined ? true : this.boolValue(config.rootSquash ?? config.rootsquash),
         allsquash: this.boolValue(config.allSquash ?? config.allsquash),
         anonuid: config.anonUid ?? config.anonuid ?? null,
         anongid: config.anonGid ?? config.anongid ?? null,
         owneruid: config.ownerUid ?? config.owneruid ?? null,
         ownergid: config.ownerGid ?? config.ownergid ?? null,
         mode: config.mode || '',
-        recursivepermission: this.boolValue(config.recursivePermission ?? config.recursivepermission),
+        recursivepermission: false,
         sync: this.boolValue(config.sync),
         secure: this.boolValue(config.secure)
       })
+      this.nfsPosixEdit = false
+      this.nfsPosixObserved = nfsPosixObservation(share.posixobservation)
+      if (this.nfsPosixObserved.status === 'OBSERVED') {
+        Object.assign(this.forms.nfsExport, { owneruid: this.nfsPosixObserved.owneruid, ownergid: this.nfsPosixObserved.ownergid, mode: this.nfsPosixObserved.mode })
+      }
+      this.nfsPosixBaseline = { ...this.forms.nfsExport }
+      this.nfsAnonBaseline = { ...this.forms.nfsExport }
     },
     populateNfsAclForm (record) {
       const acl = record?.raw || record || {}
@@ -7544,6 +7603,7 @@ export default {
         principal: acl.principal || acl.cidr || acl.client || '',
         principals: [acl.principal || acl.cidr || acl.client].filter(Boolean),
         permission: acl.permission || acl.access || 'READ_WRITE',
+        squashpolicy: ['rootSquash', 'allSquash', 'anonUid', 'anonGid'].some(key => config[key] !== undefined) ? nfsSquashPolicy(config) : 'INHERIT',
         rootsquash: this.boolValue(acl.rootsquash ?? acl.rootSquash ?? config.rootSquash),
         allsquash: this.boolValue(acl.allsquash ?? acl.allSquash ?? config.allSquash),
         anonuid: config.anonUid ?? config.anonuid ?? null,
@@ -7551,6 +7611,7 @@ export default {
         sync: this.boolValue(acl.sync ?? config.sync),
         secure: this.boolValue(acl.secure ?? config.secure)
       })
+      this.nfsAclMappingBaseline = { ...this.forms.nfsAcl }
     },
     nfsAclPrincipals () {
       let values
@@ -7890,12 +7951,8 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
-        anonuid: this.forms.nfsExport.anonuid,
-        anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
-        recursivepermission: this.forms.nfsExport.recursivepermission,
+        ...this.nfsPosixParameters,
+        ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
         endpointmode: dualMode ? undefined : 'LISTENER_GROUP',
@@ -7960,10 +8017,7 @@ export default {
         principal: principals[0],
         principals: principals.join(','),
         permission: this.forms.nfsAcl.permission,
-        rootsquash: this.forms.nfsAcl.rootsquash,
-        allsquash: this.forms.nfsAcl.allsquash,
-        anonuid: this.forms.nfsAcl.anonuid,
-        anongid: this.forms.nfsAcl.anongid,
+        ...this.nfsAclPolicyParameters,
         sync: this.forms.nfsAcl.sync,
         secure: this.forms.nfsAcl.secure
       }, this.$t('label.storage.service.create.nfs.acl'))
@@ -7993,12 +8047,8 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
-        anonuid: this.forms.nfsExport.anonuid,
-        anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
-        recursivepermission: this.forms.nfsExport.recursivepermission,
+        ...this.nfsPosixParameters,
+        ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
         endpointmode: dualMode ? undefined : 'LISTENER_GROUP',
@@ -8017,10 +8067,7 @@ export default {
         id: context.id || this.actionModal.context?.id,
         principal: principals[0],
         permission: this.forms.nfsAcl.permission,
-        rootsquash: this.forms.nfsAcl.rootsquash,
-        allsquash: this.forms.nfsAcl.allsquash,
-        anonuid: this.forms.nfsAcl.anonuid,
-        anongid: this.forms.nfsAcl.anongid,
+        ...this.nfsAclPolicyParameters,
         sync: this.forms.nfsAcl.sync,
         secure: this.forms.nfsAcl.secure
       }, this.$t('label.storage.service.update.nfs.acl'))
@@ -8654,42 +8701,19 @@ export default {
       return `${owner} / ${mode} / ${recursive}`
     },
     effectiveNfsExportConfig (config = {}) {
-      const next = { ...config }
-      const readOnly = this.boolValue(next.readOnly ?? next.readonly)
-      const rootSquash = next.rootSquash === undefined && next.rootsquash === undefined ? true : this.boolValue(next.rootSquash ?? next.rootsquash)
-      if (!readOnly && rootSquash) {
-        if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
-        if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
-        if (next.posixPolicy === 'PRESERVE_EXISTING_INITIAL') return next
-        if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = next.anonUid ?? next.anonuid ?? 65534
-        if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = next.anonGid ?? next.anongid ?? 65534
-        if (!next.mode) next.mode = '0775'
-        if (next.recursivePermission === undefined && next.recursivepermission === undefined) next.recursivePermission = false
-      }
-      return next
+      return { ...config }
     },
     applyNfsWritableDefaults () {
-      const record = this.actionModal?.context?.raw || this.actionModal?.context || {}
-      const config = this.parseStorageConfig(record.config || record.configjson || record.configJson)
-      if (config.posixPolicy === 'PRESERVE_EXISTING_INITIAL') return
-      if (this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
-        return
-      }
-      if (this.forms.nfsExport.anonuid === null || this.forms.nfsExport.anonuid === undefined || this.forms.nfsExport.anonuid === '') {
-        this.forms.nfsExport.anonuid = 65534
-      }
-      if (this.forms.nfsExport.anongid === null || this.forms.nfsExport.anongid === undefined || this.forms.nfsExport.anongid === '') {
-        this.forms.nfsExport.anongid = 65534
-      }
-      if (this.forms.nfsExport.owneruid === null || this.forms.nfsExport.owneruid === undefined || this.forms.nfsExport.owneruid === '') {
-        this.forms.nfsExport.owneruid = this.forms.nfsExport.anonuid
-      }
-      if (this.forms.nfsExport.ownergid === null || this.forms.nfsExport.ownergid === undefined || this.forms.nfsExport.ownergid === '') {
-        this.forms.nfsExport.ownergid = this.forms.nfsExport.anongid
-      }
-      if (!this.forms.nfsExport.mode) {
-        this.forms.nfsExport.mode = '0775'
-      }
+      // Recommendations are shown independently; opening/saving never changes a draft.
+    },
+    useNfsRecommendedPosix () {
+      if (this.actionModal.type === 'editNfsExport' && this.nfsPosixObserved.status !== 'OBSERVED') return
+      this.nfsPosixEdit = true
+      Object.assign(this.forms.nfsExport, this.nfsRecommendedPosix)
+    },
+    nfsObservationSummary (value) {
+      const observed = nfsPosixObservation(value)
+      return observed.status === 'OBSERVED' ? `${observed.owneruid}:${observed.ownergid} / ${observed.mode}` : this.$t('label.storage.nfs.posix.unavailable')
     },
     clientVisibleName (value, fallback) {
       const normalized = String(value || fallback || '').trim().replace(/^\/+|\/+$/g, '')

@@ -27,6 +27,12 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageNfsExportResponse extends BaseResponse {
+    @SerializedName("posixobservation")
+    @Param(description = "Read-only current directory POSIX observation, independent of saved configuration")
+    private com.google.gson.JsonObject posixObservation;
+
+    public void setPosixObservation(com.google.gson.JsonObject value) { posixObservation = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the NFS export")
     private String id;

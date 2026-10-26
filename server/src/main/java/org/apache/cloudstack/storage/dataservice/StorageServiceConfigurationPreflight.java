@@ -83,7 +83,7 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
@@ -94,6 +94,25 @@ final class StorageServiceConfigurationPreflight {
                 if (!new HashSet<>(Arrays.asList("diskofferingid","storageid","size")).containsAll(n.keySet())) throw new IllegalArgumentException();
                 for (JsonElement e:n.asMap().values()) if (!e.isJsonPrimitive()) throw new IllegalArgumentException();
             }
+            if (value.has("posixchanges")) {
+                JsonObject change = value.getAsJsonObject("posixchanges");
+                if (!new HashSet<>(Arrays.asList("ownerUid","ownerGid","mode","recursivePermission")).containsAll(change.keySet()))
+                    throw new IllegalArgumentException();
+                for (String key : change.keySet()) {
+                    if (!change.get(key).isJsonPrimitive()) throw new IllegalArgumentException();
+                    if (key.equals("mode")) {
+                        if (!change.get(key).getAsString().matches("^0?[0-7]{3,4}$")) throw new IllegalArgumentException();
+                    } else if (key.equals("recursivePermission")) {
+                        if (!change.getAsJsonPrimitive(key).isBoolean()) throw new IllegalArgumentException();
+                    } else {
+                        double n=change.get(key).getAsDouble();
+                        if (n<0 || n>65535 || n!=Math.floor(n)) throw new IllegalArgumentException();
+                    }
+                }
+            }
+            for (String key : Arrays.asList("name","path"))
+                if (value.has(key) && (!value.get(key).isJsonPrimitive() || value.get(key).getAsString().length()>512))
+                    throw new IllegalArgumentException();
             if (value.has("port") && (!value.get("port").isJsonPrimitive() || value.get("port").getAsInt() < 1 || value.get("port").getAsInt() > 65535)) throw new IllegalArgumentException();
             return value;
         } catch (RuntimeException error) { throw new InvalidParameterValueException("Invalid public configuration intent"); }
@@ -106,6 +125,11 @@ final class StorageServiceConfigurationPreflight {
         if (StorageServiceConfigurationCoordinator.smbEndpointCommand(cmd))
             for (String name:Arrays.asList("endpointid","listenip","port"))
                 if (request.get(name)!=null) value.add(name,new Gson().toJsonTree(request.get(name)));
+        if (StorageNfsPosix.exportCommand(cmd)) {
+            value.add("posixchanges", StorageNfsPosix.fields(request));
+            for (String key : Arrays.asList("name","path"))
+                if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
+        }
         return value;
     }
     private StorageFileShareVO share(JsonElement id) {
@@ -185,11 +209,26 @@ final class StorageServiceConfigurationPreflight {
             VolumeVO backing=volumes.findById(volumeRef);
             if (backing!=null) volumeUuids.add(backing.getUuid());
         }
+        if (protocol==StorageServiceInstance.Protocol.NFS && name.contains("NfsExport") && !name.startsWith("delete")) {
+            JsonObject changes=intent.has("posixchanges")?intent.getAsJsonObject("posixchanges").deepCopy():new JsonObject();
+            query.add("posixchanges",changes);
+            JsonObject targetConfig=selectedFile==null?new JsonObject():StorageServiceConfigurationCoordinator.parsed(selectedFile.getConfigJson()).deepCopy();
+            if (selectedFile==null && volume!=null) {
+                String path=intent.has("path")?intent.get("path").getAsString():"/export/"+(intent.has("name")?intent.get("name").getAsString():"");
+                if (path.matches("/export/[A-Za-z0-9_.-]+")) {
+                    String mount="/srv/ablestack-storage/volumes/"+volume.getUuid();
+                    targetConfig.addProperty("volumeMountPath",mount);
+                    targetConfig.addProperty("backingPath",mount+path);
+                }
+            }
+            JsonObject target=new JsonObject();target.addProperty("uuid",selectedFile==null?"NEW":selectedFile.getUuid());
+            target.add("config",targetConfig);query.add("posixtarget",target);
+        }
         query.add("volumeuuids",volumeUuids);
         query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
         query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
                 (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "")));
-        query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && !refs.isEmpty());
+        query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && (!refs.isEmpty() || query.has("posixchanges") && query.getAsJsonObject("posixchanges").size()>0));
         if (instance.getVmId()==null) throw new InvalidParameterValueException("SystemVM is unavailable");
         JsonObject report;
         try {
@@ -199,6 +238,8 @@ final class StorageServiceConfigurationPreflight {
                 JsonObject capability=StorageServiceConfigurationCoordinator.parsed(caps==null?null:caps.getResultJson());
                 if (caps==null || !caps.isSuccess() || !capability.has("configurationPreflightVersion") || capability.get("configurationPreflightVersion").getAsInt()!=1)
                     throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
+                if (protocol==StorageServiceInstance.Protocol.NFS && (!capability.has("nfsPosixIntentVersion") || capability.get("nfsPosixIntentVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("NFS_POSIX_CAPABILITY_REQUIRED");
                 if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
             }
@@ -210,7 +251,7 @@ final class StorageServiceConfigurationPreflight {
             report=new JsonObject(); report.addProperty("status","UNKNOWN");report.addProperty("revision",instance.getConfigurationRevision());
             report.addProperty("observedat",System.currentTimeMillis()/1000.0);report.addProperty("expiresat",System.currentTimeMillis()/1000.0);
             report.addProperty("fingerprint","");report.add("checks",new JsonArray());
-            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
+            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
             failed.addProperty("blocking",true);failed.addProperty("severity","ERROR");report.getAsJsonArray("checks").add(failed);
         }
         if (instance.getActiveConfigurationOperationId()!=null && !Objects.equals(owner,instance.getActiveConfigurationOperationId()))

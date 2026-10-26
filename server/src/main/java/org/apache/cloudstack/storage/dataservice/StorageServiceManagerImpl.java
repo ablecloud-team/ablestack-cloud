@@ -190,6 +190,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String bootId;
         private String error;
         private final Map<String, JsonObject> observations = new LinkedHashMap<>();
+        private final Map<String, JsonObject> nfsPosix = new LinkedHashMap<>();
 
         protected JsonObject observation(final String key) {
             return StringUtils.isBlank(key) ? null : observations.get(key);
@@ -906,7 +907,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         share.setConfigJson(buildNfsConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(),
                 cmd.getAnonGid(), cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode(), cmd.getRecursivePermission(), cmd.getSync(), cmd.getSecure(),
-                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, true));
+                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, false));
         share.setConfigJson(buildFileShareDirectoryConfigJson(share.getConfigJson(), cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId()),
                 cmd.getImportMode(), cmd.getCreateDirectory()));
         validateJsonObjectConfigOrThrow(share.getConfigJson(), "NFS export " + share.getUuid());
@@ -1012,6 +1013,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             rule.setPermission(permission);
             rule.setConfigJson(buildNfsConfigJson(rule.getConfigJson(), null, cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                     null, null, null, null, cmd.getSync(), cmd.getSecure(), null, null, null, null, false));
+            if (Boolean.TRUE.equals(cmd.getInheritPolicy())) rule.setConfigJson(inheritedNfsPolicy(rule.getConfigJson()));
             rule.setState(pendingState);
             storageAccessRuleDaoView().update(rule.getId(), rule);
             persistedRules.add(rule);
@@ -1058,6 +1060,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         rule.setConfigJson(buildNfsConfigJson(rule.getConfigJson(), null, cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                 null, null, null, null, cmd.getSync(), cmd.getSecure(), null, null, null, null, false));
+        if (Boolean.TRUE.equals(cmd.getInheritPolicy())) rule.setConfigJson(inheritedNfsPolicy(rule.getConfigJson()));
         rule.setState(StorageServiceInstance.ResourceState.Updating);
         storageAccessRuleDaoView().update(rule.getId(), rule);
         applyNfsDesiredState(instance);
@@ -3301,6 +3304,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void inspectAttachedFileShareVolume(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
             final VolumeVO volume, final String importMode) {
         final JsonObject payload = createFileShareVolumePayload(instance, share, volume);
+        if (configurationPlan.get() != null) payload.addProperty("configurationOperationId", configurationPlan.get().operationUuid);
         payload.addProperty("importMode", StringUtils.defaultIfBlank(importMode, "MOUNT_EXISTING").toUpperCase());
         SharedFSVO importedFs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
         org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext imported =
@@ -4473,19 +4477,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final String mode, final Boolean recursivePermission, final Boolean sync, final Boolean secure, final String endpointMode, final String listenIps, final String listenerPorts,
             final String protocolMode, final boolean applyWritableRootSquashDefaults) {
         final JsonObject config = parseJsonObject(currentConfig);
-        if (!config.has("readOnly")) {
+        if (applyWritableRootSquashDefaults && !config.has("readOnly")) {
             config.addProperty("readOnly", false);
         }
-        if (!config.has("rootSquash")) {
+        if (applyWritableRootSquashDefaults && !config.has("rootSquash")) {
             config.addProperty("rootSquash", true);
         }
-        if (!config.has("allSquash")) {
+        if (applyWritableRootSquashDefaults && !config.has("allSquash")) {
             config.addProperty("allSquash", false);
         }
-        if (!config.has("sync")) {
+        if (applyWritableRootSquashDefaults && !config.has("sync")) {
             config.addProperty("sync", true);
         }
-        if (!config.has("secure")) {
+        if (applyWritableRootSquashDefaults && !config.has("secure")) {
             config.addProperty("secure", true);
         }
         if (readOnly != null) {
@@ -4668,13 +4672,25 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         config.add("serviceIps", ips);
     }
 
+    protected String inheritedNfsPolicy(String raw) {
+        JsonObject value = parseJsonObject(raw);
+        for (String key : new String[]{"rootSquash", "allSquash", "anonUid", "anonGid"}) value.remove(key);
+        return GSON.toJson(value);
+    }
+
     protected void applyNfsWritableRootSquashDefaults(final JsonObject config, final boolean enabled) {
         if (!enabled) {
             return;
         }
         final boolean readOnly = getBoolean(config, "readOnly", false);
         final boolean rootSquash = getBoolean(config, "rootSquash", true);
-        if (readOnly || !rootSquash) {
+        if (readOnly || !(rootSquash || getBoolean(config, "allSquash", false))) {
+            if (!"PRESERVE_EXISTING_INITIAL".equals(getJsonString(config, "posixPolicy"))) {
+                if (!config.has("ownerUid")) config.addProperty("ownerUid", 0);
+                if (!config.has("ownerGid")) config.addProperty("ownerGid", 0);
+                if (!config.has("mode")) config.addProperty("mode", "0755");
+                if (!config.has("recursivePermission")) config.addProperty("recursivePermission", false);
+            }
             return;
         }
         if (!config.has("anonUid")) {
@@ -6625,6 +6641,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setQuotaBytes(share.getQuotaBytes());
         response.setState(share.getState().name());
         response.setConfig(share.getConfigJson());
+        JsonObject posix = new JsonObject();
+        posix.addProperty("status", "UNAVAILABLE");
+        if (runtimeObservation != null && runtimeObservation.has("nfsPosixObservation"))
+            posix = runtimeObservation.getAsJsonObject("nfsPosixObservation");
+        response.setPosixObservation(posix);
         final boolean configValid = isJsonObjectConfigValid(share.getConfigJson());
         response.setConfigValid(configValid);
         if (!configValid) {
@@ -6712,6 +6733,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             populateRuntimeObservationMetadata(snapshot, inventory, "fileShareVolumes");
             snapshot.available = true;
+            if (inventory.has("nfsPosixObservations") && inventory.get("nfsPosixObservations").isJsonArray()) {
+                for (JsonElement item : inventory.getAsJsonArray("nfsPosixObservations")) {
+                    if (item.isJsonObject()) snapshot.nfsPosix.put(getJsonString(item.getAsJsonObject(), "resourceuuid"), item.getAsJsonObject());
+                }
+            }
             for (final JsonElement element : inventory.getAsJsonArray("fileShareVolumes")) {
                 if (!element.isJsonObject()) {
                     continue;
@@ -6737,7 +6763,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return null;
         }
         final VolumeVO volume = volumeDao.findById(share.getVolumeId());
-        return volume == null ? null : snapshot.observation(normalizeVolumeIdentity(volume.getUuid()));
+        JsonObject observed = volume == null ? null : snapshot.observation(normalizeVolumeIdentity(volume.getUuid()));
+        if (share.getProtocol() == StorageServiceInstance.Protocol.NFS) {
+            observed = observed == null ? new JsonObject() : observed.deepCopy();
+            if (snapshot.nfsPosix.containsKey(share.getUuid())) observed.add("nfsPosixObservation", snapshot.nfsPosix.get(share.getUuid()));
+        }
+        return observed;
     }
 
     protected RuntimeObservationSnapshot loadIscsiTargetRuntimeObservations(final StorageServiceInstanceVO instance) {

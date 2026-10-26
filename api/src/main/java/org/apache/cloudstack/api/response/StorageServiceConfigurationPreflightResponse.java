@@ -30,7 +30,11 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("impact") @Param(description="Actual protocol impact") private JsonObject impact;
     @SerializedName("profile") @Param(description="Execution observation profile") private JsonObject profile;
     @SerializedName("cancellationsupported") @Param(description="Actual cancellation support") private Boolean cancellationsupported=false;
+    @SerializedName("posixobservation") @Param(description="Observed NFS directory metadata used for the confirmation") private JsonObject posixobservation;
+    @SerializedName("posixchanges") @Param(description="Explicit NFS POSIX changes only") private JsonObject posixchanges;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        posixobservation=report.has("posixobservation")?report.getAsJsonObject("posixobservation"):null;
+        posixchanges=report.has("posixchanges")?report.getAsJsonObject("posixchanges"):null;
         setObjectName("configurationpreflight");
         status=report.get("status").getAsString(); revision=report.get("revision").getAsLong();
         observedat=new java.util.Date((long)(report.get("observedat").getAsDouble()*1000));

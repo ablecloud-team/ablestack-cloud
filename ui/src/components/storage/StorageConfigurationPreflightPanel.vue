@@ -18,6 +18,11 @@ show-icon
       <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
       <span v-if="check.connections !== undefined"> · {{ check.connections }} TCP</span>
     </div>
+    <a-descriptions v-if="report.posixobservation && Object.keys(report.posixchanges || {}).length" bordered size="small" :column="1" class="summary">
+      <a-descriptions-item :label="$t('label.storage.nfs.current.posix')">{{ beforePosix }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ afterPosix }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.nfs.permission.scope')">{{ $t(report.posixchanges?.recursivePermission ? 'message.storage.nfs.recursive.scope' : 'message.storage.nfs.root.only') }}</a-descriptions-item>
+    </a-descriptions>
     <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t('message.storage.preflight.interruption')" />
     <a-checkbox
 v-if="report.impact?.ackrequired"
@@ -36,6 +41,16 @@ export default {
   components: { ReloadOutlined },
   props: { report: { type: Object, required: true }, loading: Boolean, acknowledged: Boolean },
   emits: ['refresh', 'acknowledge'],
+  computed: {
+    beforePosix () {
+      const p = this.report.posixobservation || {}
+      return p.status === 'OBSERVED' ? `${p.owneruid}:${p.ownergid} / ${p.mode}` : this.$t('label.storage.nfs.posix.unavailable')
+    },
+    afterPosix () {
+      const p = this.report.posixobservation || {}; const c = this.report.posixchanges || {}
+      return `${c.ownerUid ?? p.owneruid ?? '-'}:${c.ownerGid ?? p.ownergid ?? '-'} / ${c.mode || p.mode || '-'}`
+    }
+  },
   methods: { mib (value) { return Math.ceil(Number(value || 0) / 1048576) } }
 }
 </script>

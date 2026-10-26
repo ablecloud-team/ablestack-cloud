@@ -16,6 +16,8 @@ DEFAULT_PORTS = {"NFS": 2049, "SMB": 445, "ISCSI": 3260, "NVME_OF": 4420}
 
 def fingerprint(intent):
     material = {k: intent.get(k) for k in ("instanceUuid", "revision", "protocol", "action", "resourceids", "resourcesdigest", "resourcecount", "drainrequired", "recursive")}
+    if intent.get("protocol") == "NFS" and intent.get("posixchanges"):
+        material.update(posixchanges=intent["posixchanges"], posixfingerprint=intent.get("posixfingerprint"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -140,7 +142,20 @@ def inspect(intent):
     if not isinstance(intent, dict) or intent.get("protocol") not in DEFAULT_PORTS:
         raise ValueError("INVALID_PREFLIGHT_INTENT")
     try:
-        return evaluate(intent, sample(intent))
+        intent = dict(intent)
+        observed = None
+        if intent.get("protocol") == "NFS" and intent.get("posixtarget"):
+            from configuration_transaction import nfs_posix_observe
+            observed = nfs_posix_observe(intent["posixtarget"])
+            intent["posixfingerprint"] = observed.get("fingerprint")
+        report = evaluate(intent, sample(intent))
+        if observed is not None:
+            report["posixobservation"] = observed
+            report["posixchanges"] = intent.get("posixchanges") or {}
+            if intent.get("posixchanges") and intent.get("action") != "CREATE" and observed["status"] != "OBSERVED":
+                report["status"] = "BLOCKED"
+                report["checks"].append({"code":"POSIX_OBSERVATION_UNAVAILABLE","blocking":True,"severity":"ERROR"})
+        return report
     except (OSError, ValueError, KeyError, subprocess.SubprocessError):
         return {"status": "UNKNOWN", "revision": intent.get("revision"), "fingerprint": fingerprint(intent),
                 "observedat": time.time(), "expiresat": time.time(),
