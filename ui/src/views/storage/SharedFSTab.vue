@@ -354,15 +354,10 @@
       <a-tab-pane v-if="hasStorageServiceApi" tab="SMB" key="smb">
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
-            <protocol-header protocol="SMB" />
-            <a-space v-if="storageService.instance" class="protocol-toolbar protocol-toolbar--right" wrap>
-              <a-button @click="toggleProtocolWideLayout">
-                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
-                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
-              </a-button>
+            <a-space v-if="storageService.instance" class="protocol-toolbar" wrap>
               <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
-                <template #icon><PoweroffOutlined /></template>
-                {{ $t('label.storage.service.enable.protocol') }}
+                <template #icon><PlusOutlined /></template>
+                {{ $t('label.storage.service.smb.endpoint.add') }}
               </a-button>
               <a-button @click="openActionModal('smbShare')">
                 <template #icon><PlusOutlined /></template>
@@ -379,6 +374,10 @@
               <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
                 <template #icon><ReloadOutlined /></template>
                 {{ $t('label.refresh') }}
+              </a-button>
+              <a-button @click="toggleProtocolWideLayout">
+                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
+                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
               </a-button>
             </a-space>
           </div>
@@ -449,11 +448,11 @@
               <a-table
                 class="storage-data-table"
                 size="small"
-                rowKey="key"
-                :columns="protocolListenerColumns"
+                rowKey="id"
+                :columns="smbListenerColumns"
                 :dataSource="smbListenerRows"
                 :pagination="false"
-                :scroll="{ x: 1260 }"
+                :scroll="{ x: 980 }"
                 :locale="storageTableLocale('message.storage.service.no.listeners')">
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.key === 'state'">
@@ -461,7 +460,10 @@
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
+                      <a-button size="small" :disabled="configurationProtected" @click="openSmbEndpointEdit(record)">
+                        <template #icon><EditOutlined /></template>{{ $t('label.edit') }}
+                      </a-button>
+                      <a-button size="small" danger :disabled="!record.canDelete || configurationProtected" :title="record.deleteDisabledReason || ''" @click="openSmbEndpointDelete(record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -1380,11 +1382,18 @@ class="configuration-fields"
 :aria-busy="actionModal.loading">
       <div class="storage-modal-body"><a-form layout="vertical">
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
+          <a-alert
+v-if="forms.enableProtocol.protocol === 'SMB'"
+type="info"
+show-icon
+class="storage-service-inline-alert"
+            :message="$t('message.storage.service.smb.endpoint.preserve')"
+            :description="actionModal.context?.endpointid ? actionModal.context.endpointid + ' / ' + actionModal.context.listenIp + ':' + actionModal.context.port : ''" />
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.protocol')" :tooltip="$t('message.storage.service.protocol.help')" />
             </template>
-            <a-select v-model:value="forms.enableProtocol.protocol">
+            <a-select v-model:value="forms.enableProtocol.protocol" :disabled="actionModal.context?.protocol === 'SMB'">
               <a-select-option value="NFS">NFS</a-select-option>
               <a-select-option value="SMB">SMB</a-select-option>
               <a-select-option value="ISCSI">iSCSI</a-select-option>
@@ -1411,6 +1420,7 @@ class="configuration-fields"
               <tooltip-label :title="$t('label.storage.service.listen.ip')" :tooltip="$t('message.storage.service.listen.ip.help')" />
             </template>
             <a-select v-model:value="forms.enableProtocol.listenip" show-search optionFilterProp="label">
+              <a-select-option v-if="forms.enableProtocol.protocol === 'SMB'" value="0.0.0.0">0.0.0.0 ({{ $t('label.storage.service.listener.type.wildcard') }})</a-select-option>
               <a-select-option v-for="nic in serviceListenIps" :key="nic.key" :value="nic.ipaddress" :label="nic.label">
                 {{ nic.label }}
               </a-select-option>
@@ -1741,12 +1751,13 @@ class="configuration-fields"
             class="storage-action-context-alert storage-action-context-alert--danger"
             type="warning"
             show-icon
-            :message="$t('message.storage.service.delete.endpoint.warning')" />
+            :message="$t(forms.deleteEndpoint.protocol === 'SMB' ? 'message.storage.service.smb.endpoint.delete' : 'message.storage.service.delete.endpoint.warning')" />
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.storage.service.endpoint')" :tooltip="$t('message.storage.service.delete.endpoint.help')" />
             </template>
-            <a-select v-model:value="forms.deleteEndpoint.listenip" show-search optionFilterProp="label">
+            <a-input v-if="forms.deleteEndpoint.protocol === 'SMB'" :value="forms.deleteEndpoint.listenip + ':' + forms.deleteEndpoint.port" readonly />
+            <a-select v-else v-model:value="forms.deleteEndpoint.listenip" show-search optionFilterProp="label">
               <a-select-option v-for="endpoint in removableServiceEndpoints" :key="endpoint.ipaddress" :value="endpoint.ipaddress" :label="endpoint.label">
                 {{ endpoint.label }}
               </a-select-option>
@@ -2645,6 +2656,7 @@ export default {
       forms: {
         enableProtocol: {
           protocol: 'NFS',
+          endpointid: '',
           listenipmode: 'EXISTING',
           listenip: '',
           port: null,
@@ -2836,6 +2848,7 @@ export default {
           confirmation: ''
         },
         deleteEndpoint: {
+          endpointid: '',
           protocol: 'NFS',
           listenip: '',
           confirmation: ''
@@ -3374,6 +3387,12 @@ export default {
     },
     nvmeListenerColumns () {
       return this.protocolListenerColumns
+    },
+    smbListenerColumns () {
+      return this.protocolListenerColumns.map(column => ({
+        ...column,
+        width: ({ listenIp: 170, port: 80, type: 110, effectiveEndpoints: 210, linkedResourceCount: 110, state: 140, actions: 160 })[column.key]
+      }))
     },
     protocolListenerColumns () {
       return [
@@ -4467,6 +4486,9 @@ export default {
       })
     },
     actionModalTitle () {
+      if (this.actionModal.type === 'enableProtocol' && this.forms.enableProtocol.protocol === 'SMB') {
+        return this.$t(this.forms.enableProtocol.endpointid ? 'label.storage.service.smb.endpoint.edit' : 'label.storage.service.smb.endpoint.add')
+      }
       const titles = {
         enableProtocol: 'label.storage.service.enable.protocol',
         nfsExport: 'label.storage.service.create.nfs.export',
@@ -4690,6 +4712,7 @@ export default {
       this.setCurrentTab()
     },
     'forms.enableProtocol.protocol': function (protocol) {
+      if (this.forms.enableProtocol.endpointid && protocol === 'SMB') return
       this.forms.enableProtocol.port = this.defaultProtocolPort(protocol)
       if (String(protocol || '').toUpperCase() === 'NFS' && !this.forms.enableProtocol.protocolmode) {
         this.forms.enableProtocol.protocolmode = this.nfsRuntimeProtocolMode()
@@ -6559,14 +6582,14 @@ export default {
           identityStatus: item.identitystatus || item.identityStatus || 'UNKNOWN',
           identityWarning: item.identitywarning || item.identityWarning || '',
           effectiveEndpoints: item.effectiveendpoints || item.effectiveEndpoints || [],
-          runtimeState: item.runtimestate || item.runtimeState || item.state || '-',
+          runtimeState: item.runtimestate || item.runtimeState || (protocol === 'SMB' ? 'UNKNOWN' : item.state || '-'),
           linkedResourceCount: Number(item.linkedresourcecount ?? item.linkedResourceCount ?? 0),
           raw: item
         }))
         .filter(item => Number.isFinite(item.port) && item.port > 0)
       const seen = new Set()
       const unique = raw.filter(item => {
-        const key = `${item.listenIp}:${item.port}`
+        const key = protocol === 'SMB' && item.raw?.id ? item.raw.id : `${item.listenIp}:${item.port}`
         if (seen.has(key)) {
           return false
         }
@@ -6579,6 +6602,7 @@ export default {
           wildcardByPort.set(item.port, item)
         }
       })
+      if (protocol === 'SMB') return unique
       return unique.filter(item => {
         if (item.listenerType === 'WILDCARD' || this.isWildcardListenIp(item.listenIp)) return true
         const wildcard = wildcardByPort.get(item.port)
@@ -6589,7 +6613,8 @@ export default {
     },
     protocolListenerRows (protocolName) {
       const protocol = String(protocolName || '').toUpperCase()
-      return this.protocolListenerEntries(protocol).map(entry => {
+      const entries = this.protocolListenerEntries(protocol)
+      return entries.map(entry => {
         const wildcard = entry.listenerType === 'WILDCARD' || this.isWildcardListenIp(entry.listenIp)
         const apiEndpoints = (Array.isArray(entry.effectiveEndpoints) ? entry.effectiveEndpoints : [])
           .map(item => {
@@ -6603,7 +6628,8 @@ export default {
           : [`${entry.listenIp}:${entry.port}`]
         const endpoints = apiEndpoints.length ? apiEndpoints : inferredEndpoints
         const linkedResourceCount = Number.isFinite(entry.linkedResourceCount) ? entry.linkedResourceCount : 0
-        const canDelete = linkedResourceCount === 0
+        const smbReason = protocol === 'SMB' ? this.smbEndpointDeleteReason(entry, entries) : ''
+        const canDelete = protocol === 'SMB' ? !smbReason : linkedResourceCount === 0
         return {
           key: `${protocol}:${entry.listenIp}:${entry.port}`,
           id: entry.raw?.id,
@@ -6618,10 +6644,24 @@ export default {
           status: entry.runtimeState || '-',
           protocol,
           canDelete,
-          deleteDisabledReason: canDelete ? '' : this.$t('message.storage.service.listener.in.use'),
+          deleteDisabledReason: smbReason || (canDelete ? '' : this.$t('message.storage.service.listener.in.use')),
           raw: entry.raw || entry
         }
       })
+    },
+    smbEndpointDeleteReason (entry, entries) {
+      if (entries.length === 1 && (entry.linkedResourceCount > 0 || this.isSmbAdConfigured)) return this.$t('message.storage.service.smb.endpoint.last')
+      if (this.isWildcardListenIp(entry.listenIp) && entries.some(other => other.raw?.id !== entry.raw?.id && other.port === entry.port)) return this.$t('message.storage.service.smb.endpoint.wildcard')
+      return ''
+    },
+    openSmbEndpointEdit (record) {
+      this.openActionModal('enableProtocol', { protocol: 'SMB', endpointid: record.id, listenIp: record.listenIp, port: record.port })
+      Object.assign(this.forms.enableProtocol, { endpointid: record.id, listenip: record.listenIp, port: record.port, listenipmode: 'EXISTING' })
+    },
+    openSmbEndpointDelete (record) {
+      if (!record.canDelete) return
+      this.openActionModal('deleteEndpoint', { protocol: 'SMB', endpointid: record.id })
+      Object.assign(this.forms.deleteEndpoint, { endpointid: record.id, protocol: 'SMB', listenip: record.listenIp, port: record.port, confirmation: '' })
     },
     protocolEndpointValues (rows) {
       const values = []
@@ -7529,6 +7569,7 @@ export default {
       this.actionModal.type = type
       this.actionModal.context = context
       this.actionModal.visible = true
+      if (type === 'enableProtocol') this.forms.enableProtocol.endpointid = context?.endpointid || ''
       if (type === 'enableProtocol' && context?.protocol) {
         this.forms.enableProtocol.protocol = context.protocol
         this.forms.enableProtocol.protocolmode = String(context.protocol || '').toUpperCase() === 'NFS' ? this.nfsRuntimeProtocolMode() : 'V4_ONLY'
@@ -7809,6 +7850,7 @@ export default {
       return this.runStorageAction('enableProtocol', 'enableStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
         protocol: this.forms.enableProtocol.protocol,
+        endpointid: this.forms.enableProtocol.protocol === 'SMB' ? this.forms.enableProtocol.endpointid || undefined : undefined,
         listenip: this.forms.enableProtocol.listenip,
         port: this.forms.enableProtocol.port,
         protocolmode: this.forms.enableProtocol.protocol === 'NFS' ? this.forms.enableProtocol.protocolmode : undefined
@@ -8012,6 +8054,7 @@ export default {
       return this.runStorageAction('deleteEndpoint', 'deleteStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
         protocol: this.forms.deleteEndpoint.protocol,
+        endpointid: this.forms.deleteEndpoint.protocol === 'SMB' ? this.forms.deleteEndpoint.endpointid : undefined,
         listenip: this.forms.deleteEndpoint.listenip,
         port: this.forms.deleteEndpoint.port
       }, this.$t('label.storage.service.delete.endpoint'))

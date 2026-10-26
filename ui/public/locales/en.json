@@ -10063,5 +10063,11 @@
   "message.sharedfs.network.restart.ack": "I acknowledge the temporary connection interruption.",
   "label.sharedfs.network.no.gateway": "No gateway (intentional)",
   "label.sharedfs.network.owner": "Owner",
-  "label.restart": "Restart"
+  "label.restart": "Restart",
+  "message.storage.service.smb.endpoint.wildcard": "A wildcard listener referenced by other SMB endpoints cannot be removed or reduced.",
+  "message.storage.service.smb.endpoint.preserve": "Only the selected SMB binding changes. Shares, accounts, ACLs and other endpoint sessions are preserved.",
+  "message.storage.service.smb.endpoint.last": "The last SMB endpoint used by shares or a domain cannot be deleted.",
+  "label.storage.service.smb.endpoint.edit": "Edit endpoint",
+  "label.storage.service.smb.endpoint.add": "Add endpoint",
+  "message.storage.service.smb.endpoint.delete": "Remove only the selected SMB endpoint. Primary, shared or unconfirmed addresses are retained."
 }

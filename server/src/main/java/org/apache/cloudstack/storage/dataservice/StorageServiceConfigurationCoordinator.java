@@ -101,6 +101,8 @@ final class StorageServiceConfigurationCoordinator {
             // A version gate precedes candidate preparation and any guest/configuration mutation.
             if (instance.getVmId() != null) {
                 JsonObject capability = rpc(instance, "configuration capability show", new JsonObject());
+                if (smbEndpointCommand(cmd) && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt() != 1))
+                    throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationPreflightVersion") || capability.get("configurationPreflightVersion").getAsInt()!=1)
                     throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
@@ -162,6 +164,10 @@ final class StorageServiceConfigurationCoordinator {
             if (observation.has("rollback")) op.setRollbackResultJson(JSON.toJson(observation.get("rollback")));
             String state = observation.has("state") ? observation.get("state").getAsString() : "RECOVERY_REQUIRED";
             if ("VERIFIED".equals(state)) {
+                if (smbEndpointCommand(cmd)) {
+                    commitSmbListeners(instance, op, plan);
+                    return response;
+                }
                 commit(instance, op, plan);
                 try { rpc(instance, "configuration operation commit", identity(op, instance)); }
                 catch (RuntimeException e) { /* DB commit is authoritative; never roll back an acknowledged SQL revision. */ }
@@ -200,6 +206,10 @@ final class StorageServiceConfigurationCoordinator {
             throw new CloudRuntimeException("Configuration reservation does not belong to this operation");
         if (instance.getVmId() == null || op.getBeforeSnapshot() == null || op.getCandidateSnapshot() == null)
             throw new CloudRuntimeException("Configuration recovery requires the original System VM and durable candidate");
+        if (smbEndpointOperation(op) && current.getConfigurationRevision() == op.getTargetRevision()) {
+            finalizeSmbListeners(instance, op);
+            return;
+        }
         JsonObject observation = rpc(instance, "configuration operation show", identity(op, instance));
         if (!matches(op, observation)) throw new CloudRuntimeException("Guest configuration identity is unconfirmed");
         String state = observation.has("state") ? observation.get("state").getAsString() : "UNKNOWN";
@@ -216,11 +226,61 @@ final class StorageServiceConfigurationCoordinator {
         if (saved.has("networkChanges")) for (JsonElement item : saved.getAsJsonArray("networkChanges")) plan.networkChanges.add(item.getAsJsonObject());
         if ("VERIFIED".equals(state) || "COMMITTED".equals(state)) {
             recoverDatabaseActions.accept(plan);
+            if (smbEndpointOperation(op)) {
+                commitSmbListeners(instance, op, plan);
+                return;
+            }
             commit(instance, op, plan);
             try { rpc(instance, "configuration operation commit", identity(op, instance)); } catch (RuntimeException ignored) { }
         } else if ("ROLLED_BACK".equals(state)) {
             plan.discardReservations(); finish(op, "ROLLED_BACK", true);
         } else { op.setState("RECOVERY_REQUIRED"); op.setPhase("OBSERVING"); save(op); }
+    }
+
+    static boolean smbEndpointCommand(final BaseStorageServiceConfigurationCmd cmd) {
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd)
+            return "SMB".equalsIgnoreCase(((org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd)cmd).getProtocol());
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceProtocolCmd)
+            return "SMB".equalsIgnoreCase(((org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageServiceProtocolCmd)cmd).getProtocol());
+        return false;
+    }
+
+    static boolean smbEndpointOperation(final StorageServiceConfigurationOperationVO op) {
+        return "SMB".equals(op.getProtocol()) && Arrays.asList("EnableStorageServiceProtocolCmd", "DeleteStorageServiceProtocolCmd").contains(op.getResourceType());
+    }
+
+    private void commitSmbListeners(final StorageServiceInstanceVO instance, final StorageServiceConfigurationOperationVO op,
+            final StorageServiceConfigurationPlan plan) {
+        op.setState("RUNNING"); op.setPhase("SMB_FINALIZING"); save(op);
+        Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+            StorageServiceInstanceVO locked = instances.lockRow(instance.getId(), true);
+            if (!Objects.equals(locked.getActiveConfigurationOperationId(), op.getId()))
+                throw new CloudRuntimeException("SMB listener reservation changed before commit");
+            if (locked.getConfigurationRevision() == op.getTargetRevision()) return true;
+            if (locked.getConfigurationRevision() != op.getBaseRevision())
+                throw new CloudRuntimeException("SMB listener revision changed before commit");
+            plan.commit();
+            locked.setConfigurationRevision(op.getTargetRevision());
+            // Keep the reservation until the guest confirms final listener cleanup.
+            instances.update(locked.getId(), locked);
+            return true;
+        });
+        finalizeSmbListeners(instance, op);
+    }
+
+    private void finalizeSmbListeners(final StorageServiceInstanceVO instance, final StorageServiceConfigurationOperationVO op) {
+        try {
+            JsonObject observed = rpc(instance, "configuration operation commit", identity(op, instance));
+            if (!matches(op, observed) || !observed.has("state") || !"COMMITTED".equals(observed.get("state").getAsString()))
+                throw new CloudRuntimeException("SMB listener finalization is unconfirmed");
+            op.setGuestObservationJson(JSON.toJson(observed));
+            finish(op, "COMMITTED", true);
+        } catch (RuntimeException error) {
+            op.setState("RECOVERY_REQUIRED"); op.setPhase("SMB_FINALIZING");
+            op.setOriginalFailureJson("{\"code\":\"SMB_FINALIZATION_UNCONFIRMED\",\"phase\":\"SMB_FINALIZING\"}");
+            save(op);
+            throw new CloudRuntimeException("SMB listener finalization is pending; resume operation " + op.getUuid());
+        }
     }
 
     private void commit(final StorageServiceInstanceVO instance, final StorageServiceConfigurationOperationVO op,

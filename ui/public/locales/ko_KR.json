@@ -10028,5 +10028,11 @@
   "message.sharedfs.static.dns.invalid": "DNS에는 유효한 IPv4 유니캐스트 주소를 입력하세요.",
   "message.sharedfs.network.observation.unavailable": "관측이 없거나 오래됐습니다. 업데이트 후 확인하세요. 기존 Cloud NIC 정보만으로 실제 게이트웨이를 판단하지 않습니다.",
   "label.sharedfs.network.observed": "관측 시각",
-  "label.restart": "재시작"
+  "label.restart": "재시작",
+  "message.storage.service.smb.endpoint.delete": "선택한 SMB 엔드포인트만 제거합니다. 기본 IP, 다른 프로토콜에서 사용하는 주소 또는 소유가 확인되지 않은 주소는 보존합니다.",
+  "label.storage.service.smb.endpoint.add": "엔드포인트 추가",
+  "message.storage.service.smb.endpoint.last": "공유 또는 도메인에서 사용하는 마지막 SMB 엔드포인트는 삭제할 수 없습니다.",
+  "label.storage.service.smb.endpoint.edit": "엔드포인트 편집",
+  "message.storage.service.smb.endpoint.preserve": "선택한 SMB 수신 주소와 포트만 변경합니다. 공유·계정·ACL과 다른 엔드포인트의 기존 연결은 유지합니다.",
+  "message.storage.service.smb.endpoint.wildcard": "다른 SMB 엔드포인트가 사용하는 전체 IP 리스너는 먼저 삭제하거나 축소할 수 없습니다."
 }

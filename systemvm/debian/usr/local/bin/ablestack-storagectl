@@ -797,6 +797,19 @@ def nvmeof_port_runtime(state):
 def nvmeof_runtime_ok(runtime):
     return all(str(item.get("state", "")).upper() != "ERROR" for item in runtime.values())
 
+def collect_smb_listener_profiles():
+    import sys
+    import time
+    try:
+        sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+        from configuration_transaction import SmbListenerProfiles
+        return SmbListenerProfiles().show()
+    except Exception:
+        return {"version": 0, "listeners": [], "pending": False,
+                "observedEpoch": time.time(), "error": "SMB_OBSERVATION_UNAVAILABLE"}
+
+smb_runtime = collect_smb_listener_profiles()
+
 iscsi_targets_state = load_json_state("iscsi-targets.json")
 iscsi_ports = desired_iscsi_ports(iscsi_targets_state)
 nvmeof_state = load_json_state("nvmeof-subsystems.json")
@@ -810,6 +823,11 @@ listen_ports = {
     "nvmeof": nvmeof_runtime_ok(nvmeof_runtime),
     "nvmeofPorts": nvmeof_runtime,
 }
+if smb_runtime.get("configured"):
+    ready_smb = bool(smb_runtime.get("listeners")) and all(row.get("state") in ("READY", "COVERED") for row in smb_runtime["listeners"])
+    listen_ports["smb"] = ready_smb
+    services["smbd"] = "active" if ready_smb else "unknown"
+
 status = "ok"
 if services["qemuGuestAgent"] not in ("active", "unknown"):
     status = "degraded"
@@ -833,6 +851,7 @@ print(json.dumps({
     "desiredState": desired_state,
     "identity": {"smbDomain": load_json_state("smb-domain.json"), "smbDomainError": load_json_state("smb-domain-error.json")},
     "listenPorts": listen_ports,
+    "smbRuntime": smb_runtime,
     "nfsGanesha": ganesha_runtime,
     "capabilities": {
         "nvmeof": nvmeof_capabilities(),
@@ -1551,6 +1570,19 @@ def nvmeof_port_runtime(state):
         }
     return runtime
 
+def collect_smb_listener_profiles():
+    import sys
+    import time
+    try:
+        sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+        from configuration_transaction import SmbListenerProfiles
+        return SmbListenerProfiles().show()
+    except Exception:
+        return {"version": 0, "listeners": [], "pending": False,
+                "observedEpoch": time.time(), "error": "SMB_OBSERVATION_UNAVAILABLE"}
+
+smb_runtime = collect_smb_listener_profiles()
+
 iscsi_runtime_snapshot = targetcli_iscsi_runtime_snapshot()
 iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-targets.json", {}), iscsi_runtime_snapshot)
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
@@ -1569,6 +1601,7 @@ print(json.dumps({
     "nfsGaneshaRuntime": ganesha_runtime,
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
     "smbShares": smb_shares,
+    "smbRuntime": smb_runtime,
     "smbQuotas": load_json("/etc/ablestack-storage/smb-quotas.json", {}),
     "smbDomain": load_json("/etc/ablestack-storage/smb-domain.json", {}),
     "smbDomainError": load_json("/etc/ablestack-storage/smb-domain-error.json", {}),
@@ -4642,6 +4675,15 @@ PY
 apply_smb_shares() {
   local payload_file="$1"
 
+  # A listener operation must not reapply users, ACLs or the shared service policy.
+  if [[ "$(python3 -c 'import json,sys; print(1 if json.load(open(sys.argv[1])).get("listenerOnly") is True else 0)' "$payload_file")" == "1" ]]; then
+    python3 /usr/local/lib/ablestack-storage/configuration_transaction.py smb-listeners apply "$payload_file"
+    while read -r smb_port; do
+      [[ -n "$smb_port" ]] && open_tcp_firewall_port "$smb_port"
+    done < <(python3 -c 'import json,sys; print("\n".join(str(v) for v in sorted({int(x.get("port") or 445) for x in json.load(open(sys.argv[1])).get("listeners", [])})))' "$payload_file")
+    return 0
+  fi
+
   python3 - "$payload_file" <<'PY'
 import json
 import grp
@@ -5008,7 +5050,11 @@ with open(os.path.join(state_dir, "smb-access.json"), "w", encoding="utf-8") as 
 print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state}))
 PY
 
-  if command -v systemctl >/dev/null 2>&1; then
+  if [[ -f /etc/ablestack-storage/smb-listeners.json ]]; then
+    systemctl restart nmbd >/dev/null 2>&1 || true
+    systemctl restart winbind >/dev/null 2>&1 || true
+    python3 /usr/local/lib/ablestack-storage/configuration_transaction.py smb-listeners full "$payload_file"
+  elif command -v systemctl >/dev/null 2>&1; then
     systemctl enable --now smbd >/dev/null 2>&1 || true
     systemctl enable --now nmbd >/dev/null 2>&1 || true
     systemctl restart smbd >/dev/null 2>&1 || true

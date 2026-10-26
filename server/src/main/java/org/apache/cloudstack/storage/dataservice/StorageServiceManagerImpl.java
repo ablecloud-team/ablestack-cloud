@@ -178,6 +178,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String runtimePrimaryIp;
         private String identityStatus = "UNKNOWN";
         private String identityWarning;
+        private JsonObject smbRuntime;
         private final List<String> serviceIps = new ArrayList<>();
         private final Set<String> aliasIps = new HashSet<>();
         private final Map<StorageServiceInstance.Protocol, Map<Integer, Integer>> linkedResourceCounts = new HashMap<>();
@@ -235,6 +236,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private com.cloud.user.AccountManager configurationAccountManager;
     private final ThreadLocal<StorageServiceConfigurationPlan> configurationPlan = new ThreadLocal<>();
+    private final ThreadLocal<Boolean> smbListenerOnly = new ThreadLocal<>();
+    private final ThreadLocal<List<String>> smbAddressCleanup = new ThreadLocal<>();
+    private final ThreadLocal<ProtocolResponseContext> protocolObservationContext = new ThreadLocal<>();
     @Inject
     private org.apache.cloudstack.storage.dataservice.dao.StorageServiceConfigurationOperationDao configurationOperationDao;
     private StorageServiceProtocolDao storageServiceProtocolDaoView() {
@@ -258,7 +262,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private StorageServiceConfigurationPreflight configurationPreflight() {
         return new StorageServiceConfigurationPreflight(storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao,
             volumeDao, configurationUpgradeDao, guestCommandDispatcher,
-            volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, volume));
+            volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, volume), this::validateSmbEndpointIntent);
     }
     @Override
     public org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse preflightStorageServiceConfiguration(
@@ -276,10 +280,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocol, final Class<T> type,
             final java.util.function.Supplier<T> candidate) {
         configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, instance);
-        return configurationCoordinator().execute(cmd, instance, protocol, type, candidate,
-                plan -> { if (plan == null) configurationPlan.remove(); else configurationPlan.set(plan); },
-                () -> applyStorageServiceProtocolDesiredState(instance, protocol),
-                instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId()).getUuid());
+        final boolean listeners = StorageServiceConfigurationCoordinator.smbEndpointCommand(cmd);
+        if (listeners) smbListenerOnly.set(true);
+        try {
+            return configurationCoordinator().execute(cmd, instance, protocol, type, candidate,
+                    plan -> { if (plan == null) configurationPlan.remove(); else configurationPlan.set(plan); },
+                    () -> applyStorageServiceProtocolDesiredState(instance, protocol),
+                    instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId()).getUuid());
+        } finally {
+            if (listeners) { smbListenerOnly.remove(); smbAddressCleanup.remove(); }
+        }
     }
     private StorageServiceGuestCommandResult dispatchStorageGuest(final StorageServiceGuestCommand command) {
         StorageServiceConfigurationPlan plan = configurationPlan.get();
@@ -320,6 +330,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject candidate = StorageServiceConfigurationCoordinator.parsed(op.getCandidateSnapshot());
         if (candidate.has("publicRequest")) response.setCandidate(candidate.getAsJsonObject("publicRequest"));
         if ("COMMITTED".equals(op.getState()) && candidate.has("response")) response.setResult(candidate.get("response"));
+        final boolean smbFinalizing = StorageServiceConfigurationCoordinator.smbEndpointOperation(op)
+                && instance.getConfigurationRevision() == op.getTargetRevision()
+                && java.util.Objects.equals(instance.getActiveConfigurationOperationId(), op.getId());
         boolean recoverableGuest = false;
         if (instance.getVmId() != null && java.util.Objects.equals(instance.getActiveConfigurationOperationId(), op.getId())) {
             JsonObject query = new JsonObject(); query.addProperty("instanceUuid", instance.getUuid()); query.addProperty("operationid", op.getUuid());
@@ -340,11 +353,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 response.setObservation(observed);
                 if (observed.has("workerActive") && observed.get("workerActive").getAsBoolean()
                         && !java.util.Arrays.asList("COMMITTED","ROLLED_BACK").contains(op.getState())) response.setState("RUNNING");
-                if (observed.has("phase") && !"COMMITTED".equals(op.getState()) && !"ROLLED_BACK".equals(op.getState())) response.setPhase(observed.get("phase").getAsString());
+                if (!smbFinalizing && observed.has("phase") && !"COMMITTED".equals(op.getState()) && !"ROLLED_BACK".equals(op.getState())) response.setPhase(observed.get("phase").getAsString());
                 if (op.getOriginalFailureJson() == null && observed.has("originalfailure")) response.setOriginalfailure(observed.getAsJsonObject("originalfailure"));
                 if (observed.has("rollback")) response.setRollback(observed.getAsJsonObject("rollback"));
                 String state = observed.has("state") ? observed.get("state").getAsString() : "UNKNOWN";
-                recoverableGuest = java.util.Arrays.asList("VERIFIED", "ROLLED_BACK", "RECOVERY_REQUIRED").contains(state)
+                recoverableGuest = (java.util.Arrays.asList("VERIFIED", "ROLLED_BACK", "RECOVERY_REQUIRED").contains(state)
+                        || smbFinalizing && "COMMITTED".equals(state))
                         && (!observed.has("workerActive") || !observed.get("workerActive").getAsBoolean());
             }
         }
@@ -569,16 +583,28 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Override
     public StorageServiceProtocolResponse enableStorageServiceProtocol(final EnableStorageServiceProtocolCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
-        return runConfiguration(cmd, instance, parseProtocol(cmd.getProtocol()), StorageServiceProtocolResponse.class, () -> enableStorageServiceProtocolCandidate(cmd));
+        StorageServiceProtocolResponse response = runConfiguration(cmd, instance, parseProtocol(cmd.getProtocol()), StorageServiceProtocolResponse.class, () -> enableStorageServiceProtocolCandidate(cmd));
+        if ("SMB".equalsIgnoreCase(cmd.getProtocol())) {
+            StorageServiceProtocolVO current = storageServiceProtocolDao.findByUuid(response.getId());
+            if (current != null) return createProtocolResponse(current);
+        }
+        return response;
     }
 
     private StorageServiceProtocolResponse enableStorageServiceProtocolCandidate(final EnableStorageServiceProtocolCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
         final StorageServiceInstance.Protocol protocol = parseProtocol(cmd.getProtocol());
         final Integer port = normalizeStorageServiceProtocolPort(protocol, cmd.getPort());
-        StorageServiceProtocolVO protocolVO = isEndpointProtocol(protocol) ?
+        StorageServiceProtocolVO selected = smbEndpointById(instance, protocol, cmd.getEndpointId());
+        StorageServiceProtocolVO protocolVO = selected != null ? selected : isEndpointProtocol(protocol) ?
                 findProtocolEndpoint(instance.getId(), protocol, cmd.getListenIp(), port) :
                 storageServiceProtocolDaoView().findByInstanceIdAndProtocol(instance.getId(), protocol);
+        if (selected != null) {
+            StorageServiceProtocolVO duplicate = findProtocolEndpoint(instance.getId(), protocol, cmd.getListenIp(), port);
+            if (duplicate != null && duplicate.getId() != selected.getId())
+                throw new InvalidParameterValueException("SMB_ENDPOINT_TUPLE_IN_USE");
+            validateSmbWildcardRemoval(instance, selected, normalizeListenIp(cmd.getListenIp()), port);
+        }
         final StorageServiceProtocolVO modeProtocol = protocol == StorageServiceInstance.Protocol.NFS ?
                 selectNfsModeProtocol(storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), protocol)) : protocolVO;
         final String protocolMode = resolveProtocolModeForEnable(protocol, modeProtocol, cmd.getProtocolMode());
@@ -590,12 +616,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final boolean dualModeServiceIpRegistration = protocol == StorageServiceInstance.Protocol.NFS
                 && modeProtocol != null && "V3V4_DUAL".equals(protocolMode);
         final boolean created = protocolVO == null;
+        final String previousConfig = created ? null : protocolVO.getConfigJson();
         final Boolean previousEnabled = created ? null : protocolVO.isEnabled();
         final String previousListenIp = created ? null : protocolVO.getListenIp();
         final Integer previousPort = created ? null : protocolVO.getPort();
         final StorageServiceInstance.ResourceState previousState = created ? null : protocolVO.getState();
         if (protocolVO == null) {
-            protocolVO = new StorageServiceProtocolVO(instance.getId(), protocol, true, cmd.getListenIp(), port);
+            protocolVO = new StorageServiceProtocolVO(instance.getId(), protocol, true,
+                    protocol == StorageServiceInstance.Protocol.SMB ? normalizeListenIp(cmd.getListenIp()) : cmd.getListenIp(), port);
             protocolVO.setState(StorageServiceInstance.ResourceState.Ready);
             protocolVO.setConfigJson(protocolConfigJson);
             protocolVO = storageServiceProtocolDaoView().persist(protocolVO);
@@ -607,8 +635,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 protocolVO.setPort(dualModeServiceIpRegistration ? 2049 : (protocolVO.getPort() == null ? port : protocolVO.getPort()));
             } else if (isEndpointProtocol(protocol)) {
-                if (StringUtils.isBlank(protocolVO.getListenIp())) {
-                    protocolVO.setListenIp(cmd.getListenIp());
+                if (protocol == StorageServiceInstance.Protocol.SMB || StringUtils.isBlank(protocolVO.getListenIp())) {
+                    protocolVO.setListenIp(protocol == StorageServiceInstance.Protocol.SMB ? normalizeListenIp(cmd.getListenIp()) : cmd.getListenIp());
                 }
                 protocolVO.setPort(port);
             } else {
@@ -624,12 +652,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         try {
             registeredListenAddress = registerProtocolListenAddress(instance, cmd.getListenIp(), listenNic);
             ensureGuestProtocolListenAddress(instance, cmd.getListenIp(), listenNic, port);
+            if (protocol == StorageServiceInstance.Protocol.SMB && selected != null
+                    && !StringUtils.equals(previousListenIp, protocolVO.getListenIp()))
+                prepareSmbAddressCleanup(instance, previousListenIp);
             applyStorageServiceProtocolDesiredState(instance, protocol);
         } catch (final RuntimeException e) {
             if (registeredListenAddress) {
                 removeSecondaryListenAddress(instance, cmd.getListenIp());
             }
             rollbackProtocolEnable(protocolVO, created, previousEnabled, previousListenIp, previousPort, previousState);
+            if (protocol == StorageServiceInstance.Protocol.SMB && !created) {
+                protocolVO.setConfigJson(previousConfig);
+                storageServiceProtocolDaoView().update(protocolVO.getId(), protocolVO);
+            }
             throw e;
         }
         return createProtocolResponse(protocolVO);
@@ -644,6 +679,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private boolean deleteStorageServiceProtocolCandidate(final DeleteStorageServiceProtocolCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
         final StorageServiceInstance.Protocol protocol = parseProtocol(cmd.getProtocol());
+        StorageServiceProtocolVO selected = smbEndpointById(instance, protocol, cmd.getEndpointId());
+        if (selected != null && (StringUtils.isNotBlank(cmd.getListenIp()) && !StringUtils.equals(normalizeListenIp(cmd.getListenIp()), normalizeListenIp(selected.getListenIp()))
+                || cmd.getPort() != null && !java.util.Objects.equals(cmd.getPort(), selected.getPort() == null ? 445 : selected.getPort())))
+            throw new InvalidParameterValueException("SMB_ENDPOINT_IDENTITY_CHANGED");
+        if (protocol == StorageServiceInstance.Protocol.SMB && (selected != null || StringUtils.isNotBlank(cmd.getListenIp()))) {
+            if (selected == null) selected = findProtocolEndpoint(instance.getId(), protocol, cmd.getListenIp(), cmd.getPort());
+            return deleteSmbEndpoint(instance, selected);
+        }
         if (StringUtils.isNotBlank(cmd.getListenIp())) {
             return deleteStorageServiceEndpoint(instance, protocol, cmd.getListenIp(), cmd.getPort());
         }
@@ -2624,6 +2667,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("instanceId", instance.getId());
         payload.addProperty("netbiosName", buildSmbNetbiosName(instance));
+        if (Boolean.TRUE.equals(smbListenerOnly.get())) {
+            payload.addProperty("listenerOnly", true);
+            if (smbAddressCleanup.get() != null) payload.add("releaseAddresses", GSON.toJsonTree(smbAddressCleanup.get()));
+        }
         final List<StorageServiceProtocolVO> protocols = storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB);
         final JsonArray listeners = new JsonArray();
         StorageServiceProtocolVO primaryProtocol = null;
@@ -4298,7 +4345,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected Integer normalizeStorageServiceProtocolPort(final StorageServiceInstance.Protocol protocol, final Integer port) {
-        final int defaultPort = protocol == StorageServiceInstance.Protocol.NFS ? 2049 : 0;
+        final int defaultPort = protocol == StorageServiceInstance.Protocol.NFS ? 2049 : protocol == StorageServiceInstance.Protocol.SMB ? 445 : 0;
         final Integer normalizedPort = port == null ? (defaultPort == 0 ? null : defaultPort) : port;
         if (normalizedPort != null && (normalizedPort < 1 || normalizedPort > 65535)) {
             throw new InvalidParameterValueException(String.format("Invalid %s port: %s", protocol, normalizedPort));
@@ -4846,8 +4893,91 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         throw new InvalidParameterValueException("Unsupported NFS protocol mode: " + protocolMode);
     }
 
+    protected void validateSmbEndpointIntent(final StorageServiceInstanceVO instance, final JsonObject intent) {
+        final String api = getJsonString(intent, "api");
+        final String id = getJsonString(intent, "endpointid");
+        StorageServiceProtocolVO selected = smbEndpointById(instance, StorageServiceInstance.Protocol.SMB, id);
+        final String ip = getJsonString(intent, "listenip");
+        final Integer port = intent.has("port") ? intent.get("port").getAsInt() : 445;
+        if ("deleteStorageServiceProtocol".equals(api)) {
+            if (selected == null && StringUtils.isNotBlank(ip))
+                selected = findProtocolEndpoint(instance.getId(), StorageServiceInstance.Protocol.SMB, ip, port);
+            if (selected == null && StringUtils.isBlank(ip) && StringUtils.isBlank(id)) {
+                validateProtocolCanBeDeleted(instance, StorageServiceInstance.Protocol.SMB);
+                return;
+            }
+            if (selected != null) {
+                final long identity = selected.getId();
+                if (storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB).stream()
+                        .noneMatch(row -> row.getId() != identity && row.isEnabled()))
+                    validateProtocolCanBeDeleted(instance, StorageServiceInstance.Protocol.SMB);
+                validateSmbWildcardRemoval(instance, selected, null, null);
+            }
+        } else {
+            resolveProtocolListenAddress(instance, ip);
+            StorageServiceProtocolVO existing = findProtocolEndpoint(instance.getId(), StorageServiceInstance.Protocol.SMB, ip, port);
+            if (selected != null && existing != null && selected.getId() != existing.getId())
+                throw new InvalidParameterValueException("SMB_ENDPOINT_TUPLE_IN_USE");
+            if (selected != null)
+                validateSmbWildcardRemoval(instance, selected, normalizeListenIp(ip), port);
+        }
+    }
+
+    protected StorageServiceProtocolVO smbEndpointById(final StorageServiceInstanceVO instance,
+            final StorageServiceInstance.Protocol protocol, final String endpointId) {
+        if (StringUtils.isBlank(endpointId)) return null;
+        if (protocol != StorageServiceInstance.Protocol.SMB)
+            throw new InvalidParameterValueException("endpointid is supported only for SMB");
+        final String identity;
+        try {
+            identity = java.util.UUID.fromString(endpointId).toString();
+            if (!identity.equalsIgnoreCase(endpointId)) throw new IllegalArgumentException();
+        } catch (IllegalArgumentException error) {
+            throw new InvalidParameterValueException("Invalid SMB endpoint UUID");
+        }
+        StorageServiceProtocolVO endpoint = storageServiceProtocolDaoView().findByUuid(identity);
+        if (endpoint == null || endpoint.getInstanceId() != instance.getId() || endpoint.getProtocol() != protocol)
+            throw new InvalidParameterValueException("SMB endpoint does not belong to this instance");
+        return endpoint;
+    }
+
+    protected void validateSmbWildcardRemoval(final StorageServiceInstanceVO instance, final StorageServiceProtocolVO endpoint,
+            final String nextIp, final Integer nextPort) {
+        if (endpoint.getProtocol() != StorageServiceInstance.Protocol.SMB || !isWildcardListenIp(normalizeListenIp(endpoint.getListenIp())))
+            return;
+        final int port = endpoint.getPort() == null ? 445 : endpoint.getPort();
+        if (StringUtils.equals(normalizeListenIp(endpoint.getListenIp()), nextIp) && java.util.Objects.equals(port, nextPort))
+            return;
+        for (StorageServiceProtocolVO row : storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB))
+            if (row.getId() != endpoint.getId() && row.isEnabled() && (row.getPort() == null ? 445 : row.getPort()) == port)
+                throw new InvalidParameterValueException("SMB_WILDCARD_STILL_REFERENCED");
+    }
+
+    protected boolean deleteSmbEndpoint(final StorageServiceInstanceVO instance, final StorageServiceProtocolVO endpoint) {
+        if (endpoint == null) return true;
+        List<StorageServiceProtocolVO> remaining = storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.SMB);
+        if (remaining.stream().noneMatch(row -> row.getId() != endpoint.getId() && row.isEnabled()))
+            validateProtocolCanBeDeleted(instance, StorageServiceInstance.Protocol.SMB);
+        validateSmbWildcardRemoval(instance, endpoint, null, null);
+        final boolean enabled = endpoint.isEnabled();
+        final StorageServiceInstance.ResourceState state = endpoint.getState();
+        endpoint.setEnabled(false);
+        endpoint.setState(StorageServiceInstance.ResourceState.Updating);
+        storageServiceProtocolDaoView().update(endpoint.getId(), endpoint);
+        try {
+            prepareSmbAddressCleanup(instance, endpoint.getListenIp());
+            applyStorageServiceProtocolDesiredState(instance, StorageServiceInstance.Protocol.SMB);
+            storageServiceProtocolDaoView().remove(endpoint.getId());
+            return true;
+        } catch (RuntimeException error) {
+            endpoint.setEnabled(enabled); endpoint.setState(state);
+            storageServiceProtocolDaoView().update(endpoint.getId(), endpoint);
+            throw error;
+        }
+    }
+
     protected boolean isEndpointProtocol(final StorageServiceInstance.Protocol protocol) {
-        return protocol == StorageServiceInstance.Protocol.NFS ||
+        return protocol == StorageServiceInstance.Protocol.NFS || protocol == StorageServiceInstance.Protocol.SMB ||
                 protocol == StorageServiceInstance.Protocol.ISCSI ||
                 protocol == StorageServiceInstance.Protocol.NVME_OF;
     }
@@ -5103,6 +5233,49 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
         }
         return values.isEmpty() ? null : StringUtils.join(values, ',');
+    }
+
+    protected void prepareSmbAddressCleanup(final StorageServiceInstanceVO instance, final String ip) {
+        if (!Boolean.TRUE.equals(smbListenerOnly.get()) || instance.getVmId() == null
+                || StringUtils.isBlank(ip) || isWildcardListenIp(ip)) return;
+        // A wildcard of another protocol is a consumer even when no port is
+        // currently connected. Uncertain/manual ownership always retains the IP.
+        for (StorageServiceProtocolVO row : storageServiceProtocolDaoView().listByInstanceId(instance.getId())) {
+            if (row.isEnabled() && (isWildcardListenIp(normalizeListenIp(row.getListenIp()))
+                    || StringUtils.equals(ip, normalizeListenIp(row.getListenIp())))) return;
+        }
+        for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+            for (StorageFileShareVO row : storageFileShareDaoView().listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                if (StringUtils.defaultString(row.getConfigJson()).contains("\"" + ip + "\"")) return;
+            }
+            for (StorageBlockTargetVO row : storageBlockTargetDaoView().listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                if (StringUtils.defaultString(row.getConfigJson()).contains("\"" + ip + "\"")) return;
+            }
+        }
+        final JsonObject health;
+        try {
+            StorageServiceGuestCommandResult observed = dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(),
+                    "health show", "{}", 20, Collections.emptySet()));
+            if (!observed.isSuccess()) return;
+            health = parseJsonObject(observed.getResultJson());
+        } catch (RuntimeException unavailable) { return; }
+        JsonObject runtime = getJsonObject(health, "smbRuntime");
+        if (runtime == null || !runtime.has("ownedAliases") || !runtime.get("ownedAliases").isJsonArray()) return;
+        for (JsonElement value : runtime.getAsJsonArray("ownedAliases")) {
+            if (!value.isJsonObject()) continue;
+            JsonObject alias = value.getAsJsonObject();
+            if (!StringUtils.equals(ip, getJsonString(alias, "listenIp"))) continue;
+            for (NicVO nic : nicDao.listByVmId(instance.getVmId())) {
+                if (StringUtils.equals(ip, nic.getIPv4Address())) return;
+                if (StringUtils.equalsIgnoreCase(nic.getMacAddress(), getJsonString(alias, "macAddress"))
+                        && nicSecondaryIpDao.findByIp4AddressAndNicId(ip, nic.getId()) != null) {
+                    if (smbAddressCleanup.get() == null) smbAddressCleanup.set(new ArrayList<>());
+                    if (!smbAddressCleanup.get().contains(ip)) smbAddressCleanup.get().add(ip);
+                    removeSecondaryListenAddress(instance, ip);
+                    return;
+                }
+            }
+        }
     }
 
     protected void removeSecondaryListenAddress(final StorageServiceInstanceVO instance, final String listenIp) {
@@ -6165,6 +6338,27 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setRuntimeState(!protocol.isEnabled() ? "DISABLED" : protocol.getState().name().toUpperCase(Locale.ROOT));
         final Map<Integer, Integer> linkedCounts = context == null ? null : context.linkedResourceCounts.get(protocol.getProtocol());
         response.setLinkedResourceCount(linkedCounts == null ? 0 : linkedCounts.getOrDefault(listenerPort, 0));
+        if (protocol.getProtocol() == StorageServiceInstance.Protocol.SMB) {
+            int shares = storageFileShareDaoView().listByInstanceIdAndProtocol(protocol.getInstanceId(), protocol.getProtocol()).size();
+            response.setLinkedResourceCount(shares);
+            if (protocol.isEnabled()) {
+                response.setRuntimeState("UNKNOWN");
+                JsonObject runtime = context == null ? null : context.smbRuntime;
+                if (runtime != null && runtime.has("listeners") && runtime.get("listeners").isJsonArray()) {
+                    for (JsonElement item : runtime.getAsJsonArray("listeners")) {
+                        if (!item.isJsonObject()) continue;
+                        JsonObject observed = item.getAsJsonObject();
+                        if (StringUtils.equals(protocol.getUuid(), getJsonString(observed, "id"))
+                                && StringUtils.equals(normalizeListenIp(protocol.getListenIp()), getJsonString(observed, "listenIp"))
+                                && observed.has("port") && observed.get("port").getAsInt() == listenerPort) {
+                            response.setRuntimeState(Boolean.TRUE.equals(getJsonBoolean(runtime, "pending")) ? "PENDING" : getJsonString(observed, "state"));
+                            response.setCoveredById(getJsonString(observed, "coveredBy"));
+                            if (runtime.has("observedEpoch")) response.setObservedAt(java.time.Instant.ofEpochSecond(runtime.get("observedEpoch").getAsLong()).toString());
+                        }
+                    }
+                }
+            }
+        }
         if (protocol.getProtocol() == StorageServiceInstance.Protocol.NFS) {
             response.setProtocolMode(nfsProtocolModeAsString(parseJsonObject(protocol.getConfigJson()), protocol.getConfigJson()));
         }
@@ -6192,7 +6386,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                 }
             }
-            context.runtimePrimaryIp = observeRuntimePrimaryIp(instance);
+            protocolObservationContext.set(context);
+            try { context.runtimePrimaryIp = observeRuntimePrimaryIp(instance); }
+            finally { protocolObservationContext.remove(); }
             addUniqueServiceIp(context.serviceIps, context.runtimePrimaryIp);
             if (StringUtils.isBlank(context.runtimePrimaryIp)) {
                 context.identityStatus = "UNKNOWN";
@@ -6225,6 +6421,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return null;
             }
             final JsonElement root = new JsonParser().parse(normalizeRuntimeResultJson(result.getResultJson()));
+            ProtocolResponseContext captured = protocolObservationContext.get();
+            if (captured != null && root.isJsonObject() && root.getAsJsonObject().has("smbRuntime")
+                    && root.getAsJsonObject().get("smbRuntime").isJsonObject())
+                captured.smbRuntime = root.getAsJsonObject().getAsJsonObject("smbRuntime");
             final List<String> candidates = new ArrayList<>();
             collectRuntimePrimaryIps(root, candidates);
             return candidates.stream().filter(StringUtils::isNotBlank).distinct().count() == 1

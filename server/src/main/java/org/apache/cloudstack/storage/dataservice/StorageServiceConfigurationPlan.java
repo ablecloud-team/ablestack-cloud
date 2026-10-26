@@ -120,7 +120,9 @@ final class StorageServiceConfigurationPlan {
                 String key;
                 if (row instanceof StorageServiceProtocolVO) {
                     StorageServiceProtocolVO v = (StorageServiceProtocolVO)row;
-                    key = v.getProtocol() + ":" + v.getListenIp() + ":" + v.getPort();
+                    key = v.getProtocol() == StorageServiceInstance.Protocol.SMB
+                            ? v.getProtocol() + ":" + (v.getListenIp() == null || v.getListenIp().trim().isEmpty() ? "0.0.0.0" : v.getListenIp().trim()) + ":" + (v.getPort() == null ? 445 : v.getPort())
+                            : v.getProtocol() + ":" + v.getListenIp() + ":" + v.getPort();
                 } else if (row instanceof StorageFileShareVO) {
                     StorageFileShareVO v = (StorageFileShareVO)row;
                     key = v.getProtocol() + ":" + v.getName();

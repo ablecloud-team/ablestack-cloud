@@ -14,10 +14,15 @@ const kinds = {
 }
 export function configurationModalIntent (type, forms, context) {
   if (['enableProtocol', 'deleteEndpoint'].includes(type)) {
-    return {
-      api: type === 'enableProtocol' ? 'enableStorageServiceProtocol' : 'deleteStorageServiceProtocol',
-      protocol: (forms[type]?.protocol || 'NFS').toUpperCase()
+    const form = forms[type] || {}
+    const protocol = (form.protocol || 'NFS').toUpperCase()
+    const result = { api: type === 'enableProtocol' ? 'enableStorageServiceProtocol' : 'deleteStorageServiceProtocol', protocol }
+    if (protocol === 'SMB') {
+      if (form.endpointid) result.endpointid = form.endpointid
+      if (form.listenip) result.listenip = form.listenip
+      if (form.port) result.port = form.port
     }
+    return result
   }
   let action = 'create'; let key = type
   if (type === 'deleteConfirm') { action = 'delete'; key = context?.resourceType } else if (type.startsWith('edit')) { action = 'update'; key = type.charAt(4).toLowerCase() + type.slice(5) }
