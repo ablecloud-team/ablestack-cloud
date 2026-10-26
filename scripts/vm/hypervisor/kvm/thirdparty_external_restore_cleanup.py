@@ -55,6 +55,23 @@ def read_file(path):
         os.close(fd)
 
 
+def validate_rbd_checkpoint(path, content, plan):
+    manifest = plan['manifest']
+    artifacts = [artifact for volume in manifest['volumes'] if volume.get('engine') == 'RBD'
+                 for artifact in volume.get('chain', [])
+                 if artifact.get('backupUuid') == plan['backupUuid'] and artifact.get('checkpointName') == path.stem]
+    if not artifacts:
+        raise RuntimeError('Unknown checkpoint content; metadata cleanup deferred: ' + path.name)
+    # These files are written by Backup.begin_rbd; never source shell metadata.
+    fields = dict(line.split('=', 1) for line in content.splitlines() if '=' in line)
+    expected = {'vm_name': plan['vmName'], 'backup_engine': 'RBD_DIFF',
+                'backup_type': manifest['backupType'], 'checkpoint_name': path.stem}
+    if (any(fields.get(key) != value for key, value in expected.items())
+            or any(fields.get('parent_checkpoint_name') != (artifact.get('parentCheckpointName') or '')
+                   for artifact in artifacts)):
+        raise RuntimeError('RBD checkpoint metadata differs from its recorded backup: ' + path.name)
+
+
 def atomic(path, value):
     temporary = path.with_suffix('.tmp')
     fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
@@ -90,8 +107,8 @@ def inventory(plan, destination):
         info = entry.lstat()
         if entry.name == 'checkpoints' and stat.S_ISDIR(info.st_mode):
             for checkpoint in sorted(entry.iterdir()):
-                if not checkpoint.name.endswith('.xml'):
-                    raise RuntimeError('Unknown checkpoint content; metadata cleanup deferred')
+                if checkpoint.suffix not in ('.xml', '.meta'):
+                    raise RuntimeError('Unknown checkpoint content; metadata cleanup deferred: ' + checkpoint.name)
                 files.append(checkpoint)
         elif entry.name in METADATA and stat.S_ISREG(info.st_mode):
             files.append(entry)
@@ -100,7 +117,9 @@ def inventory(plan, destination):
     snapshots = []
     for path in files:
         before = path.lstat()
-        read_file(path)  # rejects links, devices and oversized files
+        content = read_file(path)  # rejects links, devices and oversized files
+        if path.parent == root / 'checkpoints' and path.suffix == '.meta':
+            validate_rbd_checkpoint(path, content, plan)
         if not (start - 5 <= before.st_ctime <= end + 5):
             raise RuntimeError('Metadata is outside this external restore time window: ' + path.name)
         if fingerprint(path.lstat()) != fingerprint(before):

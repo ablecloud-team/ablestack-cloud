@@ -47,14 +47,95 @@ class RejectedMetadataCleanupTest(unittest.TestCase):
         self.addCleanup(mounts.stop)
         self.write_metadata()
 
-    def write_metadata(self):
-        self.root.mkdir(parents=True, exist_ok=True)
-        (self.root / 'checkpoints').mkdir(exist_ok=True)
-        (self.root / 'checkpoints/disk.xml').write_text('<domaincheckpoint/>')
+    def write_metadata(self, plan=None):
+        plan = self.plan if plan is None else plan
+        root = Path(plan['destinations'][0]['path'])
+        root.mkdir(parents=True, exist_ok=True)
+        (root / 'checkpoints').mkdir(exist_ok=True)
+        (root / 'checkpoints/disk.xml').write_text('<domaincheckpoint/>')
+        (root / 'backup-manifest.json').write_text(json.dumps(plan['manifest']))
+        (root / 'domain-config.xml').write_text('<domain><name>i-2-318-VM</name><uuid>vm-uuid</uuid></domain>')
+        (root / '.staging.complete').write_text('volume_pipeline=true\nbackup_uuid=backup-uuid\n')
+        (root / 'dominfo.xml').write_text('domain information')
+
+    def write_rbd_metadata(self, plan=None):
+        plan = self.plan if plan is None else plan
+        root = Path(plan['destinations'][0]['path'])
+        manifest = plan['manifest']
+        checkpoint = manifest['timestamp']
+        parent = 'previous-checkpoint' if manifest['backupType'] == 'INCREMENTAL' else ''
+        manifest['volumes'] = [dict(engine='RBD', chain=[dict(backupUuid=plan['backupUuid'],
+                                      checkpointName=checkpoint, parentCheckpointName=parent)])]
+        self.write_metadata(plan)
+        (root / 'checkpoints/disk.xml').unlink()
+        metadata = ('vm_name=%s\nbackup_engine=RBD_DIFF\nbackup_type=%s\ncheckpoint_name=%s\n'
+                    'parent_checkpoint_name=%s\ndisk_paths=pool/image\nbackup_files=root.disk.raw\nbackup_dir=%s\n' %
+                    (plan['vmName'], manifest['backupType'], checkpoint, parent, root))
+        (root / 'rbd-backup.meta').write_text(metadata)
+        path = root / 'checkpoints' / (checkpoint + '.meta')
+        path.write_text(metadata)
+        return path
+
+    def test_rbd_full_and_incremental_metadata_cleanup_for_accepted_and_rejected_restores(self):
+        for provider in ('ablestack-netbackup', 'ablestack-veeam'):
+            for backup_type in ('FULL', 'INCREMENTAL'):
+                for accepted in (False, True):
+                    with self.subTest(provider=provider, backup_type=backup_type, accepted=accepted):
+                        plan = copy.deepcopy(self.plan)
+                        plan.update(provider=provider, accepted=accepted)
+                        plan['manifest'].update(provider=provider, backupType=backup_type)
+                        root = self.base / provider / plan['vmName'] / self.root.name
+                        plan['destinations'][0]['path'] = str(root)
+                        self.write_rbd_metadata(plan)
+                        receipts = self.receipts / provider / backup_type / str(accepted)
+                        helper.cleanup(plan, receipts)
+                        self.assertFalse(root.exists())
+
+    def test_unrelated_rbd_checkpoint_metadata_is_preserved(self):
+        checkpoint = self.write_rbd_metadata()
+        original = checkpoint.read_text()
+        for before, after in (('vm_name=i-2-318-VM', 'vm_name=another-vm'),
+                              ('backup_type=FULL', 'backup_type=INCREMENTAL'),
+                              ('backup_engine=RBD_DIFF', 'backup_engine=QCOW2'),
+                              ('checkpoint_name=' + self.root.name, 'checkpoint_name=another-checkpoint'),
+                              ('parent_checkpoint_name=\n', 'parent_checkpoint_name=another-parent\n')):
+            with self.subTest(field=before):
+                checkpoint.write_text(original.replace(before, after))
+                with self.assertRaisesRegex(RuntimeError, 'RBD checkpoint metadata differs'):
+                    helper.cleanup(self.plan, self.receipts)
+                self.assertTrue((self.root / 'backup-manifest.json').exists())
+        checkpoint.write_text(original)
+        checkpoint.rename(checkpoint.with_name('unrelated.meta'))
+        with self.assertRaisesRegex(RuntimeError, 'Unknown checkpoint content'):
+            helper.cleanup(self.plan, self.receipts)
+        self.assertTrue((self.root / 'backup-manifest.json').exists())
+
+    def test_non_rbd_manifest_cannot_authorize_meta_checkpoint_cleanup(self):
+        self.write_rbd_metadata()
+        self.plan['manifest']['volumes'][0]['engine'] = 'QCOW2'
         (self.root / 'backup-manifest.json').write_text(json.dumps(self.plan['manifest']))
-        (self.root / 'domain-config.xml').write_text('<domain><name>i-2-318-VM</name><uuid>vm-uuid</uuid></domain>')
-        (self.root / '.staging.complete').write_text('volume_pipeline=true\nbackup_uuid=backup-uuid\n')
-        (self.root / 'dominfo.xml').write_text('domain information')
+        with self.assertRaisesRegex(RuntimeError, 'Unknown checkpoint content'):
+            helper.cleanup(self.plan, self.receipts)
+        self.assertTrue((self.root / 'backup-manifest.json').exists())
+
+    def test_rbd_checkpoint_links_and_unknown_files_are_preserved(self):
+        checkpoint = self.write_rbd_metadata()
+        target = self.base / 'important.meta'
+        checkpoint.rename(target)
+        checkpoint.symlink_to(target)
+        with self.assertRaises(OSError):
+            helper.cleanup(self.plan, self.receipts)
+        checkpoint.unlink()
+        os.link(target, checkpoint)
+        with self.assertRaisesRegex(RuntimeError, 'individually owned'):
+            helper.cleanup(self.plan, self.receipts)
+        checkpoint.unlink()
+        checkpoint.write_text(target.read_text())
+        (checkpoint.parent / 'unknown.txt').write_text('must remain')
+        with self.assertRaisesRegex(RuntimeError, 'Unknown checkpoint content'):
+            helper.cleanup(self.plan, self.receipts)
+        self.assertTrue(target.exists())
+        self.assertTrue((self.root / 'backup-manifest.json').exists())
 
     def test_removes_owned_metadata_for_both_providers_without_touching_backup_storage(self):
         for provider in ('ablestack-netbackup', 'ablestack-veeam'):

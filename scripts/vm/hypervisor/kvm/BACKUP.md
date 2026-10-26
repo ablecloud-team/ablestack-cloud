@@ -2067,9 +2067,15 @@ Mold 비동기 작업에서 VM 복원을 시작하지 못하면 해당 Job·세�
 원래 수신 Host에서 메타데이터를 정리한다. 관리 서버를 재시작해도 미완료 정리 기록부터 재개한다.
 
 잔여 메타데이터는 백업 UUID·VM UUID·시점·매니페스트·완료 마커와
-외부 작업의 실제 기록 시각이 일치하는 작은 메타데이터 파일 및 checkpoint XML만 대상이다.
+외부 작업의 실제 기록 시각이 일치하는 작은 메타데이터 파일 및 checkpoint XML·RBD checkpoint `.meta`만 대상이다.
+RBD `.meta`는 해당 백업 매니페스트의 RBD 볼륨·checkpoint 이름과 연결되고, 파일 내부의 VM 이름·백업 유형·
+현재/부모 checkpoint가 일치해야 정리한다. 이 정리는 복원된 메타데이터 파일만 제거하며 원본 RBD 스냅샷을 삭제하지 않는다.
 볼륨 이미지나 알 수 없는 파일이 있거나 다른 백업·복원 작업이 사용 중이면 `WAITING`과 사유를 남기고
 관리 서버가 30초 주기로 다시 확인한다. Host 단절, 종료 미확인, 소유권 불일치도 정리를 보류한다.
+실행 중인 VM 복원이 차단되어 `FAILED`인 상태에서 `Unknown checkpoint content`가 함께 표시되면,
+복원 차단 사유와 잔여 메타데이터 정리 보류 사유를 구분한다. RBD `.meta` 지원 누락에 대한 이 수정은
+수신 Host의 `thirdparty_external_restore_cleanup.py`만 갱신하면 되며 사전구성 재실행·서비스 재시작은 필요하지 않다.
+기존 정리 대기 건은 다음 주기부터 재시도하므로 새 파일 복원이나 백업 재생성 없이 정리 결과를 확인한다.
 정리 완료 후 `COMPLETED`를 표시하며, NetBackup/Veeam 보관 백업과 카탈로그·Restore Point는 이 정리로 삭제하지 않는다.
 Host의 `/var/lib/ablestack/backup/external-restore-cleanup/`에 작업별 정리 영수증을 남겨
 재시도나 재시작 후 같은 경로에 새로 복원된 파일을 이전 요청으로 삭제하지 않는다.
