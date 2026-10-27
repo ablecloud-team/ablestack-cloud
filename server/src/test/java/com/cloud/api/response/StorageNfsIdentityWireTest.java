@@ -19,7 +19,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 import org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 public class StorageNfsIdentityWireTest {
     @Test public void actualSerializerProducesNamedObservationAndInheritedJobId() throws Exception {
         StorageNfsIdentityMappingResponse response=new StorageNfsIdentityMappingResponse();

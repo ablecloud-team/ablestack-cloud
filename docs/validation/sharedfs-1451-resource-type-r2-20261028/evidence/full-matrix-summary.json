@@ -1,0 +1,19 @@
+{
+  "profiles": 48,
+  "uidCases": 192,
+  "allPassed": true,
+  "rawCopies": 92,
+  "actualUid1Files": {
+    "c1": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640"
+    },
+    "c2": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640"
+    }
+  },
+  "serverUid1Nss": "daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin"
+}

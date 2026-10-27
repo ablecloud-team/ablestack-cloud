@@ -16,13 +16,13 @@
 // under the License.
 package org.apache.cloudstack.storage.dataservice;
 import java.util.Arrays;
-import java.util.Collections;
 import java.lang.reflect.Field;
 import com.cloud.exception.InvalidParameterValueException;
 import com.google.gson.JsonObject;
 import org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 public class StorageNfsIdentityMappingTest {
     @Test public void legacyAndExplicitDefaultsAgreeAndOtherEndpointFieldsSurvive() {
         StorageServiceProtocolVO legacy = new StorageServiceProtocolVO(9, StorageServiceInstance.Protocol.NFS, true, "10.0.0.1", 2049);
