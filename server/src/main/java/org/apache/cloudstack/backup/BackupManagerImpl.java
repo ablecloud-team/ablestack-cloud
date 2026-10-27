@@ -906,7 +906,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 throw new CloudRuntimeException("Failed to get the backup provider for the zone, please contact the administrator");
             }
 
-            backupSnapshotGuard.checkBackupSource(vmId, offering.getProvider());
+            // Assignment records backup configuration; offline source checks run when a backup is executed.
             if (BackupProviderNameUtils.isCommvaultFamily(offering.getProvider())) {
                 return assignAblestackCommvaultBackupOffering(vm, offering, backupProvider);
             }

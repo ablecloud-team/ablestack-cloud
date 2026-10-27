@@ -1579,6 +1579,65 @@ public class BackupManagerTest {
         }
     }
 
+    @Test
+    public void testRunningGfs2RawVmCanAssignOfferingButCannotExecuteOfflineBackup() {
+        Long vmId = 1L;
+        Long offeringId = 2L;
+        String provider = "ablestack-nas";
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(vm.getId()).thenReturn(vmId);
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running);
+        when(vm.getHypervisorType()).thenReturn(Hypervisor.HypervisorType.KVM);
+        when(vm.getBackupOfferingId()).thenReturn(null);
+        when(vm.getDataCenterId()).thenReturn(1L);
+        when(vm.getAccountId()).thenReturn(3L);
+        when(vmInstanceDao.findById(vmId)).thenReturn(vm);
+        when(vmInstanceDao.update(vmId, vm)).thenReturn(true);
+        when(accountManager.getAccount(3L)).thenReturn(mock(Account.class));
+
+        BackupOfferingVO offering = mock(BackupOfferingVO.class);
+        when(offering.getId()).thenReturn(offeringId);
+        when(offering.getProvider()).thenReturn(provider);
+        when(backupOfferingDao.findById(offeringId)).thenReturn(offering);
+        doReturn(backupProvider).when(backupManager).getBackupProvider(provider);
+        doNothing().when(backupManager).validateBackupForZone(1L);
+        when(backupProvider.assignVMToBackupOffering(vm, offering)).thenReturn(true);
+
+        VolumeVO volume = new VolumeVO(Volume.Type.ROOT, "raw-root", 3L, 1L, 1L,
+                5L, null, 1024L, null, null, null);
+        volume.setFormat(Storage.ImageFormat.RAW);
+        volume.setPoolId(10L);
+        when(volumeDao.findByInstance(vmId)).thenReturn(List.of(volume));
+        DiskOfferingVO diskOffering = mock(DiskOfferingVO.class);
+        when(diskOffering.getUuid()).thenReturn("raw-disk-offering");
+        when(diskOfferingDao.findById(5L)).thenReturn(diskOffering);
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.SharedMountPoint);
+        when(primaryDataStoreDao.findById(10L)).thenReturn(pool);
+
+        AblestackSharedRawBackupService sharedRaw = mock(AblestackSharedRawBackupService.class);
+        doThrow(new CloudRuntimeException("SHARED_RAW_VM_NOT_STOPPED")).when(sharedRaw).checkSources(vmId);
+        ReflectionTestUtils.setField(backupSnapshotGuard, "vmDao", vmInstanceDao);
+        ReflectionTestUtils.setField(backupSnapshotGuard, "volumeDao", volumeDao);
+        ReflectionTestUtils.setField(backupSnapshotGuard, "poolDao", primaryDataStoreDao);
+        ReflectionTestUtils.setField(backupSnapshotGuard, "sharedRaw", sharedRaw);
+        Mockito.doCallRealMethod().when(backupSnapshotGuard).checkBackupSource(vmId, provider);
+
+        try (MockedStatic<UsageEventUtils> ignored = Mockito.mockStatic(UsageEventUtils.class)) {
+            assertTrue(backupManager.assignVMToBackupOffering(vmId, offeringId));
+        }
+        verify(vm).setBackupOfferingId(offeringId);
+        verify(vmInstanceDao).update(vmId, vm);
+
+        when(vm.getBackupOfferingId()).thenReturn(offeringId);
+        CreateBackupCmd cmd = mock(CreateBackupCmd.class);
+        when(cmd.getVmId()).thenReturn(vmId);
+        CloudRuntimeException error = Assert.assertThrows(CloudRuntimeException.class,
+                () -> backupManager.createBackup(cmd, asyncJobVOMock));
+        assertEquals("SHARED_RAW_VM_NOT_STOPPED", error.getMessage());
+        verify(backupProvider, never()).takeBackup(any(), any(), ArgumentMatchers.anyBoolean(), any());
+    }
+
     private VMInstanceVO commvaultOfferingRemovalVm() {
         VMInstanceVO vm = mock(VMInstanceVO.class);
         when(vm.getId()).thenReturn(1L);
