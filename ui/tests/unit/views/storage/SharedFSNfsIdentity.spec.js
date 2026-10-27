@@ -1,6 +1,7 @@
 // Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.
 // See NOTICE. Apache License, Version 2.0. http://www.apache.org/licenses/LICENSE-2.0
 import { mount, shallowMount, flushPromises } from '@vue/test-utils'
+import { h } from 'vue'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-1451-identity-wire.json'
@@ -82,6 +83,32 @@ describe('NFS identity actual serializer and mounted request contract', () => {
     done(wire); await read
     expect(wrapper.vm.nfsIdentity.report).toBe(null)
     expect(wrapper.vm.nfsIdentity.loading).toBe(false)
+  })
+  test('service observation panel is owned by the NFS pane', async () => {
+    wrapper.unmount()
+    wrapper = shallowMount(SharedFSTab, {
+      props: { resource: { id: 'sharedfs' } },
+      global: {
+        stubs: {
+          'a-tabs': { template: '<div><slot /></div>' },
+          'a-tab-pane': { props: ['tab'], setup: (props, { slots }) => () => h('section', { 'data-pane': props.tab }, props.tab === 'NFS' ? slots.default?.() : []) }
+        },
+        provide: { parentFetchData: jest.fn() },
+        mocks: {
+          $t: k => k,
+          $route: { fullPath: '/sharedfs/sharedfs?tab=nfs', query: { tab: 'nfs' }, params: { id: 'sharedfs' } },
+          $router: { push: jest.fn(), replace: jest.fn() },
+          $store: { state: { app: { device: 'desktop' } }, getters: { apis: { listStorageServiceInstances: {}, listSharedFileSystems: {} }, capabilities: {}, features: {}, project: {}, listAllProjects: [], userInfo: { id: 'user' } } },
+          $message: { error: jest.fn(), success: jest.fn() }, $notifyError: jest.fn()
+        }
+      }
+    })
+    wrapper.vm.storageService.instance = { id: 'instance' }
+    await flushPromises()
+    const nfs = wrapper.find('[data-pane="NFS"]')
+    const details = wrapper.find('[data-pane="label.details"]')
+    expect(nfs.findComponent(StorageNfsIdentityPanel).exists()).toBe(true)
+    expect(details.findComponent(StorageNfsIdentityPanel).exists()).toBe(false)
   })
   test('panel exposes configured vs applied policy and scoped client requirements', () => {
     const panel = mount(StorageNfsIdentityPanel, { props: { report: wire.getstoragenfsidentitymappingresponse.nfsidentitymapping, mode: 'NUMERIC' }, global: { mocks: { $t: k => k } } })
