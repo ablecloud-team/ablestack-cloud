@@ -2910,6 +2910,31 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testCompletedNasWorkerRemainsFinalizingWithoutControlsUntilLogicalCompletion() throws Exception {
+        BackupVO backup = cleanedFailedVolumeBackup(new HashMap<>());
+        backup.setStatus(Backup.Status.BackingUp);
+        backup.setHostId(2L);
+        when(backupDao.findById(2049L)).thenReturn(backup);
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(vmInstanceDao.findByIdIncludingRemoved(336L)).thenReturn(vm);
+        HostVO host = mock(HostVO.class);
+        when(host.getId()).thenReturn(2L);
+        when(hostDao.findById(2L)).thenReturn(host);
+        BackupAnswer answer = new BackupAnswer(null, true, "Source data saved; finalization pending");
+        answer.setState("COMPLETED");
+        answer.setStep("COMPLETED");
+        answer.setProgress(100);
+        answer.setCapabilities("cancel,live-bandwidth");
+        when(agentManager.send(eq(2L), any(AblestackBackupJobStatusCommand.class))).thenReturn(answer);
+
+        var response = backupManager.getBackupJobStatus(2049L, null, null);
+        assertEquals("RUNNING", response.getState());
+        assertEquals("FINALIZING", response.getStep());
+        assertEquals(Integer.valueOf(99), response.getProgress());
+        assertEquals("", response.getCapabilities());
+    }
+
+    @Test
     public void testNewBackupResponseWhenBackupOfferingMissing() {
         Long vmId = 1L;
         Long accountId = 2L;

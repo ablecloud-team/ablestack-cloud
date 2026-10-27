@@ -64,12 +64,43 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
     private final ThreadLocal<GlobalLock> held = new ThreadLocal<>();
 
     static String marker(String path) {
+        return AblestackSharedRawBackup.MARKER + "." + digest(path);
+    }
+    private static String digest(String value) {
         try {
-            byte[] hash = MessageDigest.getInstance("SHA-256").digest(path.getBytes(StandardCharsets.UTF_8));
-            StringBuilder key = new StringBuilder(AblestackSharedRawBackup.MARKER + ".");
-            for (byte value : hash) key.append(String.format("%02x", value & 255));
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+            StringBuilder key = new StringBuilder();
+            for (byte octet : hash) key.append(String.format("%02x", octet & 255));
             return key.toString();
         } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+    }
+    /** Pool detail values are limited to 255 characters; the full plan belongs in backup_details. */
+    static String ownership(AblestackSharedRawBackup.Plan plan) {
+        var owner = new com.google.gson.JsonObject();
+        owner.addProperty("version", 2);
+        owner.addProperty("backupId", plan.backupId);
+        owner.addProperty("jobId", plan.jobId);
+        owner.addProperty("hostId", plan.hostId);
+        owner.addProperty("operation", plan.operation);
+        owner.addProperty("planHash", digest(JSON.toJson(plan)));
+        String value = owner.toString();
+        if (value.length() > 255) throw new CloudRuntimeException("SHARED_RAW_UNKNOWN: ownership identity exceeds the pool detail limit");
+        return value;
+    }
+    private boolean owns(String value, String record, AblestackSharedRawBackup.Plan plan) {
+        if (ownership(plan).equals(value) || record.equals(value)) return true;
+        // Recover only the exact 255-character truncation produced by the old DAO writer.
+        // The complete backup/job/Host/operation identity must fit before the truncation.
+        String identity = "{\"version\":1,\"backupId\":" + plan.backupId + ",\"jobId\":" + JSON.toJson(plan.jobId)
+                + ",\"hostId\":" + plan.hostId + ",\"operation\":" + JSON.toJson(plan.operation) + ",";
+        return value != null && value.length() == 255 && record.length() > 255 && identity.length() < 255
+                && value.startsWith(identity) && record.startsWith(value);
+    }
+    private void verifyOwnership(AblestackSharedRawBackup.Plan plan, String record) {
+        for (var disk : plan.disks) {
+            var owner = poolDetails.findDetail(disk.poolId, marker(disk.path));
+            if (owner != null && !owns(owner.getValue(), record, plan)) throw new CloudRuntimeException("Shared RAW ownership changed");
+        }
     }
     private Lease lock() {
         if (depth.get() == 0) {
@@ -228,6 +259,7 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
                 }
             }
             for (var disk : plan.disks) checkMarker(disk.poolId, disk.path);
+            String ownerValue = ownership(plan);
             Set<Long> checked = new HashSet<>();
             try {
                 for (var disk : plan.disks) {
@@ -241,7 +273,7 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
                     }
                 }
                 Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
-                    for (var disk : plan.disks) poolDetails.addDetail(disk.poolId, marker(disk.path), JSON.toJson(plan), false);
+                    for (var disk : plan.disks) poolDetails.addDetail(disk.poolId, marker(disk.path), ownerValue, false);
                     backupDetails.addDetail(backup.getId(), key(jobId, operation), JSON.toJson(plan), false);
                     if ("BACKUP".equals(operation)) backupDetails.addDetail(backup.getId(), AblestackSharedRawBackup.RETENTION_PENDING, "true", false);
                     return true;
@@ -254,7 +286,7 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
                     // Retain ownership of partial preparations so restart/cancel cleanup
                     // can release the exact files instead of leaving untracked Host markers.
                     Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
-                        for (var disk : plan.disks) poolDetails.addDetail(disk.poolId, marker(disk.path), JSON.toJson(plan), false);
+                        for (var disk : plan.disks) poolDetails.addDetail(disk.poolId, marker(disk.path), ownerValue, false);
                         backupDetails.addDetail(backup.getId(), key(jobId, operation), JSON.toJson(plan), false);
                         backupDetails.addDetail(backup.getId(), key(jobId, operation) + ".prepareFailed", "{\"failed\":true}", false);
                         return true;
@@ -266,18 +298,21 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
         }
     }
     @Override public void release(Backup backup, String jobId, String operation) {
-        var record = backupDetails.findDetail(backup.getId(), key(jobId, operation));
-        if (record == null) return;
-        var plan = JSON.fromJson(record.getValue(), AblestackSharedRawBackup.Plan.class);
         try (Lease lease = lock()) {
+            var record = backupDetails.findDetail(backup.getId(), key(jobId, operation));
+            if (record == null) return;
+            var plan = JSON.fromJson(record.getValue(), AblestackSharedRawBackup.Plan.class);
+            if (plan == null || plan.version != 1 || plan.backupId != backup.getId()
+                    || !jobId.equals(plan.jobId) || !operation.equals(plan.operation))
+                throw new CloudRuntimeException("SHARED_RAW_UNCONFIRMED: release identity differs from its protected plan");
             if (backupDetails.findDetail(backup.getId(), key(jobId, operation) + ".released") != null) return;
+            verifyOwnership(plan, record.getValue());
             // Exclusive file locks and absence of orphan readers prove source IO has ended.
             // Delayed workers must revalidate ownership and cannot start after release.
             control(plan.hostId, "RELEASE", plan);
             Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+                verifyOwnership(plan, record.getValue());
                 for (var disk : plan.disks) {
-                    var marker = poolDetails.findDetail(disk.poolId, marker(disk.path));
-                    if (marker != null && !record.getValue().equals(marker.getValue())) throw new CloudRuntimeException("Shared RAW ownership changed");
                     poolDetails.removeDetail(disk.poolId, marker(disk.path));
                 }
                 backupDetails.addDetail(backup.getId(), key(jobId, operation) + ".released", "{\"released\":true}", false);

@@ -112,15 +112,39 @@ class SharedRawTest(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "cluster-wide locking"):
                     raw.guard_files(str(self.source))
 
-    def test_conversion_creates_independent_raw_and_compares_original_raw(self):
+    def test_conversion_creates_independent_raw_without_rereading_source_for_compare(self):
         target = self.root / "copy.raw"; process = Mock(returncode=0); process.poll.return_value = 0
         def launch(args, **kwargs):
-            target.write_bytes(b"qcow2")
+            target.write_bytes(b"raw data")
             self.assertEqual(["qemu-img", "convert", "-p", "-f", "raw", "-O", "raw", "-S", "4k"], args[:9])
             self.assertNotIn("-B", args); return process
-        with patch.object(raw.subprocess, "Popen", side_effect=launch), patch.object(raw, "command", side_effect=['{"format":"raw","virtual-size":4096}', ""]) as commands:
-            raw.convert(str(self.source), target, "raw", 4096, 30)
-        self.assertEqual(["qemu-img", "compare", "-f", "raw", "-F", "raw", str(self.source), str(target)], commands.call_args_list[1].args[0])
+        progress = Mock()
+        with patch.object(raw.subprocess, "Popen", side_effect=launch), patch.object(raw, "command", return_value='{"format":"raw","virtual-size":4096}') as commands, patch.object(raw.os, "fsync") as fsync:
+            raw.convert(str(self.source), target, "raw", 4096, 30, progress=progress)
+        commands.assert_called_once_with(["qemu-img", "info", "--output=json", str(target)])
+        fsync.assert_called_once()
+        progress.assert_called_once_with(1)
+
+    def test_failed_copy_does_not_report_completion(self):
+        process = Mock(returncode=1); process.poll.return_value = 1
+        progress = Mock()
+        with patch.object(raw.subprocess, "Popen", return_value=process), patch.object(raw, "command") as commands:
+            with self.assertRaisesRegex(RuntimeError, "conversion failed"):
+                raw.convert(str(self.source), self.root / "copy.raw", "raw", 4096, 30, progress=progress)
+        commands.assert_not_called()
+        progress.assert_not_called()
+
+    def test_failed_flush_does_not_report_completion(self):
+        target = self.root / "copy.raw"; target_data = b"raw data"
+        process = Mock(returncode=0); process.poll.return_value = 0
+        def launch(*args, **kwargs):
+            target.write_bytes(target_data)
+            return process
+        progress = Mock()
+        with patch.object(raw.subprocess, "Popen", side_effect=launch), patch.object(raw, "command", return_value='{"format":"raw","virtual-size":4096}'), patch.object(raw.os, "fsync", side_effect=OSError("flush failed")):
+            with self.assertRaisesRegex(OSError, "flush failed"):
+                raw.convert(str(self.source), target, "raw", 4096, 30, progress=progress)
+        progress.assert_not_called()
 
     def test_backing_file_in_full_result_is_rejected(self):
         process = Mock(returncode=0); process.poll.return_value = 0
@@ -144,6 +168,33 @@ class SharedRawTest(unittest.TestCase):
         with patch.object(raw, "runtime_free"), patch.object(raw, "command", return_value=""), patch.object(raw, "convert", side_effect=convert), patch("builtins.print") as output:
             raw.export_nas(payload)
         output.assert_called_once_with(5, flush=True)
+
+    def test_nas_reports_copy_phases_volume_identity_and_size_weighted_progress(self):
+        destination = self.root / "nas"; destination.mkdir()
+        job = self.root / "job"; job.mkdir()
+        second = self.root / "data.qcow2"; second.write_bytes(b"data")
+        plan = dict(self.plan, disks=self.plan["disks"] + [{"path": second.name, "format": "qcow2", "bytes": 12288}])
+        payload = {"plan": plan, "paths": [str(self.source), str(second)], "files": ["root.disk.raw", "data.disk.qcow2"],
+                   "destination": str(destination), "timeout": 30}
+        snapshots = []
+        def snapshot():
+            snapshots.append(dict(line.split("=", 1) for line in (job / "nas-progress.properties").read_text().splitlines()))
+        def convert(source, target, *args, **kwargs):
+            snapshot()
+            for fraction in (0.5, 1):
+                kwargs["progress"](fraction)
+                snapshot()
+            target.write_bytes(b"image")
+        with patch.dict(os.environ, ABLESTACK_BACKUP_JOB_DIR=str(job)), patch.object(raw, "offline_sources"), patch.object(raw, "capture_configuration", side_effect=lambda *args: snapshot()), patch.object(raw, "convert", side_effect=convert), patch("builtins.print") as output:
+            raw.export_nas(payload)
+        snapshot()
+        self.assertEqual(["PREPARING", "RAW_COPY", "RAW_COPY", "RAW_COPY", "QCOW2_COPY", "QCOW2_COPY", "QCOW2_COPY", "FINALIZING"],
+                         [item["step"] for item in snapshots])
+        self.assertEqual([5, 5, 16, 27, 27, 61, 95, 99], [int(item["progress"]) for item in snapshots])
+        self.assertEqual(["1"] * 4 + ["2"] * 4, [item["volumeIndex"] for item in snapshots])
+        self.assertEqual({"2"}, {item["volumeCount"] for item in snapshots})
+        self.assertEqual(["nas-progress.properties"], [path.name for path in job.iterdir()])
+        output.assert_called_once_with(10, flush=True)
 
     def test_stopped_vm_without_libvirt_definition_uses_mold_identity_descriptor(self):
         with patch.object(raw, "command", return_value=""):

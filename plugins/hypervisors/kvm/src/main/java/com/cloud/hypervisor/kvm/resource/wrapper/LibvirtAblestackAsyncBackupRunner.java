@@ -248,7 +248,7 @@ final class LibvirtAblestackAsyncBackupRunner {
         answer.setVolumeCount(parseNullableInteger(properties != null ? properties.getProperty("volumeCount") : null));
         answer.setProgress(properties != null && Boolean.parseBoolean(properties.getProperty("progressUnavailable")) ? null : resolveProgress(state, properties));
         answer.setOperation(properties != null ? properties.getProperty("operation") : null);
-        answer.setCapabilities(properties != null ? properties.getProperty("capabilities") : null);
+        answer.setCapabilities(properties != null ? resolveCapabilities(properties) : "");
         answer.setBandwidthLimitMbps(parseNullableInteger(properties != null ? properties.getProperty("bandwidthLimitMbps") : null));
         answer.setBandwidthStatus(properties != null ? properties.getProperty("bandwidthStatus") : null);
         answer.setEventsJson(readJobEventsJson(jobId, eventsOffset, eventsLimit, answer));
@@ -410,6 +410,13 @@ final class LibvirtAblestackAsyncBackupRunner {
         if (STATE_COMPLETED.equals(state)) {
             return new StopBackupAnswer(command, false, operation + " job is already " + state);
         }
+        if (STATE_RUNNING.equals(state)) {
+            refreshNasProgress(jobId, properties, logger);
+            refreshVolumeProgress(jobId, properties, logger);
+            if (!Arrays.asList(resolveCapabilities(properties).split(",")).contains(AblestackBackupFrameworkUtils.CAPABILITY_CANCEL)) {
+                return new StopBackupAnswer(command, false, "Backup cancellation is unavailable during " + properties.getProperty("step"));
+            }
+        }
         properties.setProperty("cancelRequested", Boolean.TRUE.toString());
         properties.setProperty("state", STATE_CANCEL_PENDING);
         properties.setProperty("step", STATE_CANCEL_PENDING);
@@ -483,6 +490,9 @@ final class LibvirtAblestackAsyncBackupRunner {
         }
 
         refreshVolumeProgress(jobId, properties, logger);
+        if (refreshNasProgress(jobId, properties, logger)) {
+            return new BackupAnswer(command, false, "Offline NAS Full backup does not support live bandwidth changes");
+        }
         if (Boolean.parseBoolean(properties.getProperty("volumePipeline"))) {
             if (!Boolean.parseBoolean(properties.getProperty("liveBandwidthSupported"))
                     || !"QCOW2_BACKUP".equals(properties.getProperty("step"))) {
@@ -505,6 +515,9 @@ final class LibvirtAblestackAsyncBackupRunner {
 
         if (isRbdBackup(properties)) {
             return new BackupAnswer(command, false, "RBD backup jobs do not support live bandwidth changes on this host");
+        }
+        if (!Arrays.asList(resolveCapabilities(properties).split(",")).contains(AblestackBackupFrameworkUtils.CAPABILITY_LIVE_BANDWIDTH)) {
+            return new BackupAnswer(command, false, "Live bandwidth changes are unavailable for this backup engine or phase");
         }
 
         final String vmName = properties.getProperty("vmName");
@@ -727,10 +740,10 @@ final class LibvirtAblestackAsyncBackupRunner {
             properties.setProperty("backupPath", safeValue(backupPath));
             properties.setProperty("backupType", safeValue(backupType));
             properties.setProperty("operation", AblestackBackupFrameworkUtils.resolveJobOperation(backupType));
-            properties.setProperty("capabilities", resolveCapabilities(properties));
             properties.setProperty("state", state);
             properties.setProperty("step", state);
             properties.setProperty("progress", String.valueOf(resolveProgress(state, properties)));
+            properties.setProperty("capabilities", resolveCapabilities(properties));
             properties.setProperty("updated", String.valueOf(System.currentTimeMillis()));
             if (details != null) {
                 properties.setProperty("details", details);
@@ -854,6 +867,9 @@ final class LibvirtAblestackAsyncBackupRunner {
         if (refreshVolumeProgress(jobId, properties, logger)) {
             return properties;
         }
+        if (refreshNasProgress(jobId, properties, logger)) {
+            return properties;
+        }
         // Restore phases are reported by the worker, not by libvirt's VM backup/export job.
         if (AblestackBackupFrameworkUtils.OPERATION_RESTORE.equals(properties.getProperty("operation"))
                 || refreshRbdProgress(jobId, properties, logger)) {
@@ -881,6 +897,45 @@ final class LibvirtAblestackAsyncBackupRunner {
         properties.setProperty("liveProgressUpdated", String.valueOf(System.currentTimeMillis()));
         storeJobProperties(logger, jobId, properties);
         return properties;
+    }
+
+    private static boolean refreshNasProgress(final String jobId, final Properties properties, final Logger logger) {
+        final Path path = getJobDirectory(jobId).resolve("nas-progress.properties");
+        if (!Files.isRegularFile(path)) {
+            return false;
+        }
+        try (InputStream input = Files.newInputStream(path)) {
+            final Properties progress = new Properties();
+            progress.load(input);
+            if (!applyNasProgress(properties, progress)) {
+                return false;
+            }
+            storeJobProperties(logger, jobId, properties);
+            return true;
+        } catch (IOException e) {
+            logger.debug("Unable to read NAS progress for backup [{}]", jobId, e);
+            return false;
+        }
+    }
+
+    static boolean applyNasProgress(final Properties properties, final Properties progress) {
+        final String step = progress.getProperty("step", "");
+        if (!STATE_RUNNING.equals(properties.getProperty("state"))
+                || !AblestackBackupFrameworkUtils.OPERATION_BACKUP.equals(properties.getProperty("operation"))
+                || !Set.of("PREPARING", "RAW_COPY", "QCOW2_COPY", "FINALIZING").contains(step)) {
+            return false;
+        }
+        properties.setProperty("step", step);
+        properties.setProperty("progress", String.valueOf(Math.min(99, Math.max(
+                parseInteger(properties.getProperty("progress"), 5), parseInteger(progress.getProperty("progress"), 5)))));
+        properties.setProperty("volumeIndex", progress.getProperty("volumeIndex", "1"));
+        properties.setProperty("volumeCount", progress.getProperty("volumeCount", "1"));
+        properties.setProperty("details", progress.getProperty("details", step));
+        properties.remove("progressUnavailable");
+        properties.setProperty("liveBandwidthSupported", "false");
+        properties.setProperty("liveBandwidthActive", "false");
+        properties.setProperty("capabilities", resolveCapabilities(properties));
+        return true;
     }
 
     private static boolean refreshVolumeProgress(final String jobId, final Properties properties, final Logger logger) {
@@ -1054,8 +1109,11 @@ final class LibvirtAblestackAsyncBackupRunner {
 
     static String resolveCapabilities(final Properties properties) {
         final List<String> capabilities = new ArrayList<>();
-        if (!Boolean.parseBoolean(properties.getProperty("volumePipeline"))
-                || java.util.Set.of("PREPARING", "QCOW2_BACKUP", "RBD_EXPORT", "RBD_EXPORT_DIFF").contains(properties.getProperty("step", ""))) {
+        final boolean active = Set.of(STATE_STARTED, STATE_RUNNING).contains(properties.getProperty("state", ""));
+        final boolean finalizing = "FINALIZING".equals(properties.getProperty("step"));
+        if (active && !finalizing && (!Boolean.parseBoolean(properties.getProperty("volumePipeline"))
+                || java.util.Set.of("PREPARING", "QCOW2_BACKUP", "RBD_EXPORT", "RBD_EXPORT_DIFF", "OFFLINE_FULL_EXPORT")
+                .contains(properties.getProperty("step", "")))) {
             capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_CANCEL);
         }
         capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_EVENTS);
@@ -1063,7 +1121,7 @@ final class LibvirtAblestackAsyncBackupRunner {
         capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_PROGRESS);
         if (AblestackBackupFrameworkUtils.OPERATION_RESTORE.equals(properties.getProperty("operation"))) {
             capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_RESTORE_PROGRESS);
-        } else if (Boolean.parseBoolean(properties.getProperty("liveBandwidthSupported"))
+        } else if (active && !finalizing && Boolean.parseBoolean(properties.getProperty("liveBandwidthSupported"))
                 && Boolean.parseBoolean(properties.getProperty("liveBandwidthActive")) && !isRbdBackup(properties)) {
             capabilities.add(AblestackBackupFrameworkUtils.CAPABILITY_LIVE_BANDWIDTH);
         }

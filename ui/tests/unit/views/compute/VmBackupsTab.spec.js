@@ -142,6 +142,8 @@ test('Commvault cancel action disappears after the host export submits a Commvau
   expect(w.vm.visible('cancelBackup', { ...active, externalid: '/stage/backup-1' })).toBe(true)
   expect(w.vm.visible('cancelBackup', { ...active, externalid: '/stage/backup-1,12345' })).toBe(false)
   expect(w.vm.visible('cancelBackup', { ...active, status: 'BackedUp' })).toBe(false)
+  expect(w.vm.visible('cancelBackup', { ...active, backupjobstate: 'COMPLETED' })).toBe(false)
+  expect(w.vm.visible('cancelBackup', { ...active, backupjobstep: 'FINALIZING' })).toBe(false)
   w.unmount()
 })
 test.each(['ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'])('volume backup controls follow the latest capabilities for %s', async provider => {
@@ -177,6 +179,21 @@ test('Commvault live bandwidth action is available only during host backup', asy
   expect(w.vm.visible('updateBackupJobBandwidth', { ...active, externalid: '/stage/backup-1,12345' })).toBe(false)
   expect(w.vm.visible('updateBackupJobBandwidth', { ...active, status: 'BackedUp' })).toBe(false)
   expect(w.vm.visible('updateBackupJobBandwidth', { ...active, capabilities: '' })).toBe(false)
+  w.unmount()
+})
+test('NAS RAW controls require current capabilities and disappear during finalization', async () => {
+  const w = mount(); await flush()
+  const active = { ...row, status: 'BackingUp', provider: 'ablestack-nas', backupengine: 'OFFLINE_FILE' }
+  expect(w.vm.visible('cancelBackup', active)).toBe(false)
+  expect(w.vm.visible('cancelBackup', { ...active, capabilities: 'cancel,events,log,progress' })).toBe(true)
+  expect(w.vm.visible('updateBackupJobBandwidth', { ...active, capabilities: 'cancel,events,log,progress' })).toBe(false)
+  for (const state of ['RUNNING', 'COMPLETED']) {
+    for (const capabilities of ['', 'cancel,live-bandwidth']) {
+      const finalizing = { ...active, backupjobstate: state, backupjobstep: 'FINALIZING', capabilities, backupjobcapabilities: 'cancel' }
+      expect(w.vm.visible('cancelBackup', finalizing)).toBe(false)
+      expect(w.vm.visible('updateBackupJobBandwidth', finalizing)).toBe(false)
+    }
+  }
   w.unmount()
 })
 test('Commvault restore shows the requested phase without a long lived loading message', async () => {

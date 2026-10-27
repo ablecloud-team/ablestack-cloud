@@ -179,10 +179,86 @@ public class AblestackSharedRawBackupServiceTest {
         verifyNoInteractions(agents, backupDetails);
     }
     @Test public void sourceReleaseCannotRemoveProtectionWhileHostIsUnconfirmed() throws Exception {
-        var plan = new AblestackSharedRawBackup.Plan(); plan.jobId = "job"; plan.hostId = 50L; plan.operation = "BACKUP";
+        var plan = new AblestackSharedRawBackup.Plan(); plan.backupId = 60L; plan.jobId = "job"; plan.hostId = 50L; plan.operation = "BACKUP";
         when(backupDetails.findDetail(60L, AblestackSharedRawBackup.BACKUP_KEY)).thenReturn(new BackupDetailVO(60L, "plan", new Gson().toJson(plan), false));
         when(agents.send(anyLong(), any(AblestackSharedRawBackupCommand.class))).thenReturn(new Answer(null, false, "reader active"));
         assertThrows(CloudRuntimeException.class, () -> service.release(backup("FULL"), "job", "BACKUP"));
         verify(poolDetails, never()).removeDetail(anyLong(), anyString());
+    }
+
+    @Test public void poolOwnershipFitsColumnAndBindsTheCompletePlan() {
+        var plan = releasePlan();
+        plan.vmConfiguration.put("settings", "x".repeat(2000));
+        String value = AblestackSharedRawBackupServiceImpl.ownership(plan);
+        assertTrue(value.length() <= 255);
+        var owner = new Gson().fromJson(value, com.google.gson.JsonObject.class);
+        assertEquals("job", owner.get("jobId").getAsString());
+        assertEquals("BACKUP", owner.get("operation").getAsString());
+        assertEquals(64, owner.get("planHash").getAsString().length());
+        plan.vmConfiguration.put("settings", "different");
+        assertFalse(value.equals(AblestackSharedRawBackupServiceImpl.ownership(plan)));
+    }
+
+    @Test public void releaseAcceptsCompactOwnershipAndRecordsRetirement() {
+        var plan = releasePlan();
+        mockRelease(plan, AblestackSharedRawBackupServiceImpl.ownership(plan));
+        service.release(backup("FULL"), "job", "BACKUP");
+        verify(poolDetails).removeDetail(10L, AblestackSharedRawBackupServiceImpl.marker("shared.raw"));
+        verify(backupDetails).addDetail(eq(60L), eq(AblestackSharedRawBackup.BACKUP_KEY + ".released"), anyString(), eq(false));
+    }
+
+    @Test public void releaseRecoversExactLegacyTruncationAfterHostConfirmation() throws Exception {
+        var plan = releasePlan();
+        String record = new Gson().toJson(plan);
+        assertTrue(record.length() > 255);
+        mockRelease(plan, record.substring(0, 255));
+        service.release(backup("FULL"), "job", "BACKUP");
+        verify(agents).send(eq(50L), org.mockito.ArgumentMatchers.<AblestackSharedRawBackupCommand>argThat(command -> "RELEASE".equals(command.getAction())));
+        verify(poolDetails).removeDetail(10L, AblestackSharedRawBackupServiceImpl.marker("shared.raw"));
+    }
+
+    @Test public void releaseRetainsLegacyCompleteOwnerCompatibility() {
+        var plan = releasePlan();
+        mockRelease(plan, new Gson().toJson(plan));
+        service.release(backup("FULL"), "job", "BACKUP");
+        verify(poolDetails).removeDetail(10L, AblestackSharedRawBackupServiceImpl.marker("shared.raw"));
+    }
+
+    @Test public void changedPlanCannotReleaseCompactOwnershipEvenForSameJob() {
+        var plan = releasePlan();
+        String owner = AblestackSharedRawBackupServiceImpl.ownership(plan);
+        plan.disks.get(0).bytes = 8192;
+        mockRelease(plan, owner);
+        assertThrows(CloudRuntimeException.class, () -> service.release(backup("FULL"), "job", "BACKUP"));
+        verifyNoInteractions(agents);
+        verify(poolDetails, never()).removeDetail(anyLong(), anyString());
+    }
+
+    @Test public void differentOrShortenedLegacyOwnerCannotBeReleased() {
+        var plan = releasePlan();
+        String record = new Gson().toJson(plan);
+        for (String owner : List.of(record.substring(0, 254), record.substring(0, 255).replace("\"job\"", "\"other\""))) {
+            mockRelease(plan, owner);
+            assertThrows(CloudRuntimeException.class, () -> service.release(backup("FULL"), "job", "BACKUP"));
+        }
+        verifyNoInteractions(agents);
+        verify(poolDetails, never()).removeDetail(anyLong(), anyString());
+    }
+
+    private AblestackSharedRawBackup.Plan releasePlan() {
+        var plan = new AblestackSharedRawBackup.Plan();
+        plan.backupId = 60L; plan.jobId = "job"; plan.hostId = 50L; plan.operation = "BACKUP";
+        plan.vmConfiguration.put("settings", "x".repeat(300));
+        var disk = new AblestackSharedRawBackup.Disk(); disk.poolId = 10L; disk.path = "shared.raw";
+        disk.format = "raw"; disk.bytes = 4096;
+        plan.disks.add(disk);
+        return plan;
+    }
+
+    private void mockRelease(AblestackSharedRawBackup.Plan plan, String owner) {
+        when(backupDetails.findDetail(60L, AblestackSharedRawBackup.BACKUP_KEY)).thenReturn(
+                new BackupDetailVO(60L, AblestackSharedRawBackup.BACKUP_KEY, new Gson().toJson(plan), false));
+        String key = AblestackSharedRawBackupServiceImpl.marker("shared.raw");
+        when(poolDetails.findDetail(10L, key)).thenReturn(new StoragePoolDetailVO(10L, key, owner, false));
     }
 }

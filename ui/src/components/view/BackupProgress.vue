@@ -428,7 +428,9 @@ export default {
       if (Object.prototype.hasOwnProperty.call(response, 'bandwidthlimitmbps')) {
         this.bandwidthLimitMbps = this.normalizeBandwidth(response.bandwidthlimitmbps)
       }
-      if (Object.prototype.hasOwnProperty.call(response, 'capabilities')) {
+      if (this.isTerminalJobState(response.state) || String(response.step || '').toUpperCase() === 'FINALIZING') {
+        this.$emit('capabilities-change', '')
+      } else if (Object.prototype.hasOwnProperty.call(response, 'capabilities')) {
         this.$emit('capabilities-change', response.capabilities || '')
       }
       this.bandwidthStatus = response.bandwidthstatus || this.bandwidthStatus

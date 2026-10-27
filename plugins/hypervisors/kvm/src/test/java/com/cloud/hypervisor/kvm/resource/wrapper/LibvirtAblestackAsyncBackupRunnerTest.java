@@ -67,6 +67,60 @@ public class LibvirtAblestackAsyncBackupRunnerTest {
     }
 
     @Test
+    public void offlineNasProgressReportsCopyPhaseWithoutChangingPipelineOrControls() throws Exception {
+        Properties properties = new Properties();
+        properties.setProperty("state", "RUNNING");
+        properties.setProperty("operation", "BACKUP");
+        properties.setProperty("progress", "5");
+        Properties progress = new Properties();
+        try (InputStream input = new java.io.ByteArrayInputStream(("step=RAW_COPY\nprogress=61\nvolumeIndex=2\n"
+                + "volumeCount=2\ndetails=Copying RAW backup data\n").getBytes(StandardCharsets.US_ASCII))) {
+            progress.load(input);
+        }
+        assertTrue(LibvirtAblestackAsyncBackupRunner.applyNasProgress(properties, progress));
+        assertEquals("RAW_COPY", properties.getProperty("step"));
+        assertEquals("61", properties.getProperty("progress"));
+        assertEquals("2", properties.getProperty("volumeIndex"));
+        assertEquals("2", properties.getProperty("volumeCount"));
+        assertEquals("Copying RAW backup data", properties.getProperty("details"));
+        assertFalse(Boolean.parseBoolean(properties.getProperty("volumePipeline")));
+        Set<String> capabilities = Set.copyOf(Arrays.asList(properties.getProperty("capabilities").split(",")));
+        assertTrue(capabilities.contains("cancel"));
+        assertFalse(capabilities.contains("live-bandwidth"));
+
+        progress.setProperty("progress", "20");
+        assertTrue(LibvirtAblestackAsyncBackupRunner.applyNasProgress(properties, progress));
+        assertEquals("61", properties.getProperty("progress"));
+        progress.setProperty("step", "FINALIZING");
+        progress.setProperty("progress", "100");
+        assertTrue(LibvirtAblestackAsyncBackupRunner.applyNasProgress(properties, progress));
+        assertEquals("FINALIZING", properties.getProperty("step"));
+        assertEquals("99", properties.getProperty("progress"));
+        assertFalse(Arrays.asList(properties.getProperty("capabilities").split(",")).contains("cancel"));
+    }
+
+    @Test
+    public void staleNasProgressCannotOverwriteTerminalResultsOrRestorePhases() {
+        Properties progress = new Properties();
+        progress.setProperty("step", "RAW_COPY");
+        progress.setProperty("progress", "50");
+        for (String state : Arrays.asList("COMPLETED", "FAILED", "CANCELED", "INTERRUPTED")) {
+            Properties properties = new Properties();
+            properties.setProperty("state", state);
+            properties.setProperty("operation", "BACKUP");
+            properties.setProperty("step", state);
+            assertFalse(LibvirtAblestackAsyncBackupRunner.applyNasProgress(properties, progress));
+            assertEquals(state, properties.getProperty("step"));
+        }
+        Properties restore = new Properties();
+        restore.setProperty("state", "RUNNING");
+        restore.setProperty("operation", "RESTORE");
+        restore.setProperty("step", "RESTORE_COMPARE");
+        assertFalse(LibvirtAblestackAsyncBackupRunner.applyNasProgress(restore, progress));
+        assertEquals("RESTORE_COMPARE", restore.getProperty("step"));
+    }
+
+    @Test
     public void qcow2SourceCleanupRequiresNewReceiptForTheExactParentAndDiskPaths() throws Exception {
         Path directory = temporaryFolder.newFolder().toPath();
         var plan = new Gson().fromJson("{\"rbd\":false,\"manifest\":{\"backupUuid\":\"job-1\"},"
@@ -157,6 +211,33 @@ public class LibvirtAblestackAsyncBackupRunnerTest {
     }
 
     @Test
+    public void completedOrFinalizingNasBackupNeverExposesSourceControls() {
+        for (String state : Arrays.asList("COMPLETED", "FAILED", "CANCELED", "INTERRUPTED", "CANCEL_PENDING")) {
+            Properties properties = volumeJob("ablestack-nas", "RAW_COPY");
+            properties.setProperty("volumePipeline", "false");
+            properties.setProperty("state", state);
+            String capabilities = LibvirtAblestackAsyncBackupRunner.resolveCapabilities(properties);
+            assertFalse(Arrays.asList(capabilities.split(",")).contains("cancel"));
+            assertFalse(Arrays.asList(capabilities.split(",")).contains("live-bandwidth"));
+        }
+        Properties properties = volumeJob("ablestack-nas", "FINALIZING");
+        properties.setProperty("volumePipeline", "false");
+        String capabilities = LibvirtAblestackAsyncBackupRunner.resolveCapabilities(properties);
+        assertFalse(Arrays.asList(capabilities.split(",")).contains("cancel"));
+        assertFalse(Arrays.asList(capabilities.split(",")).contains("live-bandwidth"));
+    }
+
+    @Test
+    public void offlineFileExportCanBeCanceledWithoutLiveBandwidthChanges() {
+        Properties properties = volumeJob("ablestack-netbackup", "OFFLINE_FULL_EXPORT");
+        properties.setProperty("liveBandwidthSupported", "false");
+        properties.setProperty("liveBandwidthActive", "false");
+        String capabilities = LibvirtAblestackAsyncBackupRunner.resolveCapabilities(properties);
+        assertTrue(Arrays.asList(capabilities.split(",")).contains("cancel"));
+        assertFalse(Arrays.asList(capabilities.split(",")).contains("live-bandwidth"));
+    }
+
+    @Test
     public void rbdExportsSupportCancelWithoutLiveBandwidth() {
         for (String step : Arrays.asList("RBD_EXPORT", "RBD_EXPORT_DIFF")) {
             Properties properties = volumeJob("ablestack-netbackup", step);
@@ -182,6 +263,7 @@ public class LibvirtAblestackAsyncBackupRunnerTest {
         properties.setProperty("jobId", "qcow2-control-test");
         properties.setProperty("provider", provider);
         properties.setProperty("operation", "BACKUP");
+        properties.setProperty("state", "RUNNING");
         properties.setProperty("volumePipeline", "true");
         properties.setProperty("step", step);
         properties.setProperty("liveBandwidthSupported", "true");

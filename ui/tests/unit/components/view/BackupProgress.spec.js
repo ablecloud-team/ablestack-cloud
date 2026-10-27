@@ -32,6 +32,24 @@ beforeEach(() => {
   jest.clearAllMocks()
 })
 
+test.each([
+  { state: 'COMPLETED', step: 'COMPLETED', progress: 100 },
+  { state: 'RUNNING', step: 'FINALIZING', progress: 99 }
+])('clears stale NAS controls when the Host reports $state / $step', async status => {
+  getAPI.mockResolvedValue({
+    getbackupjobstatusresponse: {
+      status: 'BackingUp', ...status, capabilities: 'cancel,live-bandwidth'
+    }
+  })
+  const wrapper = shallowMount(BackupProgress, {
+    props: { record: { id: 'backup-1', status: 'BackingUp', provider: 'ablestack-nas', backupengine: 'OFFLINE_FILE' } },
+    global: { mocks: { $t: key => key, $store: { getters: { apis: { getBackupJobStatus: {} } } } } }
+  })
+  for (let i = 0; i < 5; i++) await Promise.resolve()
+  expect(wrapper.emitted('capabilities-change')?.at(-1)).toEqual([''])
+  wrapper.unmount()
+})
+
 afterEach(() => jest.useRealTimers())
 
 test('shows the Commvault transfer phase after the host export finishes', async () => {

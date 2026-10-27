@@ -32,7 +32,13 @@ const isFastCloneFlattenActive = (record) => {
   )
 }
 
+const isBackupSourceControlClosed = (record) => {
+  return ['COMPLETED', 'FAILED', 'CANCELED', 'CANCELLED', 'INTERRUPTED', 'CANCEL_PENDING'].includes(String(record?.backupjobstate || '').toUpperCase()) ||
+    String(record?.backupjobstep || '').toUpperCase() === 'FINALIZING'
+}
+
 const hasBackupCapability = (record, capability) => {
+  if (['cancel', 'live-bandwidth'].includes(capability) && isBackupSourceControlClosed(record)) return false
   return String(record?.capabilities ?? record?.backupjobcapabilities ?? '')
     .split(',')
     .map(item => item.trim())
@@ -732,9 +738,9 @@ export default {
           message: 'message.confirm.cancel.backup',
           dataView: true,
           show: (record) => {
-            if (record.status !== 'BackingUp') return false
+            if (record.status !== 'BackingUp' || isBackupSourceControlClosed(record)) return false
             if (record?.stagingqueue?.state === 'WAITING') return false
-            if (isVolumeBackup(record)) return hasBackupCapability(record, 'cancel')
+            if (isVolumeBackup(record) || String(record.provider || '').toLowerCase() === 'ablestack-nas') return hasBackupCapability(record, 'cancel')
             return !hasSubmittedCommvaultJob(record)
           },
           args: ['id'],

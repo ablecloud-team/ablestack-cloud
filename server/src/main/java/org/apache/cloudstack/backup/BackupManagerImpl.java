@@ -1870,8 +1870,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         final boolean ablestackProvider = isAblestackHostSideRestoreProvider(offering);
         if (ablestackProvider) {
-            if (isHostBackupCompleted(backup, vm)) {
-                throw new CloudRuntimeException("Backup has completed; cancellation is no longer available");
+            if (isHostBackupCompleted(backup, vm, true)) {
+                throw new CloudRuntimeException("Backup is finalizing or completed; cancellation is no longer available");
             }
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCEL_REQUESTED_DETAIL, "true", false);
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.BACKUP_CANCELLATION_DETAIL,
@@ -6291,8 +6291,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY))) {
                 response.setDetails(backup.getDetail(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY));
             }
-            if (ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))
-                    && "COMPLETED".equals(backupAnswer.getState()) && backupAnswer.getResult()) {
+            if ("COMPLETED".equals(backupAnswer.getState()) && backupAnswer.getResult()) {
                 response.setState("RUNNING");
                 response.setStep("FINALIZING");
                 response.setProgress(99);
@@ -6317,11 +6316,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private boolean isHostBackupCompleted(final BackupVO backup, final VMInstanceVO vm) {
+        return isHostBackupCompleted(backup, vm, false);
+    }
+
+    private boolean isHostBackupCompleted(final BackupVO backup, final VMInstanceVO vm, final boolean includeFinalizing) {
         final Host host = findBackupJobHost(backup, vm);
         if (host == null) { return false; }
         try {
             final Answer answer = agentManager.send(host.getId(), new AblestackBackupJobStatusCommand(backup.getUuid()));
-            return answer instanceof BackupAnswer && answer.getResult() && "COMPLETED".equals(((BackupAnswer) answer).getState());
+            return answer instanceof BackupAnswer && answer.getResult() && ("COMPLETED".equals(((BackupAnswer) answer).getState())
+                    || (includeFinalizing && "FINALIZING".equals(((BackupAnswer) answer).getStep())));
         } catch (AgentUnavailableException | OperationTimedoutException e) {
             return false;
         }

@@ -42,6 +42,11 @@ public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO>
 
     private static final String KEY = "key";
     private static final java.util.Set<String> COORDINATOR_DETAIL_KEYS = java.util.Set.of(
+            org.apache.cloudstack.backup.AblestackSharedRawBackup.BACKUP_KEY,
+            org.apache.cloudstack.backup.AblestackSharedRawBackup.BACKUP_KEY + ".released",
+            org.apache.cloudstack.backup.AblestackSharedRawBackup.BACKUP_KEY + ".prepareFailed",
+            org.apache.cloudstack.backup.AblestackSharedRawBackup.BACKUP_KEY + ".unstarted",
+            org.apache.cloudstack.backup.AblestackSharedRawBackup.RETENTION_PENDING,
             AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL,
             ThirdPartyBackupStart.DETAIL_KEY,
             ThirdPartyBackupAdmission.BACKUP_KEY, ThirdPartyBackupAdmission.RESTORE_KEY,

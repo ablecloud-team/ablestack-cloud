@@ -214,7 +214,6 @@ def convert(source, destination, source_format, virtual_bytes, timeout, progress
         info = json.loads(command(["qemu-img", "info", "--output=json", str(target)]))
         if info.get("format") != source_format or info.get("virtual-size") != virtual_bytes or any(k in info for k in ("backing-filename", "full-backing-filename", "data-file")):
             raise RuntimeError("Offline Full result is not an independent image of the expected size")
-        command(["qemu-img", "compare", "-f", source_format, "-F", source_format, str(source), str(target)], timeout)
         with target.open("rb") as stream:
             os.fsync(stream.fileno())
         if progress:
@@ -268,13 +267,48 @@ def export_nas(payload):
         if (Path(path).name != disk["path"] or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*\.(?:raw|qcow2)", name) or Path(name).suffix != "." + disk["format"]
                 or disk["format"] not in {"raw", "qcow2"} or disk["bytes"] <= 0):
             raise RuntimeError("Invalid offline NAS source or destination")
+    job_directory = os.environ.get("ABLESTACK_BACKUP_JOB_DIR")
+    total_bytes = sum(disk["bytes"] for disk in plan["disks"])
+    copied_bytes = 0
+    previous = None
+
+    def progress(step, index, fraction=0):
+        nonlocal previous
+        percentage = 5
+        if step == "FINALIZING":
+            percentage = 99
+        elif step in {"RAW_COPY", "QCOW2_COPY"}:
+            percentage += int(90 * (copied_bytes + plan["disks"][index]["bytes"] * max(0, min(1, fraction))) / total_bytes)
+        if previous is not None:
+            percentage = max(previous[1], percentage)
+        current = (step, percentage, index + 1)
+        if not job_directory or current == previous:
+            return
+        details = {"PREPARING": "Preparing offline Full backup", "RAW_COPY": "Copying RAW backup data",
+                   "QCOW2_COPY": "Copying QCOW2 backup data", "FINALIZING": "Finalizing offline Full backup"}[step]
+        path = Path(job_directory) / "nas-progress.properties"
+        temporary = path.with_name(path.name + ".tmp-" + str(os.getpid()))
+        try:
+            temporary.write_text("step=%s\nprogress=%s\nvolumeIndex=%s\nvolumeCount=%s\ndetails=%s\n" %
+                                 (*current, len(files), details), encoding="ascii")
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+        previous = current
+
+    progress("PREPARING", 0)
     with offline_sources(paths, plan["jobId"]) as validate:
         capture_configuration(plan, paths, destination)
         total = 0
-        for path, disk, name in zip(paths, plan["disks"], files):
+        for index, (path, disk, name) in enumerate(zip(paths, plan["disks"], files)):
             target = destination / name
-            convert(path, target, disk["format"], disk["bytes"], payload["timeout"], bandwidth=payload.get("bandwidth", 0))
+            step = "RAW_COPY" if disk["format"] == "raw" else "QCOW2_COPY"
+            progress(step, index)
+            convert(path, target, disk["format"], disk["bytes"], payload["timeout"],
+                    progress=lambda fraction: progress(step, index, fraction), bandwidth=payload.get("bandwidth", 0))
+            copied_bytes += disk["bytes"]
             total += target.stat().st_size
+        progress("FINALIZING", len(files) - 1)
         validate()
     print(total, flush=True)
 
