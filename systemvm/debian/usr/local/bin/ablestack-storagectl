@@ -1608,7 +1608,7 @@ print(json.dumps({
     "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
-    "nfsidentitymapping": NfsIdentityMapping().observe(),
+    "nfsidentitymapping": NfsIdentityMapping().inspect(),
     "nfsPosixObservations": nfs_posix,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,

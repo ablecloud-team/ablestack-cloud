@@ -84,6 +84,14 @@ class IdentityTests(unittest.TestCase):
             with self.assertRaisesRegex(txn.Rejected,"EXPECTED_POLICY_GATE"):
                 adapter.verify({"nfs export apply": self.value})
         self.assertNotIn(self.run/"a.identity.json",adapter.file_paths({"candidate":{"nfs export apply":self.value}}))
+    def test_optional_corrupt_observation_does_not_disable_capability_show(self):
+        import io
+        from contextlib import redirect_stdout
+        with patch.object(txn.NfsIdentityMapping,"observe",side_effect=ValueError("corrupt")):
+            with redirect_stdout(io.StringIO()) as output:txn.main(["capability","show"])
+        result=json.loads(output.getvalue())
+        self.assertEqual(1,result["configurationTransactionVersion"])
+        self.assertEqual("UNKNOWN",result["nfsidentitymapping"]["observationstatus"])
     def test_no_exports_is_not_running(self):
         self.assertEqual("NOT_RUNNING",self.mapper.verify(self.value)["observationstatus"])
     def test_observation_leaves_data_owner_and_mode_unchanged(self):
