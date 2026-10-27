@@ -87,7 +87,7 @@ final class StorageServiceConfigurationCoordinator {
             StorageServiceConfigurationOperationVO value = new StorageServiceConfigurationOperationVO();
             value.setInstanceId(instance.getId()); value.setAccountId(instance.getAccountId()); value.setDomainId(instance.getDomainId());
             value.setRequestId(requestId); value.setRequestHash(hash); value.setProtocol(protocol.name());
-            value.setResourceType(cmd.getClass().getSimpleName()); value.setAction(action(cmd));
+            value.setResourceType(resourceType(cmd)); value.setAction(action(cmd));
             value.setBaseRevision(locked.getConfigurationRevision()); value.setTargetRevision(locked.getConfigurationRevision() + 1);
             if (cmd.getJob() instanceof org.apache.cloudstack.api.InternalIdentity) value.setJobId(((org.apache.cloudstack.api.InternalIdentity)cmd.getJob()).getId());
             value.setState("PENDING"); value.setPhase("PREPARING");
@@ -248,6 +248,13 @@ final class StorageServiceConfigurationCoordinator {
         } else if ("ROLLED_BACK".equals(state)) {
             plan.discardReservations(); finish(op, "ROLLED_BACK", true);
         } else { op.setState("RECOVERY_REQUIRED"); op.setPhase("OBSERVING"); save(op); }
+    }
+
+    /** Persisted task identity is bounded by the existing VARCHAR(32) contract. */
+    static String resourceType(final BaseStorageServiceConfigurationCmd cmd) {
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
+            return "NfsIdentityMapping";
+        return cmd.getClass().getSimpleName();
     }
 
     static boolean smbEndpointCommand(final BaseStorageServiceConfigurationCmd cmd) {
