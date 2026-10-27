@@ -4695,6 +4695,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         cmdList.add(CancelBackupCmd.class);
         cmdList.add(CancelBackupStagingJobCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.GetBackupStagingInfoCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.GetVeeamRuntimeConfigCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.ReconcileBackupStagingJobCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.ResolveBackupArtifactCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.RestoreBackupArtifactCmd.class);

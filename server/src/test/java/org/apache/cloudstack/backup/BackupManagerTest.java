@@ -423,6 +423,20 @@ public class BackupManagerTest {
     }
 
     @Test
+    public void testVeeamRuntimeConfigApiRegistrationFollowsBackupFrameworkAvailability() {
+        overrideBackupFrameworkConfigValue();
+        Class<?> runtime = org.apache.cloudstack.api.command.admin.backup.GetVeeamRuntimeConfigCmd.class;
+        assertEquals(1L, backupManager.getCommands().stream().filter(runtime::equals).count());
+        assertTrue(backupManager.getCommands().stream().anyMatch(command -> {
+            org.apache.cloudstack.api.APICommand annotation = command.getAnnotation(org.apache.cloudstack.api.APICommand.class);
+            return annotation != null && "getVeeamRuntimeConfig".equals(annotation.name());
+        }));
+
+        ReflectionTestUtils.setField(BackupManager.BackupFrameworkEnabled, "_value", false);
+        assertFalse(backupManager.getCommands().contains(runtime));
+    }
+
+    @Test
     public void testThirdPartyStagingConfigKeysAreRegistered() {
         List<String> registeredKeys = new ArrayList<>();
         for (ConfigKey<?> configKey : backupManager.getConfigKeys()) {
