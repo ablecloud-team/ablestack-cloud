@@ -1,0 +1,29 @@
+{
+  "schema": [
+    {
+      "COLUMN_TYPE": "varchar(32)"
+    }
+  ],
+  "instance": [
+    {
+      "id": "82",
+      "uuid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+      "vm_id": "174",
+      "configuration_revision": "3",
+      "active_configuration_operation_id": null
+    }
+  ],
+  "failedRequest": [
+    {
+      "count": "0"
+    }
+  ],
+  "protocol": [
+    {
+      "uuid": "81aad0a3-3be6-431c-95ab-01d4a9689d0a",
+      "enabled": "1",
+      "port": "2049",
+      "config_json": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}],\"nfs4IdentityMappingMode\":\"NAME_DOMAIN\",\"nfs4IdentityPolicyRevision\":0}"
+    }
+  ]
+}
