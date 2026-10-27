@@ -85,4 +85,34 @@ public class StorageNfsPosixTest {
         String path=System.getProperty("storage.nfs.fixture");
         if(path!=null) Files.writeString(Path.of(path),wire.toString()+"\n");
     }
+    @Test public void deferredPayloadContainsOnlyOneUnpublishedTargetWithInspectionReceipt() {
+        StorageServiceInstanceVO instance = new StorageServiceInstanceVO();
+        StorageFileShareVO share = new StorageFileShareVO();
+        share.setPath("/export/deferred");
+        share.setConfigJson("{\"ownerUid\":65534,\"mode\":\"0775\",\"lastInspection\":{\"directoryCreated\":true,\"configurationOperationId\":\"original-create\"}}");
+        JsonObject payload=StorageNfsPosix.deferredPayload(instance,share);
+        assertTrue(payload.get("posixOnly").getAsBoolean());
+        assertEquals(1,payload.getAsJsonArray("exports").size());
+        JsonObject row=payload.getAsJsonArray("exports").get(0).getAsJsonObject();
+        assertEquals(share.getUuid(),row.get("uuid").getAsString());
+        assertEquals("Allocated",row.get("state").getAsString());
+        assertFalse(payload.has("listeners"));assertFalse(row.has("acls"));
+        assertEquals("original-create",row.getAsJsonObject("config").getAsJsonObject("lastInspection").get("configurationOperationId").getAsString());
+    }
+    @Test(expected=com.cloud.utils.exception.CloudRuntimeException.class)
+    public void deferredCreationRejectsAnOldGuestBeforeCandidatePreparation() {
+        org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd cmd =
+            org.mockito.Mockito.mock(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd.class);
+        org.mockito.Mockito.when(cmd.getDeferApply()).thenReturn(true);
+        StorageNfsPosix.requireDeferredCapability(cmd,new JsonObject());
+    }
+    @Test public void ordinaryCreationNeedsNoNewCapabilityAndDeferredV1IsAccepted() {
+        org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd cmd =
+            org.mockito.Mockito.mock(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd.class);
+        StorageNfsPosix.requireDeferredCapability(cmd,new JsonObject());
+        org.mockito.Mockito.when(cmd.getDeferApply()).thenReturn(true);
+        JsonObject caps=new JsonObject();caps.addProperty("nfsDeferredPosixVersion",1);
+        StorageNfsPosix.requireDeferredCapability(cmd,caps);
+    }
+
 }

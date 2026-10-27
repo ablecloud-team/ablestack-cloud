@@ -880,6 +880,8 @@ class RuntimeAdapter:
                 raise Rejected("UNSUPPORTED_OPERATION")
             if value.get("instanceUuid") not in (None, payload["instanceUuid"]):
                 raise Rejected("INSTANCE_IDENTITY_MISMATCH")
+            if value.get("posixOnly") and not self.nfs_posix_only(payload):
+                raise Rejected("INVALID_DEFERRED_POSIX_INTENT")
             if operation.startswith("nvmeof"):
                 for sub in value.get("subsystems", []):
                     for host in sub.get("hosts", []):
@@ -894,8 +896,87 @@ class RuntimeAdapter:
             if report["status"] != "READY":
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
                 raise Rejected(blocked)
+        if self.nfs_posix_only(payload):
+            self.posix_only_plan(payload["candidate"]["nfs export apply"])
         self.payload = payload
         atomic_json(self.payload_path, redact(payload))
+
+
+    @staticmethod
+    def nfs_posix_only(payload):
+        commands = (payload or {}).get("candidate", {})
+        return set(commands) == {"nfs export apply"} and commands["nfs export apply"].get("posixOnly") is True
+
+    @staticmethod
+    def posix_only_row(value):
+        rows, intent = value.get("exports", []), value.get("posixIntent") or {}
+        if len(rows) != 1 or intent.get("version") != 1 or intent.get("create") is not True:
+            raise Rejected("INVALID_DEFERRED_POSIX_INTENT")
+        row = rows[0]
+        if intent.get("targetUuid") != row.get("uuid") or (intent.get("fields") or {}).get("recursivePermission") is True:
+            raise Rejected("INVALID_DEFERRED_POSIX_INTENT")
+        if nfs_posix_observe(row)["status"] != "OBSERVED":
+            raise Rejected("POSIX_OBSERVATION_UNAVAILABLE")
+        return row
+
+    def posix_only_plan(self, value):
+        row = self.posix_only_row(value)
+        allowed = nfs_posix_apply_config(row, value)
+        path = Path(row["config"]["backingPath"])
+        info = path.stat()
+        expected = {"path": str(path), "device": info.st_dev, "inode": info.st_ino,
+                    "uid": int(allowed.get("ownerUid", info.st_uid)),
+                    "gid": int(allowed.get("ownerGid", info.st_gid)),
+                    "mode": int(str(allowed["mode"]), 8) if "mode" in allowed else info.st_mode & 0o7777}
+        atomic_json(self.private / "posix-expected.json", expected)
+
+    def posix_only_fd(self, value):
+        row = self.posix_only_row(value)
+        expected = load(self.private / "posix-expected.json")
+        path = row["config"]["backingPath"]
+        if not expected or expected["path"] != path:
+            raise Rejected("DIRECTORY_IDENTITY_CHANGED")
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        info = os.fstat(fd)
+        if (info.st_dev, info.st_ino) != (expected["device"], expected["inode"]):
+            os.close(fd)
+            raise Rejected("DIRECTORY_IDENTITY_CHANGED")
+        return fd, expected
+
+    def apply_posix_only(self, value):
+        row = self.posix_only_row(value)
+        allowed = nfs_posix_apply_config(row, value)
+        fd, expected = self.posix_only_fd(value)
+        try:
+            if "ownerUid" in allowed or "ownerGid" in allowed:
+                os.fchown(fd, int(allowed.get("ownerUid", -1)), int(allowed.get("ownerGid", -1)))
+            if "mode" in allowed:
+                os.fchmod(fd, int(str(allowed["mode"]), 8))
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    def verify_posix_only(self, value):
+        fd, expected = self.posix_only_fd(value)
+        try:
+            info = os.fstat(fd)
+            if (info.st_uid, info.st_gid, info.st_mode & 0o7777) != (expected["uid"], expected["gid"], expected["mode"]):
+                raise Rejected("NFS_POSIX_VERIFICATION_FAILED")
+        finally:
+            os.close(fd)
+
+    def restore_posix_only(self, payload, snapshot):
+        value = payload["candidate"]["nfs export apply"]
+        fd, expected = self.posix_only_fd(value)
+        try:
+            before = snapshot["metadata"].get(expected["path"])
+            if before is None:
+                raise Rejected("BEFORE_IMAGE_UNAVAILABLE")
+            os.fchown(fd, before["uid"], before["gid"])
+            os.fchmod(fd, before["mode"])
+            checked(["setfacl", "--restore=-"], input=before["acl"].encode())
+        finally:
+            os.close(fd)
 
     @staticmethod
     def listener_only(payload):
@@ -908,6 +989,8 @@ class RuntimeAdapter:
             SmbListenerProfiles().commit(payload["operationid"])
 
     def file_paths(self, payload):
+        if self.nfs_posix_only(payload):
+            return set()
         paths = {Path("/etc/ablestack-storage/network-endpoints.json")}
         for operation in payload["candidate"]:
             if operation.startswith("nfs"):
@@ -930,6 +1013,9 @@ class RuntimeAdapter:
         return paths
 
     def directories(self, payload):
+        if self.nfs_posix_only(payload):
+            row = self.posix_only_row(payload["candidate"]["nfs export apply"])
+            return {row["config"]["backingPath"]}, set(), set()
         paths = set()
         users, groups = set(), set()
         for commands in (payload.get("before", {}), payload["candidate"]):
@@ -1095,10 +1181,16 @@ class RuntimeAdapter:
         return alive(child) or alive(progress.get("child"))
 
     def observe_completed(self):
-        result = load(self.private / "runner-result.json")
-        if not result or result.get("observationUnknown"):
-            return "UNKNOWN"
         payload = load(self.payload_path)
+        result = load(self.private / "runner-result.json")
+        if not self.nfs_posix_only(payload) and (not result or result.get("observationUnknown")):
+            return "UNKNOWN"
+        if self.nfs_posix_only(payload):
+            try:
+                self.verify(payload["candidate"])
+                return "VERIFIED"
+            except Rejected:
+                return "FAILED"
         # A durable completion marker is published only after every candidate engine ran.
         if load(self.private / "candidate-completed.json") == {"requestHash": public_hash(payload["candidate"])}:
             try:
@@ -1119,6 +1211,10 @@ class RuntimeAdapter:
         return "FAILED" if result.get("operation") in operations else "UNKNOWN"
 
     def apply(self, commands):
+        if self.nfs_posix_only({"candidate": commands}):
+            self.apply_posix_only(commands["nfs export apply"])
+            atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
+            return
         for operation, value in commands.items():
             if operation == "smb share apply" and value.get("listenerOnly"):
                 value = dict(value)
@@ -1132,6 +1228,9 @@ class RuntimeAdapter:
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
 
     def verify(self, commands):
+        if self.nfs_posix_only({"candidate": commands}):
+            self.verify_posix_only(commands["nfs export apply"])
+            return
         if not commands:
             return
         smb = commands.get("smb share apply", {})
@@ -1224,6 +1323,9 @@ class RuntimeAdapter:
         payload = load(self.payload_path)
         if not snapshot or not payload:
             raise Rejected("BEFORE_IMAGE_UNAVAILABLE")
+        if self.nfs_posix_only(payload):
+            self.restore_posix_only(payload, snapshot)
+            return
         if self.listener_only(payload):
             SmbListenerProfiles().rollback(payload["operationid"])
             self.restore_files(snapshot)
@@ -1552,7 +1654,7 @@ def main(argv):
         return 0
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
-                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION}))
+                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
