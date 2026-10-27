@@ -5,6 +5,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import CreateSharedFS from '@/views/storage/CreateSharedFS'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-initial-configuration-wire.json'
+import rejectedWire from '../../../fixtures/storage-1450-initial-nfs-rejected.json'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const clone = value => JSON.parse(JSON.stringify(value))
@@ -13,6 +14,7 @@ const target = wire.observations.at(-1).liststorageserviceconfigurationoperation
 describe('mounted initial NFS configuration with recorded API responses', () => {
   let wrapper
   beforeEach(() => {
+    sessionStorage.clear()
     jest.useFakeTimers()
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse(wire.preflightReady.preflightstorageserviceconfigurationresponse.configurationpreflight.observedat) + 1000)
     global.crypto = require('crypto').webcrypto
@@ -115,5 +117,124 @@ describe('mounted initial NFS configuration with recorded API responses', () => 
     expect(index).toBe(wire.observations.length)
     expect(wrapper.vm.pendingCreation.configurationRequests).toBeTruthy()
     expect(wrapper.vm.$notification.error).not.toHaveBeenCalled()
+  })
+
+  test('new prepared DATA uses the same POSIX intent and acknowledgement before export then ACL', async () => {
+    const failed = rejectedWire.getstorageserviceconfigurationoperationresponse.configurationoperation
+    expect(failed.originalfailure.code).toBe('IMPACT_ACK_REQUIRED')
+    expect(failed.observation.posixobservation.status).toBe('PATH_MISSING')
+    let exportCommitted = false
+    let aclPosted = false
+    wrapper.vm.$confirm.mockImplementation(options => {
+      expect(postAPI.mock.calls.at(-1)[0]).toBe('preflightStorageServiceConfiguration')
+      options.onOk()
+    })
+    getAPI.mockImplementation(async api => {
+      if (api === 'listStorageNfsExports') return { liststoragenfsexportsresponse: {} }
+      if (api === 'listStorageServiceConfigurationOperations') {
+        if (aclPosted) return clone(wire.aclObservations.at(-1))
+        exportCommitted = true
+        return clone(wire.observations.at(-1))
+      }
+      throw new Error('Unexpected GET ' + api)
+    })
+    postAPI.mockImplementation(async api => {
+      if (api === 'preflightStorageServiceConfiguration') return clone(wire.preflightReady)
+      if (api === 'createStorageNfsExport') return clone(wire.accepted)
+      if (api === 'createStorageNfsAcl') {
+        expect(exportCommitted).toBe(true)
+        aclPosted = true
+        return clone(wire.aclAccepted)
+      }
+      throw new Error('Unexpected POST ' + api)
+    })
+    await wrapper.vm.createInitialFileServices(
+      { id: target.instanceid },
+      { volumeid: target.result.volumeid, preparation: { status: 'PREPARED' } },
+      {
+        services: ['NFS'],
+        name: 'new-prepared',
+        nfsname: failed.candidate.name,
+        nfspath: failed.candidate.path,
+        filesystem: 'XFS',
+        useexistingvolume: false,
+        nfsprincipal: '10.10.0.0/16',
+        nfspermission: 'READ_WRITE',
+        nfsrootsquash: true,
+        nfssync: true
+      })
+    const intent = JSON.parse(postAPI.mock.calls[0][1].intent)
+    expect(intent).toEqual({
+      api: 'createStorageNfsExport',
+      recursive: false,
+      volumeid: target.result.volumeid,
+      name: failed.candidate.name,
+      path: failed.candidate.path,
+      posixchanges: failed.observation.posixchanges
+    })
+    expect(wrapper.vm.$confirm).toHaveBeenCalledTimes(2)
+    expect(exportCommitted).toBe(true)
+    const apply = postAPI.mock.calls.find(([api]) => api === 'createStorageNfsExport')[1]
+    expect(apply).toEqual(expect.objectContaining({
+      owneruid: intent.posixchanges.ownerUid,
+      ownergid: intent.posixchanges.ownerGid,
+      mode: intent.posixchanges.mode,
+      name: intent.name,
+      path: intent.path,
+      volumeid: intent.volumeid,
+      impactack: wire.preflightReady.preflightstorageserviceconfigurationresponse.configurationpreflight.fingerprint,
+      importmode: 'MOUNT_EXISTING',
+      recursivepermission: false
+    }))
+    expect(intent.posixchanges).not.toHaveProperty('recursivePermission')
+    expect(postAPI.mock.calls.map(([api]) => api)).toEqual(['preflightStorageServiceConfiguration',
+      'createStorageNfsExport', 'preflightStorageServiceConfiguration', 'createStorageNfsAcl'])
+  })
+
+  test.each([
+    ['RO', false, 'READ_ONLY', true],
+    ['no-root', false, 'READ_WRITE', false],
+    ['imported', true, 'READ_WRITE', true]
+  ])('%s initial creation leaves omitted POSIX fields out of admission', async (label, existing, permission, rootSquash) => {
+    getAPI.mockResolvedValue({ liststoragenfsexportsresponse: {} })
+    const setupSpy = jest.spyOn(wrapper.vm, 'runStorageServiceSetup').mockResolvedValue({ storagenfsexport: { id: 'created' } })
+    await wrapper.vm.createInitialFileServices({ id: target.instanceid }, { volumeid: target.result.volumeid },
+      {
+        services: ['NFS'],
+        name: label,
+        filesystem: 'XFS',
+        useexistingvolume: existing,
+        nfspermission: permission,
+        nfsrootsquash: rootSquash
+      })
+    const [api, raw] = setupSpy.mock.calls[0]
+    setupSpy.mockRestore()
+    postAPI.mockResolvedValue(clone(wire.preflightReady))
+    await wrapper.vm.checkInitialConfiguration(api, wrapper.vm.cleanParams(raw), target.instanceid)
+    const intent = JSON.parse(postAPI.mock.calls[0][1].intent)
+    expect(intent.posixchanges).toEqual({})
+    expect(intent.name).toBe(raw.name)
+    expect(intent.path).toBe(raw.path)
+    for (const key of ['owneruid', 'ownergid', 'mode']) expect(wrapper.vm.cleanParams(raw)).not.toHaveProperty(key)
+  })
+
+  test('declining the new DATA POSIX acknowledgement never sends a create request', async () => {
+    const failed = rejectedWire.getstorageserviceconfigurationoperationresponse.configurationoperation
+    postAPI.mockResolvedValue(clone(wire.preflightReady))
+    wrapper.vm.$confirm.mockImplementation(options => options.onCancel())
+    await expect(wrapper.vm.runStorageServiceSetup('createStorageNfsExport',
+      {
+        instanceid: target.instanceid,
+        name: failed.candidate.name,
+        path: failed.candidate.path,
+        volumeid: target.result.volumeid,
+        owneruid: 65534,
+        ownergid: 65534,
+        mode: '0775',
+        recursivepermission: false
+      }))
+      .rejects.toThrow('CONFIGURATION_IMPACT_NOT_ACKNOWLEDGED')
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(postAPI.mock.calls[0][1].intent).posixchanges).toEqual(failed.observation.posixchanges)
   })
 })

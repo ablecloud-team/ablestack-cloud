@@ -1074,6 +1074,7 @@ import store from '@/store'
 import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/sharedFsBacking'
 import { isConfigurationApi, observeConfigurationOperation, decodeConfigurationOperations } from '@/utils/storageConfigOperation'
 import { decodeConfigurationPreflight } from '@/utils/storageConfigPreflight'
+import { nfsPermissionIntent } from '@/utils/nfsPosixPolicy'
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
 import MoldDialog from '@/components/view/MoldDialog'
 import SharedFSPreparationPanel from '@/views/storage/SharedFSPreparationPanel'
@@ -2592,6 +2593,12 @@ export default {
       const intent = { api, recursive: !!params.recursivepermission }
       for (const key of ['protocol', 'volumeid']) if (params[key]) intent[key] = params[key]
       if (params.id) intent.resourceid = params.id
+      if (api === 'createStorageNfsExport') {
+        intent.posixchanges = nfsPermissionIntent(params)
+        // Match server fields(): false is an unchanged recursive policy, not an explicit change.
+        if (params.recursivepermission !== true) delete intent.posixchanges.recursivePermission
+        for (const key of ['name', 'path']) if (params[key] !== undefined) intent[key] = params[key]
+      }
       for (;;) {
         const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid, intent: JSON.stringify(intent) }, { timeout: 30000, preserveOnFailure: true })
         const report = decodeConfigurationPreflight(wire)
