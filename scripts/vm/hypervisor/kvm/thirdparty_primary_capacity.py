@@ -53,7 +53,8 @@ def filesystem_capacity(path, prepare_identity=False):
             directory.mkdir(mode=0o700, exist_ok=True)
         identity = directory / "filesystem.id"
         with (directory / "identity.lock").open("a" if prepare_identity else "r") as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
+            # Linux NFS requires a writable descriptor for exclusive record locks.
+            fcntl.flock(lock, fcntl.LOCK_EX if prepare_identity else fcntl.LOCK_SH)
             if not identity.exists():
                 if not prepare_identity:
                     raise RuntimeError("Saved NFS capacity identity is unavailable")

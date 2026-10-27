@@ -249,6 +249,7 @@ class NbdCopyTest(unittest.TestCase):
             worker.job.mkdir()
             worker.manifest = {"backupUuid": worker.job.name}
             worker.plan = {"rbd": False}
+            worker.offline = None
             worker.source_start = worker.job / "volume-source-start.json"
             original = {"version": 1, "backupUuid": worker.job.name, "state": "NOT_STARTED"}
             backup.atomic(worker.source_start, original)
