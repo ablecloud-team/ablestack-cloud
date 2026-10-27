@@ -1,0 +1,15 @@
+{
+  "actualSourceUsed": true,
+  "actualWireFixtureUsed": true,
+  "sourceFile": "ui/src/utils/storageConfigOperation.js",
+  "returnedState": "RUNNING",
+  "returnedCanResume": true,
+  "jobStatus": 2,
+  "authoritativeFinalState": "ROLLED_BACK",
+  "finalReadSkipped": true,
+  "calls": [
+    "listStorageServiceConfigurationOperations",
+    "queryAsyncJobResult"
+  ],
+  "clusterMutations": 0
+}
