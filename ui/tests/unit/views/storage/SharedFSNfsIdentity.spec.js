@@ -99,7 +99,8 @@ describe('NFS identity actual serializer and mounted request contract', () => {
           $route: { fullPath: '/sharedfs/sharedfs?tab=nfs', query: { tab: 'nfs' }, params: { id: 'sharedfs' } },
           $router: { push: jest.fn(), replace: jest.fn() },
           $store: { state: { app: { device: 'desktop' } }, getters: { apis: { listStorageServiceInstances: {}, listSharedFileSystems: {} }, capabilities: {}, features: {}, project: {}, listAllProjects: [], userInfo: { id: 'user' } } },
-          $message: { error: jest.fn(), success: jest.fn() }, $notifyError: jest.fn()
+          $message: { error: jest.fn(), success: jest.fn() },
+          $notifyError: jest.fn()
         }
       }
     })

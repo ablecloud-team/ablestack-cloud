@@ -1,0 +1,134 @@
+{
+  "NAME_DOMAIN": {
+    "attrs": {
+      "mode": "0o640",
+      "owner": "daemon@design.test",
+      "group": "daemon@design.test"
+    },
+    "readAsOwner": {
+      "status": 0,
+      "eof": true,
+      "data": "epic1451-identity-preserved"
+    },
+    "readAsOther": {
+      "status": 13
+    },
+    "receiptObservation": {
+      "observationstatus": "APPLIED",
+      "endpoints": [
+        {
+          "port": 23049,
+          "endpoint": "ganesha",
+          "configuredmode": "NAME_DOMAIN",
+          "configuredrevision": 13,
+          "state": "APPLIED",
+          "effectivemode": "NAME_DOMAIN",
+          "observedrevision": 13,
+          "observeddomain": "design.test",
+          "observedat": "1793079116.9190924"
+        }
+      ],
+      "observedat": "1793079116.9248323",
+      "observeddomain": "design.test",
+      "effectivemode": "NAME_DOMAIN",
+      "policyrevision": 13
+    }
+  },
+  "SIGHUP_AFTER_NUMERIC_EDIT": {
+    "attrs": {
+      "mode": "0o640",
+      "owner": "daemon@design.test",
+      "group": "daemon@design.test"
+    },
+    "readAsOwner": {
+      "status": 0,
+      "eof": true,
+      "data": "epic1451-identity-preserved"
+    },
+    "readAsOther": {
+      "status": 13
+    },
+    "observation": "DRIFT"
+  },
+  "NUMERIC": {
+    "attrs": {
+      "mode": "0o640",
+      "owner": "1",
+      "group": "1"
+    },
+    "readAsOwner": {
+      "status": 0,
+      "eof": true,
+      "data": "epic1451-identity-preserved"
+    },
+    "readAsOther": {
+      "status": 13
+    },
+    "receiptObservation": {
+      "observationstatus": "APPLIED",
+      "endpoints": [
+        {
+          "port": 23049,
+          "endpoint": "ganesha",
+          "configuredmode": "NUMERIC",
+          "configuredrevision": 13,
+          "state": "APPLIED",
+          "effectivemode": "NUMERIC",
+          "observedrevision": 13,
+          "observeddomain": "design.test",
+          "observedat": "1793079117.285859"
+        }
+      ],
+      "observedat": "1793079117.2910647",
+      "observeddomain": "design.test",
+      "effectivemode": "NUMERIC",
+      "policyrevision": 13
+    }
+  },
+  "invalidCandidateRejected": {
+    "exitcode": 2,
+    "restoredAfterward": "NAME_DOMAIN_RESTORED"
+  },
+  "NAME_DOMAIN_RESTORED": {
+    "attrs": {
+      "mode": "0o640",
+      "owner": "daemon@design.test",
+      "group": "daemon@design.test"
+    },
+    "readAsOwner": {
+      "status": 0,
+      "eof": true,
+      "data": "epic1451-identity-preserved"
+    },
+    "readAsOther": {
+      "status": 13
+    },
+    "receiptObservation": {
+      "observationstatus": "APPLIED",
+      "endpoints": [
+        {
+          "port": 23049,
+          "endpoint": "ganesha",
+          "configuredmode": "NAME_DOMAIN",
+          "configuredrevision": 13,
+          "state": "APPLIED",
+          "effectivemode": "NAME_DOMAIN",
+          "observedrevision": 13,
+          "observeddomain": "design.test",
+          "observedat": "1793079118.563458"
+        }
+      ],
+      "observedat": "1793079118.5689683",
+      "observeddomain": "design.test",
+      "effectivemode": "NAME_DOMAIN",
+      "policyrevision": 13
+    }
+  },
+  "productionUnchanged": true,
+  "filePreserved": {
+    "uid": 1,
+    "gid": 1,
+    "mode": "0o640",
+    "sha256": "1bd6e4ab1ce36002fd46ab98505abdc44622770fcca93b91f09346440980ae17"
+  }
+}

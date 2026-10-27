@@ -1,0 +1,118 @@
+[
+  {
+    "command": "updateStorageNfsIdentityMapping",
+    "params": {
+      "command": "updateStorageNfsIdentityMapping",
+      "response": "json",
+      "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+      "idmappingmode": "NUMERIC",
+      "requestid": "e5cff33e-92ea-43c5-a635-c545aff5fa07",
+      "expectedrevision": "3",
+      "impactack": "79c33ec2f7a181380b68c5e2c4c8b010c215a84269c0381dfda50c363c583d05"
+    },
+    "body": {
+      "updatestoragenfsidentitymappingresponse": {
+        "jobid": "faf25579-ee91-4502-bd3b-596a969079f4"
+      }
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "faf25579-ee91-4502-bd3b-596a969079f4",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "body": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Unable to persist on DB, due to: Data truncation: Data too long for column 'resource_type' at row 1"
+        },
+        "created": "2026-10-27T14:53:24+0900",
+        "completed": "2026-10-27T14:53:24+0900",
+        "jobid": "faf25579-ee91-4502-bd3b-596a969079f4",
+        "jobstatus": 2
+      }
+    }
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "params": {
+      "command": "preflightStorageServiceConfiguration",
+      "response": "json",
+      "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+      "intent": "{\"api\":\"updateStorageNfsIdentityMapping\",\"protocol\":\"NFS\",\"idmappingmode\":\"NUMERIC\"}"
+    },
+    "body": {
+      "preflightstorageserviceconfigurationresponse": {
+        "configurationpreflight": {
+          "status": "READY",
+          "revision": 3,
+          "observedat": "2026-10-27T14:53:14+0900",
+          "expiresat": "2026-10-27T14:53:44+0900",
+          "fingerprint": "79c33ec2f7a181380b68c5e2c4c8b010c215a84269c0381dfda50c363c583d05",
+          "checks": [
+            {
+              "code": "MEMORY_AVAILABLE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 3811946496,
+              "requiredbytes": 218297136
+            },
+            {
+              "code": "FILESYSTEM_SPACE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 2654961664,
+              "requiredbytes": 83934412,
+              "readonly": false,
+              "freeinodes": 230489
+            },
+            {
+              "code": "VOLUME_PREPARATION_ACTIVE",
+              "blocking": false,
+              "severity": "INFO",
+              "count": 0
+            },
+            {
+              "code": "RUNTIME_WRITER_ACTIVE",
+              "blocking": false,
+              "severity": "INFO"
+            },
+            {
+              "code": "DRAIN_REQUIRED",
+              "blocking": false,
+              "severity": "INFO",
+              "connections": 0
+            }
+          ],
+          "impact": {
+            "class": "TEMPORARY_INTERRUPTION",
+            "affectedcount": 1,
+            "connections": 0,
+            "confidence": "ENDPOINT_TCP_CONNECTIONS",
+            "ackrequired": true,
+            "drainrequired": false
+          },
+          "profile": {
+            "name": "CONFIGURATION",
+            "softdeadlineseconds": 300,
+            "pollintervalseconds": 2,
+            "observationseconds": 600
+          },
+          "cancellationsupported": false
+        }
+      }
+    }
+  }
+]
