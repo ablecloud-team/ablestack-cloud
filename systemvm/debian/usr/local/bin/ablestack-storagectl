@@ -1593,7 +1593,7 @@ smb_runtime = collect_smb_listener_profiles()
 
 iscsi_runtime_snapshot = targetcli_iscsi_runtime_snapshot()
 sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
-from configuration_transaction import nfs_posix_observations
+from configuration_transaction import nfs_posix_observations, NfsIdentityMapping
 nfs_posix = nfs_posix_observations(load_json("/etc/ablestack-storage/desired-state/nfs-export-apply.json", {}))
 iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-targets.json", {}), iscsi_runtime_snapshot)
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
@@ -1608,6 +1608,7 @@ print(json.dumps({
     "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
+    "nfsidentitymapping": NfsIdentityMapping().observe(),
     "nfsPosixObservations": nfs_posix,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,
@@ -3449,7 +3450,7 @@ import socket
 import zlib
 
 sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
-from configuration_transaction import nfs_posix_apply_config
+from configuration_transaction import nfs_posix_apply_config, NfsIdentityMapping
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
@@ -3940,6 +3941,7 @@ def write_ganesha_configs(endpoint_exports, port):
             "}",
             "NFSV4 {",
             "    Grace_Period = 5;",
+            *NfsIdentityMapping.lines(payload),
             "}",
             "EXPORT_DEFAULTS {",
             "    Access_Type = None;",
@@ -3979,6 +3981,7 @@ def start_ganesha_endpoints(configs):
     stop_default_ganesha_service()
     if not configs:
         stop_ganesha_endpoints()
+        NfsIdentityMapping().complete([], payload)
         return []
     ensure_ganesha_runtime_dirs()
     ganesha = shutil.which("ganesha.nfsd")
@@ -4123,6 +4126,9 @@ def start_ganesha_endpoints(configs):
         stop_ganesha_endpoints()
         details = ", ".join(f"{item.get('listenIp')}:{item.get('port')} ({item.get('error') or 'not listening'}{': ' + item.get('logTail') if item.get('logTail') else ''})" for item in failures)
         raise RuntimeError(f"nfs-ganesha endpoints failed to start: {details}")
+    for item in runtime:
+        NfsIdentityMapping().publish(item["key"], os.path.join(ganesha_conf_dir, item["key"] + ".conf"), item["pid"], payload)
+    NfsIdentityMapping().complete([item["key"] for item in runtime], payload)
     return runtime
 
 def probe_nfs_export_visibility(runtime, endpoint_exports):

@@ -427,6 +427,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageServiceInstancesCmd.class);
         commands.add(EnableStorageServiceProtocolCmd.class);
         commands.add(DeleteStorageServiceProtocolCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsIdentityMappingCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd.class);
         commands.add(CreateStorageNfsExportCmd.class);
         commands.add(UpdateStorageNfsExportCmd.class);
         commands.add(DeleteStorageNfsExportCmd.class);
@@ -581,6 +583,57 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return response;
     }
 
+    private org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse nfsIdentityResponse(
+            StorageServiceInstanceVO instance, StorageNfsIdentityMapping policy, JsonObject observation) {
+        org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse response = new org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse();
+        response.setInstanceid(instance.getUuid()); response.setMode(policy.mode); response.setPolicyrevision(policy.revision);
+        response.setObservationstatus(observation.has("observationstatus") ? observation.get("observationstatus").getAsString() : "LEGACY_UNCONFIRMED");
+        if (observation.has("effectivemode") && !observation.get("effectivemode").isJsonNull()) response.setEffectivemode(observation.get("effectivemode").getAsString());
+        if (observation.has("observeddomain")) response.setObserveddomain(observation.get("observeddomain").getAsString());
+        if (observation.has("observedat")) response.setObservedat(observation.get("observedat").getAsString());
+        JsonArray security = new JsonArray(); security.add("sys"); response.setSecurityflavors(security);
+        response.setEndpoints(observation.has("endpoints") ? observation.getAsJsonArray("endpoints") : new JsonArray());
+        return response;
+    }
+    @Override
+    public org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse getStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsIdentityMappingCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, instance);
+        StorageNfsIdentityMapping policy = StorageNfsIdentityMapping.policy(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS));
+        JsonObject observation = new JsonObject();
+        if (instance.getVmId() != null) {
+            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                    "configuration capability show", "{}", 20, Collections.emptySet()));
+            JsonObject data = parseJsonObject(result.getResultJson());
+            if (result.isSuccess() && data.has("nfsidentitymapping")) observation = data.getAsJsonObject("nfsidentitymapping");
+            if (observation.has("effectivemode") && (!policy.mode.equals(observation.get("effectivemode").getAsString())
+                    || !observation.has("policyrevision") || policy.revision != observation.get("policyrevision").getAsLong())) {
+                observation.addProperty("observationstatus", "DRIFT"); observation.remove("effectivemode");
+            }
+        }
+        return nfsIdentityResponse(instance, policy, observation);
+    }
+    @Override
+    public org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse updateStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        final String mode = StorageNfsIdentityMapping.valid(cmd.getIdMappingMode());
+        return runConfiguration(cmd, instance, StorageServiceInstance.Protocol.NFS,
+                org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse.class, () -> {
+            List<StorageServiceProtocolVO> rows = storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS);
+            StorageNfsIdentityMapping.policy(rows);
+            if (rows.stream().noneMatch(StorageServiceProtocolVO::isEnabled)) throw new InvalidParameterValueException("NFS_ENABLED_REQUIRED");
+            StorageNfsIdentityMapping policy = new StorageNfsIdentityMapping(mode, configurationPlan.get().targetRevision);
+            for (StorageServiceProtocolVO row : rows) {
+                row.setConfigJson(policy.overlay(row.getConfigJson()).toString());
+                storageServiceProtocolDaoView().update(row.getId(), row);
+            }
+            applyNfsDesiredState(instance, null);
+            return nfsIdentityResponse(instance, policy, new JsonObject());
+        });
+    }
+
     @Override
     public StorageServiceProtocolResponse enableStorageServiceProtocol(final EnableStorageServiceProtocolCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
@@ -613,7 +666,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateBlockProtocolListenerConflict(instance, protocol, cmd.getListenIp(), port, protocolVO);
         NicVO listenNic = resolveProtocolListenAddress(instance, cmd.getListenIp());
         listenNic = reconcileProtocolListenNicIdentity(instance, listenNic);
-        final String protocolConfigJson = buildProtocolConfigJson(protocol, null, protocolMode, port, cmd.getListenIp());
+        final StorageNfsIdentityMapping identityPolicy = protocol == StorageServiceInstance.Protocol.NFS ?
+                StorageNfsIdentityMapping.policy(storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), protocol)) : null;
+        final String initialConfig = buildProtocolConfigJson(protocol, null, protocolMode, port, cmd.getListenIp());
+        final String protocolConfigJson = identityPolicy == null ? initialConfig : identityPolicy.overlay(initialConfig).toString();
         final boolean dualModeServiceIpRegistration = protocol == StorageServiceInstance.Protocol.NFS
                 && modeProtocol != null && "V3V4_DUAL".equals(protocolMode);
         final boolean created = protocolVO == null;
@@ -645,6 +701,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 protocolVO.setPort(port);
             }
             protocolVO.setConfigJson(buildProtocolConfigJson(protocol, protocolVO.getConfigJson(), protocolMode, port, cmd.getListenIp()));
+            if (identityPolicy != null) protocolVO.setConfigJson(identityPolicy.overlay(protocolVO.getConfigJson()).toString());
             protocolVO.setState(StorageServiceInstance.ResourceState.Ready);
             storageServiceProtocolDaoView().update(protocolVO.getId(), protocolVO);
         }
@@ -2538,6 +2595,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("instanceId", instance.getId());
         final List<StorageServiceProtocolVO> nfsProtocols = storageServiceProtocolDaoView().listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS);
         final StorageServiceProtocolVO protocol = selectNfsDefaultProtocol(nfsProtocols);
+        StorageNfsIdentityMapping identityPolicy = StorageNfsIdentityMapping.policy(nfsProtocols);
+        payload.addProperty(StorageNfsIdentityMapping.MODE, identityPolicy.mode);
+        payload.addProperty(StorageNfsIdentityMapping.REVISION, identityPolicy.revision);
         payload.addProperty("enabled", nfsProtocols.isEmpty() || nfsProtocols.stream().anyMatch(StorageServiceProtocolVO::isEnabled));
         final String serviceProtocolMode = resolveNfsServiceProtocolMode(instance);
         payload.addProperty("protocolMode", serviceProtocolMode);

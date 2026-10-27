@@ -96,4 +96,23 @@ public class StorageConfigurationDaoRoundTripTest {
         assertEquals(good.getUuid(), dao.findByRequest(1, good.getRequestId()).getUuid());
         assertEquals(2, dao.listByInstance(1).size());
     }
+    @Test public void nfsIdentityPolicyAndOtherListenerFieldsSurviveRealDaoRoundTrip() {
+        StorageServiceProtocolDaoImpl protocols = new StorageServiceProtocolDaoImpl();
+        org.apache.cloudstack.storage.dataservice.StorageServiceProtocolVO row =
+                new org.apache.cloudstack.storage.dataservice.StorageServiceProtocolVO(1,
+                    org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NFS, true, "10.0.0.1", 2049);
+        String candidate = "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2050}],\"nfs4IdentityMappingMode\":\"NUMERIC\",\"nfs4IdentityPolicyRevision\":13}";
+        row.setConfigJson(candidate);
+        row = protocols.persist(row);
+        org.apache.cloudstack.storage.dataservice.StorageServiceProtocolVO saved = protocols.findById(row.getId());
+        assertEquals(candidate, saved.getConfigJson());
+        assertEquals(Integer.valueOf(2049), saved.getPort());
+        org.apache.cloudstack.storage.dataservice.StorageServiceProtocolVO update = protocols.createForUpdate(row.getId());
+        String before = candidate.replace("NUMERIC", "NAME_DOMAIN").replace(":13}", ":7}");
+        update.setConfigJson(before); assertTrue(protocols.update(row.getId(), update));
+        saved = protocols.findById(row.getId());
+        assertEquals(before, saved.getConfigJson()); assertEquals(row.getUuid(), saved.getUuid());
+        assertEquals("10.0.0.1", saved.getListenIp()); assertTrue(saved.isEnabled());
+    }
+
 }

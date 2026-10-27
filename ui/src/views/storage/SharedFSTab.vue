@@ -52,6 +52,7 @@
             :message="$t('message.storage.service.no.mirror')"
             :description="$t('message.storage.service.no.mirror.description')" />
           <template v-if="storageService.instance">
+            <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <dl class="storage-detail-list">
               <div class="storage-detail-list__row">
                 <dt>{{ $t('label.storage.service.active.services') }}</dt>
@@ -74,6 +75,7 @@
               <a-button type="primary" @click="openActionModal('nfsExport')"><PlusOutlined />{{ $t('label.storage.service.create.nfs.export') }}</a-button>
               <a-button @click="openActionModal('enableProtocol', { protocol: 'NFS' })"><PoweroffOutlined />{{ $t('label.storage.service.enable.protocol') }}</a-button>
               <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })"><DeleteOutlined />{{ $t('label.storage.service.delete.endpoint') }}</a-button>
+              <a-button :disabled="!nfsIdentity.report || nfsIdentity.error" @click="openActionModal('nfsIdentity')">{{ $t('label.storage.nfs.identity.settings') }}</a-button>
               <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData"><ReloadOutlined />{{ $t('label.refresh') }}</a-button>
               <a-button @click="toggleProtocolWideLayout"><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else />{{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}</a-button>
             </a-space>
@@ -1365,6 +1367,15 @@ class="configuration-fields"
          :inert="actionModal.loading || configurationProtected || configurationPreflightLoading ? '' : null"
 :aria-busy="actionModal.loading">
       <div class="storage-modal-body"><a-form layout="vertical">
+        <div v-if="actionModal.type === 'nfsIdentity'">
+          <a-form-item :label="$t('label.storage.nfs.identity.mode')">
+            <a-select v-model:value="forms.nfsIdentity.idmappingmode">
+              <a-select-option value="NAME_DOMAIN">NAME_DOMAIN</a-select-option>
+              <a-select-option value="NUMERIC">NUMERIC (AUTH_SYS)</a-select-option>
+            </a-select>
+          </a-form-item>
+          <StorageNfsIdentityPanel :report="nfsIdentity.report" :mode="forms.nfsIdentity.idmappingmode" />
+        </div>
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
           <a-alert
 v-if="forms.enableProtocol.protocol === 'SMB'"
@@ -2326,6 +2337,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
+import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -2541,6 +2553,7 @@ export default {
   components: {
     StorageServiceRuntimeUpgrade,
     MoldDialog,
+    StorageNfsIdentityPanel,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
     StorageConfigurationPreflightPanel,
@@ -2583,6 +2596,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
+      nfsIdentity: { report: null, loading: false, error: false, read: 0 },
       vm: {},
       volume: {},
       volumes: [],
@@ -2666,6 +2680,7 @@ export default {
         { value: 'TiB', label: 'TiB', multiplier: 1024 * 1024 * 1024 * 1024 }
       ],
       forms: {
+        nfsIdentity: { idmappingmode: 'NAME_DOMAIN' },
         enableProtocol: {
           protocol: 'NFS',
           endpointid: '',
@@ -4502,6 +4517,7 @@ export default {
         return this.$t(this.forms.enableProtocol.endpointid ? 'label.storage.service.smb.endpoint.edit' : 'label.storage.service.smb.endpoint.add')
       }
       const titles = {
+        nfsIdentity: 'label.storage.nfs.identity.settings',
         enableProtocol: 'label.storage.service.enable.protocol',
         nfsExport: 'label.storage.service.create.nfs.export',
         editNfsExport: 'label.storage.service.update.nfs.export',
@@ -5103,6 +5119,29 @@ export default {
       this.storageService.refreshing = false
       this.storageReadPending = []
     },
+    async fetchNfsIdentity () {
+      const instanceid = this.storageService.instance?.id
+      const scope = this.storageReadScope
+      const read = ++this.nfsIdentity.read
+      this.nfsIdentity.loading = true
+      this.nfsIdentity.error = false
+      this.nfsIdentity.report = null
+      try {
+        if (!instanceid) return
+        const wire = await getAPI('getStorageNfsIdentityMapping', { instanceid }, { timeout: 25000, preserveOnFailure: true })
+        if (read !== this.nfsIdentity.read || scope !== this.storageReadScope || instanceid !== this.storageService.instance?.id) return
+        const report = wire.getstoragenfsidentitymappingresponse?.nfsidentitymapping
+        if (!['NAME_DOMAIN', 'NUMERIC'].includes(report?.mode) || !Array.isArray(report?.endpoints)) throw new Error('Invalid NFS identity observation')
+        this.nfsIdentity.report = report
+      } catch (error) {
+        if (read === this.nfsIdentity.read && scope === this.storageReadScope) this.nfsIdentity.error = true
+      } finally { if (read === this.nfsIdentity.read) this.nfsIdentity.loading = false }
+    },
+    updateNfsIdentity () {
+      return this.runStorageAction('nfsIdentity', 'updateStorageNfsIdentityMapping', {
+        instanceid: this.storageService.instance.id, idmappingmode: this.forms.nfsIdentity.idmappingmode
+      })
+    },
     async fetchStorageServiceData () {
       if (!this.hasStorageServiceApi) return
       this.cancelStorageRead()
@@ -5159,6 +5198,7 @@ export default {
         if (!current()) return
         const instance = instances.find(item => item.virtualmachineid === vmId) || null
         this.storageService.instance = instance
+        this.fetchNfsIdentity()
         delete this.storageReadErrors.instance
         this.storageReadPending = []
         if (!instance) {
@@ -5838,6 +5878,7 @@ export default {
       this.storageRefreshGeneration += 1
       this.storageService.refreshing = true
       try {
+        this.fetchNfsIdentity()
         const nvmeActions = ['nvmePrepare', 'nvmeSubsystem', 'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
         if (nvmeActions.includes(key)) {
           const refreshGeneration = ++this.storageRefreshGeneration
@@ -7621,6 +7662,7 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (type === 'nfsIdentity') this.forms.nfsIdentity.idmappingmode = this.nfsIdentity.report?.mode || 'NAME_DOMAIN'
       this.actionModal.type = type
       this.actionModal.context = context
       this.actionModal.visible = true
@@ -7838,6 +7880,7 @@ export default {
     },
     async submitActionModal () {
       const actions = {
+        nfsIdentity: this.updateNfsIdentity,
         enableProtocol: this.enableProtocol,
         nfsExport: this.createNfsExport,
         editNfsExport: this.updateNfsExport,
@@ -7890,7 +7933,7 @@ export default {
         await action.call(this)
         if (generation !== this.configurationGeneration) return
         // Local validation/no POST and any non-committed configuration keep the form open.
-        const configurationTypes = ['enableProtocol', 'nfsExport', 'editNfsExport', 'nfsAcl', 'editNfsAcl',
+        const configurationTypes = ['nfsIdentity', 'enableProtocol', 'nfsExport', 'editNfsExport', 'nfsAcl', 'editNfsAcl',
           'deleteConfirm', 'deleteEndpoint', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl',
           'iscsiTarget', 'editIscsiTarget', 'iscsiAcl', 'editIscsiAcl', 'nvmeSubsystem', 'editNvmeSubsystem',
           'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']

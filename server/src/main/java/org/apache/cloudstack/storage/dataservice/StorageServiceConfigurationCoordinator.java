@@ -110,6 +110,9 @@ final class StorageServiceConfigurationCoordinator {
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
+                if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd
+                        && (!capability.has("nfsIdentityMappingVersion") || capability.get("nfsIdentityMappingVersion").getAsInt() != 1))
+                    throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
                 for (StorageServiceConfigurationOperationVO previous : operations.listByInstance(instance.getId())) {
                     if ("COMMITTED".equals(previous.getState()) && previous.getTargetRevision() == op.getBaseRevision()) {
                         // Recover a lost metadata ACK using the authoritative committed SQL revision.
@@ -127,6 +130,7 @@ final class StorageServiceConfigurationCoordinator {
             plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules,
                     snapshot -> { op.setCandidateSnapshot(snapshot); save(op); });
             plan.operationUuid = op.getUuid();
+            plan.targetRevision = op.getTargetRevision();
             op.setResourceUuid(plan.resourceUuid(cmd.getClass().getSimpleName(), publicRequest(cmd)));
             op.setBeforeSnapshot(plan.snapshot()); op.setState("RUNNING"); op.setPhase("VALIDATING"); save(op);
             context.accept(plan);

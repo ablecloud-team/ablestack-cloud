@@ -48,6 +48,7 @@ final class StorageServiceConfigurationPreflight {
     static {
         for (String kind : Arrays.asList("NfsExport","NfsAcl","SmbShare","SmbAcl","IscsiTarget","IscsiAcl","NvmeOfSubsystem","NvmeOfNamespace","NvmeOfHostAcl"))
             for (String action : Arrays.asList("create","update","delete")) APIS.add(action+"Storage"+kind);
+        APIS.add("updateStorageNfsIdentityMapping");
         APIS.add("enableStorageServiceProtocol"); APIS.add("deleteStorageServiceProtocol");
     }
     private final StorageServiceProtocolDao protocols;
@@ -83,7 +84,7 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
@@ -114,6 +115,9 @@ final class StorageServiceConfigurationPreflight {
                 if (value.has(key) && (!value.get(key).isJsonPrimitive() || value.get(key).getAsString().length()>512))
                     throw new IllegalArgumentException();
             if (value.has("port") && (!value.get("port").isJsonPrimitive() || value.get("port").getAsInt() < 1 || value.get("port").getAsInt() > 65535)) throw new IllegalArgumentException();
+            if ("updateStorageNfsIdentityMapping".equals(value.get("api").getAsString()))
+                StorageNfsIdentityMapping.valid(value.get("idmappingmode").getAsString());
+            else if (value.has("idmappingmode")) throw new IllegalArgumentException();
             return value;
         } catch (RuntimeException error) { throw new InvalidParameterValueException("Invalid public configuration intent"); }
     }
@@ -130,6 +134,8 @@ final class StorageServiceConfigurationPreflight {
             for (String key : Arrays.asList("name","path"))
                 if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
         }
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
+            value.addProperty("idmappingmode", StorageNfsIdentityMapping.valid(((org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)cmd).getIdMappingMode()));
         return value;
     }
     private StorageFileShareVO share(JsonElement id) {
@@ -226,8 +232,21 @@ final class StorageServiceConfigurationPreflight {
         }
         query.add("volumeuuids",volumeUuids);
         query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
+        String identityDigest = "";
+        if ("updateStorageNfsIdentityMapping".equals(name)) {
+            List<StorageServiceProtocolVO> nfsRows = protocols.listByInstanceIdAndProtocol(instance.getId(), protocol);
+            StorageNfsIdentityMapping.policy(nfsRows);
+            if (nfsRows.stream().noneMatch(StorageServiceProtocolVO::isEnabled)) throw new InvalidParameterValueException("NFS_ENABLED_REQUIRED");
+            JsonArray vector = new JsonArray();
+            nfsRows.stream().sorted(java.util.Comparator.comparing(StorageServiceProtocolVO::getUuid)).forEach(row -> {
+                JsonObject item = new JsonObject(); item.addProperty("id", row.getUuid());
+                item.addProperty("enabled", row.isEnabled()); item.addProperty("ip", row.getListenIp()); item.addProperty("port", row.getPort());
+                item.add("config", StorageNfsIdentityMapping.config(row.getConfigJson())); vector.add(item);
+            });
+            identityDigest = "\nNFS_IDENTITY:" + StorageNfsIdentityMapping.valid(intent.get("idmappingmode").getAsString()) + ":" + vector;
+        }
         query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
-                (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "")));
+                (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest));
         query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && (!refs.isEmpty() || query.has("posixchanges") && query.getAsJsonObject("posixchanges").size()>0));
         if (instance.getVmId()==null) throw new InvalidParameterValueException("SystemVM is unavailable");
         JsonObject report;
@@ -240,6 +259,9 @@ final class StorageServiceConfigurationPreflight {
                     throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
                 if (protocol==StorageServiceInstance.Protocol.NFS && (!capability.has("nfsPosixIntentVersion") || capability.get("nfsPosixIntentVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("NFS_POSIX_CAPABILITY_REQUIRED");
+                if ("updateStorageNfsIdentityMapping".equals(name)
+                        && (!capability.has("nfsIdentityMappingVersion") || capability.get("nfsIdentityMappingVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
                 if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
             }

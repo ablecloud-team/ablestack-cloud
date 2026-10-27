@@ -10399,5 +10399,15 @@
   "label.storage.nfs.permission.scope": "Scope",
   "message.storage.nfs.anonymous.mismatch": "The anonymous UID/GID cannot write this directory. Check the access policy and actual permissions. Ownership is not adjusted automatically.",
   "message.storage.nfs.recursive.scope": "Selected directory and children: explicit recursive change",
-  "label.storage.nfs.explicit.change": "Apply explicit changes only"
+  "label.storage.nfs.explicit.change": "Apply explicit changes only",
+  "label.storage.nfs.identity.settings": "ID mapping settings",
+  "message.storage.nfs.identity.numeric": "NUMERIC requires AUTH_SYS. Check nfs4_disable_idmapping=Y and sec=sys on Linux clients. The server does not change client-wide settings.",
+  "message.storage.nfs.identity.unavailable": "Identity observation unavailable. Update to observe again. Existing NFS actions remain available.",
+  "label.storage.nfs.identity.effective": "Effective mode / observation",
+  "label.storage.nfs.identity.configured": "Configured mode / policy revision",
+  "label.storage.nfs.identity.revision": "Observed policy revision",
+  "label.storage.nfs.identity.domain": "Current server domain",
+  "label.storage.nfs.identity.mode": "NFSv4 service identity mapping mode",
+  "message.storage.nfs.identity.permissions": "This policy does not change file UID/GID, POSIX permissions or squash. Compare numeric ls -ln/stat values and actual access. UID 65534 can be an expected squash result.",
+  "message.storage.nfs.identity.name": "NAME_DOMAIN: uses existing NSS and NFSv4 domain settings. Check client domain and name mapping."
 }
