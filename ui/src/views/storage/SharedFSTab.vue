@@ -52,7 +52,6 @@
             :message="$t('message.storage.service.no.mirror')"
             :description="$t('message.storage.service.no.mirror.description')" />
           <template v-if="storageService.instance">
-            <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <dl class="storage-detail-list">
               <div class="storage-detail-list__row">
                 <dt>{{ $t('label.storage.service.active.services') }}</dt>
@@ -81,6 +80,7 @@
             </a-space>
           </div>
           <template v-if="storageService.instance">
+            <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <a-alert
               v-if="storageIdentityDrift"
               class="storage-service__alert"
