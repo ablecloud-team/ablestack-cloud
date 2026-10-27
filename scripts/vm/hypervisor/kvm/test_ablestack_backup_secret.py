@@ -43,7 +43,8 @@ class BackupCredentialTest(unittest.TestCase):
         self.root = Path(self.directory.name)
         self.key = self.root / "ablestack.key"
         self.secret = self.root / "secret.enc"
-        self.environment = patch.dict(os.environ, {}, clear=True)
+        runtime_paths = {name: os.environ[name] for name in ("PATH", "PYTHONPATH") if name in os.environ}
+        self.environment = patch.dict(os.environ, runtime_paths, clear=True)
         self.environment.start()
         self.addCleanup(self.environment.stop)
         self.roots = patch.object(keys, "_secret_roots", return_value=set())

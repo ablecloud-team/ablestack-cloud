@@ -22,11 +22,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.apache.cloudstack.backup.Backup;
@@ -59,12 +57,6 @@ public class AblestackVeeamSshClient {
 
     protected Logger logger = LogManager.getLogger(getClass());
 
-    /**
-     * Override with -Dveeam.powershell.bin=pwsh if the Veeam (v12.1+/v13) module
-     * requires PowerShell 7 instead of Windows PowerShell 5.1.
-     */
-    private static final String POWERSHELL_BIN = System.getProperty("veeam.powershell.bin", "powershell");
-
     private static final int SSH_PORT = 22;
     private static final int CONNECT_TIMEOUT_MS = 120000;
     private static final int KEX_TIMEOUT_MS = 120000;
@@ -73,7 +65,6 @@ public class AblestackVeeamSshClient {
     private final String host;
     private final String username;
     private final String password;
-    private final boolean legacy;
 
     public AblestackVeeamSshClient(final String host, final String username, final String password) {
         this(host, username, password, false);
@@ -83,10 +74,12 @@ public class AblestackVeeamSshClient {
         if (StringUtils.isBlank(host)) {
             throw new CloudRuntimeException("Veeam SSH host is required for disk export");
         }
+        if (legacy) {
+            throw new CloudRuntimeException("Veeam 13 requires the PowerShell 7 module; legacy PSSnapin is not supported");
+        }
         this.host = host;
         this.username = username;
         this.password = password;
-        this.legacy = legacy;
     }
 
     /**
@@ -224,7 +217,8 @@ public class AblestackVeeamSshClient {
                 "if (-not (Get-Command Set-VBRComputerBackupJob -ErrorAction Stop).Parameters.ContainsKey('UseSnapshotlessFileLevelBackup')) { throw 'Linux staging requires snapshot-less file-level backup support' }",
                 "$jobs=@(Get-VBRComputerBackupJob -Name " + ps(templateName) + ")",
                 "if ($jobs.Count -ne 1) { throw 'Volume staging requires one existing Linux Agent template job' }",
-                "$busy=@(Get-VBRComputerBackupJobSession -Name " + ps(templateName) + " | Where-Object { [string]$_.State -ne 'Stopped' })",
+                "$sessions=" + volumeJobSessions("$jobs[0]"),
+                "$busy=@($sessions | Where-Object { [string]$_.State -ne 'Stopped' })",
                 "Write-Output ('ABLESTACK_JSON:' + (@{ready=($busy.Count -eq 0)} | ConvertTo-Json -Compress))"));
         return result.getBoolean("ready");
     }
@@ -254,13 +248,15 @@ public class AblestackVeeamSshClient {
         commands.add("$name=" + ps(name));
         commands.add("$submissionAttempted=" + (submit && StringUtils.isBlank(artifact.jobId) ? "$false" : "$true"));
         commands.add("try {");
+        commands.add("$jobs=@(Get-VBRComputerBackupJob -ErrorAction Stop | Where-Object { $_.Name -ceq $name })");
+        commands.add("if ($jobs.Count -gt 1) { throw 'Artifact job name is ambiguous' }");
+        commands.add("$job=$jobs | Select-Object -First 1");
         if (!submit && StringUtils.isBlank(artifact.jobId)) {
-            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name)");
+            commands.add("$sessions=@(); if ($job) { $sessions=" + volumeJobSessions("$job") + " }");
             commands.add("if ($sessions.Count -eq 0) { Write-Output 'ABLESTACK_JSON:{\"jobId\":null}'; return }");
             commands.add("if ($sessions.Count -ne 1) { throw 'Artifact recovery session is ambiguous' }");
             commands.add("$session=$sessions[0]");
         } else if (StringUtils.isBlank(artifact.jobId)) {
-            commands.add("$job=Get-VBRComputerBackupJob -Name $name -ErrorAction SilentlyContinue");
             commands.add("if ($job) { $submissionAttempted=$true }");
             commands.add("if (-not $job) {");
             commands.add("  $template=Get-VBRComputerBackupJob -Name " + ps(templateName));
@@ -279,13 +275,15 @@ public class AblestackVeeamSshClient {
             commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
             commands.add("  Set-VBRComputerBackupJob -Job $job -BackupObject $computer -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false -UseSnapshotlessFileLevelBackup | Out-Null");
             commands.add("}");
-            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name)");
+            commands.add("$sessions=" + volumeJobSessions("$job"));
             commands.add("if ($sessions.Count -eq 0) { $submissionAttempted=$true; $sessions=@(Start-VBRComputerBackupJob -Job $job -FullBackup -RunAsync) }");
             commands.add("if ($sessions.Count -ne 1) { throw 'Child job must have exactly one session; automatic resubmission is unsafe' }");
             commands.add("$session=$sessions[0]");
         } else {
+            commands.add("if (-not $job) { throw 'External artifact backup job is missing' }");
             commands.add("$id=" + ps(artifact.jobId));
-            commands.add("$sessions=@(Get-VBRComputerBackupJobSession -Name $name | Where-Object { [string]$_.Id -eq $id })");
+            commands.add("$sessions=" + volumeJobSessions("$job"));
+            commands.add("$sessions=@($sessions | Where-Object { [string]$_.Id -eq $id })");
             commands.add("if ($sessions.Count -ne 1) { throw 'External session does not match the exact artifact backup job' }");
             commands.add("$session=$sessions[0]");
         }
@@ -314,6 +312,12 @@ public class AblestackVeeamSshClient {
         artifact.externalTerminal = result.optBoolean("terminal", false);
         artifact.externalFailure = result.optString("failure", null);
         return artifact;
+    }
+
+    private static String volumeJobSessions(String job) {
+        // A named lookup throws when a Job has never run. Enumeration preserves an
+        // empty result while real query failures still stop submission and cleanup.
+        return "@(Get-VBRComputerBackupJobSession -ErrorAction Stop | Where-Object { [string]$_.JobId -eq [string]" + job + ".Id })";
     }
 
     private static String volumeJobName(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
@@ -367,7 +371,7 @@ public class AblestackVeeamSshClient {
                 "  $job=$jobs[0]",
                 "  if ([string]$job.Description -cne " + ps("Mold logical backup " + artifact.backupUuid) + ") { throw 'Temporary Job ownership differs from the committed artifact' }",
                 "  if ([string]::IsNullOrWhiteSpace([string]$before.JobId) -or ([string]$before.JobId).Trim('{}') -ne ([string]$job.Id).Trim('{}')) { throw 'Retained backup belongs to another Job' }",
-                "  $sessions=@(Get-VBRComputerBackupJobSession -Name $name)",
+                "  $sessions=" + volumeJobSessions("$job"),
                 "  if ($sessions.Count -ne 1 -or ([string]$sessions[0].Id).Trim('{}') -ne " + ps(java.util.UUID.fromString(artifact.jobId).toString())
                         + " -or [string]$sessions[0].State -ne 'Stopped' -or [string]$sessions[0].Result -ne 'Success') { throw 'Temporary Job must have exactly the committed successful session and no active work' }",
                 "  Remove-VBRComputerBackupJob -Job $job -Confirm:$false | Out-Null",
@@ -393,7 +397,8 @@ public class AblestackVeeamSshClient {
                 "$jobs=@(Get-VBRComputerBackupJob | Where-Object { $_.Name -eq $name })",
                 "if ($jobs.Count -gt 1) { throw 'Artifact job name is ambiguous' }",
                 "if ($jobs.Count -eq 1) {",
-                "  $busy=@(Get-VBRComputerBackupJobSession -Name $name | Where-Object { [string]$_.State -ne 'Stopped' })",
+                "  $sessions=" + volumeJobSessions("$jobs[0]"),
+                "  $busy=@($sessions | Where-Object { [string]$_.State -ne 'Stopped' })",
                 "  if ($busy.Count -ne 0) { throw 'Artifact job is still active' }",
                 "}",
                 "$backups=@(Get-VBRBackup -Name $name | Where-Object { $_.Name -eq $name })",
@@ -550,10 +555,10 @@ public class AblestackVeeamSshClient {
     }
 
     protected Pair<Boolean, String> executePowerShellCommands(final List<String> cmds) {
-        final String command = transformPowerShellCommandList(cmds);
         try {
-            final Pair<Boolean, String> response = SshHelper.sshExecute(host, SSH_PORT, username, null, password,
-                    command, CONNECT_TIMEOUT_MS, KEX_TIMEOUT_MS, WAIT_TIMEOUT_MS);
+            final Pair<Boolean, String> response = VeeamPowerShell.execute(cmds,
+                    command -> SshHelper.sshExecute(host, SSH_PORT, username, null, password,
+                            command, CONNECT_TIMEOUT_MS, KEX_TIMEOUT_MS, WAIT_TIMEOUT_MS));
             if (response == null || !response.first()) {
                 logger.error(String.format("Veeam SSH PowerShell command failed: [%s]",
                         response != null ? response.second() : "no output returned"));
@@ -564,30 +569,4 @@ public class AblestackVeeamSshClient {
         }
     }
 
-    /**
-     * Build the single SSH command that runs the given PowerShell statements, passed via
-     * {@code -EncodedCommand} so cmd.exe cannot intercept PowerShell metacharacters.
-     */
-    private String transformPowerShellCommandList(final List<String> cmds) {
-        final StringJoiner script = new StringJoiner("\n");
-        if (legacy) {
-            script.add("Add-PSSnapin VeeamPSSnapin");
-        } else {
-            script.add("Import-Module Veeam.Backup.PowerShell -WarningAction SilentlyContinue");
-            script.add("$ProgressPreference='SilentlyContinue'");
-        }
-        final List<String> all = new ArrayList<>(cmds);
-        for (final String cmd : all) {
-            script.add(normalizeToPowerShell(cmd));
-        }
-        final String encoded = Base64.getEncoder().encodeToString(script.toString().getBytes(StandardCharsets.UTF_16LE));
-        return String.format("%s -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand %s", POWERSHELL_BIN, encoded);
-    }
-
-    private String normalizeToPowerShell(final String cmd) {
-        if (cmd == null) {
-            return "";
-        }
-        return cmd.replace("^|", "|").replace("\\\"", "\"");
-    }
 }

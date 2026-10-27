@@ -130,7 +130,7 @@ class VeeamHostConfigTest(unittest.TestCase):
         conf = self.locations["etc"] / "Job_with_spaces.conf"
         expected = Path(self.api.settings[("backup.thirdparty.staging.root.path", "")]).resolve() / "ablestack-veeam/bootstrap/host-test/Job_with_spaces"
         self.assertIn("VEEAM_AGENT_PAYLOAD_PATH=" + str(expected), conf.read_text())
-        self.assertIn("VEEAM_AGENT_PAYLOAD_MODE=COMMON", conf.read_text())
+        self.assertNotIn("VEEAM_AGENT_PAYLOAD_MODE=", conf.read_text())
         self.api.settings[("backup.thirdparty.staging.root.path", "")] += "/new-root"
         self.api.calls.clear()
         result, output = self.run_config(options)
@@ -149,6 +149,68 @@ class VeeamHostConfigTest(unittest.TestCase):
         self.assertEqual(original, next(conf.parent.glob(conf.name + ".bak.*")).read_bytes())
         self.assertEqual(encrypted, secret.read_bytes())
         self.assertEqual(0o600, stat.S_IMODE(conf.stat().st_mode))
+
+    def test_generated_configuration_has_no_duplicated_veeam_connection_or_staging_values(self):
+        result, output = self.run_config()
+        self.assertEqual(0, result, output)
+        content = (self.locations["etc"] / "Job_with_spaces.conf").read_text()
+        self.assertNotIn("VEEAM_CONNECTION_SOURCE=", content)
+        self.assertIn("VEEAM_BACKUP_INTERVAL_TYPE=EXTERNAL", content)
+        for name in config.CENTRAL_VEEAM_SETTINGS:
+            self.assertNotIn("\n" + name + "=", content)
+        for path in self.locations["etc"].rglob("*"):
+            if path.is_file():
+                self.assertNotIn(b"synthetic-password", path.read_bytes(), str(path))
+
+    def test_refresh_preserves_selection_and_encrypts_legacy_password_backups(self):
+        self.assertEqual(0, self.run_config()[0])
+        conf = self.locations["etc"] / "Job_with_spaces.conf"
+        legacy = conf.read_text() + "VEEAM_PASSWORD=synthetic-old-password\nVEEAM_URL=https://old-vbr.test/api/\n"
+        conf.write_text(legacy)
+        old_backup = conf.with_name(conf.name + ".bak.old")
+        old_backup.write_text(legacy)
+        with patch.object(config, "fetch_runtime", return_value={}) as fetch:
+            result, output = self.run_config(["--refresh-runtime-settings"])
+            self.assertEqual(0, result, output)
+            fetch.assert_called_once_with(self.api, "host-test")
+        content = conf.read_text()
+        self.assertIn("VM_SCHEDULE_BACKUP=false", content)
+        self.assertIn("VEEAM_JOB_NAME='Job with spaces'", content)
+        self.assertNotIn("VEEAM_PASSWORD=", content)
+        self.assertNotIn("VEEAM_URL=", content)
+        self.assertFalse(old_backup.exists())
+        encrypted = list((conf.parent / "secrets").glob(conf.name + ".bak.*.enc"))
+        self.assertEqual(2, len(encrypted))
+        for path in encrypted:
+            self.assertEqual(legacy.encode(), config.decrypt_secret(path, self.root / "host.key", "veeam"))
+            self.assertEqual(0o600, stat.S_IMODE(path.stat().st_mode))
+        before = {path: path.read_bytes() for path in encrypted}
+        with patch.object(config, "fetch_runtime", return_value={}):
+            self.assertEqual(0, self.run_config(["--refresh-runtime-settings"])[0])
+        self.assertEqual(before, {path: path.read_bytes() for path in encrypted})
+        self.assertNotIn("synthetic-old-password", output)
+
+    def test_refresh_requires_confirmed_mold_lookup_before_removing_existing_settings(self):
+        self.assertEqual(0, self.run_config()[0])
+        conf = self.locations["etc"] / "Job_with_spaces.conf"
+        conf.write_text(conf.read_text() + "VEEAM_PASSWORD=synthetic-old-password\n")
+        original = conf.read_bytes()
+        with patch.object(config, "fetch_runtime", side_effect=config.ConfigurationError("runtime API unavailable")):
+            result, output = self.run_config(["--refresh-runtime-settings"])
+        self.assertEqual(1, result)
+        self.assertEqual(original, conf.read_bytes())
+        self.assertIn("runtime API unavailable", output)
+        self.assertNotIn("synthetic-old-password", output)
+
+    def test_refresh_scheduled_job_removes_the_external_interval_override(self):
+        self.assertEqual(0, self.run_config()[0])
+        conf = self.locations["etc"] / "Job_with_spaces.conf"
+        conf.write_text(conf.read_text().replace("VM_SCHEDULE_BACKUP=false", "VM_SCHEDULE_BACKUP=true"))
+        with patch.object(config, "fetch_runtime", return_value={}):
+            result, output = self.run_config(["--refresh-runtime-settings"])
+        self.assertEqual(0, result, output)
+        self.assertIn("VM_SCHEDULE_BACKUP=true", conf.read_text())
+        self.assertNotIn("VEEAM_BACKUP_INTERVAL_TYPE=", conf.read_text())
 
     def test_failed_atomic_replace_keeps_original_and_retry_succeeds(self):
         target = self.root / "config"
@@ -182,10 +244,10 @@ class VeeamHostConfigTest(unittest.TestCase):
 
     def test_local_failure_after_offering_creation_retries_without_duplicate(self):
         write = config.FileInstaller.write
-        def fail_job(files, path, content, mode=0o600):
+        def fail_job(files, path, content, mode=0o600, **kwargs):
             if path.name == "Job_with_spaces.conf":
                 raise OSError("injected Job write failure")
-            return write(files, path, content, mode)
+            return write(files, path, content, mode, **kwargs)
         with patch.object(config.FileInstaller, "write", new=fail_job):
             result, output = self.run_config()
         self.assertEqual(1, result)
@@ -240,6 +302,7 @@ class VeeamHostConfigTest(unittest.TestCase):
         self.assertEqual(["*"], shlex.split(values["VM_INCLUDE"]))
         self.assertEqual(["*"], shlex.split(values["VM_EXCLUDE"]))
         self.assertEqual("true", values["VM_SCHEDULE_BACKUP"])
+        self.assertNotIn("VEEAM_BACKUP_INTERVAL_TYPE", values)
 
     def test_schedule_prompt_skips_filters(self):
         args = config.parse_args(self.options)
@@ -384,6 +447,26 @@ class VeeamHostConfigTest(unittest.TestCase):
                                 capture_output=True, text=True, timeout=10)
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual(["Custom Job 1", "Other Job 2"], target.read_text().splitlines())
+
+    def test_restore_agent_honors_each_job_window_without_inheriting_the_previous_job_value(self):
+        etc = self.locations["etc"]
+        etc.mkdir()
+        (etc / "first.conf").write_text(config.render_config({"VEEAM_JOB_NAME": "first", "VEEAM_RESTORE_WATCH_WINDOW_MIN": 10}))
+        (etc / "second.conf").write_text(config.render_config({"VEEAM_JOB_NAME": "second"}))
+        target = self.root / "windows"
+        runtime = self.root / "package"
+        runtime.mkdir()
+        shutil.copy2(config.RUNTIME_DIR / "mold-veeam-restore-agent.sh", runtime)
+        cli = runtime / "mold-backup.sh"
+        cli.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_WINDOWS"\n')
+        cli.chmod(0o755)
+        result = subprocess.run(["bash", str(runtime / "mold-veeam-restore-agent.sh")], capture_output=True, text=True, timeout=10,
+                    env=dict(os.environ, ABLESTACK_VEEAM_ETC_DIR=str(etc), ABLESTACK_VEEAM_STATE_DIR=str(self.locations["state"]),
+                             VEEAM_RESTORE_WATCH_WINDOW_MIN="30", TEST_WINDOWS=str(target)))
+        self.assertEqual(0, result.returncode, result.stderr)
+        lines = target.read_text().splitlines()
+        self.assertIn("--since-min 10", lines[0])
+        self.assertIn("--since-min 30", lines[1])
 
 
 class VeeamRuntimeLayoutTest(unittest.TestCase):

@@ -128,6 +128,8 @@ mold_backup_load_config() {
   # Do NOT preserve ambient VM_INCLUDE: mold-backup.env / an early default conf load
   # (Job N-1) must not override the per-job .conf selected by VEEAM_JOB_NAME.
   # Single-VM scope is applied later via pre-notify $4, not via env bleed.
+  unset VEEAM_URL VEEAM_USERNAME VEEAM_PASSWORD VEEAM_SSH_HOST VEEAM_SSH_USER VEEAM_SSH_PASSWORD VEEAM_API_USER VEEAM_API_PASSWORD VEEAM_BACKUP_INTERVAL_TYPE
+  unset MOLD_API_SECRET MOLD_SECRET_KEY_FILE
   VEEAM_JOB_NAME="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-}")"
   resolved="$(mold_backup_resolve_conf_path "${VEEAM_JOB_NAME:-}")" || {
     echo "Config not found — run veeam-host-config.py" >&2
@@ -155,8 +157,8 @@ mold_backup_load_config() {
   JOB_NAME="$(mold_backup_normalize_job_name "${JOB_NAME:-${VEEAM_JOB_NAME:-}}")"
   [[ -n "$JOB_NAME" && -z "${VEEAM_JOB_NAME:-}" ]] && VEEAM_JOB_NAME="$JOB_NAME"
 
-  LOG_FILE="${LOG_FILE:-/var/log/mold/backup-veeam.log}"
-  LOG_TAG="${LOG_TAG:-mold-veeam-backup}"
+  LOG_FILE="${LOG_FILE:-/var/log/mold/veeam-hook.log}"
+  LOG_TAG="${LOG_TAG:-mold-veeam-hook}"
   BACKUP_MODE="${BACKUP_MODE:-host}"
   VM_INCLUDE="${VM_INCLUDE:-*}"
   VM_EXCLUDE="${VM_EXCLUDE:-}"
@@ -165,6 +167,7 @@ mold_backup_load_config() {
     ''|true|false) ;;
     *) echo "Invalid VM_SCHEDULE_BACKUP; expected true or false" >&2; return 1 ;;
   esac
+  [[ "$VM_SCHEDULE_BACKUP" != true ]] || unset VEEAM_BACKUP_INTERVAL_TYPE
   VM_AUTO_EXCLUDE="${VM_AUTO_EXCLUDE:-true}"
   ZONE_ID="${ZONE_ID:-}"
   RETENTION_PERIOD="${RETENTION_PERIOD:-}"
@@ -178,6 +181,8 @@ mold_backup_load_config() {
   VEEAM_AGENT_PAYLOAD_PATH="${VEEAM_AGENT_PAYLOAD_PATH:-}"
   QUIESCE_VM="${QUIESCE_VM:-false}"
   BACKUP_OFFERING_NAME="${BACKUP_OFFERING_NAME:-VeeamBackup}"
+  mold_backup_resolve_api_secret || return 1
+  mold_backup_load_veeam_connection || return 1
   # Mold→Veeam trigger (bidirectional mode C): start the matching Veeam Agent job
   # over SSH after a Mold backup completes. Loop is broken by veeam-active/mold-active markers.
   VEEAM_TRIGGER_ENABLED="${VEEAM_TRIGGER_ENABLED:-false}"
@@ -218,6 +223,28 @@ mold_backup_load_config() {
   VEEAM_TRIGGER_METHOD="${VEEAM_TRIGGER_METHOD:-auto}"
   mold_backup_load_common_staging || return 1
   return 0
+}
+
+mold_backup_load_veeam_connection() {
+  local helper="$(dirname "${BASH_SOURCE[0]}")/../veeam_runtime_config.py" settings
+  if [[ -n "${VEEAM_USERNAME:-}" && "${VEEAM_SSH_USER:-}" == "$VEEAM_USERNAME" ]]; then
+    unset VEEAM_SSH_USER
+  fi
+  unset VEEAM_URL VEEAM_USERNAME VEEAM_PASSWORD VEEAM_SSH_HOST VEEAM_SSH_PASSWORD VEEAM_API_PASSWORD
+  settings="$(MOLD_API_URL="$MOLD_API_URL" MOLD_API_KEY="$MOLD_API_KEY" MOLD_API_SECRET="$MOLD_API_SECRET" \
+    python3 "$helper" --hostname "${KVM_HOSTNAME:-$(hostname -s)}")" || return 1
+  local name value
+  for name in url username password sshhost zoneid; do
+    value="$(printf '%s' "$settings" | python3 -c 'import json,sys; print(json.load(sys.stdin)[sys.argv[1]], end="")' "$name")" || return 1
+    case "$name" in
+      url) VEEAM_URL="$value" ;;
+      username) VEEAM_USERNAME="$value" ;;
+      password) VEEAM_PASSWORD="$value"; VEEAM_SSH_PASSWORD="$value"; VEEAM_API_PASSWORD="$value" ;;
+      sshhost) VEEAM_SSH_HOST="$value" ;;
+      zoneid) ZONE_ID="$value" ;;
+    esac
+  done
+  VEEAM_SSH_USER="${VEEAM_SSH_USER:-$VEEAM_USERNAME}"
 }
 
 mold_backup_read_env_var() {
@@ -713,9 +740,6 @@ mold_backup_api_ensure_global_settings() {
   mold_backup_api_update_config_if_needed "backup.enable.attach.detach.of.volumes" "true"
   # Append ablestack-veeam; do not wipe existing providers (dummy,nas,netbackup,...).
   mold_backup_api_append_provider_plugin ablestack-veeam || return 1
-  [[ -n "${VEEAM_URL:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.url" "${VEEAM_URL}"
-  [[ -n "${VEEAM_USERNAME:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.username" "${VEEAM_USERNAME}"
-  [[ -n "${VEEAM_PASSWORD:-}" ]] && mold_backup_api_update_config_if_needed "backup.plugin.ablestack-veeam.password" "${VEEAM_PASSWORD}"
   # This also runs from pre-notify. Backup mode and chain limits are configured only
   # by veeam-host-config.py; runtime must retain the current Mold administrator settings.
   return 0
@@ -1722,9 +1746,9 @@ mold_backup_veeam_scp() {
   fi
   if [[ -n "${VEEAM_SSH_PASSWORD:-}" ]]; then
     askpass_file="$(mktemp /tmp/veeam-askpass.XXXXXX)"
-    printf '%s\n' '#!/bin/bash' "printf '%s\\n' $(printf '%q' "${VEEAM_SSH_PASSWORD}")" >"$askpass_file"
+    printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$ABLESTACK_VEEAM_SSH_PASSWORD"' >"$askpass_file"
     chmod 700 "$askpass_file"
-    SSH_ASKPASS="$askpass_file" SSH_ASKPASS_REQUIRE=force DISPLAY="${DISPLAY:-:0}" \
+    ABLESTACK_VEEAM_SSH_PASSWORD="$VEEAM_SSH_PASSWORD" SSH_ASKPASS="$askpass_file" SSH_ASKPASS_REQUIRE=force DISPLAY="${DISPLAY:-:0}" \
       setsid -w scp "${scp_opts[@]}" \
       -o PreferredAuthentications=password -o PubkeyAuthentication=no \
       -o NumberOfPasswordPrompts=1 "$src" "${remote}:${dst}"
@@ -1738,19 +1762,18 @@ mold_backup_veeam_scp() {
 mold_backup_veeam_ssh_ps_capture() {
   # Prints remote stdout; returns ssh/pwsh rc.
   local ps_script="$1"
-  local ps_enc local_tmp remote_name out rc
+  local ps_enc local_tmp remote_name out rc ps_launcher
   [[ -n "${VEEAM_SSH_HOST:-}" ]] || return 1
   [[ -n "$ps_script" ]] || return 1
+  ps_launcher="$(mold_backup_veeam_select_powershell7)" || return 1
+  ps_script="$(mold_backup_veeam_ps7_script "$ps_script")"
   # Prefer file transfer when EncodedCommand would exceed ~6k (Windows CreateProcess limit).
   if (( ${#ps_script} > 2500 )); then
     local_tmp="$(mktemp /tmp/mold-veeam-ps.XXXXXX.ps1)"
     printf '%s\n' "$ps_script" >"$local_tmp"
     remote_name="mold-veeam-$(date +%s)-$$.ps1"
     if mold_backup_veeam_scp "$local_tmp" "C:/Windows/Temp/${remote_name}"; then
-      out="$(mold_backup_veeam_ssh_cmd "pwsh -NoProfile -File C:\\Windows\\Temp\\${remote_name}" 2>&1)" && rc=0 || rc=$?
-      if [[ $rc -ne 0 ]]; then
-        out="$(mold_backup_veeam_ssh_cmd "powershell.exe -NoProfile -File C:\\Windows\\Temp\\${remote_name}" 2>&1)" && rc=0 || rc=$?
-      fi
+      out="$(mold_backup_veeam_ssh_cmd "${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Windows\\Temp\\${remote_name}" 2>&1)" && rc=0 || rc=$?
       # Cleanup must not block restore-watch; auth hang previously stuck oneshot for hours.
       VEEAM_SSH_CMD_TIMEOUT="${VEEAM_SSH_CLEANUP_TIMEOUT:-20}" \
         mold_backup_veeam_ssh_cmd "del /f C:\\Windows\\Temp\\${remote_name}" >/dev/null 2>&1 || true
@@ -1762,7 +1785,7 @@ mold_backup_veeam_ssh_ps_capture() {
   fi
   ps_enc="$(printf '%s' "$ps_script" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 -w0 2>/dev/null)"
   [[ -n "$ps_enc" ]] || return 1
-  mold_backup_veeam_ssh_encoded "$ps_enc"
+  mold_backup_veeam_ssh_encoded "$ps_enc" "$ps_launcher"
 }
 
 mold_backup_veeam_ssh_ps() {
@@ -2680,9 +2703,9 @@ mold_backup_veeam_ssh_cmd() {
   fi
   if [[ -n "${VEEAM_SSH_PASSWORD:-}" ]]; then
     askpass_file="$(mktemp /tmp/veeam-askpass.XXXXXX)"
-    printf '%s\n' '#!/bin/bash' "printf '%s\\n' $(printf '%q' "${VEEAM_SSH_PASSWORD}")" >"$askpass_file"
+    printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$ABLESTACK_VEEAM_SSH_PASSWORD"' >"$askpass_file"
     chmod 700 "$askpass_file"
-    SSH_ASKPASS="$askpass_file" SSH_ASKPASS_REQUIRE=force DISPLAY="${DISPLAY:-:0}" \
+    ABLESTACK_VEEAM_SSH_PASSWORD="$VEEAM_SSH_PASSWORD" SSH_ASKPASS="$askpass_file" SSH_ASKPASS_REQUIRE=force DISPLAY="${DISPLAY:-:0}" \
       setsid -w "${prefix[@]}" ssh -n "${ssh_host_opts[@]}" \
       -o PreferredAuthentications=password -o PubkeyAuthentication=no \
       -o NumberOfPasswordPrompts=1 "$remote" "$@"
@@ -2693,31 +2716,56 @@ mold_backup_veeam_ssh_cmd() {
   "${prefix[@]}" ssh -n -o BatchMode=yes "${ssh_host_opts[@]}" "$remote" "$@"
 }
 
-mold_backup_veeam_ssh_encoded() {
-  local ps_enc="$1"
-  local attempt out rc last_err="" ps_launcher
+mold_backup_veeam_ps7_script() {
+  cat <<'PS'
+$ErrorActionPreference='Stop'
+$ProgressPreference='SilentlyContinue'
+try {
+if ($PSVersionTable.PSVersion.Major -ne 7) { throw 'Veeam 13 requires PowerShell 7' }
+Import-Module Veeam.Backup.PowerShell -WarningAction SilentlyContinue -ErrorAction Stop
+PS
+  printf '%s\n' "$1"
+  printf '%s\n' '} catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }'
+}
+
+mold_backup_veeam_select_powershell7() {
+  local ps_probe ps_enc ps_launcher out rc last_err=""
   [[ -n "${VEEAM_SSH_HOST:-}" ]] || return 1
+  ps_probe="$(mold_backup_veeam_ps7_script "Write-Output 'ABLESTACK_POWERSHELL7_READY'")"
+  ps_enc="$(printf '%s' "$ps_probe" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 -w0 2>/dev/null)"
   [[ -n "$ps_enc" ]] || return 1
   local -a ps_launchers=(
-    '"C:\Program Files\PowerShell\7\pwsh.exe" -NoProfile -EncodedCommand'
-    'pwsh.exe -NoProfile -EncodedCommand'
-    'pwsh -NoProfile -EncodedCommand'
-    'powershell.exe -NoProfile -EncodedCommand'
+    '"C:\Program Files\PowerShell\7\pwsh.exe"'
+    'pwsh.exe'
+    'pwsh'
   )
-  for attempt in 1 2 3; do
-    for ps_launcher in "${ps_launchers[@]}"; do
-      out="$(mold_backup_veeam_ssh_cmd "${ps_launcher} ${ps_enc}" 2>&1)" && rc=0 || rc=$?
-      if [[ $rc -eq 0 ]]; then
-        printf '%s' "$out"
-        return 0
-      fi
-      last_err="$out"
-    done
-    sleep 2
+  # Probe only: never retry a backup/restore command under another executable.
+  for ps_launcher in "${ps_launchers[@]}"; do
+    out="$(mold_backup_veeam_ssh_cmd "${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${ps_enc}" 2>&1)" && rc=0 || rc=$?
+    if [[ $rc -eq 0 ]] && [[ "$out" == *ABLESTACK_POWERSHELL7_READY* ]]; then
+      printf '%s' "$ps_launcher"
+      return 0
+    fi
+    last_err+="[${ps_launcher}] ${out}; "
   done
   last_err="${last_err//$'\r'/}"
   last_err="${last_err//$'\n'/; }"
-  mold_backup_notify_log warn "Veeam SSH failed (host=${VEEAM_SSH_HOST} rc=${rc}): ${last_err:0:240}"
+  mold_backup_notify_log warn "Veeam 13 requires PowerShell 7 with the Veeam.Backup.PowerShell module; Windows PowerShell 5.1 is not supported (host=${VEEAM_SSH_HOST}): ${last_err:0:600}"
+  return 1
+}
+
+mold_backup_veeam_ssh_encoded() {
+  local ps_enc="$1" ps_launcher="${2:-}" out rc
+  [[ -n "${VEEAM_SSH_HOST:-}" && -n "$ps_enc" ]] || return 1
+  if [[ -z "$ps_launcher" ]]; then
+    ps_launcher="$(mold_backup_veeam_select_powershell7)" || return 1
+  fi
+  out="$(mold_backup_veeam_ssh_cmd "${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${ps_enc}" 2>&1)" && rc=0 || rc=$?
+  if [[ $rc -eq 0 ]]; then
+    printf '%s' "$out"
+    return 0
+  fi
+  mold_backup_notify_log warn "Veeam PowerShell 7 command failed (host=${VEEAM_SSH_HOST} rc=${rc}): ${out:0:240}"
   return 1
 }
 
@@ -2727,12 +2775,6 @@ mold_backup_query_veeam_backups() {
     mold_backup_notify_log warn "Veeam→Mold(backup): VEEAM_SSH_HOST not set"
     return 1
   }
-  local ssh_key_opt=()
-  [[ -n "${VEEAM_SSH_KEY:-}" && -f "${VEEAM_SSH_KEY}" ]] && ssh_key_opt=(-i "${VEEAM_SSH_KEY}")
-  local -a ssh_host_opts=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
-  if [[ "${VEEAM_SSH_STRICT_HOSTKEY:-false}" == "true" ]]; then
-    ssh_host_opts=(-o StrictHostKeyChecking=accept-new)
-  fi
   local ps_script
   ps_script="$(cat <<'PS'
 $ErrorActionPreference = 'SilentlyContinue'
@@ -2789,14 +2831,9 @@ foreach ($s in $sessions) {
 }
 PS
 )"
-  local ps_enc
-  ps_enc="$(printf '%s' "$ps_script" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 -w0 2>/dev/null)"
-  [[ -n "$ps_enc" ]] || { mold_backup_notify_log warn "Veeam→Mold(backup): failed to encode PS script"; return 1; }
   local attempt out rc
   for attempt in 1 2 3; do
-    out="$(ssh "${ssh_key_opt[@]}" -o BatchMode=yes -o ConnectTimeout=30 "${ssh_host_opts[@]}" \
-            "${VEEAM_SSH_USER:-administrator}@${VEEAM_SSH_HOST}" \
-            "pwsh -NoProfile -EncodedCommand ${ps_enc}" 2>/dev/null)"
+    out="$(mold_backup_veeam_ssh_ps_capture "$ps_script" 2>/dev/null)"
     rc=$?
     if [[ $rc -eq 0 ]]; then
       out="${out//$'\r'/}"
@@ -2919,7 +2956,7 @@ mold_backup_pre_notify() {
     mold_backup_notify_log err "Rerun veeam-host-config.py and configure the parent Job's marker SelectedFiles before backing up."
     return 1
   fi
-  if [[ "${VEEAM_AGENT_PAYLOAD_MODE:-EXPLICIT}" == COMMON ]]; then
+  if [[ "${VEEAM_AGENT_PAYLOAD_MODE:-COMMON}" == COMMON ]]; then
     local parent_host parent_job expected_payload
     parent_host="$(mold_backup_safe_job_name "${KVM_HOSTNAME:-$client}")"
     parent_job="$(mold_backup_safe_job_name "$job")"

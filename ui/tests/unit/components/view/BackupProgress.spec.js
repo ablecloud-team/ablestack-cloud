@@ -525,6 +525,23 @@ test.each([
   wrapper.unmount()
 })
 
+test.each(['Failed', 'Error'])('shows the %s backup reason after staging cleanup has completed', status => {
+  const reason = 'Volume backup failed: [Errno 9] Bad file descriptor'
+  const wrapper = shallowMount(BackupProgress, {
+    props: { record: { id: 'backup-1', status, backupjobdetails: reason, catalogstate: 'PENDING', cleanupstate: 'COMPLETED' } },
+    global: {
+      stubs: { Status: statusWithTooltip },
+      mocks: { $t: key => korean[key] || key, $store: { getters: { apis: {} } } }
+    }
+  })
+  const text = wrapper.find('.status-tooltip').text()
+  expect(text).toContain(korean['label.failure.reason'])
+  expect(text).toContain(reason)
+  expect(text).toContain('PENDING')
+  expect(text).toContain('COMPLETED')
+  wrapper.unmount()
+})
+
 test('pending deletion is visible with its persisted English state and reason', () => {
   const wrapper = shallowMount(BackupProgress, {
     props: { record: { id: 'backup', status: 'BackedUp', deletionpending: true, deletionstate: 'WAITING_DEPENDENCIES', deletiondetails: 'Dependent recovery points remain' } },

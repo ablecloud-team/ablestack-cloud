@@ -23,6 +23,11 @@ import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 
 public interface BackupProvider {
+    /** Management-side values for an encrypted, Admin-only Host runtime response. */
+    default java.util.Map<String, String> getHostRuntimeConfiguration(Long zoneId) {
+        throw new UnsupportedOperationException("Host runtime configuration is not supported by provider " + getName());
+    }
+
     default BackupStagingInfoResponse reconcileStagingJob(Backup backup, String operation,
             String jobId, String action, Integer artifactIndex, String externalJobId) {
         throw new UnsupportedOperationException("Staging reconciliation is not supported by provider " + getName());

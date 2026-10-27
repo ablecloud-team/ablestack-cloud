@@ -118,9 +118,12 @@ public class AblestackSharedRawBackupServiceTest {
         assertThrows(CloudRuntimeException.class, () -> service.protect(backup("INCREMENTAL"), worker, "job", "BACKUP", List.of(disk)));
         verifyNoInteractions(agents, backupDetails, poolDetails);
     }
-    @Test public void runningTargetCannotBeBackedUp() {
+    @Test public void runningNonshareableTargetCannotBeBackedUp() {
+        when(offerings.findByIdIncludingRemoved(30L).getShareable()).thenReturn(false);
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
-        assertThrows(CloudRuntimeException.class, () -> service.checkSources(20L)); verifyNoInteractions(agents);
+        CloudRuntimeException error = assertThrows(CloudRuntimeException.class, () -> service.checkSources(20L));
+        assertEquals("BACKUP_VM_NOT_STOPPED: VM must be stopped before creating a backup; vmId=20", error.getMessage());
+        verifyNoInteractions(agents);
     }
     @Test public void actualAliasIsInspectedEvenWithStaleNonshareableOffering() {
         when(offerings.findByIdIncludingRemoved(30L).getShareable()).thenReturn(false);
@@ -129,7 +132,8 @@ public class AblestackSharedRawBackupServiceTest {
         when(volumes.findBySharedVolume(10L, "shared.raw")).thenReturn(List.of(disk, peer));
         VMInstanceVO running = mock(VMInstanceVO.class); when(running.getState()).thenReturn(VirtualMachine.State.Running);
         when(vms.findById(21L)).thenReturn(running);
-        assertThrows(CloudRuntimeException.class, () -> service.checkSources(20L));
+        CloudRuntimeException error = assertThrows(CloudRuntimeException.class, () -> service.checkSources(20L));
+        assertEquals("BACKUP_VM_NOT_STOPPED: VM must be stopped before creating a backup; vmId=21", error.getMessage());
     }
     @Test public void unknownPeerFailsClosed() {
         when(vms.findById(20L)).thenReturn(null);
@@ -151,7 +155,9 @@ public class AblestackSharedRawBackupServiceTest {
     }
     @Test public void originalSharedRestoreRequiresEveryPeerStopped() {
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
-        assertThrows(CloudRuntimeException.class, () -> service.protect(backup("FULL"), worker, "restore", "RESTORE", List.of(disk)));
+        CloudRuntimeException error = assertThrows(CloudRuntimeException.class,
+                () -> service.protect(backup("FULL"), worker, "restore", "RESTORE", List.of(disk)));
+        assertEquals("RESTORE_VM_NOT_STOPPED: VM must be stopped before restoring a backup; vmId=20", error.getMessage());
     }
     @Test public void targetRestoringStateIsAllowedOnlyForRestore() {
         when(vm.getState()).thenReturn(VirtualMachine.State.Restoring);

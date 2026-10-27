@@ -1213,6 +1213,49 @@ Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로
 5. 기준 Job의 Pre/Post에 설치된 Veeam 연동 스크립트를 지정한다.
    실행 파일과 구성 도구는 아래의 [Veeam Host 구성과 배포](#veeam-host-구성과-배포)를 참고한다.
 
+**Veeam PowerShell 실행 환경**
+
+볼륨별 백업의 기준 Job 준비 확인과 자식 Job 처리는 관리 서버의 Java SSH 클라이언트가 실행한다.
+Veeam 13.0 연동은 PowerShell 7을 필수로 사용한다. 관리 서버의 두 Java 클라이언트와 Host Hook은
+`C:\Program Files\PowerShell\7\pwsh.exe`, PATH의 `pwsh.exe`, `pwsh` 순서로 읽기 전용 검사를 수행한다.
+PowerShell 7 버전 확인과 Veeam 모듈 로딩에 성공한 실행 파일에서 실제 작업을 한 번만 실행한다.
+Windows PowerShell 5.1로 재시도하지 않으며, 실제 작업 실패 후 다른 실행 파일로 재제출하지 않는다.
+Windows VBR에서 다음 읽기 전용 명령으로 모듈과 필요한 명령을 확인한다.
+
+```powershell
+& 'C:\Program Files\PowerShell\7\pwsh.exe' -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion; Import-Module Veeam.Backup.PowerShell -ErrorAction Stop; Get-Command Copy-VBRComputerBackupJob'
+```
+
+표준 설치 경로를 사용하지 않는 경우 VBR의 SSH 접속 계정에서도 `pwsh.exe` 또는 `pwsh`를 실행할 수 있도록 PATH를 확인한다.
+관리 서버 JVM의 `veeam.powershell.bin` 옵션은 사용하지 않는다. PowerShell 7 실행 파일이나 Veeam 모듈이 없으면
+버전·모듈 오류를 반환하고 실제 작업 명령을 실행하지 않는다. 모듈 로딩 오류는 다른 명령 실행 전에 중단한다.
+Java 변경은 모든 관리 서버에 Veeam 플러그인을 배포한 뒤 관리 서비스를 재시작하고,
+Hook 변경은 각 KVM Host의 설치된 `mold-backup.lib.sh`에 반영한다.
+
+Veeam URL·사용자·비밀번호와 공통 스테이징 경로는 Mold 등록값을 사용한다.
+Host Job conf에는 접속 비밀번호나 이 설정들의 사본을 저장하지 않는다.
+Job 설정을 읽을 때 Root Admin 전용 `getVeeamRuntimeConfig` API로 해당 Host Zone의 현재 접속 정보를 조회한다.
+응답은 요청마다 메모리에서 생성한 RSA 공개키로 보호한 AES-256-GCM 암호문이며, 복호화 키와 비밀번호는 파일에 쓰지 않는다.
+작업·프로세스가 다시 시작되면 Mold를 재조회한다. 조회 실패 시 이전 Job의 값이나 기존 conf 비밀번호를 사용하지 않는다.
+백업 ID·외부 Job/세션 ID·진행 상태는 기존 DB와 작업 기록으로 유지하므로 인증정보 재조회가 새 백업 제출을 의미하지 않는다.
+
+기존 Host 설정은 관리 서버 API와 Host 런타임을 먼저 업데이트한 뒤 다음 명령으로 전환한다.
+Veeam 암호를 다시 입력하거나 VM 선택 조건을 다시 지정할 필요가 없다.
+
+```bash
+python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam-host-config.py --refresh-runtime-settings
+```
+
+명령은 Mold 조회에 성공한 Job만 전환하며 기존 Job 이름·VM 선택·스케줄 모드를 유지한다.
+Veeam 비밀번호가 포함된 기존 conf 백업은 `secrets/<conf>.bak.*.enc`에 공통 Host 키로 암호화해 보관한다.
+`VM_SCHEDULE_BACKUP=false`일 때만 `VEEAM_BACKUP_INTERVAL_TYPE=EXTERNAL`을 기록하며, `true`에서는 해당 항목을 제거한다.
+조회 권한을 얻기 위한 Mold API URL·API key와 암호화한 API secret의 참조는 Host에 필요하다.
+
+`BackingUp`은 작업이 성공했다는 뜻이 아니다. 준비 확인이나 외부 세션 조회가 실패하면
+중복 전송을 막기 위해 확인 대기로 유지하며, `VEEAM_TRANSFER` 진입만으로 Veeam 저장 완료를 판정하지 않는다.
+세션 이력이 없는 새 Job도 조회할 수 있도록 세션은 열거 후 해당 Job의 `JobId`로 일치시킨다.
+실제 조회 오류는 빈 결과로 처리하지 않는다. 이미 제출 여부가 불명확한 작업은 세션이 없다는 이유만으로 재제출하지 않는다.
+
 **백업 순서**
 
 1. Veeam UI 또는 Job 스케줄에서 기준 Job을 실행한다.
@@ -1346,6 +1389,17 @@ Full/증분 정책과 VM 선택 방식은 별개이다.
 | 백업 데이터 스테이징 | Mold `backup.thirdparty.staging.*` | 동일. 로컬 datadisk/NAS 저장소 생성 옵션 제거 |
 | 부모 작업의 bootstrap 경로 | `<root>/ablestack-netbackup/bootstrap/<policy>` | 기본 `<root>/ablestack-veeam/bootstrap/<host>/<job>`. 명시적 경로가 필요할 때만 `--agent-payload-path` 사용 |
 | 설치·감시 | Hook, restore service/timer, `bp.conf` 구성 | Hook, Job conf, Agent timeout, restore service/timer 구성 |
+
+Veeam의 VM 스케줄 선택은 부모 Job별 `/etc/ablestack/veeam/<JOB>.conf`의 `VM_SCHEDULE_BACKUP`을 따른다.
+`ablecube1`과 `veeam-ablecube1`은 서로 다른 Job 설정이다. 한 파일을 `true`로 바꿔도 다른 Job에는 적용되지 않는다.
+스케줄 없이 실행된 VM을 조사할 때는 실제 실행 Job의 구성과 `/var/log/mold/veeam-hook.log`의
+`pre-notify mode=SCHEDULE` 또는 `mode=CONFIG`를 함께 확인한다. 구성의 `LOG_FILE`을 바꿨다면 해당 경로를 사용한다.
+`true`이고 실행할 VM 스케줄이 없으면 대상은 0개다. 이미 시작한 백업은 이 설정 변경만으로 취소되지 않는다.
+
+NetBackup 정책 conf의 `MOLD_SECRET_FILE`과 `SECRET_KEY_FILE`은 암호화한 Mold API secret 및 Host 키의 참조다.
+사용자 지정 키 경로도 복호화 helper에 전달한다. NetBackup과 Veeam 모두 Mold 접속 인증과
+Host/정책/Job별 VM 선택 조건은 로컬에 필요하지만, Mold가 관리하는 공통 스테이징 root를 중복 저장할 필요는 없다.
+부모 정책/Job에 실제 등록한 bootstrap 경로는 root 변경 후의 불일치를 검사하므로 유지한다.
 
 Veeam은 Linux Agent 설치와 VBR의 SSH 접속 구성을 먼저 완료한다.
 두 사전구성 도구는 공통 스테이징의 활성화·경로·현재 Host의 마운트를 먼저 검사한다.
@@ -2527,8 +2581,8 @@ service를 직접 `enable`하지 않는다.
   RPM의 `--install-only`는 런타임만 설치하며 미구성 Host의 감시를 활성화하지 않는다.
 - 기본 서비스 파일은 `/etc/systemd/system/mold-veeam-restore-agent.service`,
   타이머 파일은 `/etc/systemd/system/mold-veeam-restore-agent.timer`이다.
-- Host의 `/etc/ablestack/veeam/mold-backup.env`와 Job별 `.conf`에 Mold 인증정보,
-  Veeam 접속 정보와 감시 대상 Job을 구성한다.
+- Host의 `/etc/ablestack/veeam/` Job별 `.conf`에는 Mold 접속 인증의 참조와 감시 대상 Job·VM 선택 조건을 구성한다.
+  Veeam 접속 정보는 실행 시 Mold에서 조회한다. `mold-backup.env`에는 Job별 인증정보를 중복 기록하지 않는다.
 - Veeam Linux Agent 설치·등록은 별도로 필요하며 Mold 감시 서비스가 이를 대신하지 않는다.
 - 평상시에는 **timer가 `active`**인지 확인한다.
   service는 한 번 조회한 뒤 종료하므로 조회 사이에 `inactive`로 보이는 것은 정상이다.
@@ -2717,6 +2771,8 @@ Veeam 실행 파일은 RPM이 설치한 패키지 경로에서 직접 실행한�
 일반 사전구성에는 `--install-only`를 지정하지 않는다. Veeam UI의 Agent Job 생성과 Pre/Post 등록은 수동 단계다.
 Job 이름에 공백 등이 있으면 파일 이름에서는 `_`로 치환하고, 다른 Job과 파일 이름이 충돌하면 중단한다.
 Watcher는 설치된 모든 Job `.conf`를 조회하므로 사용자 지정 Job 이름도 처리한다.
+Job의 `VEEAM_RESTORE_WATCH_WINDOW_MIN`은 해당 Job의 조회 범위로 적용하며,
+지정하지 않으면 감시 서비스의 기본 조회 범위를 사용한다. 다른 Job의 값을 이어받지 않는다.
 
 구성은 다음 순서로 진행한다.
 

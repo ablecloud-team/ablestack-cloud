@@ -25,6 +25,7 @@ LIBVIRT_URI_DEFAULT="qemu:///system"
 CONFIG_ROOT_DEFAULT="/etc/ablestack/netbackup"
 SECRET_HELPER_DEFAULT="/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/netbackup-host-secret-helper.sh"
 SECRET_SUBDIR_DEFAULT="secrets"
+SECRET_KEY_FILE_DEFAULT="${SECRET_KEY_FILE:-${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}}"
 BACKUP_STAGING_ROOT_DEFAULT="/tmp/mold/netbackup"
 NETBACKUP_STAGE_ROOT_CONFIG_NAME="backup.thirdparty.staging.root.path"
 BACKUP_DATA_OPERATION_TIMEOUT_CONFIG_NAME="backup.data.operation.timeout"
@@ -35,6 +36,8 @@ LOG_FILE="${LOG_FILE:-$LOG_FILE_DEFAULT}"
 LIBVIRT_URI="${LIBVIRT_URI:-$LIBVIRT_URI_DEFAULT}"
 SECRET_HELPER="${SECRET_HELPER:-$SECRET_HELPER_DEFAULT}"
 SECRET_SUBDIR="${SECRET_SUBDIR:-$SECRET_SUBDIR_DEFAULT}"
+SECRET_KEY_FILE="$SECRET_KEY_FILE_DEFAULT"
+MOLD_SECRET_FILE="${MOLD_SECRET_FILE:-}"
 BACKUP_STAGING_ROOT="${BACKUP_STAGING_ROOT:-$BACKUP_STAGING_ROOT_DEFAULT}"
 
 VM_INCLUDE="${VM_INCLUDE:-*}"
@@ -534,7 +537,7 @@ resolve_config_file_path() {
 }
 
 resolve_secret_file_path() {
-  builtin echo "${CONFIG_ROOT}/${SECRET_SUBDIR}/secret.enc"
+  builtin echo "${MOLD_SECRET_FILE:-${CONFIG_ROOT}/${SECRET_SUBDIR}/secret.enc}"
 }
 
 load_admin_secretkey() {
@@ -551,7 +554,7 @@ load_admin_secretkey() {
     fail "Secret helper not found or not executable: ${SECRET_HELPER}"
   fi
 
-  ADMIN_SECRETKEY="$("${SECRET_HELPER}" decrypt "${secret_file}")" || fail "Failed to decrypt NetBackup secret file ${secret_file}"
+  ADMIN_SECRETKEY="$(SECRET_KEY_FILE="$SECRET_KEY_FILE" "${SECRET_HELPER}" decrypt "${secret_file}")" || fail "Failed to decrypt NetBackup secret file ${secret_file}"
   [[ -n "${ADMIN_SECRETKEY}" ]] || fail "Decrypted ADMIN_SECRETKEY is empty."
 }
 
@@ -616,6 +619,9 @@ load_policy_schedule_config() {
   KVM_HOSTNAME=""
   MOLD_URL=""
   ADMIN_APIKEY=""
+  ADMIN_SECRETKEY=""
+  MOLD_SECRET_FILE=""
+  SECRET_KEY_FILE="$SECRET_KEY_FILE_DEFAULT"
 
   if [[ -f "${config_file}" ]]; then
     # shellcheck disable=SC1090

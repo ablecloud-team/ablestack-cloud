@@ -32,7 +32,11 @@ import { autoScaleLifecycleErrorKey } from '@/utils/autoScaleLifecycle'
 import { createJobTracker } from '@/utils/jobTracker'
 import { toLocalDate, toLocaleDate } from '@/utils/date'
 
-function autoScaleErrorDescription (description) {
+function errorDescription (description) {
+  if (typeof description === 'string') {
+    if (description.startsWith('BACKUP_VM_NOT_STOPPED:')) return i18n.global.t('message.backup.vm.must.be.stopped')
+    if (description.startsWith('RESTORE_VM_NOT_STOPPED:')) return i18n.global.t('message.backup.restore.vm.must.be.stopped')
+  }
   const key = autoScaleLifecycleErrorKey(description)
   return key ? i18n.global.t(key) : description
 }
@@ -60,7 +64,7 @@ export const pollJobPlugin = {
         top: '65px',
         duration: 0,
         ...config,
-        description: autoScaleErrorDescription(config.description),
+        description: errorDescription(config.description),
         onClose: () => store.commit('SET_COUNT_NOTIFY', Math.max(0, store.getters.countNotify - 1))
       })
     }
@@ -182,7 +186,7 @@ export const notifierPlugin = {
       notification.error({
         top: '65px',
         message: msg,
-        description: autoScaleErrorDescription(desc),
+        description: errorDescription(desc),
         duration: 0,
         onClose: () => {
           let c = store.getters.countNotify

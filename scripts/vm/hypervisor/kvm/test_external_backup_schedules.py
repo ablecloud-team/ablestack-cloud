@@ -72,6 +72,7 @@ source "$TEST_LIBRARY"
 VM_INCLUDE="$TEST_INCLUDE" VM_EXCLUDE="$TEST_EXCLUDE"
 VM_SCHEDULE_BACKUP="$TEST_VM_SCHEDULE_BACKUP"
 BACKUP_MODE=host VEEAM_PROVIDER_NAME=ablestack-veeam
+VEEAM_AGENT_PAYLOAD_MODE=EXPLICIT
 VEEAM_AGENT_PAYLOAD_PATH="$TEST_ROOT/payload"
 mold_backup_load_config() { :; }
 mold_backup_local_kvm_name() { echo host-test; }
@@ -91,7 +92,7 @@ mold_backup_pre_notify host-test parent-policy default
 '''
             library = ROOT / "veeam" / "mold-backup.lib.sh"
         with tempfile.TemporaryDirectory() as directory:
-            env = dict(os.environ, TEST_LIBRARY=str(library), TEST_ROOT=directory,
+            env = dict(os.environ, TEST_LIBRARY=str(library), TEST_ROOT=str(Path(directory).resolve()),
                        TEST_PAYLOAD=json.dumps(payload), TEST_API_FAILURE=str(api_failure),
                        TEST_VM_SCHEDULE_BACKUP=vm_schedules,
                        TEST_INCLUDE=include, TEST_EXCLUDE=exclude)
@@ -107,10 +108,11 @@ mold_backup_pre_notify host-test parent-policy default
 
     def test_empty_due_list_does_not_fall_back_to_configuration(self):
         for provider in ("netbackup", "veeam"):
-            with self.subTest(provider=provider):
-                result = self.run_selection(provider, response("SCHEDULE", []))
-                self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual("", result.stdout)
+            for vm_schedules in ("", "true"):
+                with self.subTest(provider=provider, vm_schedules=vm_schedules):
+                    result = self.run_selection(provider, response("SCHEDULE", []), vm_schedules=vm_schedules)
+                    self.assertEqual(0, result.returncode, result.stderr)
+                    self.assertEqual("", result.stdout)
 
     def test_explicit_schedule_mode_ignores_the_exclude_all_sentinel(self):
         for provider in ("netbackup", "veeam"):
@@ -188,6 +190,9 @@ source "$TEST_LIBRARY"
 MOLD_VM_CACHE_FILE="$TEST_ROOT/candidates.json"
 printf '%s' "$TEST_CANDIDATES" > "$MOLD_VM_CACHE_FILE"
 POLICY_NAME=parent-policy
+POLICY_SAFE=parent-policy
+BACKUP_STAGING_ROOT="$TEST_ROOT/staging"
+NETBACKUP_PARENT_PAYLOAD_PATH="$BACKUP_STAGING_ROOT/bootstrap/$POLICY_SAFE"
 VM_SCHEDULE_BACKUP="$TEST_VM_SCHEDULE_BACKUP"
 log() { :; }
 invoke_mold_api() {
@@ -224,7 +229,7 @@ mold_backup_api_wait_async_job() {
 mold_backup_api_create_veeam_and_wait vm-i-2-1-VM i-2-1-VM
 '''
         with tempfile.TemporaryDirectory() as directory:
-            env = dict(os.environ, TEST_LIBRARY=str(library), TEST_ROOT=directory,
+            env = dict(os.environ, TEST_LIBRARY=str(library), TEST_ROOT=str(Path(directory).resolve()),
                        TEST_CANDIDATES=json.dumps(data["listexternalbackupcandidatesresponse"]["externalbackupcandidates"]),
                        TEST_FAIL_DISPATCH=str(fail))
             env["TEST_VM_SCHEDULE_BACKUP"] = vm_schedules
@@ -286,12 +291,14 @@ mold_backup_process_external_candidate_vm i-2-1-VM "$TEST_ROOT/job.state"
             staging.mkdir()
             (staging / ".volume-bootstrap").write_text("backup-uuid")
             data = response("SCHEDULE", [candidate(scheduled=True)])
-            env = dict(os.environ, TEST_LIBRARY=str(ROOT / "veeam" / "mold-backup.lib.sh"), TEST_ROOT=directory,
+            env = dict(os.environ, TEST_LIBRARY=str(ROOT / "veeam" / "mold-backup.lib.sh"), TEST_ROOT=str(Path(directory).resolve()),
                        TEST_CANDIDATES=json.dumps(data["listexternalbackupcandidatesresponse"]["externalbackupcandidates"]))
             result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env, timeout=10)
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertIn("GUARD:veeam-active i-2-1-VM", result.stderr)
-            self.assertEqual("backup-uuid", (Path(directory) / "payload/i-2-1-VM/backup-bootstrap.txt").read_text())
+            marker = json.loads((Path(directory) / "payload/backup-uuid.json").read_text())
+            self.assertEqual("backup-uuid", marker["backupUuid"])
+            self.assertEqual(str(staging.resolve() / ".volume-bootstrap"), marker["sourceMarker"])
             self.assertIn("status=pipeline", (Path(directory) / "job.state").read_text())
 
 

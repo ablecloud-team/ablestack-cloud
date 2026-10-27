@@ -585,6 +585,8 @@ def write_config_file(path: Path, args: argparse.Namespace) -> None:
         "VM_EXCLUDE": args.vm_exclude,
         "MOLD_URL": args.mold_url,
         "ADMIN_APIKEY": args.admin_apikey,
+        "MOLD_SECRET_FILE": shlex.quote(str(SECRET_OUTPUT_DIR / "secret.enc")),
+        "SECRET_KEY_FILE": shlex.quote(str(SECRET_KEY_FILE)),
         "KVM_HOSTNAME": shlex.quote(args.kvm_hostname),
         "NETBACKUP_PARENT_PAYLOAD_PATH": shlex.quote(str(BACKUP_STAGING_ROOT / "bootstrap" / sanitize_name(args.policy_name))),
     })

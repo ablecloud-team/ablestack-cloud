@@ -1616,7 +1616,7 @@ public class BackupManagerTest {
         when(primaryDataStoreDao.findById(10L)).thenReturn(pool);
 
         AblestackSharedRawBackupService sharedRaw = mock(AblestackSharedRawBackupService.class);
-        doThrow(new CloudRuntimeException("SHARED_RAW_VM_NOT_STOPPED")).when(sharedRaw).checkSources(vmId);
+        doThrow(new CloudRuntimeException("BACKUP_VM_NOT_STOPPED")).when(sharedRaw).checkSources(vmId);
         ReflectionTestUtils.setField(backupSnapshotGuard, "vmDao", vmInstanceDao);
         ReflectionTestUtils.setField(backupSnapshotGuard, "volumeDao", volumeDao);
         ReflectionTestUtils.setField(backupSnapshotGuard, "poolDao", primaryDataStoreDao);
@@ -1634,7 +1634,7 @@ public class BackupManagerTest {
         when(cmd.getVmId()).thenReturn(vmId);
         CloudRuntimeException error = Assert.assertThrows(CloudRuntimeException.class,
                 () -> backupManager.createBackup(cmd, asyncJobVOMock));
-        assertEquals("SHARED_RAW_VM_NOT_STOPPED", error.getMessage());
+        assertEquals("BACKUP_VM_NOT_STOPPED", error.getMessage());
         verify(backupProvider, never()).takeBackup(any(), any(), ArgumentMatchers.anyBoolean(), any());
     }
 
@@ -2783,6 +2783,7 @@ public class BackupManagerTest {
         backup.setBackupOfferingId(backupOfferingId);
         backup.setType("Full");
         backup.setBackupScheduleId(null);
+        backup.setDetails(new HashMap<>());
 
         VMInstanceVO vm = new VMInstanceVO(vmId, 0L, "test-vm", "test-vm", VirtualMachine.Type.User,
                 0L, Hypervisor.HypervisorType.Simulator, 0L, domainId, accountId, 0L, false);
@@ -2849,6 +2850,65 @@ public class BackupManagerTest {
         Assert.assertEquals(true, response.getVmOfferingRemoved());
     }
 
+    private BackupVO cleanedFailedVolumeBackup(Map<String, String> storedDetails) {
+        BackupVO backup = new BackupVO();
+        ReflectionTestUtils.setField(backup, "id", 2049L);
+        ReflectionTestUtils.setField(backup, "uuid", "fcb132ed-e0be-4e2a-8fea-80e32ab3f754");
+        backup.setVmId(336L);
+        backup.setStatus(Backup.Status.Failed);
+        backup.setBackedUpVolumes("[]");
+        backup.setDetails(new HashMap<>());
+        Mockito.doAnswer(invocation -> {
+            backup.setDetails(storedDetails);
+            return null;
+        }).when(backupDao).loadDetails(backup);
+        return backup;
+    }
+
+    @Test
+    public void testBackupResponseIncludesHiddenVolumeFailureAfterCleanup() {
+        String reason = "Volume backup failed: [Errno 9] Bad file descriptor";
+        Map<String, String> storedDetails = Map.of(
+                ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE,
+                ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "COMPLETED",
+                "thirdparty.volume.failure", reason);
+        BackupVO backup = cleanedFailedVolumeBackup(storedDetails);
+        when(backupDetailsDao.listDetailsKeyPairs(2049L)).thenReturn(storedDetails);
+
+        BackupResponse response = backupManager.createBackupResponse(backup, false);
+
+        assertEquals(reason, response.getBackupJobDetails());
+        com.google.gson.JsonObject json = gson.toJsonTree(response).getAsJsonObject();
+        assertEquals("PENDING", json.get("catalogstate").getAsString());
+        assertEquals("COMPLETED", json.get("cleanupstate").getAsString());
+    }
+
+    @Test
+    public void testTerminalBackupStatusPreservesVolumeFailureAndExistingReasonPriority() {
+        String reason = "Volume backup failed: [Errno 9] Bad file descriptor";
+        Map<String, String> storedDetails = new HashMap<>();
+        storedDetails.put("thirdparty.volume.failure", reason);
+        storedDetails.put("netbackup.restore.failure.reason", "An earlier restore failed");
+        BackupVO backup = cleanedFailedVolumeBackup(storedDetails);
+        when(backupDao.findById(2049L)).thenReturn(backup);
+
+        for (Backup.Status status : List.of(Backup.Status.Failed, Backup.Status.Error)) {
+            backup.setStatus(status);
+            assertEquals(reason, backupManager.getBackupJobStatus(2049L, null, null).getDetails());
+        }
+        storedDetails.put(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY, "Required artifact is missing");
+        assertEquals("Required artifact is missing", backupManager.getBackupJobStatus(2049L, null, null).getDetails());
+        storedDetails.remove(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY);
+        storedDetails.put("thirdparty.volume.failure", " ");
+        storedDetails.put("netbackup.failure.reason", "Legacy provider failure");
+        assertEquals("Legacy provider failure", backupManager.getBackupJobStatus(2049L, null, null).getDetails());
+        storedDetails.remove("netbackup.failure.reason");
+        assertNull(backupManager.getBackupJobStatus(2049L, null, null).getDetails());
+        storedDetails.put("thirdparty.volume.failure", reason);
+        backup.setStatus(Backup.Status.BackedUp);
+        assertNull(backupManager.getBackupJobStatus(2049L, null, null).getDetails());
+    }
+
     @Test
     public void testNewBackupResponseWhenBackupOfferingMissing() {
         Long vmId = 1L;
@@ -2868,6 +2928,7 @@ public class BackupManagerTest {
         backup.setBackupOfferingId(backupOfferingId);
         backup.setType("Full");
         backup.setBackupScheduleId(null);
+        backup.setDetails(new HashMap<>());
 
         VMInstanceVO vm = new VMInstanceVO(vmId, 0L, "test-vm", "test-vm", VirtualMachine.Type.User,
                 0L, Hypervisor.HypervisorType.Simulator, 0L, domainId, accountId, 0L, false);

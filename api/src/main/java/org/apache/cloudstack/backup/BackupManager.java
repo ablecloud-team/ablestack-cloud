@@ -410,6 +410,8 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     BackupStagingInfoResponse getBackupStagingInfo(Long backupId, String operation, String stagingJobId);
 
+    org.apache.cloudstack.api.response.VeeamRuntimeConfigResponse getVeeamRuntimeConfig(String hostName, String publicKey);
+
     org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolveBackupArtifact(String provider, String externalId, String jobId, Long vmId);
 
     boolean restoreBackupArtifact(String provider, String externalId, String jobId);

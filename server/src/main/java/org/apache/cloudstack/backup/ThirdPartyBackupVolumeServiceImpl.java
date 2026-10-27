@@ -3162,6 +3162,11 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 return true;
             }
             BackupAnswer status = (BackupAnswer) statusAnswer;
+            if ("RUNNING".equals(status.getState()) && java.util.Set.of("RBD_EXPORT", "RBD_EXPORT_DIFF", "QCOW2_BACKUP",
+                    "OFFLINE_FULL_EXPORT", "NETBACKUP_TRANSFER", "VEEAM_TRANSFER", "COMMVAULT_TRANSFER", "METADATA_TRANSFER", "FINALIZING")
+                    .contains(StringUtils.defaultString(status.getStep()))) {
+                clearBackupPreparationDetails(tracked);
+            }
             if (ThirdPartyBackupManifest.hasCompletedTransfers(tracked)
                     && java.util.Set.of("COMPLETED", "FAILED", "INTERRUPTED", "CANCELED").contains(StringUtils.defaultString(status.getState()))) {
                 // Engine exit only proves termination. Exact persisted catalog references
@@ -3218,7 +3223,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                         if (started == null || !started.getResult()) {
                             throw new CloudRuntimeException(started == null ? "Host source start response is missing" : started.getDetails());
                         }
-                        backupDetailsDao.removeDetail(tracked.getId(), ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY);
+                        clearBackupPreparationDetails(tracked);
                     } else {
                         backupDetailsDao.addDetail(tracked.getId(), ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY,
                                 StringUtils.defaultIfBlank(transfer.preparationWaitReason(), "Waiting for the external parent backup Job to finish"), false);
@@ -3266,6 +3271,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 }
                 artifact.size = requested.size;
             }
+            // An exact artifact request also proves the preparation gate was passed,
+            // including older Agents that do not report a specific export step.
+            clearBackupPreparationDetails(tracked);
             if (!artifact.completed) {
                 if (StringUtils.isBlank(artifact.jobId)) {
                     if (artifact.submissionPending) {
@@ -3380,6 +3388,13 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             lock.releaseRef();
         }
         return true;
+    }
+
+    private void clearBackupPreparationDetails(BackupVO backup) {
+        if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY))) {
+            backupDetailsDao.removeDetail(backup.getId(), ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY);
+            backup.getDetails().remove(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY);
+        }
     }
 
     /** Detail-only writes must not depend on an UPDATE of the unchanged backups row. */

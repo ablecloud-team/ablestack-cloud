@@ -79,7 +79,7 @@ public class BackupSourceSupportGuardTest {
         vm();
         VolumeVO data = raw(Storage.StoragePoolType.SharedMountPoint);
         when(volumeDao.findByInstance(1L)).thenReturn(Collections.singletonList(data));
-        org.mockito.Mockito.doThrow(new CloudRuntimeException("SHARED_RAW_VM_NOT_STOPPED"))
+        org.mockito.Mockito.doThrow(new CloudRuntimeException("BACKUP_VM_NOT_STOPPED"))
                 .when(sharedRaw).checkSources(1L);
         org.junit.Assert.assertThrows(CloudRuntimeException.class, () -> guard.checkBackupSource(1L, "ablestack-netbackup"));
         verifyNoInteractions(agentManager);

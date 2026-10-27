@@ -173,6 +173,17 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             "backup.plugin.ablestack-veeam.password", "",
             "Veeam B&R password for Ablestack Veeam plugin.", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
 
+    @Override
+    public Map<String, String> getHostRuntimeConfiguration(Long zoneId) {
+        String url = AblestackVeeamUrl.valueIn(zoneId);
+        String username = AblestackVeeamUsername.valueIn(zoneId);
+        String password = AblestackVeeamPassword.valueIn(zoneId);
+        if (StringUtils.isAnyBlank(url, username, password)) {
+            throw new CloudRuntimeException("Configure the Veeam URL, username and password in Mold for the Host Zone");
+        }
+        return Map.of("url", url, "username", username, "password", password);
+    }
+
     private ConfigKey<Boolean> AblestackVeeamValidateSsl = new ConfigKey<>("Advanced", Boolean.class,
             "backup.plugin.ablestack-veeam.validate.ssl", "false",
             "Validate SSL when connecting to Veeam REST API.", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());

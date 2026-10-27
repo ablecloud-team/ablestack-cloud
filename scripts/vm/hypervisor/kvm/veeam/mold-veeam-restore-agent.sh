@@ -59,13 +59,18 @@ job_name_from_conf() {
 }
 
 run_restore_watch() {
-  local conf="$1" job
+  local conf="$1" job window
   job="$(job_name_from_conf "$conf")"
   [[ -n "$job" ]] || {
     echo "[restore-agent] skip $(basename "$conf"): no VEEAM_JOB_NAME/JOB_NAME" >&2
     return 0
   }
-  echo "=== restore-watch job=${job} conf=$(basename "$conf") window=${SINCE_MIN}min trigger_mold=true host=$(hostname -s) ==="
+  window="$(unset VEEAM_RESTORE_WATCH_WINDOW_MIN; source "$conf"; printf '%s' "${VEEAM_RESTORE_WATCH_WINDOW_MIN:-$SINCE_MIN}")"
+  [[ "$window" =~ ^[1-9][0-9]*$ ]] || {
+    echo "[restore-agent] skip $(basename "$conf"): invalid VEEAM_RESTORE_WATCH_WINDOW_MIN" >&2
+    return 1
+  }
+  echo "=== restore-watch job=${job} conf=$(basename "$conf") window=${window}min trigger_mold=true host=$(hostname -s) ==="
   # Each Job has its own authentication and metadata restore identity.
   export MOLD_BACKUP_CONF="$conf"
   export VEEAM_JOB_NAME="$job"
@@ -79,7 +84,7 @@ run_restore_watch() {
   fi
   bash "${MOLD_BACKUP_SH}" restore-watch \
     --job "$job" \
-    --since-min "${SINCE_MIN}" \
+    --since-min "${window}" \
     --trigger-mold || true
 }
 

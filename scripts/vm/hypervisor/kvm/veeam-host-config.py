@@ -44,6 +44,7 @@ from urllib.request import Request, urlopen
 import uuid
 
 from ablestack_backup_secret import decrypt_secret, write_secret
+from veeam_runtime_config import fetch_runtime
 from ablestack_backup_secret_key import SecretKeyError, ensure_key
 from veeam_script_deploy import ScriptDeploymentError, deploy_hooks, deployment_directory, validate_deployment
 
@@ -58,7 +59,7 @@ RUNTIME_FILES = (
     "ablestack_veeam_restore_notify.sh", "ablestack_veeam_restore_event.sh",
     "mold-veeam-restore-agent.sh",
 )
-COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py",
+COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py", "veeam_runtime_config.py",
                 "veeam_script_deploy.py", "veeam-host-config.py")
 UNIT_FILES = ("mold-veeam-restore-agent.service", "mold-veeam-restore-agent.timer")
 
@@ -88,6 +89,7 @@ def safe_name(value):
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--install-only", action="store_true", help="RPM: prepare directories and systemd units without configuring Mold or enabling the timer")
+    parser.add_argument("--refresh-runtime-settings", action="store_true", help="remove duplicated Veeam settings from existing Job configurations after verifying Mold; preserve Job/VM selection")
     parser.add_argument("--mold-url", help="Mold API URL; default: management host from agent.properties")
     parser.add_argument("--admin-apikey", "--api-key", dest="admin_apikey")
     parser.add_argument("--admin-secretkey", "--api-secret", dest="admin_secretkey")
@@ -135,7 +137,9 @@ def parse_args(argv=None):
         payload = Path(args.agent_payload_path)
         if not payload.is_absolute() or payload == Path("/") or any(c in args.agent_payload_path for c in "\r\n"):
             parser.error("--agent-payload-path must be an absolute directory other than /")
-    if not args.install_only:
+    if args.install_only and args.refresh_runtime_settings:
+        parser.error("--refresh-runtime-settings cannot be used with --install-only")
+    if not args.install_only and not args.refresh_runtime_settings:
         for name in ("admin_apikey", "admin_secretkey", "veeam_host", "veeam_password"):
             if not getattr(args, name):
                 parser.error("--" + name.replace("_", "-") + " is required")
@@ -375,23 +379,30 @@ class FileInstaller:
     def __init__(self):
         self.changed = set()
 
-    def backup(self, path):
+    def backup(self, path, backup_key=None):
         if path.is_symlink() or (path.exists() and not path.is_file()):
             raise ConfigurationError(f"Refusing to replace a non-regular file: {path}")
         if path.exists():
             stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
             backup = path.with_name(path.name + f".bak.{stamp}.{uuid.uuid4().hex[:8]}")
-            shutil.copy2(path, backup)
+            original = path.read_bytes()
+            if backup_key and has_veeam_password(original):
+                secret_directory = path.parent / "secrets"
+                secret_directory.mkdir(mode=0o700, exist_ok=True)
+                backup = secret_directory / (backup.name + ".enc")
+                write_secret(backup, original, backup_key)
+            else:
+                shutil.copy2(path, backup)
             info(f"BACKUP {backup}")
 
-    def write(self, path, content, mode=0o600):
+    def write(self, path, content, mode=0o600, backup_key=None):
         content = content.encode() if isinstance(content, str) else content
         if path.is_symlink():
             raise ConfigurationError(f"Refusing to replace symlink: {path}")
         if path.is_file() and path.read_bytes() == content and stat.S_IMODE(path.stat().st_mode) == mode:
             return False
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.backup(path)
+        self.backup(path, backup_key)
         fd, temporary = tempfile.mkstemp(prefix="." + path.name + ".", dir=path.parent)
         try:
             with os.fdopen(fd, "wb") as stream:
@@ -484,6 +495,79 @@ def render_config(values):
         name + "=" + shlex.quote(str(value)) + "\n" for name, value in values.items())
 
 
+CENTRAL_VEEAM_SETTINGS = {"VEEAM_URL", "VEEAM_USERNAME", "VEEAM_PASSWORD", "VEEAM_SSH_HOST", "VEEAM_SSH_PASSWORD",
+                          "VEEAM_API_PASSWORD", "VEEAM_HOST_BACKUP_PATH", "STAGING_PATH", "VEEAM_PROVIDER_NAME", "ZONE_ID"}
+RUNTIME_DEFAULTS = {"VM_AUTO_EXCLUDE": "true", "BACKUP_MODE": "host", "RESTORE_WATCH_SKIP_EXISTING_ON_START": "true",
+                    "RESTORE_AUTO_STOP": "true", "LOG_FILE": "/var/log/mold/veeam-hook.log", "LOG_TAG": "mold-veeam-hook",
+                    "ABLESTACK_VEEAM_STATE_DIR": "/var/lib/ablestack/veeam", "BACKUP_OFFERING_NAME": "VeeamBackup",
+                    "VEEAM_SSH_KEY": "", "MOLD_API_SECRET": "", "MOLD_SECRET_KEY_FILE": "/root/.ssh/ablestack.key",
+                    "VEEAM_AGENT_PAYLOAD_MODE": "COMMON"}
+
+
+def has_veeam_password(content):
+    return re.search(rb"(?m)^\s*(?:export\s+)?(?:VEEAM_PASSWORD|VEEAM_SSH_PASSWORD|VEEAM_API_PASSWORD)\s*=", content) is not None
+
+
+def assignment(line):
+    return re.match(r"\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=(.*)$", line)
+
+
+def protect_config_backups(path, key):
+    for backup in path.parent.glob(path.name + ".bak.*"):
+        if backup.name.endswith(".enc"):
+            continue
+        if backup.is_symlink() or not backup.is_file():
+            raise ConfigurationError("Refusing a non-regular configuration backup")
+        original = backup.read_bytes()
+        if has_veeam_password(original):
+            secret_directory = path.parent / "secrets"
+            secret_directory.mkdir(mode=0o700, exist_ok=True)
+            encrypted = secret_directory / (backup.name + ".enc")
+            if encrypted.exists():
+                if decrypt_secret(encrypted, key, "veeam") != original:
+                    raise ConfigurationError("An encrypted configuration backup has different contents")
+            else:
+                write_secret(encrypted, original, key)
+            backup.unlink()
+            info(f"PROTECTED {backup.name}")
+
+
+def refresh_runtime_settings(files, locations):
+    configs = sorted(locations["etc"].glob("*.conf"))
+    updated = 0
+    for path in configs:
+        if path.is_symlink() or not path.is_file():
+            raise ConfigurationError("Refusing a non-regular Job configuration")
+        content = path.read_text()
+        values = {}
+        for line in content.splitlines():
+            match = assignment(line)
+            if match:
+                name, raw = match.groups()
+                parsed = shlex.split(raw, comments=True)
+                if len(parsed) > 1:
+                    raise ConfigurationError("Job configuration must contain literal shell assignments")
+                values[name] = parsed[0] if parsed else ""
+        if not values.get("VEEAM_JOB_NAME"):
+            continue
+        key = Path(values.get("MOLD_SECRET_KEY_FILE") or "/root/.ssh/ablestack.key")
+        secret = values.get("MOLD_API_SECRET") or decrypt_secret(values["MOLD_API_SECRET_ENC_FILE"], key, "veeam").decode()
+        api = MoldApi(argparse.Namespace(mold_url=values["MOLD_API_URL"], admin_apikey=values["MOLD_API_KEY"], admin_secretkey=secret))
+        fetch_runtime(api, values.get("KVM_HOSTNAME") or socket.gethostname().split(".")[0])
+        removed = CENTRAL_VEEAM_SETTINGS | {"VEEAM_CONNECTION_SOURCE", "VEEAM_BACKUP_INTERVAL_TYPE"}
+        if values.get("VEEAM_SSH_USER") and values.get("VEEAM_SSH_USER") == values.get("VEEAM_USERNAME"):
+            removed |= {"VEEAM_SSH_USER"}
+        removed |= {name for name, value in RUNTIME_DEFAULTS.items() if values.get(name) == value}
+        lines = [line for line in content.splitlines() if not assignment(line) or assignment(line)[1] not in removed]
+        if values.get("VM_SCHEDULE_BACKUP", "").lower() == "false":
+            lines.append("VEEAM_BACKUP_INTERVAL_TYPE=EXTERNAL")
+        protect_config_backups(path, key)
+        updated += files.write(path, "\n".join(lines) + "\n", backup_key=key)
+    if not configs:
+        raise ConfigurationError("No existing Veeam Job configuration was found")
+    info(f"DONE: verified Mold runtime connections; updated {updated} Job configuration(s). Job and VM selection settings were retained.")
+
+
 def write_job(files, locations, args, host, stage, offering):
     etc = locations["etc"]
     safe_job = safe_name(args.job_name)
@@ -492,23 +576,27 @@ def write_job(files, locations, args, host, stage, offering):
     files.secret(secret, args.admin_secretkey, args.secret_key_file)
     values = {
         "MOLD_API_URL": args.mold_url, "MOLD_API_KEY": args.admin_apikey,
-        "MOLD_API_SECRET": "", "MOLD_API_SECRET_ENC_FILE": secret, "MOLD_SECRET_KEY_FILE": args.secret_key_file,
-        "VEEAM_JOB_NAME": args.job_name, "ZONE_ID": host["zoneid"], "KVM_HOSTNAME": host["name"],
-        "ABLESTACK_VEEAM_STATE_DIR": locations["state"],
-        "BACKUP_OFFERING_NAME": offering["name"], "VEEAM_PROVIDER_NAME": PROVIDER,
+        "MOLD_API_SECRET_ENC_FILE": secret,
+        "VEEAM_JOB_NAME": args.job_name, "KVM_HOSTNAME": host["name"],
         "VM_SCHEDULE_BACKUP": str(args.vm_schedule_backup).lower(), "VM_INCLUDE": args.vm_include, "VM_EXCLUDE": args.vm_exclude,
-        "VM_AUTO_EXCLUDE": "true", "BACKUP_MODE": "host", "VEEAM_BACKUP_INTERVAL_TYPE": "EXTERNAL",
-        "VEEAM_URL": f"https://{args.veeam_host}:9398/api/", "VEEAM_USERNAME": args.veeam_user, "VEEAM_PASSWORD": args.veeam_password,
-        "VEEAM_SSH_HOST": args.veeam_host, "VEEAM_SSH_USER": args.veeam_ssh_user, "VEEAM_SSH_KEY": args.veeam_ssh_key,
-        "VEEAM_HOST_BACKUP_PATH": stage, "STAGING_PATH": stage, "VEEAM_AGENT_PAYLOAD_PATH": payload,
-        "VEEAM_AGENT_PAYLOAD_MODE": "EXPLICIT" if args.agent_payload_path else "COMMON",
-        "RESTORE_WATCH_TRIGGER_MOLD": "true", "RESTORE_WATCH_SKIP_EXISTING_ON_START": "true",
-        "VEEAM_RESTORE_WATCH_WINDOW_MIN": "10", "RESTORE_AUTO_STOP": "true",
-        "LOG_FILE": locations["logs"] / "veeam-hook.log", "LOG_TAG": "mold-veeam-hook",
+        "VEEAM_AGENT_PAYLOAD_PATH": payload,
+        "RESTORE_WATCH_TRIGGER_MOLD": "true", "VEEAM_RESTORE_WATCH_WINDOW_MIN": "10",
     }
-    files.write(etc / (safe_job + ".conf"), render_config(values))
+    if args.agent_payload_path:
+        values["VEEAM_AGENT_PAYLOAD_MODE"] = "EXPLICIT"
+    optional = {"MOLD_SECRET_KEY_FILE": args.secret_key_file, "ABLESTACK_VEEAM_STATE_DIR": locations["state"],
+                "BACKUP_OFFERING_NAME": offering["name"], "VEEAM_SSH_KEY": args.veeam_ssh_key,
+                "LOG_FILE": locations["logs"] / "veeam-hook.log"}
+    values.update({name: value for name, value in optional.items() if str(value) != RUNTIME_DEFAULTS[name]})
+    if args.vm_schedule_backup is False:
+        values["VEEAM_BACKUP_INTERVAL_TYPE"] = "EXTERNAL"
+    if args.veeam_ssh_user != args.veeam_user:
+        values["VEEAM_SSH_USER"] = args.veeam_ssh_user
+    conf = etc / (safe_job + ".conf")
+    protect_config_backups(conf, args.secret_key_file)
+    files.write(conf, render_config(values), backup_key=args.secret_key_file)
     # The watcher reads per-Job confs; no forced single Job or duplicated credentials in env.
-    files.write(etc / "mold-backup.env", "# Per-Job configuration: /etc/ablestack/veeam/<JOB>.conf\n")
+    files.write(etc / "mold-backup.env", "# Per-Job configuration: /etc/ablestack/veeam/<JOB>.conf\n", backup_key=args.secret_key_file)
     for hook in ("pre", "post"):
         target = etc / "hooks" / (hook + "-notify." + safe_job)
         script = ("#!/usr/bin/bash\nset -euo pipefail\nexport "
@@ -587,6 +675,11 @@ def main(argv=None):
     phase = "preflight"
     try:
         require_root()
+        if args.refresh_runtime_settings:
+            require_cryptography()
+            with configuration_lock(locations["etc"]):
+                refresh_runtime_settings(files, locations)
+            return 0
         if not args.install_only:
             select_vms(args)
             require_cryptography()

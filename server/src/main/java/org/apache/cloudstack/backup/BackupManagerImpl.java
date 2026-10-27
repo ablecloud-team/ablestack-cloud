@@ -1978,6 +1978,24 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     @Override
+    public org.apache.cloudstack.api.response.VeeamRuntimeConfigResponse getVeeamRuntimeConfig(String hostName, String publicKey) {
+        if (!accountService.isRootAdmin(CallContext.current().getCallingAccount().getId())) {
+            throw new PermissionDeniedException("Veeam runtime configuration requires a Root Admin");
+        }
+        HostVO host = hostDao.findByName(hostName);
+        if (host == null || host.getRemoved() != null || host.getHypervisorType() != Hypervisor.HypervisorType.KVM) {
+            throw new InvalidParameterValueException("Specify a registered KVM Host");
+        }
+        validateBackupForZone(host.getDataCenterId());
+        BackupProvider provider = getBackupProvider(BackupProviderNameUtils.ABLESTACK_VEEAM);
+        if (provider == null) { throw new CloudRuntimeException("ABLESTACK Veeam provider is unavailable"); }
+        Map<String, String> settings = new HashMap<>(provider.getHostRuntimeConfiguration(host.getDataCenterId()));
+        settings.put("hostname", host.getName());
+        settings.put("zoneid", dataCenterDao.findById(host.getDataCenterId()).getUuid());
+        return VeeamRuntimeConfigEncryption.encrypt(settings, publicKey);
+    }
+
+    @Override
     public org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolveBackupArtifact(
             String provider, String externalId, String jobId, Long vmId) {
         if (!ThirdPartyBackupStagingService.isStagingProvider(provider)
@@ -7584,13 +7602,16 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         Map<String, String> details = backup.getDetails();
         if ((details == null || details.isEmpty()) && backup.getId() > 0) {
-            details = backupDetailsDao.listDetailsKeyPairs(backup.getId(), true);
+            details = backupDetailsDao.listDetailsKeyPairs(backup.getId());
         }
         if (details == null || details.isEmpty()) {
             return null;
         }
         if (StringUtils.isNotBlank(details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY))) {
             return details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY);
+        }
+        if (StringUtils.isNotBlank(details.get("thirdparty.volume.failure"))) {
+            return details.get("thirdparty.volume.failure");
         }
         return details.entrySet().stream()
                 .filter(entry -> StringUtils.endsWith(entry.getKey(), ".failure.reason"))

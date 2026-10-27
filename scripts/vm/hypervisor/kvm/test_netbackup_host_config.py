@@ -36,6 +36,45 @@ spec.loader.exec_module(config)
 
 
 class NetBackupConfigurationTest(unittest.TestCase):
+    def test_policy_config_records_encrypted_secret_and_key_references(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            args = self.arguments("--vm-schedule-backup", "false")
+            args.kvm_hostname = "host-test"
+            with patch.object(config, "SECRET_OUTPUT_DIR", root / "secrets with spaces"), \
+                    patch.object(config, "SECRET_KEY_FILE", root / "host.key"):
+                path = root / "policy.conf"
+                config.write_config_file(path, args)
+            values = dict(line.split("=", 1) for line in path.read_text().splitlines() if "=" in line and not line.startswith("#"))
+            self.assertEqual([str(root / "secrets with spaces/secret.enc")], shlex.split(values["MOLD_SECRET_FILE"]))
+            self.assertEqual([str(root / "host.key")], shlex.split(values["SECRET_KEY_FILE"]))
+            self.assertNotIn("ADMIN_SECRETKEY=", path.read_text())
+
+    def test_policy_secret_decryption_receives_its_configured_key_without_export(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            secret = root / "custom secret.enc"
+            secret.touch()
+            helper = root / "helper"
+            helper.write_text('#!/bin/sh\nprintf "%s\\n%s" "$SECRET_KEY_FILE" "$2" > "$TEST_ROOT/used"\nprintf synthetic-secret\n')
+            helper.chmod(0o700)
+            script = r'''
+set -euo pipefail
+source "$TEST_LIBRARY"
+SECRET_HELPER="$TEST_ROOT/helper"
+MOLD_SECRET_FILE="$TEST_ROOT/custom secret.enc"
+SECRET_KEY_FILE="$TEST_ROOT/custom host.key"
+ADMIN_SECRETKEY=""
+load_admin_secretkey
+[[ "$ADMIN_SECRETKEY" == synthetic-secret ]]
+'''
+            import os
+            result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=10,
+                      env=dict(os.environ, TEST_ROOT=str(root), TEST_LIBRARY=str(Path(config.__file__).with_name("netbackup-host-common.sh"))))
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual([str(root / "custom host.key"), str(secret)], (root / "used").read_text().splitlines())
+            self.assertEqual("", result.stdout)
+
     def policy(self):
         return {"policyType": "Standard", "policyAttributes": {"jobLimit": 1, "active": False},
                 "clients": [{"hostName": "host-test"}], "schedules": [

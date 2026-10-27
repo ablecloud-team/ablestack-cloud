@@ -175,7 +175,10 @@ public class AblestackSharedRawBackupServiceImpl extends ManagerBase implements 
                 var vm = vms.findById(vmId);
                 if (vm == null || (vm.getState() != VirtualMachine.State.Stopped
                         && !("RESTORE".equals(operation) && targets.contains(vmId) && vm.getState() == VirtualMachine.State.Restoring))) {
-                    throw new CloudRuntimeException("SHARED_RAW_VM_NOT_STOPPED: every VM using " + path + " must be stopped; vmId=" + vmId);
+                    String message = "RESTORE".equals(operation)
+                            ? "RESTORE_VM_NOT_STOPPED: VM must be stopped before restoring a backup"
+                            : "BACKUP_VM_NOT_STOPPED: VM must be stopped before creating a backup";
+                    throw new CloudRuntimeException(message + "; vmId=" + vmId);
                 }
             }
             result.add(disk);

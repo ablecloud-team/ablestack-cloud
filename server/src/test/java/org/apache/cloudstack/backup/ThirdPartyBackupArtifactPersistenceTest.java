@@ -124,6 +124,10 @@ public class ThirdPartyBackupArtifactPersistenceTest {
             persisted.put(invocation.getArgument(1), invocation.getArgument(2));
             return null;
         }).when(detailsDao).addDetail(eq(BACKUP_ID), anyString(), anyString(), eq(false));
+        doAnswer(invocation -> {
+            persisted.remove(invocation.getArgument(1));
+            return null;
+        }).when(detailsDao).removeDetail(eq(BACKUP_ID), anyString());
         BackupAnswer status = mock(BackupAnswer.class);
         when(status.getResult()).thenReturn(true);
         when(status.getState()).thenReturn("RUNNING");
@@ -317,6 +321,62 @@ public class ThirdPartyBackupArtifactPersistenceTest {
         verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
                 && ("START".equals(((AblestackVolumeStagingCommand) command).getAction())
                     || "CANCEL".equals(((AblestackVolumeStagingCommand) command).getAction()))));
+    }
+
+    @Test
+    public void exportAndTransferProgressClearThePreviousPreparationError() throws Exception {
+        for (String step : Arrays.asList("RBD_EXPORT", "RBD_EXPORT_DIFF", "QCOW2_BACKUP", "OFFLINE_FULL_EXPORT", "VEEAM_TRANSFER")) {
+            prepare("ablestack-veeam");
+            persisted.put(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY, "Source preparation is not pending");
+            loaded.putAll(persisted);
+            BackupAnswer status = new BackupAnswer(null, true, "");
+            status.setState("RUNNING");
+            status.setStep(step);
+            when(agentManager.send(eq(HOST_ID), any(AblestackBackupJobStatusCommand.class))).thenReturn(status);
+            when(agentManager.send(eq(HOST_ID), any(AblestackVolumeStagingCommand.class))).thenAnswer(invocation ->
+                    new Answer(invocation.getArgument(1), true, ""));
+            reconcileUnderLock(mock(ThirdPartyBackupVolumeService.Transfer.class));
+            assertNull(step, persisted.get(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY));
+            assertNull(step, loaded.get(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY));
+        }
+    }
+
+    @Test
+    public void waitingAndUnconfirmedSourceStatusPreserveThePreparationError() throws Exception {
+        for (String step : Arrays.asList("PREPARING", "WAITING", "RUNNING", null)) {
+            prepare("ablestack-veeam");
+            String reason = "Source preparation is unconfirmed: module import failed";
+            persisted.put(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY, reason);
+            loaded.putAll(persisted);
+            BackupAnswer status = new BackupAnswer(null, step != null, "");
+            status.setState("RUNNING");
+            status.setStep(step);
+            when(agentManager.send(eq(HOST_ID), any(AblestackBackupJobStatusCommand.class))).thenReturn(status);
+            when(agentManager.send(eq(HOST_ID), any(AblestackVolumeStagingCommand.class))).thenAnswer(invocation ->
+                    new Answer(invocation.getArgument(1), true, ""));
+            reconcileUnderLock(mock(ThirdPartyBackupVolumeService.Transfer.class));
+            assertEquals(reason, persisted.get(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY));
+        }
+    }
+
+    @Test
+    public void exactArtifactRequestClearsPreparationErrorWithoutRestartingTheSource() throws Exception {
+        prepare("ablestack-veeam");
+        persisted.put(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY, "Source preparation is not pending");
+        loaded.putAll(persisted);
+        reconcileUnderLock(mock(ThirdPartyBackupVolumeService.Transfer.class));
+        assertNull(persisted.get(ThirdPartyBackupManifest.PREPARATION_DETAILS_KEY));
+        verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
+                && "START".equals(((AblestackVolumeStagingCommand) command).getAction())));
+    }
+
+    private void reconcileUnderLock(ThirdPartyBackupVolumeService.Transfer transfer) {
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            assertTrue(service.reconcile(backup, host, transfer));
+        }
     }
 
     @Test
