@@ -109,6 +109,7 @@ final class StorageServiceConfigurationCoordinator {
                     throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
+                StorageNfsPosix.requireDeferredCapability(cmd, capability);
                 for (StorageServiceConfigurationOperationVO previous : operations.listByInstance(instance.getId())) {
                     if ("COMMITTED".equals(previous.getState()) && previous.getTargetRevision() == op.getBaseRevision()) {
                         // Recover a lost metadata ACK using the authoritative committed SQL revision.

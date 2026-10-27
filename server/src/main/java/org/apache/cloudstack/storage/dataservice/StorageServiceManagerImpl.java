@@ -856,6 +856,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             prepareFileShareBackingVolume(instance, share, cmd.getImportMode());
             if (preserveInitialPosix) requireInitialPosixPreservationRuntime(share);
             if (Boolean.TRUE.equals(cmd.getDeferApply())) {
+                // Initialize the authorized POSIX metadata in this creation transaction, without publishing an export.
+                if (instance.getVmId() != null) {
+                    dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(), "nfs export apply",
+                            GSON.toJson(StorageNfsPosix.deferredPayload(instance, share)),
+                            StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+                }
                 share.setState(StorageServiceInstance.ResourceState.Allocated);
             } else {
                 applyNfsDesiredState(instance);

@@ -14,6 +14,25 @@ final class StorageNfsPosix {
         String name = cmd.getClass().getSimpleName();
         return name.equals("CreateStorageNfsExportCmd") || name.equals("UpdateStorageNfsExportCmd");
     }
+    static void requireDeferredCapability(BaseStorageServiceConfigurationCmd cmd, JsonObject capability) {
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd
+                && Boolean.TRUE.equals(((org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd)cmd).getDeferApply())
+                && (!capability.has("nfsDeferredPosixVersion") || capability.get("nfsDeferredPosixVersion").getAsInt() != 1))
+            throw new com.cloud.utils.exception.CloudRuntimeException("NFS deferred creation requires POSIX initialization runtime v1");
+    }
+    static JsonObject deferredPayload(StorageServiceInstanceVO instance, StorageFileShareVO share) {
+        JsonObject value = new JsonObject();
+        value.addProperty("instanceUuid", instance.getUuid());
+        value.addProperty("posixOnly", true);
+        JsonObject row = new JsonObject();
+        row.addProperty("uuid", share.getUuid());
+        row.addProperty("path", share.getPath());
+        row.addProperty("state", "Allocated");
+        row.add("config", com.google.gson.JsonParser.parseString(share.getConfigJson()));
+        com.google.gson.JsonArray exports = new com.google.gson.JsonArray();
+        exports.add(row); value.add("exports", exports);
+        return value;
+    }
     static JsonObject fields(Map<String, Object> request) {
         JsonObject result = new JsonObject();
         for (String name : new String[]{"owneruid", "ownergid", "mode", "recursivepermission"}) {
