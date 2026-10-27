@@ -46,6 +46,7 @@ class NetBackupContextStateTest(unittest.TestCase):
         flock.write_text("#!/bin/sh\nexit 0\n")
         flock.chmod(0o755)
         self.env = dict(os.environ, STATE_ROOT=str(self.state), LOG_FILE=str(self.root / "hook.log"),
+                        ABLESTACK_NETBACKUP_HOOK_WORKER="POST",
                         BACKUP_ID="new", TEST_COMMON=str(DIRECTORY / "netbackup-host-common.sh"),
                         PATH=str(bindir) + os.pathsep + os.environ["PATH"])
 
@@ -101,6 +102,28 @@ mark_context_in_progress
         self.envfile.write_text("BACKUP_ID=different\n")
         self.pre(failure=True)
         self.assertIn("different", self.envfile.read_text())
+
+    def test_same_backup_retry_requires_proof_of_the_exact_retired_pre_owner(self):
+        self.env.update(BACKUP_ID="old", ABLESTACK_NETBACKUP_RETIRED_PRE_PID="999",
+                        ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN="abcd-1234:98")
+        self.pre(failure=True)
+        self.env["ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN"] = "abcd-1234:99"
+        self.pre()
+        self.assertEqual(1, len(list(self.context.parent.glob("recovered-*"))))
+
+    def test_late_post_with_reused_ids_cannot_finalize_the_current_attempt(self):
+        import netbackup_hook_runner as runner
+        record = dict(context="policy__schedule__host", backupId="new", jobId="job", state="COMPLETED",
+                      netbackupCaller=dict(pid=99999999, token="other-client-start"))
+        runner.atomic(runner.paths(self.state, "policy__schedule__host", "PRE")[0], record)
+        for status in ("0", "73", "74", "150"):
+            result = subprocess.run(["bash", str(DIRECTORY / "netbackup-host-bpend-notify.sh"),
+                                     "policy", "schedule", "host", status], env=self.env,
+                                    text=True, capture_output=True, timeout=10)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            self.assertEqual("BACKUP_ID=old\n", self.envfile.read_text())
+            self.assertTrue(self.marker.exists())
+        self.assertNotIn("Mold API", (self.root / "hook.log").read_text())
 
     def test_failed_or_timed_out_pre_post_never_updates_the_previous_backup(self):
         for status in ("73", "74"):

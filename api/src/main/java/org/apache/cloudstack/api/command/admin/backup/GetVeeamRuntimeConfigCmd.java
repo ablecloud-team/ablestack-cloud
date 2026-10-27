@@ -31,7 +31,7 @@ import org.apache.cloudstack.backup.BackupManager;
 public class GetVeeamRuntimeConfigCmd extends BaseCmd implements AdminCmd {
     @Inject private BackupManager backupManager;
     @Parameter(name = ApiConstants.HOST_NAME, type = CommandType.STRING, required = true, description = "Registered KVM Host name") private String hostName;
-    @Parameter(name = "publickey", type = CommandType.STRING, required = true,
+    @Parameter(name = "publickey", type = CommandType.STRING, required = true, length = 8192,
             description = "Base64 X.509 RSA public key generated for this request") private String publicKey;
 
     @Override public long getEntityOwnerId() { return 0; }

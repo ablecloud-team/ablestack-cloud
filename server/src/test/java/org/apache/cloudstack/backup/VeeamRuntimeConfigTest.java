@@ -29,6 +29,7 @@ import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.admin.backup.GetVeeamRuntimeConfigCmd;
 import org.apache.cloudstack.api.response.VeeamRuntimeConfigResponse;
 import org.apache.cloudstack.context.CallContext;
@@ -37,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.cloud.dc.DataCenterVO;
+import com.cloud.api.dispatch.ParamProcessWorker;
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.PermissionDeniedException;
@@ -44,6 +46,7 @@ import com.cloud.host.HostVO;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.user.Account;
+import com.cloud.user.AccountManager;
 import com.cloud.user.AccountService;
 import com.cloud.user.User;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -126,6 +129,32 @@ public class VeeamRuntimeConfigTest {
         generator.initialize(2048);
         KeyPair other = generator.generateKeyPair();
         assertThrows(Exception.class, () -> decrypt(response, other));
+    }
+
+    @Test public void apiParameterValidationAcceptsSupportedRsaKeysBeforeExecutingTheCommand() throws Exception {
+        ParamProcessWorker dispatcher = new ParamProcessWorker();
+        ReflectionTestUtils.setField(dispatcher, "_accountMgr", mock(AccountManager.class));
+        for (int bits : new int[]{2048, 4096}) {
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(bits);
+            KeyPair recipient = generator.generateKeyPair();
+            String encoded = Base64.getEncoder().encodeToString(recipient.getPublic().getEncoded());
+            assertTrue(encoded.length() > 255);
+            GetVeeamRuntimeConfigCmd command = new GetVeeamRuntimeConfigCmd();
+            ReflectionTestUtils.setField(command, "backupManager", manager);
+            dispatcher.processParameters(command, Map.of("hostname", "host-test", "publickey", encoded));
+            command.execute();
+            VeeamRuntimeConfigResponse response = (VeeamRuntimeConfigResponse) command.getResponseObject();
+            assertEquals(connection.get("password"), new Gson().fromJson(decrypt(response, recipient), Map.class).get("password"));
+        }
+    }
+
+    @Test public void apiRejectsAnOversizedPublicKeyBeforeReadingProviderCredentials() {
+        ParamProcessWorker dispatcher = new ParamProcessWorker();
+        GetVeeamRuntimeConfigCmd command = new GetVeeamRuntimeConfigCmd();
+        assertThrows(ServerApiException.class, () -> dispatcher.processParameters(command,
+                Map.of("hostname", "host-test", "publickey", "A".repeat(8193))));
+        verify(provider, never()).getHostRuntimeConfiguration(anyLong());
     }
 
     @Test public void domainAdminOrUserCannotReadTheConnection() {

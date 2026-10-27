@@ -130,6 +130,24 @@ invoke_mold_api POST rejectBackupArtifactRestore externalid ablecube4_1792958584
         self.assertIn("command=rejectBackupArtifactRestore", result.stderr)
         self.assertNotIn("SKIPPED", result.stdout)
 
+    def test_timed_out_backup_creation_is_bounded_and_is_not_submitted_again(self):
+        calls = self.base / "curl-calls"
+        self.env["TEST_CURL_CALLS"] = str(calls)
+        result = self.shell(r'''
+source "$TEST_COMMON"
+curl() {
+  printf '%s\n' "$@" >> "$TEST_CURL_CALLS"
+  return 28
+}
+invoke_mold_api POST https://mold.test/client/api createAblestackNetBackupBackup virtualmachineid test-vm
+''')
+        self.assertNotEqual(0, result.returncode)
+        arguments = calls.read_text().splitlines()
+        self.assertEqual(1, arguments.count('--max-time'))
+        self.assertEqual('300', arguments[arguments.index('--max-time') + 1])
+        self.assertEqual('15', arguments[arguments.index('--connect-timeout') + 1])
+        self.assertNotIn('--retry', arguments)
+
     def test_accepted_restore_forwards_completion_proof_with_a_valid_signature(self):
         self.env["TEST_URL"] = str(self.base / "accepted-url")
         for has_proof in (True, False):

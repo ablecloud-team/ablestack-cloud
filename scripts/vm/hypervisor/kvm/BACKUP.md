@@ -1249,6 +1249,9 @@ Job 설정을 읽을 때 Root Admin 전용 `getVeeamRuntimeConfig` API로 해당
 Pre/Post Hook에서 HTTP 401이 발생하면 같은 Root Admin 계정의 `listApis name=getVeeamRuntimeConfig` 조회와 관리 서버 배포 버전을 먼저 확인한다.
 API 클래스·문서가 존재해도 실행 등록 목록에 없으면 조회·호출할 수 없다. 관리 서버 패키지를 적용하고 모든 관리 서비스를 재시작한 뒤 재확인한다.
 등록 후에도 실패하면 API key의 개별 명령 허용 규칙과 API secret의 일치 여부를 확인한다.
+`publickey`는 Base64 X.509 RSA 공개키를 받으므로 API 기본 문자열 길이인 255자가 아닌 8,192자까지 허용한다.
+실제 키는 RSA 2048~4096비트만 허용한다. HTTP 431과 `max allowed length 255 ... publicKey`가 함께 나오면
+관리 서버의 API 파라미터 수정본을 적용하고 모든 관리 서비스를 재시작한다. 이 수정에는 Agent 교체가 필요하지 않다.
 응답은 요청마다 메모리에서 생성한 RSA 공개키로 보호한 AES-256-GCM 암호문이며, 복호화 키와 비밀번호는 파일에 쓰지 않는다.
 작업·프로세스가 다시 시작되면 Mold를 재조회한다. 조회 실패 시 이전 Job의 값이나 기존 conf 비밀번호를 사용하지 않는다.
 백업 ID·외부 Job/세션 ID·진행 상태는 기존 DB와 작업 기록으로 유지하므로 인증정보 재조회가 새 백업 제출을 의미하지 않는다.
@@ -2397,10 +2400,37 @@ NetBackup Host 연동 스크립트의 기본 상태 경로는 `/var/lib/ablestac
 | --- | --- |
 | `contexts/` | 백업 시작·종료 알림 사이에 이어받을 작업 정보와 진행 표시를 저장한다. |
 | `locks/` | 같은 작업에 대한 연동 스크립트의 동시 실행을 제어한다. |
+| `hook-control/` | context·PRE/POST별 고정 이름으로 실행 시도, 호출 프로세스 식별자와 종료 요청을 저장한다. 인증정보는 저장하지 않는다. |
 | `sessions/` | 해당 연동 작업에서 조회한 Mold VM 목록 등 API 응답을 보관한다. |
 | `runtime/` | 정책별 실행 환경과 작업 기록을 저장한다. |
 | `restore-watcher-state.json` | 복원 감시기의 처리 상태를 저장한다. 기본 파일 경로이며 감시기 설정에 따라 지정할 수 있다. |
 | `restore-watcher.lock` | 복원 감시기의 중복 실행을 제어한다. 기본 파일 경로이며 감시기 설정에 따라 지정할 수 있다. |
+
+사전·사후 Hook은 `netbackup_hook_runner.py`가 별도 프로세스 그룹으로 실행하고 호출 프로세스의 생존을 확인한다.
+호출자 종료, TERM/INT/HUP, 실행 제한(기본 86,400초), 동일 작업의 실패·시간 초과·취소 Post 알림이 확인되면
+해당 Hook 그룹을 TERM으로 종료한 뒤 남은 프로세스를 KILL로 종료하여 자식에게 상속된 context 잠금도 해제한다.
+Mold가 접수한 VM 백업 작업, 스테이징 파일과 외부 백업본은 이 처리로 취소하거나 삭제하지 않는다.
+실행 중인 VM 백업의 중복 제출은 Mold의 기존 실행 중 검사로 차단한다.
+
+Post의 종료 요청은 context·Backup ID·확인 가능한 Job ID와 `bpbkar`의 PID·부팅 ID·시작 시각이 일치해야 한다.
+종료 요청에는 이번 시도의 임의 토큰을 기록하므로 이전 시도의 늦은 Post가 새 시도를 종료하지 않는다.
+완료·실패 Post의 후처리도 같은 호출자 검사를 거치므로 이전 Post가 새 context를 확정하거나 정리하지 않는다.
+대기 중 취소되어 PRE가 시작되지 않은 작업은 실행 중인 다른 PRE를 건드리지 않는다.
+중복 PRE 실패(73)나 PRE 시간 초과(74)의 Post도 기존 context를 성공·실패로 덮어쓰거나 스테이징을 정리하지 않는다.
+동일한 Job·Backup ID·호출 프로세스를 모두 재사용한 알림은 새 시도와 구분할 수 없어 거절한다.
+
+감시 프로세스가 강제 종료되었어도 다음 호출은 이전 프로세스 식별자와 호출자 종료 또는 일치하는 종료 요청을 확인한 뒤
+남은 Hook 그룹을 정리한다. 실제 context 잠금이 해제된 경우에만 계속 진행한다.
+Backup ID를 재사용한 새 호출자는 감시기가 이전 PRE 소유자의 PID·시작 시각과 종료를 확인한 경우에만
+이전 context를 보관 디렉터리로 옮기고 재시작한다. 정상 완료 후 Post를 기다리는 PRE는 이 증명으로 취급하지 않는다.
+종료 여부를 확인할 수 없으면 `hook-control/`에 `RECOVERY_REQUIRED`를 남기고 기존 작업을 보존한다.
+잠금 파일 자체를 삭제해서 우회하지 않는다. 이 변경 전에 시작된 구형 Hook 프로세스에는 새 감시가 소급 적용되지 않는다.
+
+업데이트할 Host 파일은 `netbackup-host-common.sh`, `netbackup-host-bpstart-notify.sh`,
+`netbackup-host-bpend-notify.sh`, `netbackup_hook_runner.py`이다. 기존 notify 래퍼가 이 경로들을 호출하면 래퍼 재생성은 필요 없다.
+Mold API 연결은 15초, 요청 전체는 300초로 제한하고 백업 생성 POST를 자동 재전송하지 않는다.
+대용량 백업의 `BPSTART_TIMEOUT`은 NetBackup Primary 서버에서도 확인하고, `CLIENT_READ_TIMEOUT`과 함께 실행 시간에 맞춘다.
+Host 구성 도구가 Client의 `bp.conf`를 수정한 것만으로 Primary 서버의 제한이 변경되지는 않는다.
 
 #### 기본스토리지의 백업·복원 작업 파일
 

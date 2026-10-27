@@ -154,10 +154,22 @@ if [[ "${SCHEDULE_NAME}" == mold-transfer || "${POLICY_NAME}" =~ ^ABLESTACK-[[:x
   exit 0
 fi
 JOB_STATUS="$(resolve_status "$@")"
+if ! BACKUP_ID="$incoming_backup_id" NETBACKUP_JOB_ID="$incoming_job_id" \
+    python3 "${SCRIPT_DIR}/netbackup_hook_runner.py" accept-post --context "$CONTEXT_KEY"; then
+  log -ne "Skipping NetBackup POST from another or unconfirmed client attempt; saved context and payloads are preserved"
+  exit 0
+fi
+if [[ "$JOB_STATUS" != 0 && -n "$incoming_backup_id" ]] && \
+    BACKUP_ID="$incoming_backup_id" NETBACKUP_JOB_ID="$incoming_job_id" \
+    python3 "${SCRIPT_DIR}/netbackup_hook_runner.py" request-stop --context "$CONTEXT_KEY" --status "$JOB_STATUS"; then
+  log -ne "NetBackup POST requested termination of its matching PRE; preserving context and Mold-owned staging"
+  exit 0
+fi
 if [[ "$JOB_STATUS" == 73 || "$JOB_STATUS" == 74 ]]; then
   log -ne "Skipping NetBackup POST for failed/timed-out PRE status=${JOB_STATUS}; preserving prior context and Mold-owned staging"
   exit 0
 fi
+supervise_netbackup_hook POST "${BASH_SOURCE[0]}" "$@"
 ensure_runtime_dirs
 cleanup_stale_transient_state
 cleanup_runtime_history

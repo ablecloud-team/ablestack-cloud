@@ -58,6 +58,7 @@ resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
 if [[ "${SCHEDULE_NAME}" == mold-transfer || "${POLICY_NAME}" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]]; then
   exit 0
 fi
+supervise_netbackup_hook PRE "${BASH_SOURCE[0]}" "$@"
 ensure_runtime_dirs
 cleanup_stale_transient_state
 cleanup_runtime_history

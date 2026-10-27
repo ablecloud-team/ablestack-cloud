@@ -251,7 +251,13 @@ archive_abandoned_pre_context() {
   owner_token="$( ( source "$marker"; printf '%s' "${CONTEXT_PRE_OWNER_TOKEN:-}" ) )"
   old_backup="$( ( source "$marker"; printf '%s' "${BACKUP_ID:-}" ) )"
   [[ "$owner_pid" =~ ^[1-9][0-9]*$ && "$owner_token" =~ ^[[:xdigit:]-]+:[0-9]+$ ]] || return 1
-  [[ -n "$old_backup" && "$old_backup" != "$BACKUP_ID" ]] || return 1
+  [[ -n "$old_backup" ]] || return 1
+  if [[ "$old_backup" == "$BACKUP_ID" ]]; then
+    # A retry may retain its Backup ID. Only the supervisor can attest that this exact
+    # PRE owner was fully terminated, rather than a completed PRE awaiting its POST.
+    [[ "$owner_pid" == "${ABLESTACK_NETBACKUP_RETIRED_PRE_PID:-}" &&
+       "$owner_token" == "${ABLESTACK_NETBACKUP_RETIRED_PRE_TOKEN:-}" ]] || return 1
+  fi
   current_token="$(context_process_identity "$owner_pid")" || return 1
   [[ "$current_token" != "$owner_token" ]] || return 1
   if [[ -f "$CONTEXT_FILE" ]]; then
@@ -758,6 +764,14 @@ acquire_lock() {
   fi
 }
 
+supervise_netbackup_hook() {
+  local phase="$1"
+  shift
+  [[ "${ABLESTACK_NETBACKUP_HOOK_WORKER:-}" != "$phase" ]] || return 0
+  export STATE_ROOT POLICY_NAME SCHEDULE_NAME CLIENT_NAME SESSION_TIMESTAMP BACKUP_ID NETBACKUP_JOB_ID
+  exec python3 "${SCRIPT_DIR}/netbackup_hook_runner.py" run --phase "$phase" --context "$CONTEXT_KEY" -- "$@"
+}
+
 sanity_checks() {
   command -v virsh >/dev/null 2>&1 || fail "virsh command not found"
   command -v curl >/dev/null 2>&1 || fail "curl command not found"
@@ -898,6 +912,8 @@ invoke_mold_api() {
     --silent
     --show-error
     --fail
+    --connect-timeout 15
+    --max-time 300
     -X "${method}"
     -H "Accept: application/json"
     -H "Content-type: application/x-www-form-urlencoded"
