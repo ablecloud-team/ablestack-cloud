@@ -220,6 +220,14 @@ class NfsIdentityMapping:
             result.update(effectivemode=mode, policyrevision=revision)
         return result
 
+    def inspect(self):
+        # Optional NFS observation must not disable unrelated transaction capabilities.
+        try:
+            return self.observe()
+        except (OSError, ValueError, TypeError, KeyError, Rejected):
+            return {"observationstatus": "UNKNOWN", "endpoints": [], "observeddomain": "",
+                    "observedat": str(time.time()), "code": "NFS_IDENTITY_OBSERVATION_UNAVAILABLE"}
+
     def verify(self, desired):
         observation = self.observe(desired)
         if observation["observationstatus"] not in ("APPLIED", "NOT_RUNNING"):
@@ -1796,7 +1804,7 @@ def main(argv):
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().observe()}))
+                          "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
