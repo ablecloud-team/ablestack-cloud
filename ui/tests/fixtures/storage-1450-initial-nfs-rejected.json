@@ -1,0 +1,150 @@
+{
+  "getstorageserviceconfigurationoperationresponse": {
+    "configurationoperation": {
+      "id": "4cfd2156-235b-4de3-a03d-9628b818b930",
+      "instanceid": "188cc66e-52ac-4698-ac8a-9d7064653eea",
+      "requestid": "b9b2f539-2136-44a0-9a2e-f610c78b37fa",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "protocol": "NFS",
+      "baserevision": 1,
+      "targetrevision": 2,
+      "canresume": false,
+      "originalfailure": {
+        "phase": "PREFLIGHT",
+        "code": "IMPACT_ACK_REQUIRED"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "status": "BLOCKED",
+        "revision": 1,
+        "observedat": 1793061156.8455732,
+        "expiresat": 1793061186.8455732,
+        "fingerprint": "a8b5f045549911252330e67a31713b708054244c732adec89995812420d560a3",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3870683136,
+            "requiredbytes": 218280016
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655313920,
+            "requiredbytes": 83930132,
+            "readonly": false,
+            "freeinodes": 230507
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          },
+          {
+            "code": "IMPACT_ACK_REQUIRED",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 0,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false,
+        "posixobservation": {
+          "resourceuuid": "NEW",
+          "status": "PATH_MISSING",
+          "observedat": 1793061156.8405,
+          "fingerprint": "169983bb7e82fec865d0c9d4ae23dabf99e920e28e9b077a8bc77d98280cbacb"
+        },
+        "posixchanges": {
+          "ownerUid": 65534,
+          "ownerGid": 65534,
+          "mode": "0775"
+        },
+        "intent": {
+          "instanceUuid": "188cc66e-52ac-4698-ac8a-9d7064653eea",
+          "revision": 1,
+          "protocol": "NFS",
+          "action": "CREATE",
+          "drainrequired": false,
+          "recursive": false,
+          "ports": [
+            2049
+          ],
+          "posixchanges": {
+            "ownerUid": 65534,
+            "ownerGid": 65534,
+            "mode": "0775"
+          },
+          "posixtarget": {
+            "uuid": "NEW",
+            "config": {
+              "volumeMountPath": "/srv/ablestack-storage/volumes/4ffdf226-fcae-483e-9f39-0b2f02925649",
+              "backingPath": "/srv/ablestack-storage/volumes/4ffdf226-fcae-483e-9f39-0b2f02925649/export/e1450-fresh"
+            }
+          },
+          "volumeuuids": [
+            "4ffdf226-fcae-483e-9f39-0b2f02925649"
+          ],
+          "resourceids": [],
+          "resourcecount": 0,
+          "resourcesdigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "ackrequired": true
+        }
+      },
+      "created": "2026-10-27T09:32:28+0900",
+      "updated": "2026-10-27T09:32:37+0900",
+      "completed": "2026-10-27T09:32:37+0900",
+      "candidate": {
+        "anongid": 65534,
+        "anonuid": 65534,
+        "api": "CreateStorageNfsExportCmd",
+        "createdirectory": true,
+        "deferapply": true,
+        "filesystem": "xfs",
+        "importmode": "MOUNT_EXISTING",
+        "instanceid": 79,
+        "mode": "0775",
+        "name": "e1450-fresh",
+        "ownergid": 65534,
+        "owneruid": 65534,
+        "path": "/export/e1450-fresh",
+        "protocolmode": "V4_ONLY",
+        "readonly": false,
+        "recursivepermission": false,
+        "rootsquash": true,
+        "secure": false,
+        "sync": true,
+        "volumeid": 276
+      }
+    }
+  }
+}
