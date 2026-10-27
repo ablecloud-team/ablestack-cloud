@@ -1,0 +1,60 @@
+{
+  "before": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 758,
+      "scrollTop": 0,
+      "y": 88
+    },
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "y": 622
+    },
+    "header": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "y": 33
+    }
+  },
+  "after": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 1028,
+      "scrollTop": 494,
+      "y": 88
+    },
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "y": 622
+    },
+    "header": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "y": 33
+    }
+  }
+}
