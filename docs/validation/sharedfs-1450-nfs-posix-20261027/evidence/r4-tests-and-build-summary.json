@@ -1,0 +1,30 @@
+{
+  "server": {
+    "tests": 50,
+    "failures": 0,
+    "errors": 0,
+    "modules": 26,
+    "log": "R4 server-tests-build.log"
+  },
+  "guest": {
+    "nfsDeferredAndPosixTests": 19,
+    "existingTests": 35,
+    "failures": 0
+  },
+  "native": {
+    "beforeImplementation": true,
+    "finalModule": true,
+    "privateProbeCleaned": true
+  },
+  "ui": {
+    "sourceUnchangedSince": "1fbd4d56351959ebe2e9784f3e6ecd4d601043d3",
+    "priorR3Tests": 41,
+    "R4Rebuild": false,
+    "indexSha256": "497ab6dd4e3637aa05a83a88124234209fa52056ca6bc3d2e6f71b5400eab15f"
+  },
+  "wholeRepositoryCI": false,
+  "mavenBaselineSkips": [
+    "checkstyle",
+    "rat"
+  ]
+}

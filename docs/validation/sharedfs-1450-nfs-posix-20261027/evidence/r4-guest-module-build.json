@@ -1,0 +1,19 @@
+{
+  "baseCompressedSha256": "39cbf52ebf4f6138a21f52638aef23cc4b04be0a832d62f2e65e8349ce618e4d",
+  "installedModuleHashes": {
+    "usr/local/lib/ablestack-storage/configuration_transaction.py": "1031942cb73a5120899804fdc8c7b7fe263380c02b7b622f258b72070d86f2a6",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json": "ad822e06b5a87dbf31b9fd750a860ab8f82404586150a57076e182c934156982"
+  },
+  "changedGuestPaths": [
+    "usr/local/lib/ablestack-storage/configuration_transaction.py",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json"
+  ],
+  "unchangedGuestPathsVerified": 33935,
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261027/issue1450-implementation/r4-deferred-posix/systemvm-epic1450-deferred-posix-20261027-r4.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261027/issue1450-implementation/r4-deferred-posix/systemvm-epic1450-deferred-posix-20261027-r4.qcow2.bz2",
+  "compressedSha256": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+  "compressedBytes": 498422836,
+  "qemuImageCheck": "No errors were found on the image.\n27434/80000 = 34.29% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1798832128",
+  "buildKind": "scoped NFS POSIX modules and matching runtime baseline; other image paths verified unchanged"
+}
