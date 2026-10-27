@@ -18,9 +18,12 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import java.io.IOException;
 import java.nio.file.FileStore;
+import java.nio.file.FileSystemException;
+import java.nio.file.LinkOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -259,6 +262,86 @@ public class LibvirtAblestackNasRestoreTransactionTest {
     }
 
     private static final class SimulatedCrash extends Error { }
+
+    @Test
+    public void transientGfs2OriginalRenameFailureStillCommitsBothVolumes() throws Exception {
+        Mockito.when(filesystem.type()).thenReturn("gfs2");
+        AtomicBoolean first = new AtomicBoolean(true);
+        files.when(() -> Files.move(eq(root), any(Path.class), eq(StandardCopyOption.ATOMIC_MOVE))).thenAnswer(call -> {
+            if (first.getAndSet(false)) {
+                throw new FileSystemException(root.toString(), call.getArgument(1).toString(), "Stale file handle");
+            }
+            return call.callRealMethod();
+        });
+        restore(true);
+        assertEquals("new-root", Files.readString(root));
+        assertEquals("new-data", Files.readString(data));
+        transactionFilesAreGone();
+    }
+
+    @Test
+    public void transientGfs2PreparedPromotionFailureStillCommitsBothVolumes() throws Exception {
+        Mockito.when(filesystem.type()).thenReturn("gfs2");
+        AtomicBoolean first = new AtomicBoolean(true);
+        files.when(() -> Files.move(any(Path.class), eq(root), eq(StandardCopyOption.ATOMIC_MOVE))).thenAnswer(call -> {
+            if (first.getAndSet(false)) {
+                throw new FileSystemException(call.getArgument(0).toString(), root.toString(), "Stale file handle");
+            }
+            return call.callRealMethod();
+        });
+        restore(true);
+        assertEquals("new-root", Files.readString(root));
+        assertEquals("new-data", Files.readString(data));
+        transactionFilesAreGone();
+    }
+
+    @Test
+    public void persistentGfs2RenameFailureRollsBackBothVolumes() throws Exception {
+        Mockito.when(filesystem.type()).thenReturn("gfs2");
+        files.when(() -> Files.move(eq(root), any(Path.class), eq(StandardCopyOption.ATOMIC_MOVE)))
+                .thenThrow(new FileSystemException(root.toString(), null, "Stale file handle"));
+        assertThrows(CloudRuntimeException.class, () -> restore(true));
+        originalsRemain();
+        transactionFilesAreGone();
+    }
+
+    @Test
+    public void aRollbackLookupIoErrorKeepsTheJournalAndBlocksBootUntilRecovery() throws Exception {
+        AtomicBoolean lookupFailure = new AtomicBoolean(false);
+        files.when(() -> Files.move(eq(root), any(Path.class), eq(StandardCopyOption.ATOMIC_MOVE))).thenAnswer(call -> {
+            lookupFailure.set(true);
+            throw new FileSystemException(root.toString(), null, "Input/output error");
+        });
+        files.when(() -> Files.readAttributes(any(Path.class), eq(BasicFileAttributes.class), eq(LinkOption.NOFOLLOW_LINKS)))
+                .thenAnswer(call -> {
+                    if (lookupFailure.get() && call.getArgument(0).toString().contains("-csrestore-original-")) {
+                        throw new FileSystemException(call.getArgument(0).toString(), null, "Input/output error");
+                    }
+                    return call.callRealMethod();
+                });
+        CloudRuntimeException failure = assertThrows(CloudRuntimeException.class, () -> restore(true));
+        assertTrue(failure.getMessage().contains("RESTORE_ROLLBACK_REQUIRED"));
+        originalsRemain();
+        assertEquals("ROLLING_BACK", journal().getProperty("phase"));
+        assertThrows(CloudRuntimeException.class, () -> LibvirtAblestackRestoreTransaction.assertStartAllowed(VM));
+        lookupFailure.set(false);
+        LibvirtAblestackRestoreTransaction.recoverForVm(LogManager.getLogger(), null, VM, 60);
+        originalsRemain();
+        transactionFilesAreGone();
+        LibvirtAblestackRestoreTransaction.assertStartAllowed(VM);
+    }
+
+    @Test
+    public void staleErrorAfterAnOriginalRenameIsRolledBackWithoutLosingEitherOriginal() throws Exception {
+        Mockito.when(filesystem.type()).thenReturn("gfs2");
+        files.when(() -> Files.move(eq(root), any(Path.class), eq(StandardCopyOption.ATOMIC_MOVE))).thenAnswer(call -> {
+            call.callRealMethod();
+            throw new FileSystemException(root.toString(), call.getArgument(1).toString(), "Stale file handle");
+        });
+        assertThrows(CloudRuntimeException.class, () -> restore(true));
+        originalsRemain();
+        transactionFilesAreGone();
+    }
 
     @Test
     public void interruptedSwitchBlocksBootUntilJournalRecoveryRestoresBothVolumes() throws Exception {

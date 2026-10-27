@@ -590,8 +590,16 @@ final class LibvirtAblestackRestoreTransaction {
             return path.startsWith(prefix) ? path.substring(prefix.length()) : path;
         }
 
-        private boolean exists(final String path) {
-            return pool == null ? Files.exists(Path.of(path)) : LibvirtAblestackRbdRestoreHelper.rbdImageExists(pool, path, timeout);
+        private boolean exists(final String path) throws IOException {
+            if (pool != null) {
+                return LibvirtAblestackRbdRestoreHelper.rbdImageExists(pool, path, timeout);
+            }
+            try {
+                Files.readAttributes(Path.of(path), java.nio.file.attribute.BasicFileAttributes.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+                return true;
+            } catch (java.nio.file.NoSuchFileException absent) {
+                return false;
+            }
         }
 
         private void move(final String source, final String target) throws IOException {
@@ -599,7 +607,7 @@ final class LibvirtAblestackRestoreTransaction {
                 throw new IOException("Restore transaction refuses to overwrite " + target);
             }
             if (pool == null) {
-                Files.move(Path.of(source), Path.of(target), StandardCopyOption.ATOMIC_MOVE);
+                LibvirtAblestackRestoreFileMove.move(Path.of(source), Path.of(target));
                 forceDirectory(Path.of(target).getParent());
             } else if (!LibvirtAblestackRbdRestoreHelper.renameRbdImage(pool, source, target, timeout)) {
                 throw new IOException("Unable to rename RBD restore image " + source + " to " + target);
