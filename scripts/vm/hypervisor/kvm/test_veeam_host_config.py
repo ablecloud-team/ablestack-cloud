@@ -67,11 +67,13 @@ class FakeApi(config.MoldApi):
             self.settings[(params["name"], params.get("zoneid", params.get("clusterid", "")))] = params["value"]
             return {"configuration": {"name": params["name"]}}
         if command == "listHosts":
-            start = (params.get("page", 1) - 1) * 20
-            return {"host": self.hosts[start:start + 20], "count": len(self.hosts)}
+            page_size = params.get("pagesize", 20)
+            start = (params.get("page", 1) - 1) * page_size
+            return {"host": self.hosts[start:start + page_size], "count": len(self.hosts)}
         if command == "listBackupOfferings":
-            start = (params.get("page", 1) - 1) * 20
-            return {"backupoffering": self.offers[start:start + 20], "count": len(self.offers)}
+            page_size = params.get("pagesize", 20)
+            start = (params.get("page", 1) - 1) * page_size
+            return {"backupoffering": self.offers[start:start + page_size], "count": len(self.offers)}
         if command == "importBackupOffering":
             self.offers.append({"name": params["name"], "id": "offering", "provider": config.PROVIDER,
                                 "externalid": "veeam", "zoneid": "zone"})
@@ -497,22 +499,32 @@ class MoldApiPaginationTest(unittest.TestCase):
         self.api.key = "synthetic-api-key"
         self.api.secret = "synthetic-api-secret"
 
-    def test_server_page_size_below_500_preserves_all_hosts_and_offerings(self):
+    def test_required_page_size_preserves_inventory_with_small_server_limits(self):
         for command, entity in (("listHosts", "host"), ("listBackupOfferings", "backupoffering")):
-            records = [{"id": str(index)} for index in range(5)]
-            requests = []
+            for maximum in (1, 2, 20):
+                records = [{"id": str(index)} for index in range(5)]
+                requests = []
 
-            def response(request, **kwargs):
-                params = parse_qs(request.data.decode())
-                self.assertNotIn("pagesize", params)
-                requests.append(params)
-                start = (int(params["page"][0]) - 1) * 2
-                body = {entity: records[start:start + 2], "count": len(records)}
-                return io.BytesIO(json.dumps({command.lower() + "response": body}).encode())
+                def response(request, **kwargs):
+                    params = parse_qs(request.data.decode())
+                    reason = None
+                    if "page" in params and "pagesize" not in params:
+                        reason = '"pagesize" parameter is required when "page" is specified'
+                    elif int(params.get("pagesize", ["0"])[0]) > maximum:
+                        reason = "Page size can't exceed max allowed page size value: " + str(maximum)
+                    if reason:
+                        raise HTTPError(self.api.url, 431, "synthetic", {},
+                                        io.BytesIO(json.dumps({"errorresponse": {"errortext": reason}}).encode()))
+                    requests.append(params)
+                    page_size = int(params["pagesize"][0])
+                    self.assertGreater(page_size, 0)
+                    start = (int(params["page"][0]) - 1) * page_size
+                    body = {entity: records[start:start + page_size], "count": len(records)}
+                    return io.BytesIO(json.dumps({command.lower() + "response": body}).encode())
 
-            with self.subTest(command=command), patch.object(config, "urlopen", side_effect=response):
-                self.assertEqual(records, list(self.api.rows(command, entity)))
-            self.assertEqual(["1", "2", "3"], [request["page"][0] for request in requests])
+                with self.subTest(command=command, maximum=maximum), patch.object(config, "urlopen", side_effect=response):
+                    self.assertEqual(records, list(self.api.rows(command, entity)))
+                self.assertEqual(["1", "2", "3", "4", "5"], [request["page"][0] for request in requests])
 
     def test_configuration_uses_exact_name_across_pages_and_keeps_scope(self):
         setting = "backup.framework.enabled"
@@ -521,7 +533,8 @@ class MoldApiPaginationTest(unittest.TestCase):
                 {"configuration": {"name": setting, "value": "true"}, "count": 2}]) as call:
             self.assertEqual("true", self.api.configuration(setting, zoneid="zone"))
         for index, request in enumerate(call.call_args_list, 1):
-            self.assertEqual({"listall": "true", "page": index, "name": setting, "zoneid": "zone"}, request.kwargs)
+            self.assertEqual({"listall": "true", "page": index, "pagesize": 1,
+                              "name": setting, "zoneid": "zone"}, request.kwargs)
 
     def test_missing_count_continues_until_an_empty_page(self):
         with patch.object(self.api, "call", side_effect=[
@@ -564,6 +577,20 @@ class MoldApiPaginationTest(unittest.TestCase):
         with patch.object(config, "urlopen", side_effect=error):
             with self.assertRaisesRegex(config.ConfigurationError, "HTTP 502$"):
                 self.api.configuration("backup.framework.enabled")
+
+    def test_inventory_http_error_preserves_reason_and_masks_credentials(self):
+        for command, entity in (("listHosts", "host"), ("listBackupOfferings", "backupoffering")):
+            text = '"pagesize" parameter is required when "page" is specified\n' + self.api.key + " " + self.api.secret
+            error = HTTPError(self.api.url, 431, "synthetic", {},
+                              io.BytesIO(json.dumps({"errorresponse": {"errortext": text}}).encode()))
+            with self.subTest(command=command), patch.object(config, "urlopen", side_effect=error):
+                with self.assertRaises(config.ConfigurationError) as caught:
+                    list(self.api.rows(command, entity))
+            message = str(caught.exception)
+            self.assertIn('HTTP 431: "pagesize" parameter is required', message)
+            self.assertNotIn(self.api.key, message)
+            self.assertNotIn(self.api.secret, message)
+            self.assertNotIn("\n", message)
 
 
 if __name__ == "__main__":

@@ -200,7 +200,7 @@ class MoldApi:
                 result = json.load(response)
         except HTTPError as exc:
             detail = ""
-            if command == "listConfigurations":
+            if command in ("listHosts", "listBackupOfferings", "listConfigurations"):
                 try:
                     error = json.load(exc).get("errorresponse", {})
                     if isinstance(error, dict) and isinstance(error.get("errortext"), str):
@@ -225,8 +225,9 @@ class MoldApi:
         received = 0
         seen_pages = set()
         while True:
-            # Use the server's page size. A fixed 500 can exceed default.page.size.
-            body = self.call(command, listall="true", page=page, **params)
+            # BaseListCmd requires page and pagesize together. One fits any positive
+            # default.page.size limit; continue through every page to keep the full inventory.
+            body = self.call(command, listall="true", page=page, pagesize=1, **params)
             rows = body.get(entity, [])
             if isinstance(rows, dict):
                 rows = [rows]
