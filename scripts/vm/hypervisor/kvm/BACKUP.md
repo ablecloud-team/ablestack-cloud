@@ -27,6 +27,7 @@ under the License.
 - [운영자용 백업 구성 요약](#운영자용-백업-구성-요약)
 - [GFS2 RAW 정지 상태 FULL 백업](#gfs2-raw-정지-상태-full-백업)
 - [배포 정책을 보존하는 백업·복원](#배포-정책을-보존하는-백업복원)
+- [스테이징 파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)
 - [공통 스테이징 경로 변경](#공통-스테이징-경로-변경)
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
@@ -219,6 +220,67 @@ QCOW2 정지 VM은 게스트 OS를 실행하지 않는 임시 백업 환경을 �
 GFS2·LOCAL은 Host의 `/etc/fstab`에 마운트 정보가 있어야 자동으로 다시 연결할 수 있으므로
 각 Host에서 파일시스템과 마운트 설정을 먼저 준비한다.
 
+## 스테이징 파일시스템별 외부 솔루션 설정
+
+사전구성 시 각 KVM Host의 실제 마운트 타입과 외부 솔루션의 파일 백업 설정을 함께 확인한다.
+Mold의 스테이징 활성화 검사와 별도로, 외부 솔루션이 해당 경로의 파일을 백업하도록 설정해야 한다.
+
+```bash
+# 각 KVM Host에서 실제 스테이징 경로로 바꿔 실행
+findmnt -T '<스테이징 root.path>' -o SOURCE,TARGET,FSTYPE
+```
+
+판단 기준은 **백업을 실행하는 KVM Host에서 보이는 파일시스템 타입**이다.
+NFS 서버 내부의 저장소가 GFS2여도 KVM Host가 `nfs` 또는 `nfs4`로 마운트했다면 NFS 기준으로 설정한다.
+
+**NetBackup: 정책의 Follow NFS 확인**
+
+| KVM Host의 `FSTYPE` | 기준 정책의 `Follow NFS` |
+| --- | --- |
+| `gfs2` | 활성화할 필요 없음 |
+| `nfs`, `nfs4` | 활성화 필요 |
+
+NFS 스테이징을 사용하는 모든 Host의 기준 정책에서 `Follow NFS`를 활성화한다.
+이 속성은 bootstrap을 저장하는 `Full Backup`과 실제 파일을 전송하는 `mold-transfer` / `User Backup`에 함께 적용된다.
+`netbackup-host-config.py`는 이 정책 속성을 자동 변경하지 않으므로 정책 생성 및 GFS2 → NFS 전환 시 관리자가 확인한다.
+
+Linux NetBackup **Primary 서버**에서 다음과 같이 설정·확인할 수 있다. 정책명은 실제 값으로 바꾼다.
+
+```bash
+/usr/openv/netbackup/bin/admincmd/bpplinfo '<정책명>' -modify -follownfs 1
+/usr/openv/netbackup/bin/admincmd/nbpemreq -updatepolicies
+/usr/openv/netbackup/bin/admincmd/bppllist '<정책명>' -L
+```
+
+출력의 `Follow NFS Mnts: yes`와 Backup Selections의 현재 bootstrap 경로를 확인한다.
+공식 기준은 [Follow NFS 정책 속성](https://docs.cohesity.com/docs/netbackup/11.1/150157642-170198590-0/v42408770-170198590)과
+[bpplinfo의 -follownfs 옵션](https://docs.cohesity.com/docs/netbackup/11.0/15263389-167321334-0/v14664839-167321334)을 참고한다.
+
+**Commvault: Subclient Content에 NFS 작업 경로 명시**
+
+Linux File System Agent는 기본적으로 NFS 파일시스템을 자동 포함하지 않으므로 Subclient Content에 백업할 경로를 명시해야 한다.
+현재 연동은 볼륨·메타데이터 전송 전에 선택한 Host의 Subclient Content를 해당 작업의 정확한 경로로 갱신하고,
+`followMountPointsMode=FOLLOW_MOUNT_POINTS_ON`을 설정한다.
+따라서 현재 연동에는 NFS 경로를 명시하는 처리가 포함되어 있다.
+실제 Commvault Client의 경로 읽기 권한과 적용 중인 글로벌 제외 필터도 확인하고,
+Job의 백업 파일 목록에 해당 볼륨·메타데이터가 포함됐는지 검증한다.
+공식 기준은 [Linux File System의 NFS 백업 구성](https://docs.commvault.com/2023e/commcell-console/advanced_configuration_linux_file_system.html)의
+`Configuring Backups for NFS-Mounted File Systems`를 참고한다.
+
+**Veeam: NFS·GFS2 모두 snapshot-less 파일 백업 사용**
+
+KVM Host의 NFS·GFS2 경로는 Linux Agent의 **snapshot-less file-level backup**으로 백업한다.
+사전구성 전에 VBR의 기준 Linux Agent Job을 이 모드로 준비하고,
+SelectedFiles는 사전구성이 출력하는 해당 Host·Job의 bootstrap 디렉터리로 지정한다.
+`veeam-host-config.py`는 기준 Job의 백업 모드를 자동 변경하지 않는다.
+현재 연동은 실제 볼륨·메타데이터 전송용 Job을 만들 때 `SelectedFiles`와
+`UseSnapshotlessFileLevelBackup`을 명시하며, 해당 PowerShell 옵션이 없는 VBR에서는 준비 검사를 실패 처리한다.
+공식 기준은 [NFS·GFS2를 지원하는 snapshot-less 파일 백업](https://helpcenter.veeam.com/docs/agentforlinux/userguide/file_backup_snapshotless.html)과
+[Set-VBRComputerBackupJob](https://helpcenter.veeam.com/docs/vbr/powershell/set-vbrcomputerbackupjob.html)을 참고한다.
+
+공통 스테이징 마운트 검사나 기준 정책·Job의 성공만으로 실제 VM 백업 완료를 판단하지 않는다.
+각 볼륨·메타데이터의 파일 목록과 전송 결과, Mold의 최종 `BackedUp` 상태를 확인하고 테스트 복원까지 검증한다.
+
 ## 공통 스테이징 경로 변경
 
 Commvault·NetBackup·Veeam의 `backup.thirdparty.staging.*`는 공통 글로벌 설정이다.
@@ -351,6 +413,7 @@ Veeam은 [veeam-host-config.py](veeam-host-config.py)를 기존 정책/Job과 �
 - Veeam 기본 구성을 사용하면 `--agent-payload-path`를 생략하고 출력된 새 마커 디렉터리로 부모 Job의 SelectedFiles를 변경한다.
   명시적 경로를 유지할 경우에는 해당 옵션을 같은 값으로 지정한다.
 - NetBackup 기준 정책의 Backup Selections는 출력된 새 bootstrap 디렉터리 하나로 변경한다.
+  NFS로 전환한 경우 각 기준 정책의 `Follow NFS`도 활성화한다.
   기존 백업 이미지나 복원 시점에 저장된 원본 파일 경로는 변경하지 않는다.
 
 구성 도구가 비동적 설정 변경으로 Mold 재기동을 요구하면 안내에 따라 재기동하고 같은 명령을 재실행한다.
@@ -552,6 +615,8 @@ NAS에서는 스테이징에서 외부 솔루션으로 다시 전송하는 단�
 1. Commvault 서버의 백업 저장소와 Plan을 준비한다.
 2. Mold에 Commvault 서버 접속 정보를 설정하고 백업 Host의 에이전트 설치·등록을 확인한다.
 3. 공통 스테이징을 활성화한 후 Commvault 백업 오퍼링을 가져와 VM에 연결한다.
+4. NFS 스테이징은 [파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)에 따라
+   작업 경로의 Subclient Content 반영, 읽기 권한과 제외 필터를 확인한다.
 
 **백업 순서**
 
@@ -590,6 +655,8 @@ Mold에서 VM별 백업 스케줄을 사용하는 경우에는 아래의
    실제 백업 Host가 정책의 Client에 등록되어 있어야 한다.
    정책 이름은 Host 이름과 독립적으로 지정한다. 사전구성의 `--policy-name`에는 NetBackup UI의 실제 기준 정책 이름을 입력한다.
    Mold Host는 현재 로컬 호스트명으로 정확히 조회하며, 필요하면 `--kvm-hostname` 또는 `--kvm-ip`로 별도 지정한다.
+   Host의 실제 스테이징이 NFS이면 기준 정책의 `Follow NFS`를 활성화한다. GFS2 마운트에는 이 옵션이 필요 없다.
+   확인 명령과 설정 방법은 [파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)을 따른다.
 3. NetBackup REST API 주소와 API key, 대상 Mold 서버의 관리자 API key·secret key를 준비한다.
    NetBackup API 계정에는 정책·Job·카탈로그 조회 및 복원·이미지 만료에 필요한 권한을 부여한다.
    신규 백업은 Host의 `bpbackup`으로 실행하며 별도 정책을 생성하지 않는다.
@@ -917,7 +984,7 @@ Job 상세의 `Overview`에서 파일 목록·상태 코드를, `Details`에서 
 | Mold는 `Failed`, `mold-transfer` Job은 없음 | 해당 정책의 User Backup 스케줄·Start window, Host의 `bpbackup` 설치와 요청 기록, Mold 실패 상세와 관리 서버 로그를 확인한다. |
 | `NetBackup artifact query failed with status 401` | API key·계정 권한과 관리 서버의 API 인증 코드 반영 여부를 확인한다. 기준 Job의 성공만으로 REST API 연결을 판단하지 않는다. |
 | 볼륨 Job은 성공했지만 `NETBACKUP_TRANSFER`에서 HTTP `400`, `Limit must be less than 100.` | `/catalog/images`의 페이지 크기를 확인한다. 카탈로그는 `99`, Job 목록은 `1000`으로 조회한다. 아래 카탈로그 조회 오류 확인 절차를 따른다. |
-| bootstrap 경로 없음 | 해당 Host의 GFS2 마운트와 사전구성 완료 여부, 정책에 입력한 경로를 확인한다. |
+| bootstrap 경로 없음 | 해당 Host의 스테이징 마운트와 사전구성 완료 여부, 정책에 입력한 경로를 확인한다. |
 
 실제 백업을 실행한 Host에서 Hook 로그와 해당 백업 UUID의 작업 로그를 확인한다.
 GFS2를 공유해도 아래 로그는 Host 로컬 파일이다.
@@ -1195,7 +1262,8 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
 1. `ablecube1`의 공통 스테이징 마운트와 Veeam Agent 준비 상태를 확인한다.
    VM을 다른 Host로 이동할 테스트까지 수행하려면 이동 대상 Host도 같은 방식으로 구성한다.
 2. VBR에서 저장소와 `ablecube1` Linux Agent 연결을 확인하고, Host별 기준 파일 백업 Job을 준비한다.
-   GFS2에서는 snapshot-less 파일 백업을 사용한다. Job 자동 실행은 구성이 끝날 때까지 보류한다.
+   NFS·GFS2에서는 snapshot-less 파일 백업을 사용한다. Job 자동 실행은 구성이 끝날 때까지 보류한다.
+   [파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)의 기준 Job 모드와 경로 조건을 확인한다.
    관리 서버의 VBR SSH·PowerShell 연결과 Host의 Mold API·VBR 연결도 확인한다.
 3. `ablecube1`에서 다음 사전구성을 실행한다. 인증정보는 실제 환경 값으로 입력한다.
 
@@ -2490,6 +2558,8 @@ tail -n 100 /var/log/netbackup-mold-restore.log
 **Veeam 신규 구성과 외부 UI 복원**
 
 각 KVM Host에 Veeam Linux Agent를 설치하고 Host별 기준 Agent Job을 하나씩 사용한다.
+NFS·GFS2 스테이징은 기준 Job을 snapshot-less 파일 백업으로 준비한다.
+백업 모드와 경로 조건은 [파일시스템별 외부 솔루션 설정](#스테이징-파일시스템별-외부-솔루션-설정)을 따른다.
 Job 이름은 Mold Host 이름과 별도로 지정할 수 있다. 아래는 `ablecube1` Host에서 `veeam-ablecube1` Job을 사용하는 예시다.
 사전구성 진입점은 `veeam-host-config.py` 하나이다. 내부 단계별 함수로
 인증정보·Job conf·Hook·Agent timeout·복원 감시 서비스를 구성한다.
