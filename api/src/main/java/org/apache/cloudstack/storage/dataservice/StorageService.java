@@ -116,6 +116,12 @@ public interface StorageService {
 
     ListResponse<StorageServiceProtocolResponse> listStorageServiceProtocols(ListStorageServiceProtocolsCmd cmd);
 
+    org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse getStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsIdentityMappingCmd cmd);
+
+    org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse updateStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd cmd);
+
     StorageNfsExportResponse createStorageNfsExport(CreateStorageNfsExportCmd cmd);
 
     StorageNfsExportResponse updateStorageNfsExport(UpdateStorageNfsExportCmd cmd);

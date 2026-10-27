@@ -13,6 +13,7 @@ const kinds = {
   nvmeHostAcl: ['NvmeOfHostAcl', 'NVME_OF']
 }
 export function configurationModalIntent (type, forms, context) {
+  if (type === 'nfsIdentity') return { api: 'updateStorageNfsIdentityMapping', protocol: 'NFS', idmappingmode: forms.nfsIdentity.idmappingmode }
   if (['enableProtocol', 'deleteEndpoint'].includes(type)) {
     const form = forms[type] || {}
     const protocol = (form.protocol || 'NFS').toUpperCase()

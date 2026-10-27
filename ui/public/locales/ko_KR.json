@@ -10056,5 +10056,15 @@
   "message.storage.nfs.acl.permissions.unchanged": "접근 규칙의 mapping과 RW/RO만 변경합니다. 디렉터리 소유권·mode·하위 파일은 변경하지 않습니다. 상속은 내보내기의 mapping을 사용합니다.",
   "message.storage.nfs.root.only": "선택한 내보내기 디렉터리만 · 하위 파일 변경 없음",
   "label.storage.nfs.explicit.change": "입력한 변경만 적용",
-  "label.storage.nfs.inherit.policy": "내보내기 정책 상속"
+  "label.storage.nfs.inherit.policy": "내보내기 정책 상속",
+  "message.storage.nfs.identity.permissions": "이 정책은 파일 UID/GID·POSIX 권한·squash를 바꾸지 않습니다. ls -ln/stat 숫자와 실제 접근 결과를 대조하세요. 실제 UID 65534는 정상적인 squash 결과일 수 있습니다.",
+  "label.storage.nfs.identity.revision": "관측 정책 리비전",
+  "label.storage.nfs.identity.configured": "설정 모드 / 정책 리비전",
+  "message.storage.nfs.identity.name": "NAME_DOMAIN: 기존 NSS 및 NFSv4 도메인 설정을 사용합니다. 클라이언트 도메인·이름 매핑을 확인하세요.",
+  "message.storage.nfs.identity.numeric": "NUMERIC: AUTH_SYS 전용입니다. Linux 클라이언트의 nfs4_disable_idmapping=Y 및 sec=sys를 확인하세요. 클라이언트 전역 설정은 서버에서 변경하지 않습니다.",
+  "label.storage.nfs.identity.domain": "현재 서버 도메인",
+  "label.storage.nfs.identity.mode": "NFSv4 서비스 ID 매핑 모드",
+  "message.storage.nfs.identity.unavailable": "ID 매핑 관측을 조회하지 못했습니다. 업데이트 후 다시 확인하세요. 기존 NFS 기능은 계속 사용할 수 있습니다.",
+  "label.storage.nfs.identity.settings": "ID 매핑 설정",
+  "label.storage.nfs.identity.effective": "실행 모드 / 관측"
 }

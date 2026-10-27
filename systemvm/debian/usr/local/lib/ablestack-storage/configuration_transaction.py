@@ -88,6 +88,145 @@ def public_hash(value):
                                     separators=(",", ":")).encode()).hexdigest()
 
 
+
+class NfsIdentityMapping:
+    """Process-bound, volatile evidence. A configuration read never starts a service."""
+    VERSION = 1
+    MODE = "nfs4IdentityMappingMode"
+    REVISION = "nfs4IdentityPolicyRevision"
+    def __init__(self, config=Path("/etc/ganesha/ablestack-storage"),
+                 run=Path("/run/ablestack-storage/ganesha"),
+                 desired=Path("/etc/ablestack-storage/desired-state/nfs-export-apply.json")):
+        self.config, self.run, self.desired = Path(config), Path(run), Path(desired)
+
+    @staticmethod
+    def policy(value):
+        mode = value.get(NfsIdentityMapping.MODE, "NAME_DOMAIN")
+        revision = value.get(NfsIdentityMapping.REVISION, 0)
+        if mode not in ("NAME_DOMAIN", "NUMERIC") or type(revision) is not int or revision < 0:
+            raise Rejected("NFS_IDENTITY_POLICY_INVALID")
+        return mode, revision
+
+    @staticmethod
+    def lines(value):
+        mode, _ = NfsIdentityMapping.policy(value)
+        return ["    Allow_Numeric_Owners = true;",
+                "    Only_Numeric_Owners = %s;" % ("true" if mode == "NUMERIC" else "false")]
+
+    @staticmethod
+    def semantics(text):
+        import re
+        clean = re.sub(r"(?m)#.*$", "", text)
+        block = re.search(r"\bNFSV4\s*\{([^{}]*)\}", clean, re.I)
+        body = block.group(1) if block else ""
+        def setting(key, default):
+            values = re.findall(r"\b" + key + r'\s*=\s*([^;]+);', body, re.I)
+            if len(values) > 1:
+                raise Rejected("NFS_IDENTITY_CONFIG_AMBIGUOUS")
+            return values[0].strip().strip('"') if values else default
+        allow, only = setting("Allow_Numeric_Owners", "true").lower(), setting("Only_Numeric_Owners", "false").lower()
+        if allow not in ("true", "false") or only not in ("true", "false"):
+            raise Rejected("NFS_IDENTITY_CONFIG_INVALID")
+        domain = setting("DomainName", "")
+        source = "NFSV4.DomainName" if domain else "nfsidmap"
+        idmap = setting("IdmapConf", "")
+        if not domain and idmap:
+            import configparser
+            parser = configparser.ConfigParser()
+            parser.read(idmap)
+            domain = parser.get("General", "Domain", fallback="").strip()
+            source = "IdmapConf"
+        if not domain:
+            try:
+                result = subprocess.run(["nfsidmap", "-d"], capture_output=True, text=True, timeout=3, check=False)
+                domain = result.stdout.strip() if result.returncode == 0 else ""
+            except (OSError, subprocess.TimeoutExpired):
+                domain = ""
+        # No domain is provisioned or silently invented on read.
+        security = sorted({flavor.strip().lower() for line in re.findall(r"\bSecType\s*=\s*([^;]+);", clean, re.I)
+                           for flavor in line.split(",")})
+        return {"allow": allow == "true", "only": only == "true", "domain": domain, "source": source, "security": security}
+
+    @staticmethod
+    def process(pid):
+        proc = Path("/proc") / str(int(pid))
+        exe = (proc / "exe").resolve(strict=True)
+        if exe.name != "ganesha.nfsd":
+            raise Rejected("NFS_IDENTITY_PROCESS_INVALID")
+        stat = (proc / "stat").read_text().rsplit(")", 1)[1].split()
+        return {"pid": int(pid), "boot": Path("/proc/sys/kernel/random/boot_id").read_text().strip(), "start": stat[19]}
+
+    def publish(self, key, path, pid, value):
+        mode, revision = self.policy(value)
+        semantic = self.semantics(Path(path).read_text())
+        if not semantic["allow"] or semantic["only"] != (mode == "NUMERIC"):
+            raise Rejected("NFS_IDENTITY_RENDER_MISMATCH")
+        if mode == "NUMERIC" and semantic["security"] != ["sys"]:
+            raise Rejected("NFS_NUMERIC_AUTH_SYS_REQUIRED")
+        receipt = {"mode": mode, "revision": revision, "process": self.process(pid),
+                   "signature": public_hash(semantic), "semantic": semantic, "observedat": str(time.time())}
+        atomic_json(self.run / (key + ".identity.json"), receipt)
+
+    def complete(self, keys, value):
+        mode, revision = self.policy(value)
+        atomic_json(self.run / "identity-endpoints.json", {"keys": sorted(keys), "mode": mode, "revision": revision})
+
+    def observe(self, desired=None):
+        desired = load(self.desired, {}) if desired is None else desired
+        mode, revision = self.policy(desired)
+        rows = []
+        try:
+            manifest = load(self.run / "identity-endpoints.json", {})
+            keys = set(manifest.get("keys", [])) | {p.stem for p in self.config.glob("*.conf")}
+        except (ValueError, OSError, TypeError):
+            return {"observationstatus": "UNKNOWN", "endpoints": [], "observeddomain": "", "observedat": str(time.time())}
+        for key in sorted(keys):
+            import re
+            path = self.config / (key + ".conf")
+            if not path.is_file():
+                rows.append({"endpoint": key, "state": "DRIFT", "configuredmode": mode, "configuredrevision": revision})
+                continue
+            body = path.read_text()
+            port = re.search(r"\bNFS_Port\s*=\s*(\d+)\s*;", body, re.I)
+            row = {"port": int(port.group(1)) if port else 2049, "endpoint": path.stem,
+                   "configuredmode": mode, "configuredrevision": revision}
+            try:
+                receipt = load(self.run / (path.stem + ".identity.json"))
+                pid = int((self.run / (path.stem + ".pid")).read_text().strip())
+                process = self.process(pid)
+                semantic = self.semantics(body)
+                if receipt is None:
+                    row["state"] = "LEGACY_UNCONFIRMED"
+                elif receipt.get("process") != process:
+                    row["state"] = "UNKNOWN"
+                elif (receipt.get("mode"), receipt.get("revision")) != (mode, revision) or receipt.get("signature") != public_hash(semantic):
+                    row["state"] = "DRIFT"
+                elif not semantic["allow"] or semantic["only"] != (mode == "NUMERIC"):
+                    row["state"] = "DRIFT"
+                else:
+                    row.update(state="APPLIED", effectivemode=mode, observedrevision=revision,
+                               observeddomain=semantic["domain"], observedat=receipt["observedat"])
+            except (OSError, ValueError, Rejected):
+                row["state"] = "UNKNOWN"
+            rows.append(row)
+        states = {row["state"] for row in rows}
+        status = ("NOT_RUNNING" if not rows else "APPLIED" if states == {"APPLIED"} else
+                  "DRIFT" if "DRIFT" in states else "UNKNOWN" if "UNKNOWN" in states else "LEGACY_UNCONFIRMED")
+        result = {"observationstatus": status, "endpoints": rows, "observedat": str(time.time()),
+                  "observeddomain": self.semantics("")["domain"]}
+        if status == "APPLIED":
+            domains = {row.get("observeddomain", "") for row in rows}
+            result["observeddomain"] = next(iter(domains)) if len(domains) == 1 else ""
+            result.update(effectivemode=mode, policyrevision=revision)
+        return result
+
+    def verify(self, desired):
+        observation = self.observe(desired)
+        if observation["observationstatus"] not in ("APPLIED", "NOT_RUNNING"):
+            raise Rejected("NFS_IDENTITY_RUNTIME_MISMATCH")
+        return observation
+
+
 def kernel_link_target(path, raw_target):
     """Interpret a kernel readlink value relative to its link, independent of cwd."""
     raw = Path(raw_target)
@@ -1246,6 +1385,8 @@ class RuntimeAdapter:
         for operation, value in commands.items():
             if not value.get("enabled", True):
                 continue
+            if operation == "nfs export apply" and NfsIdentityMapping.MODE in value:
+                NfsIdentityMapping().verify(value)
             if operation.startswith("smb") and SmbListenerProfiles().manifest.exists():
                 SmbListenerProfiles().verify(value)
                 continue
@@ -1654,7 +1795,8 @@ def main(argv):
         return 0
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
-                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1}))
+                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
+                          "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().observe()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
