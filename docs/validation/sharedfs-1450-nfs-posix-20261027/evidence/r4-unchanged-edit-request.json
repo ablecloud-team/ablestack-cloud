@@ -1,0 +1,33 @@
+{
+  "id": "52584.1032",
+  "command": "updateStorageNfsExport",
+  "method": "POST",
+  "params": {
+    "command": "updateStorageNfsExport",
+    "response": "json",
+    "id": "58815f10-d224-425e-931c-d9aedd1c6fe8",
+    "name": "e1450-r4",
+    "path": "/export/e1450-r4",
+    "createdirectory": "true",
+    "volumeid": "e6468b3c-785b-4808-b746-57bf514f8137",
+    "filesystem": "xfs",
+    "protocolmode": "V4_ONLY",
+    "importmode": "MOUNT_EXISTING",
+    "readonly": "false",
+    "rootsquash": "true",
+    "allsquash": "false",
+    "sync": "true",
+    "secure": "false",
+    "endpointmode": "LISTENER_GROUP",
+    "listenerports": "2049",
+    "requestid": "76c444ee-fbcf-4c4b-a516-a627cd9cda37",
+    "expectedrevision": "3",
+    "impactack": "d66237c1194fa37eaefe6094087efad77a2853b90ca0b7f16e57094e09a0d7c2"
+  },
+  "recoveredFromBufferedUiEvents": true,
+  "body": {
+    "updatestoragenfsexportresponse": {
+      "jobid": "06c20405-a8ac-4bbe-88e4-b976b05daf61"
+    }
+  }
+}

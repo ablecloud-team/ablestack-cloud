@@ -1,0 +1,1 @@
+{"success": true, "service": "mold", "sha256": "978ce74bb62557ebb63a6d210669471ae9aae5ad99b505ab5c7eca0e375c2b12", "changedEntries": 5, "unrelatedEntriesPreserved": true, "schemaMigration": false, "guestRestarted": false, "previousPid": "4040901", "currentPid": "4055559"}

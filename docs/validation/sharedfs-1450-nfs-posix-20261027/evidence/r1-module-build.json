@@ -1,0 +1,80 @@
+{
+  "management": {
+    "beforeSha256": "dd155223894579a2eb6e8c6a1f315a8faf4b4c9987715b0f261a9c4ef6f1be36",
+    "afterSha256": "1b0cde3a93796e361c77b118a148674268663748daf59cba413c1dda1a294fd7",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNfsAclCmd.class",
+        "before": "dda2ccdec3d8f944d8d7396477369d9d727dda59f9e5d326f18f3a519682dc10",
+        "after": "05876a8cc9c4120f58d333dcb3fc67578cd1677837929ee6506b12f3f36fd7a2"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNfsAclCmd.class",
+        "before": "0cb5990c68c742eed20cad80dc0a31c6e6c8d9ae9ee50339fa460d93ee0d4a14",
+        "after": "6c0a9b4494f1c2e870374aae2c2afbc30f4d91705c0bc061b7861563e5b1c688"
+      },
+      {
+        "path": "org/apache/cloudstack/api/response/StorageNfsExportResponse.class",
+        "before": "ef0a298fdee75c6ad39d6a3fa858f97a80d8e6d186114893ed55895c8811f746",
+        "after": "d6260b5b6370116ac0b4115d1204d86c3e6aa3e8049ec29c01cc368b5149f847"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "before": "3852e215b510578bb26ba7380ffa79915c7b63aa8b2253d36aa8c544452ea44e",
+        "after": "21b82fd345ae5528f09c8f643b4b67aa5265ea7b6460871685945a5d97a5fdff"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class",
+        "before": "730fd197a058a6849cdcc629739fe76fcdab10932c1906c35c1e056926f68bff",
+        "after": "648b9866949ef27db53737c42d19c9b76672ec1a63484d8ba0f92ed41263d18a"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+        "before": "d3792a43f4fb60db94f39f41765539f9c037a988115ca5a12f7c29f1365e059e",
+        "after": "7f2da71eed7c0dd31ac04cc3e953208c3f6f98384a4c91ab7e5125fdbf40b01e"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPlan.class",
+        "before": "09f87a4af12fc7db4ebc8cb966b3a5db278330a0ee0044d50fa5bbbeecb2b62f",
+        "after": "aef4658e9bd113d5b66577fb638e951129562f82aba5c9e2674f9c0e84d60b51"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPlan$Table.class",
+        "before": "1fec6ecf64be1a4a61fa53ce0cac831a2d41fc209977b7a32df3d39f49e6479d",
+        "after": "6513fbfe23512b24fdc2d9ef3cdbca2ad50bfa9b500a5a83003e233703c1e06d"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+        "before": "7236208847b3665f60c559b61b540f02c2fdd9234f16377ca090e77e234614dd",
+        "after": "e866ac2db6bfb4bba53b28eec1fefa5093d4abfc45bc8e92a1f7659dfc2f03a9"
+      },
+      {
+        "path": "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class",
+        "before": "6d33f45a54b58e10f5aa569bb24faf0fc50981461483f224f277c0c4b0fa960e",
+        "after": "7343808d38cdd084fcf6e0d640b2e509970f39279c76605b15f643c4386c1bf6"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class",
+        "before": "604a0f42cc3837585ab3022a238b186c2a28bd168e7a159f3485ee775e683455",
+        "after": "60bf1331d0ffbebb833a6aadcb98ca40950fa35a3761e94a150e5727b9af9dd4"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class",
+        "before": "b8caf7228e66bd2ad27382eb15cd37b72eccad07b0d59cd178b900e5cae6777f",
+        "after": "95ef38cabfb2c6f8866ca02e9abf72bd3d59971b2116f12ad297ec4e67631a33"
+      },
+      {
+        "path": "storage-runtime/bootstrap/runtime-baseline-profile.json",
+        "before": "495a98b667a9d5f1e2fa645c0f5490116d31d09905cb8ee34366e8c2ed7ad1e6",
+        "after": "cf7d8c9d9c402c5db79e14ce72938fb1c2f65fda2f6f0fc33abfbedf9399dda4"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageNfsPosix.class",
+        "before": null,
+        "after": "8defc4fc853ee0aaf4876b5704a64eb45c61804b02d4b6863a36e23ec8e47986"
+      }
+    ],
+    "unrelatedEntriesByteIdentical": true
+  },
+  "schemaMigration": false
+}

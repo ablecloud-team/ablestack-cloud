@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "indexSha256": "497ab6dd4e3637aa05a83a88124234209fa52056ca6bc3d2e6f71b5400eab15f",
+  "changedFiles": 12,
+  "files": [
+    {
+      "path": "color.less",
+      "before": "37b62b4bd5e609af235e197980f346cfb9837e7af2285291e7587287b2174900",
+      "after": "562fe8fb11e0e06fd857fbdaa2b68061006f8eb90ae07b4e7c0b00be5ae0b466"
+    },
+    {
+      "path": "css/chunk-2635cb00.a6060fe7.css",
+      "before": null,
+      "after": "d95b74c04326009e1fe0c224d14f0afe46c9c527fff498229633704b818187d1"
+    },
+    {
+      "path": "css/chunk-44ace463.2e4eb0bb.css",
+      "before": null,
+      "after": "ce4a4614ec3f5e9eb8e9ffb2d95e4bd75ae94b4226e9121b36a6b94b9a40b2fe"
+    },
+    {
+      "path": "index.html",
+      "before": "1a679c7d713d85be5da4ff9e1a7aa3cee9d33933eec30a845a3ca08e49636b91",
+      "after": "497ab6dd4e3637aa05a83a88124234209fa52056ca6bc3d2e6f71b5400eab15f"
+    },
+    {
+      "path": "js/app.fc723dfc.js",
+      "before": null,
+      "after": "6c0b0fc604c9bf5970edc0d3981684b841b71c9e986a7b8a8fbf314cbc59c4bf"
+    },
+    {
+      "path": "js/app.fc723dfc.js.map",
+      "before": null,
+      "after": "0aef2f3159e54db717f42443dbbddefc06a0af3b5ee09c3564b81fc29a73f61a"
+    },
+    {
+      "path": "js/chunk-2635cb00.47255948.js",
+      "before": null,
+      "after": "ae156d72de362a2fef2b5660178b1f4f829d629c513b15059bef1e2bcc3e9d39"
+    },
+    {
+      "path": "js/chunk-2635cb00.47255948.js.map",
+      "before": null,
+      "after": "998cc445f4c54a063debb9dc35421d8ab44e7933a26030e3c8a4f2cbafd20015"
+    },
+    {
+      "path": "js/chunk-44ace463.557a9016.js",
+      "before": null,
+      "after": "f46b78b15f32f2a298df90e0605d88dbcd2d0c178f350237d772489060a58673"
+    },
+    {
+      "path": "js/chunk-44ace463.557a9016.js.map",
+      "before": null,
+      "after": "06d6371663f84e0fd0f3c520fdbe70ff3f727fa225377b58d3f35f30d33736ae"
+    },
+    {
+      "path": "js/chunk-5affc0a4.59dc1856.js",
+      "before": null,
+      "after": "d7408d7e0d063e403fb0810ed68e552cc1595ff02527c83de1ea4ef4812dd95b"
+    },
+    {
+      "path": "js/chunk-5affc0a4.59dc1856.js.map",
+      "before": null,
+      "after": "097812b554f639718f57fa80b12d525884770b0b22690b3bdec0df623fa7d394"
+    }
+  ],
+  "configPreserved": true,
+  "systemvmPreserved": true
+}
