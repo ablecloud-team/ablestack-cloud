@@ -1920,6 +1920,14 @@ public class VolumeServiceImpl implements VolumeService {
         if (!LINKED_CLONE_TYPE_VALUE.equalsIgnoreCase(snapshotVO.getCloneType())) {
             return null;
         }
+        if (snapshot.getDataStore() instanceof org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore &&
+                ((org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore) snapshot.getDataStore()).getPoolType() == com.cloud.storage.Storage.StoragePoolType.RBD) {
+            if (snapshot.getBaseVolume() == null || StringUtils.isBlank(snapshot.getBaseVolume().getPath()) || StringUtils.isBlank(snapshot.getPath())) {
+                throw new com.cloud.utils.exception.CloudRuntimeException("ALLOCATION_CLONE_SOURCE_UNAVAILABLE: linked RBD parent identity is missing");
+            }
+            org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = (org.apache.cloudstack.storage.to.PrimaryDataStoreTO) snapshot.getDataStore().getTO();
+            return "rbd:" + store.getPath() + "/" + snapshot.getBaseVolume().getPath() + "@" + snapshot.getPath().substring(snapshot.getPath().lastIndexOf('/') + 1);
+        }
         return String.format("clone/vmsnapshot-%s/%s-%s",
                 getVmSnapshotPathToken(snapshot),
                 sanitizePathToken(getSourceVolumeName(snapshot)),

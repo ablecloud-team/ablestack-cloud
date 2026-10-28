@@ -85,5 +85,16 @@ public class VolumeAllocationLifecycleGuardTest {
         verify(motion).cloneAsync(org.mockito.ArgumentMatchers.eq(snapshot),org.mockito.ArgumentMatchers.eq(onStore),org.mockito.ArgumentMatchers.any());
         verify(details,never()).removeDetails(2L);
     }
+    @Test public void linkedRbdMetadataNamesTheActualParentInsteadOfAFileClonePath() {
+        org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore primary = org.mockito.Mockito.mock(org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore.class);
+        when(primary.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
+        org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = new org.apache.cloudstack.storage.to.PrimaryDataStoreTO(); store.setPath("rbd");
+        when(primary.getTO()).thenReturn(store); when(snapshot.getDataStore()).thenReturn(primary);
+        com.cloud.storage.SnapshotVO snapshotVO = org.mockito.Mockito.mock(com.cloud.storage.SnapshotVO.class);
+        when(snapshotVO.getCloneType()).thenReturn("linked"); when(snapshot.getSnapshotVO()).thenReturn(snapshotVO);
+        VolumeInfo source = org.mockito.Mockito.mock(VolumeInfo.class); when(source.getPath()).thenReturn("source-uuid");
+        when(snapshot.getBaseVolume()).thenReturn(source); when(snapshot.getPath()).thenReturn("source-uuid/snapshot-name");
+        org.junit.Assert.assertEquals("rbd:rbd/source-uuid@snapshot-name", service.getLinkedCloneBackingPath(snapshot));
+    }
 
 }
