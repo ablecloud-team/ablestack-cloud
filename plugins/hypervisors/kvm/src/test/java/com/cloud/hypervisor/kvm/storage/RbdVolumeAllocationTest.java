@@ -149,24 +149,67 @@ public class RbdVolumeAllocationTest {
         assertFalse(methods.containsKey("full")); assertEquals("rbd-thin", methods.get("off"));
     }
 
+    private KVMPhysicalDisk snapshotSource() {
+        KVMPhysicalDisk disk = source(); disk.setPath("rbd/source@snapshot");
+        request.setAllocation(VolumeAllocationPolicy.request("off", "raw", null));
+        runner.linkedParent = "source"; runner.used = 0;
+        return disk;
+    }
+    @Test public void linkedCloneVerifiesParentContentsAndOwnUsageBeforePublish() {
+        VolumeObjectTO result = adapter.cloneSnapshot(request, pool, snapshotSource(), 60_000);
+        assertEquals("rbd-cow-clone", result.getAllocation().get(VolumeAllocationPolicy.METHOD));
+        assertEquals("clone", result.getAllocation().get(VolumeAllocationPolicy.OPERATION));
+        assertEquals("0", result.getAllocation().get(VolumeAllocationPolicy.OBSERVED_BYTES));
+        assertTrue(command("clone")); assertTrue(command("compare")); assertFalse(command("--thick-provision"));
+        assertTrue(runner.index("du") < runner.index("rename")); noFinalDelete();
+    }
+    @Test public void fullLinkedConflictNeverWritesOrDowngradesPolicy() {
+        KVMPhysicalDisk disk = snapshotSource(); request.setAllocation(VolumeAllocationPolicy.request("full", "raw", null));
+        try { adapter.cloneSnapshot(request, pool, disk, 60_000); fail(); }
+        catch (RuntimeException e) { assertTrue(e.getMessage().contains("TYPE_CONFLICT")); }
+        assertTrue(runner.commands.isEmpty()); assertEquals("full", request.getAllocation().get(VolumeAllocationPolicy.POLICY));
+    }
+    @Test public void linkedLostAnswerRetryVerifiesWithoutRecreatingOrDeleting() {
+        KVMPhysicalDisk disk = snapshotSource(); adapter.cloneSnapshot(request, pool, disk, 60_000); runner.commands.clear();
+        adapter.cloneSnapshot(request, pool, disk, 60_000);
+        assertFalse(command("clone")); assertFalse(command("rm")); assertTrue(command("compare"));
+    }
+    @Test public void failedLinkedCompareDeletesOnlyItsStageAndRetainsParent() {
+        KVMPhysicalDisk disk = snapshotSource(); runner.fail = "compare";
+        try { adapter.cloneSnapshot(request, pool, disk, 60_000); fail(); }
+        catch (RuntimeException expected) { assertTrue(expected.getMessage().contains("injected-compare")); }
+        assertTrue(command("rm")); noFinalDelete(); assertFalse(command("unprotect")); assertFalse(command("rename"));
+    }
+    @Test public void linkedForeignTargetIsNeverAdoptedOrDeleted() {
+        KVMPhysicalDisk disk = snapshotSource(); runner.exists = true; runner.receipt = "foreign";
+        try { adapter.cloneSnapshot(request, pool, disk, 60_000); fail(); }
+        catch (RuntimeException expected) { assertTrue(expected.getMessage().contains("TARGET_EXISTS")); }
+        assertFalse(command("clone")); assertFalse(command("rm"));
+    }
+    @Test public void linkedCapabilityDoesNotAdvertiseFull() {
+        assertEquals(Map.of("off","rbd-cow-clone"), adapter.capabilities(pool,"raw","clone"));
+        assertFalse(command("clone", "--image-feature"));
+    }
+
     private static class Fake implements RbdVolumeAllocation.Runner {
         List<List<String>> commands = new ArrayList<>();
-        String stage; String fail; boolean cleanupFail; boolean exists; boolean parent; String receipt;
+        String stage; String fail; boolean cleanupFail; boolean exists; boolean parent; String receipt; String linkedParent;
         long used = SIZE; long infoSize = SIZE; long sourceSize = SIZE; long available = SIZE * 10; boolean missingCapacity;
         int index(String op) { for (int i = 0; i < commands.size(); i++) if (commands.get(i).contains(op)) return i; return -1; }
         @Override public String run(List<String> args, long timeout) {
             assertTrue(timeout > 0); commands.add(args);
-            if (args.contains("--help") || args.contains("help")) return "--thick-provision --exact -n -S compare -F";
+            if (args.contains("--help") || args.contains("help")) return "--thick-provision --exact -n -S compare -F --image-feature";
             String op = (args.get(0).equals("rbd") || args.get(0).equals("ceph")) && args.contains("--conf") ? args.get(5) : args.get(1);
-            if (op.equals("create")) stage = args.get(args.size() - 1).substring(4);
+            if (op.equals("create") || op.equals("clone")) stage = args.get(args.size() - 1).substring(4);
             if (op.equals(fail) || (cleanupFail && op.equals("rm"))) throw new CloudRuntimeException("injected-" + op);
             if (op.equals("help") || op.equals("--help")) return "--thick-provision --exact -n -S compare";
             if (op.equals("ls")) return exists ? "[\"" + ID + "\"]" : (cleanupFail && stage != null ? "[\"" + stage + "\"]" : "[]");
             if (op.equals("rename")) exists = true;
             if (op.equals("image-meta")) { if (args.contains("get")) return receipt; receipt = args.get(args.size() - 1); }
+            if (op.equals("snap")) return "[{\"name\":\"snapshot\",\"protected\":true}]";
             if (op.equals("info")) {
                 if (args.get(0).equals("qemu-img")) return "{\"virtual-size\":" + sourceSize + "}";
-                return "{\"size\":" + infoSize + (parent ? ",\"parent\":{}" : "") + "}";
+                return "{\"size\":" + infoSize + (linkedParent != null ? ",\"parent\":{\"pool\":\"rbd\",\"image\":\""+linkedParent+"\",\"snapshot\":\"snapshot\"}" : parent ? ",\"parent\":{}" : "") + "}";
             }
             if (op.equals("df")) return missingCapacity ? "{}" : "{\"pools\":[{\"name\":\"rbd\",\"stats\":{\"max_avail\":" + available + "}}]}";
             if (op.equals("du")) return "{\"images\":[{\"provisioned_size\":" + SIZE + ",\"used_size\":" + used + "}]}";
