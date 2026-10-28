@@ -88,7 +88,7 @@ public class AllocatedVmCloneTest {
     }
     @Test public void oldAgentAnswerCannotMarkAllocatedCloneReady() {
         PrimaryDataStoreTO store = mock(PrimaryDataStoreTO.class);
-        rejects("EVIDENCE_INVALID", () -> manager.validatePreparedCloneResults(new com.cloud.agent.api.Answer(), store, List.of(root), true));
+        rejects("EVIDENCE_INVALID", () -> manager.validatePreparedCloneResults(new com.cloud.agent.api.Answer(null, true, "legacy"), store, List.of(root), true));
         verify(root, never()).setState(any());
     }
     @Test public void newGfsCopyNeedsExactTargetIdentityAndFreshCopyReceipt() {
