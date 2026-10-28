@@ -34,6 +34,7 @@ under the License.
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
 - [NetBackup 백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)
 - [Veeam 13.0 VM별 스케줄 검증 시나리오](#veeam-130-vm별-스케줄-검증-시나리오)
+- [Veeam Job 이름과 길이 제한](#veeam-job-이름과-길이-제한)
 - [NetBackup·Veeam 사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)
 - [Full 및 증분 백업 운영](#full-및-증분-백업-운영)
 - [작업 상태와 제어](#작업-상태와-제어)
@@ -1424,7 +1425,7 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
    첫 백업은 Mold `FULL`이다. ROOT·DATA 내용을 변경한 뒤 다음 회차를 실행하여 조건을 충족하면 `INCREMENTAL`인지 확인한다.
    준비된 변경분 파일도 Veeam에는 독립 Full로 전송한다. Veeam 전송 타입만으로 Mold 증분 여부를 판단하지 않는다.
 8. Mold UI에서 VM을 정지하고 첫 Full과 후속 증분을 각각 복원한다. 시작 후 ROOT·DATA의 검증 파일이 해당 시점과 맞는지 확인한다.
-   이어 Veeam UI의 `Backups`에서 `ABLESTACK-<백업 UUID>-metadata`와 정확한 Restore Point를 골라
+   이어 Veeam UI의 `Backups`에서 해당 백업의 `ABLESTACK-M-<32자리 식별자>`와 정확한 Restore Point를 골라
    `resolveBackupArtifact`의 `metadatarestorepath`에 복원하고 감시기가 Mold VM 복원을 요청하는지 확인한다.
    기준 bootstrap이나 개별 볼륨 파일만 복원하지 않는다. 최종 VM 복원 성공은 Mold에서 확인한다.
 9. 마지막으로 테스트 백업을 Mold에서 삭제하여 정확한 외부 보관본이 정리되는지 확인한다.
@@ -1434,6 +1435,23 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
 Full/증분, Job 정리 전후와 보관본 존재 여부, Mold UI·Veeam UI 복원 결과를 함께 기록한다.
 Host 로그는 `/var/log/mold/veeam-hook.log`와 `/var/lib/ablestack/backup/jobs/<백업 UUID>/job.log`,
 외부 UI 복원은 `journalctl -u mold-veeam-restore-agent.service`와 `/var/lib/ablestack/veeam/events/restore.log`에서 확인한다.
+
+#### Veeam Job 이름과 길이 제한
+
+Veeam Linux Agent 하위 Job 이름은 최대 50자다. 새 볼륨 Job은 `ABLESTACK-V-<32자리 식별자>`,
+메타데이터 Job은 `ABLESTACK-M-<32자리 식별자>`로 모두 43자를 사용한다.
+백업 UUID와 볼륨 경로 전체로 고정 식별자를 계산하며, 원본 백업 UUID는 Job 설명의 `Mold logical backup <UUID>`에 유지한다.
+메타데이터는 백업 UUID와 메타데이터 구분자로 식별한다.
+생성·재조회·삭제·임시 Job 정리에 같은 규칙을 사용하며, 이전의 긴 이름은 기존 작업 조회에만 사용한다.
+기존 Job을 찾았을 때는 새 이름으로 중복 생성하지 않는다.
+새 이름으로 만든 백업은 이름에 원본 UUID가 그대로 포함되지 않으므로 설명과 정확한 Session·Restore Point ID로 대조한다.
+
+관리 서버의 SSH 명령은 전체 인코딩 길이 6000자 이내로 보내며, 긴 스크립트는 나누어 전송한 뒤 검증하여 한 번 실행한다.
+Host Hook도 실제 인코딩 길이에 따라 파일로 전송하며, 파일 전송 실패 후 긴 명령을 그대로 다시 보내지 않는다.
+사전구성의 `--job-name`은 50자를 초과하면 설정을 변경하기 전에 거절한다. 기존 부모 Job 이름을 임의로 바꾸지는 않는다.
+반영 대상은 모든 관리 서버의 Veeam 플러그인과 Veeam 연동 Host의 `veeam/mold-backup.lib.sh`, `veeam-host-config.py`다.
+Host의 실제 실행 파일은 `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/mold-backup.lib.sh`다.
+Veeam Client 재설치는 필요하지 않다.
 
 ## NetBackup·Veeam 사전 구성 파라미터 비교
 
@@ -2196,7 +2214,8 @@ Commvault는 Mold UI에서 복원을 시작한다.
 
 1. Mold에서 대상 VM을 **Stopped**로 둔다.
 2. 원하는 Mold 백업 시점에 연결된 메타데이터 작업을 확인한다.
-   Veeam과 기존 NetBackup 이미지별 정책 방식은 **`ABLESTACK-<Mold 백업 UUID>-metadata`**를 확인한다.
+   Veeam은 **`ABLESTACK-M-<32자리 식별자>`**와 해당 백업의 정확한 Restore Point를 확인한다.
+   기존 Veeam 백업과 기존 NetBackup 이미지별 정책 방식은 **`ABLESTACK-<Mold 백업 UUID>-metadata`**를 확인한다.
    새 NetBackup 방식은 **Host 정책 / `mold-transfer`**에서 해당 Mold 백업의 메타데이터 Backup ID·시점을 선택한다.
    파일 목록이 `<root>/ablestack-netbackup/<VM 내부 이름>/<백업 timestamp>`인 메타데이터 작업인지 확인하며 볼륨 파일 Job은 선택하지 않는다.
 3. NetBackup/Veeam UI에서 해당 작업의 복원 시점을 선택한다.
@@ -2790,7 +2809,8 @@ Veeam의 Active Full/Start 선택만으로 Mold의 Full/증분을 결정하지 �
 Veeam UI 복원은 다음 순서로 진행한다.
 
 1. Mold에서 원본 VM을 정지한다.
-2. `Backups`에서 원하는 `ABLESTACK-<백업 UUID>-metadata` 백업과 Restore Point를 선택한다.
+2. `Backups`에서 원하는 `ABLESTACK-M-<32자리 식별자>` 메타데이터 백업과 정확한 Restore Point를 선택한다.
+   이전 이름인 `ABLESTACK-<백업 UUID>-metadata`도 기존 백업 조회에서 지원한다.
    임시 Job 설정이 정리된 경우에도 보관 백업은 남으며 `Orphaned`에 표시될 수 있다.
 3. metadata 파일을 현재 스테이징 수신 경로(`resolveBackupArtifact`의 `metadatarestorepath`)에 복원한다.
    원본과 현재 root가 같으면 기존 경로와 동일하다. 부모 Host Job의 bootstrap이나 개별 볼륨 Job만 복원한 것은 VM 복원 요청으로 처리하지 않는다.

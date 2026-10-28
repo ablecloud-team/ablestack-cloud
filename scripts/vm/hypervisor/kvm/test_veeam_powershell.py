@@ -56,7 +56,7 @@ else:
 
 
 class VeeamPowerShellTest(unittest.TestCase):
-    def run_hook(self, missing=0, fail=False, large=False, query=False):
+    def run_hook(self, missing=0, fail=False, large=False, query=False, upload_failure=False, payload=None):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
             transport = root / "transport.py"
@@ -68,19 +68,20 @@ VEEAM_SSH_HOST=vbr-test
 mold_backup_notify_log() { printf '%s\n' "$*" >&2; }
 base64() { python3 -c 'import base64,sys; sys.stdout.write(base64.b64encode(sys.stdin.buffer.read()).decode())'; }
 mold_backup_veeam_ssh_cmd() { python3 "$TEST_TRANSPORT" "$1"; }
-mold_backup_veeam_scp() { cp "$1" "$TEST_ROOT/copied.ps1"; }
+mold_backup_veeam_scp() { [[ "$TEST_UPLOAD_FAILURE" == false ]] || return 1; cp "$1" "$TEST_ROOT/copied.ps1"; }
 if [[ "$TEST_QUERY" == true ]]; then
   mold_backup_query_veeam_backups
 else
   mold_backup_veeam_ssh_ps_capture "$TEST_SCRIPT"
 fi
 '''
-            payload = "Start-VBRComputerBackupJob -Job $job -RunAsync"
+            payload = payload or "Start-VBRComputerBackupJob -Job $job -RunAsync"
             if large:
                 payload += "\n# " + "padding" * 500
             env = dict(os.environ, TEST_ROOT=str(root), TEST_LIBRARY=str(ROOT / "veeam/mold-backup.lib.sh"),
                        TEST_TRANSPORT=str(transport), TEST_MISSING=str(missing), TEST_FAIL=str(fail).lower(),
-                       TEST_QUERY=str(query).lower(), TEST_SCRIPT=payload)
+                       TEST_QUERY=str(query).lower(), TEST_SCRIPT=payload,
+                       TEST_UPLOAD_FAILURE=str(upload_failure).lower())
             result = subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True, timeout=20)
             calls = [json.loads(line) for line in (root / "calls").read_text().splitlines()] if (root / "calls").exists() else []
             return result, calls
@@ -133,6 +134,20 @@ fi
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual(1, sum("Get-VBRComputerBackupJobSession" in call["script"] for call in calls))
         self.assertTrue(next(call for call in calls if "Get-VBRComputerBackupJobSession" in call["script"])["command"].startswith("pwsh.exe "))
+
+    def test_encoded_length_accounts_for_supplementary_unicode_characters(self):
+        result, calls = self.run_hook(payload="Write-Output '" + "😀" * 1100 + "'")
+        self.assertEqual(0, result.returncode, result.stderr)
+        action = next(call for call in calls if "Write-Output '😀" in call["script"])
+        self.assertIn(" -File ", action["command"])
+        self.assertTrue(all(len(call["command"]) <= 6000 for call in calls))
+
+    def test_upload_failure_never_falls_back_to_an_oversized_command(self):
+        result, calls = self.run_hook(large=True, upload_failure=True)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("oversized command was not executed", result.stderr)
+        self.assertFalse(any("Start-VBRComputerBackupJob" in call["script"] for call in calls))
+        self.assertTrue(all(len(call["command"]) <= 6000 for call in calls))
 
 
 if __name__ == "__main__":

@@ -1767,8 +1767,11 @@ mold_backup_veeam_ssh_ps_capture() {
   [[ -n "$ps_script" ]] || return 1
   ps_launcher="$(mold_backup_veeam_select_powershell7)" || return 1
   ps_script="$(mold_backup_veeam_ps7_script "$ps_script")"
-  # Prefer file transfer when EncodedCommand would exceed ~6k (Windows CreateProcess limit).
-  if (( ${#ps_script} > 2500 )); then
+  ps_enc="$(printf '%s' "$ps_script" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 -w0 2>/dev/null)"
+  [[ -n "$ps_enc" ]] || return 1
+  local command="${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${ps_enc}"
+  # Measure the encoded command, including its launcher, against a safe cmd.exe limit.
+  if (( ${#command} > 6000 )); then
     local_tmp="$(mktemp /tmp/mold-veeam-ps.XXXXXX.ps1)"
     printf '%s\n' "$ps_script" >"$local_tmp"
     remote_name="mold-veeam-$(date +%s)-$$.ps1"
@@ -1782,9 +1785,9 @@ mold_backup_veeam_ssh_ps_capture() {
       return $rc
     fi
     rm -f "$local_tmp"
+    mold_backup_notify_log warn "Veeam PowerShell script upload failed; the oversized command was not executed"
+    return 1
   fi
-  ps_enc="$(printf '%s' "$ps_script" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 -w0 2>/dev/null)"
-  [[ -n "$ps_enc" ]] || return 1
   mold_backup_veeam_ssh_encoded "$ps_enc" "$ps_launcher"
 }
 
@@ -2760,7 +2763,12 @@ mold_backup_veeam_ssh_encoded() {
   if [[ -z "$ps_launcher" ]]; then
     ps_launcher="$(mold_backup_veeam_select_powershell7)" || return 1
   fi
-  out="$(mold_backup_veeam_ssh_cmd "${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${ps_enc}" 2>&1)" && rc=0 || rc=$?
+  local command="${ps_launcher} -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${ps_enc}"
+  if (( ${#command} > 6000 )); then
+    mold_backup_notify_log warn "Veeam PowerShell encoded command exceeds 6000 characters; use script file transfer"
+    return 1
+  fi
+  out="$(mold_backup_veeam_ssh_cmd "$command" 2>&1)" && rc=0 || rc=$?
   if [[ $rc -eq 0 ]]; then
     printf '%s' "$out"
     return 0
@@ -2947,7 +2955,7 @@ mold_backup_pre_notify() {
   job="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
   VEEAM_JOB_NAME="$job"
   # Per-artifact jobs are owned by Mold and must not recursively create VM backups.
-  [[ ! "$job" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]] || return 0
+  [[ ! "$job" =~ ^ABLESTACK-([VM]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ ]] || return 0
   [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == ablestack-veeam && "${BACKUP_MODE:-host}" =~ ^(host|policy)$ ]] || {
     mold_backup_notify_log err "Veeam hooks require the ablestack-veeam host volume staging configuration"
     return 1
@@ -3002,7 +3010,7 @@ mold_backup_post_notify() {
   VEEAM_JOB_NAME="$job"
   mold_backup_load_config || return 1
   job="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
-  [[ ! "$job" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]] || return 0
+  [[ ! "$job" =~ ^ABLESTACK-([VM]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ ]] || return 0
   export MOLD_BACKUP_HOOK=post-notify
   state_file="$(mold_backup_latest_state_file "$job" || true)"
   if [[ -f "$state_file" ]]; then

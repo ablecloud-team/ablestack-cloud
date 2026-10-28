@@ -108,7 +108,8 @@ public class AblestackVeeamJobRetirementTest {
     @Test public void metadataRetiresItsOwnConfigurationWithoutRemovingTheHostJob() {
         Client client = new Client();
         client.retireVolumeArtifactJob(artifact(), true);
-        assertTrue(client.script.contains("$name='ABLESTACK-" + BACKUP + "-metadata'"));
+        assertTrue(client.script.contains("$names=@('ABLESTACK-M-"));
+        assertTrue(client.script.contains("'ABLESTACK-" + BACKUP + "-metadata'"));
         assertFalse(client.script.contains("Copy-VBRComputerBackupJob"));
         assertFalse(client.script.contains("Start-VBRComputerBackupJob"));
     }

@@ -120,6 +120,8 @@ def parse_args(argv=None):
         parser.error("--vm-include/--vm-exclude require --vm-schedule-backup false")
     if any(c in args.job_name for c in "\r\n\0"):
         parser.error("--job-name cannot contain control characters")
+    if len(args.job_name.encode("utf-16-le")) // 2 > 50:
+        parser.error("--job-name must not exceed 50 characters for a Veeam Linux Agent Job")
     if not args.job_name.strip() or safe_name(args.job_name) in (".", "..", "mold-backup"):
         parser.error("--job-name must identify a Job and cannot be a reserved configuration name")
     if args.script_timeout < 1:

@@ -84,6 +84,16 @@ class FakeApi(config.MoldApi):
 
 
 class VeeamHostConfigTest(unittest.TestCase):
+    def test_agent_job_names_are_validated_before_any_configuration_changes(self):
+        for name in ("a" * 51, "😀" * 26):
+            with self.subTest(name=name), contextlib.redirect_stderr(io.StringIO()) as output:
+                with self.assertRaises(SystemExit):
+                    config.parse_args(["--install-only", "--job-name", name])
+                self.assertIn("must not exceed 50 characters", output.getvalue())
+        for name in ("a" * 50, "😀" * 25):
+            with self.subTest(name=name):
+                self.assertEqual(name, config.parse_args(["--install-only", "--job-name", name]).job_name)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

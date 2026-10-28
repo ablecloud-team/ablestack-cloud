@@ -219,6 +219,15 @@ public class VeeamPowerShellScriptTransportTest {
 
     @Test
     public void reportedRootArtifactCreatesConfiguresAndStartsOneChildJob() throws Exception {
+        assertArtifactCreatesOneChildJob(false);
+    }
+
+    @Test
+    public void metadataArtifactCreatesConfiguresAndStartsOneChildJob() throws Exception {
+        assertArtifactCreatesOneChildJob(true);
+    }
+
+    private void assertArtifactCreatesOneChildJob(boolean metadata) throws Exception {
         LocalTransport transport = new LocalTransport();
         transport.setup = "function Get-VBRComputerBackupJob { [CmdletBinding()] param($Name); "
                 + "if ($Name -eq 'veeam-ablecube1') { [pscustomobject]@{Id='parent'} } else { $script:child } }\n"
@@ -227,6 +236,7 @@ public class VeeamPowerShellScriptTransportTest {
                 + "function New-VBRSelectedFilesBackupOptions { param($OSPlatform,[switch]$BackupSelectedFiles,$SelectedFiles,$IncludeMask); @{} }\n"
                 + "function New-VBRJobScriptOptions { @{} }\n"
                 + "function Copy-VBRComputerBackupJob { param($Job,$Name,$Description); " + transport.effect("COPY")
+                + "if ($Name.Length -gt 50) { throw 'Job name is too long. Maximum allowed length is 50 symbols.' }; "
                 + "$script:child=[pscustomobject]@{Id='child';Name=$Name} }\n"
                 + "function Set-VBRComputerBackupJob { param($Job,$BackupObject,$BackupType,$SelectedFilesOptions,$ScriptOptions,"
                 + "[switch]$EnableSchedule,[switch]$UseSnapshotlessFileLevelBackup); " + transport.effect("SET") + "}\n"
@@ -243,11 +253,33 @@ public class VeeamPowerShellScriptTransportTest {
         artifact.backupUuid = "cbdd161d-2f89-4888-9691-6ef5ca2cd86b";
         artifact.path = "/mnt/backup-staging/ablestack-veeam/i-2-319-VM/2026.10.28.10.17.44.609/"
                 + "root.98e97366-3548-4f6e-a03f-8482776f1987.raw";
-        ThirdPartyBackupManifest.Artifact accepted = client.backupVolumeArtifact("veeam-ablecube1", "192.168.1.21", artifact, false);
+        if (metadata) { artifact.path = Path.of(artifact.path).getParent().toString(); }
+        ThirdPartyBackupManifest.Artifact accepted = client.backupVolumeArtifact("veeam-ablecube1", "192.168.1.21", artifact, metadata);
         assertEquals(SESSION, accepted.jobId);
         assertFalse(accepted.completed);
         assertEquals(List.of("COPY", "SET", "START"), Files.readAllLines(transport.effects));
         assertEquals(1, transport.invocations);
+        transport.assertClean();
+    }
+
+    @Test
+    public void legacyJobIsRecoveredWithoutCloningAnotherJob() throws Exception {
+        LocalTransport transport = new LocalTransport();
+        transport.setup = "function Get-VBRComputerBackupJob { [CmdletBinding()] param(); "
+                + "[pscustomobject]@{Id='legacy';Name=$names[1]} }\n"
+                + "function Get-VBRComputerBackupJobSession { [CmdletBinding()] param(); "
+                + "[pscustomobject]@{Id='" + SESSION + "';JobId='legacy';State='Working'} }\n";
+        AblestackVeeamSshClient client = new AblestackVeeamSshClient("test", "test", "test") {
+            @Override protected Pair<Boolean, String> executePowerShellCommands(List<String> commands) {
+                try { return VeeamPowerShell.execute(commands, transport); }
+                catch (Exception e) { throw new IllegalStateException(e); }
+            }
+        };
+        ThirdPartyBackupManifest.Artifact artifact = new ThirdPartyBackupManifest.Artifact();
+        artifact.backupUuid = "79052427-e010-4dda-b30d-0565456ed4b2";
+        artifact.path = "/mnt/staging/long-vm-name/root.raw";
+        assertEquals(SESSION, client.recoverVolumeArtifact(artifact, false).jobId);
+        assertFalse(Files.exists(transport.effects));
         transport.assertClean();
     }
 }

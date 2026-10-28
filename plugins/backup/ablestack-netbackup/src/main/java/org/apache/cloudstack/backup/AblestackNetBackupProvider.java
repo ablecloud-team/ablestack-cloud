@@ -86,6 +86,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2281,12 +2282,60 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         return getClient(zoneId).getCatalogBackupTime(backupId);
     }
 
+    private List<Backup> orderBackupsForSync(final List<Backup> backups) {
+        final Map<String, Backup> remaining = new LinkedHashMap<>();
+        final Map<String, Set<String>> ancestors = new HashMap<>();
+        final Map<String, Set<String>> dependents = new HashMap<>();
+        for (final Backup backup : backups) {
+            remaining.put(backup.getUuid(), backup);
+        }
+        for (final Backup backup : backups) {
+            loadBackupDetailsIfNeeded(backup);
+            if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(getBackupDetail(backup, ThirdPartyBackupManifest.MODE_KEY))
+                    || !isNetBackupBackup(backup)) { continue; }
+            try {
+                final ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(
+                        getBackupDetail(backup, ThirdPartyBackupManifest.DETAIL_KEY));
+                for (final ThirdPartyBackupManifest.Artifact artifact : manifest.getRequiredArtifacts()) {
+                    if (backup.getUuid().equals(artifact.backupUuid) || !remaining.containsKey(artifact.backupUuid)) { continue; }
+                    ancestors.computeIfAbsent(backup.getUuid(), key -> new LinkedHashSet<>()).add(artifact.backupUuid);
+                    dependents.computeIfAbsent(artifact.backupUuid, key -> new HashSet<>()).add(backup.getUuid());
+                }
+            } catch (RuntimeException e) {
+                // Leave malformed recovery points to the existing reconciliation and deletion guards.
+                LOG.warn("Unable to determine NetBackup sync dependencies for backup [{}]: {}", backup.getUuid(), e.getMessage());
+            }
+        }
+
+        // Reconcile dependents before their ancestors so a fully expired chain can be
+        // removed in one sync, regardless of DB order or equal/skewed backup timestamps.
+        final ArrayDeque<Backup> ready = new ArrayDeque<>();
+        for (final Backup backup : backups) {
+            if (!dependents.containsKey(backup.getUuid())) { ready.addLast(backup); }
+        }
+        final List<Backup> ordered = new ArrayList<>();
+        while (!ready.isEmpty()) {
+            final Backup backup = ready.removeFirst();
+            remaining.remove(backup.getUuid());
+            ordered.add(backup);
+            for (final String ancestor : ancestors.getOrDefault(backup.getUuid(), Collections.emptySet())) {
+                final Set<String> waiting = dependents.get(ancestor);
+                waiting.remove(backup.getUuid());
+                if (waiting.isEmpty()) { ready.addLast(remaining.get(ancestor)); }
+            }
+        }
+        // Cyclic references cannot be safely deleted; retain normal reconciliation
+        // attempts and let validateDeletion report their unresolved dependencies.
+        ordered.addAll(remaining.values());
+        return ordered;
+    }
+
     @Override
     public void syncBackups(final VirtualMachine vm) {
         AblestackNetBackupClient client = null;
         final Map<String, Boolean> volumeAvailability = new HashMap<>();
         final Set<Long> removedBackupIds = new HashSet<>();
-        for (final Backup backup : backupDao.listByVmId(vm.getDataCenterId(), vm.getId())) {
+        for (final Backup backup : orderBackupsForSync(backupDao.listByVmId(vm.getDataCenterId(), vm.getId()))) {
             if (removedBackupIds.contains(backup.getId())) {
                 continue;
             }

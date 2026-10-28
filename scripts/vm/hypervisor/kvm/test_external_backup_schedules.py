@@ -44,6 +44,26 @@ def response(mode, candidates):
 
 
 class ExternalBackupSelectionTest(unittest.TestCase):
+    def test_veeam_short_and_legacy_child_hooks_never_dispatch_vm_backups(self):
+        script = r'''
+set -euo pipefail
+source "$TEST_LIBRARY"
+mold_backup_load_config() { :; }
+mold_backup_normalize_job_name() { printf '%s' "$1"; }
+mold_backup_api_external_candidates() { echo UNEXPECTED_API_CALL >&2; return 1; }
+mold_backup_latest_state_file() { echo UNEXPECTED_STATE_ACCESS >&2; return 1; }
+mold_backup_pre_notify host-test "$TEST_JOB" default
+mold_backup_post_notify host-test "$TEST_JOB" default
+'''
+        for name in ("ABLESTACK-V-" + "a" * 32, "ABLESTACK-M-" + "b" * 32,
+                     "ABLESTACK-11111111-1111-4111-8111-111111111111-metadata",
+                     "ABLESTACK-11111111-1111-4111-8111-111111111111-22222222-2222-4222-8222-222222222222"):
+            with self.subTest(name=name):
+                env = dict(os.environ, TEST_LIBRARY=str(ROOT / "veeam/mold-backup.lib.sh"), TEST_JOB=name)
+                result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env, timeout=10)
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertNotIn("UNEXPECTED", result.stderr)
+
     def run_selection(self, provider, payload, include="*", exclude="", api_failure=False, vm_schedules=""):
         if provider == "netbackup":
             script = r'''
