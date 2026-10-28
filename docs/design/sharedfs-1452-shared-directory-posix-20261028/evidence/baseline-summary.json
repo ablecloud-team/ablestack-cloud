@@ -1,0 +1,178 @@
+{
+  "sourceCommit": "58c1f505c6a463a795bd18ca9c95883c5a265fbb",
+  "instanceUuid": "2ef338ec-b260-4250-8b45-ae61a2e4bfa7",
+  "vmUuid": "13246a3e-76c3-3ed1-b869-dd39695a85aa",
+  "volumeUuid": "78396639-cab6-46a8-9999-89f991abbd01",
+  "allocation": "SPARSE",
+  "filesystem": {
+    "filesystems": [
+      {
+        "source": "/dev/sdb",
+        "target": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+        "fstype": "xfs",
+        "uuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5"
+      }
+    ]
+  },
+  "manifest": {
+    "buildCommit": "4e6b7d88289a55d6933293ebb58ffe4bfc969f7f",
+    "buildTime": "2026-10-28",
+    "bundleVersion": "epic1438-1451-idmap-4e6b7d88289-r4",
+    "desiredStateSchemaVersion": "1",
+    "files": [
+      {
+        "bytes": 4563,
+        "group": "root",
+        "mode": "0755",
+        "owner": "root",
+        "path": "ablestack-storage-boot-reconcile",
+        "sha256": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277"
+      },
+      {
+        "bytes": 6329,
+        "group": "root",
+        "mode": "0755",
+        "owner": "root",
+        "path": "ablestack-storage-monitor",
+        "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+      },
+      {
+        "bytes": 285875,
+        "group": "root",
+        "mode": "0755",
+        "owner": "root",
+        "path": "ablestack-storagectl",
+        "sha256": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61"
+      },
+      {
+        "bytes": 9443,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/configuration_preflight.py",
+        "sha256": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06"
+      },
+      {
+        "bytes": 96451,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/configuration_transaction.py",
+        "sha256": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f"
+      },
+      {
+        "bytes": 5353,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/nvmeof_identity.py",
+        "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      {
+        "bytes": 1142,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/session_auth.py",
+        "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59"
+      },
+      {
+        "bytes": 6812,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/volume_identity.py",
+        "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+      },
+      {
+        "bytes": 24129,
+        "group": "root",
+        "mode": "0644",
+        "owner": "root",
+        "path": "lib/ablestack-storage/volume_preparation.py",
+        "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+      }
+    ],
+    "keyId": "ablestack-runtime-cluster13",
+    "manifestFormat": 2,
+    "payloadLayout": 2,
+    "runtimeAbiVersion": "1",
+    "serviceImpact": "NONE"
+  },
+  "installedHashes": {
+    "ablestack-storage-boot-reconcile": {
+      "actual": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+      "expected": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277"
+    },
+    "ablestack-storage-monitor": {
+      "actual": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+      "expected": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+    },
+    "ablestack-storagectl": {
+      "actual": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61",
+      "expected": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61"
+    },
+    "lib/ablestack-storage/configuration_preflight.py": {
+      "actual": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06",
+      "expected": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06"
+    },
+    "lib/ablestack-storage/configuration_transaction.py": {
+      "actual": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f",
+      "expected": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f"
+    },
+    "lib/ablestack-storage/nvmeof_identity.py": {
+      "actual": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+      "expected": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+    },
+    "lib/ablestack-storage/session_auth.py": {
+      "actual": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+      "expected": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59"
+    },
+    "lib/ablestack-storage/volume_identity.py": {
+      "actual": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "expected": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+    },
+    "lib/ablestack-storage/volume_preparation.py": {
+      "actual": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+      "expected": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+    }
+  },
+  "fileCount": 61,
+  "root": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o777"
+  },
+  "beforeAfterChecks": {
+    "manifest": true,
+    "hashes": true,
+    "mount": true,
+    "data": true,
+    "activeConfigs": true,
+    "ganeshaPids": true,
+    "tools": true,
+    "sambaVersion": true
+  },
+  "activeConfigs": {
+    "/etc/ganesha/ablestack-storage/0.0.0.0_2050.conf": "ec062c4b4f00f5cbe4647ebff6160deb122e791aeb96f84be7465574dd3b7f18",
+    "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf": "91bdca3e23ac40fd8bca4d1ad7de5679b9862afb2e098860afc5f7987e502458",
+    "/etc/samba/smb.conf": "6e3a6c21429f8db5dcb2be6d7c069bc67bb5e8d0e21c435cce200e048e868de1",
+    "/etc/fstab": "d7fecbf4eedda222f504b869390c0bebb2e4c3d3b63b027aca7f516e3c64c56e"
+  },
+  "ganeshaPids": {
+    "0.0.0.0_2050.pid": "1482",
+    "0.0.0.0_2049.pid": "1453"
+  },
+  "managementJarSha256": "07c64a803b1702ebd22b652bcea2468351e38a89f81eff36e8ba47600972e9a4",
+  "uiIndexSha256": "9e0b33bcaa9858142d31d4ee199d8b1f82ff3be71338c65dbaeb448b655e88a3",
+  "capabilityVersionFields": {
+    "configurationTransactionVersion": 1,
+    "configurationPreflightVersion": 1,
+    "configurationObservationVersion": 1,
+    "smbListenerProfilesVersion": 1,
+    "nfsPosixIntentVersion": 1,
+    "nfsDeferredPosixVersion": 1,
+    "nfsIdentityMappingVersion": 1
+  },
+  "note": "Read-only live capability observations may change timestamps; installed payload/config/files/PIDs were compared exactly."
+}

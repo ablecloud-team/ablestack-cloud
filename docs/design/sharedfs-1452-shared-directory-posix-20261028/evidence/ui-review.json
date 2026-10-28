@@ -1,0 +1,141 @@
+{
+  "mockupOnly": true,
+  "framework": "Vue3 + installed AntD + Mold Breadcrumb/ResourceLayout/MoldDialog/MoldDialogActions",
+  "checks": {
+    "unchangedDraftPreflightDisabled": true,
+    "previewAckBeforeApply": true,
+    "maskConflictAckAndApplyDisabled": true,
+    "protocolPosixReferenceOnly": true,
+    "detailsInformationOnly": true,
+    "toolbarPrimaryFirstAndWidenLastInLeftGroup": true,
+    "bodyOnlyScrollWithFixedHeaderFooter": true
+  },
+  "buildHash": "59b8413e78610b567197",
+  "productMutations": 0,
+  "modalGeometry": {
+    "before": [
+      {
+        "bottom": 88,
+        "height": 55,
+        "overflow": "visible",
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "selector": ".ant-modal-header",
+        "top": 33
+      },
+      {
+        "bottom": 622,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 878,
+        "scrollTop": 0,
+        "selector": ".ant-modal-body",
+        "top": 88
+      },
+      {
+        "bottom": 687,
+        "height": 65,
+        "overflow": "visible",
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "selector": ".ant-modal-footer",
+        "top": 622
+      }
+    ],
+    "after": [
+      {
+        "bottom": 88,
+        "height": 55,
+        "overflow": "visible",
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "selector": ".ant-modal-header",
+        "top": 33
+      },
+      {
+        "bottom": 622,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 878,
+        "scrollTop": 344,
+        "selector": ".ant-modal-body",
+        "top": 88
+      },
+      {
+        "bottom": 687,
+        "height": 65,
+        "overflow": "visible",
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "selector": ".ant-modal-footer",
+        "top": 622
+      }
+    ]
+  },
+  "darkContrast": [
+    {
+      "background": [
+        34,
+        40,
+        47,
+        1
+      ],
+      "foreground": [
+        197,
+        204,
+        212,
+        1
+      ],
+      "ratio": 9.18,
+      "selector": ".secondary"
+    },
+    {
+      "background": [
+        9,
+        109,
+        217,
+        1
+      ],
+      "foreground": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 5,
+      "selector": ".ant-btn-primary"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47,
+        1
+      ],
+      "foreground": [
+        105,
+        177,
+        255,
+        1
+      ],
+      "ratio": 6.61,
+      "selector": ".ant-table-tbody a"
+    },
+    {
+      "background": [
+        23,
+        43,
+        61,
+        1
+      ],
+      "foreground": [
+        214,
+        235,
+        255,
+        1
+      ],
+      "ratio": 11.86,
+      "selector": ".ant-alert-message"
+    }
+  ]
+}
