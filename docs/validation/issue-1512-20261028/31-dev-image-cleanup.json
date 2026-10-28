@@ -1,0 +1,561 @@
+{
+  "date": "2026-10-28",
+  "authorization": "user requested removal of unused development test templates and ISOs",
+  "selection": "clear development names; no active VM/volume/attached ISO or Kubernetes cluster reference; API reference guard retained",
+  "deletedKubernetesVersions": 51,
+  "deletedIsos": 67,
+  "deletedTemplates": 1,
+  "allApiDeletesSucceeded": true,
+  "physicalVerification": {
+    "remainingArtifacts": [],
+    "availableBytes": 85588041728
+  },
+  "deleted": [
+    {
+      "kind": "version",
+      "id": "f62ac063-1b9d-43ea-af7a-7c6354c56f27",
+      "name": "1.34.2-Mold-1228-r1-f6b6cd62",
+      "isoId": "2dc1db29-9741-4ee4-bcc5-0427d8421954",
+      "isoName": "1.34.2-Mold-1228-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/302/302-1-cafab67e-f262-3f96-a3ea-f29290125288.iso"
+    },
+    {
+      "kind": "version",
+      "id": "b7cdc646-7f75-4d54-83f4-34008439434c",
+      "name": "1.34.9-Mold-1228-r1-f6b6cd62",
+      "isoId": "48c7f40b-a037-4fcf-bdbf-d99be7fa3d4a",
+      "isoName": "1.34.9-Mold-1228-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/303/303-1-5ece1f1a-3f7c-3de6-ae03-6d69e505fb95.iso"
+    },
+    {
+      "kind": "version",
+      "id": "5aed7e49-faba-4c1f-ac7b-d4fa38b237e0",
+      "name": "1.34.12-Mold-1228-r1-f6b6cd62",
+      "isoId": "8ce0ecf3-5fa4-4998-8efe-813ddc025fdd",
+      "isoName": "1.34.12-Mold-1228-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/304/304-1-cc1b6e53-4bc2-3e71-82bd-0b5f6194145f.iso"
+    },
+    {
+      "kind": "version",
+      "id": "902e0c83-e34f-43d8-929d-1873225fb70e",
+      "name": "1.35.9-Mold-1228-r1-f6b6cd62",
+      "isoId": "4f432f0f-25e5-4127-b4a4-9864af908928",
+      "isoName": "1.35.9-Mold-1228-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/305/305-1-a48e8952-5510-3f4f-b314-873dd78560e8.iso"
+    },
+    {
+      "kind": "version",
+      "id": "f72ebfca-8868-47be-8090-4a3521b69d72",
+      "name": "1.36.5-Mold-1228-r1-f6b6cd62",
+      "isoId": "4b6580f0-749b-43c3-a05a-c01ffd1b4a21",
+      "isoName": "1.36.5-Mold-1228-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/306/306-1-ebfd00a1-8c37-3cdc-a6a2-ac86cd6af208.iso"
+    },
+    {
+      "kind": "version",
+      "id": "2415d0c6-66aa-4d95-bed9-67de0dbf2310",
+      "name": "1.37.1-Mold-1228-DEV-r1-f6b6cd62",
+      "isoId": "d73cffab-2d04-4425-9ffd-cfb42a531c6d",
+      "isoName": "1.37.1-Mold-1228-DEV-r1-f6b6cd62-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/307/307-1-9f46a389-45f5-300d-b362-85bbb3565f6d.iso"
+    },
+    {
+      "kind": "version",
+      "id": "52f85f93-ea39-4eb8-86ac-f1c61ee54bf4",
+      "name": "1.34.12-Mold-1244-r1-3e41a1b3",
+      "isoId": "53952638-4735-4c71-ae3a-4681430e6a4a",
+      "isoName": "1.34.12-Mold-1244-r1-3e41a1b3-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/308/308-1-0f6e8070-2db3-3c5c-a4de-1b70221658a1.iso"
+    },
+    {
+      "kind": "version",
+      "id": "eca07ac1-1992-4c59-a4bc-304f39b56bb6",
+      "name": "1.34.2-Mold-1244-r1-3e41a1b3",
+      "isoId": "b46a2f93-c5a7-40c8-b8c0-c0433d843b0c",
+      "isoName": "1.34.2-Mold-1244-r1-3e41a1b3-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/309/309-1-0b54c278-af6f-35bd-916b-f188aefe777b.iso"
+    },
+    {
+      "kind": "version",
+      "id": "754ddceb-f1d9-4e51-a3ed-41fded9ab938",
+      "name": "1.34.9-Mold-1244-r1-3e41a1b3",
+      "isoId": "6161bc64-c8c5-4999-a1a3-483881e8ec62",
+      "isoName": "1.34.9-Mold-1244-r1-3e41a1b3-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/310/310-1-73ac2fcf-a96e-3e28-ad29-daf7df1407e3.iso"
+    },
+    {
+      "kind": "version",
+      "id": "bf252497-7bab-4b90-b48b-71049fe2b69e",
+      "name": "1.35.9-Mold-1244-r1-3e41a1b3",
+      "isoId": "860e85f1-6f0a-4731-8727-4f43e87a37a6",
+      "isoName": "1.35.9-Mold-1244-r1-3e41a1b3-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/311/311-1-6262de91-a7ee-341c-9e2a-3d757de29763.iso"
+    },
+    {
+      "kind": "version",
+      "id": "85f22626-1a40-48fc-a68e-61e814071af8",
+      "name": "1.36.5-Mold-1244-r1-3e41a1b3",
+      "isoId": "bcbcc803-7cbb-4380-a08d-622eb964fb27",
+      "isoName": "1.36.5-Mold-1244-r1-3e41a1b3-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/312/312-1-aedab9e6-781c-39ad-b61c-4b274ac9fd74.iso"
+    },
+    {
+      "kind": "version",
+      "id": "d9ebfc2b-7ba9-4ae3-9885-3e4463cbeb6f",
+      "name": "1.37.1-Mold-1244-r1-3e41a1b3-DEV",
+      "isoId": "b5d0c668-eb70-493f-8e8d-52d82401a537",
+      "isoName": "1.37.1-Mold-1244-r1-3e41a1b3-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/313/313-1-76b34ce7-3147-3991-abe0-fac9674dc6d1.iso"
+    },
+    {
+      "kind": "version",
+      "id": "9aee8a6f-8358-4d97-a8e1-288a442922b2",
+      "name": "1.34.2-Mold-1245-r1-48830e74",
+      "isoId": "30f7491f-5b87-4e6e-a398-cc609a195819",
+      "isoName": "1.34.2-Mold-1245-r1-48830e74-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/314/314-1-d1fa6185-aa2f-30b3-89b4-e1925c52cb2a.iso"
+    },
+    {
+      "kind": "version",
+      "id": "57324160-8f87-42df-9a81-13ee933fad92",
+      "name": "1.34.9-Mold-1245-r1-48830e74",
+      "isoId": "c242b3e2-e7a4-4e3b-9e42-ff8b82f61ae3",
+      "isoName": "1.34.9-Mold-1245-r1-48830e74-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/315/315-1-d7f1ff8a-e9e2-3378-b03f-10661d9455f3.iso"
+    },
+    {
+      "kind": "version",
+      "id": "618cc16b-32a6-4f78-9782-fb9244aaa2a8",
+      "name": "1.34.12-Mold-1245-r1-48830e74",
+      "isoId": "bb4b88af-89d8-4e96-8c15-5f88bbcd7690",
+      "isoName": "1.34.12-Mold-1245-r1-48830e74-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/316/316-1-7c8e2abc-a14d-3110-a616-09399395c9a6.iso"
+    },
+    {
+      "kind": "version",
+      "id": "7c508507-d5ae-4be6-9379-59e60a944966",
+      "name": "1.35.9-Mold-1245-r1-48830e74",
+      "isoId": "6968e618-f02a-4cd0-ad09-f17b98dd82de",
+      "isoName": "1.35.9-Mold-1245-r1-48830e74-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/317/317-1-c524fe83-7444-3bdd-913a-86b1881f3da9.iso"
+    },
+    {
+      "kind": "version",
+      "id": "a30c2443-c75c-4c62-8094-b05bfc9994e4",
+      "name": "1.36.5-Mold-1245-r1-48830e74",
+      "isoId": "5540df4d-2a27-45db-bdfb-6bd1a353cab8",
+      "isoName": "1.36.5-Mold-1245-r1-48830e74-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/318/318-1-8e3e6be8-d872-3034-9c45-289127452f50.iso"
+    },
+    {
+      "kind": "version",
+      "id": "81a8e50f-6ea2-4aaa-b41d-671e737f0a9b",
+      "name": "1.37.1-Mold-1245-r1-48830e74-DEV",
+      "isoId": "f09a2c10-7740-49bf-9d5d-1d8937d94059",
+      "isoName": "1.37.1-Mold-1245-r1-48830e74-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/319/319-1-d77c4f8f-6dda-3142-806a-e93e24c7a6d3.iso"
+    },
+    {
+      "kind": "version",
+      "id": "ae349532-fc35-42be-8d8d-4ad34f9c5314",
+      "name": "1.35.9-Mold-1255-r1-6b757f96",
+      "isoId": "f1409f36-5850-4952-b90d-40f818904d9d",
+      "isoName": "1.35.9-Mold-1255-r1-6b757f96-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/320/320-1-c67941bd-64fe-30bc-85ba-71cbcd48ac47.iso"
+    },
+    {
+      "kind": "version",
+      "id": "c018832a-cc1d-4ad4-b5b1-5ddaefc05e35",
+      "name": "1.34.12-Mold-1255-r1-6b757f96",
+      "isoId": "748178af-a74b-4a73-b916-1e86a6afd949",
+      "isoName": "1.34.12-Mold-1255-r1-6b757f96-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/321/321-1-e419c720-81a5-3289-8535-bd77b7d5198c.iso"
+    },
+    {
+      "kind": "version",
+      "id": "c9d1a176-be0e-4f63-9596-03fbf422bd6e",
+      "name": "1.36.5-Mold-1255-r1-6b757f96",
+      "isoId": "c0e89aae-a2c0-4029-ad6a-3354b9e6ed41",
+      "isoName": "1.36.5-Mold-1255-r1-6b757f96-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/322/322-1-e884f109-98b3-3e01-9d61-f576a2ef11e7.iso"
+    },
+    {
+      "kind": "version",
+      "id": "30524bc0-c965-48c5-b557-8aa7a3b616d8",
+      "name": "1.37.1-Mold-1255-r1-6b757f96-DEV",
+      "isoId": "e3febf4a-793d-479c-ad67-adebc12d2047",
+      "isoName": "1.37.1-Mold-1255-r1-6b757f96-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/323/323-1-b104e596-64ff-370b-b1a1-ac97efdf12f1.iso"
+    },
+    {
+      "kind": "version",
+      "id": "8ad1c9c4-f2ed-4a5f-9cca-9b945d61ad17",
+      "name": "1.34.2-Mold-1255-r1-6b757f96",
+      "isoId": "4cd130fa-7ecc-4894-a25a-75bb5c791a49",
+      "isoName": "1.34.2-Mold-1255-r1-6b757f96-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/324/324-1-312d446b-3dfb-3020-a90b-ee947c5a4359.iso"
+    },
+    {
+      "kind": "version",
+      "id": "21c72113-5cc8-446e-8aeb-2a8e260783eb",
+      "name": "1.34.9-Mold-1255-r1-6b757f96",
+      "isoId": "bbffafd0-156a-49f7-8e76-2c6a1cb5ca92",
+      "isoName": "1.34.9-Mold-1255-r1-6b757f96-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/325/325-1-84b28631-1b00-3654-ba7e-f7b733fcfe45.iso"
+    },
+    {
+      "kind": "version",
+      "id": "ef34ec05-4573-49a4-9251-098e698c4698",
+      "name": "1.35.9-Mold-1258-r1-4a2c2f10",
+      "isoId": "323101ad-dc68-47da-ad5a-a2b4063f1d7b",
+      "isoName": "1.35.9-Mold-1258-r1-4a2c2f10-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/327/327-1-f9a72633-fecc-3fdf-b78f-36e7515c8fd4.iso"
+    },
+    {
+      "kind": "version",
+      "id": "3f95f819-1ca9-4757-af0a-c4f7ca00e0a7",
+      "name": "1.34.12-Mold-1258-r1-4a2c2f10",
+      "isoId": "fe6a5f0b-fb44-4560-be33-3483e5540d88",
+      "isoName": "1.34.12-Mold-1258-r1-4a2c2f10-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/328/328-1-2b3e51ae-4173-3df8-8f52-a45440d90b1a.iso"
+    },
+    {
+      "kind": "version",
+      "id": "66b16daf-7c48-47ec-8d70-be21a0911412",
+      "name": "1.36.5-Mold-1258-r1-4a2c2f10",
+      "isoId": "571e02e9-31d1-4430-b938-4966c6eb6354",
+      "isoName": "1.36.5-Mold-1258-r1-4a2c2f10-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/329/329-1-2e634c5a-76d8-3bcb-a4e3-593a846ce763.iso"
+    },
+    {
+      "kind": "version",
+      "id": "786f1b55-4fc3-4a8f-81a8-93946edba6bd",
+      "name": "1.37.1-Mold-1258-r1-4a2c2f10-DEV",
+      "isoId": "9625eb09-dcf6-49fe-b2b7-38c4e5c6c63a",
+      "isoName": "1.37.1-Mold-1258-r1-4a2c2f10-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/330/330-1-8c0ae96a-1571-3c31-a618-5dbeb352e1b4.iso"
+    },
+    {
+      "kind": "version",
+      "id": "22ea0ad7-486a-4521-95f3-e88baad433b5",
+      "name": "1.34.2-Mold-1258-r1-4a2c2f10",
+      "isoId": "c8241590-34ec-4e5a-aec4-23f7449e01e6",
+      "isoName": "1.34.2-Mold-1258-r1-4a2c2f10-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/331/331-1-c048d2f0-5a9a-3e32-a473-a71f449079ff.iso"
+    },
+    {
+      "kind": "version",
+      "id": "4afd0d74-61e6-4031-b819-5e641a9fbc42",
+      "name": "1.34.9-Mold-1258-r1-4a2c2f10",
+      "isoId": "fb7b9551-4507-42c3-b320-76df2751e339",
+      "isoName": "1.34.9-Mold-1258-r1-4a2c2f10-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/332/332-1-a7854cea-3d76-3437-9f94-0b664ec91ff2.iso"
+    },
+    {
+      "kind": "version",
+      "id": "4336320f-c4e2-4db5-b196-6b72d0525ec2",
+      "name": "1.34.2-Mold-1260-r1-b46a5885",
+      "isoId": "85dc88f4-1c46-41b5-8ff2-a6e762be42b0",
+      "isoName": "1.34.2-Mold-1260-r1-b46a5885-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/334/334-1-a97adb32-1b7a-3de6-8a2d-a197b0d15176.iso"
+    },
+    {
+      "kind": "version",
+      "id": "e3d9bce5-dec5-4a0c-8f78-2c79f3b3d7ba",
+      "name": "1.34.2-Mold-1280-r1-3f24d481",
+      "isoId": "b6d0f3d6-c5f2-49af-bac5-77a8a82d1279",
+      "isoName": "1.34.2-Mold-1280-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/339/339-1-6ced94f7-cd5c-3b76-8577-8fa66d5a07a0.iso"
+    },
+    {
+      "kind": "version",
+      "id": "1864bf46-4eab-41a0-968a-6e360e240969",
+      "name": "1.34.2-Mold-1280-csi-r1-3f24d481",
+      "isoId": "b70a319b-ecf5-4ad6-b766-fba02786758d",
+      "isoName": "1.34.2-Mold-1280-csi-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/340/340-1-47397c24-abe8-375c-8a28-f03590f37823.iso"
+    },
+    {
+      "kind": "version",
+      "id": "0d9382c0-881f-4182-82bd-ef52101fd009",
+      "name": "1.34.9-Mold-1280-r1-3f24d481",
+      "isoId": "25f12c74-9539-4d0f-a1e9-246129fb5b5e",
+      "isoName": "1.34.9-Mold-1280-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/341/341-1-6de5af3c-151d-38f2-ad6d-90050c93deeb.iso"
+    },
+    {
+      "kind": "version",
+      "id": "4b11977d-adb5-4395-8aec-a7fec78bca16",
+      "name": "1.34.9-Mold-1280-csi-r1-3f24d481",
+      "isoId": "760a9ed3-6724-4283-8039-ff55fc3071d6",
+      "isoName": "1.34.9-Mold-1280-csi-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/342/342-1-34e1b6a4-60bd-3c5f-981d-ac1d630bb246.iso"
+    },
+    {
+      "kind": "version",
+      "id": "2d543a66-452c-44a0-b65c-21886b483734",
+      "name": "1.34.12-Mold-1280-csi-r1-3f24d481",
+      "isoId": "1024d548-eaf2-403e-a330-bf21903a3e79",
+      "isoName": "1.34.12-Mold-1280-csi-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/344/344-1-dab4e383-a8b2-31cf-a52d-29743dcdd7f9.iso"
+    },
+    {
+      "kind": "version",
+      "id": "b64ec8f8-8e5b-47b0-9f99-ff80467486cb",
+      "name": "1.35.9-Mold-1280-r1-3f24d481",
+      "isoId": "b7b64a7c-4913-4edc-816f-4ad19a999cb4",
+      "isoName": "1.35.9-Mold-1280-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/345/345-1-290ebf55-d1c7-3ede-a135-0c655fca8b09.iso"
+    },
+    {
+      "kind": "version",
+      "id": "9d5332a8-c31c-400e-85fd-88f9c8e1b072",
+      "name": "1.35.9-Mold-1280-csi-r1-3f24d481",
+      "isoId": "6e467502-c147-466b-98d9-c456e677a450",
+      "isoName": "1.35.9-Mold-1280-csi-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/346/346-1-8a9113e1-f8b1-3253-8f4e-6467d1070956.iso"
+    },
+    {
+      "kind": "version",
+      "id": "80e707d8-1ea4-4a9c-94b1-accc423deb54",
+      "name": "1.36.5-Mold-1280-r1-3f24d481",
+      "isoId": "293334b8-7b8a-4600-87c7-72173d110de5",
+      "isoName": "1.36.5-Mold-1280-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/347/347-1-95483d3f-ab44-3351-9de5-15dd97fe27d4.iso"
+    },
+    {
+      "kind": "version",
+      "id": "7a53395a-f42e-4321-bcd2-fea2a1c2810e",
+      "name": "1.36.5-Mold-1280-csi-r1-3f24d481",
+      "isoId": "94fd3970-e423-446e-bf7c-5061910c1c0f",
+      "isoName": "1.36.5-Mold-1280-csi-r1-3f24d481-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/348/348-1-6a77437c-e005-34c4-9d04-3557441cab18.iso"
+    },
+    {
+      "kind": "version",
+      "id": "0e759348-b674-42b6-90fd-7675e7cc9bed",
+      "name": "1.37.1-Mold-1280-r1-3f24d481-DEV",
+      "isoId": "b494a727-19c3-48a4-8419-7050a8939a34",
+      "isoName": "1.37.1-Mold-1280-r1-3f24d481-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/349/349-1-8006fc8a-2d9e-3f03-a355-569a4bfd97a9.iso"
+    },
+    {
+      "kind": "version",
+      "id": "2f1ae3a1-346c-4a16-8561-6f43059ed6c5",
+      "name": "1.37.1-Mold-1280-csi-r1-3f24d481-DEV",
+      "isoId": "03571e1c-34e3-4867-afaf-d44f413fe25b",
+      "isoName": "1.37.1-Mold-1280-csi-r1-3f24d481-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/350/350-1-485c7c52-627e-36f0-90e7-1a2c437ba3e7.iso"
+    },
+    {
+      "kind": "version",
+      "id": "1e9b370b-44cb-4190-abb7-187f1565c434",
+      "name": "1.35.9-Mold-RT1230-F10-modern-r26-disposable",
+      "isoId": "b75e55d8-3e20-467e-b9f3-90e69924378e",
+      "isoName": "1.35.9-Mold-RT1230-F10-modern-r26-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/354/354-1-91e97b27-b743-3840-8bd7-a49f846577fa.iso"
+    },
+    {
+      "kind": "version",
+      "id": "8ef292c4-3610-464a-bfa7-0a07527690d8",
+      "name": "1.35.9-Mold-RT1230-mold-cks-45c9aef0-disposable",
+      "isoId": "ec47b423-8c52-4ebf-a444-d4ae323836fe",
+      "isoName": "1.35.9-Mold-RT1230-mold-cks-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/355/355-1-bfeb255f-d02f-3a42-8c98-5590cdd4e200.iso"
+    },
+    {
+      "kind": "version",
+      "id": "fd085b8f-1a92-4255-8c07-80608da6b0fc",
+      "name": "1.36.5-Mold-RT1230-mold-cks-45c9aef0-disposable",
+      "isoId": "40e4073b-b49d-48d9-b824-5b0d701a8620",
+      "isoName": "1.36.5-Mold-RT1230-mold-cks-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/356/356-1-602b3f04-2c90-3bcb-9dc8-e5d7cc745927.iso"
+    },
+    {
+      "kind": "version",
+      "id": "61193daa-8f3c-4634-9329-5884c6a52fa7",
+      "name": "1.37.1-Mold-RT1230-mold-cks-45c9aef0-disposable",
+      "isoId": "d2a6aace-245e-4011-b198-37967f334065",
+      "isoName": "1.37.1-Mold-RT1230-mold-cks-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/357/357-1-139e7613-4d91-3b66-8cb4-bafb6e2750c2.iso"
+    },
+    {
+      "kind": "version",
+      "id": "46efeb37-f42f-472e-887d-9560a43d8a3a",
+      "name": "1.35.9-Mold-RT1230-mold-cks-csi-45c9aef0-disposable",
+      "isoId": "010adf25-49be-477e-9be5-e57187e9738e",
+      "isoName": "1.35.9-Mold-RT1230-mold-cks-csi-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/358/358-1-f846064c-3451-3707-acde-a6dca2db874f.iso"
+    },
+    {
+      "kind": "version",
+      "id": "9afe8821-8cc9-4849-ae87-b5f9adc3fbda",
+      "name": "1.36.5-Mold-RT1230-mold-cks-csi-45c9aef0-disposable",
+      "isoId": "fbada561-2e5d-4dd8-a004-b71cdfab8577",
+      "isoName": "1.36.5-Mold-RT1230-mold-cks-csi-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/359/359-1-1fa18a00-6d3f-397f-a3fa-b9e14c565444.iso"
+    },
+    {
+      "kind": "version",
+      "id": "11aabf56-a6f7-4420-8356-25273685891d",
+      "name": "1.37.1-Mold-RT1230-DEV-mold-cks-csi-45c9aef0-disposable",
+      "isoId": "75bb3fd2-67c4-4830-ab2c-dc9b49d977c7",
+      "isoName": "1.37.1-Mold-RT1230-DEV-mold-cks-csi-45c9aef0-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/360/360-1-62db34bb-a960-361c-aa28-ae4732b69288.iso"
+    },
+    {
+      "kind": "version",
+      "id": "7e82f44d-122c-43be-84fe-06265559317f",
+      "name": "1.36.5-Mold-RT1230-CSI-31ebce52-disposable",
+      "isoId": "c2df87e9-270f-4f86-ba2d-1b57fde0d312",
+      "isoName": "1.36.5-Mold-RT1230-CSI-31ebce52-disposable-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/361/361-1-2160f6d9-b1ad-3e03-a754-a53e7515bf6b.iso"
+    },
+    {
+      "kind": "version",
+      "id": "aa556cd6-6584-42ef-ae2f-86ca66d0e36b",
+      "name": "1.37.1-Mold-RT1230-CSI-31ebce52-disposable-DEV",
+      "isoId": "81975fbb-bb10-40e9-91d7-5a13270a6615",
+      "isoName": "1.37.1-Mold-RT1230-CSI-31ebce52-disposable-DEV-Kubernetes-Binaries-ISO",
+      "installPath": "template/tmpl/1/362/362-1-9f90408b-b2d8-3093-8224-535152846b8b.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "77f985d1-1f61-4594-aa1d-be4a4c61c654",
+      "name": "ABLESTACK-Tools-Process-rocky-89806b1",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/248/248-2-3346bd83-ffb4-34a1-8dc4-b66245938479.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "76f457be-c401-44a5-b43d-778a465732de",
+      "name": "ABLESTACK-Tools-Process-ubuntu-89806b1",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/249/249-2-313e81e2-4475-322e-a79b-aae80c65537e.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "715788e2-88b4-4c29-b09e-6ceeb70f61e8",
+      "name": "ABLESTACK-Tools-Process-debian-89806b1",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/250/250-2-cc47c647-58b9-3d5e-8f59-cabe5b464bed.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "6770d9e6-34e3-43a0-997d-fd41be3a65a8",
+      "name": "ABLESTACK-Tools-Process-windows-56b6236",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/256/256-2-29ae5a28-f98c-3358-be47-51f0c51b4545.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "647dbcf6-3a1c-43eb-85ab-004da9fa2f7d",
+      "name": "ABLESTACK-Tools-Process-rocky-659489d",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/267/267-2-c03dda7d-a22b-3278-9b38-355fdfe21282.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "bbc11c92-097d-4907-bc24-8d06972f06f4",
+      "name": "ABLESTACK-Tools-Process-ubuntu-659489d",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/268/268-2-e7dd8206-2366-3d86-bec9-76e8ce04e7f1.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "925f1a50-13a2-47ab-aade-7880e696b32c",
+      "name": "ABLESTACK-Tools-Process-debian-659489d",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/269/269-2-64f1fc23-99cc-3d54-b94f-9852286ab0c4.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "7181bd75-83a1-4a03-b47d-874506bcf9e5",
+      "name": "ABLESTACK-Tools-Process-windows-659489d",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/270/270-2-cdeb42ea-d5e5-36e9-8a46-8a5dac4381f1.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "5b1a17ec-9b95-448c-b1c3-9edc386a912f",
+      "name": "ABLESTACK-Tools-Process-rocky-6dcb57e",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/271/271-2-947216e9-3c5d-35da-a319-74f8a71affef.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "48e8e7fa-a2da-4273-a8d5-5f854d974a59",
+      "name": "ABLESTACK-Tools-Process-ubuntu-6dcb57e",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/272/272-2-d3f161f9-069b-3e40-b4ef-98c699bbbc79.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "116f3de5-7693-4a73-a99b-c671897d9111",
+      "name": "ABLESTACK-Tools-Process-debian-6dcb57e",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/273/273-2-adc94f88-ff90-371b-959c-3349dafb8024.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "4184e6f9-7b1a-438a-9522-2e048ca01714",
+      "name": "ABLESTACK-Tools-Process-windows-6dcb57e",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/274/274-2-8f31aef3-3632-326d-bd9e-48760a9efe02.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "786839a0-9924-4ffa-b721-a6c8e085dbcd",
+      "name": "ABLESTACK-Tools-Process-windows-c439f93",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/278/278-2-f4ebb8c2-5ac5-35d1-aa58-f34849d7a81e.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "83ca3485-576a-4c46-ac33-5b5942ffe841",
+      "name": "ABLESTACK-Tools-Process-rocky-fb4078b",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/281/281-2-28d33514-717f-364e-a64a-b3fe032b8f36.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "619aaaa3-91e1-48c7-b596-0ed233ef9e67",
+      "name": "ABLESTACK-Tools-Process-ubuntu-fb4078b",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/282/282-2-85c96033-dc44-32f1-af38-8a5fc782011c.iso"
+    },
+    {
+      "kind": "iso",
+      "id": "9f051d28-a666-4fb1-b189-2828e78f1a99",
+      "name": "ABLESTACK-Tools-Process-debian-fb4078b",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/283/283-2-98bc110e-4b6c-3b4c-97a2-6dab1c468e03.iso"
+    },
+    {
+      "kind": "template",
+      "id": "83232fe8-c0bd-4ed3-b29e-5ae054a3ee02",
+      "name": "nginx-lb-test.qcow2",
+      "isoId": null,
+      "isoName": null,
+      "installPath": "template/tmpl/2/369/6c37591b-5445-3265-a185-474dbd7cb028.qcow2"
+    }
+  ],
+  "preserved": "system/base images, attached Process ISOs, referenced Kubernetes versions/template and ambiguous AS-PROD template",
+  "finalAvailableBytes": 89240137728
+}
