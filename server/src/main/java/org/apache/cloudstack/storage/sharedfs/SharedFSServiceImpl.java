@@ -132,6 +132,8 @@ import com.cloud.vm.NicVO;
 import com.cloud.vm.dao.NicDao;
 
 public class SharedFSServiceImpl extends ManagerBase implements SharedFSService, Configurable, PluggableService {
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao directoryPolicyDao;
+
     private static final String SHAREDFS_COMPAT_PROVIDER = "SHAREDFS_COMPATIBILITY";
     private static final String CONFIGURE_SHAREDFS_STATIC_NETWORK = "configure-sharedfs-static-network";
     private static final int STATIC_NETWORK_QGA_ATTEMPTS = 30;
@@ -1503,6 +1505,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             for (StorageServiceProtocolVO protocol : storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
                 storageServiceProtocolDao.remove(protocol.getId());
             }
+            if (directoryPolicyDao!=null)
+                for (org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyVO policy:directoryPolicyDao.listByInstanceId(instance.getId()))
+                    directoryPolicyDao.remove(policy.getId());
             storageServiceInstanceDao.remove(instance.getId());
         } catch (RuntimeException e) {
             logger.warn("Unable to remove Storage Service compatibility model for SharedFS [{}]", sharedFS, e);

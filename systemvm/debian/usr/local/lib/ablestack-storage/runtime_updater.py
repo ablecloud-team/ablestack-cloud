@@ -43,8 +43,13 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 3
-MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420}
+UPDATER_VERSION = 4
+MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
+DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
+def complete_managed_names(names):
+    names=set(names)
+    return names==set(MANAGED_FILES) or names==set(MANAGED_FILES)-{DIRECTORY_HELPER}
+
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 MAX_BUNDLE_BYTES = 64 * 1024 * 1024
@@ -219,14 +224,14 @@ class RuntimeUpdater:
             release = self.releases / self.current_version()
             if not (release / "integrity.json").exists() and request.get("baselineProfile"):
                 expected = request["baselineProfile"]["files"]
-                if {x["path"] for x in expected} != set(MANAGED_FILES):
+                if not complete_managed_names(x["path"] for x in expected):
                     raise RuntimeUpgradeError("BASELINE_UNVERIFIED", "profile is incomplete")
                 for item in expected:
                     name = item["path"]
                     path = release / name if name in ENTRYPOINTS else self.helper_root / Path(name).name
                     if not path.is_file() or path.is_symlink() or sha256_file(path) != item["sha256"] or stat.S_IMODE(path.stat().st_mode) != item["mode"]:
                         raise RuntimeUpgradeError("BASELINE_UNVERIFIED", "profile differs: " + name)
-                self.record_integrity(release, legacy=True)
+                self.record_integrity(release, legacy=True, names={x["path"] for x in expected})
                 atomic_json(self.confirmed, {"version":self.current_version(), "origin":"verified-baseline"})
             if (release / "integrity.json").exists():
                 self.verify_baseline(self.current_version())
@@ -268,7 +273,11 @@ class RuntimeUpdater:
             "desiredStateSchemaVersion": DESIRED_STATE_SCHEMA_VERSION,
             "files": [{"path": p.name, "sha256": sha256_file(p)} for p in sources],
         }, mode=0o644)
-        for name in MANAGED_FILES:
+        bootstrap_names={x["path"] for x in template_manifest["files"]} if template_manifest else {
+            n for n in MANAGED_FILES if n in ENTRYPOINTS or (self.helper_root/Path(n).name).is_file()}
+        if not complete_managed_names(bootstrap_names):
+            raise RuntimeUpgradeError("BOOTSTRAP_UNAVAILABLE","runtime helpers are incomplete")
+        for name in bootstrap_names:
             if name in ENTRYPOINTS:
                 continue
             source = self.helper_root / Path(name).name
@@ -405,7 +414,7 @@ class RuntimeUpdater:
             if not isinstance(size, int) or isinstance(size, bool) or size <= 0 or size > MAX_EXPANDED_BYTES:
                 raise RuntimeUpgradeError("MANIFEST_INVALID", "invalid runtime file size")
             result[name] = {"sha256": require_sha256(entry.get("sha256"), "file.sha256"), "mode": mode, "bytes": size}
-        if set(result) != set(MANAGED_FILES) or sum(x["bytes"] for x in result.values()) > MAX_EXPANDED_BYTES:
+        if not complete_managed_names(result) or sum(x["bytes"] for x in result.values()) > MAX_EXPANDED_BYTES:
             raise RuntimeUpgradeError("MANIFEST_INVALID", "runtime bundle must contain the complete managed payload")
         return result
 
@@ -460,13 +469,21 @@ class RuntimeUpdater:
             if path.stat().st_uid != 0 or path.stat().st_gid != 0:
                 raise RuntimeUpgradeError("RELEASE_OWNER_MISMATCH", "runtime owner differs")
             files.append({"path":name,"sha256":item["sha256"],"mode":format(item["mode"], "04o")})
-        if {x["path"] for x in files} != set(MANAGED_FILES):
+        if not complete_managed_names(x["path"] for x in files):
             raise RuntimeUpgradeError("BASELINE_INVALID", "incomplete baseline")
         return files
 
-    def record_integrity(self, release, legacy=False, origin="signed-bundle"):
+    def record_integrity(self, release, legacy=False, origin="signed-bundle", names=None):
         files = []
-        for name, mode in MANAGED_FILES.items():
+        if names is None:
+            if (release/"manifest.json").is_file():
+                names={x["path"] for x in self.load_manifest(release)["files"]}
+            else:
+                names={name for name in MANAGED_FILES if ((self.helper_root/Path(name).name) if legacy and name not in ENTRYPOINTS else release/name).is_file()}
+        if not complete_managed_names(names):
+            raise RuntimeUpgradeError("BASELINE_INVALID","incomplete baseline")
+        for name in sorted(names):
+            mode=MANAGED_FILES[name]
             external = legacy and name not in ENTRYPOINTS
             path = self.helper_root / Path(name).name if external else release / name
             files.append({"path": name, "sha256": sha256_file(path), "mode": mode, "external":external})
@@ -655,6 +672,19 @@ class RuntimeUpdater:
             raise RuntimeUpgradeError("INSUFFICIENT_SPACE", "insufficient space for payload, rollback and diagnostics")
         return available, required
 
+    def require_directory_compatibility(self, release):
+        if self.runtime_root!=Path("/opt/ablestack/storage-runtime"):
+            return
+        registry=Path("/etc/ablestack-storage/desired-state/directory-policy.json")
+        if not registry.exists():
+            return
+        try:
+            enabled=bool(json.loads(registry.read_text()).get("policies"))
+        except (OSError,ValueError):
+            raise RuntimeUpgradeError("DIRECTORY_POLICY_PROTECTED","directory policy observation is unavailable")
+        if enabled and not (release/DIRECTORY_HELPER).is_file():
+            raise RuntimeUpgradeError("DIRECTORY_POLICY_CAPABILITY_REQUIRED","common directory policies require their managed runtime helper")
+
     def preflight(self, request):
         state = self.read_state(request)
         if state.get("phase") not in {"VERIFIED", "PREFLIGHT_OK"}:
@@ -663,6 +693,7 @@ class RuntimeUpdater:
         if manifest["bundleVersion"] == self.current_version():
             raise RuntimeUpgradeError("RUNTIME_ALREADY_CURRENT", "runtime version is already current; previous pointer is preserved")
         self.verify_release(manifest, self.releases / manifest["bundleVersion"])
+        self.require_directory_compatibility(self.releases / manifest["bundleVersion"])
         self.verify_baseline(self.current_version())
         available, required = self.check_space(state, self.validate_manifest_files(manifest))
         state = self.write_state(request, state, "PREFLIGHT_OK", previousVersion=self.current_version(),
@@ -747,6 +778,7 @@ class RuntimeUpdater:
         manifest = self.checked_manifest(request)
         target = self.releases / target_version
         self.verify_release(manifest, target)
+        self.require_directory_compatibility(target)
         self.verify_baseline(state["previousVersion"])
         if self.current_version() != state["previousVersion"]:
             raise RuntimeUpgradeError("BASELINE_CHANGED", "current runtime differs from preflight baseline")
@@ -797,6 +829,7 @@ class RuntimeUpdater:
         if not previous_target.is_dir():
             raise RuntimeUpgradeError("ROLLBACK_UNAVAILABLE", "previous runtime release is unavailable")
         self.verify_baseline(previous_version)
+        self.require_directory_compatibility(previous_target)
         self.require_catalog_destination(previous_version, "rollback")
         current_version = self.current_version()
         restore = bool(request.get("restoreConfiguration") or state.get("restoreConfiguration"))

@@ -4718,6 +4718,10 @@ import shutil
 import subprocess
 import sys
 
+sys.path.insert(0,os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT","/usr/local/lib/ablestack-storage"))
+from shared_directory_policy import DirectoryPolicies
+directory_policies=DirectoryPolicies()
+protected_paths=set()
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
@@ -4976,7 +4980,9 @@ for share in payload.get("shares", []):
         if not create_directory:
             raise FileNotFoundError(f"SMB share backing directory does not exist: {path}")
         os.makedirs(path, exist_ok=True)
-    directory_mode = apply_directory_policy(path, config, cross_protocol)
+    common=directory_policies.protected(path,payload)
+    directory_mode = (os.stat(path).st_mode & 0o7777) if common else apply_directory_policy(path, config, cross_protocol)
+    if common and not common.get("legacy"): protected_paths.add(str(__import__("pathlib").Path(path).resolve()))
     valid_users = []
     write_list = []
     admin_users = []
@@ -5001,11 +5007,11 @@ for share in payload.get("shares", []):
             write_list.append(smb_principal)
         if permission == "ADMIN":
             admin_users.append(smb_principal)
-        if apply_posix_acl(path, principal_type, principal, permission):
+        if common and not common.get("legacy") or not common and apply_posix_acl(path, principal_type, principal, permission):
             applied_acl_count += 1
 
     guest_ok = truth(config, 'guestOk', False)
-    if guest_ok and not cross_protocol:
+    if guest_ok and not cross_protocol and not common:
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         "shareName": name,
@@ -5050,6 +5056,8 @@ for share in payload.get("shares", []):
             "quotaBytes": share.get("quotaBytes"),
             "filesystem": share.get("filesystem"),
         }
+
+directory_policies.apply_acl_batch(payload.get("shares",[]),protected_paths)
 
 import tempfile
 candidate_fd, candidate_path = tempfile.mkstemp(prefix=".ablestack-candidate-", dir="/etc/samba")
@@ -6753,6 +6761,13 @@ action="${3:-}"
 payload="${4:-}"
 
 case "$command" in
+  directory)
+    if [[ "$subcommand" != "policy" || ! "$action" =~ ^(inspect|preview)$ || ! -r "$payload" ]]; then
+      emit_error "Invalid directory observation."
+      exit 2
+    fi
+    exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/shared_directory_policy.py" "$action" "$payload"
+    ;;
   configuration)
     if [[ "$subcommand" == "preflight" && "$action" == "show" && -r "$payload" ]]; then
       exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" preflight show "$payload"

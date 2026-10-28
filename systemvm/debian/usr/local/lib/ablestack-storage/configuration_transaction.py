@@ -26,7 +26,7 @@ import uuid
 
 VERSION = 1
 ROOT = Path("/var/lib/ablestack-storage/configuration-operations")
-OPERATIONS = {"nfs export apply", "smb share apply", "iscsi target apply",
+OPERATIONS = {"directory policy apply", "nfs export apply", "smb share apply", "iscsi target apply",
               "nvmeof subsystem apply", "network endpoint apply"}
 TERMINAL = {"COMMITTED", "ROLLED_BACK"}
 
@@ -971,6 +971,9 @@ def nfs_posix_observations(desired):
 def nfs_posix_apply_config(export, payload, directory_created=False):
     """Return only the permitted chown/chmod intent; normal render/boot preserves roots."""
     config = export.get("config") or {}
+    from shared_directory_policy import DirectoryPolicies
+    if config.get("backingPath") and DirectoryPolicies().protected(config["backingPath"]):
+        return {}
     intent = payload.get("posixIntent") or {}
     selected = intent.get("targetUuid") == export.get("uuid")
     fields = (intent.get("fields") or {}) if selected else {}
@@ -1043,6 +1046,9 @@ class RuntimeAdapter:
             if report["status"] != "READY":
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
                 raise Rejected(blocked)
+        if self.directory_only(payload):
+            from shared_directory_policy import DirectoryPolicies
+            DirectoryPolicies().prepare(payload["candidate"]["directory policy apply"])
         if self.nfs_posix_only(payload):
             self.posix_only_plan(payload["candidate"]["nfs export apply"])
         self.payload = payload
@@ -1147,6 +1153,7 @@ class RuntimeAdapter:
                 paths.add(Path("/etc/ablestack-storage/desired-state/nfs-export-apply.json"))
                 paths.add(Path("/etc/fstab"))
             if operation.startswith("smb"):
+                paths.add(Path("/etc/ablestack-storage/desired-state/directory-policy.json"))
                 paths.update(Path("/etc/ablestack-storage").glob("smb*.json"))
                 paths.update(Path("/etc/ablestack-storage/smb-listeners").glob("*.conf"))
                 paths.add(Path("/etc/samba/smb.conf"))
@@ -1179,7 +1186,16 @@ class RuntimeAdapter:
                             groups.add(acl["principal"])
         return paths, users, groups
 
+    @staticmethod
+    def directory_only(payload):
+        return set((payload or {}).get("candidate",{})) == {"directory policy apply"}
+
     def snapshot(self, payload):
+        if self.directory_only(payload):
+            from shared_directory_policy import DirectoryPolicies
+            before=DirectoryPolicies().snapshot(payload["candidate"]["directory policy apply"])
+            atomic_json(self.snapshot_path,{"directory":before,"metadata":{},"files":{}})
+            return
         import base64
         import grp
         import pwd
@@ -1201,6 +1217,14 @@ class RuntimeAdapter:
                     "acl": checked(["getfacl", "-p", path]).decode()}
             else:
                 snapshot["metadata"][path] = None
+        if "smb share apply" in payload.get("candidate",{}):
+            from shared_directory_policy import DirectoryPolicies
+            engine=DirectoryPolicies()
+            snapshot["directoryIdentities"]={}
+            for path in paths:
+                policy=engine.policy_for(path)
+                if policy:
+                    snapshot["directoryIdentities"][path]={k:policy[k] for k in ("volumeuuid","canonicalpath","filesystemuuid","inode")}
         for user in users:
             try:
                 entry = pwd.getpwnam(user)
@@ -1330,6 +1354,14 @@ class RuntimeAdapter:
     def observe_completed(self):
         payload = load(self.payload_path)
         result = load(self.private / "runner-result.json")
+        if self.directory_only(payload):
+            if load(self.private/"candidate-completed.json") != {"requestHash":public_hash(payload["candidate"])}:
+                return "FAILED"
+            try:
+                self.verify(payload["candidate"])
+                return "VERIFIED"
+            except Exception:
+                return "FAILED"
         if not self.nfs_posix_only(payload) and (not result or result.get("observationUnknown")):
             return "UNKNOWN"
         if self.nfs_posix_only(payload):
@@ -1358,6 +1390,13 @@ class RuntimeAdapter:
         return "FAILED" if result.get("operation") in operations else "UNKNOWN"
 
     def apply(self, commands):
+        if self.directory_only({"candidate":commands}):
+            from shared_directory_policy import DirectoryPolicies
+            before=load(self.snapshot_path)["directory"]
+            DirectoryPolicies().apply(commands["directory policy apply"],before,
+                lambda count:atomic_json(self.private/"directory-progress.json",{"count":count}))
+            atomic_json(self.private/"candidate-completed.json",{"requestHash":public_hash(commands)})
+            return
         if self.nfs_posix_only({"candidate": commands}):
             self.apply_posix_only(commands["nfs export apply"])
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
@@ -1375,6 +1414,10 @@ class RuntimeAdapter:
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
 
     def verify(self, commands):
+        if self.directory_only({"candidate":commands}):
+            from shared_directory_policy import DirectoryPolicies
+            DirectoryPolicies().verify(commands["directory policy apply"],load(self.snapshot_path)["directory"])
+            return
         if self.nfs_posix_only({"candidate": commands}):
             self.verify_posix_only(commands["nfs export apply"])
             return
@@ -1472,6 +1515,10 @@ class RuntimeAdapter:
         payload = load(self.payload_path)
         if not snapshot or not payload:
             raise Rejected("BEFORE_IMAGE_UNAVAILABLE")
+        if self.directory_only(payload):
+            from shared_directory_policy import DirectoryPolicies
+            DirectoryPolicies().restore(snapshot["directory"],load(self.private/"directory-progress.json",{}).get("count",0))
+            return
         if self.nfs_posix_only(payload):
             self.restore_posix_only(payload, snapshot)
             return
@@ -1499,8 +1546,30 @@ class RuntimeAdapter:
                 continue
             if not Path(name).is_dir():
                 raise Rejected("DIRECTORY_IDENTITY_CHANGED")
-            os.chown(name, value["uid"], value["gid"]); os.chmod(name, value["mode"])
-            checked(["setfacl", "--restore=-"], input=value["acl"].encode())
+            identity=snapshot.get("directoryIdentities",{}).get(name)
+            if identity:
+                from shared_directory_policy import DirectoryPolicies
+                engine=DirectoryPolicies()
+                mount=engine.managed/identity["volumeuuid"]
+                observed=engine.observe({"config":{"volumeMountPath":str(mount),"backingPath":str(mount/identity["canonicalpath"]),
+                                                  "filesystemUuid":identity["filesystemuuid"]}})
+                if observed.get("inode")!=identity["inode"]:
+                    raise Rejected("DIRECTORY_IDENTITY_CHANGED")
+                with engine.opened(mount,identity["canonicalpath"],identity["inode"]) as fd:
+                    target="/proc/self/fd/"+str(fd)
+                    os.fchown(fd,value["uid"],value["gid"])
+                    checked(["setfacl","-k",target],pass_fds=(fd,))
+                    text="\n".join(line for line in value["acl"].splitlines() if not line.startswith("#"))
+                    checked(["setfacl","--set-file=-",target],input=text.encode(),pass_fds=(fd,))
+                    os.fchmod(fd,value["mode"])
+            else:
+                os.chown(name, value["uid"], value["gid"]); os.chmod(name, value["mode"])
+                checked(["setfacl", "--restore=-"], input=value["acl"].encode())
+        if "smb share apply" in payload.get("candidate",{}):
+            from shared_directory_policy import DirectoryPolicies
+            engine=DirectoryPolicies()
+            engine.refresh_many([p for p in snapshot["metadata"] if engine.policy_for(p)])
+
 
     def cleanup_new_backstores(self, snapshot, payload):
         if snapshot.get("lio") is None:
@@ -1710,6 +1779,10 @@ class RuntimeAdapter:
     def verify_restored(self):
         payload = load(self.payload_path)
         snapshot = load(self.snapshot_path)
+        if self.directory_only(payload):
+            from shared_directory_policy import DirectoryPolicies
+            DirectoryPolicies().verify_restored(snapshot["directory"])
+            return
         profiles = SmbListenerProfiles() if self.listener_only(payload) else None
         if profiles is not None and not profiles.manifest.exists():
             profiles.verify_legacy_restored(payload["before"].get("smb share apply", {}), snapshot)
@@ -1804,7 +1877,7 @@ def main(argv):
     if argv[:2] == ["capability", "show"]:
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "sharedDirectoryPolicyVersion": 1, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect

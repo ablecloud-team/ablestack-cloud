@@ -329,6 +329,7 @@
   <bean id="apiKeyPairPermissionsDaoImpl" class="org.apache.cloudstack.acl.dao.ApiKeyPairPermissionsDaoImpl" />
   <bean id="StorageServiceInstanceDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl" />
   <bean id="StorageServiceProtocolDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDaoImpl" />
+  <bean id="StorageDirectoryPolicyDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDaoImpl" />
   <bean id="StorageFileShareDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDaoImpl" />
   <bean id="StorageBlockTargetDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDaoImpl" />
   <bean id="StorageAccessRuleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl" />

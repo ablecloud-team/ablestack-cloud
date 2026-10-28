@@ -178,6 +178,32 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.assertEqual(0o600, saved.stat().st_mode & 0o777)
         self.assertEqual("REVOKING", json.loads(saved.read_text())["bundles"]["v2"]["state"])
 
+
+    def test_complete_legacy_nine_file_signed_release_still_activates_and_rolls_back(self):
+        # A signed historical layout remains supported. No arbitrary file omissions.
+        original=self.build_bundle
+        def legacy(version="legacy"):
+            import io
+            archive=original(version)
+            manifest=json.loads((self.output/"manifest.json").read_text())
+            optional="lib/ablestack-storage/shared_directory_policy.py"
+            manifest["files"]=[f for f in manifest["files"] if f["path"]!=optional]
+            with tarfile.open(archive,"r:gz") as tf:
+                members=[(m,tf.extractfile(m).read()) for m in tf if m.isfile() and m.name!=optional]
+            with tarfile.open(archive,"w:gz") as tf:
+                for member,data in members:tf.addfile(member,io.BytesIO(data))
+            (self.output/"manifest.json").write_text(json.dumps(manifest))
+            subprocess.run(["openssl","pkeyutl","-sign","-inkey",str(self.private_key),"-rawin",
+                            "-in",str(self.output/"manifest.json"),"-out",str(self.output/"manifest.sig")],check=True,capture_output=True)
+            return archive
+        self.build_bundle=legacy
+        baseline=self.run_updater("bootstrap")["currentVersion"]
+        request=self.stage_transaction(version="legacy")
+        self.run_updater("activate",request)
+        self.assertEqual("legacy",self.run_updater("capabilities")["currentVersion"])
+        self.run_updater("rollback",request)
+        self.assertEqual(baseline,self.run_updater("capabilities")["currentVersion"])
+
     def test_signed_bundle_activation_and_rollback(self):
         bootstrap = self.run_updater("bootstrap")
         self.assertEqual("BOOTSTRAPPED", bootstrap["phase"])
@@ -194,7 +220,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
     def confirm(self, request):
         return self.run_updater("activate", dict(request, confirmActivation=True))
 
-    def test_template_default_and_bundle_share_version_and_nine_file_hashes(self):
+    def test_template_default_and_bundle_share_version_and_ten_file_hashes(self):
         self.build_bundle("template-v2")
         default = self.temp / "default"
         default.mkdir()
@@ -246,7 +272,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
     def test_actual_assembled_signed_payload_first_and_repeated_bootstrap(self):
         image = self.assembled_actual_template("actual-template")
         verified = self.template_verifier().verify(image)
-        self.assertEqual(9, len(verified["managedFilesVerified"]))
+        self.assertEqual(10, len(verified["managedFilesVerified"]))
         self.assertTrue(verified["signatureVerified"])
         first = self.run_updater("bootstrap")
         current = self.runtime_root / "current"
@@ -357,12 +383,13 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.assertEqual("PREVIOUS_RUNTIME_INTEGRITY_MISMATCH", self.run_updater("rollback", request, success=False)["errorCode"])
         self.assertEqual("v2", self.run_updater("capabilities")["currentVersion"])
 
-    def test_payload_contains_six_helpers_and_exact_modes(self):
+    def test_payload_contains_seven_helpers_and_exact_modes(self):
         self.build_bundle()
         manifest = json.loads((self.output / "manifest.json").read_text())
         self.assertEqual(2, manifest["payloadLayout"])
-        self.assertEqual(9, len(manifest["files"]))
-        self.assertEqual(6, sum(x["mode"]=="0644" for x in manifest["files"]))
+        self.assertEqual(10, len(manifest["files"]))
+        self.assertEqual(7, sum(x["mode"]=="0644" for x in manifest["files"]))
+        self.assertIn("lib/ablestack-storage/shared_directory_policy.py",{x["path"] for x in manifest["files"]})
         with tarfile.open(self.output / "ablestack-storage-runtime-v2.tar.gz") as archive:
             for item in manifest["files"]:
                 member = archive.getmember(item["path"])

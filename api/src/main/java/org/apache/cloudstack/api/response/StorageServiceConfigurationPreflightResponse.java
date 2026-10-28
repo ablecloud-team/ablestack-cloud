@@ -32,7 +32,9 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("cancellationsupported") @Param(description="Actual cancellation support") private Boolean cancellationsupported=false;
     @SerializedName("posixobservation") @Param(description="Observed NFS directory metadata used for the confirmation") private JsonObject posixobservation;
     @SerializedName("posixchanges") @Param(description="Explicit NFS POSIX changes only") private JsonObject posixchanges;
+    @SerializedName("directorypreview") @Param(description="Common directory values, references and NFS unit impact") private JsonObject directorypreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        directorypreview=report.has("directorypreview")?report.getAsJsonObject("directorypreview"):null;
         posixobservation=report.has("posixobservation")?report.getAsJsonObject("posixobservation"):null;
         posixchanges=report.has("posixchanges")?report.getAsJsonObject("posixchanges"):null;
         setObjectName("configurationpreflight");
