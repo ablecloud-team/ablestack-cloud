@@ -70,6 +70,34 @@ public class RbdVolumeAllocation {
         this.runner = runner;
     }
 
+    /** Read-only offline inspection using the pool's credentials, never a fabricated local RBD path. */
+    public com.google.gson.JsonElement inspectOfflineRawImage(VolumeObjectTO volume, KVMStoragePool pool) {
+        if (pool.getType() != Storage.StoragePoolType.RBD || volume.getFormat() != Storage.ImageFormat.RAW ||
+                volume.requiresEncryption() || volume.getEncryptFormat() != null || volume.getSize() == null ||
+                volume.getSize() <= 0 || volume.getPath() == null || !volume.getPath().matches("[A-Za-z0-9_.-]+")) {
+            throw new CloudRuntimeException("RBD_TRACKING_INSPECTION_UNSUPPORTED: known unencrypted RAW image required");
+        }
+        try (Context context = new Context(pool, 30_000)) {
+            String image = pool.getSourceDir() + "/" + volume.getPath();
+            JsonObject rbdInfo = json(context.rbd("info", image, "--format", "json"));
+            if (rbdInfo.get("size").getAsLong() != volume.getSize()) {
+                throw new CloudRuntimeException("RBD_TRACKING_INSPECTION_FAILED: image size mismatch");
+            }
+            com.google.gson.JsonElement chain = new JsonParser().parse(context.run("qemu-img", "info", "--output=json",
+                    "--backing-chain", "-f", "raw", context.uri(image)));
+            if (!chain.isJsonArray() || chain.getAsJsonArray().size() != 1) {
+                throw new CloudRuntimeException("RBD_TRACKING_INSPECTION_FAILED: invalid RAW backing chain");
+            }
+            JsonObject info = chain.getAsJsonArray().get(0).getAsJsonObject();
+            if (!"raw".equals(info.get("format").getAsString()) || info.get("virtual-size").getAsLong() != volume.getSize()) {
+                throw new CloudRuntimeException("RBD_TRACKING_INSPECTION_FAILED: invalid RAW image");
+            }
+            return chain;
+        } catch (IOException e) {
+            throw new CloudRuntimeException("RBD_TRACKING_INSPECTION_FAILED: cannot create authenticated context", e);
+        }
+    }
+
     /** Non-mutating tool and pool authentication probe. Each operation must still verify its result. */
     public Map<String, String> capabilities(KVMStoragePool pool, String format, String operation) {
         if (pool.getType() != Storage.StoragePoolType.RBD || !"raw".equals(format) ||

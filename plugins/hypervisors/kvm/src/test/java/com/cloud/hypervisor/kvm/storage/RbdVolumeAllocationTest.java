@@ -191,9 +191,29 @@ public class RbdVolumeAllocationTest {
         assertFalse(command("clone", "--image-feature"));
     }
 
+    @Test public void offlineRawInspectionUsesAuthenticatedReadOnlyCommands() {
+        request.setFormat(Storage.ImageFormat.RAW); request.setPath(ID); runner.offlineChain=true;
+        assertTrue(adapter.inspectOfflineRawImage(request,pool).isJsonArray());
+        assertTrue(command("info","--backing-chain","-f","raw"));
+        assertFalse(command("create")); assertFalse(command("rm")); assertFalse(command("snap"));
+        assertFalse(runner.commands.toString().contains("AQABCDEF="));
+    }
+    @Test public void offlineRawInspectionRejectsUnknownFormatBeforeCommands() {
+        request.setPath(ID); request.setFormat(Storage.ImageFormat.QCOW2);
+        try {adapter.inspectOfflineRawImage(request,pool);fail();}
+        catch(RuntimeException e){assertTrue(e.getMessage().contains("INSPECTION_UNSUPPORTED"));}
+        assertTrue(runner.commands.isEmpty());
+    }
+    @Test public void offlineRawInspectionFailureDoesNotBecomeEmptyTracking() {
+        request.setFormat(Storage.ImageFormat.RAW); request.setPath(ID); runner.offlineChain=true;runner.infoSize=SIZE-1;
+        try {adapter.inspectOfflineRawImage(request,pool);fail();}
+        catch(RuntimeException e){assertTrue(e.getMessage().contains("image size mismatch"));}
+        assertFalse(command("create")); assertFalse(command("rm"));
+    }
+
     private static class Fake implements RbdVolumeAllocation.Runner {
         List<List<String>> commands = new ArrayList<>();
-        String stage; String fail; boolean cleanupFail; boolean exists; boolean parent; String receipt; String linkedParent;
+        boolean offlineChain; String stage; String fail; boolean cleanupFail; boolean exists; boolean parent; String receipt; String linkedParent;
         long used = SIZE; long infoSize = SIZE; long sourceSize = SIZE; long available = SIZE * 10; boolean missingCapacity;
         int index(String op) { for (int i = 0; i < commands.size(); i++) if (commands.get(i).contains(op)) return i; return -1; }
         @Override public String run(List<String> args, long timeout) {
@@ -208,6 +228,7 @@ public class RbdVolumeAllocationTest {
             if (op.equals("image-meta")) { if (args.contains("get")) return receipt; receipt = args.get(args.size() - 1); }
             if (op.equals("snap")) return "[{\"name\":\"snapshot\",\"protected\":true}]";
             if (op.equals("info")) {
+                if (args.get(0).equals("qemu-img") && offlineChain) return "[{\"format\":\"raw\",\"virtual-size\":"+sourceSize+"}]";
                 if (args.get(0).equals("qemu-img")) return "{\"virtual-size\":" + sourceSize + "}";
                 return "{\"size\":" + infoSize + (linkedParent != null ? ",\"parent\":{\"pool\":\"rbd\",\"image\":\""+linkedParent+"\",\"snapshot\":\"snapshot\"}" : parent ? ",\"parent\":{}" : "") + "}";
             }
