@@ -1831,8 +1831,24 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> cloneVolumeFromSnapshot(VolumeInfo volume, DataStore store, SnapshotInfo snapshot) {
-        requireQualifiedAllocationLifecycle(volume.getId(), "snapshot clone target");
-        requireQualifiedAllocationLifecycle(snapshot.getVolumeId(), "snapshot clone source");
+        java.util.Map<String, String> sourceIntent = _volumeDetailsDao.listDetailsKeyPairs(snapshot.getVolumeId());
+        java.util.Map<String, String> targetIntent = _volumeDetailsDao.listDetailsKeyPairs(volume.getId());
+        com.cloud.storage.VolumeAllocationClone.requireSnapshotTarget(sourceIntent, targetIntent, snapshot.getVolumeId());
+        if (!com.cloud.storage.VolumeAllocationLifecycle.intent(sourceIntent).isEmpty()) {
+            if (snapshot.getDataStore() == null || snapshot.getDataStore().getRole() != DataStoreRole.Primary ||
+                    store.getRole() != DataStoreRole.Primary || store.getId() != snapshot.getDataStore().getId() ||
+                    snapshot.getBaseVolume() == null || snapshot.getBaseVolume().getPassphraseId() != null ||
+                    snapshot.getBaseVolume().getKmsKeyId() != null || snapshot.getBaseVolume().getState() != Volume.State.Ready ||
+                    volume.getSize() == null || !volume.getSize().equals(snapshot.getSize())) {
+                throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_OPERATION_UNSUPPORTED: VM snapshot clone requires an unchanged unencrypted source and the same primary pool");
+            }
+            if (!(store instanceof org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore)) {
+                throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_CLONE_BACKEND_UNSUPPORTED: primary pool required");
+            }
+            com.cloud.storage.VolumeAllocationClone.validate(sourceIntent,
+                    ((org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore) store).getPoolType(),
+                    snapshot.getBaseVolume().getFormat().toString(), targetIntent.get(com.cloud.storage.VolumeAllocationClone.TYPE));
+        }
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
 
         try {

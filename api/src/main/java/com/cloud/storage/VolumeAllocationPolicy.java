@@ -153,7 +153,7 @@ public final class VolumeAllocationPolicy {
             allowed.put("qcow2".equals(format) ? "metadata" : "off",
                     "qcow2".equals(format) ? "qemu-preallocation-metadata" : "qemu-preallocation-off");
         } else if ("RBD".equals(backend) && "raw".equals(format)) {
-            allowed.put("off", "rbd-thin");
+            allowed.put("off", "clone".equals(operation) ? "rbd-cow-clone" : "rbd-thin");
             if ("create".equals(operation) || "copy".equals(operation)) {
                 allowed.put("full", "create".equals(operation) ? "rbd-thick-create" : "rbd-thick-convert-n-S0");
             }

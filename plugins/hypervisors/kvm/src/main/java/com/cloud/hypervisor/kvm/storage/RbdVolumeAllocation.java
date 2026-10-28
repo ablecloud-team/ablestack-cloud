@@ -73,7 +73,7 @@ public class RbdVolumeAllocation {
     /** Non-mutating tool and pool authentication probe. Each operation must still verify its result. */
     public Map<String, String> capabilities(KVMStoragePool pool, String format, String operation) {
         if (pool.getType() != Storage.StoragePoolType.RBD || !"raw".equals(format) ||
-                !List.of("create", "copy").contains(operation)) {
+                !List.of("create", "copy", "clone").contains(operation)) {
             return Map.of();
         }
         try (Context context = new Context(pool, 30_000)) {
@@ -86,6 +86,9 @@ public class RbdVolumeAllocation {
                 return Map.of();
             }
             context.rbd("pool", "stats", "--pool", pool.getSourceDir(), "--format", "json");
+            if ("clone".equals(operation)) {
+                return context.run("rbd", "help", "clone").contains("--image-feature") ? Map.of("off", "rbd-cow-clone") : Map.of();
+            }
             try {
                 context.poolAvailable(pool.getSourceDir());
                 return Map.of("off", "rbd-thin", "full", "create".equals(operation) ? "rbd-thick-create" : "rbd-thick-convert-n-S0");
@@ -96,6 +99,84 @@ public class RbdVolumeAllocation {
         } catch (IOException e) {
             throw new CloudRuntimeException("RBD_ALLOCATION_CAPABILITY_UNAVAILABLE", e);
         }
+    }
+
+    /** A linked clone has its own receipt and observed usage, and retains its exact protected parent. */
+    public VolumeObjectTO cloneSnapshot(VolumeObjectTO volume, KVMStoragePool pool, KVMPhysicalDisk source, long timeout) {
+        Map<String, String> intent = com.cloud.storage.VolumeAllocationClone.validate(volume.getAllocation(), pool.getType(), "raw", "linked");
+        if (intent.isEmpty() || !"off".equals(intent.get(VolumeAllocationPolicy.POLICY)) ||
+                source == null || source.getPool() == null || !pool.getUuid().equals(source.getPool().getUuid()) ||
+                source.getFormat() != PhysicalDiskFormat.RAW || volume.requiresEncryption() || volume.getEncryptFormat() != null ||
+                volume.getSize() == null || volume.getSize() <= 0 || volume.getUuid() == null ||
+                !volume.getUuid().matches("[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}")) {
+            throw new CloudRuntimeException("RBD_ALLOCATION_CLONE_UNSUPPORTED: matching unencrypted raw off snapshot required");
+        }
+        synchronized ((pool.getUuid() + "/" + volume.getUuid()).intern()) {
+            try (Context context = new Context(pool, timeout)) {
+                String parent = source.getPath();
+                if (!parent.startsWith(pool.getSourceDir() + "/") || !parent.matches("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@[A-Za-z0-9_.-]+")) {
+                    throw new CloudRuntimeException("RBD_ALLOCATION_CLONE_SOURCE_INVALID: exact same-pool snapshot identity required");
+                }
+                String[] identity = parent.substring(parent.indexOf('/') + 1).split("@", -1);
+                String finalImage = pool.getSourceDir() + "/" + volume.getUuid();
+                String fingerprint = digest("linked/" + pool.getUuid() + "/" + volume.getUuid() + "/" + volume.getVolumeId() + "/" +
+                        volume.getAccountId() + "/" + volume.getVolumeType() + "/" + volume.getSize() + "/" + parent + "/" + intent);
+                List<String> images = new com.google.gson.Gson().fromJson(context.rbd("ls", "--format", "json", pool.getSourceDir()),
+                        new com.google.gson.reflect.TypeToken<List<String>>() { }.getType());
+                if (images.contains(volume.getUuid())) {
+                    if (!fingerprint.equals(context.rbd("image-meta", "get", finalImage, RECEIPT).trim())) {
+                        throw new CloudRuntimeException("RBD_ALLOCATION_TARGET_EXISTS: preserve image not owned by this clone request");
+                    }
+                    return linkedResult(volume, intent, verifyLinked(context, finalImage, parent, identity, volume.getSize()));
+                }
+                com.google.gson.JsonArray snapshots = new JsonParser().parse(context.rbd("snap", "ls", pool.getSourceDir() + "/" + identity[0], "--format", "json")).getAsJsonArray();
+                boolean found = false;
+                for (com.google.gson.JsonElement entry : snapshots) {
+                    JsonObject row = entry.getAsJsonObject();
+                    if (identity[1].equals(row.get("name").getAsString())) {
+                        found = true;
+                        if (!row.has("protected") || !row.get("protected").getAsBoolean()) { context.rbd("snap", "protect", parent); }
+                    }
+                }
+                if (!found) { throw new CloudRuntimeException("RBD_ALLOCATION_CLONE_SOURCE_MISSING: snapshot no longer exists"); }
+                String stage = pool.getSourceDir() + "/" + volume.getUuid() + ".allocation-" + UUID.randomUUID();
+                boolean published = false;
+                try {
+                    context.rbd("clone", "--image-feature", "layering,exclusive-lock,object-map,fast-diff,deep-flatten", parent, stage);
+                    long used = verifyLinked(context, stage, parent, identity, volume.getSize());
+                    context.rbd("image-meta", "set", stage, RECEIPT, fingerprint);
+                    context.rbd("rename", stage, finalImage);
+                    published = true;
+                    return linkedResult(volume, intent, used);
+                } finally {
+                    if (!published) { context.removeStage(stage); }
+                }
+            } catch (IOException e) { throw new CloudRuntimeException("RBD_ALLOCATION_CONTEXT_FAILED", e); }
+        }
+    }
+
+    private long verifyLinked(Context context, String image, String source, String[] identity, long expected) {
+        JsonObject info = json(context.rbd("info", image, "--format", "json"));
+        JsonObject parent = info.has("parent") ? info.getAsJsonObject("parent") : null;
+        if (info.get("size").getAsLong() != expected || parent == null ||
+                !source.substring(0, source.indexOf('/')).equals(parent.get("pool").getAsString()) ||
+                !identity[0].equals(parent.get("image").getAsString()) || !identity[1].equals(parent.get("snapshot").getAsString())) {
+            throw new CloudRuntimeException("RBD_ALLOCATION_VERIFICATION_FAILED: linked clone size or parent does not match");
+        }
+        context.run("qemu-img", "compare", "-f", "raw", "-F", "raw", context.uri(source), context.uri(image));
+        JsonObject du = json(context.rbd("du", "--exact", image, "--format", "json"));
+        if (!du.has("images") || du.getAsJsonArray("images").size() != 1) { throw new CloudRuntimeException("RBD_ALLOCATION_VERIFICATION_FAILED: image usage missing"); }
+        JsonObject usage = du.getAsJsonArray("images").get(0).getAsJsonObject();
+        long used = usage.get("used_size").getAsLong();
+        if (used < 0 || usage.get("provisioned_size").getAsLong() != expected) { throw new CloudRuntimeException("RBD_ALLOCATION_VERIFICATION_FAILED: invalid image usage"); }
+        return used;
+    }
+
+    private VolumeObjectTO linkedResult(VolumeObjectTO request, Map<String, String> intent, long used) {
+        VolumeObjectTO result = new VolumeObjectTO();
+        result.setPath(request.getUuid()); result.setSize(request.getSize()); result.setFormat(Storage.ImageFormat.RAW); result.setDataStore(request.getDataStore());
+        result.setAllocation(VolumeAllocationPolicy.evidence(intent, "RBD", "clone", "rbd-cow-clone", used, Instant.now(), "rbd-du-exact-image-used-size"));
+        return result;
     }
 
     /** A temporary image is verified before an atomic, non-overwriting rename publishes the volume. */

@@ -2046,10 +2046,15 @@ public class KVMStorageProcessor implements StorageProcessor {
         List<VolumeCloneSpec> preparedSpecs = new ArrayList<>();
         Map<String, String> runningDiskLabels = new HashMap<>();
         Set<String> preparedSourceVolumePaths = new HashSet<>();
+        Set<String> ownedClonePaths = new HashSet<>();
+        Map<Long, VolumeObjectTO> allocationResults = new HashMap<>();
         Domain vm = null;
         Connect conn = null;
 
         try {
+            if (cmd.isMaterializedCopy() && cmd.isSourceVmRunning()) {
+                throw new CloudRuntimeException("Materialized source copy requires a stopped VM");
+            }
             if (cmd.isSourceVmRunning()) {
                 conn = LibvirtConnection.getConnectionByVmName(cmd.getVmName());
                 vm = resource.getDomain(conn, cmd.getVmName());
@@ -2067,7 +2072,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                 Files.createDirectories(overlayPath.getParent());
                 Files.createDirectories(clonePath.getParent());
 
-                if (preparedSourceVolumePaths.add(spec.getSourceVolumePath())) {
+                preparedSpecs.add(spec);
+                if (!cmd.isMaterializedCopy() && preparedSourceVolumePaths.add(spec.getSourceVolumePath())) {
                     if (cmd.isSourceVmRunning()) {
                         String diskLabel = createRunningSourceOverlay(conn, vm, cmd.getVmName(), cmd.getOperationId(), sourcePath.toString(), overlayPath.toString());
                         runningDiskLabels.put(spec.getSourceVolumePath(), diskLabel);
@@ -2076,14 +2082,44 @@ public class KVMStorageProcessor implements StorageProcessor {
                     }
                 }
 
-                preparedSpecs.add(spec);
-                createQcow2Delta(pool, sourcePath, spec.getSourceVolumePath(), spec.getCloneVolumePath(), spec.getSize());
+                VolumeObjectTO request = spec.getAllocatedClone();
+                boolean explicit = request != null && !request.getAllocation().isEmpty();
+                if (explicit || cmd.isMaterializedCopy()) {
+                    if (request == null || !spec.getCloneVolumePath().equals(request.getUuid()) ||
+                            request.getVolumeId() == null || request.getVolumeId() != spec.getCloneVolumeId() ||
+                            request.getSize() == null || request.getSize() != spec.getSize()) {
+                        throw new CloudRuntimeException("Clone allocation request identity does not match its manifest");
+                    }
+                    KVMPhysicalDisk source = new KVMPhysicalDisk(sourcePath.toString(), spec.getSourceVolumePath(), pool);
+                    source.setFormat(PhysicalDiskFormat.valueOf(spec.getSourceFormat().toUpperCase(java.util.Locale.ROOT)));
+                    source.setVirtualSize(spec.getSize());
+                    source.setSize(Files.size(sourcePath));
+                    VolumeObjectTO result;
+                    if (explicit) {
+                        result = materializeAllocatedGfsClone(request, pool, source, (long) cmd.getWait() * 1000);
+                    } else {
+                        if (Files.exists(clonePath) || source.getFormat() != PhysicalDiskFormat.QCOW2) {
+                            throw new CloudRuntimeException("Legacy materialized clone requires a new QCOW2 target");
+                        }
+                        KVMPhysicalDisk copied = storagePoolMgr.copyPhysicalDisk(source, spec.getCloneVolumePath(), pool, cmd.getWait() * 1000);
+                        if (copied == null) { throw new CloudRuntimeException("Legacy clone copy failed"); }
+                        result = new VolumeObjectTO();
+                        result.setPath(copied.getName()); result.setSize(copied.getVirtualSize());
+                        result.setFormat(ImageFormat.valueOf(copied.getFormat().toString())); result.setDataStore(cmd.getDataStore());
+                    }
+                    ownedClonePaths.add(spec.getCloneVolumePath());
+                    allocationResults.put(spec.getCloneVolumeId(), result);
+                } else {
+                    if (Files.exists(clonePath)) { throw new CloudRuntimeException("Clone target already exists; preserve existing image"); }
+                    ownedClonePaths.add(spec.getCloneVolumePath());
+                    createQcow2Delta(pool, sourcePath, spec.getSourceVolumePath(), spec.getCloneVolumePath(), spec.getSize());
+                }
             }
 
-            return new Answer(cmd);
+            return new org.apache.cloudstack.storage.command.PrepareSharedMountPointCloneAnswer(cmd, allocationResults);
         } catch (Exception e) {
             logger.warn("Failed to prepare SharedMountPoint linked clone for operation [{}]. Rolling back prepared files.", cmd.getOperationId(), e);
-            rollbackPreparedSharedMountPointClone(cmd, pool, vm, runningDiskLabels, preparedSpecs);
+            rollbackPreparedSharedMountPointClone(cmd, pool, vm, runningDiskLabels, preparedSpecs, ownedClonePaths);
             return new Answer(cmd, false, e.toString());
         } finally {
             if (vm != null) {
@@ -2094,6 +2130,10 @@ public class KVMStorageProcessor implements StorageProcessor {
                 }
             }
         }
+    }
+
+    protected VolumeObjectTO materializeAllocatedGfsClone(VolumeObjectTO request, KVMStoragePool pool, KVMPhysicalDisk source, long timeout) {
+        return new Gfs2VolumeAllocation().create(request, pool, source, timeout);
     }
 
     protected String createRunningSourceOverlay(Connect conn, Domain vm, String vmName, String operationId, String sourcePath, String overlayPath) throws LibvirtException {
@@ -2134,28 +2174,33 @@ public class KVMStorageProcessor implements StorageProcessor {
     }
 
     protected void rollbackPreparedSharedMountPointClone(PrepareSharedMountPointCloneCommand cmd, KVMStoragePool pool, Domain vm, Map<String, String> runningDiskLabels,
-            List<VolumeCloneSpec> preparedSpecs) {
-        Set<String> rolledBackSourceVolumePaths = new HashSet<>();
+            List<VolumeCloneSpec> preparedSpecs, Set<String> ownedClonePaths) {
+        Map<String, Boolean> rolledBackSourceVolumePaths = new HashMap<>();
         for (int i = preparedSpecs.size() - 1; i >= 0; i--) {
             VolumeCloneSpec spec = preparedSpecs.get(i);
-            if (cmd.isSourceVmRunning() && vm != null && runningDiskLabels.containsKey(spec.getSourceVolumePath()) &&
-                    rolledBackSourceVolumePaths.add(spec.getSourceVolumePath())) {
-                rollbackRunningSourceOverlay(vm, runningDiskLabels.get(spec.getSourceVolumePath()), resolveSharedMountPointPath(pool, spec.getSourceVolumePath()).toString());
+            if (!cmd.isMaterializedCopy()) {
+                boolean safe = !cmd.isSourceVmRunning();
+                if (cmd.isSourceVmRunning() && vm != null && runningDiskLabels.containsKey(spec.getSourceVolumePath())) {
+                    safe = rolledBackSourceVolumePaths.computeIfAbsent(spec.getSourceVolumePath(), path ->
+                            rollbackRunningSourceOverlay(vm, runningDiskLabels.get(path), resolveSharedMountPointPath(pool, path).toString()));
+                }
+                if (safe) { deleteSharedMountPointFileIfExists(pool, spec.getSourceOverlayPath()); }
             }
-            deleteSharedMountPointFileIfExists(pool, spec.getSourceOverlayPath());
-            deleteSharedMountPointFileIfExists(pool, spec.getCloneVolumePath());
+            if (ownedClonePaths.remove(spec.getCloneVolumePath())) { deleteSharedMountPointFileIfExists(pool, spec.getCloneVolumePath()); }
         }
     }
 
-    protected void rollbackRunningSourceOverlay(Domain vm, String diskLabel, String sourcePath) {
+    protected boolean rollbackRunningSourceOverlay(Domain vm, String diskLabel, String sourcePath) {
         try {
-            String command = String.format("virsh blockcommit %s %s --base %s --active --wait --pivot", vm.getName(), diskLabel, sourcePath);
-            String result = Script.runSimpleBashScript(command);
-            if (result != null) {
-                logger.warn("Failed to rollback source overlay with command [{}]. Result: [{}].", command, result);
-            }
+            Script command = new Script("virsh", 300_000);
+            command.add("blockcommit", vm.getName(), diskLabel, "--base", sourcePath, "--active", "--wait", "--pivot");
+            if (command.execute() != null) { return false; }
+            LibvirtDomainXMLParser parser = new LibvirtDomainXMLParser();
+            parser.parseDomainXML(vm.getXMLDesc(0));
+            return parser.getDisks().stream().anyMatch(d -> diskLabel.equals(d.getDiskLabel()) && sourcePath.equals(d.getDiskPath()));
         } catch (LibvirtException e) {
             logger.warn("Failed to rollback source overlay for disk [{}].", diskLabel, e);
+            return false;
         }
     }
 
@@ -3465,6 +3510,8 @@ public class KVMStorageProcessor implements StorageProcessor {
 
     @Override
     public Answer createVolumeFromSnapshot(final CopyCommand cmd) {
+        Answer qualifiedClone = copyAllocatedRbdSnapshot(cmd);
+        if (qualifiedClone != null) { return qualifiedClone; }
         Answer allocation = rejectUnqualifiedAllocationCopy(cmd);
         if (allocation != null) {
             return allocation;
@@ -3519,6 +3566,42 @@ public class KVMStorageProcessor implements StorageProcessor {
         } finally {
             volume.clearPassphrase();
         }
+    }
+
+    protected Answer copyAllocatedRbdSnapshot(CopyCommand command) {
+        if (!(command.getSrcTO() instanceof SnapshotObjectTO) || !(command.getDestTO() instanceof VolumeObjectTO)) { return null; }
+        SnapshotObjectTO snapshot = (SnapshotObjectTO) command.getSrcTO();
+        VolumeObjectTO source = snapshot.getVolume();
+        VolumeObjectTO target = (VolumeObjectTO) command.getDestTO();
+        if (target.getAllocation().isEmpty() && (source == null || source.getAllocation().isEmpty())) { return null; }
+        try {
+            if (source == null || source.requiresEncryption() || target.requiresEncryption() ||
+                    source.getFormat() != ImageFormat.RAW || !(snapshot.getDataStore() instanceof PrimaryDataStoreTO) ||
+                    !(target.getDataStore() instanceof PrimaryDataStoreTO) ||
+                    !java.util.Objects.equals(target.getVmCloneSourceVolumeId(), source.getVolumeId()) ||
+                    !Arrays.asList("full", "linked").contains(target.getVmCloneType()) ||
+                    !com.cloud.storage.VolumeAllocationLifecycle.intent(source.getAllocation()).equals(com.cloud.storage.VolumeAllocationLifecycle.intent(target.getAllocation()))) {
+                throw new CloudRuntimeException("ALLOCATION_OPERATION_UNSUPPORTED: explicit snapshot copy requires verified VM-clone provenance");
+            }
+            PrimaryDataStoreTO sourceStore = (PrimaryDataStoreTO) snapshot.getDataStore();
+            PrimaryDataStoreTO targetStore = (PrimaryDataStoreTO) target.getDataStore();
+            if (sourceStore.getPoolType() != StoragePoolType.RBD || targetStore.getPoolType() != StoragePoolType.RBD || !sourceStore.getUuid().equals(targetStore.getUuid())) {
+                throw new CloudRuntimeException("ALLOCATION_CLONE_BACKEND_UNSUPPORTED: matching primary RBD pools required");
+            }
+            com.cloud.storage.VolumeAllocationClone.validate(target.getAllocation(), targetStore.getPoolType(), "raw", target.getVmCloneType());
+            String path = snapshot.getPath();
+            String name = path == null ? "" : path.substring(path.lastIndexOf('/') + 1);
+            if (snapshot.getId() <= 0 || !name.matches("[A-Za-z0-9_.-]+")) { throw new CloudRuntimeException("Invalid clone snapshot identity"); }
+            KVMStoragePool pool = storagePoolMgr.getStoragePool(targetStore.getPoolType(), targetStore.getUuid());
+            KVMPhysicalDisk disk = pool.getPhysicalDisk(source.getPath());
+            if (disk == null || disk.getFormat() != PhysicalDiskFormat.RAW) { throw new CloudRuntimeException("Clone source is missing or not RAW"); }
+            disk.setPath(disk.getPath() + "@" + name);
+            RbdVolumeAllocation adapter = new RbdVolumeAllocation();
+            VolumeObjectTO result = "linked".equals(target.getVmCloneType()) ? adapter.cloneSnapshot(target, pool, disk, command.getWaitInMillSeconds()) :
+                    adapter.create(target, pool, disk, command.getWaitInMillSeconds());
+            return new CopyCmdAnswer(result);
+        } catch (Exception failure) { return new CopyCmdAnswer(failure.getMessage()); }
+        finally { target.clearPassphrase(); }
     }
 
     private List<StoragePoolType> storagePoolTypesToDeleteSnapshotFile = Arrays.asList(StoragePoolType.Filesystem, StoragePoolType.NetworkFilesystem,

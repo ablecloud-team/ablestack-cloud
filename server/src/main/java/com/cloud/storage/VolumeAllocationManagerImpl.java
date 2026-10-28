@@ -78,7 +78,7 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             response.setReason("HOST_NOT_AVAILABLE");
             return response;
         }
-        if (!List.of("create", "copy").contains(operation) ||
+        if (!List.of("create", "copy", "clone").contains(operation) ||
                 (pool.getPoolType() == Storage.StoragePoolType.RBD && !"raw".equals(format))) {
             response.setReason("ALLOCATION_OPERATION_UNSUPPORTED");
             return response;
@@ -112,7 +112,7 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
             response.setAgentPolicies(capability.getBackend(), capability.getMethods());
             boolean implemented = ("GFS2".equals(capability.getBackend()) ||
                     ("RBD".equals(capability.getBackend()) && "raw".equals(format))) &&
-                    List.of("create", "copy").contains(operation) &&
+                    List.of("create", "copy", "clone").contains(operation) &&
                     (requestedPolicy == null || capability.getMethods().containsKey(requestedPolicy.toLowerCase(Locale.ROOT)));
             response.setSupported(implemented);
             response.setReason(implemented ? null : "ALLOCATION_EXECUTION_NOT_IMPLEMENTED");
@@ -127,6 +127,19 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
     @Override
     public void validateCreate(java.util.Map<String, String> details, Storage.ProvisioningType legacy,
             long zoneId, Long poolId, String[] tags) {
+        validateExecution(details, legacy, zoneId, poolId, tags, List.of("create", "copy"));
+    }
+
+    @Override
+    public void validateClone(java.util.Map<String, String> details, Storage.ProvisioningType legacy,
+            long zoneId, long poolId, boolean linked) {
+        StoragePoolVO pool = poolDao.findById(poolId);
+        validateExecution(details, legacy, zoneId, poolId, null,
+                List.of(linked || (pool != null && pool.getPoolType() == Storage.StoragePoolType.SharedMountPoint) ? "clone" : "copy"));
+    }
+
+    private void validateExecution(java.util.Map<String, String> details, Storage.ProvisioningType legacy,
+            long zoneId, Long poolId, String[] tags, List<String> operations) {
         java.util.Map<String, String> intent = VolumeAllocationPolicy.requireCreationIntent(details);
         if (intent.isEmpty() && poolId == null) {
             return;
@@ -170,7 +183,7 @@ public class VolumeAllocationManagerImpl extends ManagerBase implements VolumeAl
                     continue;
                 }
                 hasUpHost = true;
-                for (String operation : List.of("create", "copy")) {
+                for (String operation : operations) {
                     VolumeAllocationCapabilityResponse capability = capabilities(pool, host, intent.get(VolumeAllocationPolicy.FORMAT), operation, intent.get(VolumeAllocationPolicy.POLICY));
                     allQualified &= capability.isSupported();
                 }

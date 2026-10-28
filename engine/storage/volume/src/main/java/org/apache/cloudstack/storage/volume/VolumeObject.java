@@ -682,6 +682,11 @@ public class VolumeObject implements VolumeInfo {
         if (to instanceof VolumeObjectTO) {
             Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.validateStored(volumeDetailsDao.listDetailsKeyPairs(getId()));
             ((VolumeObjectTO) to).setAllocation(intent);
+            Map<String, String> cloneDetails = volumeDetailsDao.listDetailsKeyPairs(getId());
+            ((VolumeObjectTO) to).setVmCloneType(cloneDetails.get(com.cloud.storage.VolumeAllocationClone.TYPE));
+            if (cloneDetails.containsKey(com.cloud.storage.VolumeAllocationClone.SOURCE)) {
+                ((VolumeObjectTO) to).setVmCloneSourceVolumeId(Long.valueOf(cloneDetails.get(com.cloud.storage.VolumeAllocationClone.SOURCE)));
+            }
             if (isPrimaryDataStore() && getPath() == null) {
                 org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = (org.apache.cloudstack.storage.to.PrimaryDataStoreTO) to.getDataStore();
                 if (store.getPoolType() == Storage.StoragePoolType.RBD && intent.isEmpty()) {
@@ -794,7 +799,7 @@ public class VolumeObject implements VolumeInfo {
         Map<String, String> supplied = result.getAllocation();
         if (!intent.equals(com.cloud.storage.VolumeAllocationPolicy.validateStored(supplied)) ||
                 !backend.equals(supplied.get(com.cloud.storage.VolumeAllocationPolicy.BACKEND)) ||
-                !List.of("create", "copy").contains(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION))) {
+                !List.of("create", "copy", "clone").contains(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION))) {
             throw new com.cloud.utils.exception.CloudRuntimeException(prefix + "missing or mismatched request and operation receipt");
         }
         try {

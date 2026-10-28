@@ -39,6 +39,13 @@ import java.util.Set;
 
 public class VolumeObjectTO extends DownloadableObjectTO implements DataTO, Serializable {
     private java.util.Map<String, String> allocation;
+    private String vmCloneType;
+    private Long vmCloneSourceVolumeId;
+
+    public String getVmCloneType() { return vmCloneType; }
+    public void setVmCloneType(String type) { vmCloneType = type; }
+    public Long getVmCloneSourceVolumeId() { return vmCloneSourceVolumeId; }
+    public void setVmCloneSourceVolumeId(Long id) { vmCloneSourceVolumeId = id; }
 
     public java.util.Map<String, String> getAllocation() {
         return allocation == null ? java.util.Collections.emptyMap() : new java.util.LinkedHashMap<>(allocation);

@@ -112,6 +112,7 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
     public VMSnapshot takeVMSnapshot(VMSnapshot vmSnapshot) {
         Long hostId = vmSnapshotHelper.pickRunningHost(vmSnapshot.getVmId());
         UserVm userVm = userVmDao.findById(vmSnapshot.getVmId());
+        boolean stoppedRbd = isStoppedRbdVm(userVm);
         VMSnapshotVO vmSnapshotVO = (VMSnapshotVO) vmSnapshot;
 
         CreateVMSnapshotAnswer answer = null;
@@ -164,19 +165,19 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
 
             freezeCommand = new FreezeThawVMCommand(userVm.getInstanceName());
             freezeCommand.setOption(FreezeThawVMCommand.FREEZE);
-            freezeAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, freezeCommand);
+            if (!stoppedRbd) { freezeAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, freezeCommand); }
             startFreeze = System.nanoTime();
 
             thawCmd = new FreezeThawVMCommand(userVm.getInstanceName());
             thawCmd.setOption(FreezeThawVMCommand.THAW);
-            if (freezeAnswer != null && freezeAnswer.getResult()) {
-                logger.info("The virtual machine is frozen");
+            if (stoppedRbd || (freezeAnswer != null && freezeAnswer.getResult())) {
+                logger.info(stoppedRbd ? "Taking storage-only snapshots of a stopped RBD VM" : "The virtual machine is frozen");
                 for (VolumeInfo vol : vinfos) {
                     long startSnapshtot = System.nanoTime();
                     SnapshotInfo snapInfo = createDiskSnapshot(vmSnapshot, snapshotsForRollback, vol);
 
                     if (snapInfo == null) {
-                        thawAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, thawCmd);
+                        if (!stoppedRbd) { thawAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, thawCmd); }
                         throw new CloudRuntimeException("Could not take snapshot for volume with id=" + vol.getId());
                     }
                     logger.info(String.format("Snapshot with id=%s, took  %s milliseconds", snapInfo.getId(),
@@ -184,14 +185,14 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
                 }
                 answer = new CreateVMSnapshotAnswer(ccmd, true, "");
                 answer.setVolumeTOs(volumeTOs);
-                thawAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, thawCmd);
+                if (!stoppedRbd) { thawAnswer = (FreezeThawVMAnswer) agentMgr.send(hostId, thawCmd); }
                 if (thawAnswer != null && thawAnswer.getResult()) {
                     logger.info(String.format(
                             "Virtual machine is thawed. The freeze of virtual machine took %s milliseconds.",
                             TimeUnit.MILLISECONDS.convert(elapsedTime(startFreeze), TimeUnit.NANOSECONDS)));
                 }
             } else {
-                throw new CloudRuntimeException("Could not freeze Instance." + freezeAnswer.getDetails());
+                throw new CloudRuntimeException("Could not freeze Instance." + (freezeAnswer == null ? "No Agent answer" : freezeAnswer.getDetails()));
             }
             if (answer != null && answer.getResult()) {
                 processAnswer(vmSnapshotVO, userVm, answer, null);
@@ -377,7 +378,7 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
             return StrategyPriority.CANT_HANDLE;
         }
 
-        if (!VirtualMachine.State.Running.equals(vm.getState())) {
+        if (!VirtualMachine.State.Running.equals(vm.getState()) && !isStoppedRbdVm(vm)) {
             logger.debug("{} as the VM is not running.", cantHandleLog);
             return StrategyPriority.CANT_HANDLE;
         }
@@ -402,6 +403,16 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
         logger.debug("{} as {}.", () -> cantHandleLog, () -> snapshotMemory ? "A VM snapshot with memory was requested" :
                 String.format("%s is false", SnapshotManager.VmStorageSnapshotKvm.key()));
         return StrategyPriority.CANT_HANDLE;
+    }
+
+    protected boolean isStoppedRbdVm(UserVm vm) {
+        if (vm == null || vm.getState() != VirtualMachine.State.Stopped) { return false; }
+        List<VolumeVO> volumes = volumeDao.findByInstance(vm.getId());
+        return CollectionUtils.isNotEmpty(volumes) && volumes.stream().allMatch(volume -> {
+            com.cloud.storage.StoragePool pool = volume.getPoolId() == null ? null : storagePool.findById(volume.getPoolId());
+            return pool != null && pool.getPoolType() == com.cloud.storage.Storage.StoragePoolType.RBD &&
+                    volume.getState() == com.cloud.storage.Volume.State.Ready && volume.getFormat() == com.cloud.storage.Storage.ImageFormat.RAW;
+        });
     }
 
     @Override

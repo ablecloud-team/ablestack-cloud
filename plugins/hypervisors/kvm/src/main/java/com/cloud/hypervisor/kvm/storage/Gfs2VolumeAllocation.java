@@ -108,7 +108,7 @@ public class Gfs2VolumeAllocation {
     }
 
     static Map<String, String> methods(String format, String operation) {
-        if (operation == null || !List.of("create", "copy").contains(operation)) { return Map.of(); }
+        if (operation == null || !List.of("create", "copy", "clone").contains(operation)) { return Map.of(); }
         if ("qcow2".equals(format)) {
             return Map.of("metadata", "qemu-preallocation-metadata", "falloc", "qemu-preallocation-falloc", "full", "qemu-preallocation-full");
         }
