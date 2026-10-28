@@ -58,8 +58,19 @@ export async function observeConfigurationOperation ({
         if (!current()) return null
         const job = wire.queryasyncjobresultresponse || {}
         if (job.jobstatus === 1 && last?.state === 'COMMITTED') return { ...last, result: job.jobresult }
-        // A resumable snapshot can race a still-running original job's DB commit.
-        if ([1, 2].includes(job.jobstatus) && last?.canresume) return last
+        // The job can finish after the list snapshot was read. Confirm recovery
+        // against the same operation again rather than returning that stale row.
+        if ([1, 2].includes(job.jobstatus) && last?.canresume) {
+          const freshRows = decodeConfigurationOperations(await get('listStorageServiceConfigurationOperations', { instanceid, requestid }))
+          if (!current()) return null
+          const fresh = freshRows.find(value => value.id === last.id &&
+            (!value.instanceid || value.instanceid === instanceid) &&
+            (!value.requestid || value.requestid === requestid))
+          if (!fresh) throw new Error('Configuration operation observation unavailable')
+          last = fresh; changed(last)
+          if (last.state === 'COMMITTED') return { ...last, result: job.jobstatus === 1 ? (job.jobresult ?? last.result) : last.result }
+          if (last.state === 'ROLLED_BACK' || last.state === 'RECOVERY_REQUIRED' || last.canresume) return last
+        }
         if (job.jobstatus === 2 && !last) {
           const rejected = {
             requestid,
