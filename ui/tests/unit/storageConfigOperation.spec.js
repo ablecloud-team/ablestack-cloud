@@ -53,10 +53,11 @@ describe('resumable observations and original async job lifetime', () => {
     expect(get).toHaveBeenCalledTimes(1)
   })
   test.each([1, 2])('a finished original job %i leaves explicit same-operation recovery available', async jobstatus => {
-    const get = jest.fn().mockResolvedValueOnce(committing).mockResolvedValueOnce({ queryasyncjobresultresponse: { jobstatus } })
-    const value = await observeConfigurationOperation({ get, requestid: 'key', jobid: 'finished', sleep: async () => {} })
+    const get = jest.fn().mockResolvedValueOnce(committing).mockResolvedValueOnce({ queryasyncjobresultresponse: { jobstatus } }).mockResolvedValueOnce(committing)
+    const snapshot = committing.liststorageserviceconfigurationoperationsresponse.configurationoperation[0]
+    const value = await observeConfigurationOperation({ get, instanceid: snapshot.instanceid, requestid: snapshot.requestid, jobid: 'finished', sleep: async () => {} })
     expect(value.id).toBe(committing.liststorageserviceconfigurationoperationsresponse.configurationoperation[0].id)
     expect(value.canresume).toBe(true)
-    expect(get).toHaveBeenCalledTimes(2)
+    expect(get).toHaveBeenCalledTimes(3)
   })
 })
