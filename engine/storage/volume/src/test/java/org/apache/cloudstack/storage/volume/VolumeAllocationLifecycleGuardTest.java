@@ -74,6 +74,7 @@ public class VolumeAllocationLifecycleGuardTest {
         when(primary.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
         when(snapshot.getDataStore()).thenReturn(primary); when(snapshot.getBaseVolume()).thenReturn(source);
         when(source.getState()).thenReturn(com.cloud.storage.Volume.State.Ready); when(source.getFormat()).thenReturn(com.cloud.storage.Storage.ImageFormat.RAW);
+        when(source.getPassphraseId()).thenReturn(null); when(source.getKmsKeyId()).thenReturn(null);
         when(volume.getSize()).thenReturn(1048576L); when(snapshot.getSize()).thenReturn(1048576L);
         java.util.Map<String,String> target = new java.util.HashMap<>(VolumeAllocationPolicy.request("full","raw",null));
         target.put(com.cloud.storage.VolumeAllocationClone.SOURCE,"2"); target.put(com.cloud.storage.VolumeAllocationClone.TYPE,"full");

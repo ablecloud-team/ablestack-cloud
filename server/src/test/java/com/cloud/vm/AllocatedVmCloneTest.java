@@ -51,6 +51,7 @@ public class AllocatedVmCloneTest {
         source = mock(UserVmVO.class); when(source.getId()).thenReturn(10L); when(source.getState()).thenReturn(VirtualMachine.State.Stopped); when(source.getDataCenterId()).thenReturn(1L);
         root = mock(VolumeVO.class); when(root.getId()).thenReturn(20L); when(root.getPoolId()).thenReturn(30L); when(root.getVolumeType()).thenReturn(Volume.Type.ROOT);
         when(root.getState()).thenReturn(Volume.State.Ready); when(root.getFormat()).thenReturn(Storage.ImageFormat.RAW); when(root.getSize()).thenReturn(1048576L); when(root.getUuid()).thenReturn("new-uuid");
+        when(root.getPassphraseId()).thenReturn(null); when(root.getKmsKeyId()).thenReturn(null);
         when(volumes.findByInstance(10L)).thenReturn(List.of(root));
         when(details.listDetailsKeyPairs(20L)).thenReturn(VolumeAllocationPolicy.request("off", "raw", null));
         pool = mock(StoragePoolVO.class); when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD); when(pool.getId()).thenReturn(30L); when(pools.findById(30L)).thenReturn(pool);
