@@ -1,0 +1,18 @@
+{
+  "date":"2026-10-28",
+  "sourceReviewCommit":"37bceae693041b9c79cc52084053b050b577029d",
+  "clusters":{"31":"SharedMountPoint/GFS2","32":"RBD","22":"RBD"},
+  "cloneJobs":[
+    {"cluster":"31","name":"qa-clone-1028-31-ui","count":2,"startvm":false,"jobid":"b1f37db3-6465-4617-a582-5bda88e22a3f","jobstatus":1,"clonesInitiallyStopped":true,"rootAndDataCopied":true,"laterStartedAndFlattened":true},
+    {"cluster":"32","name":"qa-clone-1028-32-full","clonetype":"full","count":1,"startvm":true,"jobid":"19f6cef2-45a7-4af7-95db-c4faec2e0714","jobstatus":1,"rootAndDataCopied":true,"rbdParentsEventuallyAbsent":true},
+    {"cluster":"32","sourceState":"Stopped","clonetype":"linked","count":2,"jobid":"1b5b79a6-6d65-4c3d-a473-04b0666de62b","jobstatus":2,"error":"KVM does not support the type of Snapshot requested"},
+    {"cluster":"32","sourceState":"Running","sameSourceAfterFull":true,"jobid":"01cefbfc-a595-49bf-b023-ce7815657a7c","jobstatus":2,"error":"There are other active Instance Snapshot tasks on the Instance, please try again later","temporaryVmSnapshotState":"Expunging","volumeSnapshotCloneTypes":["full-flattened","full-flattened"]},
+    {"cluster":"32","name":"qa-clone-1028-32-linked","freshSource":true,"clonetype":"linked","count":2,"startvm":true,"jobid":"6c53263e-2b3b-42fe-821c-67d4f97c40ff","jobstatus":1,"bothRunning":true,"bothRbdParentReferencesVerified":true},
+    {"cluster":"22","sourceVm":"rocky98-base","uiEnabled":true,"httpStatus":530,"error":"ALLOCATION_OPERATION_UNSUPPORTED: VM clone is not qualified for explicit allocation; source and allocation evidence are preserved","cloneCreated":false}
+  ],
+  "explicitAllocationSource22":{"volume":"ROOT-3","type":"ROOT","state":"Ready","vmState":"Stopped","size":107374182400,"policyorigin":"explicit","requestedpolicy":"off","requestedformat":"raw","effectivepolicy":"off","actualformat":"raw","appliedmethod":"rbd-thin","evidence":"verified"},
+  "template22":{"uiDisabled":true,"api":"createTemplate","jobid":"c5ef127c-fc01-4d92-9a49-e16e95c11a20","jobstatus":1,"isready":true,"status":"Download Complete","format":"QCOW2","logicalSize":107374182400,"physicalSize":2454978560,"templateId":"d6c0c108-9eaf-4965-b7f5-fc7be8c93bf7","deletedAfterValidation":true},
+  "download22":{"uiDisabled":true,"api":"extractVolume","mode":"HTTP_DOWNLOAD","jobid":"95ae4b58-8965-4dc7-bfee-ab165d18e832","jobstatus":2,"error":"ALLOCATION_OPERATION_UNSUPPORTED: volume copy/move is not qualified for explicit allocation; source and allocation evidence are preserved","urlGenerated":false},
+  "apiContract":{"countDocumentedOptional":true,"omittingCountHttpStatus":530,"omittingCountError":"The number of VM clones must be at least one","batchResponseContainsOnlyLastVm":true,"accountDomainAndZoneNotExposedByUi":"Backend ownership/zone contract must be resolved before UI fields are added"},
+  "validation":{"nameRequired":true,"nameSyntax":true,"nameLengthIncludingSuffix":true,"countInteger":true,"nameCollisionAndFormRetention":true,"darkMobile390x844":true,"guestByteEquality":"not verified; guest-exec is disabled on the test image","cluster32LinkedDirectQga":"not verified due host32.3 SSH key mismatch"}
+}
