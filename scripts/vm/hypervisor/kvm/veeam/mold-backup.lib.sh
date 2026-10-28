@@ -2057,6 +2057,58 @@ mold_backup_initialize_restore_watch_baseline() {
   mold_backup_notify_log info "Veeam restore watcher initial baseline completed sessions=${marked}"
 }
 
+# Shared by discovery and the independent completion-proof query. A Linux FLR
+# browser can remain open after a file-copy task has succeeded. Never manufacture
+# a terminal browser result or completion time from the restored files' mtimes.
+mold_backup_veeam_restore_task_helpers() {
+  cat <<'PS'
+function Get-MoldTaskEpoch($Info, [string]$UtcField, [string]$LocalField) {
+  foreach ($field in @($UtcField, $LocalField)) {
+    if ($null -eq $Info -or -not $Info.PSObject.Properties[$field]) { continue }
+    $value = $Info.$field
+    if ($null -eq $value) { continue }
+    try {
+      $dt = [datetime]$value
+      if ($dt.Year -lt 2000) { continue }
+      if ($dt.Kind -eq [DateTimeKind]::Unspecified) {
+        $kind = if ($field -eq $UtcField) { [DateTimeKind]::Utc } else { [DateTimeKind]::Local }
+        $dt = [DateTime]::SpecifyKind($dt, $kind)
+      }
+      return [int64]([DateTimeOffset]$dt).ToUnixTimeSeconds()
+    } catch {}
+  }
+  return [int64]0
+}
+function Get-MoldCompletedRestoreTask($Parent, $Task) {
+  $parentId = [guid]::Empty; $taskId = [guid]::Empty; $ownerId = [guid]::Empty
+  if (-not [guid]::TryParse([string]$Parent.Id, [ref]$parentId) -or $parentId -eq [guid]::Empty -or
+      -not [guid]::TryParse([string]$Task.Id, [ref]$taskId) -or $taskId -eq [guid]::Empty -or
+      -not [guid]::TryParse([string]$Task.JobSessId, [ref]$ownerId) -or $ownerId -ne $parentId) { return $null }
+  $result = [string]$Task.Status
+  if (-not $result) { $result = [string]$Task.Info.Status }
+  if ($result -notin @('Success', 'Warning')) { return $null }
+  $start = Get-MoldTaskEpoch $Task.Info 'CreationTimeUTC' 'CreationTime'
+  $end = Get-MoldTaskEpoch $Task.Info 'EndTimeUTC' 'EndTime'
+  $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+  if ($start -lt 1000000000 -or $end -lt $start -or $end -gt $now + 300) { return $null }
+  return [pscustomobject]@{ Id=$taskId.ToString(); ParentId=$parentId.ToString(); Result=$result; StartedAt=$start; EndedAt=$end; Task=$Task }
+}
+function Test-MoldOwnedRestoreParent([string]$ParentId) {
+  if (-not $env:ProgramData) { return $false }
+  $root=Join-Path $env:ProgramData 'ABLESTACK/Mold/volume-restore'
+  if (-not (Test-Path -LiteralPath $root)) { return $false }
+  foreach ($file in @(Get-ChildItem -LiteralPath $root -Filter '*.json' -File -ErrorAction Stop)) {
+    $receipt=Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    if (-not $receipt.requestId -or -not $receipt.binding) { continue }
+    foreach ($id in @($receipt.parentSessionId)+@($receipt.callbackJobIds)) {
+      if ($id -and ([string]$id).Trim('{}') -eq $ParentId) { return $true }
+    }
+  }
+  return $false
+}
+PS
+}
+
 mold_backup_query_veeam_restores() {
   local since_min="${1:-${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}}"
   [[ -n "${VEEAM_SSH_HOST:-}" ]] || {
@@ -2086,8 +2138,10 @@ mold_backup_query_veeam_restores() {
 \$cutoff = (Get-Date).ToUniversalTime().AddMinutes(-1 * \$SinceMin)
 Import-Module Veeam.Backup.PowerShell -WarningAction SilentlyContinue
 \$emitted = @{}
+\$taskParents = @{}
+$(mold_backup_veeam_restore_task_helpers)
 function Emit-RestoreLine {
-  param([string]\$Sid, [string]\$Ip, [long]\$Epoch, [string]\$Result, [string]\$Name, [string]\$Backup, [string]\$RpId, [string]\$RpEpoch = '')
+  param([string]\$Sid, [string]\$Ip, [long]\$Epoch, [string]\$Result, [string]\$Name, [string]\$Backup, [string]\$RpId, [string]\$RpEpoch = '', [string]\$ParentSid = '')
   if (-not \$Sid) { return }
   if (\$emitted.ContainsKey(\$Sid)) { return }
   \$emitted[\$Sid] = \$true
@@ -2096,7 +2150,7 @@ function Emit-RestoreLine {
   \$r = (\$Result -replace '[\|\r\n]',' ')
   \$rp = (\$RpId -replace '[\|\r\n]','').Trim()
   \$rpe = (\$RpEpoch -replace '[\|\r\n]','').Trim()
-  "\$Sid|\$Ip|\$Epoch|\$r|\$n|\$b|\$rp|\$rpe"
+  "\$Sid|\$Ip|\$Epoch|\$r|\$n|\$b|\$rp|\$rpe|\$ParentSid"
 }
 function Get-RpInfoFromSession {
   param(\$Session)
@@ -2246,14 +2300,31 @@ for (\$k = 0; \$k -lt 12; \$k++) {
 \$sessions = @(Get-VBRRestoreSession)
 foreach (\$r in \$sessions) {
   if (\$null -eq \$r) { continue }
-  \$rs = [string]\$r.Result
-  # In-progress FLR browse sessions report Result=None with EndTime=DateTime.MinValue.
-  # Emitting those made Mold stop the VM mid-session and disconnect Veeam UI/agent.
-  if (\$rs -notmatch '^(?i)(Success|Warning|Failed|Canceled|Cancelled)\$') { continue }
-  \$hasEnd = (Valid-RestoreEnd \$r.EndTime) -or (Valid-RestoreEnd \$r.EndTimeUTC)
-  \$done = \$false
-  try { \$done = [bool]\$r.IsCompleted } catch { \$done = \$hasEnd }
-  if (-not \$done -and -not \$hasEnd) { continue }
+  \$taskMode = \$null -ne \$r.PSObject.Methods['GetTaskSessions']
+  \$completedTasks = @()
+  if (\$taskMode) {
+    # The copy task owns completion. Browsing alone must not restore a VM, and
+    # closing the parent later must not submit every completed copy a second time.
+    \$taskParents[([string]\$r.Id).Trim('{}').ToLowerInvariant()] = \$true
+    try { \$tasks = @(\$r.GetTaskSessions()) } catch { continue }
+    foreach (\$task in \$tasks) {
+      \$copy = Get-MoldCompletedRestoreTask \$r \$task
+      if (\$null -ne \$copy -and \$copy.EndedAt -ge ([DateTimeOffset]\$cutoff).ToUnixTimeSeconds()) { \$completedTasks += \$copy }
+    }
+    if (\$completedTasks.Count -eq 0) { continue }
+    # Check after copy completion, when its management receipt already exists.
+    # This also avoids repeatedly reading receipts for old/inactive browsers.
+    if (Test-MoldOwnedRestoreParent (([string]\$r.Id).Trim('{}'))) { continue }
+  } else {
+    \$rs = [string]\$r.Result
+    # Compatibility for restore session types without file-copy task enumeration.
+    # Result=None is never treated as a successful completed operation.
+    if (\$rs -notmatch '^(?i)(Success|Warning|Failed|Canceled|Cancelled)\$') { continue }
+    \$hasEnd = (Valid-RestoreEnd \$r.EndTime) -or (Valid-RestoreEnd \$r.EndTimeUTC)
+    \$done = \$false
+    try { \$done = [bool]\$r.IsCompleted } catch { \$done = \$hasEnd }
+    if (-not \$done -and -not \$hasEnd) { continue }
+  }
   \$opt = [string]\$r.Options
   \$ip = ''
   foreach (\$pat in @('IpOrDnsName="([^"]+)"','MachineName="([^"]+)"','DisplayName="([^"]+)"')) {
@@ -2271,6 +2342,12 @@ foreach (\$r in \$sessions) {
   \$rpId = [string]\$rpInfo.Id
   \$rpEpoch = [string]\$rpInfo.Epoch
   \$nm = [string]\$r.Name
+  if (\$taskMode) {
+    foreach (\$copy in \$completedTasks) {
+      Emit-RestoreLine -Sid \$copy.Id -Ip \$ip -Epoch \$copy.EndedAt -Result \$copy.Result -Name \$nm -Backup \$bn -RpId \$rpId -RpEpoch \$rpEpoch -ParentSid \$copy.ParentId
+    }
+    continue
+  }
   \$epoch = 0
   \$etObj = \$null
   if (Valid-RestoreEnd \$r.EndTime) { \$etObj = \$r.EndTime }
@@ -2300,6 +2377,9 @@ try {
         if (\$m.Success) { \$sid = \$m.Groups[1].Value }
         if (-not \$sid) { \$sid = [string]\$_.SessionUid }
         if (-not \$sid) { \$sid = "audit-" + [guid]::NewGuid().ToString() }
+        # A parent audit row must not bypass a pending/failed copy task or replay
+        # a copy already emitted with its own identity.
+        if (\$taskParents.ContainsKey(\$sid.Trim('{}').ToLowerInvariant())) { return }
         \$ip = ''
         \$m = [regex]::Match(\$det, '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
         if (\$m.Success) { \$ip = \$m.Groups[1].Value }
@@ -2399,13 +2479,17 @@ mold_backup_emit_restore_event() {
 }
 
 mold_backup_query_veeam_restore_proof() {
-  local sid="$1" ps_script
+  local sid="$1" parent_sid="${2:-}" ps_script
   [[ "$sid" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] || return 1
+  [[ -z "$parent_sid" || "$parent_sid" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] || return 1
   ps_script="$(cat <<PS
 \$ErrorActionPreference='Stop'
 Import-Module Veeam.Backup.PowerShell -WarningAction SilentlyContinue
 Connect-VBRServer -Server localhost -ErrorAction Stop
-\$sessions=@(Get-VBRRestoreSession -Id ([guid]'${sid}'))
+$(mold_backup_veeam_restore_task_helpers)
+\$parentId='${parent_sid}'
+\$lookup=if (\$parentId) { \$parentId } else { '${sid}' }
+\$sessions=@(Get-VBRRestoreSession -Id ([guid]\$lookup))
 if (\$sessions.Count -ne 1) { throw 'Exact restore session is unavailable' }
 \$s=\$sessions[0]
 function Epoch(\$value) {
@@ -2414,13 +2498,24 @@ function Epoch(\$value) {
   if (\$dt.Kind -eq [DateTimeKind]::Unspecified) { \$dt=[datetime]::SpecifyKind(\$dt,[DateTimeKind]::Utc) }
   return ([DateTimeOffset]\$dt).ToUnixTimeSeconds()
 }
-\$start=Epoch \$s.CreationTimeUTC
-if (-not \$start) { \$start=Epoch \$s.CreationTime }
-\$end=Epoch \$s.EndTimeUTC
-if (-not \$end) { \$end=Epoch \$s.EndTime }
+\$logOwner=\$s
+if (\$parentId) {
+  \$tasks=@(\$s.GetTaskSessions() | Where-Object { ([string]\$_.Id).Trim('{}') -eq '${sid}' })
+  if (\$tasks.Count -ne 1) { throw 'Exact file restore task is missing or ambiguous' }
+  \$copy=Get-MoldCompletedRestoreTask \$s \$tasks[0]
+  if (\$null -eq \$copy) { throw 'Exact file restore task completion or parent ownership is unconfirmed' }
+  \$start=\$copy.StartedAt; \$end=\$copy.EndedAt; \$result=\$copy.Result
+  \$logOwner=\$tasks[0]
+} else {
+  \$start=Epoch \$s.CreationTimeUTC
+  if (-not \$start) { \$start=Epoch \$s.CreationTime }
+  \$end=Epoch \$s.EndTimeUTC
+  if (-not \$end) { \$end=Epoch \$s.EndTime }
+  \$result=[string]\$s.Result
+}
 \$details=@(); \$available=\$false
 try {
-  \$log=\$s.Logger.GetLog()
+  \$log=\$logOwner.Logger.GetLog()
   \$records=@(\$log.UpdatedRecords)
   if (\$records.Count -gt 0) {
     \$available=\$true
@@ -2429,7 +2524,7 @@ try {
     })
   }
 } catch {}
-\$value=@{jobId=[string]\$s.Id;result=[string]\$s.Result;startedAt=\$start;endedAt=\$end;detailsAvailable=\$available;details=\$details}
+\$value=@{jobId='${sid}';parentSessionId=\$parentId;result=\$result;startedAt=\$start;endedAt=\$end;detailsAvailable=\$available;details=\$details}
 Write-Output ('ABLESTACK_JSON:'+ (\$value | ConvertTo-Json -Compress -Depth 5))
 PS
 )"
@@ -2437,8 +2532,8 @@ PS
 }
 
 mold_backup_verify_veeam_warning() {
-  local sid="$1" resolution="$2" proof output rc=0
-  proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid")" || proof=""
+  local sid="$1" resolution="$2" parent_sid="${3:-}" proof output rc=0
+  proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid" "$parent_sid")" || proof=""
   output="$(python3 - "$sid" "$resolution" "$proof" <<'PYTHON'
 import json
 from pathlib import Path
@@ -2538,16 +2633,17 @@ PYTHON
 }
 
 mold_backup_volume_restore_proof() {
-  local sid="$1" proof host
-  proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid")" || return 2
+  local sid="$1" parent_sid="${2:-}" proof host
+  proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid" "$parent_sid")" || return 2
   host="$(mold_backup_local_kvm_name)"
-  proof="$(python3 - "$sid" "$host" "$proof" <<'PYTHON'
+  proof="$(python3 - "$sid" "$host" "$proof" "$parent_sid" <<'PYTHON'
 import json, math, sys, time
 try:
-    sid, host, raw = sys.argv[1:]
+    sid, host, raw, parent_sid = sys.argv[1:]
     value = json.loads(raw)
     start, end = float(value.get('startedAt', 0)), float(value.get('endedAt', 0))
     if (str(value.get('jobId', '')).strip('{}').lower() != sid.split('#')[0].lower()
+            or (parent_sid and str(value.get('parentSessionId', '')).strip('{}').lower() != parent_sid.lower())
             or str(value.get('result', '')).lower() not in {'success', 'warning'}
             or not host or not all(map(math.isfinite, (start, end))) or start <= 0 or end < start or end > time.time() + 300):
         raise ValueError('External restore session completion is unconfirmed')
@@ -2561,8 +2657,8 @@ PYTHON
 }
 
 mold_backup_report_rejected_volume_restore() {
-  local sid="$1" rp_id="$2" reason="$3" proof output success
-  proof="$(mold_backup_volume_restore_proof "$sid")" || return 2
+  local sid="$1" rp_id="$2" reason="$3" parent_sid="${4:-}" proof output success
+  proof="$(mold_backup_volume_restore_proof "$sid" "$parent_sid")" || return 2
   output="$(mold_backup_cmk_run rejectBackupArtifactRestore "provider=ablestack-veeam" "externalid=${rp_id}" \
     "jobid=${sid%%#*}" "reason=${reason:-Metadata restore precheck declined}" "proof=${proof}" 2>/dev/null)" || return 2
   success="$(mold_backup_api_json_field "$output" "rejectbackupartifactrestoreresponse.success")"
@@ -2570,7 +2666,7 @@ mold_backup_report_rejected_volume_restore() {
 }
 
 mold_backup_handle_volume_restore_session() {
-  local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}" result="${5:-}"
+  local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}" result="${5:-}" parent_sid="${6:-}"
   local json matched tracked allowed reason vm async_id artifact_type proof
   result="$(printf '%s' "$result" | tr '[:upper:]' '[:lower:]')"
   [[ "$result" == success || "$result" == warning ]] || return 2
@@ -2594,9 +2690,9 @@ mold_backup_handle_volume_restore_session() {
     artifact_type="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.backupartifact.artifacttype")"
     if [[ "$trigger_mold" == "true" && "$tracked" != [Tt][Rr][Uu][Ee] && "$artifact_type" == "METADATA" ]]; then
       [[ -n "$rp_id" && "$rp_id" != "n/a" ]] || return 2
-      mold_backup_report_rejected_volume_restore "$sid" "$rp_id" "$reason" || return 2
+      mold_backup_report_rejected_volume_restore "$sid" "$rp_id" "$reason" "$parent_sid" || return 2
     fi
-    mold_backup_emit_restore_event "mold.restore.skipped.volume-pipeline" "$vm" "session=${sid};rp=${rp_id};reason=${reason}"
+    mold_backup_emit_restore_event "mold.restore.skipped.volume-pipeline" "$vm" "session=${sid};parent_session=${parent_sid};rp=${rp_id};reason=${reason}"
     mold_backup_restore_session_mark_seen "$sid"
     return 0
   fi
@@ -2606,43 +2702,47 @@ mold_backup_handle_volume_restore_session() {
   fi
   [[ -n "$rp_id" && "$rp_id" != "n/a" ]] || return 2
   if [[ "$result" == warning ]]; then
-    mold_backup_verify_veeam_warning "$sid" "$json" || return 2
+    mold_backup_verify_veeam_warning "$sid" "$json" "$parent_sid" || return 2
   fi
-  proof="$(mold_backup_volume_restore_proof "$sid")" || return 2
+  proof="$(mold_backup_volume_restore_proof "$sid" "$parent_sid")" || return 2
   json="$(mold_backup_cmk_run restoreBackupArtifact "provider=ablestack-veeam" "externalid=${rp_id}" "jobid=${sid%%#*}" "proof=${proof}" 2>/dev/null)" || return 2
   async_id="$(mold_backup_api_json_field "$json" "restorebackupartifactresponse.jobid")"
   [[ -n "$async_id" ]] || return 2
   mold_backup_restore_session_mark_seen "$sid"
-  mold_backup_emit_restore_event "mold.restore.submitted" "$vm" "session=${sid};rp=${rp_id};async_job_id=${async_id};source=metadata-ui"
+  mold_backup_emit_restore_event "mold.restore.submitted" "$vm" "session=${sid};parent_session=${parent_sid};rp=${rp_id};async_job_id=${async_id};source=metadata-ui"
   return 0
 }
 
 mold_backup_handle_veeam_restore_session() {
   local job="$1" vm="$2" sid="$3" detail="$4" trigger_mold="${5:-false}" rp_id="${6:-}"
-  local session row_sid sip et result nm bn row_rp rp_epoch
+  local session row_sid sip et result nm bn row_rp rp_epoch parent_sid
   [[ "$sid" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] || return 1
   session="$(mold_backup_query_veeam_restores "${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}" | awk -F'|' -v sid="$sid" 'tolower($1)==tolower(sid) && !found {print; found=1}')" || return 1
-  IFS='|' read -r row_sid sip et result nm bn row_rp rp_epoch <<< "$session"
+  IFS='|' read -r row_sid sip et result nm bn row_rp rp_epoch parent_sid <<< "$session"
   result="$(printf '%s' "$result" | tr '[:upper:]' '[:lower:]')"
   [[ "$et" =~ ^[0-9]+$ ]] && (( et >= 1000000000 )) || return 1
   [[ -z "$rp_id" || "$rp_id" == "$row_rp" ]] || return 1
-  mold_backup_handle_volume_restore_session "${bn:-$job}" "$sid" "$row_rp" "$trigger_mold" "$result"
+  mold_backup_handle_volume_restore_session "${bn:-$job}" "$sid" "$row_rp" "$trigger_mold" "$result" "$parent_sid"
 }
 
 mold_backup_watch_veeam_restores() {
   local job="${1:-${VEEAM_JOB_NAME:-}}" since_min="${2:-${VEEAM_RESTORE_WATCH_WINDOW_MIN:-60}}"
   local trigger_mold="${3:-${RESTORE_WATCH_TRIGGER_MOLD:-false}}"
-  local sid sip et result nm bn rp_id rp_epoch pipeline_rc processed=0 handled=0
+  local sid sip et result nm bn rp_id rp_epoch parent_sid pipeline_rc processed=0 handled=0
   mold_backup_initialize_restore_watch_baseline "$since_min"
-  while IFS='|' read -r sid sip et result nm bn rp_id rp_epoch; do
+  while IFS='|' read -r sid sip et result nm bn rp_id rp_epoch parent_sid; do
     [[ "$sid" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] || continue
     result="$(printf '%s' "$result" | tr '[:upper:]' '[:lower:]')"
     [[ "$result" == success || "$result" == warning ]] || continue
     [[ "$et" =~ ^[0-9]+$ ]] && (( et >= 1000000000 )) || continue
+    [[ -z "$parent_sid" || "$parent_sid" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]] || continue
     mold_backup_restore_session_seen "$sid" && continue
+    # A pre-upgrade completed parent may already have submitted this restore.
+    [[ -n "$parent_sid" ]] && mold_backup_restore_session_seen "$parent_sid" && continue
     processed=$((processed + 1))
+    mold_backup_notify_log info "restore-watch: completed operation=${sid} parent=${parent_sid:-none} result=${result} rp=${rp_id:-unknown}"
     pipeline_rc=0
-    mold_backup_handle_volume_restore_session "${bn:-$nm}" "$sid" "$rp_id" "$trigger_mold" "$result" || pipeline_rc=$?
+    mold_backup_handle_volume_restore_session "${bn:-$nm}" "$sid" "$rp_id" "$trigger_mold" "$result" "$parent_sid" || pipeline_rc=$?
     if [[ "$pipeline_rc" == 0 ]]; then
       handled=$((handled + 1))
     else

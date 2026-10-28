@@ -451,6 +451,32 @@ public class AblestackVeeamSshClient {
     }
 
     /** Agent file restore requires the FLR object to remain in the same PowerShell session. */
+    static String volumeRestoreTaskCommands() {
+        return String.join("\n",
+                "function Restore-TaskResult($task) {",
+                "  $value=[string]$task.Status; if (!$value) { $value=[string]$task.Info.Status }",
+                "  if (!$value) { $value=[string]$task.Result }; if (!$value) { $value=[string]$task.Info.Result }; return $value",
+                "}",
+                "function Find-RestoreTask($taskId,$parentId) {",
+                "  if ($parentId) {",
+                "    $parents=@(Get-VBRRestoreSession -Id ([guid]$parentId) -ErrorAction Stop)",
+                "    if ($parents.Count -ne 1) { throw 'Exact restore parent is missing or ambiguous' }",
+                "    $tasks=@($parents[0].GetTaskSessions() | Where-Object { ([string]$_.Id).Trim('{}') -eq $taskId })",
+                "    if ($tasks.Count -ne 1 -or ([string]$tasks[0].JobSessId).Trim('{}') -ne ([string]$parents[0].Id).Trim('{}')) { throw 'Exact file restore task or parent ownership is unconfirmed' }",
+                "    return $tasks[0]",
+                "  }",
+                "  try { $legacy=@(Get-VBRRestoreSession -Id ([guid]$taskId) -ErrorAction Stop) } catch { $legacy=@() }",
+                "  if ($legacy.Count -eq 1) { return $legacy[0] }",
+                "  $matches=@(); foreach ($parent in @(Get-VBRRestoreSession -ErrorAction Stop)) {",
+                "    if (-not $parent.PSObject.Methods['GetTaskSessions']) { continue }",
+                "    foreach ($task in @($parent.GetTaskSessions())) {",
+                "      if (([string]$task.Id).Trim('{}') -eq $taskId -and ([string]$task.JobSessId).Trim('{}') -eq ([string]$parent.Id).Trim('{}')) { $matches += $task }",
+                "    }",
+                "  }",
+                "  if ($matches.Count -ne 1) { throw 'Exact file restore task is missing or ambiguous' }; return $matches[0]",
+                "}");
+    }
+
     public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result restoreVolumeArtifact(
             org.apache.cloudstack.backup.ThirdPartyBackupRestore.Request request, String destinationHost, String destinationIp,
             boolean recoverOnly) {
@@ -463,6 +489,7 @@ public class AblestackVeeamSshClient {
         String key = request.jobId + "-" + request.sequence;
         JSONObject result = volumeResult(Arrays.asList(
                 "$ErrorActionPreference='Stop'",
+                volumeRestoreTaskCommands(),
                 "$root=Join-Path $env:ProgramData 'ABLESTACK/Mold/volume-restore'",
                 "[System.IO.Directory]::CreateDirectory($root) | Out-Null",
                 "$receipt=Join-Path $root " + ps(key + ".json"),
@@ -480,19 +507,18 @@ public class AblestackVeeamSshClient {
                 "if (Test-Path -LiteralPath $receipt) { $old=Get-Content -LiteralPath $receipt -Raw -Encoding UTF8 | ConvertFrom-Json; "
                         + "if ($old.binding -cne $binding) { throw 'Veeam restore receipt belongs to another request' }; "
                         + "if (!$old.terminal -and $old.jobId) { "
-                        + "$sessions=@(Get-VBRRestoreSession -Id ([guid]$old.jobId)); "
-                        + "if ($sessions.Count -ne 1) { throw 'Exact Veeam restore task status is unavailable; termination remains unconfirmed' }; "
-                        + "$result=[string]$sessions[0].Result; if ([string]::IsNullOrEmpty($result)) { $result=[string]$sessions[0].Info.Result }; "
+                        + "$existingTask=Find-RestoreTask ([string]$old.jobId) ([string]$old.parentSessionId); "
+                        + "$result=Restore-TaskResult $existingTask; "
                         + "if ($result -in @('Success','Failed','Warning','Canceled','Cancelled')) { "
                         + "$old.terminal=$true; $old.completed=($result -eq 'Success'); $old | Add-Member -NotePropertyName result -NotePropertyValue $result -Force; "
-                        + "if (!$old.completed) { $old.failure=Restore-Failure $sessions[0] $result }; Save-Receipt $old } }; "
+                        + "if (!$old.completed) { $old.failure=Restore-Failure $existingTask $result }; Save-Receipt $old } }; "
                         + "Write-Output ('ABLESTACK_JSON:' + ($old | ConvertTo-Json -Compress)); return }",
                 "if (" + (recoverOnly ? "$true" : "$false") + ") { Write-Output 'ABLESTACK_JSON:{\"jobId\":null}'; return }",
                 // CreateNew prevents a second PowerShell session from submitting the same restore.
                 "$intent=[IO.File]::Open($receipt,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)",
                 "try { $bytes=[Text.Encoding]::UTF8.GetBytes((@{binding=$binding;requestId=$restoreJob;jobId=$null;completed=$false;terminal=$false;failure=$null} | ConvertTo-Json -Compress)); "
                         + "$intent.Write($bytes,0,$bytes.Length); $intent.Flush($true) } finally { $intent.Dispose() }",
-                "$flr=$null; $submitted=$false; $terminal=$false; $task=$null; $failure=$null; $success=$false; $result=$null; $callbackIds=@()",
+                "$flr=$null; $submitted=$false; $terminal=$false; $task=$null; $taskParent=''; $failure=$null; $success=$false; $result=$null; $callbackIds=@()",
                 "try {",
                 "  Get-Command Start-VBRLinuxGuestItemRestore -ErrorAction Stop | Out-Null",
                 "  $points=@(Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}') -eq " + ps(request.artifact.externalId) + " })",
@@ -509,19 +535,23 @@ public class AblestackVeeamSshClient {
                 "    $items=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent)
                         + " | Where-Object { $_.Name -eq " + ps(name) + " })",
                 "    if ($items.Count -ne 1) { throw 'Exact artifact file or metadata directory is missing or ambiguous' }",
+                // Record callback ownership before copying: the Host watcher can
+                // observe a completed copy while this SSH call is still running.
+                "    Save-Receipt @{binding=$binding;jobId=$null;callbackJobIds=@($callbackIds);completed=$false;terminal=$false;failure=$null}",
                 "    $submitted=$true",
                 "    $task=Start-VBRLinuxGuestItemRestore -LinuxFlrObject $flr -Item $items -TargetAgentMachine $targets[0] -TargetDirectory "
                         + ps(destination) + " -Overwrite",
                 "    if ($null -eq $task) { throw 'Veeam file restore returned no task session' }",
-                "    Save-Receipt @{binding=$binding;jobId=[string]$task.Id;callbackJobIds=@($callbackIds);completed=$false;terminal=$false;failure=$null}",
-                "    $result=[string]$task.Result; if ([string]::IsNullOrEmpty($result)) { $result=[string]$task.Info.Result }",
+                "    $taskParent=[string]$task.JobSessId; if ($taskParent) { $callbackIds=@(@($callbackIds)+@($taskParent) | Select-Object -Unique) }",
+                "    Save-Receipt @{binding=$binding;jobId=[string]$task.Id;parentSessionId=$taskParent;callbackJobIds=@($callbackIds);completed=$false;terminal=$false;failure=$null}",
+                "    $result=Restore-TaskResult $task",
                 "    $terminal=$result -in @('Success','Failed','Warning','Canceled','Cancelled')",
                 "    if (!$terminal) { throw ('Veeam artifact restore did not confirm a terminal result: '+$result) }",
                 "    $success=$result -eq 'Success'; if (!$success) { $failure=Restore-Failure $task $result }",
                 "  } finally { if ($null -ne $flr) { Stop-VBRLinuxFileRestore -LinuxFlrObject $flr | Out-Null } }",
                 "} catch { $failure=$_.Exception.Message; if (!$submitted) { $terminal=$true } }",
                 "$jobId=if ($null -ne $task) { [string]$task.Id } elseif ($terminal) { " + ps("flr:" + key) + " } else { $null }",
-                "$out=@{binding=$binding;jobId=$jobId;result=$result;callbackJobIds=@($callbackIds);completed=($success -and $terminal);terminal=$terminal;failure=$failure}",
+                "$out=@{binding=$binding;jobId=$jobId;parentSessionId=$taskParent;result=$result;callbackJobIds=@($callbackIds);completed=($success -and $terminal);terminal=$terminal;failure=$failure}",
                 "Save-Receipt $out",
                 "Write-Output ('ABLESTACK_JSON:' + ($out | ConvertTo-Json -Compress))"));
         return parseVolumeRestoreResult(result);

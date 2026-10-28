@@ -2236,7 +2236,8 @@ NetBackup·Veeam의 메타데이터 파일 복원은 성공해도, Mold는 `reso
 `matched=true`, `restoreallowed=false`와 VM 정지 필요 사유를 반환하여 실제 VM 복원을 시작하지 않는다.
 NetBackup 감시 로그의 `SKIPPED restoreBackupArtifact` 또는 Veeam 이벤트의
 `mold.restore.skipped.volume-pipeline`과 해당 Job·세션 ID를 확인한다.
-원본 백업은 `BackedUp`을 유지하며, VM 정지 후 정상 복원을 테스트하려면 새 외부 복원 Job을 실행한다.
+원본 백업은 `BackedUp`을 유지하며, VM 정지 후 정상 복원을 테스트하려면 새 외부 복원 작업을 실행한다.
+Veeam은 같은 Backup Browser에서도 metadata 파일 복사를 다시 실행해 새 Task를 만들 수 있다.
 
 감시기는 정확한 메타데이터 Backup ID·Restore Point, 외부 Job·세션 ID와 종료 증거를
 `rejectBackupArtifactRestore`로 전달한다. Mold는 VM 복원 작업을 생성하지 않고 사전 차단 이력을 저장한다.
@@ -2651,7 +2652,7 @@ Host 작업 기록도 Mold의 정리 결과를 확인하기 전에 수동으로 
 | NetBackup Client Host | `netbackup-host-restore-watcher.timer` | NetBackup 복원 감시 프로그램을 주기적으로 실행 | 기본 1분 주기 |
 | NetBackup Client Host | `netbackup-host-restore-watcher.service` | NetBackup의 완료된 외부 UI 복원을 확인하고 복원 알림 스크립트로 Mold에 연결 | 타이머가 호출할 때 한 번 실행 후 종료, 조회 최대 300초 |
 | Veeam Agent Host | `mold-veeam-restore-agent.timer` | Veeam 복원 감시 프로그램을 주기적으로 실행 | 기본 3분 주기 |
-| Veeam Agent Host | `mold-veeam-restore-agent.service` | 완료된 Veeam 복원 세션의 정확한 복원 시점을 Mold 백업과 연결 | 타이머가 호출할 때 한 번 실행 후 종료 |
+| Veeam Agent Host | `mold-veeam-restore-agent.service` | 완료된 Veeam 파일 복사 Task와 정확한 Restore Point를 Mold 백업과 연결 | 타이머가 호출할 때 한 번 실행 후 종료 |
 | Management Server | 백업 목록·카탈로그 동기화 | 외부 백업 파일의 존재 여부와 만료 결과를 Mold에 반영 | `backup.framework.sync.interval`, 기본 300초 |
 | Management Server | 진행 중인 작업 동기화 | 백업·복원 상태와 완료 후처리를 확인 | `backup.framework.active.job.sync.interval`, 기본 10초 |
 
@@ -2814,12 +2815,18 @@ Veeam UI 복원은 다음 순서로 진행한다.
    임시 Job 설정이 정리된 경우에도 보관 백업은 남으며 `Orphaned`에 표시될 수 있다.
 3. metadata 파일을 현재 스테이징 수신 경로(`resolveBackupArtifact`의 `metadatarestorepath`)에 복원한다.
    원본과 현재 root가 같으면 기존 경로와 동일하다. 부모 Host Job의 bootstrap이나 개별 볼륨 Job만 복원한 것은 VM 복원 요청으로 처리하지 않는다.
-4. `mold-veeam-restore-agent.timer`가 완료된 실제 Restore Session UUID와 Restore Point ID를 조회한다.
+4. `mold-veeam-restore-agent.timer`가 실제 파일 복사 Task UUID와 부모 FLR Session UUID, Restore Point ID를 조회한다.
+   Task의 `Status`와 실제 시작·종료 시각으로 파일 복사 완료를 확인하므로 Backup Browser를 닫을 필요가 없다.
 5. `resolveBackupArtifact`가 manifest와 정확히 대조하여 백업과 VM을 식별한다. `VM_INCLUDE`의 첫 VM이나 파일 수정 시간으로 추정하지 않는다.
 6. `restoreBackupArtifact`가 중복 요청을 제어하고 공통 `restoreBackup`으로 연결한다. Mold가 필요한 Full·증분을 볼륨별로 회수·적용한다.
 7. 최종 성공 여부는 Mold에서 확인한다. Veeam FLR 성공은 metadata 파일 복원 완료이며 VM 볼륨 복원 완료와 구분한다.
 
 Warning 종료는 상세 결과와 복원된 metadata를 검증한 경우에만 연결한다. 실패·진행 중 작업은 연결하지 않는다.
+Browser에서 백업을 열어 보기만 한 경우에는 VM 복원을 요청하지 않는다.
+같은 Browser에서 파일 복사를 다시 실행하면 별도 Task로 처리하며, 동일 Task를 다시 조회해도 중복 복원하지 않는다.
+조회 범위는 부모 Browser를 연 시각이 아니라 파일 복사 Task의 종료 시각을 기준으로 적용한다.
+감시는 기존 service와 timer를 사용하며 별도 상시 파일 감시 서비스를 추가하지 않는다.
+로그의 `session`은 파일 복사 Task UUID이고 `parent_session`은 Browser의 FLR Session UUID이다.
 수동 CLI의 `restore`·`restore-notify`는 공통 `restoreBackup`을 사용한다.
 Seed import API·전용 restore API·Host export 스크립트·datadisk 별도 설치/활성화 단계는 제거했다.
 `backup.plugin.ablestack-veeam.staging.path`도 등록하지 않으며 후속 업그레이드에서 Global 값과 Zone override를 삭제한다.

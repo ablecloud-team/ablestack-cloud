@@ -56,8 +56,8 @@ class VeeamRestoreWatcherTest(unittest.TestCase):
         (self.root / "domain-config.xml").write_text('<domain><name>i-2-218-VM</name><uuid>vm-test</uuid></domain>')
         (self.root / ".staging.complete").write_text("volume_pipeline=true\nbackup_uuid=backup-test\n")
 
-    def watch(self, result="Warning", end=None, sid=SESSION, point=POINT, proof=None, direct=False, twice=False):
-        line = "|".join((sid, "", str(int(time.time())) if end is None else end, result, "metadata", "ABLESTACK-backup-test-metadata", point, ""))
+    def watch(self, result="Warning", end=None, sid=SESSION, point=POINT, proof=None, direct=False, twice=False, parent=""):
+        line = "|".join((sid, "", str(int(time.time())) if end is None else end, result, "metadata", "ABLESTACK-backup-test-metadata", point, "", parent))
         script = r'''
 set -euo pipefail
 source "$TEST_LIBRARY"
@@ -68,8 +68,8 @@ mold_backup_initialize_restore_watch_baseline() { :; }
 mold_backup_query_veeam_restores() { echo "$TEST_SESSION"; }
 mold_backup_query_local_host_flr() { :; }
 mold_backup_query_veeam_restore_proof() { echo "$TEST_PROOF"; }
-mold_backup_restore_session_seen() { [[ -f "$TEST_SEEN" ]]; }
-mold_backup_restore_session_mark_seen() { touch "$TEST_SEEN"; }
+mold_backup_restore_session_seen() { [[ -f "$TEST_SEEN" ]] && grep -qxF "$1" "$TEST_SEEN"; }
+mold_backup_restore_session_mark_seen() { printf '%s\n' "$1" >> "$TEST_SEEN"; }
 mold_backup_emit_restore_event() { echo "EVENT $*" >&2; }
 mold_backup_cmk_run() {
   echo "API $1" >> "$TEST_CALLS"
@@ -106,6 +106,31 @@ fi
     def test_success_submits_once_and_is_deduplicated(self):
         output = self.watch(result="Success", twice=True)
         self.assertEqual(1, output.count("API restoreBackupArtifact"))
+
+    def test_completed_copy_tasks_in_one_open_browser_are_independently_deduplicated(self):
+        for index, task_id in enumerate((POINT, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), 1):
+            proof = dict(self.proof, jobId=task_id, parentSessionId=SESSION, result="Success")
+            output = self.watch(result="Success", sid=task_id, parent=SESSION, proof=proof, twice=True)
+            self.assertEqual(index, output.count("API restoreBackupArtifact"))
+
+    def test_running_vm_rejection_uses_completed_copy_task_without_stopping_vm(self):
+        self.expected.update(restoreallowed=False, reason="The original VM must be Stopped before restoring metadata in the external UI")
+        proof = dict(self.proof, jobId=POINT, parentSessionId=SESSION, result="Success")
+        output = self.watch(result="Success", sid=POINT, parent=SESSION, proof=proof, twice=True)
+        self.assertEqual(1, output.count("API rejectBackupArtifactRestore"))
+        self.assertNotIn("API restoreBackupArtifact", output)
+        self.assertNotIn("stopVirtualMachine", output)
+        self.assertIn("mold.restore.skipped.volume-pipeline", output)
+
+    def test_copy_task_proof_must_belong_to_the_exact_browser(self):
+        proof = dict(self.proof, jobId=POINT, parentSessionId=POINT, result="Success")
+        self.assert_blocked(result="Success", sid=POINT, parent=SESSION, proof=proof)
+
+    def test_pre_upgrade_parent_receipt_prevents_replaying_its_copy_task(self):
+        (self.base / "seen").write_text(SESSION + "\n")
+        proof = dict(self.proof, jobId=POINT, parentSessionId=SESSION, result="Success")
+        output = self.watch(result="Success", sid=POINT, parent=SESSION, proof=proof)
+        self.assertNotIn("API restoreBackupArtifact", output)
 
     def test_accepted_restore_includes_verified_completion_proof_for_failure_cleanup(self):
         self.assertIn("API restoreBackupArtifact", self.watch(result="Success"))
