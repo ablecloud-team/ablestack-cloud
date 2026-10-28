@@ -72,7 +72,9 @@ public class Gfs2VolumeAllocationTest {
         assertEquals(3, Gfs2VolumeAllocation.methods("raw", "copy").size());
         assertFalse(Gfs2VolumeAllocation.methods("raw", "create").containsKey("metadata"));
         assertFalse(Gfs2VolumeAllocation.methods("qcow2", "copy").containsKey("off"));
-        for (String op : List.of("resize", "clone", "restore", "migrate")) { assertTrue(Gfs2VolumeAllocation.methods("qcow2", op).isEmpty()); }
+        assertEquals(Gfs2VolumeAllocation.methods("qcow2", "copy"), Gfs2VolumeAllocation.methods("qcow2", "clone"));
+        assertEquals(Gfs2VolumeAllocation.methods("raw", "copy"), Gfs2VolumeAllocation.methods("raw", "clone"));
+        for (String op : List.of("resize", "restore", "migrate")) { assertTrue(Gfs2VolumeAllocation.methods("qcow2", op).isEmpty()); }
     }
     @Test public void sixBlankPoliciesPublishVerifiedInodeWithIndependentEvidence() throws Exception {
         for (String format : List.of("qcow2", "raw")) {
