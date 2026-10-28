@@ -1,0 +1,96 @@
+{
+  "dark": {
+    "parts": [
+      {
+        "class": "ant-modal-header",
+        "height": 55,
+        "overflow": "visible",
+        "scroll": 0,
+        "scrollHeight": 54,
+        "y": 33
+      },
+      {
+        "class": "ant-modal-body",
+        "height": 534,
+        "overflow": "auto",
+        "scroll": 0,
+        "scrollHeight": 623,
+        "y": 88
+      },
+      {
+        "class": "ant-modal-footer",
+        "height": 65,
+        "overflow": "visible",
+        "scroll": 0,
+        "scrollHeight": 64,
+        "y": 622
+      }
+    ],
+    "primary": [
+      {
+        "bg": "rgb(84, 85, 88)",
+        "fg": "rgba(255, 255, 255, 0.66)",
+        "gap": "8px"
+      }
+    ]
+  },
+  "darkAfterScroll": [
+    {
+      "class": "ant-modal-header",
+      "scroll": 0,
+      "y": 33
+    },
+    {
+      "class": "ant-modal-body",
+      "scroll": 89,
+      "y": 88
+    },
+    {
+      "class": "ant-modal-footer",
+      "scroll": 0,
+      "y": 622
+    }
+  ],
+  "light": {
+    "parts": [
+      {
+        "class": "ant-modal-header",
+        "height": 55,
+        "overflow": "visible",
+        "y": 33
+      },
+      {
+        "class": "ant-modal-body",
+        "height": 534,
+        "overflow": "auto",
+        "y": 88
+      },
+      {
+        "class": "ant-modal-footer",
+        "height": 65,
+        "overflow": "visible",
+        "y": 622
+      }
+    ],
+    "primary": [
+      {
+        "bg": "rgb(9, 105, 218)",
+        "disabled": false,
+        "fg": "rgb(255, 255, 255)",
+        "gap": "8px"
+      }
+    ]
+  },
+  "darkActive": {
+    "background": "rgb(34, 40, 47)",
+    "primary": [
+      {
+        "bg": "rgb(9, 105, 218)",
+        "disabled": false,
+        "fg": "rgb(255, 255, 255)",
+        "gap": "8px"
+      }
+    ],
+    "textColor": "rgb(240, 243, 246)"
+  }
+}

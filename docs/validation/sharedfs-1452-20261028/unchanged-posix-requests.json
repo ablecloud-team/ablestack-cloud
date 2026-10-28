@@ -1,0 +1,62 @@
+[
+  {
+    "command": "updateStorageNfsExport",
+    "parameterNames": [
+      "command",
+      "response",
+      "id",
+      "name",
+      "path",
+      "createdirectory",
+      "volumeid",
+      "filesystem",
+      "protocolmode",
+      "importmode",
+      "readonly",
+      "rootsquash",
+      "allsquash",
+      "directorypolicyid",
+      "sync",
+      "secure",
+      "endpointmode",
+      "listenerports",
+      "requestid",
+      "expectedrevision",
+      "impactack"
+    ],
+    "parameters": {
+      "id": "d3f39bb8-dde0-4adb-8318-b16e917e7919",
+      "directorypolicyid": "32d0171b-1a93-31e2-b0be-8c0c926c7ee9",
+      "requestid": "d5af06c5-bb42-4ee0-b799-224b094ba088",
+      "expectedrevision": "12"
+    }
+  },
+  {
+    "command": "updateStorageSmbShare",
+    "parameterNames": [
+      "command",
+      "response",
+      "id",
+      "name",
+      "path",
+      "volumeid",
+      "filesystem",
+      "importmode",
+      "readonly",
+      "browseable",
+      "guestok",
+      "createdirectory",
+      "crossprotocol",
+      "directorypolicyid",
+      "requestid",
+      "expectedrevision",
+      "impactack"
+    ],
+    "parameters": {
+      "id": "575778fa-c9c1-4485-8c78-b9f521f67b33",
+      "directorypolicyid": "32d0171b-1a93-31e2-b0be-8c0c926c7ee9",
+      "requestid": "704fe269-cd25-491b-98aa-24ed79cfa884",
+      "expectedrevision": "13"
+    }
+  }
+]
