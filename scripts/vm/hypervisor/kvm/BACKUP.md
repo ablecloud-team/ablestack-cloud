@@ -32,6 +32,7 @@ under the License.
 - [공통 스테이징 경로 변경](#공통-스테이징-경로-변경)
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
+- [NetBackup 백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)
 - [Veeam 13.0 VM별 스케줄 검증 시나리오](#veeam-130-vm별-스케줄-검증-시나리오)
 - [NetBackup·Veeam 사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)
 - [Full 및 증분 백업 운영](#full-및-증분-백업-운영)
@@ -1130,9 +1131,52 @@ RBD는 기록된 원본 디스크의 해당 백업 체크포인트 이름만 삭
 2. Mold에서 기존 VM 백업본을 삭제하고 삭제 대기·정리 오류가 없는지 확인한다.
 3. NetBackup Catalog에서 남은 테스트 이미지를 조회하고 파일 목록이 bootstrap만 포함하는지 확인한 뒤 만료 처리한다.
 4. 전체 테스트 기간으로 조회해 남은 Catalog 이미지를 확인한다. Host 기준 정책은 유지한다.
-5. Host 구성과 정책 설정을 확인한 뒤 테스트 VM의 예약 시각 이후 기준 정책을 실행한다.
+5. Host 구성과 정책 설정을 확인한 뒤 원하는 테스트 시점에 기준 정책을 재개한다.
+   `VM_SCHEDULE_BACKUP=true`이면 테스트 VM의 예약 시각도 확인한다.
+   bootstrap 이미지까지 만료한 경우 재개 직후 실행될 수 있으므로 아래 참고사항을 확인한다.
 
 Catalog를 비우기 위해 NetBackup 내부 DB나 이미지 파일을 파일 시스템에서 직접 삭제하지 않는다.
+
+#### NetBackup 백업 파일 만료 시 참고사항
+
+**활성 Host 정책의 bootstrap 이미지까지 전체 만료하면, 12시간 Frequency를 설정했어도 기준 정책이 다시 실행될 수 있다.**
+NetBackup의 정책 실행 관리자(`NBPEM`)는 정책 설정과 기존 백업 이미지를 기준으로 실행 시점을 판단하고,
+이미지 만료 시 실행 대상을 다시 계산한다.
+최근 성공한 기준 백업 이미지가 모두 없어지면 이전 백업이 없는 것으로 판단할 수 있으며,
+정책이 활성화되고 실행 창이 열려 있으면 새 기준 백업을 시작할 수 있다.
+이 동작의 기준은 [NetBackup nbpem 명령 설명](https://www.veritas.com/support/en_US/doc/15263389-162556708-0/v14670814-162556708)을 참고한다.
+
+이때의 실행 흐름은 `전체 이미지 만료 → NetBackup 기준 정책 재실행 → Host PRE Hook → Mold createNetBackup API → VM 백업 생성`이다.
+`VM_SCHEDULE_BACKUP=false`는 구성 파일의 포함·제외 조건으로 VM을 선택하는 설정이므로,
+기준 정책이 실행될 때마다 조건에 맞는 VM의 백업을 요청한다.
+Mold의 카탈로그 만료 동기화 자체는 새 VM 백업을 요청하지 않는다.
+
+만료 목적에 따라 다음 대상을 구분한다.
+
+| 목적 | 만료 대상과 실행 조건 |
+| --- | --- |
+| VM 백업의 만료·정리 동작만 검증 | 해당 복원 지점의 정확한 볼륨·메타데이터 Backup ID를 확인해 만료한다. 일반 구성에서는 `mold-transfer` / `User Backup` 이미지이며, 기준 `schedule` / `Full Backup`의 bootstrap 이미지는 유지한다. |
+| 전체 테스트 환경 초기화 | 위 초기화 순서대로 Host 정책의 자동 실행을 중지하고 진행 중 작업이 끝난 뒤 bootstrap을 포함한 테스트 이미지를 만료한다. Mold의 만료 동기화·정리 결과를 확인한 뒤 정책을 재개하며, 재개 직후 새 백업이 실행될 수 있다. |
+
+bootstrap과 여러 VM의 이미지는 같은 Host 정책·Client 아래에 존재하므로 정책명이나 Client만으로 일괄 선택하지 않는다.
+스케줄 이름, 파일 목록과 Backup ID로 대상을 확인하며, 남겨 둘 복원 지점이 참조하는 Full·증분 이미지는 보존한다.
+bootstrap 파일 경로는 기본 스테이징 경로 기준 `/mnt/backup-staging/ablestack-netbackup/bootstrap/<Host>`이다.
+
+만료 후 예상보다 빨리 백업이 생성되면 Primary 서버에서 다음을 조회한다. `ablecube3`은 대상 Host 정책명으로 바꾼다.
+
+```bash
+/usr/openv/netbackup/bin/admincmd/bppllist ablecube3 -L
+/usr/openv/netbackup/bin/admincmd/nbpemreq -policies screen ablecube3
+/usr/openv/netbackup/bin/admincmd/bpconfig -U
+```
+
+`Frequency`, `Last backup`, 다음 실행의 `Due`·`Start`, 실패 이력과 실제 Job의 실행 사유·결과를 함께 확인한다.
+2026-10-28 테스트에서는 Frequency가 `43200 seconds`인 상태에서 재실행 당시 계산에 `Last backup: 0:00:00 (0)`이 기록되어 있었고,
+자동 예약 Job 성공 후에는 다음 `Due`가 `11:40 → 23:40`, `11:41 → 23:41`로 계산됐다.
+이는 전체 만료 후 기준 백업 이력이 없는 것으로 계산되어 재실행된 상황과 일치한다.
+조회에 과거 계산 결과인 `(stale)` 항목이 함께 있으면 현재 계산 결과와 시점을 구분한다.
+실패 후 재시도는 별도 공통 설정인 `Job retry delay`와 `Schedule backup attempts`를 따르므로,
+만료 후 재실행과 구분해 위의 실패 재시도 설정 설명을 확인한다.
 
 #### NetBackup 10.5·11.1 API 호환성 확인
 
@@ -1516,6 +1560,8 @@ Commvault·NetBackup·Veeam의 보관·만료는 외부 솔루션 정책을 따�
 Mold는 만료 결과를 동기화하며, 필요한 Full이나 증분 파일이 사라진 복원 시점은 복원 불가로 표시한다.
 외부 솔루션에서 볼륨별 작업이나 마지막 메타데이터를 임의로 삭제하면 전체 VM 복원에 영향을 줄 수 있다.
 NAS는 NAS에 남은 기준 Full·증분 파일과 Mold 백업 목록을 함께 관리한다.
+NetBackup에서 전체 이미지를 만료할 때는 [백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)의
+bootstrap 이미지 구분과 기준 정책 재실행 조건을 함께 확인한다.
 
 ### 백업 후 확인할 항목
 
