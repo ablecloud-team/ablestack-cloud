@@ -1,0 +1,39 @@
+{
+  "success": true,
+  "indexSha256": "9e0b33bcaa9858142d31d4ee199d8b1f82ff3be71338c65dbaeb448b655e88a3",
+  "changedFiles": 6,
+  "files": [
+    {
+      "path": "color.less",
+      "before": "90e834aaf6374d2e89272b59d4126f6790cddb5d4b797b202a355773074d7d95",
+      "after": "4efb2f357651e94fa815a82e277cd243e21db4abda51393e564b1dfb2c8f1beb"
+    },
+    {
+      "path": "index.html",
+      "before": "761f2dc709965eaf70a89088a39f6de9b31488aa71e95a0db8510a50c5ac8f36",
+      "after": "9e0b33bcaa9858142d31d4ee199d8b1f82ff3be71338c65dbaeb448b655e88a3"
+    },
+    {
+      "path": "js/app.92882a2d.js",
+      "before": null,
+      "after": "a23864cbbab4f58a9774248ebe8373c6626a62117c1a541f81b991921c6b76a9"
+    },
+    {
+      "path": "js/app.92882a2d.js.map",
+      "before": null,
+      "after": "0bc49eb245c0dfcc173a46f019eeb075070b9e38c205ab3eb575ebf6c7f55e9b"
+    },
+    {
+      "path": "js/chunk-5affc0a4.db3dcd5e.js",
+      "before": null,
+      "after": "83beadebf4027e56c1649c50b05a0e7d5ae25672ad0e9adc5008290402c6cd66"
+    },
+    {
+      "path": "js/chunk-5affc0a4.db3dcd5e.js.map",
+      "before": null,
+      "after": "bfb39ce22782bed15ecb8e46c9e87986d1ffbda6bd4e36696d4c96f9225a8a3d"
+    }
+  ],
+  "configPreserved": true,
+  "systemvmPreserved": true
+}

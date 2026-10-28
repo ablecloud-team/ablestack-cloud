@@ -1,0 +1,99 @@
+{
+  "observation": {
+    "observationstatus": "APPLIED",
+    "endpoints": [
+      {
+        "port": 2049,
+        "endpoint": "0.0.0.0_2049",
+        "configuredmode": "NAME_DOMAIN",
+        "configuredrevision": 13,
+        "state": "APPLIED",
+        "effectivemode": "NAME_DOMAIN",
+        "observedrevision": 13,
+        "observeddomain": "localdomain",
+        "observedat": "1793147375.4485018"
+      },
+      {
+        "port": 2050,
+        "endpoint": "0.0.0.0_2050",
+        "configuredmode": "NAME_DOMAIN",
+        "configuredrevision": 13,
+        "state": "APPLIED",
+        "effectivemode": "NAME_DOMAIN",
+        "observedrevision": 13,
+        "observeddomain": "localdomain",
+        "observedat": "1793147375.4498432"
+      }
+    ],
+    "observedat": "1793147437.7134244",
+    "observeddomain": "localdomain",
+    "effectivemode": "NAME_DOMAIN",
+    "policyrevision": 13
+  },
+  "bootId": "7d774d10-59a7-460c-a730-b6a71557f39e",
+  "trustedHashes": {
+    "/usr/local/bin/ablestack-storagectl": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61",
+    "/usr/local/bin/ablestack-storage-boot-reconcile": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+    "/usr/local/bin/ablestack-storage-monitor": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+    "/usr/local/lib/ablestack-storage/volume_identity.py": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+    "/usr/local/lib/ablestack-storage/volume_preparation.py": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+    "/usr/local/lib/ablestack-storage/session_auth.py": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+    "/usr/local/lib/ablestack-storage/configuration_transaction.py": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f",
+    "/usr/local/lib/ablestack-storage/configuration_preflight.py": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06",
+    "/usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+  },
+  "trustedMatches": {
+    "/usr/local/bin/ablestack-storagectl": true,
+    "/usr/local/bin/ablestack-storage-boot-reconcile": true,
+    "/usr/local/bin/ablestack-storage-monitor": true,
+    "/usr/local/lib/ablestack-storage/volume_identity.py": true,
+    "/usr/local/lib/ablestack-storage/volume_preparation.py": true,
+    "/usr/local/lib/ablestack-storage/session_auth.py": true,
+    "/usr/local/lib/ablestack-storage/configuration_transaction.py": true,
+    "/usr/local/lib/ablestack-storage/configuration_preflight.py": true,
+    "/usr/local/lib/ablestack-storage/nvmeof_identity.py": true
+  },
+  "addresses": [
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.10.13.196",
+          "prefixlen": 16,
+          "scope": "global",
+          "label": "eth0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        },
+        {
+          "family": "inet",
+          "local": "10.10.13.194",
+          "prefixlen": 16,
+          "scope": "global",
+          "secondary": true,
+          "label": "eth0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "units": "ablestack-storage-ganesha@0.0.0.0_2049.service loaded active running ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2049\nablestack-storage-ganesha@0.0.0.0_2050.service loaded active running ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2050\n"
+}
