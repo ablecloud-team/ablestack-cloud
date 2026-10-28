@@ -88,7 +88,7 @@ public class VolumeAllocationLifecycleGuardTest {
     @Test public void linkedRbdMetadataNamesTheActualParentInsteadOfAFileClonePath() {
         org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore primary = org.mockito.Mockito.mock(org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore.class);
         when(primary.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
-        org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = new org.apache.cloudstack.storage.to.PrimaryDataStoreTO(); store.setPath("rbd");
+        org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = org.mockito.Mockito.mock(org.apache.cloudstack.storage.to.PrimaryDataStoreTO.class); when(store.getPath()).thenReturn("rbd");
         when(primary.getTO()).thenReturn(store); when(snapshot.getDataStore()).thenReturn(primary);
         com.cloud.storage.SnapshotVO snapshotVO = org.mockito.Mockito.mock(com.cloud.storage.SnapshotVO.class);
         when(snapshotVO.getCloneType()).thenReturn("linked"); when(snapshot.getSnapshotVO()).thenReturn(snapshotVO);
