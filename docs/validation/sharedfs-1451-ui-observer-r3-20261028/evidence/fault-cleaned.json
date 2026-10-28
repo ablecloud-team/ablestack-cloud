@@ -1,0 +1,9 @@
+{
+  "fixtureRemoved": true,
+  "fault": {
+    "code": "E1451_SECOND_PORT_ONCE",
+    "at": 1793147373.973312,
+    "exit": 17
+  },
+  "execStartPre": "{ path=/bin/mkdir ; argv[]=/bin/mkdir -p /run/ablestack-storage/ganesha /etc/ganesha/ablestack-storage /run/ganesha ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }\n{ path=/usr/bin/find ; argv[]=/usr/bin/find /run/ganesha -maxdepth 1 -name ganesha.pid -type f -delete ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }"
+}

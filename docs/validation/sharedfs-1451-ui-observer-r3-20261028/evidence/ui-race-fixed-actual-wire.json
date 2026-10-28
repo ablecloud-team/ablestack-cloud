@@ -1,0 +1,159 @@
+{
+  "request": "2aedd2bf-0a51-4e33-9ca2-9c763d44476f",
+  "stale": {
+    "command": "listStorageServiceConfigurationOperations",
+    "params": {
+      "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+      "requestid": "2aedd2bf-0a51-4e33-9ca2-9c763d44476f",
+      "command": "listStorageServiceConfigurationOperations",
+      "response": "json"
+    },
+    "body": {
+      "liststorageserviceconfigurationoperationsresponse": {
+        "count": 1,
+        "configurationoperation": [
+          {
+            "id": "860af171-f604-4a28-ae45-eda1be4b2046",
+            "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+            "requestid": "2aedd2bf-0a51-4e33-9ca2-9c763d44476f",
+            "state": "RUNNING",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "baserevision": 19,
+            "targetrevision": 20,
+            "canresume": true,
+            "originalfailure": {
+              "code": "PROTOCOL_APPLY_FAILED",
+              "phase": "APPLYING",
+              "type": "Rejected"
+            },
+            "rollback": {
+              "state": "SUCCEEDED"
+            },
+            "observation": {
+              "baseRevision": 19,
+              "instanceUuid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+              "operationid": "860af171-f604-4a28-ae45-eda1be4b2046",
+              "originalfailure": {
+                "code": "PROTOCOL_APPLY_FAILED",
+                "phase": "APPLYING",
+                "type": "Rejected"
+              },
+              "phase": "COMPLETED",
+              "requestHash": "da6ad8185c375f577325b5ae9dbefc46a1c9c322beef4785b045fe4d69cefd81",
+              "rollback": {
+                "state": "SUCCEEDED"
+              },
+              "state": "ROLLED_BACK",
+              "targetRevision": 20,
+              "updated": 1793147372.7235837
+            },
+            "created": "2026-10-28T09:29:27+0900",
+            "updated": "2026-10-28T09:29:31+0900",
+            "candidate": {
+              "api": "UpdateStorageNfsIdentityMappingCmd",
+              "expectedrevision": 19,
+              "idmappingmode": "NUMERIC",
+              "impactack": "024967b9913ffb015feeb82c75f69bff4f2a8ce4551f81e9d5325cf9aabe35af",
+              "instanceid": 82
+            }
+          }
+        ]
+      }
+    }
+  },
+  "job": {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "1567561a-41a6-48fa-a09b-83c65e256d5f",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "body": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Configuration 860af171-f604-4a28-ae45-eda1be4b2046 ended as ROLLED_BACK; inspect the preserved failure and rollback result"
+        },
+        "created": "2026-10-28T09:29:27+0900",
+        "completed": "2026-10-28T09:29:36+0900",
+        "jobid": "1567561a-41a6-48fa-a09b-83c65e256d5f",
+        "jobstatus": 2
+      }
+    }
+  },
+  "fresh": {
+    "command": "listStorageServiceConfigurationOperations",
+    "params": {
+      "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+      "requestid": "2aedd2bf-0a51-4e33-9ca2-9c763d44476f",
+      "command": "listStorageServiceConfigurationOperations",
+      "response": "json"
+    },
+    "body": {
+      "liststorageserviceconfigurationoperationsresponse": {
+        "count": 1,
+        "configurationoperation": [
+          {
+            "id": "860af171-f604-4a28-ae45-eda1be4b2046",
+            "instanceid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+            "requestid": "2aedd2bf-0a51-4e33-9ca2-9c763d44476f",
+            "state": "ROLLED_BACK",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "baserevision": 19,
+            "targetrevision": 20,
+            "canresume": false,
+            "originalfailure": {
+              "code": "PROTOCOL_APPLY_FAILED",
+              "phase": "APPLYING",
+              "type": "Rejected"
+            },
+            "rollback": {
+              "state": "SUCCEEDED"
+            },
+            "observation": {
+              "baseRevision": 19,
+              "instanceUuid": "5f3fe58b-8458-4eed-8e92-2af6962da09c",
+              "operationid": "860af171-f604-4a28-ae45-eda1be4b2046",
+              "originalfailure": {
+                "code": "PROTOCOL_APPLY_FAILED",
+                "phase": "APPLYING",
+                "type": "Rejected"
+              },
+              "phase": "COMPLETED",
+              "requestHash": "da6ad8185c375f577325b5ae9dbefc46a1c9c322beef4785b045fe4d69cefd81",
+              "rollback": {
+                "state": "SUCCEEDED"
+              },
+              "state": "ROLLED_BACK",
+              "targetRevision": 20,
+              "updated": 1793147372.7235837
+            },
+            "created": "2026-10-28T09:29:27+0900",
+            "updated": "2026-10-28T09:29:36+0900",
+            "completed": "2026-10-28T09:29:36+0900",
+            "candidate": {
+              "api": "UpdateStorageNfsIdentityMappingCmd",
+              "expectedrevision": 19,
+              "idmappingmode": "NUMERIC",
+              "impactack": "024967b9913ffb015feeb82c75f69bff4f2a8ce4551f81e9d5325cf9aabe35af",
+              "instanceid": 82
+            }
+          }
+        ]
+      }
+    }
+  },
+  "applyPostCount": 1,
+  "resumePostCount": 0
+}

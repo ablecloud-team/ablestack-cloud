@@ -1,0 +1,77 @@
+
+> cloudstack-ui@4.22.0 prebuild
+> ./prebuild.sh
+
+Pre-build: list all docHelp suffixes in ./public/config.json
+
+> cloudstack-ui@4.22.0 build
+> vue-cli-service build --dest /root/work/epic1438-preparation/20261028/issue1451-ui-race/ui-dist
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+-  Building for production...
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Theme generated successfully
+ WARNING  Compiled with 2 warnings9:27:19 AM
+
+ warning
+
+asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets:
+  css/app.473f2188.css (297 KiB)
+  js/app.92882a2d.js (1.5 MiB)
+  css/chunk-17020235.3e36bf7b.css (258 KiB)
+  js/chunk-1aca2723.d19209d0.js (300 KiB)
+  js/chunk-2e9d64e2.5992744f.js (598 KiB)
+  js/chunk-450cdccd.eb22b3bf.js (685 KiB)
+  js/chunk-4534b5c2.5448466a.js (277 KiB)
+  css/chunk-7234d9da.47c386c7.css (478 KiB)
+  css/vendors.eb47fec1.css (563 KiB)
+  js/vendors.dc
+...
+ue1451-ui-race/ui-dist/css/chunk-382e
+  63a6.ed84acc9.css
+  ../../epic1438-preparation/20261028/is    0.07 KiB         0.09 KiB
+  sue1451-ui-race/ui-dist/css/chunk-62ec
+  f9d6.56be705d.css
+  ../../epic1438-preparation/20261028/is    0.07 KiB         0.08 KiB
+  sue1451-ui-race/ui-dist/css/chunk-681f
+  2b02.5d38c646.css
+  ../../epic1438-preparation/20261028/is    0.07 KiB         0.08 KiB
+  sue1451-ui-race/ui-dist/css/chunk-e888
+  b8ce.ed84acc9.css
+  ../../epic1438-preparation/20261028/is    0.06 KiB         0.07 KiB
+  sue1451-ui-race/ui-dist/css/chunk-2fea
+  127e.b78c5347.css
+  ../../epic1438-preparation/20261028/is    0.06 KiB         0.07 KiB
+  sue1451-ui-race/ui-dist/css/chunk-40c2
+  f2e1.a89ddab2.css
+  ../../epic1438-preparation/20261028/is    0.06 KiB         0.07 KiB
+  sue1451-ui-race/ui-dist/css/chunk-7616
+  4dea.0ee2ad71.css
+  ../../epic1438-preparation/20261028/is    0.06 KiB         0.08 KiB
+  sue1451-ui-race/ui-dist/css/chunk-f8c1
+  fd06.bccd434d.css
+  ../../epic1438-preparation/20261028/is    0.04 KiB         0.06 KiB
+  sue1451-ui-race/ui-dist/css/chunk-275a
+  37c6.b5ab1173.css
+  ../../epic1438-preparation/20261028/is    0.04 KiB         0.06 KiB
+  sue1451-ui-race/ui-dist/css/chunk-3063
+  32a8.afadbd41.css
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The ../../epic1438-preparation/20261028/issue1451-ui-race/ui-dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

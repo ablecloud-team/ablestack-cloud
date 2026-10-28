@@ -1,0 +1,10 @@
+{
+  "codeCommit": "f45310e6f00185e9b51759076dc84f5f3430c938",
+  "uiIndexSha256": "9e0b33bcaa9858142d31d4ee199d8b1f82ff3be71338c65dbaeb448b655e88a3",
+  "archiveSha256": "20f873fbc2ddc4d0e374b94611ab049380a9ddde63d1a0d68a64ccd369b0a505",
+  "size": 16116552,
+  "tests": 39,
+  "suites": 6,
+  "lint": "PASS",
+  "scope": "UI only"
+}
