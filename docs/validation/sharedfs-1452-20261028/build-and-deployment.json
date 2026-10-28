@@ -1,0 +1,43 @@
+{
+  "sourceCommit": "79e9433fc955abc6241efdbd40afde5fdf286b52",
+  "baseCommit": "37bceae693041b9c79cc52084053b050b577029d",
+  "branch": "epic/1438-sharedfs",
+  "managementSha256": "39cd997647853bab1f686d6745eafa680f6e5a03e5acf56df80c11bd942be46c",
+  "uiIndexSha256": "277495a21b6ccdd6c7d284d9d04295e8d437b6e6a720241baf71a1826ad1b128",
+  "imageSha256": "fe1f7582726a764c77ab25111f85c017407ed32ac2dfa5c41b7cd387890805b1",
+  "runtimeVersion": "epic1438-1452-posix-79e9433fc955-r1",
+  "templateId": "8754cfc3-811c-4309-95ec-c8aaf66854c8",
+  "deploymentHost": "10.10.13.10",
+  "schemaTable": "storage_directory_policy",
+  "schemaColumns": 14,
+  "managementBuild": {
+    "reactorModules": 151,
+    "exitCode": 0,
+    "checkstyleSkipped": true,
+    "ratSkipped": true,
+    "licenseSkipped": true,
+    "testsRunSeparately": true,
+    "jaxbJdk17Workaround": "-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true"
+  },
+  "uiLintExit": 0,
+  "uiBuildExit": 0,
+  "configPreserved": true,
+  "oldUiHashedAssetsPreserved": true,
+  "systemVmArtifactsPreserved": true,
+  "hostAgentModified": false,
+  "rollbackRoot": "/var/tmp/epic1438-1452-79e9433fc955",
+  "newResources": {
+    "sharedfsId": "1f9d218d-4fc1-4c7c-a96d-527cb0801436",
+    "instanceId": "e553b9d8-630e-44c1-a3dd-d503336f579b",
+    "vmId": "8c3a6de9-41cc-3cae-a61d-4f7d3d876526",
+    "dataId": "b02bd1d2-ed62-44e8-8a95-8798b604f43e",
+    "rootId": "b8fd4edd-cbd2-4f49-8d88-0a4c26d43a0a",
+    "client1VmId": "f5b615ef-6fac-4667-973d-7f58f0cab7f7",
+    "client1RootId": "70a3c9c6-5aef-49fd-8fa6-050a60b56585",
+    "client2VmId": "1a761e54-2c17-4b87-ace5-8bda0cac4899",
+    "client2RootId": "4752c794-9533-452d-98a3-044a1d72cd8a",
+    "allProvisioning": "SPARSE",
+    "macOverrides": 0
+  },
+  "managementRestartAtUtc": "2026-10-28T13:00:21.808997+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "bundleVersion": "epic1438-1452-posix-79e9433fc955-r1",
+  "managedFiles": 10,
+  "signatureVerified": true,
+  "firstBootstrap": true,
+  "repeatBootstrapChecks": 2,
+  "installedPayloadUnchanged": true,
+  "desiredStateUnchanged": true,
+  "temporaryResourcesRemoved": true
+}
