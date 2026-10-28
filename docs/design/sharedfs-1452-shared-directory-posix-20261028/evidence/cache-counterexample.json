@@ -1,0 +1,129 @@
+{
+  "kind": "isolated design validation; not product implementation or acceptance",
+  "checks": [
+    {
+      "name": "installed crossProtocol skips chmod but ACL mask changes effective mode",
+      "passed": true,
+      "before": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750"
+      },
+      "after": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770"
+      }
+    },
+    {
+      "name": "standalone legacy SMB chmod/reset behavior reproduced",
+      "passed": true
+    },
+    {
+      "name": "canonical in-volume parent alias groups NFS/SMB references once",
+      "passed": true,
+      "policyKey": "1909903940e495866db5440c1ffb587ac5e53de7e7e3c55f0bf36e8591909ecb",
+      "canonical": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-design-proof/actual/shared"
+    },
+    {
+      "name": "outside-volume and leaf symlink rejected",
+      "passed": true
+    },
+    {
+      "name": "common mode mask 5 cannot grant requested RW ACL mask 7",
+      "passed": true
+    },
+    {
+      "name": "no-mask ACL and FD rollback preserve exact mode and ACL",
+      "passed": true
+    },
+    {
+      "name": "installed transaction one apply for two references, commit, reopen journal and no duplicate apply",
+      "passed": true,
+      "applyCount": 1
+    },
+    {
+      "name": "installed revision fence rejects stale policy transaction",
+      "passed": true
+    },
+    {
+      "name": "injected peer failure restores ACL/owner/mode and preserves child data",
+      "passed": true,
+      "operation": {
+        "operationid": "330b6be0-4d95-44ba-a442-9153d507cb6e",
+        "instanceUuid": "ae9f4eeb-5287-4b86-84ce-91c9aa242e8c",
+        "baseRevision": 1,
+        "targetRevision": 2,
+        "requestHash": "755912f452b50f2881b99d6d54cfe945f00c15556012cfeaa896b7db897b3ab1",
+        "state": "ROLLED_BACK",
+        "phase": "COMPLETED",
+        "rollback": {
+          "state": "SUCCEEDED"
+        },
+        "updated": 1793167542.2303247,
+        "originalfailure": {
+          "code": "DESIGN_PEER_VERIFY_FAILURE",
+          "phase": "VERIFYING",
+          "type": "Rejected"
+        }
+      }
+    },
+    {
+      "name": "installed cross-process instance lock rejects concurrent second writer",
+      "passed": true
+    }
+  ],
+  "nativeProtocolIO": {
+    "before": {
+      "phase": "before",
+      "nfsMountUid": 65534,
+      "nfsMountGid": 65534,
+      "nfsMountMode": "0o770",
+      "smbPutNfsRead": true,
+      "nfsPutSmbRead": true,
+      "seedPreserved": true
+    },
+    "after": {
+      "phase": "after",
+      "nfsMountUid": 65534,
+      "nfsMountGid": 65534,
+      "nfsMountMode": "0o770",
+      "smbPutNfsRead": true,
+      "nfsPutSmbRead": true,
+      "seedPreserved": true
+    },
+    "actualRoot": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0777"
+    },
+    "seedBefore": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0640",
+      "sha256": "15db61f223b90b4bd23d125e4bf4d6356374d575afe79f0e6f5e5b25a2ce2357"
+    },
+    "seedAfter": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0640",
+      "sha256": "15db61f223b90b4bd23d125e4bf4d6356374d575afe79f0e6f5e5b25a2ce2357"
+    }
+  },
+  "success": false,
+  "harnessError": {
+    "type": "AssertionError",
+    "message": "",
+    "trace": "Traceback (most recent call last):\n  File \"<string>\", line 229, in <module>\nAssertionError\n"
+  },
+  "privateLogs": {
+    "smb-output.log": "",
+    "ganesha.log": "026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] init_server_pkgs :NFS STARTUP :EVENT :ID Mapper successfully initialized.\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_start_grace :STATE :EVENT :NFS Server skipping GRACE (Graceless is true)\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] client_commit :CONFIG :WARN :A protocol is specified for a CLIENT block that is not enabled in NFS_CORE_PARAM, fixing up\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] lower_my_caps :NFS STARTUP :EVENT :CAP_SYS_RESOURCE was successfully removed for proper quota management in FSAL\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] lower_my_caps :NFS STARTUP :EVENT :currently set capabilities are: =ep cap_sys_resource-ep\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] gsh_dbus_pkginit :DBUS :CRIT :server bus reg failed (epic1452design.org.ganesha.nfsd, Connection \":1.2481\" is not allowed to own the service \"epic1452design.org.ganesha.nfsd\" due to security policies in the configuration file)\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Init_svc :DISP :CRIT :Cannot acquire credentials for principal nfs\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Init_admin_thread :NFS CB :EVENT :Admin thread initialized\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_rpc_cb_init_ccache :NFS STARTUP :EVENT :Callback creds directory (/var/run/ganesha) already exists\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] find_keytab_entry :NFS CB :WARN :Configuration file does not specify default realm while getting default realm name\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] gssd_refresh_krb5_machine_credential :NFS CB :CRIT :ERROR: gssd_refresh_krb5_machine_credential: no usable keytab entry found in keytab /etc/krb5.keytab for connection with host localhost\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_rpc_cb_init_ccache :NFS STARTUP :WARN :gssd_refresh_krb5_machine_credential failed (-1765328160:2)\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Start_threads :THREAD :EVENT :Starting delayed executor.\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Start_threads :THREAD :EVENT :gsh_dbusthread was started successfully\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Start_threads :THREAD :EVENT :admin thread was started successfully\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Start_threads :THREAD :EVENT :reaper thread was started successfully\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_Start_threads :THREAD :EVENT :General fridge was started successfully\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_start :NFS STARTUP :EVENT :-------------------------------------------------\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_start :NFS STARTUP :EVENT :             NFS SERVER INITIALIZED\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[main] nfs_start :NFS STARTUP :EVENT :-------------------------------------------------\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[dbus] gsh_dbus_thread :DBUS :CRIT :DBUS not initialized, service thread exiting\n28/10/2026 06:05:42 : epoch 6ae190b6 : sharedfs-13246a3e-76c3-3ed1-b869-dd39695a85aa : nfs-ganesha-151229[dbus] gsh_dbus_thread :DBUS :EVENT :shutdown\n",
+    "smb.log": "[2026/10/28 06:05:42.935854,  0] ../../source3/smbd/server.c:1741(main)\n  smbd version 4.17.12-Debian started.\n  Copyright Andrew Tridgell and the Samba Team 1992-2022\n",
+    "ganesha-output.log": ""
+  },
+  "productionUnchanged": true,
+  "isolatedPathsRemoved": true,
+  "productionFileCount": 61,
+  "guestExitCode": 0
+}
