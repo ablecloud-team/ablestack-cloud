@@ -1,0 +1,100 @@
+{
+  "issue": 1451,
+  "epic": 1438,
+  "result": "PASS",
+  "scope": "NFS identity mapping; image manifest correction",
+  "codeCommit": "4d9adaa4b4b1be62d33bb5f6da534bbd130017a7",
+  "runtimeRegressionTests": 19,
+  "signedImageSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+  "changedImagePaths": [
+    "etc/ablestack-storage/runtime-default/manifest.json",
+    "etc/ablestack-storage/runtime-default/manifest.sig"
+  ],
+  "unchangedImagePaths": 33935,
+  "nativeIsolatedBootstrapPasses": 3,
+  "nativeProbeRemoved": true,
+  "templateId": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+  "historyPreserved": {
+    "v4": {
+      "before": 7,
+      "after": 7,
+      "preserved": true
+    },
+    "dual": {
+      "before": 5,
+      "after": 5,
+      "preserved": true
+    }
+  },
+  "management": {
+    "v4": {
+      "beforeFiles": 53,
+      "afterFiles": 61,
+      "allBaselineMetadataAndHashesPreserved": true,
+      "newEvidenceFiles": 8,
+      "storageVmBootUnchanged": true,
+      "runtimeIntegrityVerified": true,
+      "policyRevision": 7
+    },
+    "dual": {
+      "beforeFiles": 37,
+      "afterFiles": 37,
+      "allBaselineMetadataAndHashesPreserved": true,
+      "newEvidenceFiles": 0,
+      "storageVmBootUnchanged": true,
+      "runtimeIntegrityVerified": true,
+      "policyRevision": 5
+    }
+  },
+  "services": {
+    "v4": {
+      "resource": "2ef338ec-b260-4250-8b45-ae61a2e4bfa7",
+      "state": "Ready",
+      "profiles": 16,
+      "uidChecks": 64,
+      "finalMode": "NUMERIC",
+      "policyRevision": 7,
+      "ports": [
+        2049,
+        2050
+      ],
+      "formatCount": 1,
+      "filesystemUuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+      "reboot": {
+        "files": 45,
+        "preserved": true,
+        "bootChanged": true,
+        "oldBoot": "5721062e-65e9-4753-a955-61278637b8bf",
+        "newBoot": "f9e5652b-562d-4849-b843-2ec6a9e6086b",
+        "bootstrap": "PASS",
+        "bootReconcile": "PASS",
+        "mode": "NUMERIC",
+        "policyRevision": 7
+      }
+    },
+    "dual": {
+      "resource": "c04e7903-da34-4c94-9068-0742480ac4e8",
+      "state": "Ready",
+      "profiles": 16,
+      "uidChecks": 64,
+      "finalMode": "NUMERIC",
+      "policyRevision": 5,
+      "ports": [
+        2049
+      ],
+      "formatCount": 1,
+      "filesystemUuid": "af93e001-32e0-49db-8411-7c3bf3c26f67",
+      "reboot": {
+        "files": 29,
+        "preserved": true,
+        "bootChanged": true,
+        "oldBoot": "cfc3927a-1bb1-4bd1-ba70-7a95bbf80230",
+        "newBoot": "98b3cc2c-9a54-4486-ac0c-492d1f7c1544",
+        "bootstrap": "PASS",
+        "bootReconcile": "PASS",
+        "mode": "NUMERIC",
+        "policyRevision": 5
+      }
+    }
+  }
+}

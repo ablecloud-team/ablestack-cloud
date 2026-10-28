@@ -1,0 +1,128 @@
+{
+  "registration": {
+    "command": "registerTemplate",
+    "params": {
+      "command": "registerTemplate",
+      "response": "json",
+      "requireshvm": "true",
+      "isdynamicallyscalable": "true",
+      "url": "http://10.10.13.10:8080/client/systemvm/systemvm-epic1451-bootstrap-20261028-r4.qcow2.bz2",
+      "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+      "zoneids": "-1",
+      "hypervisor": "KVM",
+      "format": "QCOW2",
+      "details[0].rootDiskController": "osdefault",
+      "directdownload": "false",
+      "kvdoenable": "false",
+      "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+      "templatetype": "SYSTEM",
+      "arch": "x86_64",
+      "checksum": "{SHA-256}8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5"
+    },
+    "body": {
+      "registertemplateresponse": {
+        "count": 1,
+        "template": [
+          {
+            "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+            "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+            "displaytext": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+            "ispublic": false,
+            "created": "2026-10-28T11:00:21+0900",
+            "isready": false,
+            "format": "QCOW2",
+            "isfeatured": false,
+            "crossZones": true,
+            "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+            "ostypename": "Debian GNU/Linux 12 (64-bit)",
+            "account": "admin",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "status": "Processing",
+            "templatetype": "SYSTEM",
+            "hypervisor": "KVM",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "isextractable": false,
+            "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+            "details": {
+              "rootDiskController": "osdefault"
+            },
+            "downloaddetails": [
+              {
+                "downloadState": "NOT_DOWNLOADED",
+                "datastore": "Secondary Storage",
+                "datastoreRole": "Image",
+                "downloadPercent": "0",
+                "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+              }
+            ],
+            "arch": "x86_64",
+            "bits": 0,
+            "sshkeyenabled": false,
+            "isdynamicallyscalable": true,
+            "directdownload": false,
+            "kvdoenable": false,
+            "deployasis": false,
+            "forcks": false,
+            "requireshvm": true,
+            "url": "http://10.10.13.10:8080/client/systemvm/systemvm-epic1451-bootstrap-20261028-r4.qcow2.bz2",
+            "tags": [],
+            "hasannotations": false
+          }
+        ]
+      }
+    }
+  },
+  "ready": {
+    "id": "97e5d8ff-4c4d-4524-9bb1-543020957f7c",
+    "name": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+    "displaytext": "Europa-SystemVM-1451-bootstrap-20261028-r4",
+    "ispublic": false,
+    "created": "2026-10-28T11:00:21+0900",
+    "isready": true,
+    "format": "QCOW2",
+    "isfeatured": false,
+    "crossZones": true,
+    "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+    "ostypename": "Debian GNU/Linux 12 (64-bit)",
+    "account": "admin",
+    "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+    "zonename": "13-Zone",
+    "status": "Download Complete",
+    "size": 5242880000,
+    "physicalsize": 1799028736,
+    "templatetype": "SYSTEM",
+    "hypervisor": "KVM",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "isextractable": false,
+    "checksum": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+    "details": {
+      "rootDiskController": "osdefault"
+    },
+    "downloaddetails": [
+      {
+        "downloadState": "DOWNLOADED",
+        "datastore": "Secondary Storage",
+        "datastoreRole": "Image",
+        "downloadPercent": "100",
+        "datastoreId": "b1de4e9b-1e3b-4b54-950c-27ea5f2740c2"
+      }
+    ],
+    "arch": "x86_64",
+    "bits": 0,
+    "sshkeyenabled": false,
+    "isdynamicallyscalable": true,
+    "directdownload": false,
+    "kvdoenable": false,
+    "deployasis": false,
+    "forcks": false,
+    "requireshvm": true,
+    "url": "http://10.10.13.10:8080/client/systemvm/systemvm-epic1451-bootstrap-20261028-r4.qcow2.bz2",
+    "tags": [],
+    "hasannotations": false
+  }
+}
