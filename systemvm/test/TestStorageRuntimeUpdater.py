@@ -211,6 +211,71 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         for item in manifest["files"]:
             self.assertEqual(item["sha256"],hashlib.sha256((release / item["path"]).read_bytes()).hexdigest())
 
+    def assembled_actual_template(self, version, matching=True):
+        if matching:
+            for name in ENTRYPOINTS:
+                shutil.copy2(ROOT / "debian/usr/local/bin" / name, self.source / name)
+        self.build_bundle(version)
+        image = self.temp / "assembled-image"
+        binary = image / "usr/local/bin"
+        helper = image / "usr/local/lib/ablestack-storage"
+        default = image / "etc/ablestack-storage/runtime-default"
+        trust = image / "etc/ablestack-storage/runtime-trusted-keys"
+        for folder in (binary, helper, default, trust):
+            folder.mkdir(parents=True, exist_ok=True)
+        for name in ENTRYPOINTS:
+            shutil.copy2(ROOT / "debian/usr/local/bin" / name, binary / name)
+        for source in (ROOT / "debian/usr/local/lib/ablestack-storage").glob("*"):
+            if source.is_file():
+                shutil.copy2(source, helper / source.name)
+        for name in ("manifest.json", "manifest.sig"):
+            shutil.copy2(self.output / name, default / name)
+        shutil.copy2(self.public_key, trust / self.public_key.name)
+        self.env.update({"ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT": str(binary),
+                         "ABLESTACK_STORAGE_RUNTIME_HELPER_ROOT": str(helper),
+                         "ABLESTACK_STORAGE_RUNTIME_DEFAULT": str(default),
+                         "ABLESTACK_STORAGE_RUNTIME_DEFAULT_TRUST": str(trust)})
+        return image
+
+    def template_verifier(self):
+        spec = importlib.util.spec_from_file_location("template_verifier", ROOT.parent / "tools/build/verify-storage-runtime-template.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_actual_assembled_signed_payload_first_and_repeated_bootstrap(self):
+        image = self.assembled_actual_template("actual-template")
+        verified = self.template_verifier().verify(image)
+        self.assertEqual(9, len(verified["managedFilesVerified"]))
+        self.assertTrue(verified["signatureVerified"])
+        first = self.run_updater("bootstrap")
+        current = self.runtime_root / "current"
+        pointer = current.readlink()
+        integrity = (current / "integrity.json").read_bytes()
+        confirmed = (self.runtime_root / "confirmed.json").read_bytes()
+        for _ in range(2):
+            again = self.run_updater("bootstrap")
+            self.assertEqual(first["currentVersion"], again["currentVersion"])
+            self.assertEqual(pointer, current.readlink())
+            self.assertEqual(integrity, (current / "integrity.json").read_bytes())
+            self.assertEqual(confirmed, (self.runtime_root / "confirmed.json").read_bytes())
+            self.assertTrue(self.run_updater("capabilities")["integrity"]["verified"])
+
+    def test_old_signed_manifest_with_current_payload_is_rejected_before_bootstrap(self):
+        image = self.assembled_actual_template("stale-template", matching=False)
+        with self.assertRaisesRegex(ValueError, "payload metadata/hash differs"):
+            self.template_verifier().verify(image)
+        self.assertFalse((self.runtime_root / "releases").exists())
+        self.assertFalse((self.runtime_root / "current").exists())
+
+    def test_assembled_template_signature_tamper_keeps_bootstrap_unstarted(self):
+        image = self.assembled_actual_template("signed-template")
+        manifest = image / "etc/ablestack-storage/runtime-default/manifest.json"
+        manifest.write_text(manifest.read_text().replace("signed-template", "edited-template"))
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.template_verifier().verify(image)
+        self.assertFalse((self.runtime_root / "current").exists())
+
     def test_confirmation_and_boot_persistence(self):
         self.run_updater("bootstrap")
         request = self.stage_transaction()
