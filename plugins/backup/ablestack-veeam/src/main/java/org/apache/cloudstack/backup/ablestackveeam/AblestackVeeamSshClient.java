@@ -261,8 +261,8 @@ public class AblestackVeeamSshClient {
             commands.add("if (-not $job) {");
             commands.add("  $template=Get-VBRComputerBackupJob -Name " + ps(templateName));
             commands.add("  if (@($template).Count -ne 1) { throw 'Linux Agent template job is ambiguous or missing' }");
-            commands.add("  $computer=@(Get-VBRDiscoveredComputer | Where-Object { (@($_.IPAddress)+@($_.IpAddresses)) -contains " + ps(sourceIp) + " })");
-            commands.add("  if ($computer.Count -ne 1) { throw 'Source Host must resolve to one discovered Linux Agent computer' }");
+            commands.add("  $computer=" + discoveredComputers("(@($_.IPAddress)+@($_.IpAddresses)) -contains " + ps(sourceIp)));
+            commands.add("  if ($computer.Count -ne 1) { throw ('Source Host must resolve to one discovered Linux Agent computer; unique ObjectID count: ' + $computer.Count) }");
             // Linux Agent scope accepts directories; include exactly this payload file within its directory.
             final java.nio.file.Path artifactPath = java.nio.file.Path.of(artifact.path);
             commands.add("  $files=New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @(" +
@@ -482,9 +482,9 @@ public class AblestackVeeamSshClient {
                 "  Get-Command Start-VBRLinuxGuestItemRestore -ErrorAction Stop | Out-Null",
                 "  $points=@(Get-VBRBackup | Get-VBRRestorePoint | Where-Object { ([string]$_.Id).Trim('{}') -eq " + ps(request.artifact.externalId) + " })",
                 "  if ($points.Count -ne 1) { throw 'Exact artifact restore point is missing or ambiguous' }",
-                "  $targets=@(Get-VBRDiscoveredComputer | Where-Object { $_.Name -eq " + ps(destinationHost)
-                        + " -or @($_.IpAddresses) -contains " + ps(destinationIp) + " })",
-                "  if ($targets.Count -ne 1) { throw 'Restore Worker Host must identify one Veeam Agent computer' }",
+                "  $targets=" + discoveredComputers("$_.Name -eq " + ps(destinationHost)
+                        + " -or (@($_.IPAddress)+@($_.IpAddresses)) -contains " + ps(destinationIp)),
+                "  if ($targets.Count -ne 1) { throw ('Restore Worker Host must identify one Veeam Agent computer; unique ObjectID count: ' + $targets.Count) }",
                 "  $mounts=@(Get-VBRServer -Name " + ps(destinationHost) + ")",
                 "  if ($mounts.Count -eq 0) { $mounts=@(Get-VBRServer | Where-Object { [string]$_.Type -eq 'Linux' } | Sort-Object Name | Select-Object -First 1) }",
                 "  if ($mounts.Count -ne 1) { throw 'Veeam infrastructure must provide one available Linux FLR mount server' }",
@@ -545,6 +545,15 @@ public class AblestackVeeamSshClient {
                         + "if ($receipt.requestId -cne " + ps(jobId) + " -or !$receipt.terminal) { throw 'Veeam restore receipt is active or its owner is unconfirmed' } }",
                 "foreach ($file in $files) { Remove-Item -LiteralPath $file.FullName -Force }",
                 "Write-Output 'ABLESTACK_JSON:{\"deleted\":true}'"));
+    }
+
+    /** Protection groups may return the same computer more than once; retain the original Veeam object. */
+    static String discoveredComputers(String condition) {
+        return "@(& { $seen=@{}; Get-VBRDiscoveredComputer -ErrorAction Stop | Where-Object { " + condition
+                + " } | ForEach-Object { $objectId=[guid]::Empty; "
+                + "if (![guid]::TryParse([string]$_.ObjectID,[ref]$objectId) -or $objectId -eq [guid]::Empty) { "
+                + "throw 'Discovered Veeam Agent computer has a missing or invalid ObjectID' }; "
+                + "$key=$objectId.ToString('D'); if (!$seen.ContainsKey($key)) { $seen[$key]=$true; $_ } } })";
     }
 
     private static String ps(String value) {
