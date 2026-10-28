@@ -233,4 +233,11 @@ public interface StorageService {
     ListResponse<StorageServiceRuntimeUpgradeResponse> listStorageServiceRuntimeUpgrades(ListStorageServiceRuntimeUpgradesCmd cmd);
 
     StorageServiceRuntimeUpgradeResponse rollbackStorageServiceRuntimeUpgrade(RollbackStorageServiceRuntimeUpgradeCmd cmd);
+
+    org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse> listStorageDirectoryPolicies(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageDirectoryPoliciesCmd cmd);
+    org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse createStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageDirectoryPolicyCmd cmd);
+    org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse updateStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageDirectoryPolicyCmd cmd);
 }

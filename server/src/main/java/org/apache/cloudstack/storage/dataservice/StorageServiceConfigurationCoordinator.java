@@ -67,6 +67,11 @@ final class StorageServiceConfigurationCoordinator {
         this.targets = targets; this.rules = rules; this.guest = guest; this.preflight = preflight; this.upgrades = upgrades;
     }
 
+    private org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao directoryPolicies;
+    StorageServiceConfigurationCoordinator withDirectoryPolicies(
+            org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao dao) {
+        directoryPolicies=dao; return this;
+    }
     <T> T execute(final BaseStorageServiceConfigurationCmd cmd, final StorageServiceInstanceVO instance,
             final StorageServiceInstance.Protocol protocol, final Class<T> responseType, final Supplier<T> candidate,
             final Consumer<StorageServiceConfigurationPlan> context, final Runnable baselineBuilder, final String vmUuid) {
@@ -110,6 +115,9 @@ final class StorageServiceConfigurationCoordinator {
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
+                if (StorageDirectoryPolicies.command(cmd) && (!capability.has("sharedDirectoryPolicyVersion")
+                        || capability.get("sharedDirectoryPolicyVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("DIRECTORY_POLICY_CAPABILITY_REQUIRED");
                 if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd
                         && (!capability.has("nfsIdentityMappingVersion") || capability.get("nfsIdentityMappingVersion").getAsInt() != 1))
                     throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
@@ -129,6 +137,8 @@ final class StorageServiceConfigurationCoordinator {
             op.setGuestObservationJson(report.toString()); save(op);
             plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules,
                     snapshot -> { op.setCandidateSnapshot(snapshot); save(op); });
+            plan.directoryPolicies(directoryPolicies);
+            plan.directoryReport = report;
             plan.operationUuid = op.getUuid();
             plan.targetRevision = op.getTargetRevision();
             op.setResourceUuid(plan.resourceUuid(cmd.getClass().getSimpleName(), publicRequest(cmd)));
@@ -154,7 +164,7 @@ final class StorageServiceConfigurationCoordinator {
             JsonObject payload = identity(op, instance);
             if (vmUuid != null) payload.addProperty("vmUuid", vmUuid);
             payload.add("before", beforeCommands); payload.add("candidate", commandJson(plan.commands));
-            if (protocol == StorageServiceInstance.Protocol.NFS && payload.getAsJsonObject("candidate").has("nfs export apply")) {
+            if (!StorageDirectoryPolicies.command(cmd) && protocol == StorageServiceInstance.Protocol.NFS && payload.getAsJsonObject("candidate").has("nfs export apply")) {
                 JsonObject nfs = payload.getAsJsonObject("candidate").getAsJsonObject("nfs export apply");
                 nfs.addProperty("configurationOperationId", op.getUuid());
                 nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
@@ -234,6 +244,7 @@ final class StorageServiceConfigurationCoordinator {
         if (observation.has("rollback")) op.setRollbackResultJson(JSON.toJson(observation.get("rollback")));
         state = observation.has("state") ? observation.get("state").getAsString() : "UNKNOWN";
         StorageServiceConfigurationPlan plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules, text -> { });
+        plan.directoryPolicies(directoryPolicies);
         plan.restore(op.getCandidateSnapshot(), op.getBeforeSnapshot());
         JsonObject saved = parsed(op.getCandidateSnapshot());
         if (saved.has("networkChanges")) for (JsonElement item : saved.getAsJsonArray("networkChanges")) plan.networkChanges.add(item.getAsJsonObject());
@@ -252,6 +263,7 @@ final class StorageServiceConfigurationCoordinator {
 
     /** Persisted task identity is bounded by the existing VARCHAR(32) contract. */
     static String resourceType(final BaseStorageServiceConfigurationCmd cmd) {
+        if (StorageDirectoryPolicies.command(cmd)) return "DirectoryPosixPolicy";
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
             return "NfsIdentityMapping";
         return cmd.getClass().getSimpleName();

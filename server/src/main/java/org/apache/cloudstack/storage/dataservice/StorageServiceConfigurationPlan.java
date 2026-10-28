@@ -82,6 +82,12 @@ final class StorageServiceConfigurationPlan {
         bounded(snapshot());
     }
 
+    void directoryPolicies(org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao dao) {
+        if (dao != null) add(org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao.class,
+                StorageDirectoryPolicyVO.class, dao, dao.listByInstanceId(instanceId));
+    }
+    JsonObject directoryReport;
+
     private <T> void add(final Class<?> contract, final Class<T> type, final GenericDao<T, Long> dao, final List<T> baseline) {
         tables.put(contract, new Table<>(contract, type, dao, baseline));
     }
@@ -109,7 +115,8 @@ final class StorageServiceConfigurationPlan {
     void discardReservations() { for (Table<?> table : tables.values()) table.discard(); }
     String resourceUuid(final String command, final Map<String, Object> request) {
         Object id = request.get("id");
-        Class<?> table = command.contains("Acl") ? StorageAccessRuleDao.class :
+        Class<?> table = command.contains("DirectoryPolicy") ? org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao.class :
+                command.contains("Acl") ? StorageAccessRuleDao.class :
                 command.contains("NfsExport") || command.contains("SmbShare") ? StorageFileShareDao.class : StorageBlockTargetDao.class;
         if (!(id instanceof Number)) return null;
         Object row = tables.get(table).rows.get(((Number)id).longValue());
@@ -120,7 +127,10 @@ final class StorageServiceConfigurationPlan {
             Set<String> keys = new HashSet<>();
             for (Object row : table.rows.values()) {
                 String key;
-                if (row instanceof StorageServiceProtocolVO) {
+                if (row instanceof StorageDirectoryPolicyVO) {
+                    StorageDirectoryPolicyVO v=(StorageDirectoryPolicyVO)row;
+                    key=v.getInstanceId()+":"+v.getVolumeId()+":"+v.getCanonicalHash();
+                } else if (row instanceof StorageServiceProtocolVO) {
                     StorageServiceProtocolVO v = (StorageServiceProtocolVO)row;
                     key = v.getProtocol() == StorageServiceInstance.Protocol.SMB
                             ? v.getProtocol() + ":" + (v.getListenIp() == null || v.getListenIp().trim().isEmpty() ? "0.0.0.0" : v.getListenIp().trim()) + ":" + (v.getPort() == null ? 445 : v.getPort())
@@ -173,8 +183,12 @@ final class StorageServiceConfigurationPlan {
             if ("persist".equals(name)) {
                 if (recordingBaseline) throw new CloudRuntimeException("Baseline observation cannot allocate configuration resources");
                 T candidate = type.cast(args[0]), reservation = copy(candidate);
-                Method setState = type.getMethod("setState", StorageServiceInstance.ResourceState.class);
-                setState.invoke(reservation, StorageServiceInstance.ResourceState.Creating);
+                if (reservation instanceof StorageDirectoryPolicyVO)
+                    ((StorageDirectoryPolicyVO)reservation).setRevision(0); // hidden durable ID reservation
+                else {
+                    Method setState = type.getMethod("setState", StorageServiceInstance.ResourceState.class);
+                    setState.invoke(reservation, StorageServiceInstance.ResourceState.Creating);
+                }
                 // Reservation and its durable ID checkpoint share one short SQL transaction.
                 return com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<T>) status -> {
                     T stored = underlying.persist(reservation);
@@ -206,6 +220,8 @@ final class StorageServiceConfigurationPlan {
             return name.startsWith("find") ? (result.isEmpty() ? null : result.get(0)) : result;
         }
         void restore(final JsonArray candidate, final JsonArray baseline) {
+            if (candidate == null && baseline == null) return; // operations accepted before this table existed
+            if (candidate == null || baseline == null) throw new CloudRuntimeException("Incomplete configuration table snapshot");
             Set<Long> oldIds = new HashSet<>();
             for (JsonElement item : baseline) oldIds.add(item.getAsJsonObject().get("id").getAsLong());
             rows.clear(); dirty.clear(); removed.clear();

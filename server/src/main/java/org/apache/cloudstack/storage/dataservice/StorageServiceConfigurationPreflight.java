@@ -49,6 +49,7 @@ final class StorageServiceConfigurationPreflight {
         for (String kind : Arrays.asList("NfsExport","NfsAcl","SmbShare","SmbAcl","IscsiTarget","IscsiAcl","NvmeOfSubsystem","NvmeOfNamespace","NvmeOfHostAcl"))
             for (String action : Arrays.asList("create","update","delete")) APIS.add(action+"Storage"+kind);
         APIS.add("updateStorageNfsIdentityMapping");
+        APIS.add("createStorageDirectoryPolicy"); APIS.add("updateStorageDirectoryPolicy");
         APIS.add("enableStorageServiceProtocol"); APIS.add("deleteStorageServiceProtocol");
     }
     private final StorageServiceProtocolDao protocols;
@@ -69,6 +70,8 @@ final class StorageServiceConfigurationPreflight {
             java.util.function.BiConsumer<StorageServiceInstanceVO, JsonObject> validate) {
         protocols=p; shares=s; targets=t; rules=a; volumes=v; upgrades=u; guest=g; volumeAccess=access; smbListenerValidation=validate;
     }
+    interface DirectoryObserver { JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner); }
+    DirectoryObserver directoryObserver;
     static String api(String name) {
         if (name.endsWith("Cmd")) name=Character.toLowerCase(name.charAt(0))+name.substring(1,name.length()-3);
         if (!APIS.contains(name)) throw new InvalidParameterValueException("Unsupported configuration intent");
@@ -84,7 +87,7 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
@@ -112,7 +115,7 @@ final class StorageServiceConfigurationPreflight {
                 }
             }
             for (String key : Arrays.asList("name","path"))
-                if (value.has(key) && (!value.get(key).isJsonPrimitive() || value.get(key).getAsString().length()>512))
+                if (value.has(key) && (!value.get(key).isJsonPrimitive() || value.get(key).getAsString().length()>(value.get("api").getAsString().endsWith("StorageDirectoryPolicy")?4096:512)))
                     throw new IllegalArgumentException();
             if (value.has("port") && (!value.get("port").isJsonPrimitive() || value.get("port").getAsInt() < 1 || value.get("port").getAsInt() > 65535)) throw new IllegalArgumentException();
             if ("updateStorageNfsIdentityMapping".equals(value.get("api").getAsString()))
@@ -134,6 +137,11 @@ final class StorageServiceConfigurationPreflight {
             for (String key : Arrays.asList("name","path"))
                 if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
         }
+        if (StorageDirectoryPolicies.command(cmd)) {
+            value.add("posixchanges", StorageNfsPosix.fields(request));
+            for (String key : Arrays.asList("path","expectedpolicyrevision"))
+                if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
+        }
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
             value.addProperty("idmappingmode", StorageNfsIdentityMapping.valid(((org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)cmd).getIdMappingMode()));
         return value;
@@ -152,6 +160,21 @@ final class StorageServiceConfigurationPreflight {
     }
     JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner) {
         String name=api(intent.get("api").getAsString());
+        if (name.endsWith("StorageDirectoryPolicy")) {
+            if (directoryObserver == null) throw new CloudRuntimeException("DIRECTORY_POLICY_UNAVAILABLE");
+            try { return directoryObserver.observe(instance,intent,owner); }
+            catch (CloudRuntimeException error) {
+                JsonObject report=new JsonObject();String message=error.getMessage();
+                String code=message!=null && message.matches("DIRECTORY_[A-Z0-9_]+")?message:"DIRECTORY_OBSERVATION_UNAVAILABLE";
+                report.addProperty("status",code.contains("UNAVAILABLE")?"UNKNOWN":"BLOCKED");
+                report.addProperty("revision",instance.getConfigurationRevision());
+                report.addProperty("observedat",System.currentTimeMillis()/1000.0);
+                report.addProperty("expiresat",System.currentTimeMillis()/1000.0+30);
+                report.addProperty("fingerprint","");report.add("checks",new JsonArray());
+                JsonObject check=new JsonObject();check.addProperty("code",code);check.addProperty("blocking",true);check.addProperty("severity","ERROR");
+                report.getAsJsonArray("checks").add(check);return report;
+            }
+        }
         StorageServiceInstance.Protocol protocol=name.contains("Nfs")?StorageServiceInstance.Protocol.NFS:
                 name.contains("Smb")?StorageServiceInstance.Protocol.SMB:name.contains("Iscsi")?StorageServiceInstance.Protocol.ISCSI:
                 name.contains("NvmeOf")?StorageServiceInstance.Protocol.NVME_OF:

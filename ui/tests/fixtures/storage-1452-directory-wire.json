@@ -1,0 +1,73 @@
+{
+  "list": {
+    "liststoragedirectorypoliciesresponse": {
+      "count": 1,
+      "directorypolicy": [
+        {
+          "id": "policy",
+          "instanceid": "instance",
+          "volumeid": "volume",
+          "path": "/export/team",
+          "owneruid": 1001,
+          "ownergid": 1001,
+          "mode": "0770",
+          "policyrevision": 3,
+          "observationstatus": "APPLIED",
+          "observation": {
+            "status": "OBSERVED",
+            "owneruid": 1001,
+            "ownergid": 1001,
+            "mode": "0770"
+          },
+          "references": [
+            {
+              "uuid": "nfs",
+              "name": "team-nfs",
+              "protocol": "NFS"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "preflight": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "READY",
+        "revision": 12,
+        "observedat": "2080-11-28T15:13:20+0900",
+        "expiresat": "2080-11-28T15:13:50+0900",
+        "fingerprint": "confirmed",
+        "checks": [],
+        "impact": {
+          "ackrequired": true
+        },
+        "profile": {},
+        "cancellationsupported": false,
+        "directorypreview": {
+          "entrycount": 1,
+          "references": [
+            {
+              "uuid": "nfs",
+              "name": "team-nfs",
+              "protocol": "NFS"
+            }
+          ],
+          "before": {
+            "status": "OBSERVED",
+            "owneruid": 1001,
+            "ownergid": 1001,
+            "mode": "0770"
+          },
+          "after": {
+            "status": "OBSERVED",
+            "owneruid": 1001,
+            "ownergid": 1001,
+            "mode": "0775"
+          },
+          "units": []
+        }
+      }
+    }
+  }
+}

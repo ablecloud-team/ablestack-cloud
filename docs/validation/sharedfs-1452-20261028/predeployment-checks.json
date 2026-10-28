@@ -1,0 +1,26 @@
+{
+  "upstreamBase": "37bceae693041b9c79cc52084053b050b577029d",
+  "apiDao": {
+    "tests": 22,
+    "failures": 0
+  },
+  "ui": {
+    "tests": 46,
+    "failures": 0,
+    "lint": "PASS",
+    "productionBuild": "PASS"
+  },
+  "runtime": {
+    "tests": 20,
+    "failures": 0
+  },
+  "directoryNativeUnit": {
+    "tests": 11,
+    "failures": 0
+  },
+  "actualBindSystemVm": {
+    "checks": 6,
+    "success": true
+  },
+  "deploymentAndAcceptance": "pending at this checkpoint"
+}

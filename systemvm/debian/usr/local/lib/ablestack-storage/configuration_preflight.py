@@ -148,6 +148,9 @@ def inspect(intent):
             from configuration_transaction import nfs_posix_observe
             observed = nfs_posix_observe(intent["posixtarget"])
             intent["posixfingerprint"] = observed.get("fingerprint")
+        if intent.get("directorytarget"):
+            from shared_directory_policy import DirectoryPolicies
+            DirectoryPolicies().prepare(intent["directorytarget"])
         report = evaluate(intent, sample(intent))
         if observed is not None:
             report["posixobservation"] = observed
@@ -156,8 +159,8 @@ def inspect(intent):
                 report["status"] = "BLOCKED"
                 report["checks"].append({"code":"POSIX_OBSERVATION_UNAVAILABLE","blocking":True,"severity":"ERROR"})
         return report
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError):
+    except Exception as error:
         return {"status": "UNKNOWN", "revision": intent.get("revision"), "fingerprint": fingerprint(intent),
                 "observedat": time.time(), "expiresat": time.time(),
-                "checks": [{"code": "RESOURCE_OBSERVATION_UNAVAILABLE", "blocking": True, "severity": "ERROR"}],
+                "checks": [{"code": getattr(error,"code","RESOURCE_OBSERVATION_UNAVAILABLE"), "blocking": True, "severity": "ERROR"}],
                 "cancellationsupported": False}

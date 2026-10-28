@@ -38,6 +38,11 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class UpdateStorageNfsExportCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
+    @Parameter(name="directorypolicyid",type=CommandType.UUID,entityType=org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse.class,
+            description="Common POSIX policy for the same canonical backing directory")
+    private Long directoryPolicyId;
+    public Long getDirectoryPolicyId() { return directoryPolicyId; }
+
     @Inject
     StorageService storageService;
 

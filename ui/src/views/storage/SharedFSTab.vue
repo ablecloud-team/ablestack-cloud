@@ -67,6 +67,18 @@
         </div>
       </a-tab-pane>
 
+      <a-tab-pane v-if="hasDirectoryPolicyApi && storageService.instance" :tab="$t('label.storage.directory.tab')" key="directory">
+        <StorageDirectoryPolicyPanel
+          :key="storageService.instance.id"
+          :instance="storageService.instance"
+          :execute="executeDirectoryPolicy"
+          :guarded="configurationProtected"
+          :operation="configurationDisplayOperation"
+          :refresh-token="storageRefreshGeneration"
+          @loaded="directoryPolicyRows=$event"
+          @resume="resumeConfigurationOperation" />
+      </a-tab-pane>
+
       <a-tab-pane v-if="hasStorageServiceApi" tab="NFS" key="nfs">
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
@@ -1458,6 +1470,16 @@ class="storage-service-inline-alert"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'nfsExport' || actionModal.type === 'editNfsExport'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item v-if="hasDirectoryPolicyApi" :label="$t('label.storage.directory.reference')">
+            <a-select v-model:value="forms.nfsExport.directorypolicyid" show-search option-filter-prop="label" @change="selectDirectoryPolicy('nfsExport', $event)">
+              <a-select-option value="">{{ $t('label.storage.directory.standalone') }}</a-select-option>
+              <a-select-option v-for="row in registeredDirectoryPolicies" :key="row.id" :value="row.id" :label="row.path + ' · ' + row.volumeid">{{ row.path }} · {{ row.owneruid }}:{{ row.ownergid }} / {{ row.mode }} · {{ row.volumeid }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-alert v-if="forms.nfsExport.directorypolicyid" type="info" show-icon class="storage-action-alert" :message="$t('message.storage.directory.inherited')">
+            <template #action><a-button type="link" @click="viewDirectoryPolicy">{{ $t('label.storage.directory.manage') }}</a-button></template>
+          </a-alert>
+
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.nfs.export.name.help')" />
@@ -1466,11 +1488,11 @@ class="storage-service-inline-alert"
           </a-form-item>
           <a-form-item required>
             <template #label>
-              <tooltip-label :title="$t('label.storage.service.internal.path')" :tooltip="$t('message.storage.service.nfs.backing.path.help')" />
+              <tooltip-label :title="$t(forms.nfsExport.directorypolicyid ? 'label.storage.directory.alias.path' : 'label.storage.service.internal.path')" :tooltip="$t(forms.nfsExport.directorypolicyid ? 'message.storage.directory.alias.path' : 'message.storage.service.nfs.backing.path.help')" />
             </template>
             <a-input v-model:value="forms.nfsExport.path" />
           </a-form-item>
-          <section class="storage-action-section">
+          <fieldset class="storage-policy-backing" :disabled="!!forms.nfsExport.directorypolicyid" :inert="forms.nfsExport.directorypolicyid ? '' : null"><section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
             <a-form-item required>
               <template #label>
@@ -1567,7 +1589,7 @@ class="storage-service-inline-alert"
                 </a-select>
               </a-form-item>
             </template>
-          </section>
+          </section></fieldset>
           <capacity-input :label="$t('label.storage.service.nfs.export.capacity.limit')" :tooltip="$t('message.storage.service.nfs.quota.help')" v-model:amount="forms.nfsExport.quotaamount" v-model:unit="forms.nfsExport.quotaunit" :units="capacityUnits" />
           <section v-if="isNfsRuntimeDualMode" class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.export.endpoints') }}</div>
@@ -1641,20 +1663,20 @@ class="storage-service-inline-alert"
             <div class="storage-action-section__title">{{ $t('label.storage.nfs.recommendation') }}</div>
             <div class="storage-action-summary-box">
               <code>{{ nfsRecommendedPosix.owneruid }}:{{ nfsRecommendedPosix.ownergid }} / {{ nfsRecommendedPosix.mode }}</code>
-              <a-button :disabled="actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED'" @click="useNfsRecommendedPosix">{{ $t('label.storage.nfs.use.recommendation') }}</a-button>
+              <a-button :disabled="!!forms.nfsExport.directorypolicyid || (actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED')" @click="useNfsRecommendedPosix">{{ $t('label.storage.nfs.use.recommendation') }}</a-button>
               <p class="storage-panel__description">{{ $t('message.storage.nfs.recommendation.help') }}</p>
             </div>
             <a-form-item :label="$t('label.storage.nfs.change.permissions')">
-              <a-switch v-model:checked="nfsPosixEdit" :disabled="actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED'" />
+              <a-switch v-model:checked="nfsPosixEdit" :disabled="!!forms.nfsExport.directorypolicyid || (actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED')" />
               <span style="margin-left: 12px">{{ $t(nfsPosixEdit ? 'label.storage.nfs.explicit.change' : 'label.storage.nfs.preserve.permissions') }}</span>
             </a-form-item>
             <a-row :gutter="16">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" :disabled="!nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" :disabled="!nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" :disabled="!nfsPosixEdit" placeholder="0775" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" :disabled="!nfsPosixEdit" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" placeholder="0775" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" /></a-form-item></a-col>
             </a-row>
           </section>
           <section class="storage-action-section">
@@ -1788,15 +1810,25 @@ class="storage-service-inline-alert"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'smbShare' || actionModal.type === 'editSmbShare'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item v-if="hasDirectoryPolicyApi" :label="$t('label.storage.directory.reference')">
+            <a-select v-model:value="forms.smbShare.directorypolicyid" show-search option-filter-prop="label" @change="selectDirectoryPolicy('smbShare', $event)">
+              <a-select-option value="">{{ $t('label.storage.directory.standalone') }}</a-select-option>
+              <a-select-option v-for="row in registeredDirectoryPolicies" :key="row.id" :value="row.id" :label="row.path + ' · ' + row.volumeid">{{ row.path }} · {{ row.owneruid }}:{{ row.ownergid }} / {{ row.mode }} · {{ row.volumeid }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-alert v-if="forms.smbShare.directorypolicyid" type="info" show-icon class="storage-action-alert" :message="$t('message.storage.directory.inherited')">
+            <template #action><a-button type="link" @click="viewDirectoryPolicy">{{ $t('label.storage.directory.manage') }}</a-button></template>
+          </a-alert>
+
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.smb.name.autogenerated')" /></template>
             <a-input v-model:value="forms.smbShare.name" />
           </a-form-item>
           <a-form-item required>
-            <template #label><tooltip-label :title="$t('label.storage.service.internal.path')" :tooltip="$t('message.storage.service.smb.internal.path.help')" /></template>
+            <template #label><tooltip-label :title="$t(forms.smbShare.directorypolicyid ? 'label.storage.directory.alias.path' : 'label.storage.service.internal.path')" :tooltip="$t(forms.smbShare.directorypolicyid ? 'message.storage.directory.alias.path' : 'message.storage.service.smb.internal.path.help')" /></template>
             <a-input v-model:value="forms.smbShare.path" placeholder="/export/smb01" />
           </a-form-item>
-          <section class="storage-action-section">
+          <fieldset class="storage-policy-backing" :disabled="!!forms.smbShare.directorypolicyid" :inert="forms.smbShare.directorypolicyid ? '' : null"><section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
             <a-form-item required>
               <template #label>
@@ -1893,7 +1925,7 @@ class="storage-service-inline-alert"
                 </a-select>
               </a-form-item>
             </template>
-          </section>
+          </section></fieldset>
           <capacity-input :label="$t('label.storage.service.smb.share.capacity.limit')" :tooltip="$t('message.storage.service.smb.quota.help')" v-model:amount="forms.smbShare.quotaamount" v-model:unit="forms.smbShare.quotaunit" :units="capacityUnits" />
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.storage.service.cross.protocol.share')" :tooltip="$t('message.storage.service.cross.protocol.share.help')" /></template>
@@ -1901,7 +1933,8 @@ class="storage-service-inline-alert"
           </a-form-item>
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template>
-            <a-input v-model:value="forms.smbShare.directorymode" placeholder="0770" />
+            <a-input v-if="forms.smbShare.directorypolicyid" :value="selectedDirectoryPolicy('smbShare')?.mode || ''" readonly />
+            <a-input v-else v-model:value="forms.smbShare.directorymode" placeholder="0770" />
           </a-form-item>
           <a-space wrap>
             <a-checkbox v-model:checked="forms.smbShare.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
@@ -2338,6 +2371,7 @@ import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
+import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -2554,6 +2588,7 @@ export default {
     StorageServiceRuntimeUpgrade,
     MoldDialog,
     StorageNfsIdentityPanel,
+    StorageDirectoryPolicyPanel,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
     StorageConfigurationPreflightPanel,
@@ -2642,6 +2677,7 @@ export default {
         context: null,
         loading: false
       },
+      directoryPolicyRows: [],
       configurationAcceptedPreflight: null,
       configurationFormStamp: '',
       nfsPosixEdit: false,
@@ -2923,6 +2959,8 @@ export default {
       }
       return errors.join(' / ')
     },
+    hasDirectoryPolicyApi () { return 'listStorageDirectoryPolicies' in (this.$store.getters.apis || {}) },
+    registeredDirectoryPolicies () { return this.directoryPolicyRows.filter(row => row.id && row.observationstatus === 'APPLIED') },
     hasStorageServiceApi () {
       return 'listStorageServiceInstances' in this.$store.getters.apis
     },
@@ -4559,7 +4597,7 @@ export default {
       const f = this.forms.nfsExport
       return nfsPosixRecommendation(this.nfsExportSquashPolicy, f.readonly, f.anonuid, f.anongid)
     },
-    nfsPosixParameters () { return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
+    nfsPosixParameters () { if (this.forms.nfsExport.directorypolicyid) return {}; return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
     nfsAclPolicyParameters () {
       if (this.forms.nfsAcl.squashpolicy === 'INHERIT') return { inheritpolicy: true }
       return { ...nfsSquashFlags(this.forms.nfsAcl.squashpolicy || 'ROOT'), ...nfsMappingDelta(this.nfsAclMappingBaseline, this.forms.nfsAcl) }
@@ -4919,7 +4957,7 @@ export default {
     },
     handleChangeTab (e) {
       this.currentTab = e
-      if (['details', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
+      if (['details', 'directory', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
         this.fetchStorageServiceData()
       }
       if (!this.isStorageProtocolTab(e)) {
@@ -5607,6 +5645,39 @@ export default {
       const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0
       return (this.ipv4ToNumber(ip) & mask) === (this.ipv4ToNumber(baseIp) & mask)
     },
+    async fetchDirectoryPolicies () {
+      const id = this.storageService.instance?.id
+      if (!id || !this.hasDirectoryPolicyApi) return
+      const scope = this.storageReadScope
+      try {
+        const wire = await getAPI('listStorageDirectoryPolicies', { instanceid: id, page: 1, pagesize: 500 })
+        if (scope === this.storageReadScope && id === this.storageService.instance?.id) this.directoryPolicyRows = wire.liststoragedirectorypoliciesresponse?.directorypolicy || []
+      } catch (error) { if (scope === this.storageReadScope) this.$notifyError(error) }
+    },
+    async executeDirectoryPolicy (api, params, report) {
+      if (!this.storageService.instance || this.configurationProtected) return
+      // This panel owns its modal, so starting another completed action needs a fresh logical key.
+      if (terminalConfigurationState(this.configurationOperation?.state)) this.configurationRequest = null
+      this.configurationAcceptedPreflight = { ...report, scope: this.storageReadScope, instanceid: this.storageService.instance.id }
+      return this.runConfigurationAction('directoryPolicy', api, params)
+    },
+    selectDirectoryPolicy (kind, id) {
+      const form = this.forms[kind]; form.directorypolicyid = id || ''
+      const policy = this.directoryPolicyRows.find(row => row.id === id)
+      if (!policy) return
+      form.volumeid = policy.volumeid
+      form.filesystem = policy.observation?.filesystem || form.filesystem
+      form.volumemode = this.currentBackingVolumes.some(v => v.id === policy.volumeid) ? 'CURRENT' : 'EXISTING'
+      form.createdirectory = false
+      if (kind === 'nfsExport') {
+        this.nfsPosixEdit = false
+        Object.assign(form, { owneruid: policy.owneruid, ownergid: policy.ownergid, mode: policy.mode })
+        this.nfsPosixObserved = nfsPosixObservation(policy.observation)
+      }
+      if (kind === 'smbShare') form.crossprotocol = true
+    },
+    selectedDirectoryPolicy (kind) { return this.directoryPolicyRows.find(row => row.id === this.forms[kind].directorypolicyid) },
+    viewDirectoryPolicy () { this.closeActionModal(); this.handleChangeTab('directory') },
     async runStorageAction (key, api, params, title) {
       if (isConfigurationApi(api)) return this.runConfigurationAction(key, api, params)
       if (!this.storageService.instance || this.actionLoading[key]) {
@@ -5900,6 +5971,14 @@ export default {
           this.fetchCollection('listStorageServiceProtocols', 'protocols', 'storageserviceprotocol'),
           this.fetchRuntime('listStorageServiceSessions', 'sessions')
         ])
+        if (key === 'directoryPolicy') {
+          await Promise.all([
+            this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport'),
+            this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare'),
+            this.fetchDirectoryPolicies()
+          ])
+          return
+        }
         if (['resizeBackingVolume', 'detachBackingVolume'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport'),
@@ -7448,6 +7527,7 @@ export default {
     },
     resetNfsExportForm () {
       Object.assign(this.forms.nfsExport, {
+        directorypolicyid: '',
         name: '',
         path: '',
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -7516,6 +7596,7 @@ export default {
     resetSmbShareForm () {
       const name = this.nextSmbShareName()
       Object.assign(this.forms.smbShare, {
+        directorypolicyid: '',
         name,
         path: this.defaultSmbSharePath(name),
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -7542,6 +7623,7 @@ export default {
       const volumeId = share.volumeid || share.volumeId || ''
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       Object.assign(this.forms.smbShare, {
+        directorypolicyid: config.directoryPolicyUuid || '',
         name: this.clientVisibleName(share.name || share.sharename, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -7593,6 +7675,7 @@ export default {
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       const protocolMode = this.nfsRuntimeProtocolMode()
       Object.assign(this.forms.nfsExport, {
+        directorypolicyid: config.directoryPolicyUuid || '',
         name: this.clientVisibleName(share.name || share.exportname, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -7662,6 +7745,7 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (['nfsExport', 'editNfsExport', 'smbShare', 'editSmbShare'].includes(type)) this.fetchDirectoryPolicies()
       if (type === 'nfsIdentity') this.forms.nfsIdentity.idmappingmode = this.nfsIdentity.report?.mode || 'NAME_DOMAIN'
       this.actionModal.type = type
       this.actionModal.context = context
@@ -7988,6 +8072,7 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
+        directorypolicyid: this.forms.nfsExport.directorypolicyid || undefined,
         ...this.nfsPosixParameters,
         ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
@@ -8084,6 +8169,7 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
+        directorypolicyid: this.forms.nfsExport.directorypolicyid || undefined,
         ...this.nfsPosixParameters,
         ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
@@ -8205,7 +8291,8 @@ export default {
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode,
+        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode,
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.smb.share'))
     },
@@ -8224,7 +8311,8 @@ export default {
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode
+        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode
       }, this.$t('label.storage.service.update.smb.share'))
     },
     createSmbAcl () {
@@ -9552,6 +9640,7 @@ export default {
 </style>
 
 <style scoped>
+.storage-policy-backing { border: 0; padding: 0; margin: 0; min-width: 0; }
 .configuration-fields .storage-modal-body { overflow: visible; max-height: none; padding: 0; }
 .configuration-fields { border: 0; padding: 0; margin: 16px 0 0; min-width: 0; }
 .configuration-fields[inert] :deep(input),

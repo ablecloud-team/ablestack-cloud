@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -236,6 +237,34 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Inject
     private com.cloud.user.AccountManager configurationAccountManager;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao directoryPolicyDao;
+    private org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao directoryPolicyDaoView() {
+        StorageServiceConfigurationPlan plan=configurationPlan.get();
+        return plan==null?directoryPolicyDao:plan.dao(org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao.class);
+    }
+    private StorageDirectoryPolicies directoryPolicies() {
+        return new StorageDirectoryPolicies(directoryPolicyDaoView(),storageFileShareDaoView(),storageAccessRuleDaoView(),
+                volumeDao,guestCommandDispatcher,
+                volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(),null,true,volume));
+    }
+    @Override public org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse> listStorageDirectoryPolicies(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageDirectoryPoliciesCmd cmd) {
+        StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(),null,true,instance);
+        return directoryPolicies().list(instance,cmd);
+    }
+    @Override public org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse createStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageDirectoryPolicyCmd cmd) {
+        StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        return runConfiguration(cmd,instance,StorageServiceInstance.Protocol.NFS,org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse.class,
+                () -> directoryPolicies().candidate(instance,configurationPlan.get(),true));
+    }
+    @Override public org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse updateStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageDirectoryPolicyCmd cmd) {
+        StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        return runConfiguration(cmd,instance,StorageServiceInstance.Protocol.NFS,org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse.class,
+                () -> directoryPolicies().candidate(instance,configurationPlan.get(),false));
+    }
     private final ThreadLocal<StorageServiceConfigurationPlan> configurationPlan = new ThreadLocal<>();
     private final ThreadLocal<Boolean> smbListenerOnly = new ThreadLocal<>();
     private final ThreadLocal<List<String>> smbAddressCleanup = new ThreadLocal<>();
@@ -261,9 +290,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao configurationUpgradeDao;
     private StorageServiceConfigurationPreflight configurationPreflight() {
-        return new StorageServiceConfigurationPreflight(storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao,
+        StorageServiceConfigurationPreflight value = new StorageServiceConfigurationPreflight(storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao,
             volumeDao, configurationUpgradeDao, guestCommandDispatcher,
             volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, volume), this::validateSmbEndpointIntent);
+        value.directoryObserver=(instance,intent,owner)->directoryPolicies().preflight(instance,intent,owner);
+        return value;
     }
     @Override
     public org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse preflightStorageServiceConfiguration(
@@ -275,7 +306,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     private StorageServiceConfigurationCoordinator configurationCoordinator() {
         return new StorageServiceConfigurationCoordinator(storageServiceInstanceDao, configurationOperationDao,
-                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher, configurationPreflight(), configurationUpgradeDao);
+                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher, configurationPreflight(), configurationUpgradeDao).withDirectoryPolicies(directoryPolicyDao);
     }
     private <T> T runConfiguration(final org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd cmd,
             final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocol, final Class<T> type,
@@ -286,7 +317,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         try {
             return configurationCoordinator().execute(cmd, instance, protocol, type, candidate,
                     plan -> { if (plan == null) configurationPlan.remove(); else configurationPlan.set(plan); },
-                    () -> applyStorageServiceProtocolDesiredState(instance, protocol),
+                    () -> { if (!StorageDirectoryPolicies.command(cmd)) applyStorageServiceProtocolDesiredState(instance, protocol); },
                     instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId()).getUuid());
         } finally {
             if (listeners) { smbListenerOnly.remove(); smbAddressCleanup.remove(); }
@@ -423,6 +454,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceConfigurationOperationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigurationOperationsCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageDirectoryPoliciesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageDirectoryPolicyCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageDirectoryPolicyCmd.class);
         commands.add(CreateStorageServiceInstanceCmd.class);
         commands.add(ListStorageServiceInstancesCmd.class);
         commands.add(EnableStorageServiceProtocolCmd.class);
@@ -909,6 +943,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         share = storageFileShareDaoView().persist(share);
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
+        if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getOwnerUid()!=null || cmd.getOwnerGid()!=null || cmd.getMode()!=null || Boolean.TRUE.equals(cmd.getRecursivePermission()));
         try {
             prepareFileShareBackingVolume(instance, share, cmd.getImportMode());
             if (preserveInitialPosix) requireInitialPosixPreservationRuntime(share);
@@ -976,6 +1011,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateJsonObjectConfigOrThrow(share.getConfigJson(), "NFS export " + share.getUuid());
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
+        if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getOwnerUid()!=null || cmd.getOwnerGid()!=null || cmd.getMode()!=null || Boolean.TRUE.equals(cmd.getRecursivePermission()));
         try {
             prepareFileShareBackingVolume(instance, share, cmd.getImportMode());
             applyNfsDesiredState(instance);
@@ -1238,6 +1274,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
+        if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getDirectoryMode()!=null);
         try {
             prepareFileShareBackingVolume(instance, share, importMode);
             applySmbDesiredState(instance, initialAcl == null ? Collections.emptyMap() : buildSecretMap(initialAcl.getId(), cmd.getAclPassword()));
@@ -1295,6 +1332,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         share.setConfigJson(configJson);
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
+        if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getDirectoryMode()!=null);
         try {
             prepareFileShareBackingVolume(instance, share, importMode);
             applySmbDesiredState(instance);
@@ -1874,6 +1912,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void prepareFileShareBackingVolume(final StorageServiceInstanceVO instance, final StorageFileShareVO share, final String importMode) {
+        JsonObject sharedPolicy=parseJsonObject(share.getConfigJson());
+        if(sharedPolicy.has("directoryPolicyUuid")) {
+            directoryPolicies().guardShare(instance,share,null,false);
+            storageFileShareDaoView().update(share.getId(),share);
+            return; // already mounted and identity-verified; never re-import/format a shared directory
+        }
         if (share.getVolumeId() == null || StringUtils.isBlank(importMode)) {
             return;
         }
@@ -4355,8 +4399,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             final String existingPath = normalizeFileSharePath(existing.getPath());
             if (normalizedPath.equals(existingPath)) {
-                if (allowCrossProtocolReuse && existing.getProtocol() != StorageServiceInstance.Protocol.SMB) {
-                    continue;
+                boolean opposite = resourceName.startsWith("NFS") ? existing.getProtocol()==StorageServiceInstance.Protocol.SMB
+                        : existing.getProtocol()==StorageServiceInstance.Protocol.NFS;
+                if (opposite && Objects.equals(requestedVolumeId,existing.getVolumeId())) {
+                    JsonObject config=parseJsonObject(existing.getConfigJson());
+                    if(config.has("directoryPolicyUuid")) continue;
+                    throw new InvalidParameterValueException("DIRECTORY_POLICY_REQUIRED");
                 }
                 throw new InvalidParameterValueException(resourceName + " path is already used by another Storage Service share: " + path);
             }
