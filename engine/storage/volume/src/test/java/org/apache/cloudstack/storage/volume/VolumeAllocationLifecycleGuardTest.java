@@ -70,7 +70,7 @@ public class VolumeAllocationLifecycleGuardTest {
     @Test public void qualifiedVmCloneUsesMatchingIntentAndPrimarySnapshot() {
         org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore primary = org.mockito.Mockito.mock(org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore.class);
         VolumeInfo source = org.mockito.Mockito.mock(VolumeInfo.class);
-        when(primary.getId()).thenReturn(30L); when(primary.getRole()).thenReturn(org.apache.cloudstack.engine.subsystem.api.storage.DataStoreRole.Primary);
+        when(primary.getId()).thenReturn(30L); when(primary.getRole()).thenReturn(com.cloud.storage.DataStoreRole.Primary);
         when(primary.getPoolType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
         when(snapshot.getDataStore()).thenReturn(primary); when(snapshot.getBaseVolume()).thenReturn(source);
         when(source.getState()).thenReturn(com.cloud.storage.Volume.State.Ready); when(source.getFormat()).thenReturn(com.cloud.storage.Storage.ImageFormat.RAW);
