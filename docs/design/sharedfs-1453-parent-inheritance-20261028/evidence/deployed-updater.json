@@ -1,0 +1,9 @@
+{
+  "path": "/usr/local/lib/ablestack-storage/runtime_updater.py",
+  "sha256": "afad50cc1bac1ed49f42a90a7c4a419e57583429a3f690ca3a6b5334f65d957d",
+  "constants": {
+    "RUNTIME_ABI_VERSION": "1",
+    "DESIRED_STATE_SCHEMA_VERSION": "1",
+    "UPDATER_VERSION": 4
+  }
+}

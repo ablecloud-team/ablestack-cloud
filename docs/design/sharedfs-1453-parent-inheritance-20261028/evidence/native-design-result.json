@@ -1,0 +1,556 @@
+{
+  "kind": "#1453 design only: real installed Samba and common POSIX engine in private namespaces",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "installed Samba four inheritance combinations on two distinct parents",
+      "passed": true,
+      "matrix": [
+        {
+          "case": "a_creator_plain",
+          "parent": {
+            "uid": 0,
+            "gid": 65534,
+            "mode": "0770",
+            "inode": 16908736,
+            "device": 2064
+          },
+          "inheritOwner": false,
+          "setgid": false,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 16908738,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 25166209,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 25166210,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 134,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 135,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "a_creator_sgid",
+          "parent": {
+            "uid": 0,
+            "gid": 65534,
+            "mode": "2770",
+            "inode": 8388744,
+            "device": 2064
+          },
+          "inheritOwner": false,
+          "setgid": true,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 8388746,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "2770",
+              "inode": 16908739,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 16908740,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "2770",
+              "inode": 25166211,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 25166212,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "a_owner_plain",
+          "parent": {
+            "uid": 0,
+            "gid": 65534,
+            "mode": "0770",
+            "inode": 136,
+            "device": 2064
+          },
+          "inheritOwner": true,
+          "setgid": false,
+          "newObjects": {
+            "made.txt": {
+              "uid": 0,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 138,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 0,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 8388747,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 0,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 8388748,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 0,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 16908741,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 0,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 16908742,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "a_owner_sgid",
+          "parent": {
+            "uid": 0,
+            "gid": 65534,
+            "mode": "2770",
+            "inode": 25166213,
+            "device": 2064
+          },
+          "inheritOwner": true,
+          "setgid": true,
+          "newObjects": {
+            "made.txt": {
+              "uid": 0,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 25166215,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 0,
+              "gid": 65534,
+              "mode": "2770",
+              "inode": 139,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 0,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 140,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 0,
+              "gid": 65534,
+              "mode": "2770",
+              "inode": 8388749,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 0,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 8388750,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "b_creator_plain",
+          "parent": {
+            "uid": 1,
+            "gid": 1,
+            "mode": "0770",
+            "inode": 16908743,
+            "device": 2064
+          },
+          "inheritOwner": false,
+          "setgid": false,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 16908745,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 25166216,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 25166217,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 141,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1001,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 142,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "b_creator_sgid",
+          "parent": {
+            "uid": 1,
+            "gid": 1,
+            "mode": "2770",
+            "inode": 8388751,
+            "device": 2064
+          },
+          "inheritOwner": false,
+          "setgid": true,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1001,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 8388753,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1001,
+              "gid": 1,
+              "mode": "2770",
+              "inode": 16908746,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1001,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 16908747,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1001,
+              "gid": 1,
+              "mode": "2770",
+              "inode": 25166218,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1001,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 25166219,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "b_owner_plain",
+          "parent": {
+            "uid": 1,
+            "gid": 1,
+            "mode": "0770",
+            "inode": 143,
+            "device": 2064
+          },
+          "inheritOwner": true,
+          "setgid": false,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 145,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 8388754,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 8388755,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1,
+              "gid": 1001,
+              "mode": "0770",
+              "inode": 16908748,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1,
+              "gid": 1001,
+              "mode": "0660",
+              "inode": 16908749,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        },
+        {
+          "case": "b_owner_sgid",
+          "parent": {
+            "uid": 1,
+            "gid": 1,
+            "mode": "2770",
+            "inode": 25166220,
+            "device": 2064
+          },
+          "inheritOwner": true,
+          "setgid": true,
+          "newObjects": {
+            "made.txt": {
+              "uid": 1,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 25166222,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child": {
+              "uid": 1,
+              "gid": 1,
+              "mode": "2770",
+              "inode": 146,
+              "device": 2064
+            },
+            "child/nested.txt": {
+              "uid": 1,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 147,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            },
+            "child/grand": {
+              "uid": 1,
+              "gid": 1,
+              "mode": "2770",
+              "inode": 8388756,
+              "device": 2064
+            },
+            "child/grand/deep.txt": {
+              "uid": 1,
+              "gid": 1,
+              "mode": "0660",
+              "inode": 8388757,
+              "device": 2064,
+              "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+            }
+          },
+          "existingSeedUnchanged": true
+        }
+      ]
+    },
+    {
+      "name": "READ_ONLY and authenticated but unauthorized principal cannot write",
+      "passed": true,
+      "readOnly": {
+        "rejected": true,
+        "status": "ACCESS_DENIED"
+      },
+      "unauthorized": {
+        "rejected": true,
+        "status": "ACCESS_DENIED"
+      }
+    },
+    {
+      "name": "inheritance uses the immediate parent, not share-root identity",
+      "passed": true,
+      "created": {
+        "uid": 1,
+        "gid": 1,
+        "mode": "0660",
+        "inode": 148,
+        "device": 2064,
+        "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+      },
+      "otherParent": {
+        "uid": 1,
+        "gid": 1,
+        "mode": "2770",
+        "inode": 25166220,
+        "device": 2064
+      }
+    },
+    {
+      "name": "Samba accepts contradictory force identity; prototype rejects before metadata/config changes",
+      "passed": true,
+      "sambaParserAccepts": true,
+      "applicationGuardRequired": true,
+      "parentUnchanged": true
+    },
+    {
+      "name": "private Samba reload and restart retain explicit parent owner setting",
+      "passed": true,
+      "reload": {
+        "uid": 0,
+        "gid": 65534,
+        "mode": "0660",
+        "inode": 25166223,
+        "device": 2064,
+        "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+      },
+      "restart": {
+        "uid": 0,
+        "gid": 65534,
+        "mode": "0660",
+        "inode": 25166224,
+        "device": 2064,
+        "sha256": "7bfec93e8eb4d0febc5158be86e4d4db1b1573101315e00ede9dfc8284c78c0f"
+      }
+    },
+    {
+      "name": "NFS two-port cross-access preserved; UID remains NFS creator while setgid inherits GID",
+      "passed": true,
+      "clients": [
+        {
+          "uid": 1001,
+          "gid": 65534,
+          "port": 23049,
+          "smbFileReadableViaNfs": true,
+          "clientUid": 1001,
+          "clientPrimaryGid": 1001,
+          "clientSupplementaryGids": [
+            1001,
+            65534
+          ]
+        },
+        {
+          "uid": 1001,
+          "gid": 65534,
+          "port": 23050,
+          "smbFileReadableViaNfs": true,
+          "clientUid": 1001,
+          "clientPrimaryGid": 1001,
+          "clientSupplementaryGids": [
+            1001,
+            65534
+          ]
+        }
+      ]
+    },
+    {
+      "name": "installed common transaction supports nonrecursive setgid on/off, identity preservation, duplicate protection and rollback",
+      "passed": true,
+      "initial": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0770",
+        "inode": 132,
+        "device": 2064
+      },
+      "enabled": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "2770",
+        "inode": 132,
+        "device": 2064
+      },
+      "restored": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0770",
+        "inode": 132,
+        "device": 2064
+      },
+      "rollback": "ROLLED_BACK",
+      "childrenUnchanged": true
+    }
+  ],
+  "scaffoldSourceSha256": "92f9a69156b6ca48128112f2aecbd7c14d7306bd950af4c651748a13071bf1c9",
+  "success": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true,
+  "productionFileCount": 6
+}
