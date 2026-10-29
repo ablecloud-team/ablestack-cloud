@@ -1,0 +1,20 @@
+{
+  "readOnly": true,
+  "mainGuardLine": 643,
+  "helpers": [
+    {
+      "name": "inheritance_conflict",
+      "line": 658
+    },
+    {
+      "name": "smb_runtime_settings",
+      "line": 680
+    }
+  ],
+  "namesAvailableWhenMainRuns": {
+    "DirectoryPolicies": true,
+    "inheritance_conflict": false,
+    "smb_runtime_settings": false
+  },
+  "lookupError": "name 'inheritance_conflict' is not defined"
+}

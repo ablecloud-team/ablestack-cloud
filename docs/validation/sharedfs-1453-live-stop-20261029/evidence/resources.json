@@ -1,0 +1,43 @@
+{
+  "sourceSharedFS": "11300681-00ed-4ab6-ab0d-2f3cb2d64022",
+  "sourceVm": "ac18af87-5354-3c07-b8d9-5a627b46ede0",
+  "sourceIp": "10.10.13.244",
+  "template": "c4c9bb14-2279-4332-b794-e388159d11a7",
+  "dataOffering": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+  "rootOffering": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+  "createJob": "59de3d9e-a296-4a96-af76-acbf8bc9b57b",
+  "creationMethod": "actual Mold UI",
+  "provisioningVerifiedBeforeCreate": {
+    "root": "sparse",
+    "data": "sparse"
+  },
+  "testIpDad": {
+    "10.10.13.244": "no response",
+    "10.10.13.245": "no response",
+    "10.10.13.246": "no response",
+    "10.10.13.247": "no response",
+    "10.10.13.250": "occupied; not used"
+  },
+  "sourceDomain": "i-2-185-VM",
+  "sourceHost": "10.10.13.3",
+  "sourceData": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+  "windowsInfrastructureVm": "ea9d2d88-5d88-40b2-99dd-9adf2328845c",
+  "windowsInfrastructureRoot": "b13dfa53-4f9b-4db6-bb49-b836d6d04124",
+  "windowsInfrastructureStatus": "BIOS corrected; Windows setup fails because MainQueueOnline10..que is absent; SharedFS product unaffected",
+  "clients": [
+    {
+      "id": "d1a77983-3fb4-42a5-ae4b-d47f251edf7b",
+      "domain": "i-2-187-VM",
+      "host": "10.10.13.1",
+      "ip": "10.10.254.200",
+      "rootProvisioning": "sparse"
+    },
+    {
+      "id": "c34f69d7-81fc-4ee2-86fc-bf8396102147",
+      "domain": "i-2-188-VM",
+      "host": "10.10.13.1",
+      "ip": "10.10.254.198",
+      "rootProvisioning": "sparse"
+    }
+  ]
+}
