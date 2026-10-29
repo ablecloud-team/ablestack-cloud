@@ -223,7 +223,16 @@ public class AblestackVeeamSshClient {
         return result.getBoolean("ready");
     }
 
-    /** One deterministic child job protects precisely one image (or the final metadata directory). */
+    public boolean volumeSourceReady(String templateName, String sourceHost) {
+        return volumeResult(VeeamHostJobTransfer.readyCommands(templateName, sourceHost)).getBoolean("ready");
+    }
+
+    /** Called before submission intent is saved; this method does not contact Veeam. */
+    public void prepareVolumeArtifact(String templateName, ThirdPartyBackupManifest.Artifact artifact) {
+        VeeamHostJobTransfer.prepare(artifact, templateName);
+    }
+
+    /** New artifacts reuse a fixed Host Job. Legacy artifacts retain their original child Job protocol. */
     public ThirdPartyBackupManifest.Artifact backupVolumeArtifact(String templateName, String sourceIp,
             ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
         return backupVolumeArtifact(templateName, sourceIp, artifact, metadata, true);
@@ -242,6 +251,11 @@ public class AblestackVeeamSshClient {
 
     private ThirdPartyBackupManifest.Artifact backupVolumeArtifact(String templateName, String sourceIp,
             ThirdPartyBackupManifest.Artifact artifact, boolean metadata, boolean submit) {
+        if (VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) {
+            return VeeamHostJobTransfer.result(volumeResult(VeeamHostJobTransfer.commands(
+                    submit ? "SUBMIT" : "RECOVER", templateName, sourceIp, artifact, metadata, false)), artifact);
+        }
+        if (artifact.transferProtocol != null) { throw new CloudRuntimeException("Unsupported Veeam artifact transfer protocol"); }
         String name = volumeJobName(artifact, metadata);
         List<String> commands = new ArrayList<>();
         commands.add("$ErrorActionPreference='Stop'");
@@ -342,6 +356,10 @@ public class AblestackVeeamSshClient {
 
     /** A successful, exact child catalog query is required before reporting absence. */
     public boolean volumeArtifactExists(ThirdPartyBackupManifest.Artifact artifact) {
+        requireKnownVolumeProtocol(artifact);
+        if (VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) {
+            return volumeResult(VeeamHostJobTransfer.commands("EXISTS", null, null, artifact, false, false)).getBoolean("exists");
+        }
         JSONObject result = volumeResult(Arrays.asList(
                 "$ErrorActionPreference='Stop'",
                 "$names=" + volumeJobNames(artifact, false) + "+" + volumeJobNames(artifact, true),
@@ -359,6 +377,14 @@ public class AblestackVeeamSshClient {
         if (artifact == null || !artifact.completed || artifact.submissionPending || StringUtils.isNotBlank(artifact.externalFailure)
                 || StringUtils.isBlank(artifact.path)) {
             throw new CloudRuntimeException("Veeam job retirement requires a committed successful artifact");
+        }
+        requireKnownVolumeProtocol(artifact);
+        if (VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) {
+            JSONObject result = volumeResult(VeeamHostJobTransfer.commands("COMMIT", null, null, artifact, metadata, false));
+            if (!result.optBoolean("retired", false) || !artifact.externalId.equalsIgnoreCase(result.optString("externalId"))) {
+                throw new CloudRuntimeException("Veeam did not confirm Detach with the exact backup and fixed Host Job preserved");
+            }
+            return;
         }
         final String pointId;
         try {
@@ -406,6 +432,10 @@ public class AblestackVeeamSshClient {
     }
 
     public boolean deleteVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, boolean policyExpiration) {
+        requireKnownVolumeProtocol(artifact);
+        if (VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) {
+            return volumeResult(VeeamHostJobTransfer.commands("DELETE", null, null, artifact, metadata, policyExpiration)).getBoolean("deleted");
+        }
         JSONObject result = volumeResult(Arrays.asList(
                 "$ErrorActionPreference='Stop'",
                 "$names=" + volumeJobNames(artifact, metadata),
@@ -438,6 +468,21 @@ public class AblestackVeeamSshClient {
                 "if ($jobs.Count -eq 1) { Remove-VBRComputerBackupJob -Job $jobs[0] -Confirm:$false | Out-Null }",
                 "Write-Output ('ABLESTACK_JSON:' + (@{deleted=$true} | ConvertTo-Json -Compress))"));
         return result.getBoolean("deleted");
+    }
+
+    /** Release only a proven terminal attempt; uncertain submissions retain ownership and block reuse. */
+    public void abortVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        requireKnownVolumeProtocol(artifact);
+        if (!VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) { return; }
+        if (!volumeResult(VeeamHostJobTransfer.commands("ABORT", null, null, artifact, metadata, false)).getBoolean("released")) {
+            throw new CloudRuntimeException("Veeam failed artifact still owns its fixed Host Job");
+        }
+    }
+
+    private void requireKnownVolumeProtocol(ThirdPartyBackupManifest.Artifact artifact) {
+        if (artifact.transferProtocol != null && !VeeamHostJobTransfer.PROTOCOL.equals(artifact.transferProtocol)) {
+            throw new CloudRuntimeException("Unsupported Veeam artifact transfer protocol");
+        }
     }
 
     private JSONObject volumeResult(List<String> commands) {

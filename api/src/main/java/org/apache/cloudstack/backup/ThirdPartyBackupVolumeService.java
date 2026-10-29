@@ -188,6 +188,9 @@ public interface ThirdPartyBackupVolumeService {
 
     @FunctionalInterface
     interface Transfer {
+        /** Record provider routing before the durable submission intent, without contacting the external service. */
+        default void prepare(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) { }
+
         /** Submit when jobId is empty; otherwise poll that exact saved job without waiting. */
         ThirdPartyBackupManifest.Artifact backup(ThirdPartyBackupManifest.Artifact artifact, boolean metadata);
 
@@ -205,7 +208,7 @@ public interface ThirdPartyBackupVolumeService {
         /** Explain a closed source-preparation gate without claiming that file export has started. */
         default String preparationWaitReason() { return "Waiting for the external parent backup Job to finish"; }
 
-        /** The exact successful catalog reference is durable; retire temporary configuration before acknowledging the Host. */
+        /** The exact successful reference is durable; detach or retire transfer configuration before acknowledging the Host. */
         default void committed(Backup backup, ThirdPartyBackupManifest.Artifact artifact, boolean metadata) { }
 
         /** Durably persist engine checkpoint metadata before the Host removes staging; retries must use the saved copy. */
@@ -213,6 +216,9 @@ public interface ThirdPartyBackupVolumeService {
 
         /** A failed checkpoint must not be reused as a healthy incremental source. */
         default void failed(Backup backup) { }
+
+        /** Readers are terminal; settle provider ownership before failed staging and job records may be removed. */
+        default void finalizeFailed(Backup backup) { }
     }
 
     /** Returns true when this is a volume pipeline (including when it is waiting). */

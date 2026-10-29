@@ -65,6 +65,18 @@ cat "$TEST_ROOT/config-updates"
         self.assertIn("value=ablestack-netbackup,ablestack-veeam zoneid=zone-test", result.stdout)
         self.assertNotIn("value=veeam", result.stdout)
 
+    def test_fixed_transfer_job_hooks_do_not_create_or_finalize_vm_backups(self):
+        result = self.run_hook(r'''
+mold_backup_load_config() { :; }
+mold_backup_notify_log() { echo UNEXPECTED; }
+mold_backup_cmk_run() { echo UNEXPECTED; }
+VEEAM_JOB_NAME=ABLESTACK-H-0123456789abcdef0123456789abcdef
+mold_backup_pre_notify ablecube1 "$VEEAM_JOB_NAME"
+mold_backup_post_notify ablecube1 "$VEEAM_JOB_NAME"
+''')
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertNotIn("UNEXPECTED", result.stdout)
+
     def test_failed_provider_lookup_never_replaces_existing_plugin_list(self):
         result = self.run_hook(r'''
 mold_backup_api_list_config_value() { return 1; }

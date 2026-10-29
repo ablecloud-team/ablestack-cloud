@@ -34,6 +34,7 @@ under the License.
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
 - [NetBackup 백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)
 - [Veeam 보존기간과 백업 삭제](#veeam-보존기간과-백업-삭제)
+- [Veeam 고정 Host 전송 Job의 정의와 검증](#veeam-고정-host-전송-job의-정의와-검증)
 - [Veeam 13.0 VM별 스케줄 검증 시나리오](#veeam-130-vm별-스케줄-검증-시나리오)
 - [Veeam Job 이름과 길이 제한](#veeam-job-이름과-길이-제한)
 - [NetBackup·Veeam 사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)
@@ -298,7 +299,7 @@ KVM Host의 NFS·GFS2 경로는 Linux Agent의 **snapshot-less file-level backup
 사전구성 전에 VBR의 기준 Linux Agent Job을 이 모드로 준비하고,
 SelectedFiles는 사전구성이 출력하는 해당 Host·Job의 bootstrap 디렉터리로 지정한다.
 `veeam-host-config.py`는 기준 Job의 백업 모드를 자동 변경하지 않는다.
-현재 연동은 실제 볼륨·메타데이터 전송용 Job을 만들 때 `SelectedFiles`와
+현재 연동은 실제 볼륨·메타데이터 전송용 Job을 구성할 때 `SelectedFiles`와
 `UseSnapshotlessFileLevelBackup`을 명시하며, 해당 PowerShell 옵션이 없는 VBR에서는 준비 검사를 실패 처리한다.
 공식 기준은 [NFS·GFS2를 지원하는 snapshot-less 파일 백업](https://helpcenter.veeam.com/docs/agentforlinux/userguide/file_backup_snapshotless.html)과
 [Set-VBRComputerBackupJob](https://helpcenter.veeam.com/docs/vbr/powershell/set-vbrcomputerbackupjob.html)을 참고한다.
@@ -1273,7 +1274,8 @@ Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로
 
 1. Veeam 백업 저장소와 Linux Agent를 준비하고 백업 Host가 Veeam에서 발견·등록되는지 확인한다.
 2. 파일 단위 백업을 사용하는 기준 Linux Agent Job을 Host마다 준비한다. Job 이름은 Host 이름과 독립적으로 지정한다.
-   예를 들어 `ablecube1` Host의 기준 Job 이름을 `veeam-ablecube1`로 정할 수 있다. Mold는 이 Job을 복제해 볼륨별 파일을 저장한다.
+   예를 들어 `ablecube1` Host의 기준 Job 이름을 `veeam-ablecube1`로 정할 수 있다.
+   새 전송은 기준 Job에서 최초 한 번 생성한 고정 전송 Job을 재사용한다. 기존에 접수된 임시 Job 방식은 그대로 조회·정리한다.
 3. Mold에 Veeam 접속 정보를 설정하고 서버 측 작업 명령을 실행할 수 있는 연결을 확인한다.
    공통 볼륨별 백업은 Veeam 서버의 PowerShell 작업을 SSH로 실행하는 경로를 사용한다.
 4. 공통 스테이징을 활성화하고 Host에 Veeam 연동 스크립트를 설치한다.
@@ -1283,7 +1285,7 @@ Job 목록의 `page[limit]=1000`은 유지하며 공유 Host 정책은 cursor로
 
 **Veeam PowerShell 실행 환경**
 
-볼륨별 백업의 기준 Job 준비 확인과 자식 Job 처리는 관리 서버의 Java SSH 클라이언트가 실행한다.
+볼륨별 백업의 기준 Job 준비 확인과 전송 Job 처리는 관리 서버의 Java SSH 클라이언트가 실행한다.
 Veeam 13.0 연동은 PowerShell 7을 필수로 사용한다. 관리 서버의 두 Java 클라이언트와 Host Hook은
 `C:\Program Files\PowerShell\7\pwsh.exe`, PATH의 `pwsh.exe`, `pwsh` 순서로 읽기 전용 검사를 수행한다.
 PowerShell 7 버전 확인과 Veeam 모듈 로딩에 성공한 실행 파일에서 실제 작업을 한 번만 실행한다.
@@ -1337,46 +1339,137 @@ Veeam 비밀번호가 포함된 기존 conf 백업은 `secrets/<conf>.bak.*.enc`
 세션 이력이 없는 새 Job도 조회할 수 있도록 세션은 열거 후 해당 Job의 `JobId`로 일치시킨다.
 실제 조회 오류는 빈 결과로 처리하지 않는다. 이미 제출 여부가 불명확한 작업은 세션이 없다는 이유만으로 재제출하지 않는다.
 
-**백업 순서**
+**백업 순서 — 고정 전송 Job 전환 구현, Veeam 13.0 실서버 검증 대기**
 
 1. Veeam UI 또는 Job 스케줄에서 기준 Job을 실행한다.
 2. Pre 스크립트가 Mold에 대상 VM의 백업을 요청한다.
 3. 기준 Job이 종료된 뒤 Mold가 RBD 또는 QCOW2 데이터를 볼륨별 스테이징 파일로 생성한다.
-4. Mold가 기준 Linux Agent Job을 복제하여 해당 볼륨 파일을 snapshot-less 파일 백업으로 저장한다.
-5. 정확한 Restore Point를 Mold DB에 저장한 뒤 임시 Job 설정을 제거한다. 보관 백업과 복원 시점은 유지한다.
-   Job 제거와 백업 보존을 다시 확인한 뒤 스테이징 파일을 정리하고 다음 볼륨을 처리한다.
-6. 마지막 메타데이터 Job까지 완료한 후 Mold에서 VM 백업이 `BackedUp`인지 확인한다.
+4. 최초 전송에서 기준 Linux Agent Job을 복제해 고정 Host 전송 Job을 한 번 생성한다.
+   전송 Job의 자동 스케줄과 Pre/Post Hook을 해제하고 이번 볼륨 파일만 선택하여 snapshot-less Full 파일 백업을 실행한다.
+5. 정확한 실행 Session·Backup·Restore Point ID를 Mold DB에 저장한 뒤 해당 보관본을 `Detach-VBRBackup`으로 분리한다.
+   같은 Backup·Restore Point가 보존되고 Job 연결이 해제됐으며 고정 Job ID가 유지되는지 재조회한다.
+   분리가 확인된 뒤에만 스테이징 파일을 정리하고, 같은 전송 Job의 선택 경로를 다음 볼륨으로 바꾼다.
+6. 같은 전송 Job으로 마지막 메타데이터 디렉터리도 저장·분리한다. Host 스테이징과 기록 정리가 끝나면 Mold에서 `BackedUp`을 확인한다.
 
-기준 Job은 유지하며, 볼륨·메타데이터별 Job은 전송 중에만 사용하고 성공 후 정리한다.
-한 Job의 선택 경로를 반복 변경하는 방식은 아니다. 서로 독립된 보관 백업이므로 기존 복원·삭제 단위를 유지한다.
-복원은 `Jobs` 목록 대신 `Backups`의 백업 이름과 정확한 Restore Point로 선택한다.
-Job 제거 후 보관 백업이 `Orphaned`로 분류될 수 있다.
+기존 스케줄 Job과 고정 전송 Job을 모두 유지한다. 볼륨마다 새 Job을 만들거나 고정 Job을 삭제하지 않는다.
+전송 Job을 재사용해도 실행 세션과 보관본은 볼륨·메타데이터마다 별개다.
+전송 Job에 별도 Backup Copy 등 종속 작업을 연결하지 않는다. 공식 Detach 전제에는 원본 Job과 종속 작업의 비활성화가 포함된다.
+복원은 `Backups`의 정확한 Backup·Restore Point로 선택하며, 같은 표시 이름만으로 구별하지 않는다.
+분리된 백업은 `Orphaned`로 분류될 수 있다.
 Job 수가 줄어도 볼륨·메타데이터 백업 수와 저장소 사용량은 별도로 남는다.
 외부 UI 복원에서 선택해야 하는 마지막 메타데이터 백업과 실제 VM 복원 절차는
 아래의 [외부 UI 복원 안내](#netbackupveeam-외부-ui의-rbdqcow2-복원)를 따른다.
 
-Job 정리는 소유권·성공 세션·단일 Restore Point가 정확히 확인된 경우에만 수행한다.
-확인 오류는 정리 `WAITING`으로 남겨 재시도하며 재전송하거나 보관 백업을 삭제하지 않는다.
-완료된 기존 볼륨별 백업의 Job도 카탈로그 동기화에서 같은 검증 후 정리한다.
+Detach는 소유권·성공 세션·단일 Backup·Restore Point가 정확히 확인된 경우에만 수행한다.
+확인 오류는 정리 `WAITING`으로 남겨 재조회하며, 해당 Job을 다음 전송에 넘기지 않는다.
+전환 전에 접수된 볼륨별 임시 Job은 기존 프로토콜로 조회한다. 완료된 기존 임시 Job은 카탈로그 동기화에서 소유권을 검증한 뒤 정리한다.
 수동으로 만든 동명 Job이나 미완료·모호한 작업을 이름만 보고 일괄 삭제하지 않는다.
 기준 Job의 보존 설정은 자동 변경하지 않는다. 설정과 만료·삭제 절차는 아래의
 [Veeam 보존기간과 백업 삭제](#veeam-보존기간과-백업-삭제)를 따른다.
-공식 명령은 [Remove-VBRComputerBackupJob](https://helpcenter.veeam.com/docs/vbr/powershell/remove-vbrcomputerbackupjob.html?ver=13),
+공식 명령은 [Detach-VBRBackup](https://helpcenter.veeam.com/docs/vbr/powershell/detach-vbrbackup.html),
 보관 기준은 [분리된 Agent 백업](https://helpcenter.veeam.com/docs/vbr/userguide/agent_backup_detach.html)을 참고한다.
+
+#### Veeam 고정 Host 전송 Job의 정의와 검증
+
+**검증 상태:** 아래는 현재 브랜치의 전환 구현과 합격 조건이다. Veeam cmdlet을 모의한 PowerShell 7 테스트와
+실제 Veeam 13.0 서버의 검증을 구분한다. 실서버에서 A·B 분리, A 삭제 후 B 복원, 고정 Job ID 유지까지 확인한 뒤
+실제 빌드·식별자·결과를 이 절에 기록하고 운영 구조를 확정한다. 현재 실서버 결과는 미확인이다.
+
+2026-10-29 로컬 검증: Veeam 모듈 JUnit 77개(고정 전송 Job 10개 포함), 공통 전송·DB 저장 JUnit 27개,
+Hook 테스트 12개가 통과했다. PowerShell 7.4.15에서 실제 스크립트를 실행했으며 Veeam cmdlet은 모의 구현을 사용했다.
+관련 40개 모듈의 reactor compile과 변경 대상 Checkstyle도 통과했다.
+이 결과는 실제 VBR 백업 데이터 생성·복원·만료 검증을 의미하지 않는다.
+
+| 용어 | 역할과 수명 |
+| --- | --- |
+| 기존 스케줄 Job / 기준 Job | Host별로 구성한 기존 Linux Agent Job. 스케줄과 Mold Pre/Post Hook, bootstrap 선택 경로를 유지한다. VM 백업 요청과 준비를 시작한다. |
+| 고정 Host 전송 Job | 동일 Host·기준 Job 조합에 하나인 `ABLESTACK-H-<32자리 식별자>`. 최초 한 번 복제하고 계속 재사용한다. 자체 스케줄과 Hook 없이 Mold가 선택 경로를 바꾸어 수동 실행한다. Host별 기준 Job은 하나로 구성한다. |
+| 실행 세션 | 전송 Job을 한 번 실행한 기록. 같은 Job ID 아래에도 매번 다른 Session ID를 사용한다. |
+| 보관본 / Backup | 해당 볼륨 파일 또는 메타데이터 디렉터리를 담은 Veeam 백업 컨테이너. 성공 후 Job에서 분리하여 독립 보관·삭제한다. |
+| 복원 지점 / Restore Point | 보관본 안의 정확한 복원 시점. 이 프로토콜은 보관본마다 단일 Full Restore Point를 요구한다. |
+| Mold 논리 백업 | VM 한 시점의 볼륨 보관본들과 마지막 메타데이터 보관본. Mold 증분 파일도 Veeam에는 독립 Full 파일 백업으로 저장한다. |
+
+```mermaid
+flowchart TD
+    A[기존 스케줄 Job과 Hook] --> B[Mold 요청 및 스테이징 입장]
+    B --> C[부모 Job 종료 후 볼륨 하나 또는 마지막 메타데이터 준비]
+    C --> D[고정 전송 Job으로 Full 파일 백업]
+    D --> E[Session · Backup · Restore Point ID를 DB에 저장]
+    E --> F[Detach 후 보관본과 고정 Job ID 재확인]
+    F --> G[Host ACK 및 해당 임시 파일 정리]
+    G --> H{남은 볼륨 또는 마지막 메타데이터}
+    H -->|있음| C
+    H -->|없음| I[전체 정리 후 BackedUp]
+```
+
+**식별자와 재시작 복구**
+
+| 매니페스트 필드 | 정의 |
+| --- | --- |
+| `transferProtocol` | 새 전송은 `VEEAM_HOST_JOB_V1`. 값이 없는 기존 보관본은 임시 Job 방식으로 처리하며 재제출·일괄 전환하지 않는다. |
+| `externalJobName` / `externalJobId` | 고정 전송 Job의 이름 / 지속되는 구성 GUID. |
+| `jobId` | 이번 실행의 Session GUID. 고정 Job GUID와 다르다. |
+| `externalBackupId` | 분리할 정확한 Veeam Backup GUID. 동일 이름의 다른 보관본 삭제를 방지한다. |
+| `externalId` | 정확한 Restore Point GUID. |
+
+프로토콜과 라우팅은 외부 제출 의도와 함께 먼저 저장하고, 성공한 세 ID를 저장한 다음 Detach한다.
+VBR의 `C:\ProgramData\ABLESTACK\Mold\host-job-transfer\`에는 artifact별 receipt와 Job별 `*.owner.json`, `*.lock`을 저장한다.
+소유권은 제출부터 Detach 확인까지 유지하며 SSH 호출이 끝나도 다음 artifact가 Job을 재사용하지 못하게 한다.
+Start 응답이 유실되면 같은 Job·요청 시각·기존 세션 경계로 정확한 세션만 복구한다.
+후보가 없거나 여러 개면 확인 대기를 유지하며 다시 Start하지 않는다.
+Detach 응답 유실은 같은 Backup ID의 분리 상태를 재확인하고, 확정된 보관본이 사라지거나 Job 연결이 남으면 대기한다.
+receipt나 owner 파일을 지워 대기를 해제하지 않는다. 실패한 전송도 세션 종료와 해당 보관본의 분리를 확인한 뒤 소유권을 해제한다.
+
+**동시 실행과 대기 조건**
+
+| 제한 | 의미 |
+| --- | --- |
+| Mold `backup.thirdparty.staging.concurrent.jobs.per.host` 기본 `1` | 선택된 Worker Host의 백업·복원을 합산하는 공통 입장 제한. 클러스터·전체 제한과 용량 조건도 적용한다. |
+| Veeam 고정 전송 Job | Host의 백업 전송을 하나씩 처리한다. Mold Host 제한을 `2`로 높여도 같은 Job의 백업 전송 둘을 동시에 실행하지 않는다. 이미 입장한 작업은 이전 artifact의 Detach를 기다릴 수 있다. |
+| Veeam 복원 | 백업 전송 Job을 실행하지 않는다. 공통 입장 제한과 Agent·FLR 등 Veeam의 실제 자원 제약을 함께 받으며 병렬 가능 수는 실서버에서 확인한다. |
+| NetBackup `mold-transfer` | 요청마다 별도 User Backup을 제출한다. Mold 제한을 높이면 정책·Client·저장소의 동시 실행 한도와 용량이 허용하는 범위에서 병렬 처리할 수 있다. |
+
+예를 들어 같은 시각에 Host 1의 VM 네 대와 Host 2·3의 VM 각 한 대가 요청되면,
+Host 제한 `1`에서 Host 1은 한 대가 입장하고 세 대가 공통 대기열에서 기다린다.
+스케줄 시각은 요청 시각이며 실제 시작·완료 시각을 보장하지 않는다. 공통 입장 대기 시간 초과와
+이미 입장한 전송의 Detach 확인 대기는 별개 상태로 확인한다.
+VM 30대라도 Job 구성 수는 Host 수를 기준으로 늘고, 세션·보관본 수는 실제 볼륨·백업 회차 수에 따라 늘어난다.
+
+**Veeam 13.0 실서버 합격 조건**
+
+1. 기존 기준 Job의 스케줄·Hook·bootstrap 경로가 유지되고 고정 전송 Job은 자동 실행·Hook 없이 동작한다.
+2. 작은 테스트 자료 A를 고정 Job으로 Full 백업하고, Session·Backup·Restore Point GUID를 기록한 뒤 Detach한다.
+   분리 후 동일 Backup·Restore Point가 존재하고 고정 Job GUID가 그대로인지 확인한다.
+3. 같은 Job에서 B를 백업·분리한다. A·B의 Backup·Session·Restore Point GUID가 서로 다르며 각 보관본에 Restore Point가 하나인지 확인한다.
+4. A만 명시적으로 삭제하고 B의 Backup·Restore Point와 고정 Job이 유지되는지 확인한다.
+   B를 원본 KVM Host를 이용한 파일 복원으로 받아 원본 내용·체크섬과 대조한다.
+5. Mold VM의 볼륨 여러 개와 마지막 메타데이터, Full·증분, Mold UI·Veeam UI 복원을 검증한다.
+   같은 표시 이름으로 여러 보관본이 남아도 정확한 ID로 대상이 구분되는지 확인한다.
+6. Start·Detach 응답 유실 및 Detach 실패에서 중복 제출·다른 보관본 삭제가 없고 대기·재조회로 복구되는지 확인한다.
+7. Days 보존의 실제 만료와 Mold 카탈로그 반영을 확인한다. 기간 경과 전 삭제 테스트가 자동 만료 검증을 대신하지 않는다.
+
+결과에는 VBR 정확한 빌드, Agent 버전, 기준·전송 Job GUID, A·B의 세 ID, 분리 전후 Job 연결 값,
+A 삭제 후 B 복원 내용·체크섬, Full·증분 및 정리 결과를 기록한다. cmdlet 옵션이나 분리 후 객체 속성이
+설치된 13.0에서 다르면 확인되지 않은 분리를 성공으로 처리하지 않고 해당 차이를 먼저 수정·재검증한다.
+
+전환 배포에는 관리 서버의 API·Server·Veeam 플러그인을 함께 반영한다. KVM Agent도 새 매니페스트 필드를
+보존하는 동일 버전의 API 패키지로 맞춘다. Host의 `veeam/mold-backup.lib.sh`에는 고정 전송 Job의 Hook 재진입 방지 규칙을 반영한다.
+진행 중인 기존 작업은 저장된 프로토콜과 ID로 계속 조회하며, 수동으로 기존 Job을 새 고정 Job에 병합하지 않는다.
 
 #### Veeam 보존기간과 백업 삭제
 
-현재 Mold 연동은 Host별 기준 Linux Agent Job을 복제하여 볼륨·메타데이터를 독립적으로 백업하고,
-성공한 임시 Job 설정을 제거한다. 보관 백업은 Veeam 저장소에 남는다.
-아래 절차는 이 방식의 운영 기준이며, 고정 Job을 반복 실행하는 구조로 전환하는 설정 절차가 아니다.
+새 전송은 고정 Host 전송 Job에서 볼륨·메타데이터를 각각 백업하고 성공한 보관본을 Detach한다.
+이전 프로토콜의 보관본은 임시 Job 설정 제거 방식으로 유지한다. 두 방식 모두 보관 백업은 Veeam 저장소에 남는다.
+고정 전송 Job의 실서버 검증 상태와 합격 조건은 앞 절을 따른다.
 
 **연동 전 보존 설정**
 
 1. Veeam 콘솔의 `Home > Jobs > Backup`에서 Host별 기준 Linux Agent Job을 편집한다.
 2. `Storage` 단계의 `Keep backups for`를 운영 정책에 맞는 **일수(Days)**로 설정한다.
    Mold에 별도의 VM별 보존기간을 설정하는 방식이 아니며, 사전 구성 명령도 이 값을 자동 지정하지 않는다.
-3. 새로 생성되는 임시 Job은 기준 Job의 보존 설정을 상속한다. 기준 Job의 값을 변경한 뒤에는
-   새 백업의 설정과 보관 결과를 확인한다. 이미 Job에서 분리된 백업은 생성 당시의 보존 설정을 기준으로 확인한다.
+3. 고정 전송 Job은 최초 생성 시 기준 Job의 보존 설정을 상속한다. PowerShell의 `RetentionType`은 `RestoreDays`여야 하며
+   다른 값이면 새 전송을 시작하지 않는다. 기준 Job 변경을 이미 생성된 전송 Job에 자동 복제하지 않으므로
+   전송 Job의 보존 설정도 함께 확인·변경한다. 이미 분리된 백업은 생성 당시의 보존 설정을 기준으로 확인한다.
    기준 Job 변경만으로 기존 Orphaned 백업의 보존기간까지 일괄 변경되었다고 판단하지 않는다.
 
 현재 사용하는 백업 서버 관리형 Linux Agent Job의 공식 구성 안내는 일수 기반이다.
@@ -1473,28 +1566,32 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
    두 VM 요청이 접수되고, Host 제한 기본 `1`이면 한 VM이 입장하고 다른 VM은 `HOST_CONCURRENCY_LIMIT`으로 대기한다.
    두 VM 모두 bootstrap 마커를 준비하므로 대기 VM 때문에 부모 Pre Hook이 멈추면 안 된다.
    부모 종료 후 볼륨별 전송과 최종 metadata까지 완료되어 두 VM이 `BackedUp`인지 확인한다.
-7. VBR에서 기준 Job은 남고, 성공한 임시 Job 설정은 정리되며 각 볼륨·metadata 백업과 Restore Point가 보존되는지 확인한다.
+7. VBR에서 기준 Job과 고정 전송 Job이 유지되고, 각 볼륨·metadata 보관본이 분리되어 Restore Point가 보존되는지 확인한다.
    첫 백업은 Mold `FULL`이다. ROOT·DATA 내용을 변경한 뒤 다음 회차를 실행하여 조건을 충족하면 `INCREMENTAL`인지 확인한다.
    준비된 변경분 파일도 Veeam에는 독립 Full로 전송한다. Veeam 전송 타입만으로 Mold 증분 여부를 판단하지 않는다.
 8. Mold UI에서 VM을 정지하고 첫 Full과 후속 증분을 각각 복원한다. 시작 후 ROOT·DATA의 검증 파일이 해당 시점과 맞는지 확인한다.
-   이어 Veeam UI의 `Backups`에서 해당 백업의 `ABLESTACK-M-<32자리 식별자>`와 정확한 Restore Point를 골라
+   이어 Veeam UI의 `Backups`에서 해당 논리 백업의 메타데이터 Backup·Restore Point ID를 대조해 선택하고
    `resolveBackupArtifact`의 `metadatarestorepath`에 복원하고 감시기가 Mold VM 복원을 요청하는지 확인한다.
    기준 bootstrap이나 개별 볼륨 파일만 복원하지 않는다. 최종 VM 복원 성공은 Mold에서 확인한다.
 9. 마지막으로 테스트 백업을 Mold에서 삭제하여 정확한 외부 보관본이 정리되는지 확인한다.
-   증분이 참조하는 부모는 의존성에 따라 삭제 대기하는지 확인한다. Job 설정이 이미 없어도 복원·삭제가 가능해야 한다.
+   증분이 참조하는 부모는 의존성에 따라 삭제 대기하는지 확인한다. 다른 보관본과 고정 Job이 그대로 유지돼야 한다.
 
 결과에는 실제 VBR 빌드, VM·Mold 백업 UUID, Restore Point·Session GUID,
-Full/증분, Job 정리 전후와 보관본 존재 여부, Mold UI·Veeam UI 복원 결과를 함께 기록한다.
+Full/증분, Detach 전후의 Backup GUID·Job 연결과 보관본 존재 여부, Mold UI·Veeam UI 복원 결과를 함께 기록한다.
 Host 로그는 `/var/log/mold/veeam-hook.log`와 `/var/lib/ablestack/backup/jobs/<백업 UUID>/job.log`,
 외부 UI 복원은 `journalctl -u mold-veeam-restore-agent.service`와 `/var/lib/ablestack/veeam/events/restore.log`에서 확인한다.
 
 #### Veeam Job 이름과 길이 제한
 
-Veeam Linux Agent 하위 Job 이름은 최대 50자다. 새 볼륨 Job은 `ABLESTACK-V-<32자리 식별자>`,
-메타데이터 Job은 `ABLESTACK-M-<32자리 식별자>`로 모두 43자를 사용한다.
+Veeam Linux Agent Job 이름은 최대 50자다. 새 고정 전송 Job은 기준 Job 이름과 원본 Host 이름으로 계산한
+`ABLESTACK-H-<32자리 식별자>`로 43자를 사용한다. 설명은 `Mold fixed Host transfer <Job 이름>`이며,
+논리 백업마다 설명을 덮어쓰지 않는다. 정확한 구성·Session·Backup·Restore Point ID는 각 artifact에 저장한다.
+
+이전 프로토콜의 볼륨 Job은 `ABLESTACK-V-<32자리 식별자>`, 메타데이터 Job은 `ABLESTACK-M-<32자리 식별자>`였다.
+다음 규칙은 기존 보관본의 조회·복원·삭제 및 임시 Job 정리에만 유지한다.
 백업 UUID와 볼륨 경로 전체로 고정 식별자를 계산하며, 원본 백업 UUID는 Job 설명의 `Mold logical backup <UUID>`에 유지한다.
 메타데이터는 백업 UUID와 메타데이터 구분자로 식별한다.
-생성·재조회·삭제·임시 Job 정리에 같은 규칙을 사용하며, 이전의 긴 이름은 기존 작업 조회에만 사용한다.
+기존 보관본의 재조회·삭제·임시 Job 정리에 같은 규칙을 사용하며, 이전의 긴 이름도 기존 작업 조회에만 사용한다.
 기존 Job을 찾았을 때는 새 이름으로 중복 생성하지 않는다.
 새 이름으로 만든 백업은 이름에 원본 UUID가 그대로 포함되지 않으므로 설명과 정확한 Session·Restore Point ID로 대조한다.
 
@@ -2273,7 +2370,8 @@ Commvault는 Mold UI에서 복원을 시작한다.
 
 1. Mold에서 대상 VM을 **Stopped**로 둔다.
 2. 원하는 Mold 백업 시점에 연결된 메타데이터 작업을 확인한다.
-   Veeam은 **`ABLESTACK-M-<32자리 식별자>`**와 해당 백업의 정확한 Restore Point를 확인한다.
+   새 Veeam 고정 전송 방식은 **메타데이터의 Backup GUID·Restore Point GUID와 선택 경로**를 확인한다.
+   이름이 같은 보관본이 여러 개일 수 있다. 기존 임시 Job 방식은 `ABLESTACK-M-<32자리 식별자>`를 함께 대조한다.
    기존 Veeam 백업과 기존 NetBackup 이미지별 정책 방식은 **`ABLESTACK-<Mold 백업 UUID>-metadata`**를 확인한다.
    새 NetBackup 방식은 **Host 정책 / `mold-transfer`**에서 해당 Mold 백업의 메타데이터 Backup ID·시점을 선택한다.
    파일 목록이 `<root>/ablestack-netbackup/<VM 내부 이름>/<백업 timestamp>`인 메타데이터 작업인지 확인하며 볼륨 파일 Job은 선택하지 않는다.
@@ -2861,17 +2959,18 @@ Host와 Job 이름을 모두 `ablecube1`로 지정하면 `bootstrap/ablecube1/ab
 기본 경로를 사용할 때는 `--agent-payload-path`를 생략한다.
 Veeam UI의 SelectedFiles가 사전구성에서 출력된 경로와 같은지 확인한다.
 명시적 경로를 유지하려면 `--agent-payload-path`에 기존 경로를 지정한다.
-완료된 볼륨·metadata Job과 기존 복원 지점은 경로 변경 대상이 아니다.
-사전 Hook은 `createAblestackVeeamBackup`을 요청하고 Mold가 볼륨별 Job과 최종 metadata Job을 관리한다.
+완료된 볼륨·metadata 보관본과 기존 복원 지점은 경로 변경 대상이 아니다.
+사전 Hook은 `createAblestackVeeamBackup`을 요청하고 Mold가 고정 전송 Job으로 볼륨들과 최종 metadata를 저장·분리한다.
 사후 Hook은 부모용 마커 사본만 정리한다. 원본 마커·볼륨 staging 파일과 최종 백업 시점은 Mold가 관리한다.
 Veeam의 Active Full/Start 선택만으로 Mold의 Full/증분을 결정하지 않는다.
 
 Veeam UI 복원은 다음 순서로 진행한다.
 
 1. Mold에서 원본 VM을 정지한다.
-2. `Backups`에서 원하는 `ABLESTACK-M-<32자리 식별자>` 메타데이터 백업과 정확한 Restore Point를 선택한다.
-   이전 이름인 `ABLESTACK-<백업 UUID>-metadata`도 기존 백업 조회에서 지원한다.
-   임시 Job 설정이 정리된 경우에도 보관 백업은 남으며 `Orphaned`에 표시될 수 있다.
+2. `Backups`에서 원하는 논리 백업의 메타데이터 Backup·Restore Point GUID를 대조하여 선택한다.
+   새 전송 방식은 같은 고정 Job 이름의 보관본을 이름만 보고 선택하지 않는다.
+   기존 `ABLESTACK-M-<32자리 식별자>`와 `ABLESTACK-<백업 UUID>-metadata`도 기존 백업 조회에서 지원한다.
+   분리된 보관 백업은 `Orphaned`에 표시될 수 있다.
 3. metadata 파일을 현재 스테이징 수신 경로(`resolveBackupArtifact`의 `metadatarestorepath`)에 복원한다.
    원본과 현재 root가 같으면 기존 경로와 동일하다. 부모 Host Job의 bootstrap이나 개별 볼륨 Job만 복원한 것은 VM 복원 요청으로 처리하지 않는다.
 4. `mold-veeam-restore-agent.timer`가 실제 파일 복사 Task UUID와 부모 FLR Session UUID, Restore Point ID를 조회한다.

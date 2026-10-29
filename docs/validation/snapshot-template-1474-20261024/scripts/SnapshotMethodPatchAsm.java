@@ -1,10 +1,16 @@
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
-import java.nio.file.*;
-import java.util.*;
-import java.util.jar.*;
-import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
 public class SnapshotMethodPatchAsm {
  static String text(MethodNode m){ClassWriter w=new ClassWriter(0);w.visit(Opcodes.V17,Opcodes.ACC_PUBLIC,"Proof",null,"java/lang/Object",null);m.accept(w);w.visitEnd();return Base64.getEncoder().encodeToString(w.toByteArray());}
  public static void main(String[] args)throws Exception{

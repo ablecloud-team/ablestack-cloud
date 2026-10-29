@@ -902,7 +902,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         artifact.externalTerminal = result.externalTerminal || result.completed;
         artifact.externalFailure = result.externalFailure;
         artifact.submissionPending = false;
+        artifact.transferProtocol = result.transferProtocol;
+        artifact.externalBackupId = result.externalBackupId;
+        artifact.externalJobId = result.externalJobId;
+        artifact.externalJobName = result.externalJobName;
         backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson(), false);
+        backup.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
     }
 
     private void manageRestore(BackupVO backup, Host host, String action, Integer index, String jobId, RestoreTransfer transfer) throws Exception {
@@ -3277,7 +3282,21 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (!artifact.completed) {
                 if (StringUtils.isBlank(artifact.jobId)) {
                     if (artifact.submissionPending) {
-                        ThirdPartyBackupManifest.Artifact recovered = recoverPendingArtifact(tracked, transfer, artifact, metadata);
+                        ThirdPartyBackupManifest.Artifact recovered;
+                        try { recovered = recoverPendingArtifact(tracked, transfer, artifact, metadata); }
+                        catch (ThirdPartyBackupTransferBusyException e) {
+                            artifact.submissionPending = false;
+                            artifact.submittedAt = 0;
+                            saveVolumeManifest(tracked, manifest);
+                            saveCleanupState(tracked.getId(), "WAITING", e.getMessage());
+                            return true;
+                        } catch (ThirdPartyBackupSubmissionException e) {
+                            artifact.submissionPending = false;
+                            artifact.externalTerminal = true;
+                            artifact.externalFailure = e.getMessage();
+                            saveVolumeManifest(tracked, manifest);
+                            throw e;
+                        }
                         if (recovered == null) { return true; }
                         if (!artifact.path.equals(recovered.path) || !artifact.backupUuid.equals(recovered.backupUuid)
                                 || (!metadata && artifact.size != recovered.size)) {
@@ -3290,10 +3309,15 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                         artifact.completed = recovered.completed;
                         artifact.externalTerminal = recovered.externalTerminal;
                         artifact.externalFailure = recovered.externalFailure;
+                        artifact.transferProtocol = recovered.transferProtocol;
+                        artifact.externalBackupId = recovered.externalBackupId;
+                        artifact.externalJobId = recovered.externalJobId;
+                        artifact.externalJobName = recovered.externalJobName;
                         artifact.submissionPending = false;
                         saveVolumeManifest(tracked, manifest);
                     } else {
                         // A controller restart after an accepted request must not silently submit it again.
+                        transfer.prepare(artifact, metadata);
                         artifact.submissionPending = true;
                         artifact.submittedAt = System.currentTimeMillis();
                         saveVolumeManifest(tracked, manifest);
@@ -3302,6 +3326,14 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 // Save an accepted child job before polling it. Only a confirmed catalog reference permits unlink.
                 ThirdPartyBackupManifest.Artifact result;
                 try { result = transfer.backup(artifact, metadata); }
+                catch (ThirdPartyBackupTransferBusyException e) {
+                    if (StringUtils.isNotBlank(artifact.jobId)) { throw new CloudRuntimeException("Busy proof conflicts with an accepted Job ID", e); }
+                    artifact.submissionPending = false;
+                    artifact.submittedAt = 0;
+                    saveVolumeManifest(tracked, manifest);
+                    saveCleanupState(tracked.getId(), "WAITING", e.getMessage());
+                    return true;
+                }
                 catch (ThirdPartyBackupSubmissionException e) {
                     if (StringUtils.isNotBlank(artifact.jobId)) { throw new CloudRuntimeException("Submission proof conflicts with an accepted Job ID", e); }
                     artifact.submissionPending = false;
@@ -3329,6 +3361,10 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 artifact.submissionPending = false;
                 artifact.externalTerminal = result.externalTerminal || result.completed;
                 artifact.externalFailure = result.externalFailure;
+                artifact.transferProtocol = result.transferProtocol;
+                artifact.externalBackupId = result.externalBackupId;
+                artifact.externalJobId = result.externalJobId;
+                artifact.externalJobName = result.externalJobName;
                 saveArtifactCatalogReference(tracked, manifest, artifact, metadata);
                 if (StringUtils.isNotBlank(artifact.externalFailure)) { throw new CloudRuntimeException(artifact.externalFailure); }
                 saveCleanupState(tracked.getId(), "NONE", null);
@@ -3336,12 +3372,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     return true;
                 }
             }
-            // A provider may remove temporary job configuration only after its exact restore-point reference is durable.
-            // Retry configuration cleanup without submitting another transfer or releasing the staged payload.
+            // A provider may detach its backup or retire temporary configuration after the catalog reference is durable.
+            // Retry cleanup without submitting another transfer or releasing the staged payload.
             try {
                 transfer.committed(tracked, artifact, metadata);
             } catch (RuntimeException e) {
-                saveCleanupState(tracked.getId(), "WAITING", "Artifact is saved; temporary job configuration cleanup is pending: " + e.getMessage());
+                saveCleanupState(tracked.getId(), "WAITING", "Artifact is saved; external transfer finalization is pending: " + e.getMessage());
                 return true;
             }
             if (metadata && artifact.completed) {
@@ -3438,6 +3474,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         ThirdPartyBackupManifest.Artifact recovered;
         try {
             recovered = transfer.recover(artifact, metadata);
+        } catch (ThirdPartyBackupSubmissionException e) {
+            throw e;
         } catch (RuntimeException e) {
             saveCleanupState(backup.getId(), "WAITING", "External artifact recovery is unconfirmed: " + StringUtils.defaultString(e.getMessage()));
             logger.debug("External artifact recovery remains pending for backup [{}]: {}", backup.getUuid(), e.getMessage());
@@ -3648,7 +3686,17 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             for (ThirdPartyBackupManifest.Artifact artifact : manifest.getOwnedArtifacts()) {
                 if (artifact.completed || artifact.externalTerminal) { continue; }
                 if (StringUtils.isBlank(artifact.jobId) && !artifact.submissionPending) { continue; }
-                ThirdPartyBackupManifest.Artifact result = transfer.recover(artifact, artifact == manifest.getMetadata());
+                ThirdPartyBackupManifest.Artifact result;
+                try { result = transfer.recover(artifact, artifact == manifest.getMetadata()); }
+                catch (ThirdPartyBackupSubmissionException e) {
+                    if (StringUtils.isNotBlank(artifact.jobId)) { throw e; }
+                    artifact.submissionPending = false;
+                    artifact.externalTerminal = true;
+                    artifact.externalFailure = e.getMessage();
+                    backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson(), false);
+                    backup.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+                    continue;
+                }
                 if (result != null && StringUtils.isNotBlank(result.jobId)) {
                     if (!artifact.path.equals(result.path) || !backup.getUuid().equals(result.backupUuid)) {
                         throw new CloudRuntimeException("Recovered external job does not belong to this backup artifact");
@@ -3661,13 +3709,19 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     artifact.externalTerminal = result.externalTerminal || result.completed;
                     artifact.externalFailure = result.externalFailure;
                     artifact.submissionPending = false;
+                    artifact.transferProtocol = result.transferProtocol;
+                    artifact.externalBackupId = result.externalBackupId;
+                    artifact.externalJobId = result.externalJobId;
+                    artifact.externalJobName = result.externalJobName;
                     backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson(), false);
+                    backup.getDetails().put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
                 }
                 if (!artifact.completed && !artifact.externalTerminal) {
                     saveCleanupState(backup.getId(), "WAITING", "External artifact reader is active or unconfirmed: " + artifact.path);
                     return;
                 }
             }
+            transfer.finalizeFailed(backup);
             saveCleanupState(backup.getId(), "RUNNING", null);
             validateCleanupMount(backup, host, manifest);
             Answer cleanup = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(backup.getUuid(),

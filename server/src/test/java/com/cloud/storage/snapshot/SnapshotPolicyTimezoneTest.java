@@ -12,7 +12,9 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.utils.DateUtil;
 import com.cloud.utils.DateUtil.IntervalType;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SnapshotPolicyTimezoneTest {
     @Test public void unknownAndMalformedIdsAreRejectedInsteadOfGmtFallback() {

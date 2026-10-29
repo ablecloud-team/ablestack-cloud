@@ -73,6 +73,11 @@ public class ThirdPartyBackupManifest {
         public String sourceHost;
         public String externalId;
         public String jobId;
+        /** Provider protocol and exact container/configuration identities; jobId remains the execution session. */
+        public String transferProtocol;
+        public String externalBackupId;
+        public String externalJobId;
+        public String externalJobName;
         public String backupTime;
         public String checkpointName;
         public String parentCheckpointName;

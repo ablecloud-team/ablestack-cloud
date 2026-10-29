@@ -2091,7 +2091,12 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         return new ThirdPartyBackupVolumeService.Transfer() {
             @Override
             public boolean ready() {
-                return getSshClient(vm.getDataCenterId()).volumeSourceReady(template);
+                return getSshClient(vm.getDataCenterId()).volumeSourceReady(template, host.getName());
+            }
+
+            @Override
+            public void prepare(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+                getSshClient(vm.getDataCenterId()).prepareVolumeArtifact(template, artifact);
             }
 
             @Override
@@ -2132,6 +2137,17 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             @Override
             public void failed(final Backup current) {
                 sealParentBackupChainIfIncremental(current, "failed-volume-child");
+            }
+
+            @Override
+            public void finalizeFailed(final Backup current) {
+                ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+                for (ThirdPartyBackupManifest.Artifact artifact : manifest.getOwnedArtifacts()) {
+                    if (artifact.completed) { retireArtifactJob(current, artifact, artifact == manifest.getMetadata()); }
+                    else if (artifact.submissionPending || artifact.externalTerminal || StringUtils.isNotBlank(artifact.jobId)) {
+                        getSshClient(current.getZoneId()).abortVolumeArtifact(artifact, artifact == manifest.getMetadata());
+                    }
+                }
             }
         };
     }

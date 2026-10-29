@@ -304,6 +304,86 @@ public class ThirdPartyBackupArtifactPersistenceTest {
     }
 
     @Test
+    public void routingIsDurableBeforeSubmissionAndExactContainerIdsPrecedeDetachAndHostAck() throws Exception {
+        prepare("ablestack-veeam");
+        ThirdPartyBackupVolumeService.Transfer transfer = mock(ThirdPartyBackupVolumeService.Transfer.class);
+        doAnswer(call -> {
+            ThirdPartyBackupManifest.Artifact artifact = call.getArgument(0);
+            artifact.transferProtocol = "VEEAM_HOST_JOB_V1";
+            artifact.externalJobName = "fixed-host-job";
+            return null;
+        }).when(transfer).prepare(any(), eq(false));
+        when(transfer.backup(any(), eq(false))).thenAnswer(call -> {
+            ThirdPartyBackupManifest.Artifact saved = ThirdPartyBackupManifest.fromJson(persisted.get(ThirdPartyBackupManifest.DETAIL_KEY))
+                    .getCurrentArtifacts().get(0);
+            assertEquals("VEEAM_HOST_JOB_V1", saved.transferProtocol);
+            assertEquals("fixed-host-job", saved.externalJobName);
+            assertTrue(saved.submissionPending);
+            ThirdPartyBackupManifest.Artifact requested = call.getArgument(0);
+            ThirdPartyBackupManifest.Artifact result = new Gson().fromJson(new Gson().toJson(requested), ThirdPartyBackupManifest.Artifact.class);
+            result.jobId = "session";
+            result.externalJobId = "fixed-job-id";
+            result.externalBackupId = "container-id";
+            result.externalId = "point-id";
+            result.completed = true;
+            return result;
+        });
+        final int[] commits = {0};
+        doAnswer(call -> {
+            ThirdPartyBackupManifest.Artifact saved = ThirdPartyBackupManifest.fromJson(persisted.get(ThirdPartyBackupManifest.DETAIL_KEY))
+                    .getCurrentArtifacts().get(0);
+            assertEquals("fixed-job-id", saved.externalJobId);
+            assertEquals("container-id", saved.externalBackupId);
+            assertEquals("point-id", saved.externalId);
+            assertFalse(saved.submissionPending);
+            if (commits[0]++ == 0) { throw new CloudRuntimeException("Detach response lost"); }
+            return null;
+        }).when(transfer).committed(eq(backup), any(), eq(false));
+        reconcileUnderLock(transfer);
+        verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
+                && "ACK".equals(((AblestackVolumeStagingCommand) command).getAction())));
+        reconcileUnderLock(transfer);
+        verify(transfer).prepare(any(), eq(false));
+        verify(transfer).backup(any(), eq(false));
+        verify(agentManager).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
+                && "ACK".equals(((AblestackVolumeStagingCommand) command).getAction())));
+    }
+
+    @Test
+    public void provenBusySubmissionClearsIntentAndWaitsWithoutFailingOrAcknowledging() throws Exception {
+        prepare("ablestack-veeam");
+        ThirdPartyBackupVolumeService.Transfer transfer = mock(ThirdPartyBackupVolumeService.Transfer.class);
+        when(transfer.backup(any(), eq(false))).thenThrow(new ThirdPartyBackupTransferBusyException("Waiting for Detach"));
+        reconcileUnderLock(transfer);
+        ThirdPartyBackupManifest.Artifact saved = ThirdPartyBackupManifest.fromJson(persisted.get(ThirdPartyBackupManifest.DETAIL_KEY))
+                .getCurrentArtifacts().get(0);
+        assertFalse(saved.submissionPending);
+        assertEquals(0, saved.submittedAt);
+        assertNull(saved.jobId);
+        verify(backup, never()).setStatus(any());
+        verify(transfer, never()).failed(any());
+        verify(transfer, never()).committed(any(), any(), Mockito.anyBoolean());
+        verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
+                && "ACK".equals(((AblestackVolumeStagingCommand) command).getAction())));
+    }
+
+    @Test
+    public void recoveredProofOfNoSubmissionAllowsNextPollToRetryAdmission() throws Exception {
+        prepare("ablestack-veeam");
+        manifest.getCurrentArtifacts().get(0).submissionPending = true;
+        persisted.put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+        loaded.put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+        ThirdPartyBackupVolumeService.Transfer transfer = mock(ThirdPartyBackupVolumeService.Transfer.class);
+        when(transfer.recover(any(), eq(false))).thenThrow(new ThirdPartyBackupTransferBusyException("No submission receipt exists"));
+        reconcileUnderLock(transfer);
+        assertFalse(ThirdPartyBackupManifest.fromJson(persisted.get(ThirdPartyBackupManifest.DETAIL_KEY)).getCurrentArtifacts().get(0).submissionPending);
+        verify(transfer, never()).backup(any(), Mockito.anyBoolean());
+        reconcileUnderLock(transfer);
+        verify(transfer).backup(any(), eq(false));
+        verify(backup, never()).setStatus(any());
+    }
+
+    @Test
     public void unconfirmedPreparationQueryIsVisibleAndDoesNotCancelTheRunningPipeline() throws Exception {
         prepare("ablestack-netbackup");
         ThirdPartyBackupVolumeService.Transfer transfer = mock(ThirdPartyBackupVolumeService.Transfer.class);
@@ -641,6 +721,46 @@ public class ThirdPartyBackupArtifactPersistenceTest {
         when(agentManager.send(eq(HOST_ID), any(AblestackVolumeStagingCommand.class))).thenAnswer(invocation ->
                 new Answer(invocation.getArgument(1), true,
                         "{\"backupUuid\":\"backup-id\",\"stagingCleanupState\":\"COMPLETED\"}"));
+    }
+
+    @Test
+    public void failedPipelineSavesRecoveredContainerIdsAndWaitsForProviderSettlementBeforeCleanup() throws Exception {
+        prepare("ablestack-veeam");
+        when(backup.getStatus()).thenReturn(Backup.Status.Failed);
+        manifest.getCurrentArtifacts().get(0).submissionPending = true;
+        ThirdPartyBackupVolumeService.Transfer transfer = mock(ThirdPartyBackupVolumeService.Transfer.class);
+        when(transfer.ready()).thenReturn(true);
+        when(agentManager.send(eq(HOST_ID), any(AblestackBackupJobStatusCommand.class))).thenAnswer(call -> {
+            BackupAnswer stopped = new BackupAnswer(call.getArgument(1), true, "Engine terminated");
+            stopped.setState("FAILED");
+            return stopped;
+        });
+        when(transfer.recover(any(), eq(false))).thenAnswer(call -> {
+            ThirdPartyBackupManifest.Artifact requested = call.getArgument(0);
+            ThirdPartyBackupManifest.Artifact result = new Gson().fromJson(new Gson().toJson(requested), ThirdPartyBackupManifest.Artifact.class);
+            result.jobId = "session";
+            result.transferProtocol = "VEEAM_HOST_JOB_V1";
+            result.externalJobName = "fixed-job";
+            result.externalJobId = "job-id";
+            result.externalBackupId = "container-id";
+            result.externalTerminal = true;
+            result.externalFailure = "Failed";
+            return result;
+        });
+        doAnswer(call -> {
+            ThirdPartyBackupManifest.Artifact saved = ThirdPartyBackupManifest.fromJson(backup.getDetail(ThirdPartyBackupManifest.DETAIL_KEY))
+                    .getCurrentArtifacts().get(0);
+            assertEquals("container-id", saved.externalBackupId);
+            assertEquals("job-id", saved.externalJobId);
+            assertEquals("fixed-job", saved.externalJobName);
+            assertEquals("VEEAM_HOST_JOB_V1", saved.transferProtocol);
+            throw new CloudRuntimeException("Detach is not confirmed");
+        }).when(transfer).finalizeFailed(backup);
+        ReflectionTestUtils.invokeMethod(service, "reconcileFailedBackup", backup, host, manifest, transfer);
+        verify(transfer).finalizeFailed(backup);
+        verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
+                && "CLEANUP_FAILED".equals(((AblestackVolumeStagingCommand) command).getAction())));
+        assertEquals("WAITING", persisted.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
     }
 
     @Test
