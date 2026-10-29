@@ -1941,6 +1941,7 @@ class="storage-service-inline-alert"
             <a-checkbox v-model:checked="forms.smbShare.browseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.guestok">{{ $t('label.storage.service.guest.access') }}</a-checkbox>
           </a-space>
+          <SmbParentInheritanceFields v-model:value="forms.smbShare.inheritowner" :policy="selectedDirectoryPolicy('smbShare')" :report="configurationPreflight" :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading" @manage="viewDirectoryPolicy" />
         </div>
         <div v-if="actionModal.type === 'smbAcl' || actionModal.type === 'editSmbAcl'" class="storage-action-form storage-action-form--vertical">
           <a-row :gutter="16">
@@ -2372,6 +2373,8 @@ import { backingFilesystem } from '@/utils/sharedFsBacking'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
 import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
+import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanceFields'
+import { inheritOwnerParameters, setgidEnabled } from '@/utils/smbParentInheritance'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -2589,6 +2592,7 @@ export default {
     MoldDialog,
     StorageNfsIdentityPanel,
     StorageDirectoryPolicyPanel,
+    SmbParentInheritanceFields,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
     StorageConfigurationPreflightPanel,
@@ -2785,7 +2789,9 @@ export default {
           guestok: false,
           createdirectory: true,
           crossprotocol: false,
-          directorymode: '0770'
+          directorymode: '0770',
+          inheritowner: false,
+          inheritownerbaseline: false
         },
         smbAcl: {
           id: '',
@@ -3851,6 +3857,8 @@ export default {
     smbShareColumns () {
       return [
         { title: this.$t('label.storage.service.smb.share.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 190, code: true },
+        { title: this.$t('label.storage.inheritance.new.uid'), dataIndex: 'inheritOwner', key: 'inheritOwner', width: 150 },
+        { title: this.$t('label.storage.inheritance.group'), dataIndex: 'inheritGroup', key: 'inheritGroup', width: 160 },
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
@@ -4032,11 +4040,16 @@ export default {
         const name = this.clientVisibleName(share.name || share.sharename, `smb${index + 1}`)
         const config = this.parseStorageConfig(share.config)
         const volume = this.volumeForShare(share)
+        const observed = (this.parsedInventory.smbParentInheritanceObservations || []).find(row => row.uuid === share.id)
+        const policy = this.directoryPolicyRows.find(row => row.id === config.directoryPolicyUuid)
+        const group = setgidEnabled(observed?.parent?.mode || policy?.observation?.mode)
         return {
           key: share.id || `smb-share-${index}`,
           id: share.id,
           name,
           clientPath: this.smbClientPathForShare(name),
+          inheritOwner: this.$t(config.inheritOwner === true ? 'label.storage.inheritance.parent.uid' : 'label.storage.inheritance.creator.uid'),
+          inheritGroup: this.$t(group === null ? 'label.unknown' : group ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled'),
           path: share.path || share.mountpath || share.backingpath || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
@@ -7613,7 +7626,9 @@ export default {
         guestok: false,
         createdirectory: true,
         crossprotocol: false,
-        directorymode: '0770'
+        directorymode: '0770',
+        inheritowner: false,
+        inheritownerbaseline: false
       })
     },
     populateSmbShareForm (record) {
@@ -7640,7 +7655,9 @@ export default {
         guestok: this.boolValue(share.guestok ?? share.guestOk ?? config.guestOk),
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         crossprotocol: this.boolValue(config.crossProtocol ?? config.crossprotocol),
-        directorymode: config.directoryMode || config.directorymode || '0770'
+        directorymode: config.directoryMode || config.directorymode || '0770',
+        inheritowner: config.inheritOwner === true,
+        inheritownerbaseline: config.inheritOwner === true
       })
     },
     resetSmbAclForm () {
@@ -8292,6 +8309,7 @@ export default {
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
         directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        ...inheritOwnerParameters(this.forms.smbShare),
         directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode,
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.smb.share'))
@@ -8312,6 +8330,7 @@ export default {
         createdirectory: this.forms.smbShare.createdirectory,
         crossprotocol: this.forms.smbShare.crossprotocol,
         directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        ...inheritOwnerParameters(this.forms.smbShare),
         directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode
       }, this.$t('label.storage.service.update.smb.share'))
     },

@@ -18,6 +18,8 @@ def fingerprint(intent):
     material = {k: intent.get(k) for k in ("instanceUuid", "revision", "protocol", "action", "resourceids", "resourcesdigest", "resourcecount", "drainrequired", "recursive")}
     if intent.get("protocol") == "NFS" and intent.get("posixchanges"):
         material.update(posixchanges=intent["posixchanges"], posixfingerprint=intent.get("posixfingerprint"))
+    if intent.get("smbinheritance"):
+        material.update(smbinheritance=intent["smbinheritance"], inheritancefingerprint=intent.get("inheritancefingerprint"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -151,7 +153,15 @@ def inspect(intent):
         if intent.get("directorytarget"):
             from shared_directory_policy import DirectoryPolicies
             DirectoryPolicies().prepare(intent["directorytarget"])
+        inheritance = None
+        if intent.get("inheritancetarget"):
+            from shared_directory_policy import inheritance_preview
+            inheritance = inheritance_preview(intent["inheritancetarget"],intent["inheritancepolicy"],intent["smbinheritance"])
+            intent["inheritancefingerprint"] = inheritance["parent"]["fingerprint"]
         report = evaluate(intent, sample(intent))
+        if inheritance is not None:
+            report["inheritancepreview"] = inheritance
+
         if observed is not None:
             report["posixobservation"] = observed
             report["posixchanges"] = intent.get("posixchanges") or {}
@@ -160,7 +170,9 @@ def inspect(intent):
                 report["checks"].append({"code":"POSIX_OBSERVATION_UNAVAILABLE","blocking":True,"severity":"ERROR"})
         return report
     except Exception as error:
-        return {"status": "UNKNOWN", "revision": intent.get("revision"), "fingerprint": fingerprint(intent),
+        code=getattr(error,"code","RESOURCE_OBSERVATION_UNAVAILABLE")
+        status="BLOCKED" if code.startswith(("SMB_","DIRECTORY_")) and "UNAVAILABLE" not in code else "UNKNOWN"
+        return {"status": status, "revision": intent.get("revision"), "fingerprint": fingerprint(intent),
                 "observedat": time.time(), "expiresat": time.time(),
                 "checks": [{"code": getattr(error,"code","RESOURCE_OBSERVATION_UNAVAILABLE"), "blocking": True, "severity": "ERROR"}],
                 "cancellationsupported": False}

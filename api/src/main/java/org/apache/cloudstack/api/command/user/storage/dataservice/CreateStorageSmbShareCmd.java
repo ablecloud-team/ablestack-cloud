@@ -77,6 +77,11 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd
     @Parameter(name = "browseable", type = CommandType.BOOLEAN, description = "whether the SMB share is browseable")
     private Boolean browseable;
 
+    @Parameter(name = "inheritowner", type = CommandType.BOOLEAN, description = "Inherit the immediate parent owner for new SMB objects; existing objects are preserved")
+    private Boolean inheritOwner;
+
+    public Boolean getInheritOwner() { return inheritOwner; }
+
     @Parameter(name = "guestok", type = CommandType.BOOLEAN, description = "whether guest access is allowed")
     private Boolean guestOk;
 

@@ -33,7 +33,9 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("posixobservation") @Param(description="Observed NFS directory metadata used for the confirmation") private JsonObject posixobservation;
     @SerializedName("posixchanges") @Param(description="Explicit NFS POSIX changes only") private JsonObject posixchanges;
     @SerializedName("directorypreview") @Param(description="Common directory values, references and NFS unit impact") private JsonObject directorypreview;
+    @SerializedName("inheritancepreview") @Param(description="Observed parent and future SMB object ownership policy") private JsonObject inheritancepreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        inheritancepreview=report.has("inheritancepreview")?report.getAsJsonObject("inheritancepreview"):null;
         directorypreview=report.has("directorypreview")?report.getAsJsonObject("directorypreview"):null;
         posixobservation=report.has("posixobservation")?report.getAsJsonObject("posixobservation"):null;
         posixchanges=report.has("posixchanges")?report.getAsJsonObject("posixchanges"):null;

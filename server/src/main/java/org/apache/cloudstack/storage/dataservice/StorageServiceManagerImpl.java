@@ -294,6 +294,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             volumeDao, configurationUpgradeDao, guestCommandDispatcher,
             volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, volume), this::validateSmbEndpointIntent);
         value.directoryObserver=(instance,intent,owner)->directoryPolicies().preflight(instance,intent,owner);
+        value.smbInheritanceObserver=(instance,share,intent)->StorageSmbParentInheritance.query(instance,share,intent,directoryPolicies());
         return value;
     }
     @Override
@@ -1257,6 +1258,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final VolumeVO backingVolume = cmd.getVolumeId() == null ? null : requireVolume(cmd.getVolumeId());
         String configJson = buildSmbConfigJson(null, cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
+        configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.SMB, cmd.getName(), path,
@@ -1275,6 +1277,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
         if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getDirectoryMode()!=null);
+        StorageSmbParentInheritance.requirePolicy(share);
         try {
             prepareFileShareBackingVolume(instance, share, importMode);
             applySmbDesiredState(instance, initialAcl == null ? Collections.emptyMap() : buildSecretMap(initialAcl.getId(), cmd.getAclPassword()));
@@ -1327,12 +1330,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final VolumeVO backingVolume = share.getVolumeId() == null ? null : requireVolume(share.getVolumeId());
         String configJson = buildSmbConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
+        configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
         share.setConfigJson(configJson);
         share.setState(StorageServiceInstance.ResourceState.Updating);
         storageFileShareDaoView().update(share.getId(), share);
         if (directoryPolicyDao!=null) directoryPolicies().guardShare(instance,share,cmd.getDirectoryPolicyId(),cmd.getDirectoryMode()!=null);
+        StorageSmbParentInheritance.requirePolicy(share);
         try {
             prepareFileShareBackingVolume(instance, share, importMode);
             applySmbDesiredState(instance);

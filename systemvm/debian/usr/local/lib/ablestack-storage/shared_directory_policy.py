@@ -15,6 +15,7 @@ import subprocess
 import time
 
 VERSION = 1
+SMB_PARENT_INHERITANCE_VERSION = 1
 REGISTRY = Path("/etc/ablestack-storage/desired-state/directory-policy.json")
 MANAGED = Path("/srv/ablestack-storage/volumes")
 LIMIT = 1024 * 1024
@@ -328,6 +329,15 @@ class DirectoryPolicies:
                 raise PolicyError("DIRECTORY_POLICY_STALE")
             if any(existing.get(k)!=policy.get(k) for k in ("volumeuuid","canonicalpath","filesystemuuid","inode")):
                 raise PolicyError("DIRECTORY_IDENTITY_CHANGED")
+            if int(policy["mode"],8) & 0o2000 and not int(observed["mode"],8) & 0o2000:
+                for row in value.get("smbShares",[]):
+                    config=row.get("config") or {}
+                    if row.get("state") in ("Disabled", "Destroyed", "Error"):
+                        continue
+                    if str(Path(config.get("backingPath") or row.get("path") or "/").resolve()) == observed["path"]:
+                        inheritance_conflict(config,policy["mode"])
+                        for actual in smb_runtime_settings(row["name"]):
+                            inheritance_conflict(actual,policy["mode"])
             self.compatible(self.requirements(value.get("smbShares", []), observed["path"]),
                             policy["owneruid"], int(policy["mode"], 8))
         else:
@@ -636,3 +646,150 @@ if __name__=="__main__":
     except (PolicyError,OSError,ValueError,KeyError,subprocess.SubprocessError) as error:
         print(json.dumps({"code":getattr(error,"code","DIRECTORY_OBSERVATION_UNAVAILABLE")}))
         sys.exit(1)
+
+
+def inheritance_enabled(config):
+    value = config.get("inheritOwner", False)
+    if not isinstance(value, bool):
+        raise PolicyError("SMB_INHERIT_OWNER_INVALID")
+    return value
+
+
+def inheritance_conflict(config, mode):
+    if (inheritance_enabled(config) or int(mode, 8) & 0o2000) and any(
+            str(config.get(key) or "").strip() for key in ("forceUser", "forceGroup")):
+        raise PolicyError("SMB_PARENT_IDENTITY_CONFLICT")
+
+
+def inheritance_protection_version(updater=None):
+    """Inspect the trusted baseline, not executable candidate code."""
+    import ast
+    path = Path(updater) if updater else Path(__file__).with_name("runtime_updater.py")
+    try:
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022 or info.st_size > LIMIT:
+            return 0
+        tree = ast.parse(path.read_text())
+        value = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+                     and any(isinstance(t, ast.Name) and t.id == "UPDATER_VERSION" for t in n.targets))
+        return 1 if isinstance(value, int) and value >= 5 else 0
+    except (OSError, ValueError, SyntaxError, StopIteration):
+        return 0
+
+
+def smb_runtime_settings(name, sources=None):
+    """Read only owned daemon configurations; optional sources support private native fixtures."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(name)):
+        raise PolicyError("SMB_INHERITANCE_NAME_INVALID")
+    if sources is None:
+        from configuration_transaction import SmbListenerProfiles
+        profiles = SmbListenerProfiles()
+        if profiles.manifest.exists():
+            state = json.loads(profiles.manifest.read_text())
+            sources = []
+            for row in state.get("profiles", {}).values():
+                if row.get("kind") == "covered":
+                    continue
+                pid = profiles.pid(row)
+                if not pid:
+                    raise PolicyError("SMB_INHERITANCE_OBSERVATION_UNAVAILABLE")
+                sources.append((profiles.base if row.get("kind") == "legacy" else profiles.root / (row["key"] + ".conf"), pid))
+        else:
+            q = subprocess.run(["systemctl", "show", "smbd.service", "-p", "MainPID", "--value"],
+                               capture_output=True, text=True, timeout=10)
+            pid = int(q.stdout.strip() or 0)
+            sources = [(profiles.base, pid)] if pid else []
+    result = []
+    for source, pid in sources:
+        source = Path(source)
+        if source.is_symlink() or not source.is_file() or pid <= 1:
+            raise PolicyError("SMB_INHERITANCE_OBSERVATION_UNAVAILABLE")
+        try:
+            if Path("/proc/%d/exe" % pid).resolve() != Path("/usr/sbin/smbd").resolve():
+                raise ValueError()
+            args = Path("/proc/%d/cmdline" % pid).read_bytes().split(b"\0")
+            if source != Path("/etc/samba/smb.conf") and str(source).encode() not in args and (
+                    "--configfile=" + str(source)).encode() not in args:
+                raise ValueError()
+        except (OSError, ValueError):
+            raise PolicyError("SMB_INHERITANCE_OBSERVATION_UNAVAILABLE")
+        values = {}
+        for parameter, key in (("inherit owner", "inheritowner"), ("force user", "forceUser"), ("force group", "forceGroup")):
+            output = checked(["testparm", "-s", "--section-name=" + name, "--parameter-name=" + parameter, str(source)]).decode().strip()
+            values[key] = output[:256]
+        values.update(pid=pid, config=str(source))
+        result.append(values)
+    return result
+
+
+def inheritance_preview(target, policy, requested, sources=None):
+    engine = DirectoryPolicies()
+    observed = engine.observe(target)
+    if observed.get("status") != "OBSERVED":
+        raise PolicyError("SMB_PARENT_OBSERVATION_UNAVAILABLE")
+    stored = engine.policy_for(observed["path"])
+    if not stored or stored["uuid"] != policy.get("uuid"):
+        raise PolicyError("DIRECTORY_POLICY_REQUIRED")
+    if any(observed.get(k) != policy.get(k) for k in ("owneruid", "ownergid", "mode", "inode", "filesystemuuid")):
+        raise PolicyError("DIRECTORY_POLICY_STALE")
+    config = dict(target.get("config") or {})
+    enabled = requested["inheritOwner"]
+    config["inheritOwner"] = enabled
+    inheritance_conflict(config, observed["mode"])
+    if enabled and inheritance_protection_version() != 1:
+        raise PolicyError("SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED")
+    actual = [] if target.get("uuid") == "NEW" else smb_runtime_settings(target["name"], sources)
+    for entry in actual:
+        inheritance_conflict({**entry, "inheritOwner": enabled}, observed["mode"])
+    parent = {k: observed[k] for k in ("owneruid", "ownergid", "mode", "inode", "filesystemuuid", "volumeuuid", "canonicalpath", "fingerprint")}
+    return {"inheritowner": enabled, "parent": parent,
+            "futureowner": "PARENT" if enabled else "CREATOR",
+            "futuregroup": "PARENT" if int(observed["mode"], 8) & 0o2000 else "CREATOR",
+            "setgid": bool(int(observed["mode"], 8) & 0o2000),
+            "createmask": "0660", "directorymask": "0770", "existingobjectschange": False, "runtime": actual}
+
+
+def validate_inheritance_share(row, payload=None):
+    config = row.get("config") or {}
+    if not inheritance_enabled(config):
+        return
+    if inheritance_protection_version() != 1:
+        raise PolicyError("SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED")
+    path = config.get("backingPath") or row.get("path")
+    policy = DirectoryPolicies().policy_for(path)
+    if not policy or config.get("directoryPolicyUuid") != policy["uuid"]:
+        raise PolicyError("DIRECTORY_POLICY_REQUIRED")
+    inheritance_conflict(config, policy["mode"])
+
+
+def verify_smb_inheritance(payload, sources=None):
+    for row in payload.get("shares", []):
+        config = row.get("config") or {}
+        if "inheritOwner" not in config or row.get("state") in ("Disabled", "Destroyed", "Error"):
+            continue
+        validate_inheritance_share(row, payload)
+        expected = inheritance_enabled(config)
+        values = smb_runtime_settings(row["name"], sources)
+        if not values or any((v["inheritowner"].lower() in ("yes", "windows and unix")) != expected for v in values):
+            raise PolicyError("SMB_INHERITANCE_VERIFY_FAILED")
+
+
+def inheritance_observations(payload):
+    result = []
+    for row in payload.get("shares", []):
+        config = row.get("config") or {}
+        if "inheritOwner" not in config or row.get("state") in ("Disabled", "Destroyed", "Error"):
+            continue
+        value = {"uuid": row.get("uuid")}
+        try:
+            value["inheritowner"] = inheritance_enabled(config)
+            path = config.get("backingPath") or row.get("path")
+            observed = DirectoryPolicies().observe(row)
+            value["parent"] = {k: observed.get(k) for k in ("owneruid", "ownergid", "mode", "inode", "status")}
+            value["runtime"] = smb_runtime_settings(row["name"])
+            value["status"] = "APPLIED" if value["runtime"] and all(
+                (v["inheritowner"].lower() in ("yes", "windows and unix")) == value["inheritowner"] for v in value["runtime"]) else "UNKNOWN"
+        except (PolicyError, OSError, ValueError) as error:
+            value.update(status="UNKNOWN", code=getattr(error, "code", "SMB_PARENT_OBSERVATION_UNAVAILABLE"))
+        result.append(value)
+    return result

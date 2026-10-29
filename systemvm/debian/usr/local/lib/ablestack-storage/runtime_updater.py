@@ -43,7 +43,7 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 4
+UPDATER_VERSION = 5
 MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
 DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
 def complete_managed_names(names):
@@ -61,6 +61,34 @@ class RuntimeUpgradeError(Exception):
     def __init__(self, code, message):
         super().__init__(message)
         self.code = code
+
+
+def require_smb_inheritance_compatibility(release, desired):
+    """Inspect a verified target helper without importing candidate code."""
+    try:
+        shares = json.loads(desired.read_text()).get("shares", []) if desired.exists() else []
+        if not isinstance(shares, list):
+            raise ValueError("invalid shares")
+        active = False
+        for row in shares:
+            if not isinstance(row, dict) or not isinstance(row.get("config") or {}, dict):
+                raise ValueError("invalid share")
+            config = row.get("config") or {}
+            if "inheritOwner" in config and not isinstance(config["inheritOwner"], bool):
+                raise ValueError("invalid inheritance flag")
+            active |= row.get("state") not in ("Disabled", "Destroyed", "Error") and config.get("inheritOwner") is True
+    except (OSError, ValueError, TypeError, AttributeError):
+        raise RuntimeUpgradeError("SMB_INHERITANCE_PROTECTED", "SMB inheritance observation is unavailable")
+    if not active:
+        return
+    try:
+        tree = ast.parse((release / DIRECTORY_HELPER).read_text())
+        version = next(ast.literal_eval(node.value) for node in tree.body if isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name) and target.id == "SMB_PARENT_INHERITANCE_VERSION" for target in node.targets))
+    except (OSError, SyntaxError, ValueError, StopIteration):
+        version = 0
+    if type(version) is not int or version != 1:
+        raise RuntimeUpgradeError("SMB_INHERITANCE_CAPABILITY_REQUIRED", "active SMB parent inheritance requires a compatible target helper")
 
 
 def sha256_file(path):
@@ -677,13 +705,15 @@ class RuntimeUpdater:
             return
         registry=Path("/etc/ablestack-storage/desired-state/directory-policy.json")
         if not registry.exists():
-            return
-        try:
-            enabled=bool(json.loads(registry.read_text()).get("policies"))
-        except (OSError,ValueError):
-            raise RuntimeUpgradeError("DIRECTORY_POLICY_PROTECTED","directory policy observation is unavailable")
+            enabled=False
+        else:
+            try:
+                enabled=bool(json.loads(registry.read_text()).get("policies"))
+            except (OSError,ValueError):
+                raise RuntimeUpgradeError("DIRECTORY_POLICY_PROTECTED","directory policy observation is unavailable")
         if enabled and not (release/DIRECTORY_HELPER).is_file():
             raise RuntimeUpgradeError("DIRECTORY_POLICY_CAPABILITY_REQUIRED","common directory policies require their managed runtime helper")
+        require_smb_inheritance_compatibility(release, registry.parent / "smb-share-apply.json")
 
     def preflight(self, request):
         state = self.read_state(request)

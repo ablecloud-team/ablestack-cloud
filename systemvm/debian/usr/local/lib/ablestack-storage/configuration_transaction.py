@@ -1440,6 +1440,9 @@ class RuntimeAdapter:
                 NfsIdentityMapping().verify(value)
             if operation.startswith("smb") and SmbListenerProfiles().manifest.exists():
                 SmbListenerProfiles().verify(value)
+                if any("inheritOwner" in (row.get("config") or {}) for row in value.get("shares",[])):
+                    from shared_directory_policy import verify_smb_inheritance
+                    verify_smb_inheritance(value)
                 continue
             if operation.startswith("smb") and value.get("shares"):
                 checked(["smbcontrol", "smbd", "ping"])
@@ -1448,6 +1451,9 @@ class RuntimeAdapter:
                 for item in listeners:
                     if not any(len(row.split()) > 3 and row.split()[3].endswith(":" + str(item.get("port") or 445)) for row in rows):
                         raise Rejected("SMB_LISTENER_NOT_READY")
+            if operation.startswith("smb") and any("inheritOwner" in (row.get("config") or {}) for row in value.get("shares",[])):
+                from shared_directory_policy import verify_smb_inheritance
+                verify_smb_inheritance(value)
             if operation.startswith("iscsi"):
                 from rtslib_fb import RTSRoot
                 actual = {target.wwn: target for target in RTSRoot().targets}
@@ -1875,9 +1881,15 @@ def main(argv):
         print(json.dumps({"success": True, "runtimeReady": True}))
         return 0
     if argv[:2] == ["capability", "show"]:
+        try:
+            from shared_directory_policy import SMB_PARENT_INHERITANCE_VERSION, inheritance_protection_version
+            inheritance_version=SMB_PARENT_INHERITANCE_VERSION
+            inheritance_protection=inheritance_protection_version()
+        except ImportError:
+            inheritance_version=inheritance_protection=0
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "sharedDirectoryPolicyVersion": 1, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "sharedDirectoryPolicyVersion": 1, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
