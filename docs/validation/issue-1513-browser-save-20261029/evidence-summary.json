@@ -1,7 +1,7 @@
 {
-  "status": "blocked_browser_finalization",
-  "normalFilenameConfirmed": false,
-  "downloadCompletionConfirmed": false,
+  "status": "completed_by_user_confirmation",
+  "normalFilenameConfirmed": true,
+  "downloadCompletionConfirmed": true,
   "productBugConfirmed": false,
   "codeChanged": false,
   "deployed": false,
@@ -15,5 +15,12 @@
   "protectedPid": "219715",
   "protectedStartTicks": "191152358",
   "protectedVmMutated": false,
-  "cause": "Windows Computer Use terminated because current Chrome URL could not be determined confidently, including after user activated Mold tab."
+  "cause": "Windows Computer Use terminated because current Chrome URL could not be determined confidently, including after user activated Mold tab.",
+  "verificationSource": "User directly confirmed normal browser download on 2026-10-29 KST; not an agent-observed browser completion event.",
+  "userAcceptance": {
+    "dateKst": "2026-10-29",
+    "statement": "내가 직접 다운로드 정상 작동하는거 확인했어.",
+    "scope": "Previously requested normal filename transition and completed browser save",
+    "agentObservedFinalBrowserUi": false
+  }
 }
