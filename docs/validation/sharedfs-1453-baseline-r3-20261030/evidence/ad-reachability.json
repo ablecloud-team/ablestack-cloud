@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "ports": {
+    "53": true,
+    "88": true,
+    "389": true,
+    "445": true,
+    "464": true
+  },
+  "domainHost": "10.10.13.247    ad1453.ablestack.local",
+  "nameservers": "nameserver 10.10.13.247\nnameserver 8.8.8.8\nnameserver 8.8.8.8\n",
+  "epoch": 1793291641.3578336
+}
