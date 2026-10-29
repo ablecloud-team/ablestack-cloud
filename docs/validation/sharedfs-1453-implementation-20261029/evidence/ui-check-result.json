@@ -1,0 +1,35 @@
+[
+  {
+    "cmd": [
+      "npm",
+      "run",
+      "test:unit",
+      "--",
+      "--runInBand",
+      "--runTestsByPath",
+      "tests/unit/views/storage/SharedFSSmbParentInheritance.spec.js",
+      "tests/unit/views/storage/SharedFSDirectoryPolicy.spec.js",
+      "tests/unit/views/storage/SharedFSPreflight.spec.js",
+      "tests/unit/views/storage/SharedFSConfigurationProtection.spec.js",
+      "tests/unit/views/storage/SharedFSNfsPosix.spec.js",
+      "tests/unit/views/storage/SharedFSSmbEndpoint.spec.js"
+    ],
+    "exitcode": 0
+  },
+  {
+    "cmd": [
+      "npx",
+      "vue-cli-service",
+      "lint",
+      "--no-fix",
+      "src/utils/smbParentInheritance.js",
+      "src/utils/storageConfigPreflight.js",
+      "src/components/storage/SmbParentInheritanceFields.vue",
+      "src/components/storage/StorageDirectorySetgidDialog.vue",
+      "src/components/storage/StorageDirectoryPolicyPanel.vue",
+      "src/views/storage/SharedFSTab.vue",
+      "tests/unit/views/storage/SharedFSSmbParentInheritance.spec.js"
+    ],
+    "exitcode": 0
+  }
+]
