@@ -972,18 +972,6 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
     public WallSilenceResponse createWallAlertSilence(final CreateWallAlertSilenceCmd cmd) {
         // 0) 파라미터 검증 + 정규화
         final Map<String, String> labels = normalizeLabels(cmd.getLabels()); // labels[] 평탄화
-        Long minutes = cmd.getDurationMinutes();
-        if (minutes == null || minutes <= 0) {
-            final Long parsed = parseDurationToMinutes(cmd.getDuration());
-            if (parsed != null && parsed > 0) {
-                minutes = parsed;
-            }
-        }
-        if (minutes == null || minutes <= 0) {
-            throw new IllegalArgumentException(
-                    "durationMinutes는 1 이상의 정수여야 하며, 또는 duration 문자열(예: 30m, 1h, 1d, 1w, 1M)을 제공해야 합니다.");
-        }
-
         // 1) 시작/종료 시각
         final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
         java.time.OffsetDateTime startsAt;
@@ -996,7 +984,30 @@ public class WallAlertsServiceImpl extends ManagerBase implements WallAlertsServ
         } else {
             startsAt = now;
         }
-        final java.time.OffsetDateTime endsAt = startsAt.plusMinutes(minutes);
+        final java.time.OffsetDateTime endsAt;
+        if (cmd.getEndsAt() != null && !cmd.getEndsAt().isBlank()) {
+            try {
+                endsAt = java.time.OffsetDateTime.parse(cmd.getEndsAt());
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new IllegalArgumentException("종료 일시가 올바른 날짜 및 시간 형식이 아닙니다.");
+            }
+            if (!endsAt.isAfter(now) || !endsAt.isAfter(startsAt)) {
+                throw new IllegalArgumentException("종료 일시는 현재 시각과 시작 일시 이후여야 합니다.");
+            }
+        } else {
+            Long minutes = cmd.getDurationMinutes();
+            if (minutes == null || minutes <= 0) {
+                final Long parsed = parseDurationToMinutes(cmd.getDuration());
+                if (parsed != null && parsed > 0) {
+                    minutes = parsed;
+                }
+            }
+            if (minutes == null || minutes <= 0) {
+                throw new IllegalArgumentException(
+                        "durationMinutes는 1 이상의 정수여야 하며, 또는 duration 문자열(예: 30m, 1h, 1d, 1w, 1M)을 제공해야 합니다.");
+            }
+            endsAt = startsAt.plusMinutes(minutes);
+        }
 
         // 2) 매처 구성 (최소: UID 있으면 UID 고정, 없으면 alertname 고정; instance 있으면 인스턴스 단위로 범위 축소)
         final java.util.List<org.apache.cloudstack.wallAlerts.model.SilenceMatcherDto> matchers = new java.util.ArrayList<>();

@@ -33,7 +33,7 @@ import java.util.Map;
 
 @APICommand(
         name = CreateWallAlertSilenceCmd.APINAME,
-        description = "Creates an Alertmanager silence from given labels and duration",
+        description = "Creates an Alertmanager silence from given labels and duration or end time",
         responseObject = WallSilenceResponse.class,
         requestHasSensitiveInfo = false,
         responseHasSensitiveInfo = false,
@@ -84,10 +84,15 @@ public class CreateWallAlertSilenceCmd extends BaseCmd {
             description = "Optional ISO-8601 start time (e.g., 2025-10-20T01:23:45Z). If absent, now()")
     private String startsAt;
 
+    @Parameter(name = "endsat", type = CommandType.STRING,
+            description = "Optional ISO-8601 end time. Must be in the future and after startsAt; overrides duration.")
+    private String endsAt;
+
     // ---------- Getters ----------
     public Map<String, String> getLabels() { return labels; }
     public String getComment() { return comment; }
     public String getStartsAt() { return startsAt; }
+    public String getEndsAt() { return endsAt; }
     public String getDuration() { return durationText; }
 
     /**
@@ -107,10 +112,12 @@ public class CreateWallAlertSilenceCmd extends BaseCmd {
     @Override
     public void execute() {
         try {
-            final Long mins = getDurationMinutes();
-            if (mins == null || mins <= 0) {
-                throw new IllegalArgumentException("Missing or invalid duration: supply 'durationMinutes' (minutes) "
-                        + "or 'duration' like 30m/1h/1d/1w/1M.");
+            if (endsAt == null || endsAt.isBlank()) {
+                final Long mins = getDurationMinutes();
+                if (mins == null || mins <= 0) {
+                    throw new IllegalArgumentException("Missing or invalid duration: supply 'durationMinutes' (minutes) "
+                            + "or 'duration' like 30m/1h/1d/1w/1M, or an ISO-8601 'endsAt'.");
+                }
             }
             final WallSilenceResponse resp = wallAlertsService.createWallAlertSilence(this);
             resp.setResponseName(getCommandName());

@@ -95,7 +95,7 @@ public interface WallApiClient {
         /** 사일런스 시작 시각(미지정 시 now()를 서비스 계층에서 채웁니다) */
         private OffsetDateTime startsAt;
 
-        /** 사일런스 종료 시각(시작 + durationMinutes로 서비스 계층에서 채웁니다) */
+        /** 사일런스 종료 시각(직접 지정하거나 시작 + durationMinutes로 서비스 계층에서 채웁니다) */
         private OffsetDateTime endsAt;
 
         /** 매칭 조건(UID 우선: __alert_rule_uid__, 필요 시 alertname/instance 등) */

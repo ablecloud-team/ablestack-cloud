@@ -16,6 +16,32 @@
 // under the License.
 
 import { shallowRef, defineAsyncComponent } from 'vue'
+import { eligibleRules, ruleIsPaused, ruleIsSilenced } from '@/utils/wallAlertRules'
+
+const ruleAction = (kind, api, icon, label) => ({
+  api,
+  permission: [api],
+  icon,
+  label,
+  dataView: true,
+  groupAction: true,
+  popup: true,
+  selfManagedDialog: true,
+  wallRuleAction: kind,
+  component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallAlertRuleActionModal.vue'))),
+  show: record => eligibleRules([record], kind).length > 0,
+  groupShow: records => eligibleRules(records, kind).length > 0
+})
+
+const allRulesAction = (kind, api, icon, label) => ({
+  ...ruleAction(kind, api, icon, label),
+  dataView: false,
+  groupAction: false,
+  contextOnly: true,
+  menuGroup: 'ALL_RULES',
+  wallRuleScope: 'all',
+  show: () => true
+})
 
 export default {
   name: 'alertRules',
@@ -60,7 +86,7 @@ export default {
       ...item,
       summary: summary || '-',
       description: description || '-',
-      state: item && item.ispaused ? 'stopped' : 'running',
+      state: ruleIsPaused(item) ? 'stopped' : 'running',
       silenceStartsAt: item && item.silenceStartsAt ? item.silenceStartsAt : '-',
       silenceEndsAt: item && item.silenceEndsAt ? item.silenceEndsAt : '-',
       silencePeriod: item && item.silencePeriod ? item.silencePeriod : '-'
@@ -84,85 +110,29 @@ export default {
       label: 'label.update.threshold',
       message: 'message.action.update.threshold',
       dataView: true,
-      groupAction: true,
+      groupAction: false,
       popup: true,
       args: ['uid'],
       component: shallowRef(defineAsyncComponent(() => import('@/views/infra/WallThresholdEditor.vue')))
     },
+    ruleAction('pause', 'pauseWallAlertRule', 'pause-circle-outlined', 'label.alert.rule.pause'),
+    ruleAction('resume', 'pauseWallAlertRule', 'play-circle-outlined', 'label.action.resume.alert.rule'),
+    ruleAction('silence', 'createWallAlertSilence', 'sound-outlined', 'label.action.silence'),
     {
-      api: 'pauseWallAlertRule',
-      permission: ['pauseWallAlertRule'],
-      icon: 'pause-circle-outlined',
-      label: 'label.alert.rule.pause',
-      message: 'message.confirm.pause.rule.title',
-      dataView: true,
-      groupAction: true,
-      popup: true,
-      component: shallowRef(
-        defineAsyncComponent(() => import('@/views/infra/RulePauseModal.vue'))
-      ),
-      show: (record, selection, records) => {
-        const notPaused = (rec) => rec && rec.isPaused !== true
-        if (record) return notPaused(record)
-        if (Array.isArray(selection) && selection.length && Array.isArray(records)) {
-          return selection.some(id => {
-            const rec = records.find(r => r.id === id || r.uid === id)
-            return notPaused(rec)
-          })
-        }
-        return true
-      }
+      ...ruleAction('unsilence', 'expireWallAlertSilence', 'close-circle-outlined', 'label.action.expire.silence'),
+      permission: ['expireWallAlertSilence', 'listWallAlertSilences'],
+      dataView: false,
+      show: () => false,
+      groupShow: (records, getters) => 'listWallAlertSilences' in getters.apis && records.some(ruleIsSilenced)
     },
+    allRulesAction('silence', 'createWallAlertSilence', 'sound-outlined', 'label.wall.rules.silence.all'),
     {
-      api: 'pauseWallAlertRule',
-      icon: 'play-circle-outlined',
-      label: 'label.action.resume.alert.rule',
-      message: 'message.confirm.resume.rule.desc',
-      dataView: true,
-      groupAction: true,
-      popup: false,
-      args: ['id', 'paused'],
-      mapping: {
-        id: { value: (record) => record.id },
-        paused: { value: () => false }
-      },
-      groupMap: (selection, _values, records) => {
-        return selection.map(x => {
-          const rec = records.find(r => r.id === x)
-          return { id: rec?.id || x, paused: false }
-        })
-      },
-      show: (record) => record && record.isPaused === true
+      ...allRulesAction('unsilence', 'expireWallAlertSilence', 'close-circle-outlined', 'label.wall.rules.unsilence.all'),
+      permission: ['expireWallAlertSilence', 'listWallAlertSilences'],
+      show: (_record, getters) => 'listWallAlertSilences' in getters.apis
     },
-    {
-      api: 'createWallAlertSilence',
-      permission: ['createWallAlertSilence'],
-      icon: 'sound-outlined',
-      label: 'label.action.silence',
-      message: 'message.action.silence',
-      dataView: true,
-      // 중복 생성 방지: 리스트의 '그룹 액션' 경로 비활성화(행 액션만 사용)
-      groupAction: false,
-      popup: true, // 모달 사용(모달이 직접 API 호출)
-      component: shallowRef(
-        defineAsyncComponent(() => import('@/views/infra/RuleSilenceModal.vue'))
-      ),
-      show: (record, selection, records) => {
-        const active = (rec) => {
-          const end = rec?.silenceEndsAt
-          const t = end ? Date.parse(end) : 0
-          return Number.isFinite(t) && t > Date.now()
-        }
-        if (record) return !active(record)
-        if (Array.isArray(selection) && selection.length && Array.isArray(records)) {
-          return selection.some(id => {
-            const rec = records.find(r => r.id === id || r.uid === id)
-            return rec && !active(rec)
-          })
-        }
-        return true
-      }
-    },
+    allRulesAction('pause', 'pauseWallAlertRule', 'pause-circle-outlined', 'label.wall.rules.pause.all'),
+    allRulesAction('resume', 'pauseWallAlertRule', 'play-circle-outlined', 'label.wall.rules.resume.all'),
     {
       api: 'expireWallAlertSilence',
       permission: ['expireWallAlertSilence'],
@@ -170,27 +140,13 @@ export default {
       label: 'label.action.expire.silence',
       message: 'message.action.expire.silence',
       dataView: true,
-      groupAction: true,
+      groupAction: false,
       popup: true,
       // 기존 탭 컴포넌트를 모달로 띄워서 만료 실행 (새 파일 필요 없음)
       component: shallowRef(
         defineAsyncComponent(() => import('@/views/infra/WallAlertSilenceTab.vue'))
       ),
-      show: (record, selection, records) => {
-        const active = (rec) => {
-          const end = rec && rec.silenceEndsAt
-          const t = end ? Date.parse(end) : 0
-          return Number.isFinite(t) && t > Date.now()
-        }
-        if (record) return active(record)
-        if (Array.isArray(selection) && selection.length && Array.isArray(records)) {
-          return selection.some(id => {
-            const rec = records.find(r => r.id === id || r.uid === id)
-            return rec && active(rec)
-          })
-        }
-        return false
-      }
+      show: record => ruleIsSilenced(record)
     }
   ]
 }

@@ -16,6 +16,7 @@
 // under the License.
 
 import { discoverOptional } from '@/utils/optionalDiscovery'
+import { resetWallBannerDismissal } from '@/utils/wallAvailability'
 import Cookies from 'js-cookie'
 import message from 'ant-design-vue/es/message'
 import notification from 'ant-design-vue/es/notification'
@@ -233,6 +234,7 @@ const user = {
       commit('SET_PROJECT', project)
     },
     Login ({ commit }, userInfo) {
+      resetWallBannerDismissal()
       commit('RESET_DISCOVERY')
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
@@ -297,6 +299,7 @@ const user = {
     },
 
     OauthLogin ({ commit }, userInfo) {
+      resetWallBannerDismissal()
       commit('RESET_DISCOVERY')
       return new Promise((resolve, reject) => {
         oauthlogin(userInfo).then(response => {
@@ -528,6 +531,7 @@ const user = {
     },
 
     Logout ({ commit, state }, payload) {
+      resetWallBannerDismissal()
       return new Promise((resolve) => {
         var cloudianUrl = null
         const sessionKey = state.token || vueProps.$localStorage.get(ACCESS_TOKEN) || Cookies.get('sessionkey') || ''

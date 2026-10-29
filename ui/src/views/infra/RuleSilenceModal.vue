@@ -251,9 +251,7 @@ export default {
 .option-sep { opacity: 0.65; }
 .option-sub { opacity: 0.65; }
 
-.form-layout { padding-right: 5px; }
-.form-layout { padding-left: 13px; }
-@media (max-width: 600px) { .form-layout { padding-right: 35px; } }
+.form-layout { width: 100%; }
 </style>
 
 <style>

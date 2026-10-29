@@ -15,29 +15,67 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import md5 from 'md5'
+
+const DISMISSAL_KEY = 'autoAlertBanner.wallDismissal'
+
+export function resetWallBannerDismissal () {
+  try { sessionStorage.removeItem(DISMISSAL_KEY) } catch (_) {}
+}
+
+// Bind to the authenticated session, including cookie-based SSO, without storing credentials.
+export function createWallBannerDismissal (sessionKey) {
+  const session = sessionKey ? md5(sessionKey) : ''
+  return {
+    get dismissed () {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(DISMISSAL_KEY))
+        return !!session && saved?.session === session && saved?.dismissed === true
+      } catch (_) { return false }
+    },
+    dismiss () {
+      if (!session) return
+      try { sessionStorage.setItem(DISMISSAL_KEY, JSON.stringify({ session, dismissed: true })) } catch (_) {}
+    },
+    reset: resetWallBannerDismissal
+  }
+}
+
 // Per-banner session gate; only the lightweight status request runs while unavailable.
 export function createWallGate (request, current) {
   let status = 'Unknown'
+  let ready = false
   let pending
   let expires = 0
   return {
     get state () { return status },
-    fail () { status = 'Unavailable'; expires = 0 },
+    fail () { status = 'Degraded'; ready = false; expires = 0 },
     async check () {
       if (!current()) return false
-      if (Date.now() < expires) return status === 'Ready'
+      if (Date.now() < expires) return ready
       if (!pending) {
         pending = (async () => {
           try {
             const response = await request('getWallAlertAvailability')
             if (!current()) return false
             const value = response?.getwallalertavailabilityresponse?.wallavailability
-            status = value?.available === true && value?.state === 'Ready' ? 'Ready' : (value?.state || 'Unknown')
+            ready = value?.available === true && value?.state === 'Ready'
+            if (ready) {
+              status = 'Ready'
+            } else if (value?.state && value.state !== 'Ready' && value.state !== 'Unknown') {
+              status = value.state
+            } else {
+              throw new Error('Wall status not confirmed')
+            }
           } catch (_) {
-            if (current()) status = 'Unavailable'
+            if (!current()) return false
+            ready = false
+            // A failed Mold status request cannot prove a Wall outage or recovery.
+            // Keep a known fault stable across transient probe failures.
+            if (status === 'Unknown' || status === 'Ready') status = 'CheckFailed'
           }
           expires = Date.now() + 30000
-          return current() && status === 'Ready'
+          return current() && ready
         })().finally(() => { pending = null })
       }
       return pending

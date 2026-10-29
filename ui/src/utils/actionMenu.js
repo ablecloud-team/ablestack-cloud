@@ -23,6 +23,7 @@ export const ACTION_MENU_GROUPS = [
   { key: 'BACKUP', label: 'label.backup' },
   { key: 'MANAGEMENT', label: 'label.management' },
   { key: 'GENERAL', label: 'label.actions' },
+  { key: 'ALL_RULES', label: 'label.wall.rules.all' },
   { key: 'DANGER', label: 'label.delete' }
 ]
 

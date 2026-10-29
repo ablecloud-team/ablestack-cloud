@@ -26,9 +26,12 @@
       <div class="banner-list" ref="listRef">
         <a-alert
           v-if="wallState !== 'Ready'"
+          class="wall-availability-alert"
           type="info"
           show-icon
-          :message="$t('message.wall.availability.unavailable') + ' ' + $t('label.wall.availability.' + wallState)" />
+          closable
+          :message="wallAvailabilityMessage"
+          @close="dismissWallBanner" />
         <a-alert
           v-if="wallState === 'Ready'"
           class="alert-summary"
@@ -178,125 +181,140 @@
                         class="drawer-item-meta-row"
                       >
                         <div v-if="drawerItemMetricLineText(it)" class="drawer-item-meta-left">
-                          <a-popover
-                            trigger="hover"
-                            placement="bottomLeft"
-                            :overlayStyle="{ zIndex: 2147483650 }"
-                            :getPopupContainer="getPopupParent"
-                          >
-                            <template #content>
-                              <div class="target-more-popover">
-                                <template v-if="breachedCountByKind(it, 'host') > 0">
-                                  <div
-                                    v-for="lnk in breachedLinksByKind(it, 'host')"
-                                    :key="lnk.key"
-                                    class="target-more-item"
-                                  >
-                                    <a
-                                      class="target-more-link"
-                                      href="#"
-                                      @click.prevent.stop="openEntityLink(lnk)"
+                          <span class="drawer-item-metric-hover">
+                            <a-popover
+                              trigger="hover"
+                              placement="bottomLeft"
+                              :overlayStyle="{ zIndex: 2147483650 }"
+                              :getPopupContainer="getPopupParent"
+                            >
+                              <template #content>
+                                <div class="target-more-popover">
+                                  <template v-if="breachedCountByKind(it, 'host') > 0">
+                                    <div
+                                      v-for="lnk in breachedLinksByKind(it, 'host')"
+                                      :key="lnk.key"
+                                      class="target-more-item"
                                     >
-                                      {{ lnk.label }}
-                                    </a>
-                                    <span v-if="lnk.valueText" class="target-value-metric">
-                                      {{ lnk.valueText }}
-                                    </span>
-                                  </div>
-                                </template>
+                                      <a
+                                        class="target-more-link"
+                                        href="#"
+                                        @click.prevent.stop="openEntityLink(lnk)"
+                                      >
+                                        {{ lnk.label }}
+                                      </a>
+                                      <span v-if="lnk.valueText" class="target-value-metric">
+                                        {{ lnk.valueText }}
+                                      </span>
+                                    </div>
+                                  </template>
 
-                                <template v-if="breachedCountByKind(it, 'vm') > 0">
-                                  <div
-                                    v-for="lnk in breachedLinksByKind(it, 'vm')"
-                                    :key="lnk.key"
-                                    class="target-more-item"
-                                  >
-                                    <a
-                                      class="target-more-link"
-                                      href="#"
-                                      @click.prevent.stop="openEntityLink(lnk)"
+                                  <template v-if="breachedCountByKind(it, 'vm') > 0">
+                                    <div
+                                      v-for="lnk in breachedLinksByKind(it, 'vm')"
+                                      :key="lnk.key"
+                                      class="target-more-item"
                                     >
-                                      {{ lnk.label }}
-                                    </a>
-                                    <span v-if="lnk.valueText" class="target-value-metric">
-                                      {{ lnk.valueText }}
-                                    </span>
-                                  </div>
-                                </template>
+                                      <a
+                                        class="target-more-link"
+                                        href="#"
+                                        @click.prevent.stop="openEntityLink(lnk)"
+                                      >
+                                        {{ lnk.label }}
+                                      </a>
+                                      <span v-if="lnk.valueText" class="target-value-metric">
+                                        {{ lnk.valueText }}
+                                      </span>
+                                    </div>
+                                  </template>
 
-                                <template v-if="breachedCountByKind(it, 'storage') > 0">
-                                  <div
-                                    v-for="lnk in breachedLinksByKind(it, 'storage')"
-                                    :key="lnk.key"
-                                    class="target-more-item"
-                                  >
-                                    <a
-                                      class="target-more-link"
-                                      href="#"
-                                      @click.prevent.stop="openEntityLink(lnk)"
+                                  <template v-if="breachedCountByKind(it, 'storage') > 0">
+                                    <div
+                                      v-for="lnk in breachedLinksByKind(it, 'storage')"
+                                      :key="lnk.key"
+                                      class="target-more-item"
                                     >
-                                      {{ lnk.label }}
-                                    </a>
-                                    <span v-if="lnk.valueText" class="target-value-metric">
-                                      {{ lnk.valueText }}
-                                    </span>
-                                  </div>
-                                </template>
+                                      <a
+                                        class="target-more-link"
+                                        href="#"
+                                        @click.prevent.stop="openEntityLink(lnk)"
+                                      >
+                                        {{ lnk.label }}
+                                      </a>
+                                      <span v-if="lnk.valueText" class="target-value-metric">
+                                        {{ lnk.valueText }}
+                                      </span>
+                                    </div>
+                                  </template>
 
-                                <template v-if="breachedCountByKind(it, 'cloud') > 0">
-                                  <div
-                                    v-for="lnk in breachedLinksByKind(it, 'cloud')"
-                                    :key="lnk.key"
-                                    class="target-more-item"
-                                  >
-                                    <a
-                                      class="target-more-link"
-                                      href="#"
-                                      @click.prevent.stop="openEntityLink(lnk)"
+                                  <template v-if="breachedCountByKind(it, 'cloud') > 0">
+                                    <div
+                                      v-for="lnk in breachedLinksByKind(it, 'cloud')"
+                                      :key="lnk.key"
+                                      class="target-more-item"
                                     >
-                                      {{ lnk.label }}
-                                    </a>
-                                    <span v-if="lnk.valueText" class="target-value-metric">
-                                      {{ lnk.valueText }}
-                                    </span>
-                                  </div>
-                                </template>
-                              </div>
-                            </template>
-
-                            <span class="drawer-item-metric-hover">
-                              <template v-if="drawerItemMetricUi(it).kind === 'binary'">
-                                <span class="metric-binary">
-                                  {{ drawerItemMetricUi(it).text }}
-                                </span>
+                                      <a
+                                        class="target-more-link"
+                                        href="#"
+                                        @click.prevent.stop="openEntityLink(lnk)"
+                                      >
+                                        {{ lnk.label }}
+                                      </a>
+                                      <span v-if="lnk.valueText" class="target-value-metric">
+                                        {{ lnk.valueText }}
+                                      </span>
+                                    </div>
+                                  </template>
+                                </div>
                               </template>
 
-                              <template v-else>
-                                <span v-if="drawerItemMetricUi(it).hasCur" class="metric-kv">
-                                  <span class="metric-k">
-                                    {{ tr('label.max') }}
+                              <span class="drawer-item-metric-value">
+                                <template v-if="drawerItemMetricUi(it).kind === 'binary'">
+                                  <span class="metric-binary">
+                                    {{ drawerItemMetricUi(it).text }}
                                   </span>
-                                  <span class="metric-v metric-current">
-                                    {{ drawerItemMetricUi(it).curText }}
-                                  </span>
-                                </span>
+                                </template>
 
-                                <span
-                                  v-if="drawerItemMetricUi(it).hasCur && drawerItemMetricUi(it).hasThr"
-                                  class="metric-sep"
-                                >·</span>
+                                <template v-else>
+                                  <span v-if="drawerItemMetricUi(it).hasCur" class="metric-kv">
+                                    <span class="metric-k">
+                                      {{ tr('label.max') }}
+                                    </span>
+                                    <span class="metric-v metric-current">
+                                      {{ drawerItemMetricUi(it).curText }}
+                                    </span>
+                                  </span>
+                                </template>
+                              </span>
+                            </a-popover>
+                            <a-tooltip
+                              v-if="vmCpuOver100(it)"
+                              :title="tr('message.alert.vm.cpu.over100')"
+                              :trigger="['hover', 'focus']"
+                              :overlayStyle="{ zIndex: 2147483650 }"
+                              :getPopupContainer="getPopupParent"
+                            >
+                              <span
+                                class="cpu-over100-icon"
+                                role="img"
+                                :aria-label="tr('label.alert.vm.cpu.over100')"
+                                tabindex="0"
+                              ><ExclamationCircleFilled /></span>
+                            </a-tooltip>
+                            <span
+                              v-if="drawerItemMetricUi(it).hasCur && drawerItemMetricUi(it).hasThr"
+                              class="metric-sep"
+                            >·</span>
 
-                                <span v-if="drawerItemMetricUi(it).hasThr" class="metric-kv">
-                                  <span class="metric-k">
-                                    {{ tr('label.threshold.value') }}
-                                  </span>
-                                  <span class="metric-v metric-threshold">
-                                    {{ drawerItemMetricUi(it).thrText }}
-                                  </span>
-                                </span>
-                              </template>
+                            <span v-if="drawerItemMetricUi(it).kind !== 'binary' && drawerItemMetricUi(it).hasThr" class="metric-kv">
+                              <span class="metric-k">
+                                {{ tr('label.threshold.value') }}
+                              </span>
+                              <span class="metric-v metric-threshold">
+                                {{ drawerItemMetricUi(it).thrText }}
+                              </span>
                             </span>
-                          </a-popover>
+                          </span>
                         </div>
                         <div v-if="drawerItemAgeText(it)" class="drawer-item-meta-right">
                           {{ drawerItemAgeText(it) }}
@@ -629,7 +647,8 @@
       :centered="true"
       :getContainer="getPopupParent"
       :zIndex="2147483652"
-      width="480px"
+      :width="760"
+      :body-style="{ minHeight: '400px', padding: '28px 32px' }"
       @afterClose="closeSilence"
     >
       <RuleSilenceModal
@@ -650,7 +669,8 @@
       :centered="true"
       :getContainer="getPopupParent"
       :zIndex="2147483652"
-      width="480px"
+      :width="760"
+      :body-style="{ minHeight: '400px', padding: '28px 32px' }"
       @afterClose="closePause"
     >
       <RulePauseModal
@@ -681,7 +701,9 @@ import { message } from 'ant-design-vue'
 import { getAPI as requestAPI } from '@/api'
 import store from '@/store'
 import { hasDiscoveryApi } from '@/utils/optionalDiscovery'
-import { createWallGate } from '@/utils/wallAvailability'
+import { createWallGate, createWallBannerDismissal } from '@/utils/wallAvailability'
+import Cookies from 'js-cookie'
+import eventBus from '@/config/eventBus'
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'dompurify'
 
@@ -707,6 +729,16 @@ export default {
     return {
       solutionPopoverUid: '',
       solutionPopoverOverlayStyle: { zIndex: 2147483650 }
+    }
+  },
+  computed: {
+    wallAvailabilityMessage () {
+      if (['ConnectionFailed', 'DnsError', 'TlsError', 'Timeout'].includes(this.wallState)) {
+        return this.$t('message.wall.availability.disconnected')
+      }
+      const key = 'message.wall.availability.' + this.wallState
+      const reason = this.$te(key) ? this.$t(key) : this.$t('message.wall.availability.CheckFailed')
+      return reason + ' ' + this.$t('message.wall.availability.impact')
     }
   },
   methods: {
@@ -864,18 +896,28 @@ export default {
     const current = () => !disposed && generation === store.state.user.discoveryGeneration
     const allowed = name => current() && hasDiscoveryApi(store.getters.apis, name)
     const wallState = ref('Unknown')
+    const wallDismissal = createWallBannerDismissal(store.state.user.token || Cookies.get('sessionkey'))
+    const wallBannerDismissed = ref(wallDismissal.dismissed)
+    const dismissWallBanner = () => {
+      if (!current()) return
+      wallBannerDismissed.value = true
+      wallDismissal.dismiss()
+    }
     const wallGate = createWallGate((name) => {
       if (!allowed(name)) return Promise.resolve({})
       return requestAPI(name, {}, { optionalDiscovery: true })
     }, current)
     const getAPI = async (name, params) => {
       if (!allowed(name)) return {}
-      if (/Wall/.test(name) && !await wallGate.check()) throw new Error('Wall unavailable')
+      if (/Wall/.test(name) && !await wallGate.check()) {
+        if (current()) wallState.value = wallGate.state
+        throw new Error('Wall unavailable')
+      }
       let response
       try {
         response = await requestAPI(name, params, { optionalDiscovery: true })
       } catch (e) {
-        if (/Wall/.test(name) && current()) { wallGate.fail(); wallState.value = 'Unavailable' }
+        if (/Wall/.test(name) && current()) { wallGate.fail(); wallState.value = 'Degraded' }
         throw e
       }
       if (!current()) throw new Error('Alert discovery session expired')
@@ -970,6 +1012,7 @@ export default {
     // ===== 상태 =====
     const rules = ref([])
     const refreshInFlight = ref(false)
+    let wallRefreshPending = false
     const keepShowing = ref(false)
 
     const HIDE_GRACE_MS = 150
@@ -1361,16 +1404,16 @@ export default {
       const a = it && Array.isArray(it.alerts) && it.alerts.length ? it.alerts[0] : null
       const r = it && it.rule ? it.rule : null
 
-      const n0 = pickNumberLike(it && (it.currentValue || it.current || it.value || it.lastValue))
+      const n0 = pickNumberLike(it && takeFirst(it.currentValue, it.current, it.value, it.lastValue))
       if (n0 != null) { return n0 }
 
-      const n1 = pickNumberLike(r && (r.currentValue || r.current || r.value || r.lastValue))
+      const n1 = pickNumberLike(r && takeFirst(r.currentValue, r.current, r.value, r.lastValue))
       if (n1 != null) { return n1 }
 
-      const n2 = pickNumberLike(a && (a.value || a.values || a.val || a.sample))
+      const n2 = pickNumberLike(a && takeFirst(a.value, a.values, a.val, a.sample))
       if (n2 != null) { return n2 }
 
-      const n3 = pickNumberLike(a && a.annotations && (a.annotations.current || a.annotations.value))
+      const n3 = pickNumberLike(a && a.annotations && takeFirst(a.annotations.current, a.annotations.value))
       if (n3 != null) { return n3 }
 
       return null
@@ -1390,6 +1433,10 @@ export default {
           }
         }
       }
+
+      // currentTargets and currentValue describe the same evaluation. Older
+      // alert annotations must not override a value from that snapshot.
+      if (max != null) return max
 
       const arr = Array.isArray(it && it.alerts) ? it.alerts : ruleInstances(it && it.rule)
       if (arr && arr.length > 0) {
@@ -1423,8 +1470,12 @@ export default {
       const r = it && it.rule ? it.rule : null
 
       const cand = takeFirst(
-        it && (it.thresholdValue || it.threshold || it.thresholdvalue),
-        r && (r.thresholdValue || r.threshold || r.thresholdvalue),
+        it && it.thresholdValue,
+        it && it.threshold,
+        it && it.thresholdvalue,
+        r && r.thresholdValue,
+        r && r.threshold,
+        r && r.thresholdvalue,
         r && r.thresholds,
         r && r.evaluatorParams,
         r && r.evaluator && r.evaluator.params,
@@ -1445,9 +1496,9 @@ export default {
     function formatMetric (n, unit) {
       if (n == null || !Number.isFinite(n)) { return '' }
 
-      let v = n
-      // 0~1 사이 비율(0.1533)을 %로 전달하는 케이스 보정합니다.
-      if (unit === '%' && v >= 0 && v <= 1) { v = v * 100 }
+      // Alert queries and thresholds already use percentage points (e.g.
+      // CPU rate / vCPU count * 100). The magnitude cannot identify a ratio.
+      const v = n
 
       // bytes/sec 계열은 값만 자동 축약하고, 제목의 원 단위는 그대로 둡니다.
       if (unit && /^(bytes?|b)(\/sec|\/s)$/i.test(String(unit).trim())) {
@@ -1511,6 +1562,14 @@ export default {
 
     const isDiscreteTargetRule = (it) => {
       return isBinaryTargetRule(it) || isStateLikeRule(it)
+    }
+
+    const vmCpuOver100 = (it) => {
+      const rule = it && it.rule ? it.rule : it
+      const title = String(takeFirst(it && it.title, rule && rule.name, rule && rule.title))
+      const vmRule = isVmKind(pickKindFromRule(rule)) || /사용자[_\s-]*vm|user[_\s-]*vm/i.test(title)
+      if (!vmRule || metricUnitOf(it) !== '%' || !/cpu.*(사용률|usage|utili[sz]ation)/i.test(title)) return false
+      return resolveCurrentMaxMetric(it) > 100 || resolveCurrentMetric(it) > 100
     }
 
     const drawerItemMetricInlineText = (it) => {
@@ -2425,7 +2484,9 @@ export default {
               }
             }
 
-            if (n == null) {
+            // A target absent from a current snapshot has no current value;
+            // showing its old alert value would mix different evaluations.
+            if (n == null && valueMap.size === 0) {
               const annCur = takeFirst(a.annotations && a.annotations.current, a.annotations && a.annotations.value, a.value, a.values)
               n = pickNumberLike(annCur)
             }
@@ -2578,7 +2639,8 @@ export default {
     })
 
     const showBanner = computed(() => {
-      if (wallState.value !== 'Ready') return wallState.value !== 'Unknown'
+      if (wallState.value === 'Disabled') return false
+      if (wallState.value !== 'Ready') return wallState.value !== 'Unknown' && !wallBannerDismissed.value
       const hasList = Array.isArray(visibleAlerts.value) && visibleAlerts.value.length > 0
       return (keepShowing.value || remoteSilencedLoaded.value) && hasList
     })
@@ -2630,8 +2692,10 @@ export default {
       try {
         const ready = await wallGate.check()
         if (!current()) return
-        wallState.value = wallGate.state
-        if (!ready) return
+        if (!ready) {
+          wallState.value = wallGate.state
+          return
+        }
         const params = { includestatus: true, page: 1, pagesize: 200 }
         const resp = await getAPI('listWallAlertRules', params)
         if (!allowed('getWallAlertAvailability')) return
@@ -2647,15 +2711,38 @@ export default {
 
         cleanupLocalSilences()
         pruneClosed()
+        // Publish recovery only after the existing Wall data refresh succeeds.
+        // A healthy probe followed by a failed query must not reset dismissal or flicker.
+        if (current() && wallGate.state === 'Ready') {
+          wallState.value = 'Ready'
+          wallBannerDismissed.value = false
+          wallDismissal.reset()
+        }
       } catch (_) {
-        if (current()) wallState.value = 'Unavailable'
+        // Wall request failures set Degraded in getAPI; unrelated inventory failures
+        // must not be presented as a loss of the entire Wall connection.
       } finally {
         refreshInFlight.value = false
         if (current()) {
           hideTimer = setTimeout(() => { keepShowing.value = false }, HIDE_GRACE_MS)
           measureAndNotifyHeight()
+          if (wallRefreshPending) {
+            wallRefreshPending = false
+            silenceCache.clear()
+            refresh()
+          }
         }
       }
+    }
+
+    const onWallAlertRulesChanged = async () => {
+      if (!allowed('getWallAlertAvailability')) return
+      if (refreshInFlight.value) {
+        wallRefreshPending = true
+        return
+      }
+      silenceCache.clear()
+      await refresh()
     }
 
     // ===== 모달 =====
@@ -2688,7 +2775,7 @@ export default {
         }
 
         closeSilence()
-        await refresh()
+        await onWallAlertRulesChanged()
         message.success(window.$t?.('message.silence.applied') || '사일런스 적용')
       } catch (_) {
         closeSilence()
@@ -2708,7 +2795,7 @@ export default {
       const uid = keyOf(pauseModal.value && pauseModal.value.target)
       if (uid) { onAlertCloseStart({ uid }) }
       closePause()
-      await refresh()
+      await onWallAlertRulesChanged()
       message.success(window.$t?.('message.pause.applied') || '일시정지 적용')
     }
 
@@ -2893,6 +2980,7 @@ export default {
     }
 
     // ===== 라이프사이클 =====
+    eventBus.on('wall-alert-rules-changed', onWallAlertRulesChanged)
     onMounted(async () => {
       try { document.documentElement.style.setProperty('--autoBannerHeight', '0px') } catch (_) {}
       try { document.documentElement.classList.add('banner-measuring') } catch (_) {}
@@ -2925,6 +3013,7 @@ export default {
 
     onBeforeUnmount(() => {
       disposed = true
+      eventBus.off('wall-alert-rules-changed', onWallAlertRulesChanged)
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('focus', onFocus)
       stopPoll()
@@ -2959,6 +3048,7 @@ export default {
     // ===== 노출 =====
     return {
       wallState,
+      dismissWallBanner,
       drawerVisible,
       drawerListRef,
       listRef,
@@ -3012,6 +3102,7 @@ export default {
       drawerItemMetricInlineTitle,
       drawerItemMetricLineText,
       drawerItemMetricUi,
+      vmCpuOver100,
       drawerItemMetaText,
       hasSolutionUrl,
       openSolution,
@@ -3067,6 +3158,25 @@ export default {
 }
 .banner-list:empty {
   padding: 0;
+}
+
+.wall-availability-alert {
+  align-items: flex-start;
+}
+.wall-availability-alert :deep(.ant-alert-content) {
+  min-width: 0;
+}
+.wall-availability-alert :deep(.ant-alert-message) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.wall-availability-alert :deep(.ant-alert-icon),
+.wall-availability-alert :deep(.ant-alert-close-icon) {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.wall-availability-alert :deep(.ant-alert-close-icon) {
+  margin-left: 12px;
 }
 
 /* ===== 요약(상단) 배너 ===== */
@@ -3318,6 +3428,22 @@ export default {
   font-size: 12px;
   line-height: 18px;
   color: rgba(0, 0, 0, 0.55);
+}
+
+.cpu-over100-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #e8c77d;
+  font-size: 14px;
+  line-height: 1;
+  cursor: help;
+}
+
+.cpu-over100-icon:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 50%;
 }
 
 .drawer-item-meta-left {
@@ -3589,6 +3715,11 @@ body.dark-mode .wall-alert-drawer .drawer-item-meta-left,
 body.dark-mode .wall-alert-drawer .drawer-item-meta-right,
 body.dark-mode .wall-alert-drawer .drawer-item-meta-row * {
   color: rgba(255, 255, 255, 0.74) !important;
+}
+
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row .cpu-over100-icon,
+body.dark-mode .wall-alert-drawer .drawer-item-meta-row .cpu-over100-icon * {
+  color: #d9bf86 !important;
 }
 
 /* 메트릭 값은 조금 더 선명하게 */

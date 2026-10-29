@@ -173,8 +173,7 @@ export default {
 </script>
 
 <style scoped>
-.form-layout { width: 80vw; }
-@media (min-width: 600px) { .form-layout { width: 420px; } }
+.form-layout { width: 100%; }
 
 .bullet { margin: 0; padding-left: 18px; }
 .bullet.tight li { margin: 2px 0; }

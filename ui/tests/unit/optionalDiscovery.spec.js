@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { getAPI } from '@/api'
+import { getAPI, login, oauthlogin } from '@/api'
+import { createWallBannerDismissal } from '@/utils/wallAvailability'
 import { discoverOptional, hasDiscoveryApi } from '@/utils/optionalDiscovery'
 import user from '@/store/modules/user'
 import store from '@/store'
@@ -23,7 +24,7 @@ import { vueProps } from '@/vue-app'
 import UserMenu from '@/components/header/UserMenu.vue'
 import { applyCustomGuiTheme } from '@/utils/guiTheme'
 
-jest.mock('@/api', () => ({ getAPI: jest.fn(), logout: jest.fn(() => Promise.resolve({})) }))
+jest.mock('@/api', () => ({ getAPI: jest.fn(), login: jest.fn(), oauthlogin: jest.fn(), logout: jest.fn(() => Promise.resolve({})) }))
 jest.mock('@/vue-app', () => ({ vueProps: { $localStorage: { get: jest.fn((key, fallback) => fallback), set: jest.fn(), remove: jest.fn() } } }))
 jest.mock('@/store', () => ({ getters: { loginFlag: true, addRouters: [] }, dispatch: jest.fn(() => Promise.resolve()) }))
 jest.mock('@/router', () => ({ addRoute: jest.fn() }))
@@ -56,6 +57,7 @@ const reply = (apis) => name => {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  sessionStorage.clear()
   vueProps.$localStorage.get.mockImplementation((key, fallback) => fallback)
   store.getters.loginFlag = true
 })
@@ -201,3 +203,26 @@ test('empty-cache refresh rejects an expired session instead of remaining pendin
   getAPI.mockImplementation(name => name === 'listApis' ? Promise.reject(new Error('session expired')) : reply(baseApis)(name))
   await expect(user.actions.GetInfo(context())).rejects.toThrow('session expired')
 }, 1500)
+
+test.each([['Login', login], ['OauthLogin', oauthlogin]])('%s starts with a fresh Wall banner dismissal state', async (action, authenticate) => {
+  const dismissal = createWallBannerDismissal('previous-session')
+  dismissal.dismiss()
+  authenticate.mockRejectedValue(new Error('authentication failed'))
+  await expect(user.actions[action](context(), {})).rejects.toThrow('authentication failed')
+  expect(dismissal.dismissed).toBe(false)
+})
+
+test('logout clears the dismissed Wall banner before the logout request completes', async () => {
+  const dismissal = createWallBannerDismissal('previous-session')
+  dismissal.dismiss()
+  const pending = user.actions.Logout(context())
+  expect(dismissal.dismissed).toBe(false)
+  await pending
+})
+
+test('discovery reset alone preserves dismissal during domain switches', () => {
+  const dismissal = createWallBannerDismissal('same-session')
+  dismissal.dismiss()
+  context().commit('RESET_DISCOVERY')
+  expect(dismissal.dismissed).toBe(true)
+})

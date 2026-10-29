@@ -181,6 +181,7 @@
         :is="currentAction.component"
         :resource="resource"
         :current-action="currentAction"
+        :selected-items="selectedItems"
         dialog-only
         @refresh-data="refreshActionData"
         @close-action="closeAction"

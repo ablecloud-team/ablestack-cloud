@@ -1384,6 +1384,9 @@ export default {
   },
   computed: {
     isSshKeyPairList () { return this.resourcePath ? this.resourcePath === '/ssh' : /^\/ssh(?:\/|$)/.test(this.$route.path) },
+    selectedItems () {
+      return this.selectionList
+    },
     hasSelected () {
       return this.selectedRowKeys.length > 0
     },
@@ -1403,31 +1406,34 @@ export default {
           if (!(action.api in this.$store.getters.apis)) {
             return null
           }
-          if (!action.groupAction) {
+          if (!action.groupAction && !action.contextOnly) {
             return null
           }
-          const canShow = 'groupShow' in action ? action.groupShow(this.selectionList, this.$store.getters) : true
+          const canShow = action.contextOnly
+            ? ('show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true)
+            : ('groupShow' in action ? action.groupShow(this.selectionList, this.$store.getters) : true)
           if (!canShow) {
             return null
           }
           return { ...action, dataView: true }
         }).filter(Boolean)
       }
-      if (!this.contextQuickViewRecord) {
-        return []
-      }
+      const hasRecord = Object.keys(this.contextQuickViewRecord || {}).length > 0
       return this.actions.map(action => {
         if (!(action.api in this.$store.getters.apis)) {
+          return null
+        }
+        if (!hasRecord && !action.contextOnly) {
           return null
         }
         const canShow = 'show' in action ? action.show(this.contextQuickViewRecord, this.$store.getters) : true
         if (!canShow) {
           return null
         }
-        if (!action.dataView && !action.listView) {
+        if (!action.dataView && !action.listView && !action.contextOnly) {
           return null
         }
-        return { ...action, dataView: action.dataView || action.listView || false }
+        return { ...action, dataView: action.dataView || action.listView || action.contextOnly || false }
       }).filter(Boolean)
     },
     contextMenuTitle () {
@@ -1504,7 +1510,8 @@ export default {
       // Allow context menu even when multiple items selected; fall back to first selected item
       const selectionCount = this.selectedRowKeys.length
       const hasSelection = this.$route.name === 'vmsnapshot' ? selectionCount > 1 : selectionCount > 0
-      if (!rowElement && !hasSelection) {
+      const hasListContextActions = this.actions.some(action => action.contextOnly && action.api in this.$store.getters.apis)
+      if (!rowElement && !hasSelection && !hasListContextActions) {
         this.closeContextQuickView()
         return
       }
@@ -1519,6 +1526,7 @@ export default {
         const rowKey = rowElement.getAttribute('data-row-key')
         record = this.items.find(item => String(this.generateRowKeyValue(item)) === rowKey)
       }
+      if (!record && hasListContextActions) record = {}
       if (!record) {
         this.closeContextQuickView()
         return
@@ -1572,7 +1580,7 @@ export default {
       if (this.$route.name === 'snapshotpolicy') return this.actions.some(action => action.groupAction && action.api in this.$store.getters.apis)
       if (snapshotCopyList(this.$route)) return false
       if (this.resourcePath) return this.explicitlyAllowRowSelection
-      return ['vm', 'alert', 'vmgroup', 'ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'autoscalevmgroup', 'volume', 'snapshot',
+      return ['vm', 'alert', 'alertRules', 'vmgroup', 'ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'autoscalevmgroup', 'volume', 'snapshot',
         'vmsnapshot', 'backup', 'guestnetwork', 'vpc', 'publicip', 'vpnuser', 'vpncustomergateway', 'vnfapp',
         'project', 'account', 'systemvm', 'router', 'computeoffering', 'systemoffering',
         'diskoffering', 'backupoffering', 'networkoffering', 'vpcoffering', 'ilbvm', 'kubernetes', 'comment', 'buckets',

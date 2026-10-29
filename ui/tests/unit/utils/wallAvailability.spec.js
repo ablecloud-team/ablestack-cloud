@@ -15,8 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { createWallGate } from '@/utils/wallAvailability'
+import { createWallGate, createWallBannerDismissal, resetWallBannerDismissal } from '@/utils/wallAvailability'
 
+beforeEach(() => sessionStorage.clear())
 afterEach(() => jest.restoreAllMocks())
 test('unavailable service never authorizes alert requests, recovery uses only status', async () => {
   let now = 1000
@@ -56,5 +57,56 @@ test('alert failure invalidates previously ready state', async () => {
   const gate = createWallGate(request, () => true)
   expect(await gate.check()).toBe(true)
   gate.fail()
+  expect(gate.state).toBe('Degraded')
   expect(await gate.check()).toBe(false)
+})
+
+test('a failed status request cannot confirm recovery or replace a known fault', async () => {
+  let now = 1000
+  jest.spyOn(Date, 'now').mockImplementation(() => now)
+  const request = jest.fn()
+    .mockResolvedValueOnce({ getwallalertavailabilityresponse: { wallavailability: { state: 'ConnectionFailed', available: false } } })
+    .mockRejectedValue(new Error('temporary failure'))
+  const gate = createWallGate(request, () => true)
+  expect(await gate.check()).toBe(false)
+  now += 31000
+  expect(await gate.check()).toBe(false)
+  expect(gate.state).toBe('ConnectionFailed')
+  expect(await gate.check()).toBe(false)
+  expect(request).toHaveBeenCalledTimes(2)
+})
+
+test('failed probes after a ready result fail closed and use a status-check message', async () => {
+  let now = 1000
+  jest.spyOn(Date, 'now').mockImplementation(() => now)
+  const request = jest.fn().mockResolvedValueOnce({ getwallalertavailabilityresponse: { wallavailability: { state: 'Ready', available: true } } }).mockRejectedValue(new Error('offline'))
+  const gate = createWallGate(request, () => true)
+  expect(await gate.check()).toBe(true)
+  now += 31000
+  expect(await gate.check()).toBe(false)
+  expect(await gate.check()).toBe(false)
+  expect(gate.state).toBe('CheckFailed')
+})
+
+test('dismissal is restored only for the same authenticated session and can be reset', () => {
+  createWallBannerDismissal('session-one').dismiss()
+  expect(createWallBannerDismissal('session-one').dismissed).toBe(true)
+  expect(createWallBannerDismissal('session-two').dismissed).toBe(false)
+  expect(sessionStorage.getItem('autoAlertBanner.wallDismissal')).not.toContain('session-one')
+  resetWallBannerDismissal()
+  expect(createWallBannerDismissal('session-one').dismissed).toBe(false)
+})
+
+test('storage errors and absent credentials never break the banner', () => {
+  createWallBannerDismissal('').dismiss()
+  expect(sessionStorage.length).toBe(0)
+  sessionStorage.setItem('autoAlertBanner.wallDismissal', 'invalid-json')
+  expect(createWallBannerDismissal('session').dismissed).toBe(false)
+  jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked') })
+  jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('blocked') })
+  jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => { throw new Error('blocked') })
+  const dismissal = createWallBannerDismissal('session')
+  expect(dismissal.dismissed).toBe(false)
+  expect(() => dismissal.dismiss()).not.toThrow()
+  expect(() => dismissal.reset()).not.toThrow()
 })
