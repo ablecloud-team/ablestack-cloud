@@ -640,12 +640,6 @@ def main():
                 "before":{"owneruid":before["entries"][0]["uid"],"ownergid":before["entries"][0]["gid"],
                           "mode":format(before["entries"][0]["mode"],"04o")},"after":value["policy"]}
     print(json.dumps(result))
-if __name__=="__main__":
-    import sys
-    try: main()
-    except (PolicyError,OSError,ValueError,KeyError,subprocess.SubprocessError) as error:
-        print(json.dumps({"code":getattr(error,"code","DIRECTORY_OBSERVATION_UNAVAILABLE")}))
-        sys.exit(1)
 
 
 def inheritance_enabled(config):
@@ -793,3 +787,11 @@ def inheritance_observations(payload):
             value.update(status="UNKNOWN", code=getattr(error, "code", "SMB_PARENT_OBSERVATION_UNAVAILABLE"))
         result.append(value)
     return result
+
+
+if __name__=="__main__":
+    import sys
+    try: main()
+    except (PolicyError,OSError,ValueError,KeyError,subprocess.SubprocessError) as error:
+        print(json.dumps({"code":getattr(error,"code","DIRECTORY_OBSERVATION_UNAVAILABLE")}))
+        sys.exit(1)

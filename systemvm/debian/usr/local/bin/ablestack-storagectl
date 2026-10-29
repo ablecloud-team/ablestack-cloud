@@ -4726,6 +4726,7 @@ import subprocess
 import sys
 
 sys.path.insert(0,os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT","/usr/local/lib/ablestack-storage"))
+import shared_directory_policy as directory_policy_module
 from shared_directory_policy import DirectoryPolicies
 directory_policies=DirectoryPolicies()
 protected_paths=set()
@@ -4969,7 +4970,7 @@ else:
 # Validate new ownership policies before any directory/account mutation.
 for candidate_share in payload.get("shares", []):
     if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
-        directory_policies.validate_inheritance_share(candidate_share, payload)
+        directory_policy_module.validate_inheritance_share(candidate_share, payload)
 
 quota_state = {}
 access_state = {}
@@ -5056,7 +5057,7 @@ for share in payload.get("shares", []):
         "   directory mask = 0770",
     ])
     if "inheritOwner" in config:
-        lines.append("   inherit owner = " + ("yes" if directory_policies.inheritance_enabled(config) else "no"))
+        lines.append("   inherit owner = " + ("yes" if directory_policy_module.inheritance_enabled(config) else "no"))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))
     if write_list:
