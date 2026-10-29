@@ -29,3 +29,10 @@
 첫 배포 후 정지 원본 preflight에서 `CheckVmBackupTrackingCommand.isStopped()`의 `NoSuchMethodError`가 드러났다. 설치된 KVM wrapper는 새 계약을 사용하지만 Agent `cloud-core`의 명령 클래스가 구버전이었다. `core` 모듈의 명령 클래스도 동일 소스로 빌드·배포하고, 정지 플래그/오프라인 디스크 목록의 Gson 왕복 및 구형 요청의 기본 거절 계약을 검사한다. 따라서 배포 대상 클래스는 `UserVmManagerImpl`, `StorageVMSnapshotStrategy`, `KVMStorageProcessor`와 호환 의존성 `CheckVmBackupTrackingCommand`다. 관련 내부 클래스도 함께 패치한다.
 
 22번 배포 중 보호 VM PID 변경이 감지돼 자동 롤백했다. 사용자가 별도 작업에서 정지·시작했다고 확인했다. 본 작업은 보호 VM의 전원·디스크 명령을 실행하지 않았으며, 동시 작업의 PID 변화와 배포 자체의 보존 검사는 구분해 기록한다.
+
+
+## 한 번도 부팅하지 않은 정지 RBD 복제본
+
+22번에서 최초 Full(시작 끔)로 만든 전용 VM에 explicit/legacy DATA를 연결한 뒤 다시 Full 복제를 제출하자, VM host/lastHost가 모두 없어 `BACKUP_TRACKING_UNKNOWN: No host available for tracking inspection`으로 거절됐다. `BackupSnapshotGuard`가 정지 VM의 준비된 공유 RBD 디스크에 한해 저장소 endpoint를 선택해 같은 읽기 전용 검사를 수행하도록 보완한다. 실행 중 VM, 준비되지 않은 디스크, RBD가 아닌 저장소 및 사용 가능한 endpoint가 없는 경우는 계속 거절한다. 백업/스케줄/dirty-bitmap 검사도 유지한다.
+
+Agent 명령/처리부 계약 2개 및 기존 guard/Agent 검사 23개를 포함한 검사에, 호스트 이력 없는 RBD 성공·비대상 저장소/Creating 볼륨 거절·endpoint 부재·Running host 부재 거절을 추가했다. 관리 서버의 `BackupSnapshotGuard`와 내부 Lease 클래스를 함께 배포하며 Agent 재기동은 필요하지 않다.

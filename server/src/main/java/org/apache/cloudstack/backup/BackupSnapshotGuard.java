@@ -24,10 +24,15 @@ import javax.inject.Inject;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector;
+import org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.storage.VolumeVO;
+import com.cloud.storage.Volume;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.GlobalLock;
@@ -46,6 +51,7 @@ public class BackupSnapshotGuard extends ManagerBase {
     @Inject private VMInstanceDao vmDao;
     @Inject private VolumeDao volumeDao;
     @Inject private VolumeDataFactory volumeDataFactory;
+    @Inject private EndPointSelector endpointSelector;
 
     public String snapshotReason(long vmId) {
         VMInstanceVO vm = vmDao.findById(vmId);
@@ -78,18 +84,40 @@ public class BackupSnapshotGuard extends ManagerBase {
         VMInstanceVO vm = vmDao.findById(vmId);
         if (vm == null || vm.getHypervisorType() != HypervisorType.KVM) return;
         Long hostId = vm.getHostId() == null ? vm.getLastHostId() : vm.getHostId();
-        if (hostId == null) throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: No host available for tracking inspection.");
         boolean stopped = vm.getState() == VirtualMachine.State.Stopped;
+        List<VolumeObjectTO> offlineVolumes = stopped ? getVolumeTOList(vmId) : null;
+        if (hostId == null && stopped) {
+            hostId = getStoppedRbdInspectionHost(offlineVolumes);
+        }
+        if (hostId == null) throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: No host available for tracking inspection.");
         try {
             com.cloud.agent.api.Answer answer = agentManager.send(hostId,
                     new com.cloud.agent.api.CheckVmBackupTrackingCommand(vm.getInstanceName(), stopped,
-                            stopped ? getVolumeTOList(vmId) : null));
+                            offlineVolumes));
             if (answer == null || !answer.getResult()) {
                 throw new CloudRuntimeException(answer == null ? "BACKUP_TRACKING_UNKNOWN: No agent response." : answer.getDetails());
             }
         } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException e) {
             throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: Unable to verify backup tracking.", e);
         }
+    }
+
+    private Long getStoppedRbdInspectionHost(List<VolumeObjectTO> volumes) {
+        VolumeInfo candidate = null;
+        for (VolumeObjectTO volume : volumes) {
+            VolumeInfo info = volumeDataFactory.getVolume(volume.getId());
+            // A never-started RBD clone has no VM host history. Inspect its
+            // actual ready disks through a storage endpoint; a running VM or
+            // an unqualified/local disk must never use this fallback.
+            if (info == null || info.getState() != Volume.State.Ready
+                    || !(info.getDataStore() instanceof PrimaryDataStore)
+                    || ((PrimaryDataStore) info.getDataStore()).getPoolType() != StoragePoolType.RBD) {
+                throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: A ready shared RBD volume is required for hostless inspection.");
+            }
+            if (candidate == null) { candidate = info; }
+        }
+        EndPoint endpoint = candidate == null ? null : endpointSelector.select(candidate);
+        return endpoint == null || endpoint.getId() <= 0 ? null : endpoint.getId();
     }
 
     private List<VolumeObjectTO> getVolumeTOList(long vmId) {
