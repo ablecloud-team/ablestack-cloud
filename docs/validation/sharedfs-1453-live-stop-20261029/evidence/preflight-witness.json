@@ -1,0 +1,109 @@
+{
+  "smb": {
+    "status": "READY",
+    "revision": 3,
+    "instanceid": "0c0e570b-3793-41de-9d2d-2129276e2f08",
+    "intent": {
+      "api": "createStorageSmbShare",
+      "protocol": "SMB",
+      "recursive": false,
+      "volumeid": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+      "volumemode": "CURRENT",
+      "smbinheritance": {
+        "inheritOwner": false,
+        "directoryPolicyId": "02832155-9814-3232-9136-5068642a78d8"
+      }
+    },
+    "inheritancepreview": {
+      "inheritowner": false,
+      "parent": {
+        "owneruid": 65534,
+        "ownergid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "filesystemuuid": "8892a4d6-2060-4c9a-a2bf-f0a88eceaacc",
+        "volumeuuid": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+        "canonicalpath": "export/common1453",
+        "fingerprint": "e54d3c924333d361aeda4e6b96bd8379dac90ef2aedf930b18cd3676062c1f37"
+      },
+      "futureowner": "CREATOR",
+      "futuregroup": "CREATOR",
+      "setgid": false,
+      "createmask": "0660",
+      "directorymask": "0770",
+      "existingobjectschange": false,
+      "runtime": []
+    }
+  },
+  "adopt": {
+    "status": "READY",
+    "revision": 2,
+    "directorypreview": {
+      "success": true,
+      "entrycount": 1,
+      "snapshotbytes": 600,
+      "units": [
+        {
+          "unit": "ablestack-storage-ganesha@0.0.0.0_2049.service",
+          "config": "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf",
+          "sha256": "2c5e59a73e04b592e5679b4338ee85eb56e90c49830d98860a8437e6af591d60",
+          "paths": [
+            "/srv/ablestack-storage/volumes/da246f5b-90fe-46b6-b9dd-70e4f7ea88bf/export/common1453"
+          ],
+          "aliases": [
+            {
+              "exportpath": "/export/common1453",
+              "physicalpath": "/srv/ablestack-storage/volumes/da246f5b-90fe-46b6-b9dd-70e4f7ea88bf/export/common1453",
+              "volumeuuid": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+              "filesystemuuid": "8892a4d6-2060-4c9a-a2bf-f0a88eceaacc",
+              "mounttarget": "/export/common1453",
+              "fsroot": "/export/common1453",
+              "volumemount": "/srv/ablestack-storage/volumes/da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+              "volumefsroot": "/",
+              "device": 2064,
+              "inode": 8388736
+            }
+          ],
+          "port": "2049"
+        }
+      ],
+      "references": [
+        {
+          "uuid": "9473f007-e71f-4c58-ba72-d2cc5ab9bf8a",
+          "protocol": "NFS",
+          "name": "common1453"
+        }
+      ],
+      "treefingerprint": "640c6043cf5a3b805165c4dfd88ada8b624aa116003b38ed79321a4355d4834a",
+      "aclimpact": {
+        "changes": [],
+        "count": 0,
+        "truncated": false
+      },
+      "before": {
+        "owneruid": 65534,
+        "ownergid": 65534,
+        "mode": "0775"
+      },
+      "after": {
+        "uuid": "02832155-9814-3232-9136-5068642a78d8",
+        "volumeuuid": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+        "canonicalpath": "export/common1453",
+        "owneruid": 65534,
+        "ownergid": 65534,
+        "mode": "0775",
+        "filesystemuuid": "8892a4d6-2060-4c9a-a2bf-f0a88eceaacc",
+        "inode": 8388736,
+        "revision": 1
+      },
+      "unitreferences": [
+        {
+          "uuid": "9473f007-e71f-4c58-ba72-d2cc5ab9bf8a",
+          "protocol": "NFS",
+          "name": "common1453"
+        }
+      ]
+    }
+  },
+  "finalHttpPostCapture": "not retained; CDP event buffer truncated; guest operation candidate was inspected read-only"
+}

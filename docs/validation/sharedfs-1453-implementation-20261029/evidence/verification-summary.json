@@ -32,5 +32,8 @@
   },
   "liveAcceptance": "NOT_STARTED",
   "issueState": "OPEN",
-  "deployment": "NOT_APPLIED"
+  "deployment": "NOT_APPLIED",
+  "asOf": "2026-10-29T14:13:00+09:00",
+  "supersededBy": "docs/validation/sharedfs-1453-live-stop-20261029/README.md",
+  "coverageLimitation": "Partial renderer fixture substituted module for actual instance; direct CLI ordering not covered; live SMB acceptance failed"
 }
