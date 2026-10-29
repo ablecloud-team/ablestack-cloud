@@ -282,16 +282,13 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
             publishUsageEvent(EventTypes.EVENT_VM_SNAPSHOT_OFF_PRIMARY, vmSnapshot, userVm, full_chain_size, 0L);
             return true;
         } catch (CloudRuntimeException err) {
-            //In case of failure all volume's snapshots will be visible for delete/revert separately, because they won't be consistent
-            List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), STORAGE_SNAPSHOT);
-            for (VMSnapshotDetailsVO vmSnapshotDetailsVO : listSnapshots) {
-                SnapshotVO snapshot = snapshotDao.findById(Long.parseLong(vmSnapshotDetailsVO.getValue()));
-                if (snapshot != null) {
-                    snapshot.setSnapshotType((short) Snapshot.Type.MANUAL.ordinal());
-                    snapshot.setTypeDescription("MANUAL");
-                    snapshotDao.update(snapshot.getId(), snapshot);
-                    vmSnapshotDetailsDao.remove(vmSnapshotDetailsVO.getId());
-                }
+            // A failed delete is recoverable. Keep every disk mapping (including
+            // already deleted disks) so a retry uses the storage strategy on stopped
+            // VMs too, and resumes after a partial delete or a lost Agent answer.
+            try {
+                vmSnapshotHelper.vmSnapshotStateTransitTo(vmSnapshot, VMSnapshot.Event.OperationFailed);
+            } catch (NoTransitionException transition) {
+                logger.warn("Could not publish failed VM snapshot cleanup", transition);
             }
             String errMsg = String.format("Delete of Instance Snapshot [%s] of Instance [%s] failed due to [%s]", vmSnapshot.getName(), userVm.getUserId(), err);
             logger.error(errMsg, err);
@@ -456,12 +453,19 @@ public class StorageVMSnapshotStrategy extends DefaultVMSnapshotStrategy {
         //we can find disks snapshots related to vmSnapshot in vm_snapshot_details table
         List<VMSnapshotDetailsVO> listSnapshots = vmSnapshotDetailsDao.findDetails(vmSnapshot.getId(), STORAGE_SNAPSHOT);
         for (VMSnapshotDetailsVO vmSnapshotDetailsVO : listSnapshots) {
-                SnapshotVO snapshot = snapshotDao.findById(Long.parseLong(vmSnapshotDetailsVO.getValue()));
+                SnapshotVO snapshot = snapshotDao.findByIdIncludingRemoved(Long.parseLong(vmSnapshotDetailsVO.getValue()));
                 if (snapshot == null) {
                     throw new CloudRuntimeException("Could not find Snapshot for Instance Snapshot");
                 }
+                // The storage strategy reconciles Destroyed records and residual
+                // store refs; logical deletion alone is not proof of physical cleanup.
                 deleteSnapshotByStrategy(snapshot);
-                vmSnapshotDetailsDao.remove(vmSnapshotDetailsVO.getId());
+                if ("full".equals(snapshot.getCloneType())) {
+                    // A successful physical deletion also proves the Full parent
+                    // has no remaining child. Retire the old flatten queue entry.
+                    snapshot.setCloneType("full-flattened");
+                    snapshotDao.update(snapshot.getId(), snapshot);
+                }
         }
     }
 

@@ -2999,6 +2999,14 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     @Override
     public boolean start() {
+        _executor.scheduleWithFixedDelay(new ManagedContextRunnable() {
+            @Override protected void runInContext() {
+                CallContext.register(User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
+                try { reconcileCloneVMSnapshots(); }
+                catch (Exception e) { logger.warn("Clone snapshot cleanup scan failed", e); }
+                finally { CallContext.unregister(); }
+            }
+        }, 30, 30, TimeUnit.SECONDS);
         _executor.scheduleWithFixedDelay(new ExpungeTask(), _expungeInterval, _expungeInterval, TimeUnit.SECONDS);
         _vmIpFetchExecutor.scheduleWithFixedDelay(new VmIpFetchTask(), VmIpFetchWaitInterval.value(), VmIpFetchWaitInterval.value(), TimeUnit.SECONDS);
         loadVmDetailsInMapForExternalDhcpIp();
@@ -3322,7 +3330,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         if (flattenOneSharedMountPointFastCloneVolume()) {
                             return;
                         }
-                        List<SnapshotVO> snapshot = _snapshotDao.listFullCloneVolumesToFlatten();
+                        List<SnapshotVO> snapshot = _snapshotDao.listFullCloneVolumesToFlatten().stream()
+                                .filter(thisSnapshot -> !isCloneSnapshotCopyActive(thisSnapshot.getId())).collect(Collectors.toList());
                         if (logger.isInfoEnabled()) {
                             if (snapshot.size() == 0) {
                                 logger.trace("Not Found volumes to flatten.");
@@ -11599,6 +11608,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if (vmSnapshot == null) {
                 throw new CloudRuntimeException("Failed to allocate VM snapshot for cloning VM " + curVm.getId());
             }
+            vmSnapshotDetailsDao.addDetail(vmSnapshot.getId(), CLONE_SNAPSHOT_CLEANUP, "active", false);
+            vmSnapshotDetailsDao.addDetail(vmSnapshot.getId(), CLONE_SNAPSHOT_JOB, AsyncJobExecutionContext.getOriginJobId(), false);
             VMSnapshot createdSnapshot = _vmSnapshotMgr.createVMSnapshot(curVm.getId(), vmSnapshot.getId(), false);
             if (createdSnapshot == null) {
                 throw new CloudRuntimeException("Failed to create VM snapshot for cloning VM " + curVm.getId());
@@ -11615,7 +11626,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 lastCloneVm = cloneVmFromVolumeSnapshots(cmd, curVm, curVmAccount, zoneId, volumeSnapshots);
 
                 if (index == count) {
-                    // Preserve the existing RBD snapshot/flatten lifecycle after all copies.
+                    // Copies are complete; cleanup may fail without destroying a valid clone.
                     if (!"linked".equals(cmd.getType())) {
                         cleanupCloneVMSnapshot(vmSnapshot.getId());
                     }
@@ -11638,6 +11649,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 }
             }
             throw e;
+        } finally {
+            // This durable marker survives a lost response or management restart.
+            // A worker also waits for the recorded origin Job to settle.
+            if (vmSnapshot != null && _vmSnapshotDao.findById(vmSnapshot.getId()) != null
+                    && vmSnapshotDetailsDao.findDetail(vmSnapshot.getId(), CLONE_SNAPSHOT_ATTEMPTS) == null) {
+                vmSnapshotDetailsDao.addDetail(vmSnapshot.getId(), CLONE_SNAPSHOT_CLEANUP, "pending", false);
+            }
         }
     }
 
@@ -11833,13 +11851,139 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    static final String CLONE_SNAPSHOT_CLEANUP = "clone.vm.snapshot.cleanup";
+    static final String CLONE_SNAPSHOT_JOB = "clone.vm.snapshot.job";
+    static final String CLONE_SNAPSHOT_ATTEMPTS = "clone.vm.snapshot.cleanup.attempts";
+    static final String CLONE_SNAPSHOT_NEXT = "clone.vm.snapshot.cleanup.next";
+    static final int CLONE_SNAPSHOT_MAX_ATTEMPTS = 5;
+
     protected void cleanupCloneVMSnapshot(long vmSnapshotId) {
-        try {
-            if (!_vmSnapshotMgr.deleteVMSnapshot(vmSnapshotId)) {
-                logger.warn("Could not remove temporary clone VM snapshot [{}]; dependent clones may still require it.", vmSnapshotId);
+        vmSnapshotDetailsDao.addDetail(vmSnapshotId, CLONE_SNAPSHOT_CLEANUP, "pending", false);
+        reconcileCloneVMSnapshot(vmSnapshotId, true);
+    }
+
+    protected boolean isCloneSnapshotJobActive(long id) {
+        VMSnapshotDetailsVO job = vmSnapshotDetailsDao.findDetail(id, CLONE_SNAPSHOT_JOB);
+        if (job == null || StringUtils.isBlank(job.getValue())) { return false; }
+        AsyncJob origin = fastCloneJobManager.getAsyncJob(Long.parseLong(job.getValue()));
+        // Missing job evidence is not permission to delete a possibly active parent.
+        return origin == null || origin.getStatus() == JobInfo.Status.IN_PROGRESS;
+    }
+
+    protected boolean isCloneSnapshotCopyActive(long snapshotId) {
+        for (VMSnapshotDetailsVO mapping : vmSnapshotDetailsDao.findDetails("kvmStorageSnapshot", String.valueOf(snapshotId), null)) {
+            if (vmSnapshotDetailsDao.findDetail(mapping.getResourceId(), CLONE_SNAPSHOT_CLEANUP) != null
+                    && isCloneSnapshotJobActive(mapping.getResourceId())) { return true; }
+        }
+        return false;
+    }
+
+    protected boolean hasLinkedCloneSnapshotReferences(long id) {
+        for (VMSnapshotDetailsVO mapping : vmSnapshotDetailsDao.findDetails(id, "kvmStorageSnapshot")) {
+            for (VolumeDetailVO ref : volumeDetailsDao.findDetails("linked.clone.backing.snapshot.id", mapping.getValue(), null)) {
+                VolumeVO volume = _volsDao.findByIdIncludingRemoved(ref.getResourceId());
+                if (volume == null || (volume.getRemoved() == null && volume.getState() != Volume.State.Expunged)) { return true; }
             }
+        }
+        return false;
+    }
+
+    protected void adoptLegacyCloneSnapshotCleanup() {
+        // Older deletion failures converted GROUP disks to MANUAL and lost every
+        // mapping. Adopt only a complete, uniquely identified legacy Full set
+        // after the existing physical flatten worker has finished every disk.
+        for (VMSnapshotVO snapshot : _vmSnapshotDao.listExpungingSnapshot()) {
+            if (vmSnapshotDetailsDao.findDetail(snapshot.getId(), CLONE_SNAPSHOT_CLEANUP) != null
+                    || !vmSnapshotDetailsDao.findDetails(snapshot.getId(), "kvmStorageSnapshot").isEmpty()
+                    || !fastCloneJobManager.findInstancePendingAsyncJobs("VirtualMachine", snapshot.getAccountId()).isEmpty()) { continue; }
+            List<SnapshotVO> disks = recoverableLegacyCloneDisks(snapshot);
+            if (disks.isEmpty()) { continue; }
+            Transaction.execute((TransactionCallback<Void>) status -> {
+                for (SnapshotVO disk : disks) {
+                    vmSnapshotDetailsDao.persist(new VMSnapshotDetailsVO(snapshot.getId(), "kvmStorageSnapshot", String.valueOf(disk.getId()), false));
+                }
+                vmSnapshotDetailsDao.addDetail(snapshot.getId(), CLONE_SNAPSHOT_CLEANUP, "pending", false);
+                return null;
+            });
+            logger.info("Recovered storage mappings for legacy Full clone VM snapshot {}", snapshot.getId());
+        }
+    }
+
+    protected List<SnapshotVO> recoverableLegacyCloneDisks(VMSnapshotVO snapshot) {
+        List<SnapshotVO> result = new ArrayList<>();
+        List<VolumeVO> volumes = _volsDao.findByInstance(snapshot.getVmId());
+        if (volumes.isEmpty() || volumes.stream().filter(v -> v.getVolumeType() == Volume.Type.ROOT).count() != 1) { return List.of(); }
+        for (VolumeVO volume : volumes) {
+            StoragePoolVO pool = volume.getPoolId() == null ? null : _storagePoolDao.findById(volume.getPoolId());
+            if (pool == null || pool.getPoolType() != StoragePoolType.RBD) { return List.of(); }
+            List<SnapshotVO> matches = _snapshotDao.listByVolumeIdIncludingRemoved(volume.getId()).stream()
+                    .filter(disk -> (snapshot.getId() + "_" + volume.getUuid()).equals(disk.getName())
+                            && "full-flattened".equals(disk.getCloneType()) && disk.getHypervisorType() == HypervisorType.KVM)
+                    .collect(Collectors.toList());
+            if (matches.size() != 1) { return List.of(); }
+            SnapshotVO disk = matches.get(0);
+            SnapshotInfo info = snapshotFactory.getSnapshotOnPrimaryStore(disk.getId());
+            if (info == null || !("rbd/" + volume.getPath() + "/" + snapshot.getName()).equals(info.getPath())) { return List.of(); }
+            result.add(disk);
+        }
+        return result;
+    }
+
+    protected void reconcileCloneVMSnapshots() {
+        GlobalLock scan = GlobalLock.getInternLock("vm-clone-snapshot-cleanup-scan");
+        try {
+            if (!scan.lock(1)) { return; }
+            try {
+                adoptLegacyCloneSnapshotCleanup();
+                for (VMSnapshotDetailsVO detail : vmSnapshotDetailsDao.findDetails(CLONE_SNAPSHOT_CLEANUP)) {
+                    try { reconcileCloneVMSnapshot(detail.getResourceId(), false); }
+                    catch (Exception e) { logger.warn("Unable to reconcile clone snapshot {}", detail.getResourceId(), e); }
+                }
+            } finally { scan.unlock(); }
+        } finally { scan.releaseRef(); }
+    }
+
+    protected void reconcileCloneVMSnapshot(long id, boolean ownerJob) {
+        if (vmSnapshotDetailsDao.findDetail(id, CLONE_SNAPSHOT_CLEANUP) == null) { return; }
+        VMSnapshotVO snapshot = _vmSnapshotDao.findById(id);
+        if (snapshot == null) {
+            for (String key : List.of(CLONE_SNAPSHOT_CLEANUP, CLONE_SNAPSHOT_JOB, CLONE_SNAPSHOT_ATTEMPTS, CLONE_SNAPSHOT_NEXT)) {
+                vmSnapshotDetailsDao.removeDetail(id, key);
+            }
+            return;
+        }
+        if (!List.of(VMSnapshot.State.Ready, VMSnapshot.State.Error, VMSnapshot.State.Expunging).contains(snapshot.getState())
+                || (!ownerJob && isCloneSnapshotJobActive(id)) || hasLinkedCloneSnapshotReferences(id)) { return; }
+        GlobalLock lock = GlobalLock.getInternLock("vm-clone-snapshot-cleanup-" + snapshot.getVmId());
+        try {
+            if (!lock.lock(1)) { return; }
+            try {
+                runCloneSnapshotCleanup(id);
+            } finally { lock.unlock(); }
+        } finally { lock.releaseRef(); }
+    }
+
+    protected void runCloneSnapshotCleanup(long id) {
+        VMSnapshotDetailsVO attempt = vmSnapshotDetailsDao.findDetail(id, CLONE_SNAPSHOT_ATTEMPTS);
+        int attempts = attempt == null ? 0 : Integer.parseInt(attempt.getValue());
+        VMSnapshotDetailsVO next = vmSnapshotDetailsDao.findDetail(id, CLONE_SNAPSHOT_NEXT);
+        if (attempts >= CLONE_SNAPSHOT_MAX_ATTEMPTS || (next != null && Long.parseLong(next.getValue()) > System.currentTimeMillis())) { return; }
+        // Charge before dispatch so a restart cannot retry forever. The
+        // normal VM work queue serializes the actual delete with VM work.
+        vmSnapshotDetailsDao.addDetail(id, CLONE_SNAPSHOT_ATTEMPTS, String.valueOf(attempts + 1), false);
+        vmSnapshotDetailsDao.addDetail(id, CLONE_SNAPSHOT_NEXT, String.valueOf(System.currentTimeMillis() + 60000), false);
+        try {
+            if (!_vmSnapshotMgr.deleteVMSnapshot(id)) { throw new CloudRuntimeException("Storage deletion remains unsettled"); }
+            vmSnapshotDetailsDao.removeDetail(id, CLONE_SNAPSHOT_CLEANUP);
+            vmSnapshotDetailsDao.removeDetail(id, CLONE_SNAPSHOT_JOB);
+            vmSnapshotDetailsDao.removeDetail(id, CLONE_SNAPSHOT_ATTEMPTS);
+            vmSnapshotDetailsDao.removeDetail(id, CLONE_SNAPSHOT_NEXT);
+            logger.info("Cleaned up temporary clone VM snapshot {}", id);
         } catch (Exception e) {
-            logger.warn("Could not remove temporary clone VM snapshot [{}]. Preserve it for recovery.", vmSnapshotId, e);
+            String state = attempts + 1 >= CLONE_SNAPSHOT_MAX_ATTEMPTS ? "retry-exhausted" : "retry";
+            vmSnapshotDetailsDao.addDetail(id, CLONE_SNAPSHOT_CLEANUP, state, false);
+            logger.warn("Temporary clone snapshot {} cleanup {} (attempt {}/{}); preserve clones and retry through VM snapshot deletion",
+                    id, state, attempts + 1, CLONE_SNAPSHOT_MAX_ATTEMPTS, e);
         }
     }
 
