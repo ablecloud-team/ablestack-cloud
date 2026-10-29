@@ -5209,6 +5209,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         try {
                             reconcileInterruptedRestoreJobs(backupProvider, dataCenter);
                             reconcileBackingUpBackups(backupProvider, dataCenter);
+                            reconcileBackupScheduleRetention(backupProvider, dataCenter);
                             reconcileAblestackOfflineRetention(backupProvider, dataCenter);
                         } catch (Exception e) {
                             logger.error("Failed to reconcile active backup/restore jobs for provider {} in zone {} from [{}]: {}",
@@ -5630,6 +5631,31 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         logger.warn("Post-restore maintenance retry {} scheduled for provider {}, VM {}, backup {} due to: {}",
                                 task.retryCount, task.providerName, task.vmId, task.backupId, e.getMessage());
                     }
+                }
+            }
+        }
+
+        protected void reconcileBackupScheduleRetention(final BackupProvider provider, final DataCenter zone) {
+            // Backup requests return before completion, when deletion is blocked by
+            // the active backup. Recheck persisted schedules for every provider so completion,
+            // management restarts and temporarily blocked deletions all get another attempt.
+            for (final BackupScheduleVO schedule : backupScheduleDao.listAll()) {
+                if (schedule.getMaxBackups() <= 0) {
+                    continue;
+                }
+                try {
+                    final VMInstanceVO vm = vmInstanceDao.findById(schedule.getVmId());
+                    if (vm == null || vm.getDataCenterId() != zone.getId() || vm.getBackupOfferingId() == null) {
+                        continue;
+                    }
+                    final BackupOffering offering = backupOfferingDao.findById(vm.getBackupOfferingId());
+                    if (offering == null || !isMatchingBackupProvider(provider.getName(), offering.getProvider())) {
+                        continue;
+                    }
+                    deleteOldestBackupFromScheduleIfRequired(vm.getId(), schedule.getId());
+                } catch (Exception e) {
+                    logger.warn("Backup schedule retention remains pending for VM [{}], schedule [{}]: {}",
+                            schedule.getVmId(), schedule.getId(), e.getMessage(), e);
                 }
             }
         }
