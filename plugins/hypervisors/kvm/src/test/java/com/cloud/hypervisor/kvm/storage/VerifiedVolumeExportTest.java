@@ -89,7 +89,7 @@ public class VerifiedVolumeExportTest {
     @Test public void encryptedInputNeverStartsCommands() throws Exception { source.setEncryptFormat("luks"); reject("UNSUPPORTED"); assertTrue(calls.isEmpty()); }
     @Test public void interruptedThreadNeverStartsCommands() throws Exception { Thread.currentThread().interrupt(); try { reject("INTERRUPTED"); } finally { Thread.interrupted(); } assertTrue(calls.isEmpty()); }
     @Test public void capacityFailureCreatesNoStage() throws Exception {
-        VerifiedVolumeExport adapter = new VerifiedVolumeExport((c,t) -> c.get(1).equals("measure") ? "{\"required\":9223372036787666943}" : run(c,t));
+        VerifiedVolumeExport adapter = new VerifiedVolumeExport(this::run) { @Override protected long available(Path ignored) { return 0; } };
         try { adapter.export(source,"pool","source",directory,60000); fail("capacity"); } catch (CloudRuntimeException e) { assertTrue(e.toString().contains("CAPACITY")); }
         empty();
     }

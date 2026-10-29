@@ -38,6 +38,20 @@ final class Gfs2AllocationCommandRunner {
     }
 
     static String run(List<String> arguments, long timeout) {
+        java.util.function.BooleanSupplier capacity = () -> true;
+        if (arguments.size() > 2 && "qemu-img".equals(arguments.get(0)) && "convert".equals(arguments.get(1))) {
+            Path parent = Path.of(arguments.get(arguments.size() - 1)).toAbsolutePath().getParent();
+            if (parent != null && parent.getFileName().toString().startsWith(".volume-export-")) {
+                capacity = () -> {
+                    try { return Files.getFileStore(parent).getUsableSpace() >= 64L * 1024 * 1024; }
+                    catch (IOException e) { throw new CloudRuntimeException("VOLUME_EXPORT_CAPACITY_UNVERIFIED", e); }
+                };
+            }
+        }
+        return run(arguments, timeout, capacity);
+    }
+
+    static String run(List<String> arguments, long timeout, java.util.function.BooleanSupplier capacity) {
         Path output = null;
         Process process = null;
         try {
@@ -45,10 +59,16 @@ final class Gfs2AllocationCommandRunner {
             process = new ProcessBuilder(List.copyOf(arguments)).redirectErrorStream(true)
                     .redirectInput(ProcessBuilder.Redirect.from(Path.of("/dev/null").toFile()))
                     .redirectOutput(output.toFile()).start();
-            if (!process.waitFor(Math.max(1, timeout), TimeUnit.MILLISECONDS)) {
-                process.destroyForcibly();
-                process.waitFor(5, TimeUnit.SECONDS);
-                throw new CloudRuntimeException("GFS2_ALLOCATION_TIMEOUT: " + arguments.get(0));
+            long deadline = System.nanoTime() + Math.max(1, timeout) * 1_000_000L;
+            while (!process.waitFor(Math.min(100, Math.max(1, (deadline - System.nanoTime()) / 1_000_000L)), TimeUnit.MILLISECONDS)) {
+                if (!capacity.getAsBoolean()) {
+                    process.destroyForcibly(); process.waitFor(5, TimeUnit.SECONDS);
+                    throw new CloudRuntimeException("VOLUME_EXPORT_CAPACITY_INSUFFICIENT");
+                }
+                if (System.nanoTime() >= deadline) {
+                    process.destroyForcibly(); process.waitFor(5, TimeUnit.SECONDS);
+                    throw new CloudRuntimeException("GFS2_ALLOCATION_TIMEOUT: " + arguments.get(0));
+                }
             }
             if (Files.size(output) > 1_048_576) {
                 throw new CloudRuntimeException("GFS2_ALLOCATION_COMMAND_FAILED: command output exceeds 1 MiB");

@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /** Bounded read-only materialization, independently compared before atomic publication. */
-final class VerifiedVolumeExport {
+class VerifiedVolumeExport {
     interface Runner { String run(List<String> command, long timeout); }
     private final Runner runner;
     VerifiedVolumeExport(Runner runner) { this.runner = runner; }
@@ -50,9 +50,9 @@ final class VerifiedVolumeExport {
         if (before.get("virtual-size").getAsLong() != source.getSize()) {
             throw new CloudRuntimeException("VOLUME_EXPORT_SOURCE_SIZE_CHANGED");
         }
-        JsonObject measure = json(run(deadline, "qemu-img", "measure", "--output=json", "-f", format, "-O", "qcow2", input));
-        long required = Math.addExact(measure.get("required").getAsLong(), 64L * 1024 * 1024);
-        if (Files.getFileStore(directory).getUsableSpace() < required) {
+        // measure(required) counts allocated zero clusters of a Full/falloc source. It is not the sparse export size.
+        // Check actual free space before starting and during conversion, with ENOSPC/timeout cleanup as a final guard.
+        if (available(directory) < 64L * 1024 * 1024) {
             throw new CloudRuntimeException("VOLUME_EXPORT_CAPACITY_INSUFFICIENT");
         }
         Path stage = Files.createTempDirectory(directory, ".volume-export-", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
@@ -85,6 +85,8 @@ final class VerifiedVolumeExport {
             if (!success) { Files.deleteIfExists(published); }
         }
     }
+    protected long available(Path directory) throws IOException { return Files.getFileStore(directory).getUsableSpace(); }
+
     private String run(long deadline, String... command) {
         long remaining = (deadline - System.nanoTime()) / 1000000L;
         if (remaining <= 0 || Thread.currentThread().isInterrupted()) { throw new CloudRuntimeException("VOLUME_EXPORT_INTERRUPTED_OR_TIMEOUT"); }
