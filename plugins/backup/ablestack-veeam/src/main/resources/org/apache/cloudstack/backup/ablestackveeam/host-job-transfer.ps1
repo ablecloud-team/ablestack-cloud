@@ -175,7 +175,8 @@ try {
             $attached = @(Read-Attached $job)
             if ($attached.Count -gt 1 -or ($attached.Count -eq 1 -and [string]$attached[0].Id -ne $receipt.backupId)) { throw 'Host Job contains another artifact backup' }
             $receipt.phase = 'DETACHING'; Save-Json $receiptPath $receipt
-            if ($attached.Count -eq 1) { Detach-VBRBackup -Backup $backup -Confirm:$false | Out-Null }
+            # Veeam's warning prompt needs Force in addition to the common Confirm switch.
+            if ($attached.Count -eq 1) { Detach-VBRBackup -Backup $backup -Force -Confirm:$false | Out-Null }
             $backup = Read-ExactBackup $receipt.backupId
             if (-not $backup) { throw 'Detach lost the committed backup container' }
             $null = Assert-Point $backup $receipt.externalId
@@ -200,7 +201,7 @@ try {
         if ($attached.Count -gt 1) { throw 'Failed artifact backup is ambiguous' }
         if ($attached.Count -eq 1) {
             if (-not $receipt.backupId -or [string]$attached[0].Id -ne $receipt.backupId) { throw 'Failed artifact backup identity is unconfirmed' }
-            Detach-VBRBackup -Backup $attached[0] -Confirm:$false | Out-Null
+            Detach-VBRBackup -Backup $attached[0] -Force -Confirm:$false | Out-Null
             $backup = Read-ExactBackup $receipt.backupId
             if (-not $backup) { throw 'Failed backup was lost during Detach' }
             Assert-Detached $backup

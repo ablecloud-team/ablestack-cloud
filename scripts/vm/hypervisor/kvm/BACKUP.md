@@ -1420,6 +1420,18 @@ Start 응답이 유실되면 같은 Job·요청 시각·기존 세션 경계로 
 Detach 응답 유실은 같은 Backup ID의 분리 상태를 재확인하고, 확정된 보관본이 사라지거나 Job 연결이 남으면 대기한다.
 receipt나 owner 파일을 지워 대기를 해제하지 않는다. 실패한 전송도 세션 종료와 해당 보관본의 분리를 확인한 뒤 소유권을 해제한다.
 
+`Artifact is saved; external transfer finalization is pending`에
+`PowerShell is in NonInteractive mode. Read and Prompt functionality is not available.`가 함께 표시되면,
+저장된 보관본의 Detach에서 확인 입력을 요구한 경우를 확인한다. `Detach-VBRBackup`은 공통 확인뿐 아니라
+Veeam 경고 질문도 억제하도록 성공·실패 후처리 모두 `-Force -Confirm:$false`로 호출한다.
+소유권·세션 종료·단일 보관본과 복원 지점 검증을 통과한 대상에만 적용하며, 분리 결과는 다시 조회한다.
+기존 호출의 옵션 누락으로 대기 중이면 수정된 스크립트가 포함된 Veeam 플러그인을 모든 관리 서버에 반영하고
+관리 서비스를 재시작한다. 저장된 전송 완료 참조와 receipt를 유지하면 다음 조회에서 Detach 후처리를 재시도한다.
+작업 상태 다시 확인으로 후처리 재시도 경과를 확인한다. 이 경우 새 백업을 요청하거나 Job·보관본·영수증을 초기화하지 않는다.
+2026-10-29 추가 로컬 검증에서는 경고 질문과 공통 확인 질문을 모의 cmdlet에서 실제로 발생시켜 옵션 누락 오류를 재현했다.
+수정 후 PowerShell 7 비대화형 실행 테스트 11개가 통과했으며, 저장된 `DETACHING` 상태에서 추가 백업 실행 없이
+분리 재시도·보관본 보존·고정 Job ID 유지도 확인했다. 실제 VBR에서의 분리 및 이후 볼륨 진행은 별도로 확인한다.
+
 **동시 실행과 대기 조건**
 
 | 제한 | 의미 |

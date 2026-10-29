@@ -18,6 +18,7 @@ package org.apache.cloudstack.backup.ablestackveeam;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -100,7 +101,9 @@ public class VeeamHostJobTransferTest {
                         + "  $state.sessions+=@($s);$state.starts++\n"
                         + "  $state.backups+=@(@{Id=[guid]::NewGuid().ToString();Name=$Job.Name;JobId=$Job.Id;pointId=[guid]::NewGuid().ToString();time=[DateTime]::UtcNow.ToString('o')})\n"
                         + "  Save-State;if($state.loseStartReply){throw 'lost Start reply'};$s }\n"
-                        + "function Detach-VBRBackup { [CmdletBinding(SupportsShouldProcess=$true)] param($Backup)\n"
+                        + "function Detach-VBRBackup { [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='High')] param($Backup,[switch]$Force)\n"
+                        + "  if(!$Force -and !$PSCmdlet.ShouldContinue('Detach warning','Detach backup')){return}\n"
+                        + "  if(!$PSCmdlet.ShouldProcess([string]$Backup.Id,'Detach backup')){return}\n"
                         + "  if($state.failDetach){throw 'Detach rejected'};if(!$state.noopDetach){$Backup.JobId=[guid]::Empty.ToString()}\n"
                         + "  $state.detaches++;Save-State;if($state.loseDetachReply){throw 'lost Detach reply'} }\n"
                         + "function Remove-VBRBackup { [CmdletBinding(SupportsShouldProcess=$true)] param($Backup,[switch]$FromDisk)\n"
@@ -158,6 +161,37 @@ public class VeeamHostJobTransferTest {
         assertTrue(schedule.getBoolean("EnableSchedule"));
         assertEquals("original-hooks", schedule.getString("ScriptOptions"));
         assertEquals("bootstrap", schedule.getString("SelectedFiles"));
+    }
+
+    @Test public void savedArtifactDetachSuppressesBothWarningAndConfirmationPrompts() throws Exception {
+        Client client = new Client();
+        ThirdPartyBackupManifest.Artifact a = submit(client, artifact(client, "a.raw"), false);
+        // Confirm only governs ShouldProcess. A separate warning still needs Force.
+        List<String> legacyCommit = new ArrayList<>(VeeamHostJobTransfer.commands("COMMIT", null, null, a, false, false));
+        legacyCommit.replaceAll(command -> command.replace(" -Force -Confirm:$false", " -Confirm:$false"));
+        Pair<Boolean, String> warning = client.executePowerShellCommands(legacyCommit);
+        assertFalse(warning.second(), warning.first());
+        assertTrue(warning.second(), warning.second().contains("NonInteractive"));
+        try (var files = Files.list(client.root.resolve("ABLESTACK/Mold/host-job-transfer"))) {
+            Path receipt = files.filter(path -> path.toString().endsWith(".json") && !path.toString().endsWith(".owner.json"))
+                    .findFirst().orElseThrow();
+            JSONObject saved = new JSONObject(Files.readString(receipt));
+            assertEquals("DETACHING", saved.getString("phase"));
+            assertEquals(a.jobId, saved.getString("jobId"));
+            assertEquals(a.externalBackupId, saved.getString("backupId"));
+        }
+        Pair<Boolean, String> confirmation = client.executePowerShellCommands(List.of(
+                "Detach-VBRBackup -Backup $state.backups[0] -Force"));
+        assertFalse(confirmation.second(), confirmation.first());
+        assertTrue(confirmation.second(), confirmation.second().contains("NonInteractive"));
+        assertEquals(0, client.state().getInt("detaches"));
+
+        client.retireVolumeArtifactJob(a, false);
+        client.retireVolumeArtifactJob(a, false);
+        assertEquals(1, client.state().getInt("starts"));
+        assertEquals(1, client.state().getInt("detaches"));
+        assertEquals(HOST_JOB_ID, client.state().getJSONArray("jobs").getJSONObject(1).getString("Id"));
+        assertTrue(client.volumeArtifactExists(a));
     }
 
     @Test public void sharedJobRemainsOwnedUntilDetachIsConfirmed() throws Exception {
