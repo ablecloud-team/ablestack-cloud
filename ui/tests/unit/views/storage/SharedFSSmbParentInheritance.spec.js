@@ -9,6 +9,7 @@ import { postAPI } from '@/api'
 import { inheritOwnerParameters, inheritanceIntent, setgidParameters, setgidIntent } from '@/utils/smbParentInheritance'
 import { configurationModalIntent } from '@/utils/storageConfigPreflight'
 import wire from '../../../fixtures/storage-1453-inheritance-wire.json'
+import protectionWire from '../../../fixtures/storage-1453-protection-wire.json'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const clone = x => JSON.parse(JSON.stringify(x))
 const row = () => clone(wire.list.liststoragedirectorypoliciesresponse.directorypolicy[0])
@@ -20,7 +21,7 @@ describe('SMB inheritance actual API wire and component request contracts', () =
     report.preflightstorageserviceconfigurationresponse.configurationpreflight.expiresat = new Date(Date.now() + 30000).toISOString()
     postAPI.mockResolvedValue(report)
   })
-  afterEach(() => { if (wrapper) wrapper.unmount(); wrapper = null })
+  afterEach(() => { if (wrapper) wrapper.unmount(); wrapper = null; jest.useRealTimers() })
   test('unchanged legacy boolean is omitted, explicit disable remains false', () => {
     expect(inheritOwnerParameters({ inheritowner: false, inheritownerbaseline: false })).toEqual({})
     expect(inheritanceIntent({ inheritowner: false, inheritownerbaseline: false })).toBe(null)
@@ -51,6 +52,20 @@ describe('SMB inheritance actual API wire and component request contracts', () =
     wrapper.vm.ack = true; await flushPromises(); await wrapper.vm.apply()
     expect(execute).toHaveBeenCalledWith('updateStorageDirectoryPolicy', { instanceid: 'instance', id: 'policy', expectedpolicyrevision: 4, mode: '3770' }, expect.anything())
     expect(wrapper.emitted('done')).toHaveLength(1)
+  })
+  test('setgid retains an expired rejection report while preserving apply protection', async () => {
+    const execute = jest.fn()
+    wrapper = shallowMount(Setgid, { props: { row: row(), instance: { id: 'instance' }, execute }, global: { mocks: { $t: x => x } } })
+    wrapper.vm.enabled = true; await flushPromises()
+    postAPI.mockResolvedValueOnce(clone(protectionWire))
+    jest.useFakeTimers()
+    await wrapper.vm.check()
+    jest.advanceTimersByTime(60000)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.report.checks[0].code).toBe('SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED')
+    expect(wrapper.vm.applicable).toBe(false)
+    await wrapper.vm.apply()
+    expect(execute).not.toHaveBeenCalled()
   })
   test('late read after close/unmount cannot update the component', async () => {
     let finish

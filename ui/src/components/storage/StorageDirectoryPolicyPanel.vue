@@ -167,7 +167,9 @@ export default {
         if (this.disposed || generation !== this.generation || id !== this.instance.id || !this.selected) return
         this.report = decodeConfigurationPreflight(wire)
         if (!this.report) throw new Error('Invalid directory preflight response')
-        this.expiry = setTimeout(() => this.invalidate(), Math.max(0, Date.parse(this.report.expiresat) - Date.now()))
+        if (this.report.status === 'READY') {
+          this.expiry = setTimeout(() => this.invalidate(), Math.max(0, Date.parse(this.report.expiresat) - Date.now()))
+        }
       } catch (error) {
         if (!this.disposed && generation === this.generation) { this.modalError = this.errorText(error); this.report = configurationPreflightFailure(error, this.instance.configurationrevision) }
       } finally { if (generation === this.generation) this.checking = false }
