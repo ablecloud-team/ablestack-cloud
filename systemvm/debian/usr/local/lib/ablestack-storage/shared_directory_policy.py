@@ -658,7 +658,8 @@ def inheritance_conflict(config, mode):
 def inheritance_protection_version(updater=None):
     """Inspect the trusted baseline, not executable candidate code."""
     import ast
-    path = Path(updater) if updater else Path(__file__).with_name("runtime_updater.py")
+    # The updater belongs to the protected SystemVM baseline, outside signed releases.
+    path = Path(updater) if updater else Path("/usr/local/lib/ablestack-storage/runtime_updater.py")
     try:
         info = path.lstat()
         if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022 or info.st_size > LIMIT:

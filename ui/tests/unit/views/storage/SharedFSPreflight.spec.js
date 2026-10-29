@@ -4,6 +4,8 @@
 import { shallowMount, flushPromises } from '@vue/test-utils'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import MoldDialog from '@/components/view/MoldDialog'
+import InheritanceFields from '@/components/storage/SmbParentInheritanceFields'
+import protectionWire from '../../../fixtures/storage-1453-protection-wire.json'
 import PreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
 import { getAPI, postAPI } from '@/api'
 import protocolWire from '../../../fixtures/storage-1444-protocols-wire.json'
@@ -37,12 +39,12 @@ describe('mounted SharedFS preflight admission contract', () => {
       : api === 'listVolumes' ? { listvolumesresponse: { volume: [{ id: 'prepared', state: 'Ready' }] } }
         : { liststorageserviceconfigurationoperationsresponse: { configurationoperation: [{ id: 'operation', state: 'COMMITTED', result: {} }] } })
   })
-  afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); jest.restoreAllMocks() })
+  afterEach(() => { wrappers.splice(0).forEach(w => w.unmount()); jest.restoreAllMocks(); jest.useRealTimers() })
   const render = async () => {
     const wrapper = shallowMount(SharedFSTab, {
       props: { resource: { id: 'sharedfs', zoneid: 'zone', volumeid: 'data', filesystem: 'xfs' } },
       global: {
-        stubs: { MoldDialog: { template: '<section><slot /></section>' } },
+        stubs: { MoldDialog: { template: '<section><slot /></section>' }, SmbParentInheritanceFields: false, AForm: { template: '<form><slot /></form>' } },
         provide: { parentFetchData: jest.fn() },
         mocks: {
           $t: key => key,
@@ -109,6 +111,38 @@ describe('mounted SharedFS preflight admission contract', () => {
     expect(w.vm.configurationPreflight.status).toBe('UNKNOWN')
     expect(disabled(w)).toBe(true)
     expect(postAPI).toHaveBeenCalledTimes(1)
+  })
+  test.each(['UNKNOWN', 'BLOCKED'])('actual protection rejection %s remains visible and cannot apply after expiry', async rejectedStatus => {
+    const w = await render()
+    w.vm.actionModal.type = 'editSmbShare'
+    Object.assign(w.vm.forms.smbShare, { id: 'share', volumeid: 'data', volumemode: 'CURRENT', directorypolicyid: 'policy', inheritowner: true, inheritownerbaseline: false })
+    await flushPromises()
+    const actual = JSON.parse(JSON.stringify(protectionWire))
+    actual.preflightstorageserviceconfigurationresponse.configurationpreflight.status = rejectedStatus
+    postAPI.mockResolvedValueOnce(actual)
+    jest.useFakeTimers()
+    await w.vm.checkConfigurationPreflight()
+    await w.vm.$nextTick()
+    jest.advanceTimersByTime(60000)
+    await w.vm.$nextTick()
+    expect(w.vm.configurationPreflight.status).toBe(rejectedStatus)
+    expect(w.findComponent(InheritanceFields).vm.failure).toBe('message.storage.inheritance.protection')
+    expect(disabled(w)).toBe(true)
+    expect(postAPI.mock.calls.map(([api]) => api)).toEqual(['preflightStorageServiceConfiguration'])
+    w.vm.forms.smbShare.inheritowner = false
+    await w.vm.$nextTick()
+    expect(w.vm.configurationPreflight).toBeNull()
+  })
+  test('a READY approval still expires and clears acknowledgement', async () => {
+    const w = await render()
+    jest.useFakeTimers()
+    await w.vm.checkConfigurationPreflight()
+    w.vm.configurationImpactAcknowledged = true
+    expect(w.vm.configurationPreflight.status).toBe('READY')
+    jest.advanceTimersByTime(30001)
+    await w.vm.$nextTick()
+    expect(w.vm.configurationPreflight).toBeNull()
+    expect(w.vm.configurationImpactAcknowledged).toBe(false)
   })
   test('confirmed prepared volume survives component reentry without another createVolume', async () => {
     const w = await render()

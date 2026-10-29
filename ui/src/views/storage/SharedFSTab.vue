@@ -5765,7 +5765,9 @@ export default {
           this.nfsPosixObserved = nfsPosixObservation(report.posixobservation)
         }
         this.configurationPreflight = report
-        this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
+        if (report.status === 'READY') {
+          this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
+        }
       } catch (error) {
         if (read === this.configurationPreflightRead && scope === this.storageReadScope && instanceid === this.storageService.instance?.id) {
           this.configurationPreflight = configurationPreflightFailure(error, this.storageService.instance.configurationrevision)
