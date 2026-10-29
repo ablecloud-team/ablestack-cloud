@@ -17,7 +17,7 @@
 
 ## 검증 계획과 한계
 
-변경 Maven 모듈은 `server`, `engine/storage/snapshot`, `plugins/hypervisors/kvm`이며 WSL ext4에서만 빌드한다. 전체 Cloud/Release 빌드는 실행하지 않는다. 집중 검사는 Full/Linked 분기, flatten 실패 전파, 부분 삭제 재시도, Linked 마지막 자식, 원본 Job 보호, 재시작 횟수 보존, backoff/소진, legacy 채택 조건을 검증한다.
+변경 Maven 모듈은 `core`, `server`, `engine/storage/snapshot`, `plugins/hypervisors/kvm`이며 WSL ext4에서만 빌드한다. 전체 Cloud/Release 빌드는 실행하지 않는다. 집중 검사는 Full/Linked 분기, flatten 실패 전파, 부분 삭제 재시도, Linked 마지막 자식, 원본 Job 보호, 재시작 횟수 보존, backoff/소진, legacy 채택 조건을 검증한다.
 
 실환경은 32번의 기존 잔류 자동 복구와 Full→Full→Linked UI 연속 작업, 정지 원본, Linked 복수 자식의 일부/전체 삭제, 물리 의존성으로 인한 일시 실패/재시도 및 관리 서버 재시작을 우선한다. 22번은 전용 복제본의 explicit ROOT와 legacy/explicit DATA, 31번은 GFS2 ROOT/DATA Full 경로를 회귀한다. Job/DB/실제 이미지 및 내용 증거를 수집한 뒤 전용 자원을 정리한다.
 
@@ -26,7 +26,7 @@
 
 ## 설치 클래스 호환성 보완
 
-첫 배포 후 정지 원본 preflight에서 `CheckVmBackupTrackingCommand.isStopped()`의 `NoSuchMethodError`가 드러났다. 설치된 KVM wrapper는 새 계약을 사용하지만 Agent `cloud-core`의 명령 클래스가 구버전이었다. `core` 모듈의 명령 클래스도 동일 소스로 빌드·배포하고, 정지 플래그/오프라인 디스크 목록의 Gson 왕복 및 구형 요청의 기본 거절 계약을 검사한다. 따라서 배포 대상 클래스는 `UserVmManagerImpl`, `StorageVMSnapshotStrategy`, `KVMStorageProcessor`와 호환 의존성 `CheckVmBackupTrackingCommand`다. 관련 내부 클래스도 함께 패치한다.
+첫 배포 후 정지 원본 preflight에서 `CheckVmBackupTrackingCommand.isStopped()`의 `NoSuchMethodError`가 드러났다. 설치된 KVM wrapper는 새 계약을 사용하지만 Agent `cloud-core`의 명령 클래스가 구버전이었다. `core` 모듈의 명령 클래스도 동일 소스로 빌드·배포하고, 정지 플래그/오프라인 디스크 목록의 Gson 왕복 및 구형 요청의 기본 거절 계약을 검사한다. 배포 대상 클래스는 `UserVmManagerImpl`, `StorageVMSnapshotStrategy`, `KVMStorageProcessor`와 호환 의존성 `CheckVmBackupTrackingCommand`, `BackupSnapshotGuard`다. 관련 내부 클래스도 함께 패치한다.
 
 22번 배포 중 보호 VM PID 변경이 감지돼 자동 롤백했다. 사용자가 별도 작업에서 정지·시작했다고 확인했다. 본 작업은 보호 VM의 전원·디스크 명령을 실행하지 않았으며, 동시 작업의 PID 변화와 배포 자체의 보존 검사는 구분해 기록한다.
 

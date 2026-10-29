@@ -1,0 +1,364 @@
+{
+  "issue": 1518,
+  "parentEpic": 1510,
+  "validationDatesKst": [
+    "2026-10-29",
+    "2026-10-30"
+  ],
+  "sourceBranch": "dhslove/issue-1518-rbd-clone-snapshot-cleanup",
+  "sourceCommit": "8ec04125499",
+  "focusedTests": {
+    "suites": [
+      {
+        "module": "server",
+        "suite": "com.cloud.vm.AllocatedVmCloneTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "server",
+        "suite": "com.cloud.vm.CloneSnapshotCleanupTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "server",
+        "suite": "org.apache.cloudstack.backup.BackupSnapshotGuardTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "core",
+        "suite": "com.cloud.agent.api.CheckVmBackupTrackingCommandCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "engine/storage/snapshot",
+        "suite": "org.apache.cloudstack.storage.vmsnapshot.VMSnapshotRecoveryStrategyTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "engine/storage/snapshot",
+        "suite": "org.apache.cloudstack.storage.vmsnapshot.StoppedRbdSnapshotTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "engine/storage/snapshot",
+        "suite": "org.apache.cloudstack.storage.vmsnapshot.VMSnapshotStrategyKVMTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "engine/storage/snapshot",
+        "suite": "org.apache.cloudstack.storage.vmsnapshot.StorageSnapshotDeleteRetryTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "plugins/hypervisors/kvm",
+        "suite": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorSnapshotImageTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "plugins/hypervisors/kvm",
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.LibvirtCheckVmBackupTrackingCommandWrapperTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "plugins/hypervisors/kvm",
+        "suite": "com.cloud.hypervisor.kvm.storage.RbdSnapshotDeletionTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "plugins/hypervisors/kvm",
+        "suite": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorAllocationTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "module": "plugins/hypervisors/kvm",
+        "suite": "com.cloud.hypervisor.kvm.storage.RbdVmFullCloneTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "total": {
+      "tests": 73,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "fullCloudBuildRun": false,
+  "deployment": {
+    "nodes": 12,
+    "jars": 30,
+    "allServicesActive": true,
+    "allJarHashesMatch": true,
+    "management": [
+      {
+        "cluster": "22",
+        "http": 200,
+        "webInf": true,
+        "sha256": "acff8463aa723e2b896f40bf2d88089c8f6fcf828cc2b9f03f7ab692acd4754f"
+      },
+      {
+        "cluster": "31",
+        "http": 200,
+        "webInf": true,
+        "sha256": "2d314dd880bb6e6501b7c4917c2b1af0a4d039d114bbd8cd0ecef6f344e73408"
+      },
+      {
+        "cluster": "32",
+        "http": 200,
+        "webInf": true,
+        "sha256": "7344a788d535187fcedad5f3552aec8513077f481cd0732359ecae88aac501d0"
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "cluster": "22",
+      "activeResiduals": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 7,
+      "physicalResiduals": 0,
+      "historicalRows": {
+        "vms": 2,
+        "volumes": 7,
+        "details": 59,
+        "vmSnapshots": 1,
+        "vmSnapshotDetails": 16,
+        "snapshots": 3,
+        "snapshotRefs": 3
+      }
+    },
+    {
+      "cluster": "31",
+      "activeResiduals": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 4,
+      "physicalResiduals": 0,
+      "historicalRows": {
+        "vms": 2,
+        "volumes": 4,
+        "details": 3,
+        "vmSnapshots": 0,
+        "vmSnapshotDetails": 0,
+        "snapshots": 0,
+        "snapshotRefs": 0
+      }
+    },
+    {
+      "cluster": "32",
+      "activeResiduals": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 18,
+      "physicalResiduals": 0,
+      "historicalRows": {
+        "vms": 8,
+        "volumes": 16,
+        "details": 47,
+        "vmSnapshots": 6,
+        "vmSnapshotDetails": 29,
+        "snapshots": 12,
+        "snapshotRefs": 12
+      }
+    }
+  ],
+  "recovery": {
+    "transient": {
+      "snapshotId": 17,
+      "beforeState": "Error",
+      "beforeAttempts": 1,
+      "bootAttempts": "1",
+      "automaticRecovery": true,
+      "removedAtUtc": "2026-10-29 15:05:53.000000",
+      "userSnapshotPreserved": true
+    },
+    "exhausted": {
+      "snapshotId": 16,
+      "attempts": 5,
+      "state": "Error",
+      "phase": "retry-exhausted",
+      "diskMappings": 2,
+      "restartPreserved": true,
+      "manualUiRetryJob": "7bbb18c7-73e3-4ff8-910f-746b11632743"
+    }
+  },
+  "content": {
+    "fullLogicalCompare32": [
+      {
+        "source": "dcd5779d-3a90-4d52-93b1-024052ca8f72",
+        "target": "db7fda4f-ebd5-4ac6-ab40-0e31f5f45f44",
+        "independent": true,
+        "fullLogicalContentIdentical": true,
+        "output": "Images are identical.\n"
+      },
+      {
+        "source": "64319e1d-0cea-4385-9841-80f3a523a57e",
+        "target": "765b3171-1ae7-4223-a964-aaa98a3b6c5e",
+        "independent": true,
+        "fullLogicalContentIdentical": true,
+        "output": "Images are identical.\n"
+      }
+    ],
+    "coldSource22": {
+      "sourceNeverBooted": true,
+      "disks": [
+        {
+          "source": "10fc7887-2feb-4207-a8ad-323aad38e062",
+          "target": "88757c9e-7e8c-4493-a82a-954392338858",
+          "type": "ROOT",
+          "name": "qa1518-22-mixed-final-qa1518-22-direct-full-ROOT-3",
+          "independent": true,
+          "rootSampleOffsetsMiB": [
+            0,
+            1024,
+            8192
+          ],
+          "sha256": {
+            "10fc7887-2feb-4207-a8ad-323aad38e062": [
+              "da80a14a107e900683f73e7e383d7ff03e524b9f535db084969228f827b31d87",
+              "bcf4eb2a0f95fa9d810a2391f9801c083b21d0040f3f7c9b651ea67fe269d54c",
+              "bb9f8df61474d25e71fa00722318cd387396ca1736605e1248821cc0de3d3af8"
+            ],
+            "88757c9e-7e8c-4493-a82a-954392338858": [
+              "da80a14a107e900683f73e7e383d7ff03e524b9f535db084969228f827b31d87",
+              "bcf4eb2a0f95fa9d810a2391f9801c083b21d0040f3f7c9b651ea67fe269d54c",
+              "bb9f8df61474d25e71fa00722318cd387396ca1736605e1248821cc0de3d3af8"
+            ]
+          }
+        },
+        {
+          "source": "587fe3c6-d81a-49af-a88a-d0945a0ce300",
+          "target": "c87a9b25-3dab-4bb6-a0eb-347ea8d25d3b",
+          "type": "DATADISK",
+          "name": "qa1518-22-mixed-final-qa1518-22-explicit-data",
+          "independent": true,
+          "dataPatternsVerified": true
+        },
+        {
+          "source": "13367102-0445-4ebe-8c99-f7f8c5265f1d",
+          "target": "28abf6ef-94fc-4c91-afa4-6ec8cede8a36",
+          "type": "DATADISK",
+          "name": "qa1518-22-mixed-final-qa1518-22-legacy-data",
+          "independent": true,
+          "dataPatternsVerified": true
+        }
+      ]
+    },
+    "gfs31": {
+      "instance": "i-2-799-VM",
+      "running": true,
+      "qgaPing": true,
+      "os": {
+        "name": "Rocky Linux",
+        "kernel-release": "5.14.0-503.14.1.el9_5.x86_64",
+        "version": "9.5 (Blue Onyx)",
+        "pretty-name": "Rocky Linux 9.5 (Blue Onyx)",
+        "version-id": "9.5",
+        "kernel-version": "#1 SMP PREEMPT_DYNAMIC Fri Nov 15 12:04:32 UTC 2024",
+        "machine": "x86_64",
+        "id": "rocky"
+      },
+      "blockJobs": [],
+      "disks": [
+        {
+          "uuid": "5ba6a477-7417-427d-936f-af6c833ef2f6",
+          "type": "ROOT",
+          "path": "/mnt/glue-gfs/5ba6a477-7417-427d-936f-af6c833ef2f6",
+          "independent": true,
+          "format": "qcow2",
+          "virtualSize": 107374182400
+        },
+        {
+          "uuid": "a71a95b7-6d78-4fb2-8044-5651ad7e5aa6",
+          "type": "DATADISK",
+          "path": "/mnt/glue-gfs/a71a95b7-6d78-4fb2-8044-5651ad7e5aa6",
+          "independent": true,
+          "format": "qcow2",
+          "virtualSize": 1073741824,
+          "patternsVerified": true
+        }
+      ]
+    }
+  },
+  "protected22": {
+    "pid": 1516803,
+    "startTicks": 201077163,
+    "matchesUserConfirmedRestartBaseline": true,
+    "metadata": {
+      "invalidCloneCount": 0,
+      "external": {
+        "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+        "state": "Stopped",
+        "pathPolicyEvidencePreserved": true,
+        "activeSnapshots": 0
+      },
+      "protectedPerftest": {
+        "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+        "state": "Running",
+        "host": "ablecube22-3",
+        "volumeCount": 2,
+        "stateHostPathPolicyEvidencePreserved": true
+      }
+    },
+    "externalRestartConfirmedByUser": true,
+    "powerDiskQgaMigrationContentCommandsIssuedByThisTask": false
+  },
+  "limitations": [
+    "No full Cloud or Release build or full Actions CI.",
+    "Creation POST for user snapshot 15 evicted from browser event buffer; UI and matching DB Job retained.",
+    "Initial interrupted QA fixture on 22 required one removed-volume transient SNAPSHOT_ID detail cleanup; excluded from automatic recovery PASS.",
+    "Live restart tests cover snapshot deletion retries; not every clone-creation interruption stage or multi-management failure combination.",
+    "Epic 1510 remains incomplete with required follow-ups 1519 and 1520."
+  ]
+}
