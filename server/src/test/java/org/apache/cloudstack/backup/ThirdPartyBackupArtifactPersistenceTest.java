@@ -509,11 +509,14 @@ public class ThirdPartyBackupArtifactPersistenceTest {
             locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
             assertTrue(service.reconcile(backup, host, transfer));
             assertEquals("WAITING", persisted.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+            assertTrue(persisted.get(ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY).contains("Temporary Job removal is unconfirmed"));
             assertTrue(ThirdPartyBackupManifest.fromJson(persisted.get(ThirdPartyBackupManifest.DETAIL_KEY))
                     .getCurrentArtifacts().get(0).completed);
             verify(agentManager, never()).send(eq(HOST_ID), Mockito.<Command>argThat(command -> command instanceof AblestackVolumeStagingCommand
                     && "ACK".equals(((AblestackVolumeStagingCommand) command).getAction())));
             assertTrue(service.reconcile(backup, host, transfer));
+            assertEquals("NONE", persisted.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+            assertNull(persisted.get(ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY));
         }
         verify(transfer, Mockito.times(1)).backup(any(), eq(false));
         verify(transfer, Mockito.times(2)).committed(any(), any(), eq(false));

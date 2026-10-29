@@ -3380,6 +3380,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 saveCleanupState(tracked.getId(), "WAITING", "Artifact is saved; external transfer finalization is pending: " + e.getMessage());
                 return true;
             }
+            // A successful retry settles the prior artifact's finalization error before the Host advances.
+            saveCleanupState(tracked.getId(), "NONE", null);
             if (metadata && artifact.completed) {
                 manifest.validate(true);
                 saveFinalizationWaiting(tracked, "Waiting for Host finalization and logical backup completion");
