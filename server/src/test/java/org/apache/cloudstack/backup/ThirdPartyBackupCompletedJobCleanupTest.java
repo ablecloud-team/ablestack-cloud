@@ -19,6 +19,8 @@ package org.apache.cloudstack.backup;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
@@ -272,6 +274,116 @@ public class ThirdPartyBackupCompletedJobCleanupTest {
         }
         assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
         assertTrue(ThirdPartyBackupVolumeService.hasFinalizedBackupStaging(backup));
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void externalCatalogReadsAllowRestoreToAcquireTheVmLifecycleLease() {
+        prepare("ablestack-veeam");
+        AtomicBoolean held = new AtomicBoolean();
+        AtomicInteger queries = new AtomicInteger();
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenAnswer(call -> held.compareAndSet(false, true));
+        when(lock.unlock()).thenAnswer(call -> held.compareAndSet(true, false));
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            service.reconcileCatalog(backup, artifact -> {
+                assertFalse("Read-only Veeam queries must not block restore admission", held.get());
+                try (ThirdPartyBackupVolumeService.Lease restore = service.acquireLifecycle(backup.getVmId())) {
+                    assertTrue(held.get());
+                    queries.incrementAndGet();
+                }
+                return true;
+            }, (artifact, metadata, ticket, expired) -> { throw new AssertionError("Available backups must be retained"); });
+        }
+        assertEquals(2, queries.get());
+        assertFalse(held.get());
+        assertEquals("AVAILABLE", gson.fromJson(details.get(ThirdPartyBackupManifest.CATALOG_KEY), ThirdPartyBackupManifest.Catalog.class).state);
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void catalogResponseIsDiscardedWhenRestoreStateChangesDuringTheQuery() {
+        when(backups.createForUpdate(1L)).thenReturn(backup);
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            service.reconcileCatalog(backup, artifact -> {
+                details.put(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL, "new-restore");
+                details.put(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "COMPLETED");
+                return false;
+            }, (artifact, metadata, ticket, expired) -> { throw new AssertionError("Restore changed the recorded state"); });
+        }
+        assertNull(details.get(ThirdPartyBackupManifest.CATALOG_KEY));
+        assertNull(details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY));
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+        verify(backup, never()).setStatus(any());
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void catalogResponseCannotOverwriteChangedArtifactReferences() {
+        when(backups.createForUpdate(1L)).thenReturn(backup);
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            service.reconcileCatalog(backup, artifact -> {
+                manifest.getMetadata().externalId = "reconciled-point";
+                details.put(ThirdPartyBackupManifest.DETAIL_KEY, manifest.toJson());
+                return false;
+            }, (artifact, metadata, ticket, expired) -> { throw new AssertionError("Catalog result belongs to an older manifest"); });
+        }
+        assertNull(details.get(ThirdPartyBackupManifest.CATALOG_KEY));
+        assertNull(details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY));
+        assertEquals("COMPLETED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
+        verify(backup, never()).setStatus(any());
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void olderCatalogResponseCannotReplaceANewerConfirmedQuery() {
+        when(backups.createForUpdate(1L)).thenReturn(backup);
+        ThirdPartyBackupManifest.Catalog newer = new ThirdPartyBackupManifest.Catalog();
+        newer.state = "AVAILABLE";
+        newer.attemptedAt = newer.checkedAt = System.currentTimeMillis() + 1000;
+        String confirmed = gson.toJson(newer);
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            service.reconcileCatalog(backup, artifact -> {
+                details.put(ThirdPartyBackupManifest.CATALOG_KEY, confirmed);
+                return false;
+            }, (artifact, metadata, ticket, expired) -> { throw new AssertionError("A newer query confirmed availability"); });
+        }
+        assertEquals(confirmed, details.get(ThirdPartyBackupManifest.CATALOG_KEY));
+        assertNull(details.get(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY));
+        verify(backup, never()).setStatus(any());
+        verifyNoInteractions(agent);
+    }
+
+    @Test
+    public void missingMetadataStillBlocksRestoreWhenAnotherCatalogQueryFails() {
+        when(backups.createForUpdate(1L)).thenReturn(backup);
+        GlobalLock lock = mock(GlobalLock.class);
+        when(lock.lock(Mockito.anyInt())).thenReturn(true);
+        try (MockedStatic<GlobalLock> locks = Mockito.mockStatic(GlobalLock.class)) {
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            assertThrows(CloudRuntimeException.class, () -> service.reconcileCatalog(backup, artifact -> {
+                if (artifact.path.equals(manifest.getMetadata().path)) { return false; }
+                throw new CloudRuntimeException("Catalog query temporarily unavailable");
+            }, (artifact, metadata, ticket, expired) -> { throw new AssertionError("Unconfirmed artifacts must be retained"); }));
+        }
+        ThirdPartyBackupManifest.Catalog catalog = gson.fromJson(details.get(ThirdPartyBackupManifest.CATALOG_KEY), ThirdPartyBackupManifest.Catalog.class);
+        assertEquals("PARTIAL", catalog.state);
+        assertEquals(Collections.singletonList(manifest.getMetadata().path), catalog.missing);
+        assertEquals("Catalog query temporarily unavailable", catalog.error);
+        assertEquals(0, catalog.expiredSince);
+        assertEquals(Backup.Status.Failed, backup.getStatus());
+        assertEquals("RETAINED", details.get(ThirdPartyBackupManifest.CLEANUP_STATE_KEY));
         verifyNoInteractions(agent);
     }
 

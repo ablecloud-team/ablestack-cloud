@@ -1770,6 +1770,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     @Override
     public void reconcileCatalog(Backup backup, ArtifactInventory inventory, ArtifactCleanup cleanup) {
+        final ThirdPartyBackupManifest manifest;
+        final String manifestJson;
+        final Backup.Status originalStatus;
+        final String restoreJobId;
+        final String restoreState;
+        final long attemptedAt;
         try (Lease lease = acquireLifecycle(backup.getVmId())) {
             BackupVO tracked = backupDao.findById(backup.getId());
             if (tracked == null) { return; }
@@ -1787,26 +1793,46 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 }
                 return;
             }
-            ThirdPartyBackupManifest manifest = ThirdPartyBackupManifest.fromJson(tracked.getDetail(ThirdPartyBackupManifest.DETAIL_KEY));
+            manifestJson = tracked.getDetail(ThirdPartyBackupManifest.DETAIL_KEY);
+            manifest = ThirdPartyBackupManifest.fromJson(manifestJson);
             if (!manifest.isComplete() || (!Backup.Status.BackedUp.equals(tracked.getStatus())
                     && StringUtils.isBlank(tracked.getDetail(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY)))) { return; }
             manifest.validate(true);
+            originalStatus = tracked.getStatus();
+            restoreJobId = tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL);
+            restoreState = tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
+            attemptedAt = System.currentTimeMillis();
+        }
+        // Provider queries may involve many SSH calls. Do not hold the VM mutation lease
+        // while reading a completed backup's external catalog: restore admission needs it too.
+        java.util.Set<String> missing = new java.util.LinkedHashSet<>();
+        java.util.Set<String> available = new java.util.LinkedHashSet<>();
+        RuntimeException queryFailure = null;
+        for (ThirdPartyBackupManifest.Artifact artifact : manifest.getRequiredArtifacts()) {
+            try {
+                if (!inventory.exists(artifact)) { missing.add(artifact.path); }
+                else { available.add(artifact.path); }
+            } catch (RuntimeException e) {
+                // An unavailable query must not hide a confirmed expiration of a different required image.
+                if (queryFailure == null) { queryFailure = e; }
+            }
+        }
+        try (Lease lease = acquireLifecycle(backup.getVmId())) {
+            BackupVO tracked = backupDao.findById(backup.getId());
+            if (tracked == null) { return; }
+            backupDao.loadDetails(tracked);
+            // Discard a snapshot overtaken by deletion, artifact reconciliation or a restore.
+            if (BackupDeletionService.isPending(tracked)
+                    || StringUtils.isNotBlank(tracked.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
+                    || tracked.getStatus() != originalStatus
+                    || !java.util.Objects.equals(manifestJson, tracked.getDetail(ThirdPartyBackupManifest.DETAIL_KEY))
+                    || !java.util.Objects.equals(restoreJobId, tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_ID_DETAIL))
+                    || !java.util.Objects.equals(restoreState, tracked.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL))) { return; }
             ThirdPartyBackupManifest.Catalog catalog = new Gson().fromJson(tracked.getDetail(ThirdPartyBackupManifest.CATALOG_KEY),
                     ThirdPartyBackupManifest.Catalog.class);
             if (catalog == null) { catalog = new ThirdPartyBackupManifest.Catalog(); }
-            catalog.attemptedAt = System.currentTimeMillis();
-            java.util.Set<String> missing = new java.util.LinkedHashSet<>();
-            java.util.Set<String> available = new java.util.LinkedHashSet<>();
-            RuntimeException queryFailure = null;
-            for (ThirdPartyBackupManifest.Artifact artifact : manifest.getRequiredArtifacts()) {
-                try {
-                    if (!inventory.exists(artifact)) { missing.add(artifact.path); }
-                    else { available.add(artifact.path); }
-                } catch (RuntimeException e) {
-                    // An unavailable query must not hide a confirmed expiration of a different required image.
-                    if (queryFailure == null) { queryFailure = e; }
-                }
-            }
+            if (catalog.attemptedAt > attemptedAt) { return; }
+            catalog.attemptedAt = attemptedAt;
             if (queryFailure != null) {
                 catalog.expiredSince = 0;
                 java.util.Set<String> confirmed = new java.util.LinkedHashSet<>(catalog.missing);
