@@ -1,0 +1,140 @@
+{
+  "writesPerformed": false,
+  "smb-domain.json": {
+    "domainName": "ablestack.local",
+    "state": "JOINED",
+    "workgroup": "ABLESTACK",
+    "realm": "ABLESTACK.LOCAL",
+    "netbiosName": "STORDECE7B8EE5",
+    "trustVerified": true
+  },
+  "smb-listeners.json": {
+    "instanceUuid": "dece7b8e-e5d0-4eae-b4cf-5ec0fdf0244d",
+    "ownedAliases": {},
+    "profiles": {
+      "87e8545d-6f8b-4da8-bdd8-a3c10de2e695-fc2aa3ad820d": {
+        "configHash": "f0ff6f12e04aaa30546bc973f53c1b12add73ad4e8a51182c3468f1c4bbcc5b3",
+        "id": "87e8545d-6f8b-4da8-bdd8-a3c10de2e695",
+        "key": "87e8545d-6f8b-4da8-bdd8-a3c10de2e695-fc2aa3ad820d",
+        "kind": "profile",
+        "listenIp": "10.10.13.246",
+        "port": 445,
+        "unit": "ablestack-smb-87e8545d-6f8b-4da8-bdd8-a3c10de2e695-fc2aa3ad820d.service"
+      }
+    },
+    "schemaVersion": 1
+  },
+  "units": {
+    "exitcode": 0,
+    "stdout": "MainPID=24545\nResult=success\nId=smbd.service\nActiveState=active\nSubState=running\n\nMainPID=24620\nResult=success\nId=nmbd.service\nActiveState=active\nSubState=running\n\nMainPID=24624\nResult=success\nId=winbind.service\nActiveState=active\nSubState=running\n",
+    "stderr": ""
+  },
+  "sockets": {
+    "exitcode": 0,
+    "stdout": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                           \nLISTEN 0      50           0.0.0.0:139       0.0.0.0:*    users:((\"smbd-notifyd\",pid=24648,fd=32),(\"smbd\",pid=24545,fd=32))\nLISTEN 0      50           0.0.0.0:445       0.0.0.0:*    users:((\"smbd-notifyd\",pid=24648,fd=31),(\"smbd\",pid=24545,fd=31))\nLISTEN 0      50              [::]:139          [::]:*    users:((\"smbd-notifyd\",pid=24648,fd=30),(\"smbd\",pid=24545,fd=30))\nLISTEN 0      50              [::]:445          [::]:*    users:((\"smbd-notifyd\",pid=24648,fd=29),(\"smbd\",pid=24545,fd=29))\n",
+    "stderr": ""
+  },
+  "testjoin": {
+    "exitcode": 0,
+    "stdout": "Join is OK\n",
+    "stderr": ""
+  },
+  "trust": {
+    "exitcode": 0,
+    "stdout": "checking the trust secret for domain ABLESTACK via RPC calls succeeded\n",
+    "stderr": ""
+  },
+  "effective-netbios name": {
+    "exitcode": 0,
+    "stdout": "STORDECE7B8EE5\n",
+    "stderr": "Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\n"
+  },
+  "effective-security": {
+    "exitcode": 0,
+    "stdout": "ADS\n",
+    "stderr": "Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\n"
+  },
+  "effective-realm": {
+    "exitcode": 0,
+    "stdout": "ABLESTACK.LOCAL\n",
+    "stderr": "Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\n"
+  },
+  "parent": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o2775",
+    "inode": 8388736
+  },
+  "data": {
+    "seed-before.txt": {
+      "sha256": "d7cc1556b923b60d27cac25a72c07c05abb469b409127368d7e45449f106e279",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "inode": 8388737
+    },
+    "local-off-off-c1.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388738
+    },
+    "local-on-off-c2.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 65534,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388739
+    },
+    "local-on-on-c1.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o660",
+      "inode": 8388741
+    },
+    "nfs-on-on-c2.txt": {
+      "sha256": "0fc825e45677dd95bb8d21109413931ff5aaeefae0f8ddfb4e8549782a0defdc",
+      "uid": 1001,
+      "gid": 65534,
+      "mode": "0o644",
+      "inode": 8388742
+    },
+    "local-off-on-c2.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 1001,
+      "gid": 65534,
+      "mode": "0o660",
+      "inode": 8388743
+    },
+    "local-off-off-c1/nested.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 16908417
+    },
+    "local-on-off-c2/nested.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 65534,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 133
+    },
+    "local-on-on-c1/nested.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o660",
+      "inode": 16908419
+    },
+    "local-off-on-c2/nested.txt": {
+      "sha256": "b53ad3c03c17d4612a4f13e668336be924d3709dbf3e939fddbae6472ef1314d",
+      "uid": 1001,
+      "gid": 65534,
+      "mode": "0o660",
+      "inode": 135
+    }
+  }
+}

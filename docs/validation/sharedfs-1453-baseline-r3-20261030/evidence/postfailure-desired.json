@@ -1,0 +1,11 @@
+{
+  "savedIdentityDomain": null,
+  "shares": [
+    {
+      "name": "common1453r3",
+      "inheritOwner": false,
+      "directoryPolicyUuid": "63b56007-e2ce-3050-a70e-b1ab488dbf88"
+    }
+  ],
+  "writesPerformed": false
+}
