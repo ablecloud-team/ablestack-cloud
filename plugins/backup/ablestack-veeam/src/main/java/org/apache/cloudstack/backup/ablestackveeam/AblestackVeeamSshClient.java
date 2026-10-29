@@ -507,6 +507,12 @@ public class AblestackVeeamSshClient {
                         + "if ([IO.File]::Exists($receipt)) { [IO.File]::Replace($tmp,$receipt,[System.Management.Automation.Language.NullString]::Value) } else { [IO.File]::Move($tmp,$receipt) } }",
                 "if (Test-Path -LiteralPath $receipt) { $old=Get-Content -LiteralPath $receipt -Raw -Encoding UTF8 | ConvertFrom-Json; "
                         + "if ($old.binding -cne $binding) { throw 'Veeam restore receipt belongs to another request' }; "
+                        // Recover only a proven pre-submission failure left behind by the old File.Replace call.
+                        + "if (!$old.terminal -and !$old.jobId -and (Test-Path -LiteralPath ($receipt+'.tmp'))) { "
+                        + "$pending=Get-Content -LiteralPath ($receipt+'.tmp') -Raw -Encoding UTF8 | ConvertFrom-Json; "
+                        + "if ($pending.binding -ceq $binding -and $pending.requestId -ceq $restoreJob -and $pending.jobId -ceq " + ps("flr:" + key)
+                        + " -and $pending.terminal -eq $true -and $pending.completed -eq $false "
+                        + "-and ![string]::IsNullOrWhiteSpace([string]$pending.failure)) { Save-Receipt $pending; $old=$pending } }; "
                         + "if (!$old.terminal -and $old.jobId) { "
                         + "$existingTask=Find-RestoreTask ([string]$old.jobId) ([string]$old.parentSessionId); "
                         + "$result=Restore-TaskResult $existingTask; "
@@ -527,11 +533,9 @@ public class AblestackVeeamSshClient {
                 "  $targets=" + discoveredComputers("$_.Name -eq " + ps(destinationHost)
                         + " -or (@($_.IPAddress)+@($_.IpAddresses)) -contains " + ps(destinationIp)),
                 "  if ($targets.Count -ne 1) { throw ('Restore Worker Host must identify one Veeam Agent computer; unique ObjectID count: ' + $targets.Count) }",
-                "  $mounts=@(Get-VBRServer -Name " + ps(destinationHost) + ")",
-                "  if ($mounts.Count -eq 0) { $mounts=@(Get-VBRServer | Where-Object { [string]$_.Type -eq 'Linux' } | Sort-Object Name | Select-Object -First 1) }",
-                "  if ($mounts.Count -ne 1) { throw 'Veeam infrastructure must provide one available Linux FLR mount server' }",
                 "  try {",
-                "    $flr=Start-VBRLinuxFileRestore -RestorePoint $points[0] -MountServer $mounts[0]",
+                // Veeam resolves the backup's original Agent Host; the copy target remains the selected restore Worker.
+                "    $flr=Start-VBRLinuxFileRestore -RestorePoint $points[0] -MountToOriginalHost",
                 "    $callbackIds=@(@($flr.Id,$flr.SessionId,$flr.Session.Id,$flr.RestoreSession.Id) | Where-Object { $_ } | ForEach-Object { $parsed=[guid]::Empty; if ([guid]::TryParse([string]$_,[ref]$parsed)) { $parsed.ToString() } } | Select-Object -Unique)",
                 "    $items=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent)
                         + " | Where-Object { $_.Name -eq " + ps(name) + " })",

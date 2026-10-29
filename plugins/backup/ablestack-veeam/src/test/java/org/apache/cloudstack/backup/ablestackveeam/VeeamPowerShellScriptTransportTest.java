@@ -221,7 +221,7 @@ public class VeeamPowerShellScriptTransportTest {
     }
 
     @Test
-    public void restoreReceiptUpdatesPersistSuccessAndRecoveryDoesNotResubmit() throws Exception {
+    public void originalHostRestorePersistsSuccessWithoutManagedServerRegistrationOrResubmission() throws Exception {
         LocalTransport transport = new LocalTransport();
         transport.setup = restoreSetup(transport);
         AblestackVeeamSshClient client = localClient(transport);
@@ -247,17 +247,18 @@ public class VeeamPowerShellScriptTransportTest {
     }
 
     @Test
-    public void missingMountServerReplacesTheIntentWithTheOriginalError() throws Exception {
+    public void originalHostConnectionFailureReplacesTheIntentWithTheOriginalError() throws Exception {
         LocalTransport transport = new LocalTransport();
         transport.setup = restoreSetup(transport)
-                + "function Get-VBRServer { param($Name) }\n";
+                + "function Start-VBRLinuxFileRestore { [CmdletBinding()] param($RestorePoint,[switch]$MountToOriginalHost); "
+                + "throw 'Original backup Host is unavailable' }\n";
         ThirdPartyBackupRestore.Request request = restoreRequest();
 
         ThirdPartyBackupRestore.Result result = localClient(transport)
                 .restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
         assertTrue(result.externalTerminal);
         assertFalse(result.completed);
-        assertEquals("Veeam infrastructure must provide one available Linux FLR mount server", result.failure);
+        assertEquals("Original backup Host is unavailable", result.failure);
 
         Path receiptPath = restoreReceiptPath(transport, request);
         JSONObject receipt = new JSONObject(Files.readString(receiptPath));
@@ -268,6 +269,86 @@ public class VeeamPowerShellScriptTransportTest {
         assertFalse(Files.exists(Path.of(receiptPath + ".tmp")));
         assertFalse(Files.exists(transport.effects));
         transport.assertClean();
+    }
+
+    @Test
+    public void originalHostVolumeRestoreCanCopyToAnotherWorker() throws Exception {
+        LocalTransport transport = new LocalTransport();
+        transport.setup = restoreSetup(transport, "restore-worker", "root.raw");
+        ThirdPartyBackupRestore.Request request = restoreRequest();
+        request.sequence = 1;
+        request.metadata = false;
+        request.volumeIndex = 0;
+        request.chainIndex = 0;
+        request.artifact.path = "/mnt/staging/ablestack-veeam/vm/root.raw";
+        request.destination = "/mnt/staging/ablestack-veeam/restore/restore-test/payload/root.raw";
+
+        ThirdPartyBackupRestore.Result result = localClient(transport)
+                .restoreVolumeArtifact(request, "restore-worker", "192.0.2.1", false);
+        assertTrue(result.completed);
+        assertTrue(new JSONObject(Files.readString(restoreReceiptPath(transport, request))).getBoolean("completed"));
+        assertEquals(List.of("RESTORE", "STOP"), Files.readAllLines(transport.effects));
+        transport.assertClean();
+    }
+
+    @Test
+    public void recoveryPublishesTheExactPreSubmissionFailureLeftByTheOldReceiptWriter() throws Exception {
+        LocalTransport transport = new LocalTransport();
+        transport.setup = restoreSetup(transport)
+                + "function Start-VBRLinuxFileRestore { [CmdletBinding()] param($RestorePoint,[switch]$MountToOriginalHost); "
+                + "throw 'Veeam infrastructure must provide one available Linux FLR mount server' }\n";
+        AblestackVeeamSshClient client = localClient(transport);
+        ThirdPartyBackupRestore.Request request = restoreRequest();
+        ThirdPartyBackupRestore.Result failed = client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
+        Path pendingPath = stageReceiptBehindIntent(transport, request);
+
+        ThirdPartyBackupRestore.Result recovered = client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", true);
+        assertEquals(failed.jobId, recovered.jobId);
+        assertEquals(failed.failure, recovered.failure);
+        assertTrue(recovered.externalTerminal);
+        assertFalse(recovered.completed);
+        assertFalse(Files.exists(pendingPath));
+        assertTrue(new JSONObject(Files.readString(restoreReceiptPath(transport, request))).getBoolean("terminal"));
+        assertFalse(Files.exists(transport.effects));
+        transport.assertClean();
+    }
+
+    @Test
+    public void recoveryCannotPublishAnotherRequestsFailureOrAnUnconfirmedSuccessfulCopy() throws Exception {
+        for (String mismatch : List.of("binding", "success")) {
+            LocalTransport transport = new LocalTransport();
+            transport.setup = restoreSetup(transport)
+                    + "function Start-VBRLinuxFileRestore { [CmdletBinding()] param($RestorePoint,[switch]$MountToOriginalHost); "
+                    + "throw 'Original backup Host is unavailable' }\n";
+            AblestackVeeamSshClient client = localClient(transport);
+            ThirdPartyBackupRestore.Request request = restoreRequest();
+            client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
+            Path pendingPath = stageReceiptBehindIntent(transport, request);
+            JSONObject pending = new JSONObject(Files.readString(pendingPath));
+            if ("binding".equals(mismatch)) {
+                pending.put("binding", pending.getString("binding") + "another-request");
+            } else {
+                pending.put("jobId", SESSION).put("completed", true).put("result", "Success").put("failure", JSONObject.NULL);
+            }
+            Files.writeString(pendingPath, pending.toString());
+
+            assertNull(client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", true));
+            assertTrue(Files.exists(pendingPath));
+            assertTrue(new JSONObject(Files.readString(restoreReceiptPath(transport, request))).isNull("jobId"));
+            assertFalse(Files.exists(transport.effects));
+            transport.assertClean();
+        }
+    }
+
+    private Path stageReceiptBehindIntent(LocalTransport transport, ThirdPartyBackupRestore.Request request) throws IOException {
+        Path receiptPath = restoreReceiptPath(transport, request);
+        JSONObject receipt = new JSONObject(Files.readString(receiptPath));
+        Path pendingPath = Path.of(receiptPath + ".tmp");
+        Files.move(receiptPath, pendingPath);
+        JSONObject intent = new JSONObject().put("binding", receipt.getString("binding")).put("requestId", request.jobId)
+                .put("jobId", JSONObject.NULL).put("completed", false).put("terminal", false).put("failure", JSONObject.NULL);
+        Files.writeString(receiptPath, intent.toString());
+        return pendingPath;
     }
 
     private AblestackVeeamSshClient localClient(LocalTransport transport) {
@@ -288,25 +369,33 @@ public class VeeamPowerShellScriptTransportTest {
         request.chainIndex = -1;
         request.artifact = new ThirdPartyBackupManifest.Artifact();
         request.artifact.externalId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+        request.artifact.sourceHost = "source-kvm";
         request.artifact.path = "/mnt/staging/ablestack-veeam/vm/metadata";
         request.destination = "/mnt/staging/ablestack-veeam/restore/restore-test/metadata/metadata";
         return request;
     }
 
     private Path restoreReceiptPath(LocalTransport transport, ThirdPartyBackupRestore.Request request) {
-        return transport.root.resolve("program data/ABLESTACK/Mold/volume-restore/" + request.jobId + "-0.json");
+        return transport.root.resolve("program data/ABLESTACK/Mold/volume-restore/" + request.jobId + "-" + request.sequence + ".json");
     }
 
     private String restoreSetup(LocalTransport transport) {
+        return restoreSetup(transport, "ablecube1", "metadata");
+    }
+
+    private String restoreSetup(LocalTransport transport, String workerName, String itemName) {
         return "function Get-VBRBackup { [pscustomobject]@{Id='backup'} }\n"
                 + "function Get-VBRRestorePoint { [CmdletBinding()] param([Parameter(ValueFromPipeline=$true)]$Backup); "
-                + "process { [pscustomobject]@{Id='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'} } }\n"
+                + "process { [pscustomobject]@{Id='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';Name='source-kvm'} } }\n"
                 + "function Get-VBRDiscoveredComputer { [CmdletBinding()] param(); "
-                + "[pscustomobject]@{ObjectID='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';Name='ablecube1';IPAddress=@('192.0.2.1')} }\n"
-                + "function Get-VBRServer { param($Name); [pscustomobject]@{Name='ablecube1';Type='Linux'} }\n"
-                + "function Start-VBRLinuxFileRestore { param($RestorePoint,$MountServer); [pscustomobject]@{Id='" + SESSION + "'} }\n"
-                + "function Get-VBRLinuxGuestItem { param($LinuxFlrObject,$Path); [pscustomobject]@{Name='metadata'} }\n"
+                + "[pscustomobject]@{ObjectID='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';Name='" + workerName + "';IPAddress=@('192.0.2.1')} }\n"
+                + "function Get-VBRServer { param($Name); throw 'Managed server registration must not be required' }\n"
+                + "function Start-VBRLinuxFileRestore { [CmdletBinding()] param($RestorePoint,[switch]$MountToOriginalHost); "
+                + "if (!$MountToOriginalHost) { throw 'Restore must use the original backup Host' }; "
+                + "[pscustomobject]@{Id='" + SESSION + "'} }\n"
+                + "function Get-VBRLinuxGuestItem { param($LinuxFlrObject,$Path); [pscustomobject]@{Name='" + itemName + "'} }\n"
                 + "function Start-VBRLinuxGuestItemRestore { param($LinuxFlrObject,$Item,$TargetAgentMachine,$TargetDirectory,[switch]$Overwrite); "
+                + "if ($TargetAgentMachine.Name -ne '" + workerName + "') { throw 'Wrong restore Worker' }; "
                 + transport.effect("RESTORE") + "[pscustomobject]@{Id='" + SESSION + "';JobSessId='" + SESSION + "';Status='Success'} }\n"
                 + "function Stop-VBRLinuxFileRestore { param($LinuxFlrObject); " + transport.effect("STOP") + "}\n";
     }
