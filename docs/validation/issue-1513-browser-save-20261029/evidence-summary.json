@@ -1,0 +1,19 @@
+{
+  "status": "blocked_browser_finalization",
+  "normalFilenameConfirmed": false,
+  "downloadCompletionConfirmed": false,
+  "productBugConfirmed": false,
+  "codeChanged": false,
+  "deployed": false,
+  "testVolume": "7f2c9c55-68e0-4216-9afa-42f0ce3571bb",
+  "newFixtureCreatedAndUiExportSucceeded": true,
+  "newDownloadClicked": false,
+  "testVolumeDeleted": true,
+  "primaryImageRemains": false,
+  "exportRefRemains": false,
+  "exportUrlHttp": 404,
+  "protectedPid": "219715",
+  "protectedStartTicks": "191152358",
+  "protectedVmMutated": false,
+  "cause": "Windows Computer Use terminated because current Chrome URL could not be determined confidently, including after user activated Mold tab."
+}
