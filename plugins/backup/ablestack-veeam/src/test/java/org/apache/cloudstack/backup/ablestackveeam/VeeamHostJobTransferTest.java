@@ -90,9 +90,12 @@ public class VeeamHostJobTransferTest {
                         + "function Copy-VBRComputerBackupJob { [CmdletBinding()] param($Job,$Name,$Description)\n"
                         + "  $copy=@{};foreach($key in $Job.Keys){$copy[$key]=$Job[$key]};$copy.Name=$Name;$copy.Description=$Description\n"
                         + "  $copy.Id='" + HOST_JOB_ID + "';$state.jobs+=@($copy);$state.copies++;Save-State }\n"
-                        + "function Set-VBRComputerBackupJob { [CmdletBinding()] param($Job,$BackupObject,$BackupType,$SelectedFilesOptions,$ScriptOptions,[switch]$EnableSchedule,[switch]$UseSnapshotlessFileLevelBackup)\n"
-                        + "  $Job.EnableSchedule=[bool]$EnableSchedule;$Job.ScriptOptions=$ScriptOptions\n"
-                        + "  if($SelectedFilesOptions){$Job.SelectedFiles=$SelectedFilesOptions};Save-State }\n"
+                        + "function Set-VBRComputerBackupJob { [CmdletBinding()] param($Job,$Name,$BackupObject,$BackupType,$SelectedFilesOptions,$ScriptOptions,[switch]$EnableSchedule,[switch]$UseSnapshotlessFileLevelBackup)\n"
+                        + "  if($PSBoundParameters.ContainsKey('Name')){if($Name -like 'ABLESTACK-H-*' -and $state.failReset){throw 'name reset rejected'};$Job.Name=$Name}\n"
+                        + "  if($PSBoundParameters.ContainsKey('EnableSchedule')){$Job.EnableSchedule=[bool]$EnableSchedule}\n"
+                        + "  if($PSBoundParameters.ContainsKey('ScriptOptions')){$Job.ScriptOptions=$ScriptOptions}\n"
+                        + "  if($SelectedFilesOptions){$Job.SelectedFiles=$SelectedFilesOptions};Save-State\n"
+                        + "  if($Name -like 'ABLESTACK-H-*' -and $state.loseResetReply){throw 'lost name reset reply'} }\n"
                         + "function Start-VBRComputerBackupJob { [CmdletBinding()] param($Job,[switch]$FullBackup,[switch]$RunAsync)\n"
                         + "  if($state.rejectStart){throw 'Start acceptance is unconfirmed'}\n"
                         + "  if(!$FullBackup -or !$RunAsync -or $Job.EnableSchedule -or $Job.ScriptOptions.Count){throw 'unsafe transfer configuration'}\n"
@@ -124,13 +127,155 @@ public class VeeamHostJobTransferTest {
         ThirdPartyBackupManifest.Artifact artifact = new ThirdPartyBackupManifest.Artifact();
         artifact.backupUuid = "33333333-3333-4333-8333-333333333333";
         artifact.sourceHost = "ablecube1";
-        artifact.path = "/staging/vm/time/" + name;
+        artifact.path = "/staging/vm/2026.10.29.15.18.00.000" + ("metadata".equals(name) ? "" : "/" + name);
         client.prepareVolumeArtifact(TEMPLATE, artifact);
         return artifact;
     }
 
     private ThirdPartyBackupManifest.Artifact submit(Client client, ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
         return client.backupVolumeArtifact(TEMPLATE, "192.0.2.1", artifact, metadata);
+    }
+
+    @Test public void labelsIdentifyVmCheckpointAndRoleWithinAgentNameLimit() throws Exception {
+        Client client = new Client();
+        ThirdPartyBackupManifest.Artifact root = artifact(client, "root.raw");
+        root.path = root.path.replace("/vm/", "/i-2-319-VM/");
+        ThirdPartyBackupManifest.Artifact data = artifact(client, "datadisk.a.raw");
+        data.path = data.path.replace("/vm/", "/i-2-319-VM/");
+        ThirdPartyBackupManifest.Artifact metadata = artifact(client, "metadata");
+        metadata.path = metadata.path.replace("/vm/", "/i-2-319-VM/");
+        String rootName = VeeamHostJobTransfer.displayName(root, false);
+        String dataName = VeeamHostJobTransfer.displayName(data, false);
+        String metadataName = VeeamHostJobTransfer.displayName(metadata, true);
+        assertTrue(rootName, rootName.startsWith("MOLD-DATA-i-2-319-VM-ROOT-20261029-151800-"));
+        assertTrue(dataName, dataName.startsWith("MOLD-DATA-i-2-319-VM-DISK-20261029-151800-"));
+        assertTrue(metadataName, metadataName.startsWith("MOLD-RESTORE-i-2-319-VM-20261029-151800-"));
+        assertTrue(rootName.length() <= 50);
+        assertTrue(dataName.length() <= 50);
+        assertTrue(metadataName.length() <= 50);
+        assertEquals(metadataName, VeeamHostJobTransfer.displayName(metadata, true));
+        data.path = data.path.replace("datadisk.a.raw", "datadisk.b.raw");
+        assertNotEquals(dataName, VeeamHostJobTransfer.displayName(data, false));
+        metadata.path = metadata.path.replace("i-2-319-VM", "a-long-VM-name-한글-'quoted'-".repeat(6));
+        String longName = VeeamHostJobTransfer.displayName(metadata, true);
+        assertEquals(50, longName.length());
+        assertTrue(longName, longName.matches("MOLD-RESTORE-[A-Za-z0-9_-]+-[a-f0-9]{8}"));
+        metadata.backupUuid = "44444444-4444-4444-8444-444444444444";
+        assertNotEquals(longName, VeeamHostJobTransfer.displayName(metadata, true));
+        for (ThirdPartyBackupManifest.Artifact target : List.of(root, data, metadata)) {
+            boolean isMetadata = target == metadata;
+            String original = isMetadata ? "/staging/%s/2026.10.29.15.18.00.000" :
+                    "/staging/%s/2026.10.29.15.18.00.000/" + (target == root ? "root.raw" : "datadisk.a.raw");
+            for (String vm : List.of("a".repeat(200), "한글 공백:'\"\\?*<>|;$[]()", "CON")) {
+                target.path = String.format(original, vm);
+                String name = VeeamHostJobTransfer.displayName(target, isMetadata);
+                assertTrue(name, name.length() <= 50);
+                assertTrue(name, name.matches("[A-Za-z0-9_-]+"));
+                assertTrue(name, name.contains("20261029-151800"));
+                assertTrue(name, name.matches(".*-[a-f0-9]{8}"));
+            }
+            target.path = String.format(original, "a".repeat(200) + "-first");
+            String first = VeeamHostJobTransfer.displayName(target, isMetadata);
+            target.path = String.format(original, "a".repeat(200) + "-second");
+            assertNotEquals(first, VeeamHostJobTransfer.displayName(target, isMetadata));
+        }
+    }
+
+    @Test public void renamedTransfersKeepDistinctBackupNamesAndTheSameJobId() throws Exception {
+        Client client = new Client();
+        String stableName = VeeamHostJobTransfer.jobName(TEMPLATE, "ablecube1");
+        List<ThirdPartyBackupManifest.Artifact> results = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (String file : List.of("root.raw", "datadisk.a.raw", "metadata")) {
+            boolean metadata = "metadata".equals(file);
+            ThirdPartyBackupManifest.Artifact result = submit(client, artifact(client, file), metadata);
+            String expected = VeeamHostJobTransfer.displayName(result, metadata);
+            assertEquals(expected, client.state().getJSONArray("jobs").getJSONObject(1).getString("Name"));
+            assertEquals(expected, client.state().getJSONArray("backups").getJSONObject(results.size()).getString("Name"));
+            client.retireVolumeArtifactJob(result, metadata);
+            assertEquals(stableName, client.state().getJSONArray("jobs").getJSONObject(1).getString("Name"));
+            assertEquals(HOST_JOB_ID, result.externalJobId);
+            assertTrue(client.volumeArtifactExists(result));
+            results.add(result);
+            names.add(expected);
+        }
+        JSONObject state = client.state();
+        assertEquals(1, state.getInt("copies"));
+        assertEquals(3, state.getInt("starts"));
+        assertEquals(2, state.getJSONArray("jobs").length());
+        for (int i = 0; i < names.size(); i++) {
+            JSONObject backup = state.getJSONArray("backups").getJSONObject(i);
+            assertEquals(names.get(i), backup.getString("Name"));
+            assertEquals(results.get(i).externalBackupId, backup.getString("Id"));
+            assertEquals(results.get(i).externalId, backup.getString("pointId"));
+        }
+        assertTrue(client.deleteVolumeArtifact(results.get(0), false));
+        assertTrue(client.volumeArtifactExists(results.get(1)));
+        assertTrue(client.volumeArtifactExists(results.get(2)));
+    }
+
+    @Test public void renamedJobLookupRejectsChangedIdsAndDuplicateOwnership() throws Exception {
+        Client client = new Client();
+        ThirdPartyBackupManifest.Artifact a = submit(client, artifact(client, "root.raw"), false);
+        JSONObject state = client.state();
+        state.getJSONArray("jobs").getJSONObject(1).put("Id", "66666666-6666-4666-8666-666666666666");
+        client.writeState(state);
+        assertThrows(CloudRuntimeException.class, () -> client.recoverVolumeArtifact(a, false));
+        assertEquals(1, client.state().getInt("starts"));
+        state.getJSONArray("jobs").getJSONObject(1).put("Id", HOST_JOB_ID);
+        JSONObject duplicate = new JSONObject(state.getJSONArray("jobs").getJSONObject(1).toString()).put("Name", "duplicate");
+        state.getJSONArray("jobs").put(duplicate);
+        client.writeState(state);
+        assertThrows(CloudRuntimeException.class, () -> client.recoverVolumeArtifact(a, false));
+        assertEquals(1, client.state().getInt("starts"));
+        assertEquals(1, client.state().getInt("copies"));
+    }
+
+    @Test public void legacyHostReceiptWithoutDisplayNameFinishesWithoutResubmission() throws Exception {
+        Client client = new Client();
+        ThirdPartyBackupManifest.Artifact a = submit(client, artifact(client, "root.raw"), false);
+        JSONObject state = client.state();
+        state.getJSONArray("jobs").getJSONObject(1).put("Name", a.externalJobName);
+        state.getJSONArray("backups").getJSONObject(0).put("Name", a.externalJobName);
+        client.writeState(state);
+        try (var files = Files.list(client.root.resolve("ABLESTACK/Mold/host-job-transfer"))) {
+            Path receipt = files.filter(path -> path.toString().endsWith(".json") && !path.toString().endsWith(".owner.json"))
+                    .findFirst().orElseThrow();
+            JSONObject saved = new JSONObject(Files.readString(receipt));
+            saved.remove("displayName");
+            saved.remove("backupName");
+            Files.writeString(receipt, saved.toString());
+        }
+        ThirdPartyBackupManifest.Artifact recovered = client.recoverVolumeArtifact(a, false);
+        client.retireVolumeArtifactJob(recovered, false);
+        assertEquals(a.externalBackupId, recovered.externalBackupId);
+        assertEquals(1, client.state().getInt("starts"));
+        assertEquals(1, client.state().getInt("copies"));
+        assertEquals(a.externalJobName, client.state().getJSONArray("backups").getJSONObject(0).getString("Name"));
+    }
+
+    @Test public void failedOrLostNameResetRetainsOwnershipUntilTheSameJobIsConfirmed() throws Exception {
+        for (String failure : List.of("failReset", "loseResetReply")) {
+            Client client = new Client();
+            ThirdPartyBackupManifest.Artifact a = submit(client, artifact(client, "root.raw"), false);
+            ThirdPartyBackupManifest.Artifact b = artifact(client, "datadisk.a.raw");
+            client.flag(failure, true);
+            assertThrows(CloudRuntimeException.class, () -> client.retireVolumeArtifactJob(a, false));
+            assertThrows(ThirdPartyBackupTransferBusyException.class, () -> submit(client, b, false));
+            assertEquals(1, client.state().getInt("starts"));
+            assertEquals(1, client.state().getInt("detaches"));
+            assertTrue(client.volumeArtifactExists(a));
+            client.flag(failure, false);
+            client.retireVolumeArtifactJob(a, false);
+            assertEquals(a.externalJobName, client.state().getJSONArray("jobs").getJSONObject(1).getString("Name"));
+            ThirdPartyBackupManifest.Artifact next = submit(client, b, false);
+            String currentName = client.state().getJSONArray("jobs").getJSONObject(1).getString("Name");
+            client.retireVolumeArtifactJob(a, false);
+            assertEquals(currentName, client.state().getJSONArray("jobs").getJSONObject(1).getString("Name"));
+            assertEquals(a.externalJobId, next.externalJobId);
+            assertEquals(1, client.state().getInt("detaches"));
+            assertEquals(1, client.state().getInt("copies"));
+        }
     }
 
     @Test public void oneJobBacksUpAndDetachesAAndBThenDeletesOnlyA() throws Exception {

@@ -20,6 +20,7 @@ package org.apache.cloudstack.backup.ablestackveeam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,21 @@ final class VeeamHostJobTransfer {
         artifact.externalJobName = name;
     }
 
+    /** Bound names to 50 ASCII characters; the suffix distinguishes truncated names and disks. */
+    static String displayName(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        Path path = Path.of(artifact.path);
+        Path checkpoint = metadata ? path : path.getParent();
+        String vm = checkpoint.getParent().getFileName().toString().replaceAll("[^A-Za-z0-9_-]", "-");
+        String digits = checkpoint.getFileName().toString().replaceAll("[^0-9]", "");
+        String timestamp = digits.length() >= 14 ? digits.substring(0, 8) + "-" + digits.substring(8, 14) : "undated";
+        String prefix = metadata ? "MOLD-RESTORE-" : "MOLD-DATA-";
+        String role = metadata ? "" : (path.getFileName().toString().startsWith("root.") ? "-ROOT" : "-DISK");
+        String identity = artifact.backupUuid + "|" + artifact.path + "|" + artifact.sourceHost + "|" + metadata;
+        String suffix = role + "-" + timestamp + "-" + UUID.nameUUIDFromBytes(identity.getBytes(StandardCharsets.UTF_8))
+                .toString().replace("-", "").substring(0, 8);
+        return prefix + StringUtils.left(StringUtils.defaultIfBlank(vm, "vm"), 50 - prefix.length() - suffix.length()) + suffix;
+    }
+
     static List<String> commands(String operation, String template, String sourceIp,
             ThirdPartyBackupManifest.Artifact artifact, boolean metadata, boolean expiration) {
         Map<String, Object> plan = new LinkedHashMap<>();
@@ -73,6 +89,7 @@ final class VeeamHostJobTransfer {
             plan.put("binding", identity);
             plan.put("key", UUID.nameUUIDFromBytes(identity.getBytes(StandardCharsets.UTF_8)).toString());
             plan.put("jobName", artifact.externalJobName);
+            if ("SUBMIT".equals(operation)) { plan.put("displayName", displayName(artifact, metadata)); }
         }
         return List.of("$moldPlan='" + new Gson().toJson(plan).replace("'", "''") + "' | ConvertFrom-Json", SCRIPT);
     }

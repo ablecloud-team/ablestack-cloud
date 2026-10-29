@@ -1408,7 +1408,7 @@ flowchart TD
 | 매니페스트 필드 | 정의 |
 | --- | --- |
 | `transferProtocol` | 새 전송은 `VEEAM_HOST_JOB_V1`. 값이 없는 기존 보관본은 임시 Job 방식으로 처리하며 재제출·일괄 전환하지 않는다. |
-| `externalJobName` / `externalJobId` | 고정 전송 Job의 이름 / 지속되는 구성 GUID. |
+| `externalJobName` / `externalJobId` | 고정 전송 Job의 관리용 키(`ABLESTACK-H-…`) / 지속되는 구성 GUID. 전송 중 실제 표시 이름이 바뀌어도 이 값은 유지한다. |
 | `jobId` | 이번 실행의 Session GUID. 고정 Job GUID와 다르다. |
 | `externalBackupId` | 분리할 정확한 Veeam Backup GUID. 동일 이름의 다른 보관본 삭제를 방지한다. |
 | `externalId` | 정확한 Restore Point GUID. |
@@ -1420,6 +1420,48 @@ Start 응답이 유실되면 같은 Job·요청 시각·기존 세션 경계로 
 후보가 없거나 여러 개면 확인 대기를 유지하며 다시 Start하지 않는다.
 Detach 응답 유실은 같은 Backup ID의 분리 상태를 재확인하고, 확정된 보관본이 사라지거나 Job 연결이 남으면 대기한다.
 receipt나 owner 파일을 지워 대기를 해제하지 않는다. 실패한 전송도 세션 종료와 해당 보관본의 분리를 확인한 뒤 소유권을 해제한다.
+
+**Veeam 콘솔에서 VM 복원용 보관본 식별 — 실제 표시 결과 검증 필요**
+
+새 전송은 같은 Host Job을 재사용하면서 실행 전에 이름에 VM·Mold 백업 시각·역할을 넣는다.
+사용자가 Veeam의 `Backups` 목록에서 복원 브라우저를 열기 전에 VM 복원용 메타데이터를 구분하기 위한 표시다.
+
+| 보관본 이름 예시 | 의미 / 선택 방법 |
+| --- | --- |
+| `MOLD-RESTORE-i-2-319-VM-20261029-151800-a1b2c3d4` | **VM 복원용 메타데이터.** VM과 백업 시각을 대조해 이 보관본을 선택한다. |
+| `MOLD-DATA-i-2-319-VM-ROOT-20261029-151800-e5f6a7b8` | ROOT 볼륨 파일. VM 전체 복원 시작 시 직접 선택하는 항목이 아니다. |
+| `MOLD-DATA-i-2-319-VM-DISK-20261029-151800-c9d0e1f2` | DATA 볼륨 파일. 여러 DATA 볼륨은 마지막 식별 접미사로 구분한다. |
+
+이름의 시각은 전송별 완료 시간이 아닌 원본 스테이징 경로의 공통 Mold 백업 시각이다.
+마지막 8자리 식별자는 백업·파일·Host로부터 생성하며, 긴 VM 이름을 줄이거나 같은 초의 백업이 있어도 구분하는 데 사용한다.
+표시 이름은 호환성과 경로 길이를 고려해 자체 상한을 50자로 제한한다. VM 이름 부분만 줄이고 역할·시각·식별자는 보존한다.
+ASCII 영문·숫자·하이픈·밑줄만 사용하며 VM 이름의 한글·공백·기타 특수문자는 하이픈으로 바꾼다.
+항상 `MOLD-` 접두사를 붙여 `CON`, `NUL` 등 Windows 예약 이름 전체와 일치하지 않게 한다.
+Veeam의 [일반 이름 규칙](https://helpcenter.veeam.com/docs/vbr/userguide/naming_conventions.html)도 확인한다.
+Job 종류별 최대 길이를 동일하게 가정하지 않으며 설치된 VBR에서 새 이름 설정과 실제 보관본 표시를 검증한다.
+백업·복원·삭제 대상을 확정할 때에는 표시 이름 대신 저장된 정확한 Job·Backup·Restore Point GUID를 사용한다.
+
+Job의 소유 표식(`Description`)과 관리용 키·owner·lock 파일명은 변경하지 않는다.
+이름 변경 후에도 소유 표식으로 하나의 Job을 찾고 저장된 Job GUID를 대조한다.
+보관본 분리 확인 후에는 Job 이름을 관리용 `ABLESTACK-H-…`로 되돌린 다음 소유권을 해제한다.
+이름 초기화 응답이 미확정이면 소유권과 임시 파일을 유지하고 같은 Job의 초기화만 재시도한다.
+이전에 완료된 artifact의 COMMIT을 다시 받아도 현재 다른 artifact가 사용하는 Job의 이름·소유권을 바꾸지 않는다.
+
+Veeam은 기존 보관본의 표시 이름을 Job 이름 변경에 맞춰 자동 갱신하지 않는다.
+이 구현은 **새 보관본 생성 전 이름을 설정**하는 방식이며 기존 보관본을 일괄 변경하지 않는다.
+기존 receipt에 표시 이름이 없으면 저장된 기존 세션을 그대로 마무리하고 재전송하지 않는다.
+공식 [백업 이름 동작 안내](https://www.veeam.com/kb2174)와 실제 설치 버전의 동작을 함께 확인한다.
+로컬 PowerShell 검증은 Veeam cmdlet을 모의하므로, 실제 VBR에서 목록 이름이 보존되는지 별도로 검증해야 한다.
+
+VBR의 artifact receipt에는 요청 이름 `displayName`과 마지막으로 조회한 보관본 이름 `backupName`을 기록한다.
+실제 이름이 요청과 다르면 경고를 출력하고 보관본과 GUID는 보존한다. 표시 이름 차이만으로 백업을 다시 제출하거나 삭제하지 않는다.
+ROOT·DATA·마지막 metadata의 receipt를 대조하고, 다음 전송 및 Job 이름 복귀 뒤에도 앞선 보관본 이름이 유지되는지 확인한다.
+`MOLD-RESTORE`라는 이름만으로 복원 가능 여부를 확정하지 않고 Mold의 최종 `BackedUp`과 전체 체인 가용성을 함께 확인한다.
+선택 후에는 기존 방식대로 `resolveBackupArtifact`의 `metadatarestorepath`로 메타데이터를 복원한다.
+
+이 표시 개선은 모든 관리 서버의 Veeam 플러그인(Java와 내장 PowerShell 스크립트)을 배포하고 관리 서비스를 재시작해야 적용된다.
+각 KVM Host의 `veeam/mold-backup.lib.sh`도 갱신하여 새 표시 이름의 전송 Job에 Hook이 재진입하지 않도록 한다.
+기준 스케줄 Job과 사전구성의 VM 선택·스케줄 설정은 유지한다. 기존 보관본과 receipt를 초기화하지 않고 다음 새 백업부터 확인한다.
 
 `Artifact is saved; external transfer finalization is pending`에
 `PowerShell is in NonInteractive mode. Read and Prompt functionality is not available.`가 함께 표시되면,
@@ -1463,7 +1505,9 @@ VM 30대라도 Job 구성 수는 Host 수를 기준으로 늘고, 세션·보관
 4. A만 명시적으로 삭제하고 B의 Backup·Restore Point와 고정 Job이 유지되는지 확인한다.
    B를 원본 KVM Host를 이용한 파일 복원으로 받아 원본 내용·체크섬과 대조한다.
 5. Mold VM의 볼륨 여러 개와 마지막 메타데이터, Full·증분, Mold UI·Veeam UI 복원을 검증한다.
-   같은 표시 이름으로 여러 보관본이 남아도 정확한 ID로 대상이 구분되는지 확인한다.
+   새 보관본의 `MOLD-DATA`·`MOLD-RESTORE` 이름에서 VM과 공통 백업 시각이 보이고,
+   다음 전송·Job 이름 복귀 후에도 이전 보관본 이름과 세 GUID가 유지되는지 확인한다.
+   기존 표시 이름의 보관본도 정확한 ID로 계속 복원·삭제할 수 있어야 한다.
 6. Start·Detach 응답 유실 및 Detach 실패에서 중복 제출·다른 보관본 삭제가 없고 대기·재조회로 복구되는지 확인한다.
 7. Days 보존의 실제 만료와 Mold 카탈로그 반영을 확인한다. 기간 경과 전 삭제 테스트가 자동 만료 검증을 대신하지 않는다.
 

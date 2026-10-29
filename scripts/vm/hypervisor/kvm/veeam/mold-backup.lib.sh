@@ -3055,7 +3055,8 @@ mold_backup_pre_notify() {
   job="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
   VEEAM_JOB_NAME="$job"
   # Transfer jobs are owned by Mold and must not recursively create VM backups.
-  [[ ! "$job" =~ ^ABLESTACK-([VMH]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ ]] || return 0
+  [[ ! "$job" =~ ^ABLESTACK-([VMH]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ \
+    && ! "$job" =~ ^MOLD-(RESTORE|DATA)-[A-Za-z0-9_-]+-[[:xdigit:]]{8}$ ]] || return 0
   [[ "${VEEAM_PROVIDER_NAME:-ablestack-veeam}" == ablestack-veeam && "${BACKUP_MODE:-host}" =~ ^(host|policy)$ ]] || {
     mold_backup_notify_log err "Veeam hooks require the ablestack-veeam host volume staging configuration"
     return 1
@@ -3110,7 +3111,8 @@ mold_backup_post_notify() {
   VEEAM_JOB_NAME="$job"
   mold_backup_load_config || return 1
   job="$(mold_backup_normalize_job_name "${VEEAM_JOB_NAME:-$job}")"
-  [[ ! "$job" =~ ^ABLESTACK-([VMH]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ ]] || return 0
+  [[ ! "$job" =~ ^ABLESTACK-([VMH]-[[:xdigit:]]{32}|[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36}))$ \
+    && ! "$job" =~ ^MOLD-(RESTORE|DATA)-[A-Za-z0-9_-]+-[[:xdigit:]]{8}$ ]] || return 0
   export MOLD_BACKUP_HOOK=post-notify
   state_file="$(mold_backup_latest_state_file "$job" || true)"
   if [[ -f "$state_file" ]]; then

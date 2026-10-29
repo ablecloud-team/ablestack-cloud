@@ -70,9 +70,13 @@ cat "$TEST_ROOT/config-updates"
 mold_backup_load_config() { :; }
 mold_backup_notify_log() { echo UNEXPECTED; }
 mold_backup_cmk_run() { echo UNEXPECTED; }
-VEEAM_JOB_NAME=ABLESTACK-H-0123456789abcdef0123456789abcdef
-mold_backup_pre_notify ablecube1 "$VEEAM_JOB_NAME"
-mold_backup_post_notify ablecube1 "$VEEAM_JOB_NAME"
+for VEEAM_JOB_NAME in \
+  ABLESTACK-H-0123456789abcdef0123456789abcdef \
+  MOLD-RESTORE-i-2-319-VM-20261029-151800-1234abcd \
+  MOLD-DATA-i-2-319-VM-ROOT-20261029-151800-1234abcd; do
+  mold_backup_pre_notify ablecube1 "$VEEAM_JOB_NAME"
+  mold_backup_post_notify ablecube1 "$VEEAM_JOB_NAME"
+done
 ''')
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertNotIn("UNEXPECTED", result.stdout)

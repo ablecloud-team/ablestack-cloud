@@ -44,12 +44,18 @@ function Read-Json($path) {
     return $null
 }
 function Read-Job {
-    $jobs = @(Get-VBRComputerBackupJob -ErrorAction Stop | Where-Object { $_.Name -ceq $moldPlan.jobName })
-    if ($jobs.Count -gt 1) { throw 'Fixed Host Job name is ambiguous' }
+    # Names change only while an artifact owns the Job. The ownership marker remains immutable.
+    $all = @(Get-VBRComputerBackupJob -ErrorAction Stop)
+    $marker = 'Mold fixed Host transfer ' + $moldPlan.jobName
+    if (@($all | Where-Object { $_.Name -ceq $moldPlan.jobName -and [string]$_.Description -cne $marker }).Count -ne 0) {
+        throw 'Fixed Host Job ownership differs'
+    }
+    $jobs = @($all | Where-Object { [string]$_.Description -ceq $marker })
+    if ($jobs.Count -gt 1) { throw 'Fixed Host Job ownership is ambiguous' }
     if ($jobs.Count -eq 1) {
         $job = $jobs[0]
-        if ([string]$job.Description -cne ('Mold fixed Host transfer ' + $moldPlan.jobName)) { throw 'Fixed Host Job ownership differs' }
         if ($receipt -and $receipt.hostJobId -and [string]$job.Id -ne $receipt.hostJobId) { throw 'Fixed Host Job identity changed' }
+        if ($moldPlan.artifact.externalJobId -and [string]$job.Id -ne $moldPlan.artifact.externalJobId) { throw 'Saved fixed Host Job identity changed' }
         return $job
     }
     return $null
@@ -87,6 +93,27 @@ function Assert-SavedReference {
 function Clear-Owner {
     $current = Read-Json $ownerPath
     if ($current -and $current.binding -ceq $moldPlan.binding -and $current.key -eq $moldPlan.key) { [IO.File]::Delete($ownerPath) }
+}
+function Release-Owner($job) {
+    $current = Read-Json $ownerPath
+    # An old artifact's repeated COMMIT must not rename or release a newer artifact's Job.
+    if (-not $current -or $current.binding -cne $moldPlan.binding -or $current.key -ne $moldPlan.key) { return }
+    if ($job) {
+        Assert-Idle $job
+        if (@(Read-Attached $job).Count -ne 0) { throw 'Cannot reset the Host Job name while a backup is attached' }
+        if ($job.Name -cne $moldPlan.jobName) {
+            Set-VBRComputerBackupJob -Job $job -Name $moldPlan.jobName | Out-Null
+            $reset = Read-Job
+            if (-not $reset -or $reset.Name -cne $moldPlan.jobName) { throw 'Fixed Host Job name reset is unconfirmed' }
+        }
+    } elseif ($receipt.hostJobId) { throw 'Fixed Host Job is missing before ownership release' }
+    Clear-Owner
+}
+function Record-BackupName($backup) {
+    $receipt.backupName = [string]$backup.Name
+    if ($receipt.displayName -and $receipt.backupName -cne $receipt.displayName) {
+        Write-Warning ('Backup display name differs; expected=' + $receipt.displayName + '; actual=' + $receipt.backupName)
+    }
 }
 function Return-Receipt {
     if ($receipt.phase -eq 'REJECTED') { Write-Result @{notSubmitted=$true; failure=$receipt.failure}; return }
@@ -181,10 +208,11 @@ try {
             if (-not $backup) { throw 'Detach lost the committed backup container' }
             $null = Assert-Point $backup $receipt.externalId
             Assert-Detached $backup
+            Record-BackupName $backup
             if (-not (Read-Job)) { throw 'Fixed Host Job disappeared during Detach' }
             $receipt.phase = 'DETACHED'; Save-Json $receiptPath $receipt
         } else { Assert-Detached $backup }
-        Clear-Owner
+        Release-Owner $job
         Write-Result @{retired=$true; externalId=$receipt.externalId}; return
     }
 
@@ -193,7 +221,7 @@ try {
             if ($moldPlan.artifact.jobId -or ($owner -and $owner.binding -ceq $moldPlan.binding)) { throw 'Cannot release an accepted Host Job without its submission receipt' }
             Write-Result @{released=$true}; return
         }
-        if ($receipt.phase -in @('DETACHED','DETACHED_FAILED','REJECTED')) { Clear-Owner; Write-Result @{released=$true}; return }
+        if ($receipt.phase -in @('DETACHED','DETACHED_FAILED','REJECTED')) { Release-Owner $job; Write-Result @{released=$true}; return }
         if (-not $job -or -not $owner -or $owner.binding -cne $moldPlan.binding) { throw 'Failed artifact ownership is unconfirmed' }
         Assert-Idle $job
         if ($receipt.phase -notin @('FAILED','PREPARING')) { throw 'Submission is unconfirmed or successful; reconcile it before releasing the Host Job' }
@@ -208,7 +236,7 @@ try {
         }
         $receipt.backupAbsent = -not $receipt.backupId
         $receipt.phase = 'DETACHED_FAILED'; Save-Json $receiptPath $receipt
-        Clear-Owner; Write-Result @{released=$true}; return
+        Release-Owner $job; Write-Result @{released=$true}; return
     }
 
     if ($moldPlan.operation -notin @('SUBMIT','RECOVER')) { throw 'Unknown Host Job operation' }
@@ -225,7 +253,7 @@ try {
             if ($owner.binding -ceq $moldPlan.binding) { throw 'Host Job owner exists without its receipt; reconcile without resubmitting' }
             Write-Result @{busy=$true;notSubmitted=$true;failure='Waiting for the previous Host artifact to be detached'}; return
         }
-        $receipt = @{protocol=$moldPlan.protocol;binding=$moldPlan.binding;phase='PREPARING';jobId=$null;failure=$null}
+        $receipt = @{protocol=$moldPlan.protocol;binding=$moldPlan.binding;phase='PREPARING';jobId=$null;failure=$null;displayName=$moldPlan.displayName}
         Save-Json $receiptPath $receipt
         Save-Json $ownerPath @{binding=$moldPlan.binding;key=$moldPlan.key}
         $fresh = $true
@@ -262,6 +290,14 @@ try {
             }
             $scripts = New-VBRJobScriptOptions
             Set-VBRComputerBackupJob -Job $job -BackupObject $computers[0] -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false -UseSnapshotlessFileLevelBackup | Out-Null
+            if ($receipt.displayName) {
+                if ($receipt.displayName.Length -gt 50 -or $receipt.displayName -cnotmatch '^MOLD-(RESTORE|DATA)-[A-Za-z0-9_-]+-[a-f0-9]{8}$') {
+                    throw 'Invalid artifact display name'
+                }
+                Set-VBRComputerBackupJob -Job $job -Name $receipt.displayName | Out-Null
+                $job = Read-Job
+                if (-not $job -or $job.Name -cne $receipt.displayName) { throw 'Artifact Job display name is unconfirmed' }
+            }
             $receipt.baseline = @(Read-Sessions $job | Sort-Object CreationTime -Descending | Select-Object -First 16 | ForEach-Object { [string]$_.Id })
         } catch {
             $failure = $_.Exception.Message
@@ -273,7 +309,7 @@ try {
                 if (@(Read-Attached $job).Count -ne 0) { throw 'Preparation failed with an attached backup; preserve owner for reconciliation' }
             }
             $receipt.phase='REJECTED'; $receipt.failure=$failure; Save-Json $receiptPath $receipt
-            Clear-Owner; Return-Receipt; return
+            Release-Owner $job; Return-Receipt; return
         }
         $receipt.issuedAt = [DateTime]::UtcNow.ToString('o')
         $receipt.phase = 'SUBMITTING'; Save-Json $receiptPath $receipt
@@ -295,7 +331,7 @@ try {
     if ([string]$session.State -eq 'Stopped') {
         $backups = @(Read-Attached $job)
         if ($backups.Count -gt 1) { throw 'Host Job contains ambiguous backups' }
-        if ($backups.Count -eq 1) { $receipt.backupId=[string]$backups[0].Id }
+        if ($backups.Count -eq 1) { $receipt.backupId=[string]$backups[0].Id; Record-BackupName $backups[0] }
         if ([string]$session.Result -ne 'Success') { $receipt.phase='FAILED'; $receipt.failure='Host artifact backup failed: '+[string]$session.Result }
         elseif ($backups.Count -eq 1) {
             $points = @(Get-VBRRestorePoint -Backup $backups[0] -ErrorAction Stop)
