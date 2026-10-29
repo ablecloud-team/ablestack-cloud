@@ -9851,5 +9851,8 @@
   "message.snapshot.policy.bulk.ack": "I reviewed the targets and effects and will delete these {0} policies.",
   "message.snapshot.policy.bulk.failed": "Deletion failed or its response was lost. Review each current state. Absence alone does not confirm request success.",
   "message.snapshot.policy.bulk.results": "Confirmed deleted: {0}; still present: {1}; unknown result: {2}",
-  "message.snapshot.policy.bulk.success": "Confirmed deletion of {0} selected policies. Existing snapshots are preserved."
+  "message.snapshot.policy.bulk.success": "Confirmed deletion of {0} selected policies. Existing snapshots are preserved.",
+  "message.clone.allocation.lookup.failed": "Unable to verify source volume allocation policies. Retry the lookup before cloning.",
+  "message.clone.allocation.full.linked": "A volume requests Full allocation. Select Full clone to preserve each volume policy. A Linked COW image cannot guarantee per-image Full allocation.",
+  "message.clone.allocation.raw.stop": "Stop the source VM before making a verified independent copy of GFS2 RAW volumes. Source format and policies are preserved."
 }

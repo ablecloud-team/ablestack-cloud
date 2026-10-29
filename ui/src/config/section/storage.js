@@ -19,7 +19,6 @@ import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { isZoneCreated } from '@/utils/zone'
 import { isAdmin } from '@/role'
-import { allocationIntent } from '@/utils/volumeAllocation'
 import { canDeleteVolume, volumeDeleteReason } from '@/utils/volumeEdit'
 import { assignmentReason } from '@/utils/storageManagement'
 import { canEditPolicy, canManagePolicy } from '@/utils/snapshotPolicyEditing'
@@ -316,8 +315,8 @@ export default {
           message: 'message.download.volume.confirm',
           dataView: true,
           show: (record) => { return record.state === 'Ready' && (record.vmstate === 'Stopped' || !record.virtualmachineid) },
-          disabled: record => !!allocationIntent(record) || isFastCloneFlattenActive(record),
-          tooltip: (record) => allocationIntent(record) ? 'message.allocation.lifecycle.unsupported' : isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.download.volume',
+          disabled: record => isFastCloneFlattenActive(record),
+          tooltip: (record) => isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.download.volume',
           args: ['zoneid', 'mode'],
           mapping: {
             zoneid: {
@@ -337,8 +336,8 @@ export default {
           show: (record) => {
             return record.state === 'Ready' && (record.vmstate === 'Stopped' || !record.virtualmachineid)
           },
-          disabled: record => !!allocationIntent(record) || isFastCloneFlattenActive(record),
-          tooltip: (record) => allocationIntent(record) ? 'message.allocation.lifecycle.unsupported' : isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.create.template.from.volume',
+          disabled: isFastCloneFlattenActive,
+          tooltip: (record) => isFastCloneFlattenActive(record) ? 'message.sharedmountpoint.clone.flatten.in.progress' : 'label.action.create.template.from.volume',
           popup: true,
           standardDialogSize: 'md',
           snapshotStandardDialog: true,

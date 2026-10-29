@@ -1,0 +1,440 @@
+{
+  "issue": 1513,
+  "epic": 1510,
+  "pr": 1514,
+  "status": "in_progress",
+  "issueClosed": false,
+  "codeHead": "7eefbf9324fc2bd1ec4f5ba7553038fa28bf9699",
+  "deployedCodeHead": "7eefbf9324fc2bd1ec4f5ba7553038fa28bf9699",
+  "tests": {
+    "java": {
+      "suites": [
+        {
+          "name": "org.apache.cloudstack.storage.to.VolumeExportTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "core"
+        },
+        {
+          "name": "com.cloud.storage.VolumeExportGuardTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "server"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeServiceTest",
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeExportServiceTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeObjectTest",
+          "tests": 37,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeAllocationLifecycleGuardTest",
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeAllocationResultTest",
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.RbdVolumeAllocationTest",
+          "tests": 39,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.VerifiedVolumeExportTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.VolumeExportCommandGuardTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.Gfs2VolumeAllocationTest",
+          "tests": 44,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        }
+      ],
+      "tests": 205,
+      "suiteCount": 11
+    },
+    "ui": {
+      "suites": 1,
+      "tests": 20,
+      "failures": 0
+    },
+    "uiLint": "PASS",
+    "uiProductionBuild": "PASS",
+    "fullCloudBuildRun": false
+  },
+  "uiCases": {
+    "planned": 17,
+    "validated": 7,
+    "cases": [
+      {
+        "cluster": "22",
+        "volumeId": "cccec798-3e32-4e6f-bf91-c2e615001bd3",
+        "name": "qa1513-22-off-raw-data",
+        "type": "DATADISK",
+        "policy": "off",
+        "sourceFormat": "raw",
+        "logicalBytes": 1073741824,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 524288,
+        "artifactAllocatedBytes": 524288,
+        "artifactSha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": true,
+        "uiJobId": "c1aabd5b-f3c6-4e93-84fb-9a049e393e43",
+        "uiRuntimeCode": "5753f797450474bcb1393f8ae321d5eb0f4e60f4"
+      },
+      {
+        "cluster": "22",
+        "volumeId": "5eea0b9c-44da-4a49-9e23-2e0d3e68cff7",
+        "name": "ROOT-3",
+        "type": "ROOT",
+        "policy": "off",
+        "sourceFormat": "raw",
+        "logicalBytes": 107374182400,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 2454978560,
+        "artifactAllocatedBytes": 2454986752,
+        "artifactSha256": "65b7d204da1fc7ecf5dffd7748d7601c75e825b9819787de0672745b6a38a44e",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": null,
+        "uiJobId": "e5fe4ab9-2601-48d7-8ce7-8e423e4d6ebf",
+        "uiRuntimeCode": "5753f797450474bcb1393f8ae321d5eb0f4e60f4"
+      },
+      {
+        "cluster": "31",
+        "volumeId": "72f11453-97da-4f84-82cd-4476340f33fb",
+        "name": "ROOT-795",
+        "type": "ROOT",
+        "policy": "falloc",
+        "sourceFormat": "qcow2",
+        "logicalBytes": 107374182400,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 2744844288,
+        "artifactAllocatedBytes": 2744860672,
+        "artifactSha256": "b747a6c3d0a75a2ef6650e5e6e1de1217202b12ac35bc8d5e426df72c2a90603",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": null,
+        "uiJobId": "83bfbdc5-4abd-4489-b087-c7aa8aeba3d4",
+        "uiRuntimeCode": "9e691be1d2821f4e795b4e240854f82924c75bfd"
+      },
+      {
+        "cluster": "31",
+        "volumeId": "7392eb8b-f61b-4b7d-8bbb-f7270326924e",
+        "name": "ROOT-794",
+        "type": "ROOT",
+        "policy": "metadata",
+        "sourceFormat": "qcow2",
+        "logicalBytes": 107374182400,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 2744844288,
+        "artifactAllocatedBytes": 2744856576,
+        "artifactSha256": "01b377942a4b1e3a50870fe01f2d3b41ef63a88e9598b4ff87d96e183f9545ff",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": null,
+        "uiJobId": "8f4a7904-63b6-43c2-8740-33e5ef45eceb",
+        "uiRuntimeCode": "9e691be1d2821f4e795b4e240854f82924c75bfd"
+      },
+      {
+        "cluster": "31",
+        "volumeId": "7f8a2a65-6912-43e0-8ae4-9a559764f69c",
+        "name": "qa1513-31-full-raw-data",
+        "type": "DATADISK",
+        "policy": "full",
+        "sourceFormat": "raw",
+        "logicalBytes": 1073741824,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 524288,
+        "artifactAllocatedBytes": 524288,
+        "artifactSha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": true,
+        "uiJobId": "994db2eb-0c76-4988-a7d2-e09c18e237d3",
+        "uiRuntimeCode": "9e691be1d2821f4e795b4e240854f82924c75bfd"
+      },
+      {
+        "cluster": "31",
+        "volumeId": "024a6f94-6291-4996-ad81-1fa7c0cfc324",
+        "name": "qa1513-31-full-qcow2-data",
+        "type": "DATADISK",
+        "policy": "full",
+        "sourceFormat": "qcow2",
+        "logicalBytes": 1073741824,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 524288,
+        "artifactAllocatedBytes": 524288,
+        "artifactSha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": true,
+        "uiJobId": "b978d3f6-4772-4934-9bec-a59c96611b96",
+        "uiRuntimeCode": "9e691be1d2821f4e795b4e240854f82924c75bfd"
+      },
+      {
+        "cluster": "31",
+        "volumeId": "140977b1-9aa4-4060-9c4d-038d22532a7b",
+        "name": "ROOT-796",
+        "type": "ROOT",
+        "policy": "thin",
+        "sourceFormat": "qcow2",
+        "logicalBytes": 107374182400,
+        "artifactFormat": "qcow2",
+        "artifactFileBytes": 2744844288,
+        "artifactAllocatedBytes": 2744856576,
+        "artifactSha256": "afd690d73aa6bea29a6fc7f1ce76e4d6c6839d9c7b48440275a68ac61fed8020",
+        "independent": true,
+        "sourceCompareExit": 0,
+        "httpStatus": 200,
+        "dataPatternsPass": null,
+        "uiJobId": "3b0147ec-fd7b-44c1-aff8-2eb5aecd5f12",
+        "uiRuntimeCode": "9e691be1d2821f4e795b4e240854f82924c75bfd"
+      }
+    ],
+    "pending": [
+      {
+        "cluster": "22",
+        "id": "8b5f91d8-31d5-43c1-b6fa-7d52e015b0d7",
+        "name": "qa1513-22-full-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "full",
+        "format": "raw",
+        "vm": null,
+        "attachment": false
+      },
+      {
+        "cluster": "22",
+        "id": "780b8bd7-c635-4fcb-8331-e2924be252ea",
+        "name": "qa1513-22-legacy-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "thin",
+        "format": "raw",
+        "vm": null,
+        "attachment": false
+      },
+      {
+        "cluster": "31",
+        "id": "b621f8ea-52eb-428b-a1d7-efabb9e3cfc9",
+        "name": "qa1513-31-off-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "off",
+        "format": "raw",
+        "vm": null,
+        "attachment": false
+      },
+      {
+        "cluster": "31",
+        "id": "91a285b8-9c52-4026-85b4-fc598c92fb71",
+        "name": "qa1513-31-legacy-qcow2-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "thin",
+        "format": "qcow2",
+        "vm": "qa1513-31-legacy",
+        "attachment": true
+      },
+      {
+        "cluster": "31",
+        "id": "8d036f5a-088c-4aaf-846d-715c5bb52953",
+        "name": "ROOT-797",
+        "size": 1073741824,
+        "type": "ROOT",
+        "policy": "falloc",
+        "format": "qcow2",
+        "vm": "qa1513-31-small-falloc",
+        "attachment": true
+      },
+      {
+        "cluster": "32",
+        "id": "47e39462-ef93-4039-85ab-d4e5d2bcb3ff",
+        "name": "ROOT-260",
+        "size": 107374182400,
+        "type": "ROOT",
+        "policy": "thin",
+        "format": "raw",
+        "vm": "qa1513-32-legacy",
+        "attachment": true
+      },
+      {
+        "cluster": "32",
+        "id": "235f9215-6bdf-47f5-86e2-dd66001d4aed",
+        "name": "qa1513-32-off-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "off",
+        "format": "raw",
+        "vm": "qa1513-32-full",
+        "attachment": true
+      },
+      {
+        "cluster": "32",
+        "id": "e5c43c4a-dea2-44ea-9732-933a2b833c1d",
+        "name": "qa1513-32-full-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "full",
+        "format": "raw",
+        "vm": "qa1513-32-full",
+        "attachment": true
+      },
+      {
+        "cluster": "32",
+        "id": "6964d2df-58f8-4efc-a4ac-85db80b1dc4d",
+        "name": "qa1513-32-legacy-raw-data",
+        "size": 1073741824,
+        "type": "DATADISK",
+        "policy": "thin",
+        "format": "raw",
+        "vm": "qa1513-32-legacy",
+        "attachment": true
+      },
+      {
+        "cluster": "32",
+        "id": "1710382e-9b08-488f-b598-b91e7081e578",
+        "name": "ROOT-261",
+        "size": 1073741824,
+        "type": "ROOT",
+        "policy": "full",
+        "format": "raw",
+        "vm": "qa1513-32-small-full",
+        "attachment": true
+      }
+    ]
+  },
+  "limitations": [
+    "GUI automation halted by Windows browser URL safety check; no further UI actions performed",
+    "Browser save completion not confirmed; actual files fetched from the exact UI-created HTTP links and matched against Secondary SHA256",
+    "Live failure/retry/interruption/expiration cleanup qualification remains pending",
+    "Test fixtures preserved stopped for continuation; full fixture/export cleanup remains pending"
+  ],
+  "managementHealth": {
+    "22": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 59635478528
+    },
+    "31": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 182159343616
+    },
+    "32": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 2054897664
+    }
+  },
+  "activeJarHashesMatched": 48,
+  "sourceDatabaseInvariants": {
+    "22": true,
+    "31": true,
+    "32": true
+  },
+  "protectedPerftest": {
+    "processUnchanged": true,
+    "vm": "rocky98-perftest",
+    "instance": "i-2-4-VM",
+    "pid": "219715",
+    "processStartTicks": "191152358"
+  },
+  "temporaryReaderAccountDeleted": true
+}

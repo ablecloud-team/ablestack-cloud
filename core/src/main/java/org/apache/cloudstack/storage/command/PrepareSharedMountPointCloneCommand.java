@@ -32,6 +32,13 @@ public class PrepareSharedMountPointCloneCommand extends StorageSubSystemCommand
         private long cloneVolumeId;
         private String cloneVolumePath;
         private long size;
+        private String sourceFormat;
+        private org.apache.cloudstack.storage.to.VolumeObjectTO allocatedClone;
+
+        public String getSourceFormat() { return sourceFormat == null ? "qcow2" : sourceFormat; }
+        public void setSourceFormat(String value) { sourceFormat = value; }
+        public org.apache.cloudstack.storage.to.VolumeObjectTO getAllocatedClone() { return allocatedClone; }
+        public void setAllocatedClone(org.apache.cloudstack.storage.to.VolumeObjectTO value) { allocatedClone = value; }
 
         protected VolumeCloneSpec() {
         }
@@ -73,6 +80,9 @@ public class PrepareSharedMountPointCloneCommand extends StorageSubSystemCommand
     private PrimaryDataStoreTO dataStore;
     private String vmName;
     private boolean sourceVmRunning;
+    private boolean materializedCopy;
+    public boolean isMaterializedCopy() { return materializedCopy; }
+    public void setMaterializedCopy(boolean value) { materializedCopy = value; }
     private String operationId;
     private boolean executeInSequence = true;
     private List<VolumeCloneSpec> volumeCloneSpecs = new ArrayList<>();

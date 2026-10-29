@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-28",
+  "timezone": "Asia/Seoul",
+  "fixturePrefix": "qa-clone-1028-",
+  "createdVmFixtures": 8,
+  "createdVolumeFixtures": 13,
+  "createdTemplateFixtures": 1,
+  "cluster31": {"activeVmFixtures":0,"activeVolumeFixtures":0,"activeVmSnapshotFixtures":0,"gfsImageFilesRemaining":0,"gfsOverlaysRemaining":0},
+  "cluster32": {"activeVmFixtures":0,"activeVolumeFixtures":0,"activeVmSnapshotFixtures":0,"rbdImagesRemaining":0,"cleanupRequiredRecovery":true},
+  "cluster22": {"cloneCreated":false,"templateCreatedViaApi":true,"templateDeleted":true,"templateDatabaseRemovedSet":true,"activeTemplateStoreRefs":0,"exportUrlCreated":false,"sourceVmState":"Stopped","sourceVolumeState":"Ready","sourcePathUnchanged":true,"sourceAllocationUnchanged":true,"concurrentNonTestVmAdded":1,"concurrentNonTestVmTouched":false},
+  "recovery": "On cluster32, remove cloned children, restart disposable source VM, delete its temporary VM snapshot through normal API, retry VM expunge, and delete the detached disposable DATA volumes. No direct database or storage deletion was used.",
+  "fullCloudBuildRun": false,
+  "productCodeChanged": false
+}
