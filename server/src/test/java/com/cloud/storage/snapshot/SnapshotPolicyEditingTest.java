@@ -29,6 +29,48 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class SnapshotPolicyEditingTest {
+    @Test public void migrationPolicyCopyAcceptsCreatingWithoutRelaxingUserRequests() {
+        SnapshotManagerImpl manager = new SnapshotManagerImpl();
+        VolumeVO volume = mock(VolumeVO.class);
+        when(volume.getState()).thenReturn(Volume.State.Creating);
+        manager.validatePolicyVolumeState(volume, false, true, true);
+        assertThrows(InvalidParameterValueException.class, () -> manager.validatePolicyVolumeState(volume, false, true));
+        when(volume.getState()).thenReturn(Volume.State.Restoring);
+        assertThrows(InvalidParameterValueException.class, () -> manager.validatePolicyVolumeState(volume, false, true, true));
+    }
+
+    @Test public void policyCopyActuallyUsesTheMigrationAdmissionPath() {
+        try (MockedStatic<Transaction> tx = mockStatic(Transaction.class);
+                MockedStatic<GlobalLock> locks = mockStatic(GlobalLock.class);
+                MockedStatic<CallContext> contexts = mockStatic(CallContext.class)) {
+            tx.when(() -> Transaction.execute(any(TransactionCallback.class)))
+                    .thenAnswer(i -> ((TransactionCallback<?>) i.getArgument(0)).doInTransaction(null));
+            GlobalLock lock = mock(GlobalLock.class);
+            locks.when(() -> GlobalLock.getInternLock(anyString())).thenReturn(lock);
+            when(lock.lock(5)).thenReturn(true);
+            contexts.when(CallContext::current).thenReturn(mock(CallContext.class));
+            SnapshotManagerImpl manager = spy(new SnapshotManagerImpl());
+            manager._snapshotPolicyDao = mock(SnapshotPolicyDao.class);
+            manager._volsDao = mock(VolumeDao.class);
+            manager.snapshotPolicyDetailsDao = mock(SnapshotPolicyDetailsDao.class);
+            manager.taggedResourceService = mock(TaggedResourceService.class);
+            VolumeVO source = mock(VolumeVO.class);
+            VolumeVO destination = mock(VolumeVO.class);
+            when(source.getId()).thenReturn(10L);
+            when(destination.getId()).thenReturn(20L);
+            when(destination.getState()).thenReturn(Volume.State.Creating);
+            when(manager._volsDao.findById(20L)).thenReturn(destination);
+            SnapshotPolicyVO original = new SnapshotPolicyVO(10, "5", "UTC", IntervalType.HOURLY, 3, 2, 1, true);
+            SnapshotPolicyVO copied = new SnapshotPolicyVO(20, "5", "UTC", IntervalType.HOURLY, 3, 2, 1, true);
+            when(manager._snapshotPolicyDao.listByVolumeId(10L)).thenReturn(List.of(original));
+            doReturn(copied).when(manager).createSnapshotPolicy(eq(20L), eq("5"), eq("UTC"), eq(IntervalType.HOURLY), eq(3), eq(true), anyList(), anyList());
+            manager.copySnapshotPoliciesBetweenVolumes(source, destination);
+            verify(manager).createSnapshotPolicy(eq(20L), eq("5"), eq("UTC"), eq(IntervalType.HOURLY), eq(3), eq(true), anyList(), anyList());
+            verify(lock).unlock();
+            verify(lock).releaseRef();
+        }
+    }
+
     private void guardedEdit(Long actualId, Long expectedId) {
         try (MockedStatic<Transaction> tx = mockStatic(Transaction.class);
              MockedStatic<GlobalLock> locks = mockStatic(GlobalLock.class);

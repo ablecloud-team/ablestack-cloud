@@ -235,6 +235,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     @Inject
     private BackupSnapshotGuard backupSnapshotGuard;
+    @Inject
+    private AblestackBackupOperationGuard ablestackBackupOperationGuard;
 
     @Inject private BackupVolumeAllocationService backupVolumeAllocationService;
 
@@ -1576,6 +1578,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
     private void checkAblestackBackupRecoveryBeforeStart(final VirtualMachine vm, final BackupProvider provider) {
         if (!isAblestackHostSideRestoreProvider(provider.getName())) { return; }
+        ablestackBackupOperationGuard.checkBackup(vm.getId(), provider.getName());
         final List<Backup> existing = backupDao.listByVmId(null, vm.getId());
         if (existing == null) { return; }
         for (Backup candidate : existing) {
@@ -3090,6 +3093,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             throw new CloudRuntimeException("Failed to find backup offering of the VM backup.");
         }
         validateAblestackOriginalVmRestore(offering, vm);
+        if (isAblestackHostSideRestoreProvider(offering)) {
+            ablestackBackupOperationGuard.checkRestore(vm.getId(), offering.getProvider(), false);
+        }
         validateBackupVolumes(backup, vm, offering);
         String backupDetailsInMessage = ReflectionToStringBuilderUtils.reflectOnlySelectedFields(backup, "uuid", "externalId", "vmId", "name");
         final boolean netBackupRestore = isAblestackNetBackupOffering(offering);
@@ -3141,12 +3147,23 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
     }
 
+    private void beginVmRestore(BackupVO backup, VMInstanceVO vm, BackupOffering offering) {
+        // Serialize admission with backup and topology changes, then let internal restore
+        // workers proceed without holding the user-request lock during disk I/O.
+        try (BackupVolumeGuard.Lease guard = isAblestackHostSideRestoreProvider(offering) ? backupVolumeGuard.acquire(vm.getId()) : null) {
+            if (isAblestackHostSideRestoreProvider(offering)) {
+                ablestackBackupOperationGuard.checkRestore(vm.getId(), offering.getProvider(), false, backup.getId());
+            }
+            updateVmState(vm, VirtualMachine.Event.RestoringRequested, VirtualMachine.State.Restoring);
+            updateVolumeState(vm, Volume.Event.RestoreRequested, Volume.State.Restoring);
+        }
+    }
+
     private void startDetachedVmRestore(final BackupVO backup, final VMInstanceVO vm, final BackupOffering offering,
             final BackupProvider backupProvider, final String backupDetailsInMessage, final boolean quickRestore,
             final Long hostId) {
         try {
-            updateVmState(vm, VirtualMachine.Event.RestoringRequested, VirtualMachine.State.Restoring);
-            updateVolumeState(vm, Volume.Event.RestoreRequested, Volume.State.Restoring);
+            beginVmRestore(backup, vm, offering);
             ActionEventUtils.onStartedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventTypes.EVENT_VM_BACKUP_RESTORE,
                     String.format("Restoring Instance %s from Backup %s", vm.getUuid(), backup.getUuid()),
                     vm.getId(), ApiCommandResourceType.VirtualMachine.toString(), true, 0);
@@ -3242,6 +3259,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 return true;
             }
 
+            ablestackBackupOperationGuard.checkRestore(vm.getId(), BackupProviderNameUtils.ABLESTACK_NETBACKUP, false);
             restoreGuardToken = netBackupRestoreCoordinator.acquireRestoreGuard(vm, resolution.getRequestIdentifier());
             if (restoreGuardToken == null) {
                 final String skipMessage = String.format(
@@ -3517,8 +3535,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
      */
     protected void tryRestoreVM(BackupVO backup, VMInstanceVO vm, BackupOffering offering, String backupDetailsInMessage, boolean quickRestore, Long hostId) {
         try {
-            updateVmState(vm, VirtualMachine.Event.RestoringRequested, VirtualMachine.State.Restoring);
-            updateVolumeState(vm, Volume.Event.RestoreRequested, Volume.State.Restoring);
+            beginVmRestore(backup, vm, offering);
             ActionEventUtils.onStartedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventTypes.EVENT_VM_BACKUP_RESTORE,
                     String.format("Restoring Instance %s from Backup %s", vm.getUuid(), backup.getUuid()),
                     vm.getId(), ApiCommandResourceType.VirtualMachine.toString(),
@@ -3548,8 +3565,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final BackupOffering offering,
             final String backupDetailsInMessage, final String restoreHostName) {
         try {
-            updateVmState(vm, VirtualMachine.Event.RestoringRequested, VirtualMachine.State.Restoring);
-            updateVolumeState(vm, Volume.Event.RestoreRequested, Volume.State.Restoring);
+            beginVmRestore(backup, vm, offering);
             ActionEventUtils.onStartedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventTypes.EVENT_VM_BACKUP_RESTORE,
                     String.format("Restoring VM %s from prepared NetBackup backup %s", vm.getUuid(), backup.getUuid()),
                     vm.getId(), ApiCommandResourceType.VirtualMachine.toString(),
@@ -3896,6 +3912,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (!backupProvider.supportsInstanceFromBackup()) {
             throw new CloudRuntimeException("Create instance from backup is not supported by the " + offering.getProvider() + " provider.");
         }
+        if (isAblestackHostSideRestoreProvider(offering)) {
+            ablestackBackupOperationGuard.checkRestore(vm.getId(), offering.getProvider(), false);
+        }
         final boolean netBackupRestore = isAblestackNetBackupOffering(offering);
         final String netBackupRestoreRequestIdentifier = netBackupRestore ? netBackupRestoreCoordinator.getMoldRestoreRequestIdentifier(backup) : null;
         final VMInstanceVO netBackupRestoreMarkerVm = netBackupRestore ? netBackupRestoreCoordinator.getRestoreMarkerVm(backup, vm) : null;
@@ -3916,8 +3935,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         : RestorePhase.ROOT_RESTORE_IN_PROGRESS;
                 netBackupRestoreCoordinator.persistRestoreState(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier, phase);
             }
-            updateVmState(vm, VirtualMachine.Event.RestoringRequested, VirtualMachine.State.Restoring);
-            updateVolumeState(vm, Volume.Event.RestoreRequested, Volume.State.Restoring);
+            initializeRestoreOperation(backup.getId(), offering, AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE,
+                    vm.getId(), null, null);
+            beginVmRestore(backup, vm, offering);
             restoreStateRequested = true;
             eventId = ActionEventUtils.onStartedActionEvent(User.UID_SYSTEM, vm.getAccountId(), EventTypes.EVENT_VM_CREATE_FROM_BACKUP,
                     String.format("Creating Instance %s from backup %s", vm.getInstanceName(), backup.getUuid()),
@@ -3925,8 +3945,6 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     true, 0);
 
             ablestackRestoreInstanceCleanup.prepare(backup.getId(), vm.getId());
-            initializeRestoreOperation(backup.getId(), offering, AblestackBackupFrameworkUtils.RESTORE_OPERATION_CREATE_INSTANCE,
-                    vm.getId(), null, null);
             final boolean detachedRestore = allowDetachedRestore && backupProvider.supportsDetachedRestoreOrchestration();
             if (detachedRestore) {
                 persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_START_VM_DETAIL,
@@ -4043,6 +4061,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         final BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
         if (offering == null) {
             throw new CloudRuntimeException("Failed to find Instance Backup Offering");
+        }
+
+        if (isAblestackHostSideRestoreProvider(offering)) {
+            ablestackBackupOperationGuard.checkRestore(vm.getId(), offering.getProvider(), true);
         }
 
         if (!isLiveRestoreVolumeAttachSupported(offering) && !VirtualMachine.PowerState.PowerOff.equals(vm.getPowerState())) {
@@ -6586,6 +6608,17 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (backupId == null || !isAblestackHostSideRestoreProvider(offering)) {
             return;
         }
+        try (BackupVolumeGuard.Lease guard = targetVmId == null ? null : backupVolumeGuard.acquire(targetVmId)) {
+            if (targetVmId != null) {
+                ablestackBackupOperationGuard.checkRestore(targetVmId, offering.getProvider(),
+                        AblestackBackupFrameworkUtils.RESTORE_OPERATION_VOLUME_ATTACH.equals(operationType));
+            }
+            initializeRestoreOperationWithVolumeGuard(backupId, offering, operationType, targetVmId, sourceVolumeUuid, targetDatastoreUuid);
+        }
+    }
+
+    private void initializeRestoreOperationWithVolumeGuard(final Long backupId, final BackupOffering offering, final String operationType,
+            final Long targetVmId, final String sourceVolumeUuid, final String targetDatastoreUuid) {
         final GlobalLock restoreLock = GlobalLock.getInternLock("backup.restore." + backupId);
         try {
             if (!restoreLock.lock(5)) {

@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -116,6 +118,7 @@ public class VeeamPowerShellScriptTransportTest {
             builder.environment().put("TMPDIR", remote.toString());
             builder.environment().put("TEMP", remote.toString());
             builder.environment().put("TMP", remote.toString());
+            builder.environment().put("ProgramData", root.resolve("program data").toString());
             Process process = builder.start();
             if (!process.waitFor(20, TimeUnit.SECONDS)) {
                 process.destroyForcibly();
@@ -215,6 +218,97 @@ public class VeeamPowerShellScriptTransportTest {
         assertEquals(List.of("ONCE"), Files.readAllLines(transport.effects));
         assertEquals(1, transport.invocations);
         transport.assertClean();
+    }
+
+    @Test
+    public void restoreReceiptUpdatesPersistSuccessAndRecoveryDoesNotResubmit() throws Exception {
+        LocalTransport transport = new LocalTransport();
+        transport.setup = restoreSetup(transport);
+        AblestackVeeamSshClient client = localClient(transport);
+        ThirdPartyBackupRestore.Request request = restoreRequest();
+
+        ThirdPartyBackupRestore.Result result = client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
+        assertEquals(SESSION, result.jobId);
+        assertTrue(result.completed);
+        assertTrue(result.externalTerminal);
+        assertNull(result.failure);
+
+        Path receiptPath = restoreReceiptPath(transport, request);
+        JSONObject receipt = new JSONObject(Files.readString(receiptPath));
+        assertEquals(request.jobId, receipt.getString("requestId"));
+        assertEquals(SESSION, receipt.getString("jobId"));
+        assertTrue(receipt.getBoolean("terminal"));
+        assertTrue(receipt.getBoolean("completed"));
+        assertFalse(Files.exists(Path.of(receiptPath + ".tmp")));
+
+        assertTrue(client.restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", true).completed);
+        assertEquals(List.of("RESTORE", "STOP"), Files.readAllLines(transport.effects));
+        transport.assertClean();
+    }
+
+    @Test
+    public void missingMountServerReplacesTheIntentWithTheOriginalError() throws Exception {
+        LocalTransport transport = new LocalTransport();
+        transport.setup = restoreSetup(transport)
+                + "function Get-VBRServer { param($Name) }\n";
+        ThirdPartyBackupRestore.Request request = restoreRequest();
+
+        ThirdPartyBackupRestore.Result result = localClient(transport)
+                .restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
+        assertTrue(result.externalTerminal);
+        assertFalse(result.completed);
+        assertEquals("Veeam infrastructure must provide one available Linux FLR mount server", result.failure);
+
+        Path receiptPath = restoreReceiptPath(transport, request);
+        JSONObject receipt = new JSONObject(Files.readString(receiptPath));
+        assertEquals(result.jobId, receipt.getString("jobId"));
+        assertTrue(receipt.getBoolean("terminal"));
+        assertFalse(receipt.getBoolean("completed"));
+        assertEquals(result.failure, receipt.getString("failure"));
+        assertFalse(Files.exists(Path.of(receiptPath + ".tmp")));
+        assertFalse(Files.exists(transport.effects));
+        transport.assertClean();
+    }
+
+    private AblestackVeeamSshClient localClient(LocalTransport transport) {
+        return new AblestackVeeamSshClient("test", "test", "test") {
+            @Override protected Pair<Boolean, String> executePowerShellCommands(List<String> commands) {
+                try { return VeeamPowerShell.execute(commands, transport); }
+                catch (Exception e) { throw new IllegalStateException(e); }
+            }
+        };
+    }
+
+    private ThirdPartyBackupRestore.Request restoreRequest() {
+        ThirdPartyBackupRestore.Request request = new ThirdPartyBackupRestore.Request();
+        request.jobId = "restore-test";
+        request.sequence = 0;
+        request.metadata = true;
+        request.volumeIndex = -1;
+        request.chainIndex = -1;
+        request.artifact = new ThirdPartyBackupManifest.Artifact();
+        request.artifact.externalId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+        request.artifact.path = "/mnt/staging/ablestack-veeam/vm/metadata";
+        request.destination = "/mnt/staging/ablestack-veeam/restore/restore-test/metadata/metadata";
+        return request;
+    }
+
+    private Path restoreReceiptPath(LocalTransport transport, ThirdPartyBackupRestore.Request request) {
+        return transport.root.resolve("program data/ABLESTACK/Mold/volume-restore/" + request.jobId + "-0.json");
+    }
+
+    private String restoreSetup(LocalTransport transport) {
+        return "function Get-VBRBackup { [pscustomobject]@{Id='backup'} }\n"
+                + "function Get-VBRRestorePoint { [CmdletBinding()] param([Parameter(ValueFromPipeline=$true)]$Backup); "
+                + "process { [pscustomobject]@{Id='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'} } }\n"
+                + "function Get-VBRDiscoveredComputer { [CmdletBinding()] param(); "
+                + "[pscustomobject]@{ObjectID='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';Name='ablecube1';IPAddress=@('192.0.2.1')} }\n"
+                + "function Get-VBRServer { param($Name); [pscustomobject]@{Name='ablecube1';Type='Linux'} }\n"
+                + "function Start-VBRLinuxFileRestore { param($RestorePoint,$MountServer); [pscustomobject]@{Id='" + SESSION + "'} }\n"
+                + "function Get-VBRLinuxGuestItem { param($LinuxFlrObject,$Path); [pscustomobject]@{Name='metadata'} }\n"
+                + "function Start-VBRLinuxGuestItemRestore { param($LinuxFlrObject,$Item,$TargetAgentMachine,$TargetDirectory,[switch]$Overwrite); "
+                + transport.effect("RESTORE") + "[pscustomobject]@{Id='" + SESSION + "';JobSessId='" + SESSION + "';Status='Success'} }\n"
+                + "function Stop-VBRLinuxFileRestore { param($LinuxFlrObject); " + transport.effect("STOP") + "}\n";
     }
 
     @Test

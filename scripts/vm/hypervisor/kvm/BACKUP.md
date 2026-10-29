@@ -33,6 +33,7 @@ under the License.
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
 - [NetBackup 백업 파일 만료 시 참고사항](#netbackup-백업-파일-만료-시-참고사항)
+- [Veeam 보존기간과 백업 삭제](#veeam-보존기간과-백업-삭제)
 - [Veeam 13.0 VM별 스케줄 검증 시나리오](#veeam-130-vm별-스케줄-검증-시나리오)
 - [Veeam Job 이름과 길이 제한](#veeam-job-이름과-길이-제한)
 - [NetBackup·Veeam 사전 구성 파라미터 비교](#netbackupveeam-사전-구성-파라미터-비교)
@@ -1358,11 +1359,62 @@ Job 정리는 소유권·성공 세션·단일 Restore Point가 정확히 확인
 확인 오류는 정리 `WAITING`으로 남겨 재시도하며 재전송하거나 보관 백업을 삭제하지 않는다.
 완료된 기존 볼륨별 백업의 Job도 카탈로그 동기화에서 같은 검증 후 정리한다.
 수동으로 만든 동명 Job이나 미완료·모호한 작업을 이름만 보고 일괄 삭제하지 않는다.
-기준 Job의 보존 설정은 자동 변경하지 않는다. 분리된 백업의 자동 보존은 Veeam의 일수 기반 정책을 검토한다.
-Restore Point 개수 기반 보존만으로 Orphaned 백업이 계속 만료된다고 가정하지 않는다.
-정확한 보관본 삭제는 Mold의 백업 삭제를 사용하며, 증분 의존 지점은 삭제 대기로 남을 수 있다.
+기준 Job의 보존 설정은 자동 변경하지 않는다. 설정과 만료·삭제 절차는 아래의
+[Veeam 보존기간과 백업 삭제](#veeam-보존기간과-백업-삭제)를 따른다.
 공식 명령은 [Remove-VBRComputerBackupJob](https://helpcenter.veeam.com/docs/vbr/powershell/remove-vbrcomputerbackupjob.html?ver=13),
 보관 기준은 [분리된 Agent 백업](https://helpcenter.veeam.com/docs/vbr/userguide/agent_backup_detach.html)을 참고한다.
+
+#### Veeam 보존기간과 백업 삭제
+
+현재 Mold 연동은 Host별 기준 Linux Agent Job을 복제하여 볼륨·메타데이터를 독립적으로 백업하고,
+성공한 임시 Job 설정을 제거한다. 보관 백업은 Veeam 저장소에 남는다.
+아래 절차는 이 방식의 운영 기준이며, 고정 Job을 반복 실행하는 구조로 전환하는 설정 절차가 아니다.
+
+**연동 전 보존 설정**
+
+1. Veeam 콘솔의 `Home > Jobs > Backup`에서 Host별 기준 Linux Agent Job을 편집한다.
+2. `Storage` 단계의 `Keep backups for`를 운영 정책에 맞는 **일수(Days)**로 설정한다.
+   Mold에 별도의 VM별 보존기간을 설정하는 방식이 아니며, 사전 구성 명령도 이 값을 자동 지정하지 않는다.
+3. 새로 생성되는 임시 Job은 기준 Job의 보존 설정을 상속한다. 기준 Job의 값을 변경한 뒤에는
+   새 백업의 설정과 보관 결과를 확인한다. 이미 Job에서 분리된 백업은 생성 당시의 보존 설정을 기준으로 확인한다.
+   기준 Job 변경만으로 기존 Orphaned 백업의 보존기간까지 일괄 변경되었다고 판단하지 않는다.
+
+현재 사용하는 백업 서버 관리형 Linux Agent Job의 공식 구성 안내는 일수 기반이다.
+다른 Job 종류·버전 또는 기존 Job에서 Restore Point 개수 기반 설정이 제공되더라도
+이를 Mold VM 백업의 보관 개수로 해석하지 않는다. `Set-VBRComputerBackupJob`의 `RetentionType` 인자 존재만으로
+해당 빌드·Job의 UI에서 모든 보존 방식이 지원된다고 판단하지 않는다.
+Veeam 13 문서는 이후 13.x 빌드로 갱신될 수 있으므로 실제 설치 빌드와 Job 종류를 함께 확인한다.
+설정 위치는 공식 [Linux Agent Job 저장소 설정](https://helpcenter.veeam.com/docs/vbr/userguide/agent_job_target_set_linux.html)을 참고한다.
+
+| 항목 | Mold 연동에서의 의미 |
+| --- | --- |
+| 기준 Job의 Days | 새 볼륨·메타데이터 백업에 상속할 외부 보존기간 |
+| Job에서 분리된 일수 기반 백업 | Veeam 백그라운드 보존 처리로 만료·삭제하는 대상 |
+| Job에서 분리된 개수 기반 백업 | 개수 초과만으로 자동 만료되지 않으므로 별도 삭제가 필요함 |
+| Mold의 `backup-chain-size` | Full 전환을 위한 증분 체인 길이이며 보존일수나 VM 백업 보관 개수가 아님 |
+| Mold에서 선택한 백업 삭제 | 해당 논리 백업의 외부 볼륨·메타데이터 보관본을 대상으로 하는 명시적 삭제 |
+
+예를 들어 디스크 2개인 VM의 한 백업 시점은 볼륨 2개와 마지막 메타데이터의 독립 백업으로 구성된다.
+Veeam Restore Point 수와 Mold의 VM 백업 시점 수는 일치하지 않는다.
+Days 기반 분리 백업과 개수 기반 분리 백업의 차이는 공식
+[Agent 백업 분리와 보존](https://helpcenter.veeam.com/docs/vbr/userguide/agent_backup_detach.html)에 따른다.
+
+**만료와 수동 삭제**
+
+- 일수 경과 시각과 실제 저장소 삭제 시각은 같지 않다. Veeam의 백그라운드 보존 처리가 실행되어야 하며,
+  불변성 기간 또는 사용 중인 파일의 잠금 때문에 정리가 늦어질 수 있다.
+  정상 Job 체인의 최소 Restore Point 유지 규칙을 Orphaned 백업에도 그대로 적용하지 않는다.
+  일수 기반 Orphaned 백업은 만료 후 전체가 제거될 수 있다.
+  세부 조건은 공식 [Background Retention](https://helpcenter.veeam.com/docs/vbr/userguide/background_retention_job.html)을 참고한다.
+- Veeam에서 외부 자료가 만료되면 Mold의 카탈로그 동기화가 실제 존재 여부를 다시 확인한다.
+  일부 볼륨·부모 자료·메타데이터만 남은 상태를 복원 가능한 정상 백업으로 판단하지 않는다.
+- VM 백업 한 건을 명시적으로 삭제할 때는 Mold의 백업 삭제를 사용한다.
+  다른 복원 지점이 참조하는 Full·증분 자료는 의존성에 따라 삭제 대기로 남을 수 있다.
+  기준 Host Job이나 공유 저장소 디렉터리를 직접 지워서 VM 백업 삭제를 대신하지 않는다.
+- Veeam의 보존 처리는 Mold 증분 체인의 부모 참조를 해석하지 않는다.
+  Veeam에 저장된 파일 백업이 Full이어도 그 파일의 내용은 Mold 증분 데이터일 수 있다.
+  필요한 부모 Full·증분 자료가 먼저 만료되면 후속 메타데이터가 남아 있어도 복원할 수 없으므로,
+  Full 전환 주기와 보존일수를 함께 정하고 복원에 필요한 전체 체인의 카탈로그 상태를 확인한다.
 
 #### Veeam 13.0 VM별 스케줄 검증 시나리오
 

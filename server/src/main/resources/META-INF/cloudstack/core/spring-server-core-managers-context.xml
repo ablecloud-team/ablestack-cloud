@@ -386,6 +386,7 @@
 
     <bean id="backupVolumeAllocationService" class="org.apache.cloudstack.backup.BackupVolumeAllocationServiceImpl" />
     <bean id="backupSnapshotGuard" class="org.apache.cloudstack.backup.BackupSnapshotGuard" />
+    <bean id="ablestackBackupOperationGuard" class="org.apache.cloudstack.backup.AblestackBackupOperationGuard" />
     <bean id="thirdPartyBackupStagingService" class="org.apache.cloudstack.backup.ThirdPartyBackupStagingServiceImpl" />
     <bean id="backupDeletionService" class="org.apache.cloudstack.backup.BackupDeletionServiceImpl" />
     <bean id="thirdPartyBackupVolumeService" class="org.apache.cloudstack.backup.ThirdPartyBackupVolumeServiceImpl" />

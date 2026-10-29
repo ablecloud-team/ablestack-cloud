@@ -380,6 +380,7 @@ public class ExternalBackupScheduleTest {
         ReflectionTestUtils.setField(manager, "volumeDao", mock(VolumeDao.class));
         ReflectionTestUtils.setField(manager, "backupVolumeGuard", mock(BackupVolumeGuard.class));
         ReflectionTestUtils.setField(manager, "backupSnapshotGuard", mock(BackupSnapshotGuard.class));
+        ReflectionTestUtils.setField(manager, "ablestackBackupOperationGuard", mock(AblestackBackupOperationGuard.class));
         final AccountManager accounts = mock(AccountManager.class);
         ReflectionTestUtils.setField(manager, "accountManager", accounts);
         final Account owner = mock(Account.class);

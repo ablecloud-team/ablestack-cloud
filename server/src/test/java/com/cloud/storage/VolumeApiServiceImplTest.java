@@ -176,6 +176,8 @@ public class VolumeApiServiceImplTest {
     @Mock
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Mock
+    private org.apache.cloudstack.backup.AblestackBackupOperationGuard ablestackBackupOperationGuard;
+    @Mock
     private org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
     @Mock
     private com.cloud.vm.VmCreationSourceService creationSourceService;

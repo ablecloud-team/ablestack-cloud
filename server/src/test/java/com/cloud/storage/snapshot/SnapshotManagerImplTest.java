@@ -114,6 +114,8 @@ public class SnapshotManagerImplTest {
     PrimaryDataStoreDao primaryDataStoreDao;
     @InjectMocks
     SnapshotManagerImpl snapshotManager = new SnapshotManagerImpl();
+    @Mock
+    org.apache.cloudstack.backup.AblestackBackupOperationGuard ablestackBackupOperationGuard;
 
     @Before
     public void setUp() {

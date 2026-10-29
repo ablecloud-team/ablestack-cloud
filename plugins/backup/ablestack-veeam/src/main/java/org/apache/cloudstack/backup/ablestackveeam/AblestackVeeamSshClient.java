@@ -500,10 +500,11 @@ public class AblestackVeeamSshClient {
                         + "$text=($messages | Select-Object -Unique) -join '; '; if ($text.Length -gt 2048) { $text=$text.Substring(0,2048) }; return $text }",
                 "$restoreJob=" + ps(request.jobId),
                 "$binding=" + ps(new com.google.gson.Gson().toJson(request) + "|" + destinationHost + "|" + destinationIp),
+                // PowerShell converts $null to an empty string; File.Replace needs a genuine null backup path.
                 "function Save-Receipt($value) { $value.requestId=$restoreJob; $tmp=$receipt+'.tmp'; $bytes=[Text.Encoding]::UTF8.GetBytes(($value | ConvertTo-Json -Compress)); "
                         + "$file=[IO.File]::Open($tmp,[IO.FileMode]::Create,[IO.FileAccess]::Write,[IO.FileShare]::None); "
                         + "try { $file.Write($bytes,0,$bytes.Length); $file.Flush($true) } finally { $file.Dispose() }; "
-                        + "if ([IO.File]::Exists($receipt)) { [IO.File]::Replace($tmp,$receipt,$null) } else { [IO.File]::Move($tmp,$receipt) } }",
+                        + "if ([IO.File]::Exists($receipt)) { [IO.File]::Replace($tmp,$receipt,[System.Management.Automation.Language.NullString]::Value) } else { [IO.File]::Move($tmp,$receipt) } }",
                 "if (Test-Path -LiteralPath $receipt) { $old=Get-Content -LiteralPath $receipt -Raw -Encoding UTF8 | ConvertFrom-Json; "
                         + "if ($old.binding -cne $binding) { throw 'Veeam restore receipt belongs to another request' }; "
                         + "if (!$old.terminal -and $old.jobId) { "

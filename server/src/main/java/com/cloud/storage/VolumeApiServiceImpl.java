@@ -56,9 +56,7 @@ import org.apache.cloudstack.api.command.user.volume.ResizeVolumeCmd;
 import org.apache.cloudstack.api.command.user.volume.UploadVolumeCmd;
 import org.apache.cloudstack.api.response.GetUploadParamsResponse;
 import org.apache.cloudstack.backup.Backup;
-import org.apache.cloudstack.backup.BackupOfferingVO;
 import org.apache.cloudstack.backup.BackupManager;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
 import org.apache.cloudstack.backup.BackupManagerImpl;
 import org.apache.cloudstack.backup.InternalBackupService;
 import org.apache.cloudstack.backup.dao.BackupDao;
@@ -381,6 +379,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     @Inject
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
+    @Inject
+    private org.apache.cloudstack.backup.AblestackBackupOperationGuard ablestackBackupOperationGuard;
     @Inject
     private org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
     @Inject
@@ -1337,6 +1337,17 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_VOLUME_RESIZE, eventDescription = "resizing volume", async = true)
     public VolumeVO resizeVolume(ResizeVolumeCmd cmd) throws ResourceAllocationException {
+        try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = acquireBackupVolumeChangeGuard(cmd.getEntityId())) {
+            return resizeVolumeWithBackupGuard(cmd);
+        }
+    }
+
+    private org.apache.cloudstack.backup.BackupVolumeGuard.Lease acquireBackupVolumeChangeGuard(Long volumeId) {
+        VolumeVO volume = _volsDao.findById(volumeId);
+        return ablestackBackupOperationGuard.acquireVolumeChangeGuard(volume);
+    }
+
+    private VolumeVO resizeVolumeWithBackupGuard(ResizeVolumeCmd cmd) throws ResourceAllocationException {
         validateAllocationMutation(cmd.getEntityId(), cmd.getNewDiskOfferingId(), "resize");
         Long newSize = cmd.getSize();
         Long newMinIops = cmd.getMinIops();
@@ -1358,6 +1369,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
         /* Does the caller have authority to act on this volume? */
         _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, volume);
+
+        ablestackBackupOperationGuard.checkVolumeOperation(volume, "resize the volume");
 
         DiskOfferingVO diskOffering = _diskOfferingDao.findById(volume.getDiskOfferingId());
         DiskOfferingVO newDiskOffering = null;
@@ -4050,6 +4063,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VOLUME_MIGRATE, eventDescription = "migrating volume", async = true)
     public Volume migrateVolume(MigrateVolumeCmd cmd) {
+        try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = acquireBackupVolumeChangeGuard(cmd.getVolumeId())) {
+            return migrateVolumeWithBackupGuard(cmd);
+        }
+    }
+
+    private Volume migrateVolumeWithBackupGuard(MigrateVolumeCmd cmd) {
         Account caller = CallContext.current().getCallingAccount();
         Long volumeId = cmd.getVolumeId();
         Long storagePoolId = cmd.getStoragePoolId();
@@ -4060,6 +4079,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         }
 
         _accountMgr.checkAccess(caller, null, true, vol);
+        ablestackBackupOperationGuard.checkVolumeOperation(vol, "migrate the volume");
         com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volsDetailsDao.listDetailsKeyPairs(vol.getId()), "migrate");
 
         if (vol.getState() != Volume.State.Ready) {
@@ -4770,35 +4790,11 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
     private void validateNoBackupActivityOrHistoryForVolumeSnapshot(Long volumeId, String operation) {
         VolumeVO volume = _volsDao.findById(volumeId);
-        if (volume == null || volume.getInstanceId() == null) {
-            return;
-        }
-
-        Long vmId = volume.getInstanceId();
-        boolean hasRestoreInProgress = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.Restoring.equals(backup.getStatus()) && isNetBackup(backup));
-        if (hasRestoreInProgress) {
-            throw new CloudRuntimeException(String.format("Unable to %s volume snapshot while a backup restore is currently in progress for VM [%s].",
-                    operation, vmId));
-        }
-
-        boolean hasBackupInProgress = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.BackingUp.equals(backup.getStatus()) && isNetBackup(backup));
-        if (hasBackupInProgress) {
-            logger.debug("Allowing volume snapshot {} while a backup is currently in progress for VM [{}].", operation, vmId);
-        }
-
-        boolean hasExistingBackup = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.BackedUp.equals(backup.getStatus()));
-        if (hasExistingBackup) {
-            logger.debug("Allowing volume snapshot {} for VM [{}] with existing backups.", operation, vmId);
+        if (volume != null && volume.getInstanceId() != null) {
+            ablestackBackupOperationGuard.checkSnapshotOperation(volume, operation);
         }
     }
 
-    private boolean isNetBackup(Backup backup) {
-        BackupOfferingVO offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
-        return offering != null && BackupProviderNameUtils.isNetBackupFamily(offering.getProvider());
-    }
 
     @NotNull
     private List<Long> getPoolIdsByPolicy(Long policyId, List<Long> poolIds) {

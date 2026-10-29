@@ -166,6 +166,8 @@ public class BackupManagerTest {
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Mock
     private BackupSnapshotGuard backupSnapshotGuard;
+    @Mock
+    private AblestackBackupOperationGuard ablestackBackupOperationGuard;
 
     @Mock private BackupVolumeAllocationService backupVolumeAllocationService;
     @Mock
