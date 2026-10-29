@@ -2118,13 +2118,32 @@ public class VolumeServiceImpl implements VolumeService {
             destVolume.processEventOnly(Event.OperationSucceeded, result.getAnswer());
         } catch (Exception e) {
             res.setResult(e.toString());
-            try { destVolume.processEventOnly(Event.OperationFailed); destVolume.getDataStore().delete(destVolume); }
-            catch (Exception cleanup) { logger.warn("Failed export Image cleanup; source retained", cleanup); }
+            try { cleanupFailedVolumeExport(destVolume); }
+            catch (Exception cleanup) { logger.warn("Failed export Image cleanup; Image reference and source retained for retry", cleanup); }
         } finally {
-            if (!unlocked) { srcVolume.processEvent(Event.OperationFailed); }
-            context.future.complete(res);
+            try { if (!unlocked) { srcVolume.processEvent(Event.OperationFailed); } }
+            finally { context.future.complete(res); }
         }
         return null;
+    }
+
+    protected void cleanupFailedVolumeExport(VolumeInfo image) throws InterruptedException, ExecutionException {
+        if (image == null || image.getDataStore() == null || image.getDataStore().getRole() != DataStoreRole.Image) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_INVALID: Image copy required");
+        }
+        VolumeDataStoreVO ref = _volumeStoreDao.findByStoreVolume(image.getDataStore().getId(), image.getId());
+        String prefix = "volumes/" + image.getAccountId() + "/" + image.getId();
+        if (ref == null || ref.getInstallPath() == null || !(ref.getInstallPath().equals(prefix) ||
+                ref.getInstallPath().startsWith(prefix + "/")) || ref.getInstallPath().contains("..")) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_INVALID: Image ownership/path cannot be verified");
+        }
+        AsyncCallFuture<CommandResult> deletion = new AsyncCallFuture<>();
+        image.getDataStore().getDriver().deleteAsync(image.getDataStore(), image, deletion);
+        CommandResult result = deletion.get();
+        if (result == null || result.isFailed()) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_FAILED: Image reference retained for retry");
+        }
+        _volumeStoreDao.expunge(ref.getId());
     }
 
     @Override

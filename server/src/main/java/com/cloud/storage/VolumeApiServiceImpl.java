@@ -5352,6 +5352,32 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         return Optional.empty();
     }
 
+    /** Delete the Image artifact and its URL only; primary/backup metadata must never enter expungeVolumeAsync. */
+    protected void cleanupVolumeExport(VolumeInfo image) {
+        if (image == null || image.getDataStore() == null || image.getDataStore().getRole() != DataStoreRole.Image) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_INVALID: Image copy required");
+        }
+        VolumeDataStoreVO ref = _volumeStoreDao.findByStoreVolume(image.getDataStore().getId(), image.getId());
+        String prefix = "volumes/" + image.getAccountId() + "/" + image.getId();
+        if (ref == null || ref.getInstallPath() == null || !(ref.getInstallPath().equals(prefix) ||
+                ref.getInstallPath().startsWith(prefix + "/")) || ref.getInstallPath().contains("..")) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_INVALID: Image ownership/path cannot be verified");
+        }
+        if (ref.getExtractUrl() != null) {
+            ((ImageStoreEntity) image.getDataStore()).deleteExtractUrl(ref.getInstallPath(), ref.getExtractUrl(), Upload.Type.VOLUME);
+        } else {
+            AsyncCallFuture<org.apache.cloudstack.storage.command.CommandResult> deletion = new AsyncCallFuture<>();
+            image.getDataStore().getDriver().deleteAsync(image.getDataStore(), image, deletion);
+            try {
+                org.apache.cloudstack.storage.command.CommandResult result = deletion.get();
+                if (result == null || result.isFailed()) { throw new CloudRuntimeException("VOLUME_EXPORT_CLEANUP_FAILED: Image artifact retained for retry"); }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); throw new CloudRuntimeException("Export cleanup interrupted", e);
+            } catch (ExecutionException e) { throw new CloudRuntimeException("Export cleanup failed", e); }
+        }
+        _volumeStoreDao.expunge(ref.getId());
+    }
+
     private String orchestrateExtractVolume(long volumeId, long zoneId) {
         com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("volume-export-" + volumeId);
         if (!lock.lock(10)) {
@@ -5408,12 +5434,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         VolumeInfo destVol = volFactory.getVolume(volumeId, DataStoreRole.Image);
         if (destVol != null) {
             // No valid cache matched the current source. Delete only this Image copy, never the Primary volume.
-            try {
-                VolumeApiResult deleted = volService.expungeVolumeAsync(destVol).get();
-                if (deleted == null || deleted.isFailed()) { throw new CloudRuntimeException("Stale export cleanup failed"); }
-            } catch (InterruptedException interrupted) {
-                Thread.currentThread().interrupt(); throw new CloudRuntimeException("Export cleanup interrupted", interrupted);
-            } catch (ExecutionException failed) { throw new CloudRuntimeException("Export cleanup failed", failed); }
+            cleanupVolumeExport(destVol);
             destVol = null;
         }
         VolumeApiResult cvResult = null;

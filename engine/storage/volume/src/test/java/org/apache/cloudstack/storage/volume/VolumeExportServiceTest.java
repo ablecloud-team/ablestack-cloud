@@ -56,4 +56,22 @@ public class VolumeExportServiceTest {
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void missingCreationEvidenceRejected() { when(details.listDetailsKeyPairs(1L)).thenReturn(VolumeAllocationPolicy.request("off","raw",null)); service.exportVolume(source,image); }
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void concurrentSnapshotRejected() { ReflectionTestUtils.setField(service,"snapshotMgr",mock(SnapshotManager.class)); service.exportVolume(source,image); }
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void busySourceRejected() { when(source.getState()).thenReturn(Volume.State.Migrating); service.exportVolume(source,image); }
+    @Test public void failedExportCleanupDeletesOnlyImageAndReference() throws Exception { checkCleanup(false); }
+    @Test public void failedPhysicalDeleteRetainsImageReference() throws Exception { checkCleanup(true); }
+    private void checkCleanup(boolean failed) throws Exception {
+        VolumeInfo imageVolume=mock(VolumeInfo.class);
+        when(imageVolume.getDataStore()).thenReturn(image); when(imageVolume.getId()).thenReturn(1L); when(imageVolume.getAccountId()).thenReturn(2L); when(image.getId()).thenReturn(3L);
+        var refs=mock(org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao.class);
+        var ref=new org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO(); ReflectionTestUtils.setField(ref,"id",10L); ref.setInstallPath("volumes/2/1");
+        when(refs.findByStoreVolume(3L,1L)).thenReturn(ref); ReflectionTestUtils.setField(service,"_volumeStoreDao",refs);
+        DataStoreDriver driver=mock(DataStoreDriver.class); when(image.getDriver()).thenReturn(driver);
+        doAnswer(invocation -> {
+            var result=new org.apache.cloudstack.storage.command.CommandResult(); if(failed)result.setResult("injected delete failure");
+            ((org.apache.cloudstack.framework.async.AsyncCompletionCallback<org.apache.cloudstack.storage.command.CommandResult>)invocation.getArgument(2)).complete(result); return null;
+        }).when(driver).deleteAsync(eq(image),eq(imageVolume),any());
+        try { service.cleanupFailedVolumeExport(imageVolume); if(failed)fail("must retain failed delete"); }
+        catch(com.cloud.utils.exception.CloudRuntimeException e) { assertTrue(failed); }
+        if(failed)verify(refs,never()).expunge(anyLong()); else verify(refs).expunge(ref.getId());
+        verifyNoInteractions(service.volDao); verify(source,never()).processEvent(any());
+    }
 }

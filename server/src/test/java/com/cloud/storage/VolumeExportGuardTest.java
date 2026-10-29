@@ -48,4 +48,23 @@ public class VolumeExportGuardTest {
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void busyBlocked() { when(volume.getState()).thenReturn(Volume.State.Migrating); service.validateExtractVolumeState(volume); }
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void flattenBlocked() { when(details.listDetailsKeyPairs(1L)).thenReturn(Map.of("clone.fast.flatten.status","running")); service.validateExtractVolumeState(volume); }
     @Test(expected=com.cloud.exception.InvalidParameterValueException.class) public void faultProtectedSourceBlocked() { stopped(); when(vmDetails.listDetailsKeyPairs(2L)).thenReturn(Map.of("ftctl.role","primary")); service.validateExtractVolumeState(volume); }
+    @Test public void staleExportDeletesUrlAndImageWithoutPrimaryExpunge() {
+        var store=mock(org.apache.cloudstack.storage.image.datastore.ImageStoreEntity.class);
+        var image=mock(org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo.class);
+        var refs=mock(org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao.class);
+        var ref=new org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO(); ReflectionTestUtils.setField(ref,"id",10L);
+        when(store.getId()).thenReturn(3L); when(store.getRole()).thenReturn(DataStoreRole.Image);
+        when(image.getDataStore()).thenReturn(store); when(image.getId()).thenReturn(1L); when(image.getAccountId()).thenReturn(2L);
+        ref.setInstallPath("volumes/2/1/image.export-v1.qcow2"); ref.setExtractUrl("http://export/url");
+        when(refs.findByStoreVolume(3L,1L)).thenReturn(ref); ReflectionTestUtils.setField(service,"_volumeStoreDao",refs);
+        service.cleanupVolumeExport(image);
+        verify(store).deleteExtractUrl(ref.getInstallPath(),ref.getExtractUrl(),Upload.Type.VOLUME);
+        verify(refs).expunge(ref.getId()); verifyNoInteractions(vms,details);
+    }
+    @Test(expected=com.cloud.utils.exception.CloudRuntimeException.class) public void primaryCannotUseExportCleanup() {
+        var store=mock(org.apache.cloudstack.engine.subsystem.api.storage.DataStore.class);
+        var image=mock(org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo.class);
+        when(image.getDataStore()).thenReturn(store); when(store.getRole()).thenReturn(DataStoreRole.Primary);
+        service.cleanupVolumeExport(image);
+    }
 }
