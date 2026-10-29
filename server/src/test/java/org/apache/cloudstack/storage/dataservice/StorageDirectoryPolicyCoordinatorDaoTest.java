@@ -172,4 +172,35 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         }
         assertEquals(id,policies.listByInstanceId(instance.getId()).get(0).getUuid());
     }
+    @Test public void actualSmbCoordinatorPersistsOptionalInheritanceAndLeavesCommonPosixUnchanged() throws Exception {
+        StorageDirectoryPolicyVO policy=new StorageDirectoryPolicyVO();policy.setInstanceId(instance.getId());policy.setVolumeId(77);
+        policy.setCanonicalPath("export/inherit");policy.setCanonicalHash("b".repeat(64));policy.setOwnerUid(100001);policy.setOwnerGid(200001);
+        policy.setMode("2770");policy.setMetadataJson("{\"filesystemuuid\":\"fs\",\"inode\":42}");policy=policies.persist(policy);
+        final String policyUuid=policy.getUuid();
+        StorageFileShareVO share=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+            "smb","/export/smb",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,
+            "{\"keep\":true,\"directoryPolicyUuid\":\""+policyUuid+"\"}"));
+        final long shareId=share.getId();
+        for(boolean inherit:new boolean[]{true,false}) {
+            var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd();
+            field(cmd,cmd.getClass(),"id",shareId);field(cmd,cmd.getClass(),"inheritOwner",inherit);
+            StorageServiceInstanceVO current=instances.findById(instance.getId());
+            field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",current.getConfigurationRevision());
+            java.util.function.Supplier<String> candidate=()->{
+                StorageFileShareVO staged=plan.get().dao(StorageFileShareDao.class).findById(shareId);
+                staged.setConfigJson(StorageSmbParentInheritance.merge(staged.getConfigJson(),cmd.getInheritOwner()));
+                StorageSmbParentInheritance.requirePolicy(staged);
+                plan.get().dao(StorageFileShareDao.class).update(shareId,staged);return staged.getUuid();
+            };
+            String result=coordinator.execute(cmd,current,StorageServiceInstance.Protocol.SMB,String.class,candidate,plan::set,()->{},null);
+            var reloaded=com.google.gson.JsonParser.parseString(shares.findById(shareId).getConfigJson()).getAsJsonObject();
+            assertEquals(inherit,reloaded.get("inheritOwner").getAsBoolean());assertTrue(reloaded.get("keep").getAsBoolean());
+            assertEquals(policyUuid,reloaded.get("directoryPolicyUuid").getAsString());assertEquals("2770",policies.findByUuid(policyUuid).getMode());
+            assertEquals(100001,policies.findByUuid(policyUuid).getOwnerUid());assertEquals(200001,policies.findByUuid(policyUuid).getOwnerGid());
+            var op=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());assertEquals("COMMITTED",op.getState());assertTrue(op.getResourceType().length()<=32);
+            assertEquals(result,coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,String.class,
+                ()->{throw new AssertionError("duplicate request reapplied");},plan::set,()->{},null));
+        }
+    }
+
 }

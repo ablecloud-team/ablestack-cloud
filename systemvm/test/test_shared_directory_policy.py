@@ -88,6 +88,24 @@ class PosixTransactions(unittest.TestCase):
         self.assertEqual(0,self.path.stat().st_uid)
         self.assertEqual(b"preserve",self.child.read_bytes())
 
+    def test_enabling_setgid_checks_effective_smb_identity_before_metadata_change(self):
+        value=self.value("UPDATE",{**self.p,"revision":2,"mode":"2770"},{"mode":"2770"})
+        value["smbShares"]=[{"name":"team","state":"Ready","config":self.row["config"]}]
+        original=(self.path.stat().st_uid,self.path.stat().st_gid,self.path.stat().st_mode,self.path.stat().st_ino)
+        with patch.object(policy,"smb_runtime_settings",return_value=[{"forceGroup":"out-of-band"}]) as reader:
+            with self.assertRaisesRegex(policy.PolicyError,"SMB_PARENT_IDENTITY_CONFLICT"):
+                self.engine.snapshot(value)
+            reader.assert_called_once_with("team")
+        self.assertEqual(original,(self.path.stat().st_uid,self.path.stat().st_gid,self.path.stat().st_mode,self.path.stat().st_ino))
+        self.assertEqual(b"preserve",self.child.read_bytes())
+        with patch.object(policy,"smb_runtime_settings",return_value=[{"forceUser":"","forceGroup":""}]):
+            before=self.engine.snapshot(value)
+            self.engine.apply(value,before)
+            self.engine.verify(value,before)
+        self.assertEqual(0o2770,self.path.stat().st_mode&0o7777)
+        self.engine.restore(before,1)
+        self.assertEqual(original,(self.path.stat().st_uid,self.path.stat().st_gid,self.path.stat().st_mode,self.path.stat().st_ino))
+
     def test_recursive_is_explicit_bounded_and_verified(self):
         p={**self.p,"revision":2}
         value=self.value("UPDATE",p,{"recursivePermission":True})

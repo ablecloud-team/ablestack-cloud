@@ -84,6 +84,22 @@ final class StorageDirectoryPolicies {
         for(String key:Arrays.asList("filesystemuuid","inode")) value.add(key,meta.get(key));
         return value;
     }
+    JsonObject inheritanceTarget(StorageServiceInstanceVO instance,StorageFileShareVO share,JsonElement requested) {
+        JsonObject config=share==null?new JsonObject():parsed(share.getConfigJson()).deepCopy();
+        JsonElement ref=requested!=null?requested:config.get("directoryPolicyUuid");
+        StorageDirectoryPolicyVO p=require(instance,ref);
+        VolumeVO v=volume(instance,p.getVolumeId());
+        JsonObject identity=policyJson(p);
+        String mount="/srv/ablestack-storage/volumes/"+v.getUuid();
+        config.addProperty("volumeMountPath",mount);
+        config.addProperty("backingPath",p.getCanonicalPath().equals(".")?mount:mount+"/"+p.getCanonicalPath());
+        config.add("filesystemUuid",identity.get("filesystemuuid"));
+        config.addProperty("directoryPolicyUuid",p.getUuid());
+        JsonObject target=new JsonObject();target.addProperty("uuid",share==null?"NEW":share.getUuid());
+        target.addProperty("name",share==null?"NEW":share.getName());target.add("config",config);
+        JsonObject result=new JsonObject();result.add("inheritancetarget",target);result.add("inheritancepolicy",identity);
+        return result;
+    }
     private JsonObject proposal(StorageServiceInstanceVO instance,JsonObject intent,JsonArray observations,List<StorageFileShareVO> rows) {
         final boolean adopt=intent.get("api").getAsString().startsWith("create");
         StorageDirectoryPolicyVO existing=adopt?null:require(instance,intent.has("resourceid")?intent.get("resourceid"):intent.get("id"));

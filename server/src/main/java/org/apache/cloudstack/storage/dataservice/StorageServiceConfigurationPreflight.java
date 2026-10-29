@@ -72,6 +72,8 @@ final class StorageServiceConfigurationPreflight {
     }
     interface DirectoryObserver { JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner); }
     DirectoryObserver directoryObserver;
+    interface SmbInheritanceObserver { JsonObject inspect(StorageServiceInstanceVO instance,StorageFileShareVO share,JsonObject intent); }
+    SmbInheritanceObserver smbInheritanceObserver;
     static String api(String name) {
         if (name.endsWith("Cmd")) name=Character.toLowerCase(name.charAt(0))+name.substring(1,name.length()-3);
         if (!APIS.contains(name)) throw new InvalidParameterValueException("Unsupported configuration intent");
@@ -87,7 +89,7 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
@@ -121,6 +123,7 @@ final class StorageServiceConfigurationPreflight {
             if ("updateStorageNfsIdentityMapping".equals(value.get("api").getAsString()))
                 StorageNfsIdentityMapping.valid(value.get("idmappingmode").getAsString());
             else if (value.has("idmappingmode")) throw new IllegalArgumentException();
+            if (value.has("smbinheritance")) StorageSmbParentInheritance.validateIntent(value);
             return value;
         } catch (RuntimeException error) { throw new InvalidParameterValueException("Invalid public configuration intent"); }
     }
@@ -141,6 +144,13 @@ final class StorageServiceConfigurationPreflight {
             value.add("posixchanges", StorageNfsPosix.fields(request));
             for (String key : Arrays.asList("path","expectedpolicyrevision"))
                 if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
+        }
+        if (StorageSmbParentInheritance.shareApi(value.get("api").getAsString())
+                && (request.get("inheritowner")!=null || request.get("directorypolicyid")!=null)) {
+            JsonObject inheritance=new JsonObject();
+            if (request.get("inheritowner")!=null) inheritance.add("inheritOwner",new Gson().toJsonTree(request.get("inheritowner")));
+            if (request.get("directorypolicyid")!=null) inheritance.addProperty("directoryPolicyId",String.valueOf(request.get("directorypolicyid")));
+            value.add("smbinheritance",inheritance);
         }
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
             value.addProperty("idmappingmode", StorageNfsIdentityMapping.valid(((org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)cmd).getIdMappingMode()));
@@ -253,6 +263,10 @@ final class StorageServiceConfigurationPreflight {
             JsonObject target=new JsonObject();target.addProperty("uuid",selectedFile==null?"NEW":selectedFile.getUuid());
             target.add("config",targetConfig);query.add("posixtarget",target);
         }
+        if (StorageSmbParentInheritance.shareApi(name) && smbInheritanceObserver!=null) {
+            JsonObject patch=smbInheritanceObserver.inspect(instance,selectedFile,intent);
+            patch.entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
+        }
         query.add("volumeuuids",volumeUuids);
         query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
         String identityDigest = "";
@@ -269,7 +283,7 @@ final class StorageServiceConfigurationPreflight {
             identityDigest = "\nNFS_IDENTITY:" + StorageNfsIdentityMapping.valid(intent.get("idmappingmode").getAsString()) + ":" + vector;
         }
         query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
-                (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest));
+                (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest + (query.has("smbinheritance") ? "\\nSMB_INHERITANCE:"+query.get("smbinheritance") : "")));
         query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && (!refs.isEmpty() || query.has("posixchanges") && query.getAsJsonObject("posixchanges").size()>0));
         if (instance.getVmId()==null) throw new InvalidParameterValueException("SystemVM is unavailable");
         JsonObject report;
@@ -287,6 +301,12 @@ final class StorageServiceConfigurationPreflight {
                     throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
                 if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
+                if (query.has("smbinheritance") && query.getAsJsonObject("smbinheritance").get("inheritOwner").getAsBoolean()) {
+                    if (!capability.has("smbParentInheritanceVersion") || capability.get("smbParentInheritanceVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED");
+                    if (!capability.has("smbParentInheritanceProtectionVersion") || capability.get("smbParentInheritanceProtectionVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED");
+                }
             }
             StorageServiceGuestCommandResult wire=guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "configuration preflight show",query.toString(),20,Collections.emptySet()));
@@ -296,7 +316,7 @@ final class StorageServiceConfigurationPreflight {
             report=new JsonObject(); report.addProperty("status","UNKNOWN");report.addProperty("revision",instance.getConfigurationRevision());
             report.addProperty("observedat",System.currentTimeMillis()/1000.0);report.addProperty("expiresat",System.currentTimeMillis()/1000.0);
             report.addProperty("fingerprint","");report.add("checks",new JsonArray());
-            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
+            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
             failed.addProperty("blocking",true);failed.addProperty("severity","ERROR");report.getAsJsonArray("checks").add(failed);
         }
         if (instance.getActiveConfigurationOperationId()!=null && !Objects.equals(owner,instance.getActiveConfigurationOperationId()))

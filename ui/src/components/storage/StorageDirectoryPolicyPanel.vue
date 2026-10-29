@@ -13,11 +13,13 @@ http://www.apache.org/licenses/LICENSE-2.0 -->
     <a-table :columns="columns" :data-source="rows" :loading="loading" :row-key="rowKey" size="small" :pagination="false" :scroll="{x:760}">
       <template #bodyCell="{column,record}">
         <template v-if="column.key==='posix'">{{ record.owneruid ?? record.observation?.owneruid ?? '-' }}:{{ record.ownergid ?? record.observation?.ownergid ?? '-' }} / {{ record.mode || record.observation?.mode || '-' }}</template>
+        <template v-else-if="column.key==='setgid'">{{ $t(setgidEnabled(record.observation?.mode) === null ? 'label.unknown' : setgidEnabled(record.observation?.mode) ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled') }}</template>
         <template v-else-if="column.key==='refs'"><a-tag v-for="ref in record.references || []" :key="ref.uuid">{{ ref.protocol }} · {{ ref.name }}</a-tag></template>
         <template v-else-if="column.key==='status'"><a-tag :color="record.observationstatus==='APPLIED'?'green':record.observationstatus==='UNREGISTERED'?'orange':'red'">{{ status(record.observationstatus) }}</a-tag></template>
-        <template v-else-if="column.key==='action'"><a-button size="small" :disabled="guarded || record.observation?.status!=='OBSERVED'" @click="open(record)"><EditOutlined />{{ $t(record.id?'label.edit':'label.storage.directory.register') }}</a-button></template>
+        <template v-else-if="column.key==='action'"><a-space :size="8"><a-button size="small" :disabled="guarded || record.observation?.status!=='OBSERVED'" @click="open(record)"><EditOutlined />{{ $t(record.id?'label.edit':'label.storage.directory.register') }}</a-button><a-button v-if="record.id" size="small" :disabled="guarded || record.observationstatus!=='APPLIED'" @click="sgidSelected=record">{{ $t('label.storage.inheritance.group.settings') }}</a-button></a-space></template>
       </template>
     </a-table>
+    <StorageDirectorySetgidDialog v-if="sgidSelected" :row="sgidSelected" :instance="instance" :guarded="guarded" :execute="execute" @close="sgidSelected=null" @done="setgidDone" />
     <MoldDialog
 v-if="selected"
 :visible="true"
@@ -86,12 +88,14 @@ import StorageConfigurationOperationPanel from '@/components/storage/StorageConf
 import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
 import { decodeConfigurationPreflight, preflightApplicable, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
 import { directoryChanges, directoryIntent, directoryParameters } from '@/utils/sharedDirectoryPolicy'
+import { setgidEnabled } from '@/utils/smbParentInheritance'
+import StorageDirectorySetgidDialog from '@/components/storage/StorageDirectorySetgidDialog'
 export default {
   name: 'StorageDirectoryPolicyPanel',
-  components: { PlusOutlined, ReloadOutlined, EditOutlined, MoldDialog, MoldDialogActions, StorageConfigurationOperationPanel, StorageConfigurationPreflightPanel },
+  components: { StorageDirectorySetgidDialog, PlusOutlined, ReloadOutlined, EditOutlined, MoldDialog, MoldDialogActions, StorageConfigurationOperationPanel, StorageConfigurationPreflightPanel },
   props: { instance: { type: Object, required: true }, execute: { type: Function, required: true }, guarded: Boolean, operation: Object, refreshToken: Number },
   emits: ['loaded', 'resume'],
-  data () { return { rows: [], loading: false, error: '', selected: null, draft: {}, report: null, ack: false, checking: false, busy: false, modalError: '', read: 0, generation: 0, expiry: null, disposed: false } },
+  data () { return { rows: [], sgidSelected: null, loading: false, error: '', selected: null, draft: {}, report: null, ack: false, checking: false, busy: false, modalError: '', read: 0, generation: 0, expiry: null, disposed: false } },
   computed: {
     unregistered () { return this.rows.filter(row => !row.id && row.observation?.status === 'OBSERVED') },
     dirty () { if (!this.selected) return false; if (!this.selected.id) return true; try { return Object.keys(directoryChanges(this.selected, this.draft)).length > 0 } catch (error) { return false } },
@@ -106,22 +110,25 @@ export default {
       return [
         { title: this.$t('label.storage.directory.path'), dataIndex: 'path', width: 170 },
         { title: this.$t('label.storage.directory.desired'), key: 'posix', width: 150 },
+        { title: this.$t('label.storage.inheritance.group'), key: 'setgid', width: 110 },
         { title: this.$t('label.storage.directory.references'), key: 'refs', width: 160 },
         { title: this.$t('label.storage.directory.revision'), dataIndex: 'policyrevision', width: 70 },
         { title: this.$t('label.state'), key: 'status', width: 100 },
-        { title: this.$t('label.actions'), key: 'action', width: 110 }
+        { title: this.$t('label.actions'), key: 'action', width: 260 }
       ]
     },
     aclColumns () { return [{ title: this.$t('label.storage.directory.path'), dataIndex: 'path' }, { title: this.$t('label.storage.service.principal'), dataIndex: 'principal' }, { title: this.$t('label.storage.directory.observed'), dataIndex: 'before' }, { title: this.$t('label.storage.directory.after'), dataIndex: 'after' }] },
     referenceColumns () { return [{ title: this.$t('label.name'), dataIndex: 'name' }, { title: this.$t('label.protocol'), dataIndex: 'protocol' }] }
   },
   watch: {
-    'instance.id': { immediate: true, handler () { this.generation++; this.selected = null; this.checking = false; this.busy = false; this.invalidate(); this.load() } },
+    'instance.id': { immediate: true, handler () { this.generation++; this.selected = null; this.sgidSelected = null; this.checking = false; this.busy = false; this.invalidate(); this.load() } },
     refreshToken () { if (!this.busy) this.load() },
     draft: { deep: true, handler () { this.invalidate() } }
   },
   beforeUnmount () { this.disposed = true; this.read++; this.generation++; clearTimeout(this.expiry) },
   methods: {
+    setgidEnabled,
+    setgidDone () { this.sgidSelected = null; this.load() },
     rowKey (row) { return row.id || `${row.volumeid}:${row.path}` },
     status (value) { return this.$t('label.storage.directory.' + String(value || 'UNAVAILABLE').toLowerCase()) },
     invalidate () { clearTimeout(this.expiry); this.report = null; this.ack = false },

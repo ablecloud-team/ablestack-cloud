@@ -1,0 +1,57 @@
+{
+  "preflight": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "READY",
+        "revision": 20,
+        "observedat": "2080-11-28T15:13:20+0900",
+        "expiresat": "2080-11-28T15:13:50+0900",
+        "fingerprint": "confirmed",
+        "checks": [],
+        "impact": {
+          "ackrequired": true
+        },
+        "profile": {},
+        "cancellationsupported": false,
+        "inheritancepreview": {
+          "inheritowner": true,
+          "setgid": true,
+          "futureowner": "PARENT",
+          "futuregroup": "PARENT",
+          "existingobjectschange": false,
+          "parent": {
+            "owneruid": 100001,
+            "ownergid": 200001,
+            "mode": "2770",
+            "inode": 42
+          }
+        }
+      }
+    }
+  },
+  "list": {
+    "liststoragedirectorypoliciesresponse": {
+      "count": 1,
+      "directorypolicy": [
+        {
+          "id": "policy",
+          "instanceid": "instance",
+          "volumeid": "volume",
+          "path": "/export/team",
+          "owneruid": 100001,
+          "ownergid": 200001,
+          "mode": "1770",
+          "policyrevision": 4,
+          "observationstatus": "APPLIED",
+          "observation": {
+            "owneruid": 100001,
+            "ownergid": 200001,
+            "mode": "1770",
+            "inode": 42,
+            "status": "OBSERVED"
+          }
+        }
+      ]
+    }
+  }
+}

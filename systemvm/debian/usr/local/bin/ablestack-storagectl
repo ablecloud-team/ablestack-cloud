@@ -1595,6 +1595,12 @@ iscsi_runtime_snapshot = targetcli_iscsi_runtime_snapshot()
 sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
 from configuration_transaction import nfs_posix_observations, NfsIdentityMapping
 nfs_posix = nfs_posix_observations(load_json("/etc/ablestack-storage/desired-state/nfs-export-apply.json", {}))
+try:
+    import shared_directory_policy as inheritance_policy
+    smb_inheritance = inheritance_policy.inheritance_observations(load_json("/etc/ablestack-storage/desired-state/smb-share-apply.json", {}))
+except ImportError:
+    smb_inheritance = []
+
 iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-targets.json", {}), iscsi_runtime_snapshot)
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
 nvmeof_ports = desired_nvmeof_ports(nvmeof_subsystems)
@@ -1610,6 +1616,7 @@ print(json.dumps({
     "nfsExports": exports,
     "nfsidentitymapping": NfsIdentityMapping().inspect(),
     "nfsPosixObservations": nfs_posix,
+    "smbParentInheritanceObservations": smb_inheritance,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
@@ -4959,6 +4966,11 @@ else:
         "   security = user",
     ])
 
+# Validate new ownership policies before any directory/account mutation.
+for candidate_share in payload.get("shares", []):
+    if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
+        directory_policies.validate_inheritance_share(candidate_share, payload)
+
 quota_state = {}
 access_state = {}
 enabled = bool(payload.get("enabled", True))
@@ -5043,6 +5055,8 @@ for share in payload.get("shares", []):
         "   create mask = 0660",
         "   directory mask = 0770",
     ])
+    if "inheritOwner" in config:
+        lines.append("   inherit owner = " + ("yes" if directory_policies.inheritance_enabled(config) else "no"))
     if valid_users:
         lines.append("   valid users = " + " ".join(valid_users))
     if write_list:

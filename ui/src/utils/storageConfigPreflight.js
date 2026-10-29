@@ -1,6 +1,7 @@
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
+import { inheritanceIntent } from '@/utils/smbParentInheritance'
 const kinds = {
   nfsExport: ['NfsExport', 'NFS'],
   nfsAcl: ['NfsAcl', 'NFS'],
@@ -37,6 +38,10 @@ export function configurationModalIntent (type, forms, context) {
   if (form.volumemode === 'NEW') {
     result.newvolume = { diskofferingid: form.diskofferingid, storageid: form.storageid, size: form.newvolumesize }
     delete result.volumeid
+  }
+  if (key === 'smbShare' && action !== 'delete') {
+    const inheritance = inheritanceIntent(form)
+    if (inheritance) result.smbinheritance = inheritance
   }
   return result
 }
