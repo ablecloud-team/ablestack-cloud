@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "version": "epic1438-1453-inherit-58c615491bae-r2",
+  "updaterVersion": 5,
+  "managedFileCount": 10,
+  "signatureAndProfileVerified": true,
+  "firstBootstrap": true,
+  "repeatBootstrapChecks": 2,
+  "activeFeatureDowngradeBlocked": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true
+}

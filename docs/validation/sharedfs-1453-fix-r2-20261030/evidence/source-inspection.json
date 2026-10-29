@@ -1,0 +1,34 @@
+{
+  "success": true,
+  "parent": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o775",
+    "inode": 8388736
+  },
+  "accounts": {
+    "epic1453rw": {
+      "uid": 1001,
+      "gid": 1001,
+      "groups": "uid=1001(epic1453rw) gid=1001(epic1453rw) groups=1001(epic1453rw)"
+    },
+    "epic1453ro": {
+      "uid": 1002,
+      "gid": 1002,
+      "groups": "uid=1002(epic1453ro) gid=1002(epic1453ro) groups=1002(epic1453ro)"
+    }
+  },
+  "files": {
+    "seed-before.txt": {
+      "sha256": "623ccae67fd954f6388310d0def38f8cab61860b755d1ab53e423eef1785e2be",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "inode": 8388737
+    }
+  },
+  "smbConfigs": [
+    "/etc/samba/smb.conf"
+  ],
+  "dns": "nameserver 10.10.13.247\nnameserver 8.8.8.8\nnameserver 8.8.8.8\n"
+}

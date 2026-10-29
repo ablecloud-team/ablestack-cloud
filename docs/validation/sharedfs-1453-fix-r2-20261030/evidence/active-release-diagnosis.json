@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "ctlLink": "/usr/local/bin/ablestack-storagectl",
+  "ctlResolved": "/opt/ablestack/storage-runtime/releases/epic1438-1453-inherit-58c615491bae-r2/ablestack-storagectl",
+  "releaseHelperRoot": "/opt/ablestack/storage-runtime/releases/epic1438-1453-inherit-58c615491bae-r2/lib/ablestack-storage",
+  "activeResult": {
+    "helper": "/opt/ablestack/storage-runtime/releases/epic1438-1453-inherit-58c615491bae-r2/lib/ablestack-storage/shared_directory_policy.py",
+    "siblingUpdater": "/opt/ablestack/storage-runtime/releases/epic1438-1453-inherit-58c615491bae-r2/lib/ablestack-storage/runtime_updater.py",
+    "siblingUpdaterExists": false,
+    "protection": 0,
+    "explicitBaselineProtection": 1
+  },
+  "parent": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o775",
+    "inode": 8388736
+  },
+  "seed": {
+    "sha256": "623ccae67fd954f6388310d0def38f8cab61860b755d1ab53e423eef1785e2be",
+    "inode": 8388737
+  },
+  "writesPerformed": false
+}

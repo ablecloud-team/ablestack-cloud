@@ -1,0 +1,105 @@
+[
+  {
+    "id": "682ab4d3-1b43-4b09-afa1-c6eb8cba1ef3",
+    "api": "CreateStorageSmbAclCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 7,
+    "targetRevision": 8,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:19:33+0900",
+    "resultId": "1bd5efd2-20a9-415f-be0a-a7f791366ebf"
+  },
+  {
+    "id": "7be36eae-35b1-43a2-b823-f689318780ef",
+    "api": "CreateStorageSmbAclCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 6,
+    "targetRevision": 7,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:18:24+0900",
+    "resultId": "c6aaef2a-1533-4ad5-a659-9af0bf6d00c9"
+  },
+  {
+    "id": "35e662ff-782d-40fb-b007-e89c6f45e536",
+    "api": "CreateStorageSmbShareCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 5,
+    "targetRevision": 6,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:17:13+0900",
+    "resultId": "703fa3f2-8ae5-499b-a474-7e22aaac6360"
+  },
+  {
+    "id": "0267ae09-da07-44e1-9591-59acf95c2b39",
+    "api": "CreateStorageDirectoryPolicyCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 4,
+    "targetRevision": 5,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:15:44+0900",
+    "resultId": "f5c8a5ac-260a-3b63-9802-619e805ec04a"
+  },
+  {
+    "id": "105cc9b4-f5b6-4a3d-abcd-f875b2900aa8",
+    "api": "EnableStorageServiceProtocolCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 3,
+    "targetRevision": 4,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:14:54+0900",
+    "resultId": "8e2d272b-db52-4bc2-829e-cdb15df88dff"
+  },
+  {
+    "id": "e7112742-3f16-4fb7-9674-487b00110db6",
+    "api": "UpdateStorageNfsIdentityMappingCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 2,
+    "targetRevision": 3,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:13:53+0900"
+  },
+  {
+    "id": "f003860e-44a6-413a-9945-ff5cef2ce29b",
+    "api": "CreateStorageNfsExportCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 1,
+    "targetRevision": 2,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:12:20+0900",
+    "resultId": "b6509d7b-48af-4fc6-8729-20a4353ac982"
+  },
+  {
+    "id": "51a7fa4a-c204-437a-9f51-61fc3ef68814",
+    "api": "EnableStorageServiceProtocolCmd",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "baseRevision": 0,
+    "targetRevision": 1,
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "created": "2026-10-30T00:11:42+0900",
+    "resultId": "30cfeefa-999b-46d3-8249-560071f51bda"
+  }
+]
