@@ -1,0 +1,28 @@
+[
+  {
+    "requestId": "57640.782",
+    "command": "createSnapshotPolicy",
+    "params": {
+      "volumeid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "3",
+      "schedule": "9"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "57640.783",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "57640.784",
+    "command": "listSnapshotPolicies",
+    "params": {},
+    "status": 200
+  }
+]

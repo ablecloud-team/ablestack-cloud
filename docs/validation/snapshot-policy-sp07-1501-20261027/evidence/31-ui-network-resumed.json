@@ -1,0 +1,33 @@
+[
+  {
+    "label": "natural-running-delete-rejected",
+    "at": "2026-10-27T01:16:31.070Z",
+    "params": {
+      "command": "deleteSnapshotPolicies",
+      "ids": "100ab48c-73ce-474a-be98-c29553bbe13d"
+    },
+    "http": 431,
+    "response": {
+      "deletesnapshotpoliciesresponse": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Snapshot policy has a snapshot job in progress. Retry deletion after the job finishes."
+      }
+    }
+  },
+  {
+    "label": "natural-completed-policy-delete",
+    "at": "2026-10-27T01:17:01.158Z",
+    "params": {
+      "command": "deleteSnapshotPolicies",
+      "ids": "100ab48c-73ce-474a-be98-c29553bbe13d"
+    },
+    "http": 200,
+    "response": {
+      "deletesnapshotpoliciesresponse": {
+        "success": true
+      }
+    }
+  }
+]

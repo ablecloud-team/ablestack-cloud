@@ -1,0 +1,779 @@
+{
+  "passed": true,
+  "normalDeletionAndHistoricRetry": [
+    {
+      "snapshotId": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+      "state": "Destroyed",
+      "snapshotTags": 0,
+      "tagList": {},
+      "idempotentDelete": {
+        "success": true
+      }
+    },
+    {
+      "snapshotId": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+      "state": "Destroyed",
+      "snapshotTags": 0,
+      "tagList": {},
+      "idempotentDelete": {
+        "success": true
+      }
+    },
+    {
+      "snapshotId": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+      "state": "Destroyed",
+      "snapshotTags": 0,
+      "tagList": {},
+      "idempotentDelete": {
+        "success": true
+      }
+    },
+    {
+      "snapshotId": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+      "state": "Destroyed",
+      "snapshotTags": 0,
+      "tagList": {},
+      "idempotentDelete": {
+        "success": true
+      }
+    },
+    {
+      "snapshotId": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+      "state": "Destroyed",
+      "snapshotTags": 0,
+      "tagList": {},
+      "idempotentDelete": {
+        "success": true
+      }
+    }
+  ],
+  "lateOwnerTagCreationDenied": [
+    {
+      "snapshot": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+      "denied": {
+        "accountid": "428ec07b-fbde-426f-a2bc-14086e2dfd3e",
+        "account": "sp12-1506-31-owner-a",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "ffe29578-43ce-4eab-8b99-350e95925dd3",
+        "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 431,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 431,
+          "errortext": "Cannot create tags for a deleted snapshot"
+        },
+        "created": "2026-10-28T09:27:40+0900",
+        "completed": "2026-10-28T09:27:40+0900",
+        "jobid": "c819503f-7d43-4def-8e55-5e859876940b",
+        "jobstatus": 2
+      }
+    },
+    {
+      "snapshot": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+      "denied": {
+        "accountid": "428ec07b-fbde-426f-a2bc-14086e2dfd3e",
+        "account": "sp12-1506-31-owner-a",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "ffe29578-43ce-4eab-8b99-350e95925dd3",
+        "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 431,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 431,
+          "errortext": "Cannot create tags for a deleted snapshot"
+        },
+        "created": "2026-10-28T09:27:41+0900",
+        "completed": "2026-10-28T09:27:41+0900",
+        "jobid": "b7fc328e-7e90-4131-8527-57a9c3101a30",
+        "jobstatus": 2
+      }
+    }
+  ],
+  "manualSnapshotTagCleanup": false,
+  "unrelatedPolicyTagPreserved": true,
+  "database": {
+    "at": "2026-10-28 00:27:43.046706",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1159,
+        "uuid": "24c273c1-ca1b-4ffb-bed8-0990ff37f092",
+        "name": "SP12-1506-31-retention-한글",
+        "state": "Ready",
+        "path": "0891f058-b39e-45e0-9737-2c913562cb49",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1163,
+        "uuid": "3bc8a4ee-d35f-4dea-bb94-51e16c632418",
+        "name": "SP12-1506-31-project-한글",
+        "state": "Ready",
+        "path": "b69607ec-54aa-43a1-8d95-5453d269b367",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1160,
+        "uuid": "91724bc6-03d4-48bf-968a-d00394e61dd1",
+        "name": "SP12-1506-31-failure-한글",
+        "state": "Ready",
+        "path": "515b8e60-afdd-4875-abf5-665f14fde4a4",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1162,
+        "uuid": "96320058-c7d1-43d0-8446-34ae4a223e39",
+        "name": "SP12-1506-31-owner-b-한글",
+        "state": "Ready",
+        "path": "20b4d3f2-0a53-406c-934c-e3875312abc3",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1161,
+        "uuid": "cf24c1ec-9049-48eb-bd44-b58d106ffc7f",
+        "name": "SP12-1506-31-owner-a-한글",
+        "state": "Ready",
+        "path": "1f5e0f30-a168-497e-9d0c-4f34e64835df",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1158,
+        "uuid": "db8b3391-eb79-4388-96a4-8e409d248344",
+        "name": "SP12-1506-31-baseline-한글",
+        "state": "Ready",
+        "path": "b059a628-2293-47e2-bc70-3d77fc2f56b8",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 188,
+        "uuid": "8316b13b-6ce6-4d7c-aaf5-72f01215bbf6",
+        "volume_id": 1158,
+        "schedule": "5",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 189,
+        "uuid": "34c1e84d-1e67-468b-b60e-85e0ac19a182",
+        "volume_id": 1159,
+        "schedule": "23",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 1
+      },
+      {
+        "id": 190,
+        "uuid": "aecd69bf-595e-4a30-8755-db4ef57f4e17",
+        "volume_id": 1160,
+        "schedule": "5",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 192,
+        "uuid": "47f50b9e-7a4d-4401-9441-127e830e47d6",
+        "volume_id": 1162,
+        "schedule": "5",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 97,
+        "uuid": "d3a6a9e0-a159-4424-8cdf-339b8688cfbf",
+        "volume_id": 1159,
+        "policy_id": 189,
+        "scheduled_timestamp": "2026-10-28 00:23:00",
+        "async_job_id": 17818,
+        "snapshot_id": 294,
+        "policy_uuid": "34c1e84d-1e67-468b-b60e-85e0ac19a182",
+        "job_uuid": "2d2d29e2-495f-4bc4-9d28-22ce00f32021",
+        "job_status": 0
+      }
+    ],
+    "snapshots": [
+      {
+        "id": 293,
+        "uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+        "volume_id": 1159,
+        "status": "BackedUp",
+        "created": "2026-10-28 00:22:42",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 294,
+        "uuid": "968e98e4-d45a-4036-8010-7d40e6483e83",
+        "volume_id": 1159,
+        "status": "Allocated",
+        "created": "2026-10-28 00:27:42",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 292,
+        "uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "volume_id": 1163,
+        "status": "Destroyed",
+        "created": "2026-10-28 00:18:59",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 289,
+        "uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "volume_id": 1160,
+        "status": "Destroyed",
+        "created": "2026-10-28 00:18:56",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 291,
+        "uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "volume_id": 1162,
+        "status": "Destroyed",
+        "created": "2026-10-28 00:18:58",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 290,
+        "uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "volume_id": 1161,
+        "status": "Destroyed",
+        "created": "2026-10-28 00:18:57",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 288,
+        "uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "volume_id": 1158,
+        "status": "Destroyed",
+        "created": "2026-10-28 00:11:30",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Ready",
+        "install_path": "snapshots/2/1159/c5ac8154-6759-4107-9515-d7bb587c7484",
+        "job_id": null
+      },
+      {
+        "uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/319/1163/3bd3e6da-1864-4efc-99aa-d6d2c142fc1b",
+        "job_id": null
+      },
+      {
+        "uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1160/b18e8999-5952-4101-b88a-3d2d97e5b848",
+        "job_id": null
+      },
+      {
+        "uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/318/1162/b342b007-4f69-42af-bb93-b7206704f78b",
+        "job_id": null
+      },
+      {
+        "uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/317/1161/76ee26a2-a9ba-4d39-a2a4-5766ffb946b4",
+        "job_id": null
+      },
+      {
+        "uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1158/35824d81-f176-4db0-afb5-893b3ef10643",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+        "id": 17795,
+        "uuid": "0c50cac8-7ae0-47bc-bedb-5f024be22ea0",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:22:42",
+        "last_updated": "2026-10-28 00:22:44"
+      },
+      {
+        "snapshot_uuid": "968e98e4-d45a-4036-8010-7d40e6483e83",
+        "id": 17818,
+        "uuid": "2d2d29e2-495f-4bc4-9d28-22ce00f32021",
+        "job_status": 0,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:42",
+        "last_updated": null
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17778,
+        "uuid": "cf276dd2-c274-415d-8852-a6bb046354d2",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:59",
+        "last_updated": "2026-10-28 00:18:59"
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17796,
+        "uuid": "6d7d32b7-88d4-41ab-8510-827604ab563e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:24:33",
+        "last_updated": "2026-10-28 00:24:33"
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17797,
+        "uuid": "ca180ae0-3dcd-468d-9ac6-96b15ed9446e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:24:34",
+        "last_updated": "2026-10-28 00:24:34"
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17798,
+        "uuid": "a91fc126-ebdf-4d78-81c1-7f09e9dc5ff9",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:24:34",
+        "last_updated": "2026-10-28 00:24:34"
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17799,
+        "uuid": "6b3303a2-3e2e-4c3b-ac53-b6e7f75c9f08",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:24:34",
+        "last_updated": "2026-10-28 00:24:34"
+      },
+      {
+        "snapshot_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "id": 17815,
+        "uuid": "fd092255-32e1-4f1d-a961-7c500e091e66",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:39",
+        "last_updated": "2026-10-28 00:27:39"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17775,
+        "uuid": "a8d3bd8a-8433-4643-a6c7-9d17c552620f",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:56",
+        "last_updated": "2026-10-28 00:18:56"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17785,
+        "uuid": "3d31336c-4891-4d85-b829-2b63df5e5545",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:20:33",
+        "last_updated": "2026-10-28 00:20:33"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17786,
+        "uuid": "b5c282bb-7abf-4e83-9795-517b4d9f726c",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:20:34",
+        "last_updated": "2026-10-28 00:20:34"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17787,
+        "uuid": "e9838fde-ab29-4a8d-be77-dc2af08a9ebb",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:20:34",
+        "last_updated": "2026-10-28 00:20:34"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17788,
+        "uuid": "ab03e2f4-279d-4fec-89ac-73268906e5d3",
+        "job_status": 2,
+        "job_result_code": 530,
+        "created": "2026-10-28 00:20:34",
+        "last_updated": "2026-10-28 00:20:34"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17789,
+        "uuid": "ddcd55e7-4534-4503-969b-34225aee1be0",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:21:35",
+        "last_updated": "2026-10-28 00:21:35"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17790,
+        "uuid": "74c43505-389f-40c3-9424-26d3a9961ddb",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:21:35",
+        "last_updated": "2026-10-28 00:21:35"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17791,
+        "uuid": "af6d55ac-1549-498d-83fc-957d837f39c6",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:21:35",
+        "last_updated": "2026-10-28 00:21:35"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17792,
+        "uuid": "9081cd42-47bd-4189-83cd-34a47f88c9f8",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:21:35",
+        "last_updated": "2026-10-28 00:21:36"
+      },
+      {
+        "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+        "id": 17812,
+        "uuid": "da8c50a9-ad0d-4e50-89ff-07ffb69120e9",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:35",
+        "last_updated": "2026-10-28 00:27:35"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17777,
+        "uuid": "f0a1df0c-9de6-4578-8023-94577667865b",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:58",
+        "last_updated": "2026-10-28 00:18:58"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17804,
+        "uuid": "3232cb61-c459-4f00-b419-24100856312d",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:03",
+        "last_updated": "2026-10-28 00:26:03"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17805,
+        "uuid": "f77e0bcc-859d-49e4-894a-0c0f7be59d1e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:08",
+        "last_updated": "2026-10-28 00:26:08"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17806,
+        "uuid": "64d91e6a-aaa9-40ea-8fc4-28f4b482dcf0",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:30",
+        "last_updated": "2026-10-28 00:26:30"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17807,
+        "uuid": "4836b885-916c-42fa-bfe7-af558ba0e014",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:31",
+        "last_updated": "2026-10-28 00:26:31"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17808,
+        "uuid": "889822db-1cb6-413f-824e-60d85aa7c6ac",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:32",
+        "last_updated": "2026-10-28 00:26:32"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17809,
+        "uuid": "3d4f3feb-bea0-41b8-9288-1ba24fae0d57",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:32",
+        "last_updated": "2026-10-28 00:26:32"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17810,
+        "uuid": "c49642d4-f929-4d52-9a13-84b9d5aee289",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:26:32",
+        "last_updated": "2026-10-28 00:26:32"
+      },
+      {
+        "snapshot_uuid": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+        "id": 17814,
+        "uuid": "a4f47937-3ae6-4a3e-8e7e-3f32fcfc07b0",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:38",
+        "last_updated": "2026-10-28 00:27:38"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17776,
+        "uuid": "d58bb340-7f77-4c19-97ea-60dcc5267024",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:57",
+        "last_updated": "2026-10-28 00:18:57"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17800,
+        "uuid": "97cdfd22-11ea-44ea-862c-c6623d414309",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:25:11",
+        "last_updated": "2026-10-28 00:25:11"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17801,
+        "uuid": "bda4f688-5176-4c80-98b8-ddc06363d3fa",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:25:11",
+        "last_updated": "2026-10-28 00:25:11"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17802,
+        "uuid": "f308b278-20f3-4e4d-85f2-b653cab84561",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:25:12",
+        "last_updated": "2026-10-28 00:25:12"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17803,
+        "uuid": "0616e1b0-2e98-408b-92fa-aabe18bd963a",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:25:12",
+        "last_updated": "2026-10-28 00:25:12"
+      },
+      {
+        "snapshot_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "id": 17813,
+        "uuid": "7dbd1c9b-8387-479f-ac5a-bf49a71a8501",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:37",
+        "last_updated": "2026-10-28 00:27:37"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17765,
+        "uuid": "360cca0f-3e74-412a-826f-98b9fb0c3888",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:11:30",
+        "last_updated": "2026-10-28 00:11:31"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17766,
+        "uuid": "ccbf97a0-da89-4c45-a29a-f50c5d70757d",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:13:44",
+        "last_updated": "2026-10-28 00:13:44"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17767,
+        "uuid": "0c6d5eed-1f8a-466a-8b5a-b43c41da7e64",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:14:16",
+        "last_updated": "2026-10-28 00:14:16"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17768,
+        "uuid": "e25be839-ab7d-4db7-98d4-913935dbf33e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:14:16",
+        "last_updated": "2026-10-28 00:14:16"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17769,
+        "uuid": "be029117-243f-4a8c-a446-a49427c63e55",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:14:17",
+        "last_updated": "2026-10-28 00:14:17"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17772,
+        "uuid": "37ca6d72-24d0-4cb9-b489-8129881aa4c1",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:39",
+        "last_updated": "2026-10-28 00:18:39"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17773,
+        "uuid": "58e19f04-4340-450f-8f2f-4fe03413c556",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:18:40",
+        "last_updated": "2026-10-28 00:18:40"
+      },
+      {
+        "snapshot_uuid": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+        "id": 17811,
+        "uuid": "2752ae10-15b7-4895-90f5-953539068f88",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 00:27:34",
+        "last_updated": "2026-10-28 00:27:34"
+      }
+    ],
+    "tags": [
+      {
+        "id": 759,
+        "resource_uuid": "8316b13b-6ce6-4d7c-aaf5-72f01215bbf6",
+        "key": "sp12-policy",
+        "value": "1506-한글-baseline",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 761,
+        "resource_uuid": "aecd69bf-595e-4a30-8755-db4ef57f4e17",
+        "key": "sp12-policy",
+        "value": "1506-한글-failure",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 763,
+        "resource_uuid": "47f50b9e-7a4d-4401-9441-127e830e47d6",
+        "key": "sp12-policy",
+        "value": "1506-한글-owner-b",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 774,
+        "resource_uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+        "key": "sp12-natural",
+        "value": "1506-자연-보관1",
+        "resource_type": "Snapshot"
+      },
+      {
+        "id": 775,
+        "resource_uuid": "34c1e84d-1e67-468b-b60e-85e0ac19a182",
+        "key": "sp12-natural",
+        "value": "1506-자연-보관1",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 759,
+        "resource_uuid": "8316b13b-6ce6-4d7c-aaf5-72f01215bbf6",
+        "key": "sp12-policy",
+        "value": "1506-한글-baseline",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 761,
+        "resource_uuid": "aecd69bf-595e-4a30-8755-db4ef57f4e17",
+        "key": "sp12-policy",
+        "value": "1506-한글-failure",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 763,
+        "resource_uuid": "47f50b9e-7a4d-4401-9441-127e830e47d6",
+        "key": "sp12-policy",
+        "value": "1506-한글-owner-b",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 775,
+        "resource_uuid": "34c1e84d-1e67-468b-b60e-85e0ac19a182",
+        "key": "sp12-natural",
+        "value": "1506-자연-보관1",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  }
+}

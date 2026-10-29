@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "policyCount": 9,
+  "volumes": 4,
+  "snapshots": 1,
+  "projectDeleted": "ee05e80f-cf5e-4d34-a67a-2663fabd1362",
+  "accountDeleted": "d6918978-9045-475d-b5d6-dc9c76c9716e",
+  "database": {
+    "at": "2026-10-26 22:54:05.708158",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1126,
+        "uuid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+        "name": "SP05-1499-31-volume-tab",
+        "state": "Expunged",
+        "path": "6f5c6e58-ad47-4296-9d8a-a3a2ef9d7e53",
+        "pool_id": 1,
+        "removed": "2026-10-26 22:54:00"
+      },
+      {
+        "id": 1125,
+        "uuid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+        "name": "SP05-1499-31-scheduled",
+        "state": "Expunged",
+        "path": "b80a047d-49a5-4e3b-839e-315ab48360af",
+        "pool_id": 1,
+        "removed": "2026-10-26 22:53:55"
+      },
+      {
+        "id": 1128,
+        "uuid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+        "name": "SP05-1499-31-project",
+        "state": "Expunged",
+        "path": "49e0add8-a54a-4a5d-ae70-ab2be680b327",
+        "pool_id": 1,
+        "removed": "2026-10-26 22:54:02"
+      },
+      {
+        "id": 1127,
+        "uuid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+        "name": "SP05-1499-31-owner",
+        "state": "Expunged",
+        "path": "2fcab35e-c8bc-474d-a5c1-478bedab8248",
+        "pool_id": 1,
+        "removed": "2026-10-26 22:54:01"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [
+      {
+        "id": 279,
+        "uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "volume_id": 1126,
+        "status": "Destroyed",
+        "created": "2026-10-26 22:46:20",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1126/7af2a4ed-131a-4a22-ab49-52d6cdc83264",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "id": 17633,
+        "uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 22:46:20",
+        "last_updated": "2026-10-26 22:47:04"
+      },
+      {
+        "snapshot_uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "id": 17644,
+        "uuid": "774ab2d0-d31f-422d-9d60-6274517ee8e9",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 22:53:59",
+        "last_updated": "2026-10-26 22:53:59"
+      }
+    ],
+    "tags": []
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of undefined (reading 'children')\n    at Proxy.filterOption (http://10.10.31.10:8080/client/js/chunk-b3669cca.7e49fe13.js:1:32918)\n    at http://10.10.31.10:8080/client/js/vendors.abe728a0.js:170:84331\n    at Array.forEach (<anonymous>)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:170:84133)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:32:25303)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:32:25477)",
+    "timestamp": "2026-10-26T03:29:18.151Z",
+    "url": "http://10.10.31.10:8080/client/js/vendors.abe728a0.js"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of undefined (reading 'children')\n    at Proxy.filterOption (http://10.10.31.10:8080/client/js/chunk-b3669cca.7e49fe13.js:1:32918)\n    at http://10.10.31.10:8080/client/js/vendors.abe728a0.js:170:84331\n    at Array.forEach (<anonymous>)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:170:84133)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:32:25303)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.abe728a0.js:32:25477)",
+    "timestamp": "2026-10-26T03:29:18.160Z",
+    "url": "http://10.10.31.10:8080/client/js/vendors.abe728a0.js"
+  }
+]

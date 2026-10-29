@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "clusters": [
+    {
+      "cluster": 31,
+      "passed": true,
+      "preflight503NoWrites": true,
+      "sameJobQueryRetryNoResubmit": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958",
+      "deletionRace431NoResurrectionNoOtherMutation": true
+    },
+    {
+      "cluster": 32,
+      "passed": true,
+      "preflight503NoWrites": true,
+      "sameJobQueryRetryNoResubmit": "95757484-86f0-4b5d-ae62-9c9e3cd80db2",
+      "deletionRace431NoResurrectionNoOtherMutation": true
+    }
+  ]
+}

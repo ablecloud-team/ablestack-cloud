@@ -1,0 +1,168 @@
+{
+  "images": [
+    {
+      "path": "2961b6ea-48b6-4199-82e3-be42494f82d0",
+      "present": true,
+      "info": {
+        "name": "2961b6ea-48b6-4199-82e3-be42494f82d0",
+        "id": "1384bf8427ebdd",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.1384bf8427ebdd",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:26 2026",
+        "access_timestamp": "Wed Oct 28 09:11:26 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:26 2026"
+      }
+    },
+    {
+      "path": "09107f44-f82b-4960-85b7-3a3073303e4b",
+      "present": true,
+      "info": {
+        "name": "09107f44-f82b-4960-85b7-3a3073303e4b",
+        "id": "214132f8d97fb2",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.214132f8d97fb2",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:28 2026",
+        "access_timestamp": "Wed Oct 28 09:28:07 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:28 2026"
+      }
+    },
+    {
+      "path": "4345f30a-9044-4933-bf4a-c5e9ebc29004",
+      "present": true,
+      "info": {
+        "name": "4345f30a-9044-4933-bf4a-c5e9ebc29004",
+        "id": "13854ff2f2b60a",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.13854ff2f2b60a",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:30 2026",
+        "access_timestamp": "Wed Oct 28 09:18:58 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:30 2026"
+      }
+    },
+    {
+      "path": "f5a8e75b-01ac-4bb6-824e-25d0c19dc12b",
+      "present": true,
+      "info": {
+        "name": "f5a8e75b-01ac-4bb6-824e-25d0c19dc12b",
+        "id": "1413a42dbe7f7b",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.1413a42dbe7f7b",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:32 2026",
+        "access_timestamp": "Wed Oct 28 09:19:01 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:32 2026"
+      }
+    },
+    {
+      "path": "cc46e108-5cd7-44e8-8068-fa6d9cc9f0dc",
+      "present": true,
+      "info": {
+        "name": "cc46e108-5cd7-44e8-8068-fa6d9cc9f0dc",
+        "id": "1385d3b78633b4",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.1385d3b78633b4",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:34 2026",
+        "access_timestamp": "Wed Oct 28 09:19:05 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:34 2026"
+      }
+    },
+    {
+      "path": "06bcd4f8-1442-4e79-8802-8ca8b57afe89",
+      "present": true,
+      "info": {
+        "name": "06bcd4f8-1442-4e79-8802-8ca8b57afe89",
+        "id": "12b2302a89678a",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.12b2302a89678a",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Wed Oct 28 09:11:36 2026",
+        "access_timestamp": "Wed Oct 28 09:19:08 2026",
+        "modify_timestamp": "Wed Oct 28 09:11:36 2026"
+      }
+    }
+  ],
+  "trash": [],
+  "fixtureTrash": []
+}

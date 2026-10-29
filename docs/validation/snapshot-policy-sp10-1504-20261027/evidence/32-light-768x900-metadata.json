@@ -1,0 +1,32 @@
+{
+  "cardBackground": "rgb(255, 255, 255)",
+  "details": {
+    "bottom": 2241.5,
+    "height": 1363,
+    "left": 117,
+    "right": 711,
+    "top": 878.5,
+    "width": 594,
+    "x": 117,
+    "y": 878.5
+  },
+  "documentWidth": 758,
+  "fieldOverflow": 0,
+  "font": [
+    "14px"
+  ],
+  "mainScroll": 0,
+  "scrollRange": 1397,
+  "update": {
+    "font": "14px",
+    "height": 24,
+    "radius": "24px"
+  },
+  "viewport": [
+    768,
+    900
+  ],
+  "file": "32-light-768x900-metadata.png",
+  "theme": "light",
+  "part": "metadata"
+}

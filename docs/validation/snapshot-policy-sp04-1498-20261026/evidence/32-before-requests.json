@@ -1,0 +1,46 @@
+[
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "createSnapshotPolicy",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "response": "json",
+      "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "1",
+      "useStorageReplication": "false",
+      "schedule": "20",
+      "tags[0].key": "sp04-remove",
+      "tags[0].value": "yes"
+    }
+  },
+  {
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listSnapshotPolicies",
+      "response": "json"
+    }
+  },
+  {
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSnapshotPolicies",
+      "response": "json"
+    }
+  }
+]

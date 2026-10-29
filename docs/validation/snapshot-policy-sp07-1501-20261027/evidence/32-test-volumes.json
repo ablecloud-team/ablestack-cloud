@@ -1,0 +1,52 @@
+{
+  "volumes": [
+    {
+      "id": "ee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+      "name": "SP07-1501-32-scheduled",
+      "kind": "scheduled",
+      "path": "a7603d84-5e78-4917-bbe3-ad89ca179c9b",
+      "size": 1073741824,
+      "account": "admin",
+      "projectid": null
+    },
+    {
+      "id": "f3df49b4-87b1-41b8-ab20-d9e57fc93694",
+      "name": "SP07-1501-32-volume-tab",
+      "kind": "volume-tab",
+      "path": "2a754c4e-c416-4cf1-b35b-8a8e173966d2",
+      "size": 1073741824,
+      "account": "admin",
+      "projectid": null
+    },
+    {
+      "id": "bb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+      "name": "SP07-1501-32-owner",
+      "kind": "owner",
+      "path": "cf9b3df2-843f-4d0b-a325-f7f12d43225b",
+      "size": 1073741824,
+      "account": "sp07-u32-1501",
+      "projectid": null
+    },
+    {
+      "id": "1e6d4f26-685d-474e-bdbf-f28ea025f0a6",
+      "name": "SP07-1501-32-project",
+      "kind": "project",
+      "path": "8498f951-a692-4b25-9416-50301955199c",
+      "size": 1073741824,
+      "account": null,
+      "projectid": "db79445a-f302-4101-8977-a56b40bccb9e"
+    }
+  ],
+  "initialPolicyUuids": [
+    "1810183d-32c2-4842-8230-53c838035dff",
+    "2c675999-fe20-4db1-9331-180a0d0e9927",
+    "3ae7d543-b59d-4065-a901-2ba2f745d8ba",
+    "40292d6e-ff16-40f2-b931-757a7293480c",
+    "5279f2d9-eeee-413e-a8cd-dc71ea4f2786",
+    "79b0d72b-0b6b-4079-9f3e-b2c9b72629e0",
+    "a07447f8-491e-443c-b98c-1abcc9f176fb",
+    "c5464f75-908e-4364-8164-68b4fcb12162",
+    "cef21499-07f0-418b-8dfe-3adfae94d899",
+    "e62a62d4-4f60-4b11-a108-e79b216a4598"
+  ]
+}

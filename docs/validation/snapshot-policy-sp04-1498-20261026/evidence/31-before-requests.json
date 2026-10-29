@@ -1,0 +1,148 @@
+[
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "createSnapshotPolicy",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "response": "json",
+      "volumeid": "3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "1",
+      "useStorageReplication": "false",
+      "schedule": "20",
+      "tags[0].key": "sp04-remove",
+      "tags[0].value": "yes"
+    }
+  },
+  {
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listSnapshotPolicies",
+      "response": "json"
+    }
+  },
+  {
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSnapshotPolicies",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  },
+  {
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json"
+    }
+  }
+]

@@ -1,0 +1,973 @@
+[
+  {
+    "label": "search",
+    "query": "1",
+    "empty": false,
+    "options": [
+      "1",
+      "10",
+      "1",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "9",
+    "empty": false,
+    "options": [
+      "9",
+      "19",
+      "9",
+      "19"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "10",
+    "empty": false,
+    "options": [
+      "10",
+      "10"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "28",
+    "empty": false,
+    "options": [
+      "28",
+      "28"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "29",
+    "empty": true,
+    "options": []
+  },
+  {
+    "label": "search",
+    "query": "missing",
+    "empty": true,
+    "options": []
+  },
+  {
+    "label": "search",
+    "query": "",
+    "empty": false,
+    "options": [
+      "1",
+      "2",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ]
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "5912.2524",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "id": "548ee28c-5cad-43fe-a739-c68bce0c63b6",
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2524",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2525",
+        "command": "listVolumes",
+        "params": {
+          "id": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "command": "listVolumes",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2526",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2526",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2525",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2527",
+        "command": "listZones",
+        "params": {
+          "showicon": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2528",
+        "command": "listCapabilities",
+        "params": {
+          "command": "listCapabilities",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2529",
+        "command": "listAccounts",
+        "params": {
+          "name": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "listall": "true",
+          "command": "listAccounts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2530",
+        "command": "listResourceLimits",
+        "params": {
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2531",
+        "command": "listResourceLimits",
+        "params": {
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2530",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2531",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2527",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2528",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2529",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "keyboard-and-draft",
+    "before": {
+      "day": "1",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "Asia/Seoul"
+    },
+    "after": {
+      "day": "28",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "Asia/Seoul"
+    },
+    "noSubmit": true
+  },
+  {
+    "label": "cancel-reopen",
+    "fields": {
+      "day": "1",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "Asia/Seoul"
+    },
+    "passed": true
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "5912.2532",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2532",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2533",
+        "command": "getWallAlertAvailability",
+        "params": {
+          "command": "getWallAlertAvailability",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2533",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2534",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2534",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2535",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2535",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2536",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2536",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2537",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2537",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2538",
+        "command": "listHostsMetrics",
+        "params": {
+          "command": "listHostsMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2538",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2539",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2539",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2540",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2540",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2541",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2541",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2542",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2542",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2543",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "id": "548ee28c-5cad-43fe-a739-c68bce0c63b6",
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2543",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2544",
+        "command": "listVolumes",
+        "params": {
+          "id": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "command": "listVolumes",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2544",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2545",
+        "command": "listZones",
+        "params": {
+          "showicon": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2546",
+        "command": "listCapabilities",
+        "params": {
+          "command": "listCapabilities",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2547",
+        "command": "listAccounts",
+        "params": {
+          "name": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "listall": "true",
+          "command": "listAccounts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2548",
+        "command": "listResourceLimits",
+        "params": {
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2549",
+        "command": "listResourceLimits",
+        "params": {
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2549",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2545",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2548",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2546",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2547",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "5912.2550",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2550",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2551",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2551",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2552",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2552",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2553",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2553",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2554",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2554",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2555",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2555",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2556",
+        "command": "getWallAlertAvailability",
+        "params": {
+          "command": "getWallAlertAvailability",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2556",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2557",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2557",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2558",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2558",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2559",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2559",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2560",
+        "command": "listVolumesMetrics",
+        "params": {
+          "listall": "true",
+          "tab": "recurringsnapshots",
+          "listsystemvms": "true",
+          "id": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listVolumesMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2560",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2561",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2561",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2562",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2562",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2563",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2563",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2564",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2564",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2565",
+        "command": "listHostsMetrics",
+        "params": {
+          "command": "listHostsMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2565",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2566",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2566",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2567",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2567",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2568",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2568",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2569",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2569",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2570",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2570",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "5912.2571",
+        "command": "listTags",
+        "params": {
+          "resourcetype": "Volume",
+          "resourceid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2572",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2573",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2574",
+        "command": "listResourceIcon",
+        "params": {
+          "resourceids": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "resourcetype": "zone",
+          "command": "listResourceIcon",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2575",
+        "command": "listResourceIcon",
+        "params": {
+          "resourceids": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "resourcetype": "domain",
+          "command": "listResourceIcon",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "5912.2576",
+        "command": "listAccounts",
+        "params": {
+          "name": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "showicon": "true",
+          "command": "listAccounts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "5912.2571",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2572",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2573",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2574",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2575",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "5912.2576",
+        "status": 200
+      }
+    ]
+  }
+]

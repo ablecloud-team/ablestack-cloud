@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "closedAgentTabs": [
+    "27",
+    "28"
+  ],
+  "remainingUserTabs": [
+    {
+      "id": "3",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1494"
+    }
+  ],
+  "loggedOutBoth": true,
+  "viewportOverridesReset": true,
+  "themeRestored": "dark",
+  "fetchInterceptionCleared": true
+}

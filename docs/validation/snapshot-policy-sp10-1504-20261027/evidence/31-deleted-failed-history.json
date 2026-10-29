@@ -1,0 +1,102 @@
+{
+  "passed": true,
+  "before": {
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "schedulingenabled": false,
+    "policycontext": {
+      "version": 1,
+      "observedat": "2026-10-27T14:54:36+0900",
+      "volumeid": "d244a24d-703b-4c58-af12-06614a95a659",
+      "schedulingenabled": false,
+      "pollintervalseconds": 300,
+      "historysource": "RETAINED_SCHEDULER_JOBS",
+      "historylimit": 50,
+      "schedulestate": "PAUSED",
+      "currentjobknown": false,
+      "latestjob": {
+        "id": "c2b5b7ff-57c1-4ee1-bba9-a7ca8fd3c8b9",
+        "status": "FAILED",
+        "created": "2026-10-27T14:38:56+0900",
+        "updated": "2026-10-27T14:39:28+0900",
+        "errorcode": 530,
+        "snapshotavailable": true,
+        "snapshotid": "8b808bc1-752c-4fba-815c-a9df4ce75709",
+        "snapshotname": "detached_SP10-1504-31-runtime-한글_20261027053856"
+      }
+    },
+    "id": "f43b2b3a-3042-49a6-95be-479d71cdca66",
+    "volumeid": "d244a24d-703b-4c58-af12-06614a95a659",
+    "volumename": "SP10-1504-31-runtime-한글",
+    "schedule": "34",
+    "intervaltype": 0,
+    "maxsnaps": 2,
+    "timezone": "UTC",
+    "fordisplay": false,
+    "zone": [
+      {
+        "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "Zone"
+      }
+    ],
+    "storage": [
+      {
+        "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "name": "Primary"
+      }
+    ],
+    "tags": []
+  },
+  "deleteResult": {
+    "success": true
+  },
+  "after": {
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "schedulingenabled": false,
+    "policycontext": {
+      "version": 1,
+      "observedat": "2026-10-27T14:54:38+0900",
+      "volumeid": "d244a24d-703b-4c58-af12-06614a95a659",
+      "schedulingenabled": false,
+      "pollintervalseconds": 300,
+      "historysource": "RETAINED_SCHEDULER_JOBS",
+      "historylimit": 50,
+      "schedulestate": "PAUSED",
+      "currentjobknown": false,
+      "latestjob": {
+        "id": "c2b5b7ff-57c1-4ee1-bba9-a7ca8fd3c8b9",
+        "status": "FAILED",
+        "created": "2026-10-27T14:38:56+0900",
+        "updated": "2026-10-27T14:39:28+0900",
+        "errorcode": 530,
+        "snapshotavailable": false
+      }
+    },
+    "id": "f43b2b3a-3042-49a6-95be-479d71cdca66",
+    "volumeid": "d244a24d-703b-4c58-af12-06614a95a659",
+    "volumename": "SP10-1504-31-runtime-한글",
+    "schedule": "34",
+    "intervaltype": 0,
+    "maxsnaps": 2,
+    "timezone": "UTC",
+    "fordisplay": false,
+    "zone": [
+      {
+        "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "Zone"
+      }
+    ],
+    "storage": [
+      {
+        "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "name": "Primary"
+      }
+    ],
+    "tags": []
+  }
+}

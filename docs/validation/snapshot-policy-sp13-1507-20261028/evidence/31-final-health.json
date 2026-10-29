@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "mold": "active",
+  "pid": "3688598",
+  "clientHttp": 200,
+  "webInf": true,
+  "metaInfPresent": false,
+  "serverConfigFilesPreserved": 7,
+  "jarSha256": "36d9b46d1bf37092c7424a7b811a5acb9cc797b0bedc26fe52735856bc279c28",
+  "servedApp": {
+    "path": "js/app.8516507f.js",
+    "sha256": "86c65a25014113d21d0fa8c7035cbf319cc2c39cbc41b756b31902fd35f35353"
+  }
+}

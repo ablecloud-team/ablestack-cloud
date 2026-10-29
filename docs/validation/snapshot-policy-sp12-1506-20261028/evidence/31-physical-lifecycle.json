@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "snapshot": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+  "failedJobs": [
+    {
+      "snapshot_uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+      "id": 17788,
+      "uuid": "ab03e2f4-279d-4fec-89ac-73268906e5d3",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-28 00:20:34",
+      "last_updated": "2026-10-28 00:20:34"
+    }
+  ],
+  "stateDuringPhysicalFailure": "BackedUp",
+  "tagRowsDuringFailure": 1,
+  "stateAfterRetry": "Destroyed",
+  "tagRowsAfterRetry": 0,
+  "actualPartialPrimarySecondaryDeletionObserved": false,
+  "referencesDuringFailure": [
+    {
+      "uuid": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1160/b18e8999-5952-4101-b88a-3d2d97e5b848",
+      "job_id": null
+    }
+  ],
+  "manualSnapshotTagCleanup": false
+}

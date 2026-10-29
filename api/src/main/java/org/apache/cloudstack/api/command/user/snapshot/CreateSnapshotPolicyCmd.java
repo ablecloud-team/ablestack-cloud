@@ -74,6 +74,14 @@ public class CreateSnapshotPolicyCmd extends BaseCmd {
     @Parameter(name = ApiConstants.FOR_DISPLAY, type = CommandType.BOOLEAN, description = "An optional field, whether to the display the policy to the end user or not", since = "4.4", authorized = {RoleType.Admin})
     private Boolean display;
 
+    @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = SnapshotPolicyResponse.class,
+            description = "Expected existing policy ID when editing. The matching volume and interval policy must still exist.")
+    private Long id;
+
+    @Parameter(name = "clearzoneids", type = CommandType.BOOLEAN,
+            description = "Remove all additional snapshot zones when editing the specified existing policy. Cannot be combined with zoneids.")
+    private Boolean clearZoneIds;
+
     @Parameter(name = ApiConstants.TAGS, type = CommandType.MAP, description = "Map of tags (key/value pairs)")
     private Map tags;
 
@@ -135,6 +143,10 @@ public class CreateSnapshotPolicyCmd extends BaseCmd {
     public List<Long> getZoneIds() {
         return zoneIds;
     }
+
+    public Long getId() { return id; }
+
+    public boolean isClearZoneIds() { return Boolean.TRUE.equals(clearZoneIds); }
 
     public  List<Long> getStoragePoolIds() {
         return storagePoolIds == null ? new ArrayList<>() : storagePoolIds;

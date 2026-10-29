@@ -1,0 +1,116 @@
+[
+  {
+    "cluster": "31",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl$1",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 1,
+    "changedMethods": [
+      "public void doInTransactionWithoutResult(com.cloud.utils.db.TransactionStatus);"
+    ],
+    "addedMethods": [],
+    "preserveOriginalEntry": false
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl$2",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 2,
+    "changedMethods": [],
+    "addedMethods": [],
+    "preserveOriginalEntry": true
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 14,
+    "changedMethods": [
+      "public java.util.List<com.cloud.server.ResourceTag> createTags(java.util.List<java.lang.String>, com.cloud.server.ResourceTag$ResourceObjectType, java.util.Map<java.lang.String, java.lang.String>, java.lang.String);"
+    ],
+    "addedMethods": [
+      "protected java.util.List<com.cloud.server.ResourceTag> createTagsWithSnapshotLocksHeld(java.util.List<java.lang.String>, com.cloud.server.ResourceTag$ResourceObjectType, java.util.Map<java.lang.String, java.lang.String>, java.lang.String);",
+      "protected void validateSnapshotTagTarget(long, com.cloud.server.ResourceTag$ResourceObjectType);"
+    ],
+    "preserveOriginalEntry": false
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 3,
+    "changedMethods": [],
+    "addedMethods": [],
+    "preserveOriginalEntry": true
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 151,
+    "changedMethods": [
+      "protected org.apache.cloudstack.api.response.SnapshotDeletionResponse forceDeleteSnapshotWithLock(long, java.lang.Long, java.lang.String);",
+      "protected boolean deleteSnapshotWithLock(long, java.lang.Long, java.lang.String);"
+    ],
+    "addedMethods": [
+      "protected void cleanupTerminatedSnapshotTags(long);"
+    ],
+    "preserveOriginalEntry": false
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl$2",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 2,
+    "changedMethods": [],
+    "addedMethods": [],
+    "preserveOriginalEntry": true
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl$1",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 1,
+    "changedMethods": [
+      "public void doInTransactionWithoutResult(com.cloud.utils.db.TransactionStatus);"
+    ],
+    "addedMethods": [],
+    "preserveOriginalEntry": false
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/tags/TaggedResourceManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 14,
+    "changedMethods": [
+      "public java.util.List<com.cloud.server.ResourceTag> createTags(java.util.List<java.lang.String>, com.cloud.server.ResourceTag$ResourceObjectType, java.util.Map<java.lang.String, java.lang.String>, java.lang.String);"
+    ],
+    "addedMethods": [
+      "protected java.util.List<com.cloud.server.ResourceTag> createTagsWithSnapshotLocksHeld(java.util.List<java.lang.String>, com.cloud.server.ResourceTag$ResourceObjectType, java.util.Map<java.lang.String, java.lang.String>, java.lang.String);",
+      "protected void validateSnapshotTagTarget(long, com.cloud.server.ResourceTag$ResourceObjectType);"
+    ],
+    "preserveOriginalEntry": false
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 3,
+    "changedMethods": [],
+    "addedMethods": [],
+    "preserveOriginalEntry": true
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 151,
+    "changedMethods": [
+      "protected org.apache.cloudstack.api.response.SnapshotDeletionResponse forceDeleteSnapshotWithLock(long, java.lang.Long, java.lang.String);",
+      "protected boolean deleteSnapshotWithLock(long, java.lang.Long, java.lang.String);"
+    ],
+    "addedMethods": [
+      "protected void cleanupTerminatedSnapshotTags(long);"
+    ],
+    "preserveOriginalEntry": false
+  }
+]

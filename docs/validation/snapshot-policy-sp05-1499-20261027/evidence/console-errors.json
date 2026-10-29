@@ -1,0 +1,24 @@
+[
+  {
+    "cluster": 31,
+    "logs": [
+      {
+        "level": "error",
+        "message": "Error fetching GUI theme: s",
+        "timestamp": "2026-10-26T22:49:15.345Z",
+        "url": "http://10.10.31.10:8080/client/js/app.52da11a6.js"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "logs": [
+      {
+        "level": "error",
+        "message": "Error fetching GUI theme: s",
+        "timestamp": "2026-10-26T22:45:39.455Z",
+        "url": "http://10.10.32.10:8080/client/js/app.52da11a6.js"
+      }
+    ]
+  }
+]

@@ -1,0 +1,264 @@
+{
+  "passed": true,
+  "hold": {
+    "state": "held",
+    "snapshot": {
+      "id": 277,
+      "uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+      "status": "Allocated",
+      "volume_id": 1120
+    },
+    "schedule": {
+      "id": 33,
+      "scheduled_timestamp": "2026-10-26 15:17:00",
+      "async_job_id": 17583,
+      "snapshot_id": 277,
+      "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+      "job_status": 0
+    },
+    "at": 1793028063.5075219,
+    "watchdogSeconds": 90
+  },
+  "before": {
+    "at": "2026-10-26 15:21:04.681669",
+    "volumes": [
+      {
+        "id": 1120,
+        "uuid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+        "name": "SP06-1500-31-scheduled",
+        "state": "Ready",
+        "path": "04799a79-1fe4-47c5-bdb0-744a5e39f3ea",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1121,
+        "uuid": "f639a673-2c79-4517-9049-31f2c05c5d2e",
+        "name": "SP06-1500-31-volume-tab",
+        "state": "Ready",
+        "path": "65eefebb-b3d0-4894-828d-6aca42f1f1f7",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 54,
+        "uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "volume_id": 1120,
+        "schedule": "17",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 59,
+        "uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+        "volume_id": 1121,
+        "schedule": "23:20:1",
+        "timezone": "Asia/Kathmandu",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      }
+    ],
+    "schedules": [
+      {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": 17583,
+        "snapshot_id": 277,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0
+      },
+      {
+        "id": 41,
+        "uuid": "f5b28e61-9e04-4f36-970b-6fab22a447cc",
+        "volume_id": 1121,
+        "policy_id": 59,
+        "scheduled_timestamp": "2026-11-01 14:38:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+        "job_uuid": null,
+        "job_status": null
+      }
+    ],
+    "snapshots": [
+      {
+        "id": 276,
+        "uuid": "80c04455-709f-46b6-9551-548d12649b07",
+        "volume_id": 1120,
+        "status": "BackedUp",
+        "created": "2026-10-26 15:10:47",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 277,
+        "uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+        "volume_id": 1120,
+        "status": "Allocated",
+        "created": "2026-10-26 15:21:03",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "80c04455-709f-46b6-9551-548d12649b07",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Ready",
+        "install_path": "snapshots/2/1120/f1e7b147-213c-4287-a0f1-29a04e4cdb0a",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "80c04455-709f-46b6-9551-548d12649b07",
+        "id": 17580,
+        "uuid": "29d94fab-99aa-4552-b450-4d36a71ba0a7",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:10:47",
+        "last_updated": "2026-10-26 15:11:18"
+      },
+      {
+        "snapshot_uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+        "id": 17583,
+        "uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:21:03",
+        "last_updated": null
+      }
+    ],
+    "tags": []
+  },
+  "stages": [
+    {
+      "label": "changed",
+      "schedule": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": 17583,
+        "snapshot_id": 277,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0
+      },
+      "policy": {
+        "id": 54,
+        "uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "volume_id": 1120,
+        "schedule": "27",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      }
+    },
+    {
+      "label": "stopped",
+      "schedule": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": 17583,
+        "snapshot_id": 277,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0
+      },
+      "policy": {
+        "id": 54,
+        "uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "volume_id": 1120,
+        "schedule": "27",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 3
+      }
+    },
+    {
+      "label": "resumed",
+      "schedule": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": 17583,
+        "snapshot_id": 277,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0
+      },
+      "policy": {
+        "id": 54,
+        "uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "volume_id": 1120,
+        "schedule": "27",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      }
+    },
+    {
+      "label": "unchanged",
+      "schedule": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": 17583,
+        "snapshot_id": 277,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 0
+      },
+      "policy": {
+        "id": 54,
+        "uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "volume_id": 1120,
+        "schedule": "27",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      }
+    }
+  ],
+  "deletionRejected": {
+    "status": 431,
+    "data": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot policy has a snapshot job in progress. Retry deletion after the job finishes."
+    }
+  },
+  "newMinute": 27
+}

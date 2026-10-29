@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "apis": {
+    "deleteSnapshotPolicies": true,
+    "listSnapshotPolicies": true,
+    "listVolumes": true
+  },
+  "checks": [
+    {
+      "kind": "scheduled",
+      "id": "1810183d-32c2-4842-8230-53c838035dff",
+      "rejected": 531
+    }
+  ]
+}

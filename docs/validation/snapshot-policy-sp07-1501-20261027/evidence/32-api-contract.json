@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "api": {
+    "name": "deleteSnapshotPolicies",
+    "description": "Deletes Snapshot policies for the account.",
+    "isasync": false,
+    "params": [
+      {
+        "name": "id",
+        "description": "The ID of the Snapshot policy",
+        "type": "uuid",
+        "length": 255,
+        "required": false,
+        "related": "updateSnapshotPolicy"
+      },
+      {
+        "name": "ids",
+        "description": "List of Snapshots policy IDs separated by comma",
+        "type": "list",
+        "length": 255,
+        "required": false,
+        "related": "updateSnapshotPolicy"
+      }
+    ],
+    "response": [
+      {
+        "name": "success",
+        "description": "True if operation is executed successfully",
+        "type": "boolean"
+      },
+      {
+        "name": "jobid",
+        "description": "The UUID of the latest async job acting on this object",
+        "type": "string"
+      },
+      {
+        "name": "jobstatus",
+        "description": "The current status of the latest async job acting on this object",
+        "type": "integer"
+      },
+      {},
+      {},
+      {
+        "name": "displaytext",
+        "description": "Any text associated with the success or failure",
+        "type": "string"
+      }
+    ],
+    "httprequesttype": "POST"
+  },
+  "invalidTarget": {
+    "status": 431,
+    "data": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command deletesnapshotpolicies due to invalid value. Invalid parameter ids value=330c2890-5ed7-4193-9d6f-d6b70796279e due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+    }
+  },
+  "unchanged": true
+}

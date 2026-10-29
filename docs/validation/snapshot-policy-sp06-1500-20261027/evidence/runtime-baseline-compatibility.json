@@ -1,0 +1,22 @@
+[
+  {
+    "cluster": "31",
+    "class": "SnapshotManagerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "31",
+    "class": "SnapshotSchedulerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "32",
+    "class": "SnapshotManagerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "32",
+    "class": "SnapshotSchedulerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  }
+]

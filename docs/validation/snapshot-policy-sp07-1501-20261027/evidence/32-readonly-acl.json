@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "apis": {
+    "deleteSnapshotPolicies": false,
+    "listSnapshotPolicies": true,
+    "listVolumes": true
+  },
+  "checks": [
+    {
+      "kind": "owner",
+      "id": "cef21499-07f0-418b-8dfe-3adfae94d899",
+      "rejected": 432
+    },
+    {
+      "kind": "project",
+      "id": "c5464f75-908e-4364-8164-68b4fcb12162",
+      "rejected": 432
+    }
+  ]
+}

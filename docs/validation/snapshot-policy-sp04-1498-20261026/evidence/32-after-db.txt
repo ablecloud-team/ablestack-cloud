@@ -1,0 +1,18 @@
+[volumes]
+8bbe91a9-2a21-4fa0-8c8d-ac18bc1664ba	SP04-1498-32-volume-tab	Expunged	86bfbc52-f673-4a3c-a89a-8bc74f390e51	3	2026-10-26 13:36:41
+b3a3205d-fc5e-4946-9019-48631fee8cae	SP04-1498-32-owner	Expunged	c55ed8a3-7940-4573-adfa-e6da9165dcb1	3	2026-10-26 13:36:42
+c418324c-7c33-43f2-a817-c8cf4a169fd4	SP04-1498-32-scheduled	Expunged	b48f854b-17d3-408e-9f5c-cd6498d9ee48	3	2026-10-26 13:36:40
+[policies]
+[schedules]
+[snapshots]
+c5e66710-1122-42e1-a321-399afc5484b9	c418324c-7c33-43f2-a817-c8cf4a169fd4	Destroyed	2026-10-26 13:14:37	NULL	NULL
+[policy_tags]
+[snapshot_tags]
+[snapshot_refs]
+c5e66710-1122-42e1-a321-399afc5484b9	Image	Destroyed	snapshots/2/524/1fc72d60-308d-4e4e-9637-1398f64f5c92	NULL
+[snapshot_jobs]
+c5e66710-1122-42e1-a321-399afc5484b9	8e6dce46-e350-4f55-9aa9-cb365f3ec1c7	1	0	2026-10-26 13:14:37	2026-10-26 13:14:39
+c5e66710-1122-42e1-a321-399afc5484b9	5d6e5014-9d69-429d-8bd4-0f79c51540ad	1	0	2026-10-26 13:36:36	2026-10-26 13:36:37
+[poll_interval]
+snapshot.delta.max	16
+snapshot.poll.interval	300

@@ -1,0 +1,921 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 763,
+        "y": 139
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 768
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 419,
+        "y": 139
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 390
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 18,
+        "y": 255
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 763,
+        "y": 139
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 768
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 419,
+        "y": 139
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 390
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 18,
+        "y": 255
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 763,
+        "y": 166
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 768
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 419,
+        "y": 198
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "viewport": {
+        "height": 720,
+        "width": 390
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 18,
+        "y": 288
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(197, 204, 212)",
+          "pathFills": [
+            "rgb(197, 204, 212)"
+          ],
+          "pseudoColor": "rgb(197, 204, 212)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 763,
+        "y": 166
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 768
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 419,
+        "y": 198
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "viewport": {
+        "height": 720,
+        "width": 390
+      },
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 153.84375,
+        "x": 18,
+        "y": 288
+      },
+      "icons": [
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-monthly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"***\""
+        },
+        {
+          "kind": "custom-icon icon-weekly",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"1-7\""
+        },
+        {
+          "kind": "custom-icon icon-daily",
+          "parentColor": "rgb(75, 85, 99)",
+          "pathFills": [
+            "rgb(75, 85, 99)"
+          ],
+          "pseudoColor": "rgb(75, 85, 99)",
+          "text": "\"01\""
+        }
+      ]
+    }
+  ],
+  "selectedRowCases": 2,
+  "createDuringRefreshCases": 2,
+  "originalThemesRestored": "dark",
+  "temporaryCdpInterceptionAndViewportCleared": true
+}

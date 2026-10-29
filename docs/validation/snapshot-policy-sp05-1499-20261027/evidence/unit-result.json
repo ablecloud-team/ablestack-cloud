@@ -1,0 +1,102 @@
+{
+  "api": {
+    "tests": 9,
+    "passed": true,
+    "suites": [
+      {
+        "name": "org.apache.cloudstack.api.command.user.config.CapabilitiesSnapshotPolicyTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.044"
+      },
+      {
+        "name": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmdTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      {
+        "name": "org.apache.cloudstack.api.command.user.snapshot.SnapshotPolicyIntentTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.724"
+      }
+    ]
+  },
+  "server": {
+    "tests": 209,
+    "passed": true,
+    "suites": [
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotPolicyEditingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.144"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotPolicyInputValidatorTest",
+        "tests": "77",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.78"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotPolicyRetentionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotPolicySchedulingTest",
+        "tests": "26",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.803"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotSchedulerImplTest",
+        "tests": "14",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.06"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotManagerTest",
+        "tests": "51",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.233"
+      },
+      {
+        "name": "com.cloud.storage.snapshot.SnapshotManagerImplTest",
+        "tests": "33",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "10.828"
+      }
+    ]
+  },
+  "ui": {
+    "passed": true,
+    "tests": 145,
+    "suites": 8,
+    "lint": "PASS",
+    "source": "673d6578779"
+  },
+  "fullCloudCiRun": false
+}

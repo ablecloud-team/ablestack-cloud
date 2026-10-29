@@ -1,0 +1,14 @@
+{
+  "backendSourceCommit": "40097830e957057698e0289e2adc9898727522e3",
+  "sha256": "387425d6814c6b684ffe4e68448ecfce21645bbb3171463565ce1d6a10f3c9ec",
+  "entries": {
+    "com/cloud/storage/snapshot/SnapshotApiService.class": "267caf9544bfe6ef6d7f025039d77786b4408572c0a58f86c912703a13e3b049",
+    "org/apache/cloudstack/api/response/SnapshotPolicyResponse.class": "6ac3a34f24e4784e1f55b728938cf61528723334399e0e61a4dea9422e3b5c11",
+    "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd.class": "7597b6315afc0d155a48b647a7993d9732bc2f1edb1351fc0ae5ecba3b0f0682",
+    "com/cloud/api/ApiResponseHelper$1.class": "1d803fea3d69482f4d86d137f5266c10cff72425aab9111c01cd3d10528cab8a",
+    "com/cloud/api/ApiResponseHelper.class": "38722a6ee93e6ea66418cb2884f53dfaf5679100b684318c34fadd02f0a3a4f4",
+    "com/cloud/storage/snapshot/SnapshotPolicyContext.class": "ce82e06e21dfa9c02ea71ee0c573bf81aa58b88b0a526412ef439a201d757d6a",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "5331457d509413e371fcaa464bc234b0096ca2aebd1529db3be946386d4b1ce8",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class": "a36a7161d43a2174a2ead46e5bb277fd0dcf8bb29c9a829b3d3cd1f8a5034214"
+  }
+}

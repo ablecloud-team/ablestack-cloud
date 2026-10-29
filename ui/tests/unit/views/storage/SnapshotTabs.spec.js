@@ -60,6 +60,17 @@ test('events server search resets the page and sends the same fixed resource and
   const vm = await mount(Events); await wrapper.setProps({ resource: { id: 'A', projectid: 'project' } }); vm.page = 3; vm.eventSearch = 'SNAPSHOT.EXTRACT'; await vm.searchEvents()
   expect(vm.page).toBe(1); expect(getAPI).toHaveBeenLastCalledWith('listEvents', expect.objectContaining({ resourceid: 'A', projectid: 'project', keyword: 'SNAPSHOT.EXTRACT', page: 1 }), expect.objectContaining({ timeout: 20000 }))
 })
+
+test('policy events stay scoped to the policy UUID and project rather than its source volume', async () => {
+  const vm = await mount(Events)
+  route.meta = { name: 'snapshotpolicy', resourceType: 'SnapshotPolicy' }; route.path = '/snapshotpolicy/policy'; route.fullPath = route.path + '?tab=events'
+  await wrapper.setProps({ resource: { id: 'policy', volumeid: 'source-volume', projectid: 'project' }, resourceType: 'SnapshotPolicy' })
+  await flushPromises()
+  expect(getAPI).toHaveBeenLastCalledWith('listEvents', expect.objectContaining({ resourceid: 'policy', resourcetype: 'SnapshotPolicy', projectid: 'project', listall: true }), expect.any(Object))
+  expect(vm.events).toEqual([{ id: 'event', resourceid: 'policy' }])
+  vm.eventSearch = 'SNAPSHOTPOLICY.CREATE'; await vm.searchEvents()
+  expect(getAPI).toHaveBeenLastCalledWith('listEvents', expect.objectContaining({ resourceid: 'policy', resourcetype: 'SnapshotPolicy', keyword: 'SNAPSHOTPOLICY.CREATE', page: 1 }), expect.any(Object))
+})
 test('comment delete/visibility completion from the old target cannot refresh or clear the new target', async () => {
   const vm = await mount(); let release; postAPI.mockReturnValue(new Promise(resolve => { release = resolve })); const operation = vm.deleteNote(vm.notes[0]); await wrapper.setProps({ resource: { id: 'B' } }); await flushPromises(); vm.annotation = 'new target draft'; getAPI.mockClear(); release({}); await operation
   expect(vm.annotation).toBe('new target draft'); expect(vm.notes[0].entityid).toBe('B'); expect(getAPI).not.toHaveBeenCalled()

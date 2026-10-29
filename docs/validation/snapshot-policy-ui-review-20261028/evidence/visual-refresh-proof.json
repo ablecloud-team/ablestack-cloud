@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "cluster": "31",
+      "passed": true,
+      "paint": {
+        "blurred": 0,
+        "opacity": "1"
+      },
+      "pausedRequests": 1,
+      "retainedRows": 20
+    },
+    {
+      "cluster": "32",
+      "passed": true,
+      "paint": {
+        "blurred": 0,
+        "opacity": "1"
+      },
+      "pausedRequests": 1,
+      "retainedRows": 20
+    }
+  ]
+}

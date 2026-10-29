@@ -1,0 +1,11 @@
+{
+  "commit": "282fe03cd51cc82445e2127e7be3521d25feb13b",
+  "sha256": "031a77c20f5ba8f52209d44562d14f4b5004af9975cf9774f512239804bd8dfc",
+  "entries": {
+    "com/cloud/storage/snapshot/SnapshotSchedulerImpl$1.class": "cffb6b4801e85853869ad6dbb7af9de44361b86db231787ca908aac1ea9588e2",
+    "com/cloud/storage/snapshot/SnapshotScheduleJobGuard.class": "0ec626b31c3289a2e6c74252e308e43af4df70237dc61e964ab77e918d89f269",
+    "com/cloud/storage/snapshot/SnapshotSchedulerImpl.class": "4d559c51493cbaf99c6e4cd3ebef95419c424f7e1545e307abe850bb03bdba0d",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "e0404d93ce05c246ff711bc35103c1e9637d4326b9c3e04b767720cde24914ce",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class": "096e588e1647d31db790bbb5d7db43a3b1708305aa1f942221afb5b9193fa638"
+  }
+}

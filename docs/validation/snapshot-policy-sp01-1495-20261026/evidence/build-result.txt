@@ -1,0 +1,12 @@
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

@@ -26,6 +26,12 @@ jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/store', () => ({ getters: { features: {}, apis: {}, userInfo: {} } }))
 beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
 
+test('policy editing and scheduling use their target dialog instead of the generic create API route', () => {
+  const actions = storage.children.find(child => child.name === 'snapshotpolicy').actions.filter(action => action.policyMode)
+  expect(actions.map(action => action.policyMode)).toEqual(['edit', 'pause', 'resume'])
+  for (const action of actions) { expect(action.popup).toBe(true); expect(action.selfManagedDialog).toBe(true); expect(action.dataView).toBe(true) }
+})
+
 const reader = () => ({ ...Policies.methods, resource: { id: 'first' }, active: true, canRead: true, loading: false, pending: false, disposed: false, ownerScope: 'user/project/first', version: 0, rows: [{ id: 'kept' }], loaded: true, error: false })
 
 test('policies are an independently permission-gated volume detail tab', () => {
@@ -95,32 +101,39 @@ test('the recurring dialog retains creation state without a policy-list tab or t
   wrapper.unmount()
 })
 
-const deleter = () => ({ ...Table.methods, resource: { id: 'first' }, dataSource: [{ id: 'policy', volumeid: 'first' }], canDelete: true, ownerScope: 'first/user/project', disabled: false, actionLoading: false, disposed: false, deleteVersion: 0, $t: key => key, $emit: jest.fn(), $notifyError: jest.fn(), $notification: { success: jest.fn() } })
-
-test('policy deletion is permission/row/context gated and double submission posts only once', async () => {
-  const vm = deleter(); let release
-  postAPI.mockReturnValue(new Promise(resolve => { release = resolve }))
-  vm.canDelete = false; await vm.handleClickDelete({ id: 'policy' })
-  vm.canDelete = true; await vm.handleClickDelete({ id: 'not-owned' })
-  expect(postAPI).not.toHaveBeenCalled()
-  const pending = vm.handleClickDelete({ id: 'policy' }); await vm.handleClickDelete({ id: 'policy' })
-  expect(postAPI).toHaveBeenCalledTimes(1)
-  expect(postAPI).toHaveBeenCalledWith('deleteSnapshotPolicies', { id: 'policy' }, { preserveOnFailure: true })
-  vm.ownerScope = 'second/user/project'; release({ deletesnapshotpoliciesresponse: { success: true } }); await pending
-  expect(vm.$emit).not.toHaveBeenCalled()
+test('a volume delete opens a pinned confirmation without sending a request', () => {
+  const row = { id: 'policy', volumeid: 'first', intervaltype: 0 }
+  const vm = { ...Table.methods, resource: { id: 'first' }, dataSource: [row], canDelete: true, disposed: false, policyTarget: null }
+  vm.handleClickDelete(row); row.id = 'changed'; expect(vm.policyTarget.id).toBe('policy'); expect(vm.policyMode).toBe('delete'); expect(postAPI).not.toHaveBeenCalled()
+  vm.handleClickDelete({ id: 'other', volumeid: 'first' }); expect(vm.policyTarget.id).toBe('policy')
+  Table.watch.ownerScope.call(vm); expect(vm.policyTarget).toBeNull()
 })
 
-test('successful policy removal refreshes the detail table and interval labels include the cadence', async () => {
-  const vm = deleter(); postAPI.mockResolvedValue({ deletesnapshotpoliciesresponse: { success: true } })
-  await vm.handleClickDelete({ id: 'policy' }); expect(vm.$emit).toHaveBeenCalledWith('refresh')
+test('policy row actions require both permission and exact volume ownership', () => {
+  const vm = { ...Table.methods, resource: { id: 'first' }, dataSource: [{ id: 'policy', volumeid: 'first' }], canDelete: false, disposed: false, policyTarget: null }
+  vm.handleClickDelete(vm.dataSource[0]); expect(vm.policyTarget).toBeNull(); vm.canDelete = true; vm.handleClickDelete({ id: 'other', volumeid: 'second' }); expect(vm.policyTarget).toBeNull()
   expect(vm.scheduleTime({ intervaltype: 3, schedule: '5:9:28' })).toBe('09:05')
-  expect(vm.intervalText('3')).toBe('label.monthly')
-  expect(Table.computed.columns.call({ $t: k => k, canDelete: false }).some(c => c.key === 'actions')).toBe(false)
+  expect(Table.computed.columns.call({ $t: k => k, $store: { getters: { userInfo: { roletype: 'User' } } }, canDelete: false, canEdit: false, canManage: false }).some(c => c.key === 'actions')).toBe(false)
+})
+
+test('after a deleted row disappears, focus waits for refresh and returns to the volume toolbar', () => {
+  const section = document.createElement('section'); section.className = 'volume-policy-tab'; section.innerHTML = '<div class="detail-tab-toolbar"><button>refresh</button></div><div class="list-schedule"><button>delete</button></div>'; document.body.append(section)
+  const row = { id: 'policy', volumeid: 'first' }; const list = section.querySelector('.list-schedule'); const trigger = list.querySelector('button'); trigger.focus()
+  const vm = { ...Table.methods, $el: list, $nextTick (fn) { fn.call(this) }, resource: { id: 'first' }, dataSource: [row], ownerScope: 'owner', canDelete: true, disposed: false, policyTarget: null }
+  vm.handleClickDelete(row); trigger.remove(); vm.disabled = true; vm.closePolicyDelete(); expect(vm.pendingDeleteFocus).toBe(true)
+  vm.disabled = false; Table.watch.disabled.call(vm, false); expect(document.activeElement).toBe(section.querySelector('button')); expect(vm.pendingDeleteFocus).toBe(false); section.remove()
+})
+
+test('a pending deletion focus restore cannot steal focus after an owner switch', () => {
+  const button = document.createElement('button'); document.body.append(button); button.focus()
+  const vm = { ...Table.methods, ownerScope: 'other', deleteFocusScope: 'previous', pendingDeleteFocus: true, deleteTrigger: button, $nextTick: fn => fn() }
+  Table.watch.ownerScope.call(vm); vm.restorePolicyFocus(); expect(document.activeElement).toBe(button); expect(vm.pendingDeleteFocus).toBe(false); button.remove()
 })
 
 test('policy validation cannot post after context change and two validations create only one policy', async () => {
   let release; const validated = new Promise(resolve => { release = resolve }); let current = true
   const vm = { actionLoading: false, disabled: false, dialogCurrent: () => current, formRef: { value: { validate: () => validated } }, form: { intervaltype: 'hourly', time: 59, timezone: 'UTC', maxsnaps: 2 }, handleRemoveFields: v => ({ ...v }), volumeId: 'first', tags: [], $emit: jest.fn(), $t: k => k, $notification: { success: jest.fn() }, resetForm: jest.fn(), $notifyError: jest.fn() }
+  vm.$store = { getters: { apis: { createSnapshotPolicy: {} } } }
   Schedule.methods.handleSubmit.call(vm); current = false; release(); await flushPromises()
   expect(postAPI).not.toHaveBeenCalled()
   current = true; vm.formRef.value.validate = () => Promise.resolve(); postAPI.mockReturnValue(new Promise(() => {}))

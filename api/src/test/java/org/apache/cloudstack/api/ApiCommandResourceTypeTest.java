@@ -68,4 +68,17 @@ public class ApiCommandResourceTypeTest {
         Assert.assertEquals(ApiCommandResourceType.Account, ApiCommandResourceType.fromString("Account"));
         Assert.assertEquals(ApiCommandResourceType.Domain, ApiCommandResourceType.fromString("Domain"));
     }
+
+    @Test
+    public void testSnapshotPolicyEventResourceMapping() {
+        Class<?> policyClass = com.cloud.storage.snapshot.SnapshotPolicy.class;
+        Assert.assertEquals(ApiCommandResourceType.SnapshotPolicy, ApiCommandResourceType.fromString("SnapshotPolicy"));
+        Assert.assertEquals(ApiCommandResourceType.SnapshotPolicy, ApiCommandResourceType.fromString("snapshotpolicy"));
+        Assert.assertEquals(policyClass, ApiCommandResourceType.SnapshotPolicy.getAssociatedClass());
+        Assert.assertEquals(ApiCommandResourceType.SnapshotPolicy, ApiCommandResourceType.valueFromAssociatedClass(policyClass));
+        for (String event : new String[] {com.cloud.event.EventTypes.EVENT_SNAPSHOT_POLICY_CREATE,
+                com.cloud.event.EventTypes.EVENT_SNAPSHOT_POLICY_UPDATE, com.cloud.event.EventTypes.EVENT_SNAPSHOT_POLICY_DELETE}) {
+            Assert.assertEquals(policyClass, com.cloud.event.EventTypes.getEntityClassForEvent(event));
+        }
+    }
 }

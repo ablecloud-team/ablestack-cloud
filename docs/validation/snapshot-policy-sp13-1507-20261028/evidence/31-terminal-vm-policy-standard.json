@@ -1,0 +1,31 @@
+{
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "vmStyle": {
+    "primary": {
+      "font": "14px",
+      "height": 32,
+      "radius": "32px"
+    },
+    "refresh": {
+      "font": "14px",
+      "height": 24,
+      "radius": "24px"
+    }
+  },
+  "policyStyle": {
+    "primary": {
+      "font": "14px",
+      "height": 32,
+      "radius": "32px"
+    },
+    "refresh": {
+      "font": "14px",
+      "height": 24,
+      "radius": "24px"
+    }
+  },
+  "vmTabs": [
+    "ant-tabs ant-tabs-left"
+  ],
+  "vmDetailReadOnly": true
+}

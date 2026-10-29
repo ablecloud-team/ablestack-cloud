@@ -1,0 +1,26 @@
+{
+  "images": [
+    {
+      "path": "56afe4ee-c0fd-4d63-bff9-ba8129b81c08",
+      "present": false,
+      "info": null
+    },
+    {
+      "path": "d254860d-21fa-4d37-bfe9-907dc698bdbc",
+      "present": false,
+      "info": null
+    },
+    {
+      "path": "db0f4e4d-a818-40de-b383-68ad1620ac59",
+      "present": false,
+      "info": null
+    },
+    {
+      "path": "405dce10-6329-4bfc-b875-41172f9adab1",
+      "present": false,
+      "info": null
+    }
+  ],
+  "trash": [],
+  "fixtureTrash": []
+}

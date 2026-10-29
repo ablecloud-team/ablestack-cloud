@@ -1,0 +1,1444 @@
+[
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:07:10.377Z"
+  },
+  {
+    "cluster": 31,
+    "name": "빈 키 차단",
+    "pass": true,
+    "detail": "태그 키와 값을 입력하세요.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:07:39.960Z"
+  },
+  {
+    "cluster": 31,
+    "name": "빈 값 차단",
+    "pass": true,
+    "detail": "태그 키와 값을 입력하세요.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:07:40.716Z"
+  },
+  {
+    "cluster": 31,
+    "name": "Escape 취소 후 초안 제거",
+    "pass": true,
+    "at": "2026-10-26T13:07:40.792Z"
+  },
+  {
+    "cluster": 31,
+    "name": "Enter 확정 1회",
+    "pass": true,
+    "detail": "sp04-remove = yes\nsp04-keep = 한글 태그 유지\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:07:41.936Z"
+  },
+  {
+    "cluster": 31,
+    "name": "중복 키 거부와 원래 값 보존",
+    "pass": true,
+    "detail": "sp04-remove = yes\nsp04-keep = 한글 태그 유지\n이미 추가한 태그 키입니다. 기존 태그를 삭제한 후 새 값을 추가하십시오.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:07:42.660Z"
+  },
+  {
+    "cluster": 31,
+    "name": "blur는 초안을 자동 저장하지 않음",
+    "pass": true,
+    "at": "2026-10-26T13:07:43.544Z"
+  },
+  {
+    "cluster": 31,
+    "name": "X 삭제 후 실제 태그 DOM 제거",
+    "pass": true,
+    "detail": "sp04-keep = 한글 태그 유지\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:07:44.217Z"
+  },
+  {
+    "cluster": 31,
+    "name": "삭제/취소 후 추가 버튼 초점",
+    "pass": true,
+    "at": "2026-10-26T13:07:44.238Z"
+  },
+  {
+    "cluster": 31,
+    "name": "VM 태그 입력 규격 일치",
+    "pass": true,
+    "detail": [
+      {
+        "font": "14px",
+        "height": 32,
+        "radius": "4px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "radius": "4px"
+      }
+    ],
+    "at": "2026-10-26T13:07:44.660Z"
+  },
+  {
+    "cluster": 31,
+    "name": "431 후 확정 태그·일정 보존",
+    "pass": true,
+    "at": "2026-10-26T13:08:08.813Z"
+  },
+  {
+    "cluster": 31,
+    "name": "실제 API 재시도 후 정책 생성",
+    "pass": true,
+    "at": "2026-10-26T13:08:09.359Z"
+  },
+  {
+    "cluster": 31,
+    "name": "삭제/취소 태그 미전송·열린 초안 1회 저장",
+    "pass": true,
+    "detail": [
+      {
+        "cluster": 31,
+        "sequence": 6146,
+        "command": "createSnapshotPolicy",
+        "params": {
+          "command": "createSnapshotPolicy",
+          "response": "json",
+          "volumeid": "3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6",
+          "intervaltype": "hourly",
+          "timezone": "Asia/Seoul",
+          "maxsnaps": "9",
+          "useStorageReplication": "false",
+          "schedule": "12",
+          "tags[0].key": "sp04-keep",
+          "tags[0].value": "한글 태그 유지",
+          "tags[1].key": "sp04-pending",
+          "tags[1].value": "입력 중인 태그"
+        }
+      },
+      {
+        "cluster": 31,
+        "sequence": 6192,
+        "command": "createSnapshotPolicy",
+        "params": {
+          "command": "createSnapshotPolicy",
+          "response": "json",
+          "volumeid": "3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6",
+          "intervaltype": "hourly",
+          "timezone": "Asia/Seoul",
+          "maxsnaps": "1",
+          "useStorageReplication": "false",
+          "schedule": "12",
+          "tags[0].key": "sp04-keep",
+          "tags[0].value": "한글 태그 유지",
+          "tags[1].key": "sp04-pending",
+          "tags[1].value": "입력 중인 태그"
+        }
+      }
+    ],
+    "at": "2026-10-26T13:08:09.384Z"
+  },
+  {
+    "cluster": 32,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:08:10.757Z"
+  },
+  {
+    "cluster": 32,
+    "name": "빈 키 차단",
+    "pass": true,
+    "detail": "태그 키와 값을 입력하세요.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:08:11.254Z"
+  },
+  {
+    "cluster": 32,
+    "name": "빈 값 차단",
+    "pass": true,
+    "detail": "태그 키와 값을 입력하세요.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:08:12.032Z"
+  },
+  {
+    "cluster": 32,
+    "name": "Escape 취소 후 초안 제거",
+    "pass": true,
+    "at": "2026-10-26T13:08:12.109Z"
+  },
+  {
+    "cluster": 32,
+    "name": "Enter 확정 1회",
+    "pass": true,
+    "detail": "sp04-remove = yes\nsp04-keep = 한글 태그 유지\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:08:13.251Z"
+  },
+  {
+    "cluster": 32,
+    "name": "중복 키 거부와 원래 값 보존",
+    "pass": true,
+    "detail": "sp04-remove = yes\nsp04-keep = 한글 태그 유지\n이미 추가한 태그 키입니다. 기존 태그를 삭제한 후 새 값을 추가하십시오.\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:08:13.968Z"
+  },
+  {
+    "cluster": 32,
+    "name": "blur는 초안을 자동 저장하지 않음",
+    "pass": true,
+    "at": "2026-10-26T13:08:14.850Z"
+  },
+  {
+    "cluster": 32,
+    "name": "X 삭제 후 실제 태그 DOM 제거",
+    "pass": true,
+    "detail": "sp04-keep = 한글 태그 유지\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+    "at": "2026-10-26T13:08:15.526Z"
+  },
+  {
+    "cluster": 32,
+    "name": "삭제/취소 후 추가 버튼 초점",
+    "pass": true,
+    "at": "2026-10-26T13:08:15.549Z"
+  },
+  {
+    "cluster": 32,
+    "name": "VM 태그 입력 규격 일치",
+    "pass": true,
+    "detail": [
+      {
+        "font": "14px",
+        "height": 32,
+        "radius": "4px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "radius": "4px"
+      }
+    ],
+    "at": "2026-10-26T13:08:15.963Z"
+  },
+  {
+    "cluster": 32,
+    "name": "431 후 확정 태그·일정 보존",
+    "pass": true,
+    "at": "2026-10-26T13:08:28.735Z"
+  },
+  {
+    "cluster": 32,
+    "name": "실제 API 재시도 후 정책 생성",
+    "pass": true,
+    "at": "2026-10-26T13:08:29.327Z"
+  },
+  {
+    "cluster": 32,
+    "name": "삭제/취소 태그 미전송·열린 초안 1회 저장",
+    "pass": true,
+    "detail": [
+      {
+        "cluster": 32,
+        "sequence": 3570,
+        "command": "createSnapshotPolicy",
+        "params": {
+          "command": "createSnapshotPolicy",
+          "response": "json",
+          "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+          "intervaltype": "hourly",
+          "timezone": "Asia/Seoul",
+          "maxsnaps": "9",
+          "useStorageReplication": "false",
+          "schedule": "12",
+          "tags[0].key": "sp04-keep",
+          "tags[0].value": "한글 태그 유지",
+          "tags[1].key": "sp04-pending",
+          "tags[1].value": "입력 중인 태그"
+        }
+      },
+      {
+        "cluster": 32,
+        "sequence": 3580,
+        "command": "createSnapshotPolicy",
+        "params": {
+          "command": "createSnapshotPolicy",
+          "response": "json",
+          "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+          "intervaltype": "hourly",
+          "timezone": "Asia/Seoul",
+          "maxsnaps": "1",
+          "useStorageReplication": "false",
+          "schedule": "12",
+          "tags[0].key": "sp04-keep",
+          "tags[0].value": "한글 태그 유지",
+          "tags[1].key": "sp04-pending",
+          "tags[1].value": "입력 중인 태그"
+        }
+      }
+    ],
+    "at": "2026-10-26T13:08:29.352Z"
+  },
+  {
+    "cluster": 31,
+    "name": "볼륨 상세 모든 태그 삭제·일정 확인",
+    "pass": true,
+    "detail": "11:58 PM",
+    "at": "2026-10-26T13:11:06.854Z"
+  },
+  {
+    "cluster": 31,
+    "name": "볼륨 탭 DAILY 저장값 표시",
+    "pass": true,
+    "detail": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tAsia/Seoul [Korea Standard Time]\t1\t\nZone\n\t\nPrimary\n\t\t",
+    "at": "2026-10-26T13:11:15.495Z"
+  },
+  {
+    "cluster": 32,
+    "name": "볼륨 상세 모든 태그 삭제·일정 확인",
+    "pass": true,
+    "detail": "11:58 PM",
+    "at": "2026-10-26T13:11:55.544Z"
+  },
+  {
+    "cluster": 32,
+    "name": "볼륨 탭 DAILY 저장값 표시",
+    "pass": true,
+    "detail": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tAsia/Seoul [Korea Standard Time]\t1\t\nZone\n\t\nPrimary\n\t\t",
+    "at": "2026-10-26T13:12:06.771Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:15:49.477Z"
+  },
+  {
+    "cluster": 31,
+    "name": "일반 사용자 볼륨 선택 범위",
+    "pass": true,
+    "detail": [
+      "SP04-1498-31-owner (1.00 GiB)계정: sp04-owner-31-1498 · 도메인: ROOT · Zone: Zone · 아이디: 7b626c48-82ba-427e-ab86-c478f731b7aa"
+    ],
+    "at": "2026-10-26T13:16:18.574Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:16:43.288Z"
+  },
+  {
+    "cluster": 31,
+    "name": "deleteTags 거부 역할도 로컬 초안 삭제 가능",
+    "pass": true,
+    "at": "2026-10-26T13:16:44.312Z"
+  },
+  {
+    "cluster": 31,
+    "name": "제한 역할 자신의 정책 생성",
+    "pass": true,
+    "detail": " DAILY\t1\t\n23:59\n\tAsia/Seoul [Korea Standard Time]\tSP04-1498-31-owner",
+    "at": "2026-10-26T13:16:47.797Z"
+  },
+  {
+    "cluster": 32,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:17:00.341Z"
+  },
+  {
+    "cluster": 32,
+    "name": "deleteTags 거부 역할도 로컬 초안 삭제 가능",
+    "pass": true,
+    "at": "2026-10-26T13:17:01.345Z"
+  },
+  {
+    "cluster": 32,
+    "name": "제한 역할 자신의 정책 생성",
+    "pass": true,
+    "detail": " DAILY\t1\t\n23:59\n\tAsia/Seoul [Korea Standard Time]\tSP04-1498-32-owner",
+    "at": "2026-10-26T13:17:04.767Z"
+  },
+  {
+    "cluster": 31,
+    "name": "일반 사용자 정책 목록 소유 범위",
+    "pass": true,
+    "at": "2026-10-26T13:22:45.356Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": false,
+    "at": "2026-10-26T13:22:48.929Z"
+  },
+  {
+    "cluster": 31,
+    "name": "createTags 거부·deleteTags 허용이면 초안 추가 숨김",
+    "pass": true,
+    "at": "2026-10-26T13:22:48.944Z"
+  },
+  {
+    "cluster": 32,
+    "name": "일반 사용자 정책 목록 소유 범위",
+    "pass": true,
+    "at": "2026-10-26T13:22:49.480Z"
+  },
+  {
+    "cluster": 32,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": false,
+    "at": "2026-10-26T13:22:53.205Z"
+  },
+  {
+    "cluster": 32,
+    "name": "createTags 거부·deleteTags 허용이면 초안 추가 숨김",
+    "pass": true,
+    "at": "2026-10-26T13:22:53.221Z"
+  },
+  {
+    "cluster": 31,
+    "name": "createSnapshotPolicy 거부 역할의 생성 작업 숨김",
+    "pass": true,
+    "at": "2026-10-26T13:23:44.079Z"
+  },
+  {
+    "cluster": 32,
+    "name": "createSnapshotPolicy 거부 역할의 생성 작업 숨김",
+    "pass": true,
+    "at": "2026-10-26T13:23:48.210Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:23:51.805Z"
+  },
+  {
+    "cluster": 31,
+    "name": "용량 회복 후 새 UI 정책 생성",
+    "pass": true,
+    "detail": {
+      "minute": 28
+    },
+    "at": "2026-10-26T13:24:27.245Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:26:25.941Z"
+  },
+  {
+    "cluster": 31,
+    "name": "light 1280x800 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 800,
+        "height": 800,
+        "right": 1270,
+        "width": 1270,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "editor": {
+        "bottom": 709.703125,
+        "clientWidth": 1190,
+        "height": 230.84375,
+        "right": 1225,
+        "scrollWidth": 1190,
+        "width": 1190,
+        "x": 35,
+        "y": 478.859375
+      },
+      "footer": [
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 1149.234375,
+          "width": 57.765625,
+          "x": 1091.46875,
+          "y": 709.703125
+        },
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 1220,
+          "width": 57.765625,
+          "x": 1162.234375,
+          "y": 709.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 580.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 548.859375
+        },
+        {
+          "bottom": 618.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 586.859375
+        }
+      ],
+      "viewport": {
+        "height": 800,
+        "width": 1280
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:26:56.715Z"
+  },
+  {
+    "cluster": 31,
+    "name": "light 768x900 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "right": 758,
+        "width": 758,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "editor": {
+        "bottom": 809.703125,
+        "clientWidth": 678,
+        "height": 250.84375,
+        "right": 713,
+        "scrollWidth": 678,
+        "width": 678,
+        "x": 35,
+        "y": 558.859375
+      },
+      "footer": [
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 637.234375,
+          "width": 57.765625,
+          "x": 579.46875,
+          "y": 809.703125
+        },
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 708,
+          "width": 57.765625,
+          "x": 650.234375,
+          "y": 809.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 680.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 648.859375
+        },
+        {
+          "bottom": 718.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 686.859375
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 768
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:15.496Z"
+  },
+  {
+    "cluster": 31,
+    "name": "light 390x844 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "right": 380,
+        "width": 380,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "editor": {
+        "bottom": 774.3125,
+        "clientWidth": 332,
+        "height": 349.6875,
+        "right": 351,
+        "scrollWidth": 332,
+        "width": 332,
+        "x": 19,
+        "y": 424.625
+      },
+      "footer": [
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "취소",
+          "right": 275.234375,
+          "width": 57.765625,
+          "x": 217.46875,
+          "y": 774.3125
+        },
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "확인",
+          "right": 346,
+          "width": 57.765625,
+          "x": 288.234375,
+          "y": 774.3125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 626.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 594.625
+        },
+        {
+          "bottom": 664.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 632.625
+        }
+      ],
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:16.520Z"
+  },
+  {
+    "cluster": 31,
+    "name": "실제 테마 전환 dark",
+    "pass": true,
+    "at": "2026-10-26T13:27:36.522Z"
+  },
+  {
+    "cluster": 31,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:27:37.675Z"
+  },
+  {
+    "cluster": 31,
+    "name": "dark 1280x800 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 800,
+        "height": 800,
+        "right": 1270,
+        "width": 1270,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "editor": {
+        "bottom": 709.703125,
+        "clientWidth": 1190,
+        "height": 230.84375,
+        "right": 1225,
+        "scrollWidth": 1190,
+        "width": 1190,
+        "x": 35,
+        "y": 478.859375
+      },
+      "footer": [
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 1149.234375,
+          "width": 57.765625,
+          "x": 1091.46875,
+          "y": 709.703125
+        },
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 1220,
+          "width": 57.765625,
+          "x": 1162.234375,
+          "y": 709.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 580.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 548.859375
+        },
+        {
+          "bottom": 618.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 586.859375
+        }
+      ],
+      "viewport": {
+        "height": 800,
+        "width": 1280
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:39.645Z"
+  },
+  {
+    "cluster": 31,
+    "name": "dark 768x900 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "right": 758,
+        "width": 758,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "editor": {
+        "bottom": 809.703125,
+        "clientWidth": 678,
+        "height": 250.84375,
+        "right": 713,
+        "scrollWidth": 678,
+        "width": 678,
+        "x": 35,
+        "y": 558.859375
+      },
+      "footer": [
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 637.234375,
+          "width": 57.765625,
+          "x": 579.46875,
+          "y": 809.703125
+        },
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 708,
+          "width": 57.765625,
+          "x": 650.234375,
+          "y": 809.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 680.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 648.859375
+        },
+        {
+          "bottom": 718.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 686.859375
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 768
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:40.684Z"
+  },
+  {
+    "cluster": 31,
+    "name": "dark 390x844 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "right": 380,
+        "width": 380,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "editor": {
+        "bottom": 774.3125,
+        "clientWidth": 332,
+        "height": 349.6875,
+        "right": 351,
+        "scrollWidth": 332,
+        "width": 332,
+        "x": 19,
+        "y": 424.625
+      },
+      "footer": [
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "취소",
+          "right": 275.234375,
+          "width": 57.765625,
+          "x": 217.46875,
+          "y": 774.3125
+        },
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "확인",
+          "right": 346,
+          "width": 57.765625,
+          "x": 288.234375,
+          "y": 774.3125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 626.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 594.625
+        },
+        {
+          "bottom": 664.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 632.625
+        }
+      ],
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:41.697Z"
+  },
+  {
+    "cluster": 32,
+    "name": "실제 테마 전환 light",
+    "pass": true,
+    "at": "2026-10-26T13:27:44.741Z"
+  },
+  {
+    "cluster": 32,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:27:45.816Z"
+  },
+  {
+    "cluster": 32,
+    "name": "light 1280x800 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 800,
+        "height": 800,
+        "right": 1270,
+        "width": 1270,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "editor": {
+        "bottom": 709.703125,
+        "clientWidth": 1190,
+        "height": 230.84375,
+        "right": 1225,
+        "scrollWidth": 1190,
+        "width": 1190,
+        "x": 35,
+        "y": 478.859375
+      },
+      "footer": [
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 1149.234375,
+          "width": 57.765625,
+          "x": 1091.46875,
+          "y": 709.703125
+        },
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 1220,
+          "width": 57.765625,
+          "x": 1162.234375,
+          "y": 709.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 580.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 548.859375
+        },
+        {
+          "bottom": 618.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 586.859375
+        }
+      ],
+      "viewport": {
+        "height": 800,
+        "width": 1280
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:47.779Z"
+  },
+  {
+    "cluster": 32,
+    "name": "light 768x900 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "right": 758,
+        "width": 758,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "editor": {
+        "bottom": 809.703125,
+        "clientWidth": 678,
+        "height": 250.84375,
+        "right": 713,
+        "scrollWidth": 678,
+        "width": 678,
+        "x": 35,
+        "y": 558.859375
+      },
+      "footer": [
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 637.234375,
+          "width": 57.765625,
+          "x": 579.46875,
+          "y": 809.703125
+        },
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 708,
+          "width": 57.765625,
+          "x": 650.234375,
+          "y": 809.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 680.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 648.859375
+        },
+        {
+          "bottom": 718.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 686.859375
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 768
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:48.917Z"
+  },
+  {
+    "cluster": 32,
+    "name": "light 390x844 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": false,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "right": 380,
+        "width": 380,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "editor": {
+        "bottom": 774.3125,
+        "clientWidth": 332,
+        "height": 349.6875,
+        "right": 351,
+        "scrollWidth": 332,
+        "width": 332,
+        "x": 19,
+        "y": 424.625
+      },
+      "footer": [
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "취소",
+          "right": 275.234375,
+          "width": 57.765625,
+          "x": 217.46875,
+          "y": 774.3125
+        },
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "확인",
+          "right": 346,
+          "width": 57.765625,
+          "x": 288.234375,
+          "y": 774.3125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 626.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 594.625
+        },
+        {
+          "bottom": 664.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 632.625
+        }
+      ],
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:27:49.901Z"
+  },
+  {
+    "cluster": 32,
+    "name": "실제 테마 전환 dark",
+    "pass": true,
+    "at": "2026-10-26T13:27:58.778Z"
+  },
+  {
+    "cluster": 32,
+    "name": "생성창에 SP-04 태그 편집기 표시",
+    "pass": true,
+    "detail": true,
+    "at": "2026-10-26T13:27:59.836Z"
+  },
+  {
+    "cluster": 32,
+    "name": "dark 1280x800 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 800,
+        "height": 800,
+        "right": 1270,
+        "width": 1270,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 1270,
+      "editor": {
+        "bottom": 709.703125,
+        "clientWidth": 1190,
+        "height": 230.84375,
+        "right": 1225,
+        "scrollWidth": 1190,
+        "width": 1190,
+        "x": 35,
+        "y": 478.859375
+      },
+      "footer": [
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 1149.234375,
+          "width": 57.765625,
+          "x": 1091.46875,
+          "y": 709.703125
+        },
+        {
+          "bottom": 741.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 1220,
+          "width": 57.765625,
+          "x": 1162.234375,
+          "y": 709.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 580.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 548.859375
+        },
+        {
+          "bottom": 618.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 1225,
+          "width": 1190,
+          "x": 35,
+          "y": 586.859375
+        }
+      ],
+      "viewport": {
+        "height": 800,
+        "width": 1280
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:28:01.792Z"
+  },
+  {
+    "cluster": 32,
+    "name": "dark 768x900 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 900,
+        "height": 900,
+        "right": 758,
+        "width": 758,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 758,
+      "editor": {
+        "bottom": 809.703125,
+        "clientWidth": 678,
+        "height": 250.84375,
+        "right": 713,
+        "scrollWidth": 678,
+        "width": 678,
+        "x": 35,
+        "y": 558.859375
+      },
+      "footer": [
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "취소",
+          "right": 637.234375,
+          "width": 57.765625,
+          "x": 579.46875,
+          "y": 809.703125
+        },
+        {
+          "bottom": 841.703125,
+          "height": 32,
+          "name": "확인",
+          "right": 708,
+          "width": 57.765625,
+          "x": 650.234375,
+          "y": 809.703125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 680.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 648.859375
+        },
+        {
+          "bottom": 718.859375,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 713,
+          "width": 678,
+          "x": 35,
+          "y": 686.859375
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 768
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:28:02.850Z"
+  },
+  {
+    "cluster": 32,
+    "name": "dark 390x844 태그 줄바꿈·입력·버튼·Tab",
+    "pass": true,
+    "detail": {
+      "dark": true,
+      "dialog": {
+        "bottom": 844,
+        "height": 844,
+        "right": 380,
+        "width": 380,
+        "x": 0,
+        "y": 0
+      },
+      "documentWidth": 380,
+      "editor": {
+        "bottom": 774.3125,
+        "clientWidth": 332,
+        "height": 349.6875,
+        "right": 351,
+        "scrollWidth": 332,
+        "width": 332,
+        "x": 19,
+        "y": 424.625
+      },
+      "footer": [
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "취소",
+          "right": 275.234375,
+          "width": 57.765625,
+          "x": 217.46875,
+          "y": 774.3125
+        },
+        {
+          "bottom": 806.3125,
+          "height": 32,
+          "name": "확인",
+          "right": 346,
+          "width": 57.765625,
+          "x": 288.234375,
+          "y": 774.3125
+        }
+      ],
+      "inputs": [
+        {
+          "bottom": 626.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 594.625
+        },
+        {
+          "bottom": 664.625,
+          "font": "14px",
+          "height": 32,
+          "radius": "4px",
+          "right": 351,
+          "width": 332,
+          "x": 19,
+          "y": 632.625
+        }
+      ],
+      "viewport": {
+        "height": 844,
+        "width": 390
+      },
+      "valueFocus": true,
+      "confirmFocus": true,
+      "cancelFocus": true
+    },
+    "at": "2026-10-26T13:28:03.895Z"
+  },
+  {
+    "cluster": 32,
+    "name": "자연 예약 스냅샷의 실제 UI 태그",
+    "pass": true,
+    "detail": "태그\n태그 새로고침\nsp04-keep = 한글 태그 유지\nsp04-pending = 입력 중인 태그\n새 태그",
+    "at": "2026-10-26T13:29:28.451Z"
+  },
+  {
+    "cluster": 31,
+    "name": "자연 예약 스냅샷의 실제 UI 태그",
+    "pass": true,
+    "detail": "태그\n태그 새로고침\nsp04-keep = 한글 태그 유지\nsp04-pending = 입력 중인 태그\n새 태그",
+    "at": "2026-10-26T13:30:19.853Z"
+  },
+  {
+    "cluster": 31,
+    "name": "SP-02 고급 볼륨 검색 실제 필터 회귀",
+    "pass": true,
+    "at": "2026-10-26T13:30:37.254Z"
+  },
+  {
+    "cluster": 31,
+    "name": "SP-02 재설정 전체 목록 복구",
+    "pass": true,
+    "at": "2026-10-26T13:31:05.032Z"
+  },
+  {
+    "cluster": 32,
+    "name": "SP-02 고급 볼륨 검색 실제 필터 회귀",
+    "pass": true,
+    "at": "2026-10-26T13:31:06.594Z"
+  },
+  {
+    "cluster": 32,
+    "name": "SP-02 재설정 전체 목록 복구",
+    "pass": true,
+    "at": "2026-10-26T13:31:07.373Z"
+  },
+  {
+    "cluster": 31,
+    "name": "정리 후 실제 정책 목록 0건",
+    "pass": true,
+    "at": "2026-10-26T13:38:32.567Z"
+  },
+  {
+    "cluster": 32,
+    "name": "정리 후 실제 정책 목록 0건",
+    "pass": true,
+    "at": "2026-10-26T13:38:32.865Z"
+  }
+]

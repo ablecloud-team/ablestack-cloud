@@ -1,0 +1,19 @@
+{
+  "source": "42f3710727073b2956815840eb9eb18abe5ec921",
+  "requests": [
+    {
+      "command": "createSnapshotPolicy",
+      "response": "json",
+      "volumeid": "6f930120-3fa3-4010-acc5-9ce886be09cb",
+      "intervaltype": "daily",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "2",
+      "useStorageReplication": "false",
+      "schedule": "10:09",
+      "tags[0].key": "ui-review",
+      "tags[0].value": "20261028-retain",
+      "tags[1].key": "retention",
+      "tags[1].value": "명시적 삭제 요청까지 유지"
+    }
+  ]
+}

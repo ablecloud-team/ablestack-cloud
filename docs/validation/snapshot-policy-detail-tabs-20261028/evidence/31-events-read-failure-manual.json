@@ -1,0 +1,52 @@
+{
+  "app": [
+    "http://10.10.31.10:8080/client/js/app.ce659810.js"
+  ],
+  "button": {
+    "background": "rgb(24, 144, 255)",
+    "border": "rgb(24, 144, 255)",
+    "color": "rgb(255, 255, 255)",
+    "disabled": false,
+    "height": 32,
+    "opacity": "1",
+    "width": 79.765625,
+    "x": 1167.234375,
+    "y": 139
+  },
+  "dark": true,
+  "errors": [
+    "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.탭 데이터를 조회하지 못했습니다. 다시 조회하세요.재시도"
+  ],
+  "eventRows": [
+    "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+    "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+    "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+    "3ee16924-168f-427c-9640-20daf6870ff3"
+  ],
+  "headers": [
+    "레벨",
+    "유형",
+    "상태",
+    "사용자 이름",
+    "계정",
+    "도메인",
+    "생성일"
+  ],
+  "pagination": "전체 4개 항목 중 1-4 표시110 / 쪽",
+  "search": "",
+  "tabClass": "ant-tabs ant-tabs-left",
+  "tabs": [
+    {
+      "selected": "false",
+      "text": "상세"
+    },
+    {
+      "selected": "true",
+      "text": "이벤트"
+    }
+  ],
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

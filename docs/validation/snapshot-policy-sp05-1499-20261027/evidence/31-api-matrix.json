@@ -1,0 +1,171 @@
+{
+  "passed": true,
+  "valid": [
+    {
+      "volume": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "interval": 3,
+      "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "interval": 2,
+      "id": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "interval": 1,
+      "id": "309af718-6183-4def-be23-d6881a5c10c5",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "interval": 0,
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "explicitZoneClear": true,
+      "storedZoneDetailRemoved": true,
+      "sourceZoneRetained": true
+    },
+    {
+      "volume": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "interval": 3,
+      "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "interval": 2,
+      "id": "aad169ce-112e-4959-8184-ae7a793463f5",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "interval": 1,
+      "id": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "interval": 0,
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "sameUuid": true,
+      "tagsPreserved": true
+    },
+    {
+      "volume": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "explicitZoneClear": true,
+      "storedZoneDetailRemoved": true,
+      "sourceZoneRetained": true
+    }
+  ],
+  "invalid": [
+    {
+      "changes": {
+        "id": "e4fa501a-d094-48c5-a76d-34223e8931b1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "The snapshot policy was removed or changed. Reload the policy before editing."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    },
+    {
+      "changes": {
+        "clearzoneids": true,
+        "zoneids": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "clearzoneids requires an existing policy id and cannot be combined with zoneids."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    },
+    {
+      "changes": {
+        "clearzoneids": true,
+        "id": null
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "clearzoneids requires an existing policy id and cannot be combined with zoneids."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    },
+    {
+      "changes": {
+        "id": "aad169ce-112e-4959-8184-ae7a793463f5"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "The snapshot policy was removed or changed. Reload the policy before editing."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    },
+    {
+      "changes": {
+        "clearzoneids": true,
+        "zoneids": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "clearzoneids requires an existing policy id and cannot be combined with zoneids."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    },
+    {
+      "changes": {
+        "clearzoneids": true,
+        "id": null
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "clearzoneids requires an existing policy id and cannot be combined with zoneids."
+        }
+      },
+      "policyTagsScheduleUnchanged": true
+    }
+  ]
+}

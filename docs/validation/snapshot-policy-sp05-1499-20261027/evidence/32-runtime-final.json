@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "mold": "active",
+  "clientHttp": 200,
+  "WEB-INF": true,
+  "staticFilesVerified": 928,
+  "configFilesUnchanged": 7,
+  "jarEntriesUnchanged": 204532,
+  "jarSha256": "916884ed998dfae21e3d725c2f06b2c75a2e2d2f4c214f16060ef697e3fd1419",
+  "pid": "3477070"
+}

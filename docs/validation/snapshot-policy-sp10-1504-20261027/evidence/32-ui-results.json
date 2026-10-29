@@ -1,0 +1,3389 @@
+{
+  "checks": [
+    {
+      "name": "detail-metadata-period-0",
+      "passed": true,
+      "policyId": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+      "text": "아이디\na71c5cad-2a89-4a06-ba7f-3365100da185\n볼륨 이름\nSP10-1504-32-admin-한글\n간격 유형\n매시간\n스케줄\n5분(매시)\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 2:35:46\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "detail-metadata-period-1",
+      "passed": true,
+      "policyId": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+      "text": "아이디\n8200aac1-ab45-4bfc-bd33-926782d6b2f2\n볼륨 이름\nSP10-1504-32-admin-한글\n간격 유형\n매일\n스케줄\n07:09\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 2:35:47\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "detail-metadata-period-2",
+      "passed": true,
+      "policyId": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+      "text": "아이디\ne2ed2f69-2d49-49ae-9035-9e603287c1ab\n볼륨 이름\nSP10-1504-32-admin-한글\n간격 유형\n매주\n스케줄\n03:05 · 매 월요일\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 2:35:47\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "detail-metadata-period-3",
+      "passed": true,
+      "policyId": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+      "text": "아이디\n364f9736-123d-4006-84e9-b7035e4ef9f3\n볼륨 이름\nSP10-1504-32-admin-한글\n간격 유형\n매월\n스케줄\n23:59 · 매월 28일\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 2:35:47\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "volume-tab-localized-same-schedule",
+      "passed": true,
+      "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매월\t23:59 · 매월 28일\tAsia/Seoul [Korea Standard Time]\t2\t\nZone\n\t\nPrimary\n\tsp10-test=1504-한글\t중지\t\n\n매주\t03:05 · 매 월요일\tAsia/Seoul [Korea Standard Time]\t2\t\nZone\n\t\nPrimary\n\tsp10-test=1504-한글\t중지\t\n\n매일\t07:09\tAsia/Seoul [Korea Standard Time]\t2\t\nZone\n\t\nPrimary\n\tsp10-test=1504-한글\t중지\t\n\n매시간\t5분(매시)\tAsia/Seoul [Korea Standard Time]\t2\t\nZone\n\t\nPrimary\n\tsp10-test=1504-한글\t중지\t"
+    },
+    {
+      "name": "volume-tab-keyboard-detail",
+      "passed": true
+    },
+    {
+      "name": "list-localized-schedules-and-paused-column",
+      "passed": true,
+      "text": "매시간\t2\t5분(매시)\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-owner-b-한글\t중지\t\n매월\t2\t23:59 · 매월 28일\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-owner-a-한글\t중지\t\n매주\t2\t03:05 · 매 월요일\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-owner-a-한글\t중지\t\n매일\t2\t07:09\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-owner-a-한글\t중지\t\n매시간\t2\t5분(매시)\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-owner-a-한글\t중지\t\n매시간\t2\t34분(매시)\tUTC [Coordinated Universal Time]\tSP10-1504-32-runtime-한글\t사용\t\n매월\t2\t23:59 · 매월 28일\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-admin-한글\t중지\t\n매주\t2\t03:05 · 매 월요일\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-admin-한글\t중지\t\n매일\t2\t07:09\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-admin-한글\t중지\t\n매시간\t2\t5분(매시)\tAsia/Seoul [Korea Standard Time]\tSP10-1504-32-admin-한글\t중지\t",
+      "existingColumnPreferenceExplicitlyEnabled": true
+    },
+    {
+      "name": "create-policy-notification",
+      "passed": true,
+      "text": "스냅샷 정책을 등록했습니다."
+    },
+    {
+      "name": "edit-policy-notification",
+      "passed": true,
+      "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+      "maxsnaps": 3
+    },
+    {
+      "name": "resume-policy-notification",
+      "passed": true
+    },
+    {
+      "name": "pause-policy-notification",
+      "passed": true
+    },
+    {
+      "name": "actual-failed-job-ui",
+      "passed": true,
+      "text": "아이디\nf40ef6df-4ef7-4946-b5d7-e9398cc0d178\n볼륨 이름\nSP10-1504-32-runtime-한글\n간격 유형\n매시간\n스케줄\n34분(매시)\n시간대\nUTC\n최대 스냅샷 수\n2\n미래 예약\n사용\n표시 플래그 (관리자)\n예\nZone\n\nZone\n스토리지\n\nPrimary\n태그\n—\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n이미 작업이 할당된 실행입니다. 다음 예약은 아직 미확인입니다.\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n실패\n아이디: 9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9\n생성일: 2026. 10. 27. 오후 2:34:18\n수정일자: 2026. 10. 27. 오후 2:35:01\n작업 실패 코드: 530. 자세한 원인은 관리 로그에서 확인하세요.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\ndetached_SP10-1504-32-runtime-한글_20261027053418\n조회 기준 시각\n2026. 10. 27. 오후 2:39:03\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "503-preserves-detail",
+      "passed": true,
+      "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab"
+    },
+    {
+      "name": "manual-retry-after503",
+      "passed": true
+    },
+    {
+      "name": "incomplete-preserves-detail",
+      "passed": true
+    },
+    {
+      "name": "manual-retry-after-incomplete",
+      "passed": true
+    },
+    {
+      "name": "identity-transition-clears-old-detail",
+      "passed": true
+    },
+    {
+      "name": "late-real-response-discarded",
+      "passed": true,
+      "lateNetworkId": "34544.1864",
+      "settled": true,
+      "visibleId": "364f9736-123d-4006-84e9-b7035e4ef9f3"
+    },
+    {
+      "name": "missing-direct-url-clears-details",
+      "passed": true,
+      "text": "/스냅샷 정책/00000000-0000-4000-8000-000000000001업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\nUnable to execute API command listsnapshotpolicies due to invalid value. Invalid parameter id value=00000000-0000-4000-8000-000000000001 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n\n재시도"
+    },
+    {
+      "name": "project-selector-resets-detail-to-dashboard",
+      "passed": true
+    },
+    {
+      "name": "personal-id-denied-in-project",
+      "passed": true
+    },
+    {
+      "name": "project-direct-detail-metadata",
+      "passed": true,
+      "text": "아이디\nf11d0b92-fdb6-4233-8d21-941c6246bca9\n볼륨 이름\nSP10-1504-32-project\n간격 유형\n매주\n스케줄\n08:07 · 매 토요일\n시간대\nUTC\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\n—\n프로젝트\nSP10-1504-32\n프로젝트 ID\na8b49efb-3bfc-4820-8225-674c9ed6c1cd\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 2:48:55\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "retained-failure-without-schedule-after-restart",
+      "passed": true,
+      "text": "아이디\nf40ef6df-4ef7-4946-b5d7-e9398cc0d178\n볼륨 이름\nSP10-1504-32-runtime-한글\n간격 유형\n매시간\n스케줄\n34분(매시)\n시간대\nUTC\n최대 스냅샷 수\n2\n미래 예약\n중지\n표시 플래그 (관리자)\n아니오\nZone\n\nZone\n스토리지\n\nPrimary\n태그\n—\n계정\nadmin\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n실패\n아이디: 9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9\n생성일: 2026. 10. 27. 오후 2:34:18\n수정일자: 2026. 10. 27. 오후 2:35:01\n작업 실패 코드: 530. 자세한 원인은 관리 로그에서 확인하세요.\n\n해당 정책의 보존 중인 스케줄러 job 후보 최근 50건을 확인합니다. 만료된 이력을 포함한 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\ndetached_SP10-1504-32-runtime-한글_20261027053418\n조회 기준 시각\n2026. 10. 27. 오후 2:54:13\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "generated-snapshot-link-keyboard",
+      "passed": true,
+      "snapshotId": "bab5f008-8942-4102-8e18-5e1b296e081f"
+    },
+    {
+      "name": "deleted-snapshot-link-hidden-history-retained",
+      "passed": true
+    },
+    {
+      "name": "final-ui-history-contract",
+      "passed": true,
+      "bundle": [
+        "http://10.10.32.10:8080/client/js/app.2dca653d.js"
+      ]
+    },
+    {
+      "name": "missing-policy-localized-final",
+      "passed": true,
+      "main": "/스냅샷 정책/00000000-0000-4000-8000-000000000001업데이트\n데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n\n정책이 없거나 현재 범위에서 조회할 수 없습니다.\n\n재시도"
+    },
+    {
+      "name": "natural-recovery-success-ui",
+      "passed": true
+    },
+    {
+      "name": "light-1280-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 1628,
+        "height": 1341,
+        "left": 582.328125,
+        "right": 1222.984375,
+        "top": 287,
+        "width": 640.65625,
+        "x": 582.328125,
+        "y": 287
+      },
+      "documentWidth": 1270,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 953,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "file": "32-light-1280x720-metadata.png"
+    },
+    {
+      "name": "light-1280-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 675,
+        "height": 1341,
+        "left": 582.328125,
+        "right": 1222.984375,
+        "top": -666,
+        "width": 640.65625,
+        "x": 582.328125,
+        "y": -666
+      },
+      "documentWidth": 1270,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 953,
+      "scrollRange": 953,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "file": "32-light-1280x720-operations.png"
+    },
+    {
+      "name": "dark-1280-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 1628,
+        "height": 1341,
+        "left": 582.328125,
+        "right": 1222.984375,
+        "top": 287,
+        "width": 640.65625,
+        "x": 582.328125,
+        "y": 287
+      },
+      "documentWidth": 1270,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 953,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "file": "32-dark-1280x720-metadata.png"
+    },
+    {
+      "name": "dark-1280-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 675,
+        "height": 1341,
+        "left": 582.328125,
+        "right": 1222.984375,
+        "top": -666,
+        "width": 640.65625,
+        "x": 582.328125,
+        "y": -666
+      },
+      "documentWidth": 1270,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 953,
+      "scrollRange": 953,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "file": "32-dark-1280x720-operations.png"
+    },
+    {
+      "name": "dark-768-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 2245.5,
+        "height": 1363,
+        "left": 117,
+        "right": 711,
+        "top": 882.5,
+        "width": 594,
+        "x": 117,
+        "y": 882.5
+      },
+      "documentWidth": 758,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 1401,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        768,
+        900
+      ],
+      "file": "32-dark-768x900-metadata.png"
+    },
+    {
+      "name": "dark-768-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 844.5,
+        "height": 1363,
+        "left": 117,
+        "right": 711,
+        "top": -518.5,
+        "width": 594,
+        "x": 117,
+        "y": -518.5
+      },
+      "documentWidth": 758,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 1401,
+      "scrollRange": 1401,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        768,
+        900
+      ],
+      "file": "32-dark-768x900-operations.png"
+    },
+    {
+      "name": "dark-390-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 2415.5,
+        "height": 1495,
+        "left": 37,
+        "right": 333,
+        "top": 920.5,
+        "width": 296,
+        "x": 37,
+        "y": 920.5
+      },
+      "documentWidth": 380,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 1627,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        390,
+        844
+      ],
+      "file": "32-dark-390x844-metadata.png"
+    },
+    {
+      "name": "dark-390-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(34, 40, 47)",
+      "details": {
+        "bottom": 788.5,
+        "height": 1495,
+        "left": 37,
+        "right": 333,
+        "top": -706.5,
+        "width": 296,
+        "x": 37,
+        "y": -706.5
+      },
+      "documentWidth": 380,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 1627,
+      "scrollRange": 1627,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        390,
+        844
+      ],
+      "file": "32-dark-390x844-operations.png"
+    },
+    {
+      "name": "light-768-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 2241.5,
+        "height": 1363,
+        "left": 117,
+        "right": 711,
+        "top": 878.5,
+        "width": 594,
+        "x": 117,
+        "y": 878.5
+      },
+      "documentWidth": 758,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 1397,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        768,
+        900
+      ],
+      "file": "32-light-768x900-metadata.png"
+    },
+    {
+      "name": "light-768-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 844.5,
+        "height": 1363,
+        "left": 117,
+        "right": 711,
+        "top": -518.5,
+        "width": 594,
+        "x": 117,
+        "y": -518.5
+      },
+      "documentWidth": 758,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 1397,
+      "scrollRange": 1397,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        768,
+        900
+      ],
+      "file": "32-light-768x900-operations.png"
+    },
+    {
+      "name": "light-390-metadata-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 2453.5,
+        "height": 1495,
+        "left": 37,
+        "right": 333,
+        "top": 958.5,
+        "width": 296,
+        "x": 37,
+        "y": 958.5
+      },
+      "documentWidth": 380,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 0,
+      "scrollRange": 1655,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        390,
+        844
+      ],
+      "file": "32-light-390x844-metadata.png"
+    },
+    {
+      "name": "light-390-operations-layout",
+      "passed": true,
+      "cardBackground": "rgb(255, 255, 255)",
+      "details": {
+        "bottom": 798.5,
+        "height": 1495,
+        "left": 37,
+        "right": 333,
+        "top": -696.5,
+        "width": 296,
+        "x": 37,
+        "y": -696.5
+      },
+      "documentWidth": 380,
+      "fieldOverflow": 0,
+      "font": [
+        "14px"
+      ],
+      "mainScroll": 1655,
+      "scrollRange": 1655,
+      "update": {
+        "font": "14px",
+        "height": 24,
+        "radius": "24px"
+      },
+      "viewport": [
+        390,
+        844
+      ],
+      "file": "32-light-390x844-operations.png"
+    },
+    {
+      "name": "vm-standard-real-menu-comparison",
+      "passed": true,
+      "standard": {
+        "background": "rgb(34, 40, 47)",
+        "fonts": [
+          "14px"
+        ],
+        "listClass": "ant-list ant-list-sm ant-list-split resource-details-list",
+        "viewport": [
+          1280,
+          720
+        ]
+      },
+      "buttons": [
+        {
+          "aria": null,
+          "font": "14px",
+          "height": 24,
+          "radius": "24px",
+          "text": "업데이트"
+        },
+        {
+          "aria": null,
+          "font": "14px",
+          "height": 23,
+          "radius": "100px",
+          "text": "메트릭"
+        },
+        {
+          "aria": null,
+          "font": "14px",
+          "height": 23,
+          "radius": "100px",
+          "text": "프로젝트"
+        },
+        {
+          "aria": "가상머신 추가",
+          "font": "14px",
+          "height": 32,
+          "radius": "32px",
+          "text": "가상머신 추가"
+        },
+        {
+          "aria": "고급 검색",
+          "font": "14px",
+          "height": 25,
+          "radius": "4px",
+          "text": ""
+        },
+        {
+          "aria": null,
+          "font": "16px",
+          "height": 32,
+          "radius": "0px 4px 4px 0px",
+          "text": ""
+        },
+        {
+          "aria": null,
+          "font": "12px",
+          "height": 24,
+          "radius": "4px",
+          "text": ""
+        },
+        {
+          "aria": null,
+          "font": "12px",
+          "height": 24,
+          "radius": "4px",
+          "text": ""
+        }
+      ]
+    },
+    {
+      "name": "final-scheduling-dialog-localized",
+      "passed": true
+    },
+    {
+      "name": "final-dialog-keyboard-cancel",
+      "passed": true
+    },
+    {
+      "name": "final-503-preserves-data",
+      "passed": true
+    },
+    {
+      "name": "final-503-recovered",
+      "passed": true,
+      "mode": "manual retry"
+    },
+    {
+      "name": "final-incomplete-preserves-data",
+      "passed": true
+    },
+    {
+      "name": "final-incomplete-recovered",
+      "passed": true,
+      "mode": "manual retry"
+    },
+    {
+      "name": "standard-owner-detail",
+      "passed": true,
+      "policyId": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+      "text": "아이디\n5821f66c-3ca7-4dcd-a2e3-d73505cef3ad\n볼륨 이름\nSP10-1504-32-owner-a-한글\n간격 유형\n매주\n스케줄\n03:05 · 매 월요일\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nsp10-1504-32-owner-a\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n원본 볼륨의 보존된 스냅샷 job 최근 50건에서 같은 정책을 확인합니다. 오래되거나 만료된 이력은 미확인이며 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 3:11:31\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다."
+    },
+    {
+      "name": "standard-user-no-pause-resume",
+      "passed": true,
+      "menu": "스토리지\n정책 편집\n삭제\n스냅샷 정책 삭제"
+    },
+    {
+      "name": "standard-project-member-detail",
+      "passed": true
+    },
+    {
+      "name": "standard-owner-foreign-detail-denied",
+      "passed": true
+    },
+    {
+      "name": "read-only-own-detail-no-writes",
+      "passed": true,
+      "policyId": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+      "text": "아이디\ncfaa4e47-373c-4d5b-9550-f56f8a544c18\n볼륨 이름\nSP10-1504-32-owner-b-한글\n간격 유형\n매시간\n스케줄\n5분(매시)\n시간대\nAsia/Seoul\n최대 스냅샷 수\n2\n미래 예약\n중지\nZone\n\nZone\n스토리지\n\nPrimary\n태그\nsp10-test=1504-한글\n계정\nsp10-1504-32-owner-b\n도메인\nROOT\n도메인 아이디\n2246448b-b23b-11f1-990e-0024811f8935\n다음 예약\n예약 중지\n\n실행은 서버가 300초 간격으로 확인합니다. 예약 시각보다 늦게 시작할 수 있으며 완료를 보장하지 않습니다. 시각은 브라우저 현지 시간입니다.\n\n최근 확인된 실행\n보존된 기록에서 실행을 확인하지 못했습니다.\n\n원본 볼륨의 보존된 스냅샷 job 최근 50건에서 같은 정책을 확인합니다. 오래되거나 만료된 이력은 미확인이며 전체 실행 기록은 아닙니다.\n\n생성 스냅샷\n연결 가능한 스냅샷이 없거나 조회 권한이 없습니다.\n조회 기준 시각\n2026. 10. 27. 오후 3:12:26\n\n예약 중지는 미래 예약에 적용됩니다. 이미 실행 중인 작업을 취소하거나 기존 스냅샷을 삭제하지 않습니다.",
+      "renderedPolicyActions": []
+    },
+    {
+      "name": "read-only-nonmember-project-denied",
+      "passed": true
+    },
+    {
+      "name": "resume-effect-matches-read-contract",
+      "passed": true,
+      "text": "예약 재개\nSP10-1504-32-admin-한글\n매주 · e2ed2f69-2d49-49ae-9035-9e603287c1ab\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t03:05 · 매 월요일\n시간대\tAsia/Seoul\n유지\t3\n미래 예약을 재개하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 재개"
+    },
+    {
+      "name": "final-runtime-resume-notification",
+      "passed": true
+    },
+    {
+      "name": "pause-effect-matches-readable-policy",
+      "passed": true,
+      "text": "예약 중지\nSP10-1504-32-admin-한글\n매주 · e2ed2f69-2d49-49ae-9035-9e603287c1ab\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t03:05 · 매 월요일\n시간대\tAsia/Seoul\n유지\t3\n미래 정기 스냅샷 예약을 중지합니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지"
+    },
+    {
+      "name": "final-runtime-pause-notification",
+      "passed": true
+    },
+    {
+      "name": "cleanup-policy-list-empty",
+      "passed": true
+    }
+  ],
+  "network": [
+    {
+      "requestId": "34544.1673",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "count": 10,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1676",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "count": 10,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1679",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "count": 10,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1683",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "count": 10,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1695",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1701",
+      "command": "createSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+        "intervaltype": "daily",
+        "timezone": "Asia/Seoul",
+        "maxsnaps": "2",
+        "schedule": "59:23"
+      },
+      "status": 200,
+      "result": {
+        "policies": [
+          {
+            "id": "c211f5cb-cd44-4b19-97aa-d38098f40645",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 1,
+            "schedule": "59:23",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1702",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4"
+      },
+      "status": 200,
+      "result": {
+        "count": 2,
+        "policies": [
+          {
+            "id": "c211f5cb-cd44-4b19-97aa-d38098f40645",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 1,
+            "schedule": "59:23",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1703",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "count": 11,
+        "policies": [
+          {
+            "id": "c211f5cb-cd44-4b19-97aa-d38098f40645",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 1,
+            "schedule": "59:23",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 3,
+            "schedule": "59:23:28",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 1,
+            "schedule": "9:7",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          },
+          {
+            "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1704",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4"
+      },
+      "status": 200,
+      "result": {
+        "count": 2,
+        "policies": [
+          {
+            "id": "c211f5cb-cd44-4b19-97aa-d38098f40645",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 1,
+            "schedule": "59:23",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          },
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1706",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:37:16+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1710",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:37:17+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1720",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1727",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1729",
+      "command": "createSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "fordisplay": "false",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "intervaltype": "weekly",
+        "timezone": "Asia/Seoul",
+        "maxsnaps": "3",
+        "schedule": "05:03:2"
+      },
+      "status": 200,
+      "result": {
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1730",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:37:38+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1743",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1746",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1747",
+      "command": "updateSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "fordisplay": "true"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "4de4dfd1-23d9-4ef5-900d-d95a61212241",
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1748",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "4de4dfd1-23d9-4ef5-900d-d95a61212241"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "4de4dfd1-23d9-4ef5-900d-d95a61212241",
+        "jobstatus": 0,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1749",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "4de4dfd1-23d9-4ef5-900d-d95a61212241"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "4de4dfd1-23d9-4ef5-900d-d95a61212241",
+        "jobstatus": 1,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1750",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1751",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:38:10+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": true,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "SCHEDULED",
+              "nextscheduled": "2026-11-02T03:05:00+0900",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1758",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1760",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1761",
+      "command": "updateSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "fordisplay": "false"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "536401bc-e896-42ca-860b-61cbfc0b5752",
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1762",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "536401bc-e896-42ca-860b-61cbfc0b5752"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "536401bc-e896-42ca-860b-61cbfc0b5752",
+        "jobstatus": 0,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1763",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "536401bc-e896-42ca-860b-61cbfc0b5752"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "536401bc-e896-42ca-860b-61cbfc0b5752",
+        "jobstatus": 1,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.1764",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1765",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:38:26+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1776",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:38:56+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.1790",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": true,
+            "schedulingenabled": true,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:39:03+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": true,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "ASSIGNED",
+              "currentjobknown": true,
+              "currentjobid": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": true,
+                "snapshotid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+                "snapshotname": "detached_SP10-1504-32-runtime-한글_20261027053418"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.2131",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:54:13+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false,
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": true,
+                "snapshotid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+                "snapshotname": "detached_SP10-1504-32-runtime-한글_20261027053418"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.2159",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:54:30+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false,
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": true,
+                "snapshotid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+                "snapshotname": "detached_SP10-1504-32-runtime-한글_20261027053418"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.2163",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:54:30+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false,
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": true,
+                "snapshotid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+                "snapshotname": "detached_SP10-1504-32-runtime-한글_20261027053418"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.2170",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:55:00+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false,
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.2174",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+            "intervaltype": 0,
+            "schedule": "34",
+            "maxsnaps": 2,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T14:55:01+0900",
+              "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false,
+              "latestjob": {
+                "id": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+                "status": "FAILED",
+                "created": "2026-10-27T14:34:18+0900",
+                "updated": "2026-10-27T14:35:01+0900",
+                "errorcode": 530,
+                "snapshotavailable": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3198",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:09:23+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3202",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:09:23+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3207",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3215",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:09:54+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3229",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:10:24+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3234",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 503,
+      "result": {
+        "errorcode": 503,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.3235",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:10:32+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3240",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "fordisplay": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3241",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:10:33+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3247",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 401,
+      "result": {
+        "errorcode": 401,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.3292",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "intervaltype": 2,
+            "schedule": "5:3:2",
+            "maxsnaps": 2,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:11:31+0900",
+              "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3300",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+        "includepolicycontext": "true",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd"
+      }
+    },
+    {
+      "requestId": "34544.3315",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "includepolicycontext": "true",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+            "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+            "intervaltype": 2,
+            "schedule": "7:8:7",
+            "maxsnaps": 2,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:11:33+0900",
+              "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3316",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "includepolicycontext": "true",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+            "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+            "intervaltype": 2,
+            "schedule": "7:8:7",
+            "maxsnaps": 2,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:11:34+0900",
+              "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3325",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "includepolicycontext": "true"
+      }
+    },
+    {
+      "requestId": "34544.3338",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.3340",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+        "includepolicycontext": "true"
+      },
+      "status": 401,
+      "result": {
+        "errorcode": 401,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.3374",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:12:26+0900",
+              "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3379",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+            "intervaltype": 0,
+            "schedule": "5",
+            "maxsnaps": 2,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:12:26+0900",
+              "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.3384",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "includepolicycontext": "true",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd"
+      },
+      "status": 432,
+      "result": {
+        "errorcode": 432,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4259",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4261",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4262",
+      "command": "updateSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "fordisplay": "true"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "9f6db5f1-8687-40cf-9110-8a1a3e7a31f1",
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4263",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9f6db5f1-8687-40cf-9110-8a1a3e7a31f1"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "9f6db5f1-8687-40cf-9110-8a1a3e7a31f1",
+        "jobstatus": 0,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4264",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "9f6db5f1-8687-40cf-9110-8a1a3e7a31f1"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "9f6db5f1-8687-40cf-9110-8a1a3e7a31f1",
+        "jobstatus": 1,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4265",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4266",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:24:14+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": true,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "SCHEDULED",
+              "nextscheduled": "2026-11-02T03:05:00+0900",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4272",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4274",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": true,
+            "schedulingenabled": true
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4275",
+      "command": "updateSnapshotPolicy",
+      "method": "POST",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "fordisplay": "false"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "d1caba04-de58-45b0-a938-8cc9b82806fe",
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4276",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d1caba04-de58-45b0-a938-8cc9b82806fe"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "d1caba04-de58-45b0-a938-8cc9b82806fe",
+        "jobstatus": 0,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4278",
+      "command": "queryAsyncJobResult",
+      "method": "GET",
+      "params": {
+        "jobid": "d1caba04-de58-45b0-a938-8cc9b82806fe"
+      },
+      "status": 200,
+      "result": {
+        "jobid": "d1caba04-de58-45b0-a938-8cc9b82806fe",
+        "jobstatus": 1,
+        "jobresultcode": 0,
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4279",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4280",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "includepolicycontext": "true"
+      },
+      "status": 200,
+      "result": {
+        "count": 1,
+        "policies": [
+          {
+            "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+            "intervaltype": 2,
+            "schedule": "05:03:2",
+            "maxsnaps": 3,
+            "fordisplay": false,
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-27T15:24:26+0900",
+              "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "requestId": "34544.4396",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4400",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4403",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4406",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4409",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4412",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4420",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4424",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4427",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4430",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4433",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4436",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4442",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4446",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4449",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4452",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4455",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4458",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4464",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4468",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4471",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4474",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4477",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4480",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4486",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4490",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4493",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4496",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4499",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4502",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4508",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4512",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4515",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4518",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4521",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    },
+    {
+      "requestId": "34544.4523",
+      "command": "listSnapshotPolicies",
+      "method": "GET",
+      "params": {},
+      "status": 200,
+      "result": {
+        "policies": []
+      }
+    }
+  ],
+  "networkGaps": [
+    "buffer-truncated-before-cursor-2076",
+    "buffer-truncated-before-cursor-5187",
+    "buffer-truncated-before-cursor-8384",
+    "buffer-truncated-before-cursor-13816"
+  ],
+  "finalBundle": [
+    "http://10.10.32.10:8080/client/js/app.2dca653d.js"
+  ],
+  "vmDetailsStandard": {
+    "background": "rgb(34, 40, 47)",
+    "fonts": [
+      "14px"
+    ],
+    "listClass": "ant-list ant-list-sm ant-list-split resource-details-list",
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "vmListStandard": {
+    "buttons": [
+      {
+        "aria": null,
+        "font": "14px",
+        "height": 24,
+        "radius": "24px",
+        "text": "업데이트"
+      },
+      {
+        "aria": null,
+        "font": "14px",
+        "height": 23,
+        "radius": "100px",
+        "text": "메트릭"
+      },
+      {
+        "aria": null,
+        "font": "14px",
+        "height": 23,
+        "radius": "100px",
+        "text": "프로젝트"
+      },
+      {
+        "aria": "가상머신 추가",
+        "font": "14px",
+        "height": 32,
+        "radius": "32px",
+        "text": "가상머신 추가"
+      },
+      {
+        "aria": "고급 검색",
+        "font": "14px",
+        "height": 25,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "aria": null,
+        "font": "16px",
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": ""
+      },
+      {
+        "aria": null,
+        "font": "12px",
+        "height": 24,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "aria": null,
+        "font": "12px",
+        "height": 24,
+        "radius": "4px",
+        "text": ""
+      }
+    ],
+    "visibleRows": 0
+  },
+  "summary": {
+    "activeChecks": 58,
+    "passed": 58,
+    "supersededObservations": 4,
+    "networkRequests": 106,
+    "networkGapCount": 4
+  },
+  "supersededHarnessObservations": [
+    {
+      "name": "light-768-metadata-layout",
+      "reason": "The wheel coordinate exceeded the native hidden-tab height; recaptured with an in-bounds input coordinate.",
+      "superseded": true
+    },
+    {
+      "name": "light-768-operations-layout",
+      "reason": "The wheel coordinate exceeded the native hidden-tab height; recaptured with an in-bounds input coordinate.",
+      "superseded": true
+    },
+    {
+      "name": "light-390-metadata-layout",
+      "reason": "The wheel coordinate exceeded the native hidden-tab height; recaptured with an in-bounds input coordinate.",
+      "superseded": true
+    },
+    {
+      "name": "light-390-operations-layout",
+      "reason": "The wheel coordinate exceeded the native hidden-tab height; recaptured with an in-bounds input coordinate.",
+      "superseded": true
+    }
+  ]
+}

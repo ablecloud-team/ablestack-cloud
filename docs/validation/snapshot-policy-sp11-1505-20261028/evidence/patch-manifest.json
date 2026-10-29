@@ -1,0 +1,9 @@
+{
+  "backendSourceCommit": "198fc04b7fadd55fc07b972e30ec4c30b980ebb5",
+  "sha256": "a04e02328ca17198273989e0fc71211714f4b59fb81075e8b2813e6e7c580780",
+  "entries": {
+    "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd.class": "ca4f3e2a95cc1e4d95b96c0e12b96d53b5d6a4ef3e8b6db7e18faa066273493e",
+    "org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotPoliciesCmd.class": "d44f0980a4ccd2a314c4ea5da4c45847ff266446caea33b43ab8e6de3f3c7700",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "acdb215adb6f3bd97407b444a1bf76a140f38fd6a622f91d120a0fec7b3eddea"
+  }
+}

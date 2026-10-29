@@ -1,0 +1,58 @@
+[
+  {
+    "id": "74886050-d8ac-4175-92ac-0c6248fd19f9",
+    "state": "Destroyed",
+    "path": "snapshots/2/565/fe78edf8-b916-480c-a779-0d583d56b545",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "1f3d29e7-1e73-429e-8cce-57fb30b7e2d7",
+    "state": "Destroyed",
+    "path": "snapshots/2/567/21e30444-8dcb-4453-a904-9890a4ea2def",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+    "state": "Destroyed",
+    "path": "snapshots/127/568/03c84e35-30fe-49e6-af9c-eecfd243177b",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "de861a47-7745-420d-bce7-40af9833b7e5",
+    "state": "Destroyed",
+    "path": "snapshots/128/569/ca91cfc3-115e-493a-92df-76dfb7c57404",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "64088763-cf80-4aa0-8491-027224a56ef7",
+    "state": "Destroyed",
+    "path": "snapshots/129/570/603303dd-0d64-4311-9aa4-e69864152125",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "56ddef0a-d340-4185-b052-d0dd7c2682f0",
+    "state": "Destroyed",
+    "path": "snapshots/2/566/34861bd8-bbd4-4b2b-a484-8c64c3540d1a",
+    "present": false,
+    "size": null,
+    "sha256": null
+  },
+  {
+    "id": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+    "state": "Ready",
+    "path": "snapshots/2/566/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+    "present": true,
+    "size": 196624,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  }
+]

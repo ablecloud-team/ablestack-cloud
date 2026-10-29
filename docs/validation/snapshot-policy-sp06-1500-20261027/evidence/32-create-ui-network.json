@@ -1,0 +1,37 @@
+[
+  {
+    "requestId": "53792.666",
+    "command": "createSnapshotPolicy",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "3",
+      "schedule": "10"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "53792.667",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "53792.669",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "53792.767",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585"
+    }
+  }
+]

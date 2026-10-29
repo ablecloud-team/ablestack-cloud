@@ -1,0 +1,938 @@
+[
+  {
+    "type": "request",
+    "id": "57960.7050",
+    "method": "POST",
+    "command": "login",
+    "params": {
+      "command": "login",
+      "username": "sp13-1507-31-owner-b",
+      "password": "[REDACTED]",
+      "domain": "/sp13-1507-31-parent/sp13-1507-31-child",
+      "response": "json"
+    },
+    "url": "http://10.10.31.10:8080/client/api/"
+  },
+  {
+    "type": "response",
+    "id": "57960.7050",
+    "status": 200,
+    "command": "login",
+    "url": "http://10.10.31.10:8080/client/api/"
+  },
+  {
+    "type": "request",
+    "id": "57960.7051",
+    "method": "GET",
+    "command": "listZones",
+    "params": {
+      "command": "listZones",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=listZones&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7052",
+    "method": "GET",
+    "command": "listApis",
+    "params": {
+      "command": "listApis",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=listApis&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7053",
+    "method": "GET",
+    "command": "listNetworks",
+    "params": {
+      "restartrequired": "true",
+      "forvpc": "false",
+      "command": "listNetworks",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?restartrequired=true&forvpc=false&command=listNetworks&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7054",
+    "method": "GET",
+    "command": "listVPCs",
+    "params": {
+      "restartrequired": "true",
+      "command": "listVPCs",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?restartrequired=true&command=listVPCs&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7055",
+    "method": "GET",
+    "command": "listUsers",
+    "params": {
+      "id": "fa162370-c7ae-406b-9451-e0a052509871",
+      "showicon": "true",
+      "command": "listUsers",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=fa162370-c7ae-406b-9451-e0a052509871&showicon=true&command=listUsers&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7054",
+    "status": 200,
+    "command": "listVPCs",
+    "url": "http://10.10.31.10:8080/client/api/?restartrequired=true&command=listVPCs&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7051",
+    "status": 200,
+    "command": "listZones",
+    "url": "http://10.10.31.10:8080/client/api/?command=listZones&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7053",
+    "status": 200,
+    "command": "listNetworks",
+    "url": "http://10.10.31.10:8080/client/api/?restartrequired=true&forvpc=false&command=listNetworks&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7055",
+    "status": 200,
+    "command": "listUsers",
+    "url": "http://10.10.31.10:8080/client/api/?id=fa162370-c7ae-406b-9451-e0a052509871&showicon=true&command=listUsers&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7052",
+    "status": 200,
+    "command": "listApis",
+    "url": "http://10.10.31.10:8080/client/api/?command=listApis&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7056",
+    "method": "GET",
+    "command": "listCapabilities",
+    "params": {
+      "command": "listCapabilities",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=listCapabilities&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7056",
+    "status": 200,
+    "command": "listCapabilities",
+    "url": "http://10.10.31.10:8080/client/api/?command=listCapabilities&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7058",
+    "method": "GET",
+    "command": "listLdapConfigurations",
+    "params": {
+      "command": "listLdapConfigurations",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=listLdapConfigurations&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7059",
+    "method": "GET",
+    "command": "cloudianIsEnabled",
+    "params": {
+      "command": "cloudianIsEnabled",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=cloudianIsEnabled&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7062",
+    "method": "GET",
+    "command": "listUsers",
+    "params": {
+      "id": "fa162370-c7ae-406b-9451-e0a052509871",
+      "showicon": "true",
+      "command": "listUsers",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=fa162370-c7ae-406b-9451-e0a052509871&showicon=true&command=listUsers&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7063",
+    "method": "GET",
+    "command": "listProjects",
+    "params": {
+      "page": "1",
+      "pagesize": "100",
+      "details": "min",
+      "listall": "true",
+      "timestamp": "1793159789285",
+      "showicon": "true",
+      "command": "listProjects",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?page=1&pagesize=100&details=min&listall=true&timestamp=1793159789285&showicon=true&command=listProjects&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7064",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7058",
+    "status": 200,
+    "command": "listLdapConfigurations",
+    "url": "http://10.10.31.10:8080/client/api/?command=listLdapConfigurations&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7059",
+    "status": 200,
+    "command": "cloudianIsEnabled",
+    "url": "http://10.10.31.10:8080/client/api/?command=cloudianIsEnabled&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7063",
+    "status": 200,
+    "command": "listProjects",
+    "url": "http://10.10.31.10:8080/client/api/?page=1&pagesize=100&details=min&listall=true&timestamp=1793159789285&showicon=true&command=listProjects&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7062",
+    "status": 200,
+    "command": "listUsers",
+    "url": "http://10.10.31.10:8080/client/api/?id=fa162370-c7ae-406b-9451-e0a052509871&showicon=true&command=listUsers&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7064",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 4,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "id": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "id": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "id": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "57960.7065",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7065",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-28T12:56:36+0900",
+              "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            },
+            "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "57960.7066",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7067",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7068",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "sp13-1507-31-owner-b",
+      "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7069",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7066",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7067",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7068",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7069",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-28T12:56:36+0900",
+              "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            },
+            "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "57960.7070",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7071",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "sp13-1507-31-owner-b",
+      "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7072",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=8d482985-7af1-4d1a-ada4-caf09a954077&listall=true&page=1&pagesize=1&includepolicycontext=true&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7070",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7072",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?id=8d482985-7af1-4d1a-ada4-caf09a954077&listall=true&page=1&pagesize=1&includepolicycontext=true&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "response",
+    "id": "57960.7071",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7073",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7073",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?id=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+            "schedulingenabled": false,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-28T12:56:37+0900",
+              "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+              "schedulingenabled": false,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "PAUSED",
+              "currentjobknown": false
+            },
+            "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+            "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+            "volumename": "SP13-1507-31-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+                "account": "sp13-1507-31-owner-b",
+                "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+                "domain": "sp13-1507-31-child",
+                "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "57960.7074",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7075",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7076",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "sp13-1507-31-owner-b",
+      "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7074",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7075",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7076",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7077",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.7078",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "sp13-1507-31-owner-b",
+      "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7077",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.31.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=2a11b77e-ac21-4b68-b064-5bc9468a2cf6&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.7078",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.31.10:8080/client/api/?name=sp13-1507-31-owner-b&domainid=650ea542-1add-4656-913d-63937453e6bb&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  }
+]

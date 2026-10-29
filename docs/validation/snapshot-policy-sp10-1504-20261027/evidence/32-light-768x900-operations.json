@@ -1,0 +1,32 @@
+{
+  "cardBackground": "rgb(255, 255, 255)",
+  "details": {
+    "bottom": 844.5,
+    "height": 1363,
+    "left": 117,
+    "right": 711,
+    "top": -518.5,
+    "width": 594,
+    "x": 117,
+    "y": -518.5
+  },
+  "documentWidth": 758,
+  "fieldOverflow": 0,
+  "font": [
+    "14px"
+  ],
+  "mainScroll": 1397,
+  "scrollRange": 1397,
+  "update": {
+    "font": "14px",
+    "height": 24,
+    "radius": "24px"
+  },
+  "viewport": [
+    768,
+    900
+  ],
+  "file": "32-light-768x900-operations.png",
+  "theme": "light",
+  "part": "operations"
+}

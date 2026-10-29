@@ -1,0 +1,52 @@
+{
+  "volumes": [
+    {
+      "id": "ce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+      "name": "SP07-1501-31-scheduled",
+      "kind": "scheduled",
+      "path": "23b1f5d9-1007-475e-9c02-66f0d2bda2b8",
+      "size": 1073741824,
+      "account": "admin",
+      "projectid": null
+    },
+    {
+      "id": "bdc59561-9805-4b7c-9624-36c9267515cc",
+      "name": "SP07-1501-31-volume-tab",
+      "kind": "volume-tab",
+      "path": "1f157635-1784-43f0-8c57-711dfea4e28d",
+      "size": 1073741824,
+      "account": "admin",
+      "projectid": null
+    },
+    {
+      "id": "0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+      "name": "SP07-1501-31-owner",
+      "kind": "owner",
+      "path": "2361afed-d5c3-42f9-a90a-38483ace2f52",
+      "size": 1073741824,
+      "account": "sp07-u31-1501",
+      "projectid": null
+    },
+    {
+      "id": "418dd34f-5a80-4628-9164-2f97a956275d",
+      "name": "SP07-1501-31-project",
+      "kind": "project",
+      "path": "f763bffc-4db7-4c5e-8d02-f7bc4d2555d2",
+      "size": 1073741824,
+      "account": null,
+      "projectid": "4d3e68fe-29b0-40e8-b500-793be7918cea"
+    }
+  ],
+  "initialPolicyUuids": [
+    "006544d4-68f4-4836-82a6-f18d674b16ae",
+    "08fc4735-78bd-46c2-a946-9ef183c6d275",
+    "100ab48c-73ce-474a-be98-c29553bbe13d",
+    "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+    "39c10839-2720-420b-b340-571d3976f7a4",
+    "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+    "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+    "dc696698-02ab-42e1-bde5-336c16efbaf3",
+    "e906cf64-0c12-4dc1-b85f-09253c172b17",
+    "fa41f2b0-fdd9-494d-8384-df6af3e936ce"
+  ]
+}

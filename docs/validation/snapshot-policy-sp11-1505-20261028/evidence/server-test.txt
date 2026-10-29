@@ -1,0 +1,92 @@
+SOURCE 198fc04b7fadd55fc07b972e30ec4c30b980ebb5
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] Building Apache CloudStack Server 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-server ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-server ---
+[INFO] 
+[INFO] --- maven-antrun-plugin:1.8:run (generate-resource) @ cloud-server ---
+[INFO] Executing tasks
+
+main:
+     [copy] Copying 4 files to /home/ablecloud/work/dhslove/cloud-snapshot-policy-1494/server/target/conf
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 30 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 609 source files to /home/ablecloud/work/dhslove/cloud-snapshot-policy-1494/server/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 32 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 318 source files to /home/ablecloud/work/dhslove/cloud-snapshot-policy-1494/server/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-server ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyInputValidatorTest
+[INFO] Tests run: 77, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.71 s - in com.cloud.storage.snapshot.SnapshotPolicyInputValidatorTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotManagerImplTest
+23:24:07.653 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Edge zone Mock for DataCenterVO, hashCode: 677521178 specified for snapshot copy
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[INFO] Tests run: 33, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.129 s - in com.cloud.storage.snapshot.SnapshotManagerImplTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicySchedulingTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.695 s - in com.cloud.storage.snapshot.SnapshotPolicySchedulingTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyScopeTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s - in com.cloud.storage.snapshot.SnapshotPolicyScopeTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyClassificationTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.172 s - in com.cloud.storage.snapshot.SnapshotPolicyClassificationTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyContextTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.33 s - in com.cloud.storage.snapshot.SnapshotPolicyContextTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyEditingTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.148 s - in com.cloud.storage.snapshot.SnapshotPolicyEditingTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyListOrderingTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in com.cloud.storage.snapshot.SnapshotPolicyListOrderingTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyRetentionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.storage.snapshot.SnapshotPolicyRetentionTest
+[INFO] Running com.cloud.storage.snapshot.SnapshotPolicyBulkContractTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.18 s - in com.cloud.storage.snapshot.SnapshotPolicyBulkContractTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 182, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-server ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-snapshot-policy-1494/server/target/cloud-server-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-server ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:05 min
+[INFO] Finished at: 2026-10-27T23:24:17+09:00
+[INFO] ------------------------------------------------------------------------

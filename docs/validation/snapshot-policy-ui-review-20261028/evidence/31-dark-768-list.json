@@ -1,0 +1,189 @@
+{
+  "app": [
+    "http://10.10.31.10:8080/client/js/app.7b6d9f14.js"
+  ],
+  "buttons": [
+    {
+      "disabled": false,
+      "height": 32,
+      "text": "정기 스냅샷 생성",
+      "width": 153.84375,
+      "x": 419,
+      "y": 139
+    }
+  ],
+  "checks": [
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    }
+  ],
+  "header": [
+    {
+      "height": 69,
+      "text": "",
+      "width": 32,
+      "x": 92,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "간격 유형",
+      "width": 65.15625,
+      "x": 124,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "최대 스냅샷 수",
+      "width": 79.984375,
+      "x": 189.15625,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "스케줄",
+      "width": 83.40625,
+      "x": 269.140625,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "시간대",
+      "width": 151.625,
+      "x": 352.546875,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "볼륨 이름",
+      "width": 145.625,
+      "x": 504.171875,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "미래 예약",
+      "width": 50.203125,
+      "x": 649.796875,
+      "y": 236
+    },
+    {
+      "height": 69,
+      "text": "",
+      "width": 36,
+      "x": 700,
+      "y": 236
+    }
+  ],
+  "pageWidth": 758,
+  "popup": null,
+  "rows": [
+    "2605fec7-2485-43fb-8de0-b6ea16637007",
+    "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+    "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+    "559cd3a5-77ff-4b05-9761-400498f8e662",
+    "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+    "379bc3ad-991d-462d-b839-4389fa55376f",
+    "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+    "e4606051-dd94-4f8c-9008-7ac61550b09d",
+    "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+    "63e73ffb-9238-4025-9afe-421816adaca1",
+    "4f792523-b4ca-4942-85f0-97eff26ca081",
+    "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+    "6da6b776-6c24-4717-a3be-cdaec9c24572",
+    "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+    "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+    "f723336a-a365-4865-95bc-b90014c6053f",
+    "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+    "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+    "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+    "f7aed0d0-689d-4071-9911-cfe9c9fe355a"
+  ],
+  "theme": "dark",
+  "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?projectid=0&page=1&pagesize=20&sortkey=id&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

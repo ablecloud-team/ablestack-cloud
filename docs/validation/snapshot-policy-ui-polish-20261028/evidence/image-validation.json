@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "images": [
+    {
+      "file": "31-create-during-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "e27e7fac733a603d1e8cec6745ac86144989f7e7b078a8ca98521750ad673917"
+    },
+    {
+      "file": "31-dark-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "3cfbfa46ec3fb0f611d664484c5ebfc63d84dcda1d0517846ae112021431e3f7"
+    },
+    {
+      "file": "31-dark-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "4b89514ebd6fb410882c1853598d9b50acdb3c91c0cb2e5c2ee9fcf9dd6756e2"
+    },
+    {
+      "file": "31-dark-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "ad2554bf7f722ee743d6169a10c037c1d8e209701e7eb25e38414aca586b8cc3"
+    },
+    {
+      "file": "31-dark-selected-row-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "8ffd865656d948afe215b087a9309a1aeae66921904b5bb0afcbdf446ddcdb7f"
+    },
+    {
+      "file": "31-light-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "e86c3071f06e0a349a8ba9263a164122c3e52b27b2fbc4536aed2f95c84aad36"
+    },
+    {
+      "file": "31-light-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "da2a9fd3a3183efb8294fd6a717278e3f9b5237152bc397583de0b19022baafb"
+    },
+    {
+      "file": "31-light-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "87aa856fd26be697c17fbee8b44bfac7285e94c71930b991e6ba46f9fcc11b4c"
+    },
+    {
+      "file": "32-create-during-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "37c7656703fbc218c66dea147c697ef74cb1d452603b9f1131f4246a0475b467"
+    },
+    {
+      "file": "32-dark-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "7cb7574700356cefb0c57288f116ff5ef93d54bf2690cd6fa0d2446f0c6bacb1"
+    },
+    {
+      "file": "32-dark-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "053becfa50ede9eca0010465cd67cec7d9df50acbecec9b62368721c700f0c93"
+    },
+    {
+      "file": "32-dark-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "54b5f6613acb99edf65d40fc4ae52241b0fb16a0be836e34798e11ecc8045690"
+    },
+    {
+      "file": "32-dark-selected-row-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "51efe0dcc840f455f08bfbcf3e2958fb6f25da0b8271bb98e83911443d3d0ea2"
+    },
+    {
+      "file": "32-light-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "1144bf01b423011195ddcbfb95bc93f68f010961734940e72c75687af91567d1"
+    },
+    {
+      "file": "32-light-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "11020fe53f5167ac6dfa23722043bb85fd35d9f914cd36f5fae5422661ac107a"
+    },
+    {
+      "file": "32-light-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "7423f434b914f5d5e492cd4387766f34d20b9b285cf4fe6a7238953726849b92"
+    },
+    {
+      "file": "31-latest-snapshot-opened.jpg",
+      "format": "native JPEG",
+      "width": 1280,
+      "height": 720,
+      "decode": true,
+      "viewportMatches": true,
+      "sha256": "5fe13e484da6c0b690e79a00dca3133fe4f4ab343a6e9fdd9f830031a8a035dd"
+    },
+    {
+      "file": "32-latest-snapshot-opened.jpg",
+      "format": "native JPEG",
+      "width": 1280,
+      "height": 720,
+      "decode": true,
+      "viewportMatches": true,
+      "sha256": "dc9d589532e4d62d5b6fa349be4c68f01b53b4716a54dea16312c907e75c15a5"
+    }
+  ]
+}

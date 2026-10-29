@@ -1,0 +1,741 @@
+[
+  {
+    "at": "2026-10-26T16:47:24.130Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:29.126Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:31.511Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "4",
+      "schedule": "0",
+      "tags[0].key": "sp08-keep",
+      "tags[0].value": "한글 경계값"
+    },
+    "http": 431
+  },
+  {
+    "at": "2026-10-26T16:47:34.137Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:37.037Z",
+    "params": {
+      "command": "listCapabilities"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:37.038Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:37.038Z",
+    "params": {
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:37.038Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:39.131Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:44.127Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:44.694Z",
+    "params": {
+      "command": "listHostsMetrics"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:56.695Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "3",
+      "schedule": "0",
+      "tags[0].key": "sp08-keep",
+      "tags[0].value": "한글 경계값"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:56.771Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:56.771Z",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:47:59.135Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:00.002Z",
+    "params": {
+      "command": "getWallAlertAvailability"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:00.031Z",
+    "params": {
+      "command": "listWallAlertRules"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:00.774Z",
+    "params": {
+      "command": "listWallAlertSilences"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:04.131Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:09.128Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:14.126Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:48:16.877Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.253Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.254Z",
+    "params": {
+      "command": "listZones"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.254Z",
+    "params": {
+      "command": "listCapabilities"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.255Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.255Z",
+    "params": {
+      "account": "sp08-owner-32-1502",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T16:50:46.255Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:49.389Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "2",
+      "schedule": "45"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.478Z",
+    "params": {
+      "resourcetype": "Volume",
+      "command": "listTags"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.478Z",
+    "params": {
+      "command": "logout"
+    },
+    "http": 431
+  },
+  {
+    "at": "2026-10-26T20:45:49.479Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.633Z",
+    "params": {
+      "resourcetype": "zone",
+      "command": "listResourceIcon"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.634Z",
+    "params": {
+      "resourcetype": "domain",
+      "command": "listResourceIcon"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.634Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 401
+  },
+  {
+    "at": "2026-10-26T20:45:49.634Z",
+    "params": {
+      "command": "listOauthProvider"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.869Z",
+    "params": {
+      "command": "listZones"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.870Z",
+    "params": {
+      "command": "listApis"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.870Z",
+    "params": {
+      "command": "listNetworks"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.870Z",
+    "params": {
+      "command": "listVPCs"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.871Z",
+    "params": {
+      "command": "listUsers"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.909Z",
+    "params": {
+      "command": "listGuiThemes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.922Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listGuiThemes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.939Z",
+    "params": {
+      "command": "listGuiThemes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:57.951Z",
+    "params": {
+      "command": "listGuiThemes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.400Z",
+    "params": {
+      "command": "listCapabilities"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.434Z",
+    "params": {
+      "command": "listHSMProfiles"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.435Z",
+    "params": {
+      "command": "listLdapConfigurations"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.435Z",
+    "params": {
+      "command": "cloudianIsEnabled"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.674Z",
+    "params": {
+      "command": "listUsers"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.674Z",
+    "params": {
+      "command": "listVolumesMetrics"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.675Z",
+    "params": {
+      "command": "listProjects"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.762Z",
+    "params": {
+      "resourcetype": "Volume",
+      "command": "listTags"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.763Z",
+    "params": {
+      "resourcetype": "Volume",
+      "command": "listTags"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.763Z",
+    "params": {
+      "resourcetype": "zone",
+      "command": "listResourceIcon"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.764Z",
+    "params": {
+      "resourcetype": "domain",
+      "command": "listResourceIcon"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:45:58.764Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.784Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.784Z",
+    "params": {
+      "command": "listZones"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.784Z",
+    "params": {
+      "command": "listCapabilities"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.785Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.785Z",
+    "params": {
+      "account": "sp08-owner-32-1502",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:05.785Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "3",
+      "command": "listResourceLimits"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:07.416Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "1",
+      "schedule": "45"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:07.517Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:07.517Z",
+    "params": {
+      "command": "listVolumesMetrics"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.393Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.773Z",
+    "params": {
+      "resourcetype": "Volume",
+      "command": "listTags"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.773Z",
+    "params": {
+      "resourcetype": "zone",
+      "command": "listResourceIcon"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.774Z",
+    "params": {
+      "resourcetype": "domain",
+      "command": "listResourceIcon"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.774Z",
+    "params": {
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "command": "listAccounts"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:46:12.811Z",
+    "params": {
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:00.009Z",
+    "params": {
+      "command": "listWallAlertRules"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:00.697Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "hourly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "8",
+      "schedule": "59"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:00.851Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:00.851Z",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:01.961Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:06.957Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:07.644Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "daily",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "8",
+      "schedule": "59:23"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:07.711Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:07.712Z",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:11.960Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:16.953Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:18.151Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "weekly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "8",
+      "schedule": "59:23:7"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:18.219Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:18.220Z",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:21.963Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:26.965Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:31.957Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:36.966Z",
+    "params": {
+      "command": "readyForShutdown"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:37.808Z",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "intervaltype": "monthly",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": "8",
+      "schedule": "59:23:28"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:37.879Z",
+    "params": {
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T20:48:37.880Z",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  }
+]

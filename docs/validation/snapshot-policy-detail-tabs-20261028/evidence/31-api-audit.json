@@ -1,0 +1,469 @@
+{
+  "cluster": "31",
+  "readOnly": true,
+  "policyId": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+  "volumeId": "d010a094-684c-4246-8c0d-fd750ac5268a",
+  "eventRequest": {
+    "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+    "resourcetype": "SnapshotPolicy",
+    "listall": true,
+    "page": 1,
+    "pagesize": 10
+  },
+  "eventResponse": {
+    "count": 4,
+    "event": [
+      {
+        "id": "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Successfully completed updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:32+0900",
+        "state": "Completed",
+        "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+      },
+      {
+        "id": "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:32+0900",
+        "state": "Started",
+        "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+      },
+      {
+        "id": "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Successfully completed updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:20+0900",
+        "state": "Completed",
+        "parentid": "560e67f0-38ee-4577-bba6-a9334bb38388"
+      },
+      {
+        "id": "3ee16924-168f-427c-9640-20daf6870ff3",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:20+0900",
+        "state": "Started",
+        "parentid": "560e67f0-38ee-4577-bba6-a9334bb38388"
+      }
+    ]
+  },
+  "searchRequest": {
+    "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+    "resourcetype": "SnapshotPolicy",
+    "listall": true,
+    "page": 1,
+    "pagesize": 10,
+    "keyword": "SNAPSHOTPOLICY.UPDATE"
+  },
+  "searchResponse": {
+    "count": 4,
+    "event": [
+      {
+        "id": "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Successfully completed updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:32+0900",
+        "state": "Completed",
+        "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+      },
+      {
+        "id": "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:32+0900",
+        "state": "Started",
+        "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+      },
+      {
+        "id": "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Successfully completed updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:20+0900",
+        "state": "Completed",
+        "parentid": "560e67f0-38ee-4577-bba6-a9334bb38388"
+      },
+      {
+        "id": "3ee16924-168f-427c-9640-20daf6870ff3",
+        "username": "admin",
+        "type": "SNAPSHOTPOLICY.UPDATE",
+        "level": "INFO",
+        "description": "Updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+        "resourcetype": "SnapshotPolicy",
+        "created": "2026-10-28T14:29:20+0900",
+        "state": "Started",
+        "parentid": "560e67f0-38ee-4577-bba6-a9334bb38388"
+      }
+    ]
+  },
+  "emptySearchResponse": {},
+  "pagesizeOnePages": [
+    {
+      "count": 4,
+      "event": [
+        {
+          "id": "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+          "username": "admin",
+          "type": "SNAPSHOTPOLICY.UPDATE",
+          "level": "INFO",
+          "description": "Successfully completed updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "resourcetype": "SnapshotPolicy",
+          "created": "2026-10-28T14:29:32+0900",
+          "state": "Completed",
+          "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "event": [
+        {
+          "id": "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+          "username": "admin",
+          "type": "SNAPSHOTPOLICY.UPDATE",
+          "level": "INFO",
+          "description": "Updating snapshot policy. Snapshot policy ID: b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "resourcetype": "SnapshotPolicy",
+          "created": "2026-10-28T14:29:32+0900",
+          "state": "Started",
+          "parentid": "9ccf93a8-cb47-4d68-81be-1bbb982076eb"
+        }
+      ]
+    }
+  ],
+  "sourceVolumeAsPolicyRejected": {
+    "uuidList": [],
+    "errorcode": 431,
+    "cserrorcode": 4350,
+    "errortext": "Invalid resourceid"
+  },
+  "missingPolicyRejected": {
+    "uuidList": [],
+    "errorcode": 431,
+    "cserrorcode": 4350,
+    "errortext": "Invalid resourceid"
+  },
+  "contracts": {
+    "listEvents": {
+      "params": [
+        {
+          "name": "enddate",
+          "description": "The end date range of the list you want to retrieve (use format \"yyyy-MM-dd\" or the new format \"yyyy-MM-dd HH:mm:ss\")",
+          "type": "date",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "level",
+          "description": "The event level (INFO, WARN, ERROR)",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "state",
+          "description": "The state of the events",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.21.0"
+        },
+        {
+          "name": "isrecursive",
+          "description": "Defaults to false, but if true, lists all resources from the parent specified by the domainId till leaves.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "startdate",
+          "description": "The start date range of the list you want to retrieve (use format \"yyyy-MM-dd\" or the new format \"yyyy-MM-dd HH:mm:ss\")",
+          "type": "date",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "resourceid",
+          "description": "The ID of the resource associated with the event",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.17.0"
+        },
+        {
+          "name": "entrytime",
+          "description": "The time the event was entered",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "The ID of the event",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listEvents"
+        },
+        {
+          "name": "duration",
+          "description": "The duration of the event",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "resourcetype",
+          "description": "The type of the resource associated with the event",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.17.0"
+        },
+        {
+          "name": "projectid",
+          "description": "List objects by project; if projectid=-1 lists All Instances",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "activateProject,createProject,suspendProject"
+        },
+        {
+          "name": "listall",
+          "description": "If set to false, list only resources belonging to the command's caller; if set to true - list resources that the caller is authorized to see. Default value is false. Resources dedicated to a project are listed only if using the projectid parameter.",
+          "type": "boolean",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "domainid",
+          "description": "List only resources belonging to the domain specified",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "createDomain,listDomainChildren,listDomains,listDomains,moveDomain"
+        },
+        {
+          "name": "startid",
+          "description": "The parent/start ID of the event, when provided this will list all the events with the start/parent ID including the parent event",
+          "type": "uuid",
+          "length": 255,
+          "required": false,
+          "related": "listEvents"
+        },
+        {
+          "name": "type",
+          "description": "The event type (see event types)",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "archived",
+          "description": "True to list archived events otherwise false",
+          "type": "boolean",
+          "length": 255,
+          "required": false,
+          "since": "4.19.0"
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "account",
+          "description": "List resources by Account. Must be used with the domainId parameter.",
+          "type": "string",
+          "length": 255,
+          "required": false
+        }
+      ]
+    },
+    "addAnnotation": {
+      "params": [
+        {
+          "name": "entityid",
+          "description": "The ID of the entity to annotate",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "adminsonly",
+          "description": "The annotation is visible for admins only",
+          "type": "boolean",
+          "length": 255,
+          "required": false,
+          "since": "4.16.0"
+        },
+        {
+          "name": "entitytype",
+          "description": "The following entity types are allowed VM, VOLUME, SNAPSHOT, VM_SNAPSHOT, INSTANCE_GROUP, SSH_KEYPAIR, USER_DATA, NETWORK, VPC, PUBLIC_IP_ADDRESS, VPN_CUSTOMER_GATEWAY, TEMPLATE, ISO, KUBERNETES_CLUSTER, SERVICE_OFFERING, DISK_OFFERING, NETWORK_OFFERING, ZONE, POD, CLUSTER, HOST, DOMAIN, PRIMARY_STORAGE, SECONDARY_STORAGE, VR, SYSTEM_VM, AUTOSCALE_VM_GROUP, MANAGEMENT_SERVER",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "annotation",
+          "description": "The annotation text",
+          "type": "string",
+          "length": 255,
+          "required": false
+        }
+      ]
+    },
+    "listAnnotations": {
+      "params": [
+        {
+          "name": "entitytype",
+          "description": "The entity type",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "annotationfilter",
+          "description": "Possible values are \"self\" and \"all\". * self : annotations that have been created by the calling user. * all : all the annotations the calling user can access",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.16.0"
+        },
+        {
+          "name": "entityid",
+          "description": "The ID of the entity for which to show annotations",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "keyword",
+          "description": "List by keyword",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "userid",
+          "description": "Optional: The ID of the user of the annotation",
+          "type": "string",
+          "length": 255,
+          "required": false,
+          "since": "4.16.0"
+        },
+        {
+          "name": "page",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "id",
+          "description": "The ID of the annotation",
+          "type": "string",
+          "length": 255,
+          "required": false
+        },
+        {
+          "name": "pagesize",
+          "description": "",
+          "type": "integer",
+          "length": 255,
+          "required": false
+        }
+      ]
+    }
+  },
+  "unsupportedPolicyAnnotationRead": {},
+  "commentDecision": "NOT_SUPPORTED: no policy annotation EntityType, validation, mapping or ownership ACL; no comments tab and no annotation backend changes",
+  "eventsDecision": "USE_SHARED_VM_STANDARD_EVENTS_TAB",
+  "policyLifecycleEventsOnly": true
+}

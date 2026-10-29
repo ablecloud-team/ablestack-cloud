@@ -1,0 +1,192 @@
+{
+  "passed": true,
+  "policyDeletionPreservesSnapshotTagsAndFiles": true,
+  "before": {
+    "database": {
+      "snapshots": [
+        {
+          "id": 263,
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "volume_id": 568,
+          "status": "BackedUp",
+          "created": "2026-10-28 00:18:59",
+          "removed": null,
+          "path": null,
+          "backup_snap_id": null
+        },
+        {
+          "id": 265,
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "volume_id": 570,
+          "status": "BackedUp",
+          "created": "2026-10-28 00:19:06",
+          "removed": null,
+          "path": null,
+          "backup_snap_id": null
+        }
+      ],
+      "refs": [
+        {
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "store_id": 3,
+          "store_role": "Primary",
+          "state": "Ready",
+          "install_path": "rbd/f5a8e75b-01ac-4bb6-824e-25d0c19dc12b/03c84e35-30fe-49e6-af9c-eecfd243177b",
+          "job_id": null
+        },
+        {
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "store_id": 1,
+          "store_role": "Image",
+          "state": "Ready",
+          "install_path": "snapshots/127/568/03c84e35-30fe-49e6-af9c-eecfd243177b",
+          "job_id": null
+        },
+        {
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "store_id": 3,
+          "store_role": "Primary",
+          "state": "Ready",
+          "install_path": "rbd/06bcd4f8-1442-4e79-8802-8ca8b57afe89/603303dd-0d64-4311-9aa4-e69864152125",
+          "job_id": null
+        },
+        {
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "store_id": 1,
+          "store_role": "Image",
+          "state": "Ready",
+          "install_path": "snapshots/129/570/603303dd-0d64-4311-9aa4-e69864152125",
+          "job_id": null
+        }
+      ],
+      "tags": [
+        {
+          "id": 430,
+          "resource_uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "key": "sp12-live",
+          "value": "1506-태그-owner-a",
+          "resource_type": "Snapshot"
+        },
+        {
+          "id": 432,
+          "resource_uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "key": "sp12-live",
+          "value": "1506-태그-project",
+          "resource_type": "Snapshot"
+        }
+      ]
+    },
+    "files": [
+      {
+        "id": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+        "state": "Ready",
+        "path": "snapshots/127/568/03c84e35-30fe-49e6-af9c-eecfd243177b",
+        "present": true,
+        "size": 196624,
+        "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+      },
+      {
+        "id": "64088763-cf80-4aa0-8491-027224a56ef7",
+        "state": "Ready",
+        "path": "snapshots/129/570/603303dd-0d64-4311-9aa4-e69864152125",
+        "present": true,
+        "size": 196624,
+        "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+      }
+    ]
+  },
+  "after": {
+    "database": {
+      "snapshots": [
+        {
+          "id": 263,
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "volume_id": 568,
+          "status": "BackedUp",
+          "created": "2026-10-28 00:18:59",
+          "removed": null,
+          "path": null,
+          "backup_snap_id": null
+        },
+        {
+          "id": 265,
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "volume_id": 570,
+          "status": "BackedUp",
+          "created": "2026-10-28 00:19:06",
+          "removed": null,
+          "path": null,
+          "backup_snap_id": null
+        }
+      ],
+      "refs": [
+        {
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "store_id": 3,
+          "store_role": "Primary",
+          "state": "Ready",
+          "install_path": "rbd/f5a8e75b-01ac-4bb6-824e-25d0c19dc12b/03c84e35-30fe-49e6-af9c-eecfd243177b",
+          "job_id": null
+        },
+        {
+          "uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "store_id": 1,
+          "store_role": "Image",
+          "state": "Ready",
+          "install_path": "snapshots/127/568/03c84e35-30fe-49e6-af9c-eecfd243177b",
+          "job_id": null
+        },
+        {
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "store_id": 3,
+          "store_role": "Primary",
+          "state": "Ready",
+          "install_path": "rbd/06bcd4f8-1442-4e79-8802-8ca8b57afe89/603303dd-0d64-4311-9aa4-e69864152125",
+          "job_id": null
+        },
+        {
+          "uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "store_id": 1,
+          "store_role": "Image",
+          "state": "Ready",
+          "install_path": "snapshots/129/570/603303dd-0d64-4311-9aa4-e69864152125",
+          "job_id": null
+        }
+      ],
+      "tags": [
+        {
+          "id": 430,
+          "resource_uuid": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+          "key": "sp12-live",
+          "value": "1506-태그-owner-a",
+          "resource_type": "Snapshot"
+        },
+        {
+          "id": 432,
+          "resource_uuid": "64088763-cf80-4aa0-8491-027224a56ef7",
+          "key": "sp12-live",
+          "value": "1506-태그-project",
+          "resource_type": "Snapshot"
+        }
+      ]
+    },
+    "files": [
+      {
+        "id": "3510f9c7-36c4-4728-8aff-bf6278ffb1b2",
+        "state": "Ready",
+        "path": "snapshots/127/568/03c84e35-30fe-49e6-af9c-eecfd243177b",
+        "present": true,
+        "size": 196624,
+        "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+      },
+      {
+        "id": "64088763-cf80-4aa0-8491-027224a56ef7",
+        "state": "Ready",
+        "path": "snapshots/129/570/603303dd-0d64-4311-9aa4-e69864152125",
+        "present": true,
+        "size": 196624,
+        "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "observationLimit": 100,
+  "logs": [
+    {
+      "level": "error",
+      "message": "s",
+      "timestamp": "2026-10-28T00:17:10.216Z"
+    },
+    {
+      "level": "error",
+      "message": "s",
+      "timestamp": "2026-10-28T00:17:12.206Z"
+    }
+  ]
+}

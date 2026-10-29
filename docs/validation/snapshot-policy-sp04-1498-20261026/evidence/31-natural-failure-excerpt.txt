@@ -1,0 +1,68 @@
+2026-10-26 22:14:13,549 INFO  [o.a.c.f.j.i.AsyncJobMonitor] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:9eea724a) Add job-17560 into job monitoring
+2026-10-26 22:14:13,550 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (SnapshotPollTask:[ctx-0a635f05]) (logid:9cd46199) submit async job-17560, details: AsyncJob {"accountId":2,"cmd":"org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd","cmdInfo":"{\"tags[1].key\":\"sp04-pending\",\"policyid\":\"50\",\"ctxUserId\":\"1\",\"volumeid\":\"1117\",\"tags[0].key\":\"sp04-keep\",\"tags[0].value\":\"\uD55C\uAE00 \uD0DC\uADF8 \uC720\uC9C0\",\"ctxStartEventId\":\"1\",\"id\":\"274\",\"ctxAccountId\":\"2\",\"tags[1].value\":\"\uC785\uB825 \uC911\uC778 \uD0DC\uADF8\"}","cmdVersion":0,"completeMsid":null,"created":null,"id":17560,"initMsid":156788076863,"instanceId":274,"instanceType":"Snapshot","lastPolled":null,"lastUpdated":null,"processStatus":0,"removed":null,"result":null,"resultCode":0,"status":"IN_PROGRESS","userId":1,"uuid":"2a701497-5973-409e-b75c-f9ee4da70296"}
+2026-10-26 22:14:13,551 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl$5] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Executing AsyncJob {"accountId":2,"cmd":"org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd","cmdInfo":"{\"tags[1].key\":\"sp04-pending\",\"policyid\":\"50\",\"ctxUserId\":\"1\",\"volumeid\":\"1117\",\"tags[0].key\":\"sp04-keep\",\"tags[0].value\":\"\uD55C\uAE00 \uD0DC\uADF8 \uC720\uC9C0\",\"ctxStartEventId\":\"1\",\"id\":\"274\",\"ctxAccountId\":\"2\",\"tags[1].value\":\"\uC785\uB825 \uC911\uC778 \uD0DC\uADF8\"}","cmdVersion":0,"completeMsid":null,"created":null,"id":17560,"initMsid":156788076863,"instanceId":274,"instanceType":"Snapshot","lastPolled":null,"lastUpdated":null,"processStatus":0,"removed":null,"result":null,"resultCode":0,"status":"IN_PROGRESS","userId":1,"uuid":"2a701497-5973-409e-b75c-f9ee4da70296"}
+2026-10-26 22:14:13,558 DEBUG [o.a.c.e.o.VolumeOrchestrator] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) Found [0] snapshots [[]] that have checkpoints for volume with id [1117].
+2026-10-26 22:14:13,560 DEBUG [o.a.c.s.h.HeuristicRuleHelper] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) No heuristic rules found for zone [Zone {"id": "1", "name": "Zone", "uuid": "7013f5a1-de59-4cea-a596-f4f58815f31c"}] and heuristic type [SNAPSHOT]. Returning null.
+2026-10-26 22:14:13,561 DEBUG [c.c.s.StatsCollector] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) Verifying image storage [ImageStore {"id":1,"name":"Secondary","uuid":"dd8d0666-cebe-4921-8b8f-0c7b12780ad8"}]. Capacity: total=[349.83 GB], used=[315.42 GB], threshold=[90.00%].
+2026-10-26 22:14:13,561 WARN  [c.c.s.StatsCollector] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) Image storage [ImageStore {"id":1,"name":"Secondary","uuid":"dd8d0666-cebe-4921-8b8f-0c7b12780ad8"}] has not enough capacity. Capacity: total=[349.83 GB], used=[315.42 GB], threshold=[90.00%].
+2026-10-26 22:14:13,561 ERROR [o.a.c.s.v.VolumeServiceImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) Take snapshot: VolumeObject {"dataStore":"StoragePool {\"id\":1,\"name\":\"Primary\",\"poolType\":\"SharedMountPoint\",\"uuid\":\"1842fb9f-02e0-4da9-b082-422c5a184de0\"}","volumeVO":"Volume {\"id\":1117,\"instanceId\":null,\"name\":\"SP04-1498-31-scheduled\",\"uuid\":\"3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6\",\"volumeType\":\"DATADISK\"}"} failed com.cloud.utils.exception.CloudRuntimeException: Could not find any secondary storage to allocate snapshot [Snapshot {"id":274,"name":"detached_SP04-1498-31-scheduled_20261026131413","state":"Allocated","uuid":"a723e935-9fdd-4ca5-b765-4f2534de5b23","version":"2.2","volumeId":1117}, dataStoreId 1, imageStore id 0, checkpointPath null.].
+	at com.cloud.storage.snapshot.SnapshotManagerImpl.takeSnapshot(SnapshotManagerImpl.java:2305)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:215)
+	at jdk.proxy3/jdk.proxy3.$Proxy256.takeSnapshot(Unknown Source)
+	at org.apache.cloudstack.storage.volume.VolumeServiceImpl.takeSnapshot(VolumeServiceImpl.java:3016)
+	at com.cloud.storage.VolumeApiServiceImpl.takeSnapshotInternal(VolumeApiServiceImpl.java:4634)
+	at com.cloud.storage.VolumeApiServiceImpl.takeSnapshot(VolumeApiServiceImpl.java:4514)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.apache.cloudstack.network.contrail.management.EventUtils$EventInterceptor.invoke(EventUtils.java:109)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+2026-10-26 22:14:13,565 ERROR [o.a.c.a.c.u.s.CreateSnapshotCmd] (API-Job-Executor-40:[ctx-368ac50d, job-17560, ctx-67ac32fb]) (logid:2a701497) Failed to create Snapshot due to an internal error creating Snapshot for volume 3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6 com.cloud.utils.exception.CloudRuntimeException: Could not find any secondary storage to allocate snapshot [Snapshot {"id":274,"name":"detached_SP04-1498-31-scheduled_20261026131413","state":"Allocated","uuid":"a723e935-9fdd-4ca5-b765-4f2534de5b23","version":"2.2","volumeId":1117}, dataStoreId 1, imageStore id 0, checkpointPath null.].
+	at com.cloud.storage.snapshot.SnapshotManagerImpl.takeSnapshot(SnapshotManagerImpl.java:2305)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:215)
+	at jdk.proxy3/jdk.proxy3.$Proxy256.takeSnapshot(Unknown Source)
+	at org.apache.cloudstack.storage.volume.VolumeServiceImpl.takeSnapshot(VolumeServiceImpl.java:3016)
+	at com.cloud.storage.VolumeApiServiceImpl.takeSnapshotInternal(VolumeApiServiceImpl.java:4634)
+	at com.cloud.storage.VolumeApiServiceImpl.takeSnapshot(VolumeApiServiceImpl.java:4514)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.apache.cloudstack.network.contrail.management.EventUtils$EventInterceptor.invoke(EventUtils.java:109)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+2026-10-26 22:14:13,566 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Complete async job-17560, jobStatus: FAILED, resultCode: 530, result: org.apache.cloudstack.api.response.ExceptionResponse/null/{"uuidList":[],"errorcode":"530","errortext":"Failed to create Snapshot due to an internal error creating Snapshot for volume 3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6"}
+2026-10-26 22:14:13,566 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Publish async job-17560 complete on message bus
+2026-10-26 22:14:13,566 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Wake up jobs related to job-17560
+2026-10-26 22:14:13,566 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Update db status for job-17560
+2026-10-26 22:14:13,567 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Wake up jobs joined with job-17560 and disjoin all subjobs created from job- 17560
+2026-10-26 22:14:13,569 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl$5] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Done executing org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd for job-17560
+2026-10-26 22:14:13,570 INFO  [o.a.c.f.j.i.AsyncJobMonitor] (API-Job-Executor-40:[ctx-368ac50d, job-17560]) (logid:2a701497) Remove job-17560 from job monitoring

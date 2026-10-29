@@ -1,0 +1,249 @@
+{
+  "at": "2026-10-26 15:33:08.568405",
+  "volumes": [
+    {
+      "id": 1120,
+      "uuid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+      "name": "SP06-1500-31-scheduled",
+      "state": "Ready",
+      "path": "04799a79-1fe4-47c5-bdb0-744a5e39f3ea",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1121,
+      "uuid": "f639a673-2c79-4517-9049-31f2c05c5d2e",
+      "name": "SP06-1500-31-volume-tab",
+      "state": "Ready",
+      "path": "65eefebb-b3d0-4894-828d-6aca42f1f1f7",
+      "pool_id": 1,
+      "removed": null
+    }
+  ],
+  "policies": [
+    {
+      "id": 59,
+      "uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+      "volume_id": 1121,
+      "schedule": "23:20:1",
+      "timezone": "Asia/Kathmandu",
+      "interval": 3,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 3
+    }
+  ],
+  "schedules": [
+    {
+      "id": 41,
+      "uuid": "f5b28e61-9e04-4f36-970b-6fab22a447cc",
+      "volume_id": 1121,
+      "policy_id": 59,
+      "scheduled_timestamp": "2026-11-01 14:38:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+      "job_uuid": null,
+      "job_status": null
+    }
+  ],
+  "snapshots": [
+    {
+      "id": 276,
+      "uuid": "80c04455-709f-46b6-9551-548d12649b07",
+      "volume_id": 1120,
+      "status": "BackedUp",
+      "created": "2026-10-26 15:10:47",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 277,
+      "uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+      "volume_id": 1120,
+      "status": "BackedUp",
+      "created": "2026-10-26 15:21:03",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 278,
+      "uuid": "d33d7601-90b1-4ef3-9676-112373f9cea7",
+      "volume_id": 1120,
+      "status": "BackedUp",
+      "created": "2026-10-26 15:31:03",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    }
+  ],
+  "refs": [
+    {
+      "uuid": "80c04455-709f-46b6-9551-548d12649b07",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1120/f1e7b147-213c-4287-a0f1-29a04e4cdb0a",
+      "job_id": null
+    },
+    {
+      "uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1120/53bf723a-076e-48e8-96cc-483ae4d1a449",
+      "job_id": null
+    },
+    {
+      "uuid": "d33d7601-90b1-4ef3-9676-112373f9cea7",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1120/3592bf6d-2998-46fc-82fd-5fc22601f904",
+      "job_id": null
+    }
+  ],
+  "jobs": [
+    {
+      "snapshot_uuid": "80c04455-709f-46b6-9551-548d12649b07",
+      "id": 17580,
+      "uuid": "29d94fab-99aa-4552-b450-4d36a71ba0a7",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-26 15:10:47",
+      "last_updated": "2026-10-26 15:11:18"
+    },
+    {
+      "snapshot_uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+      "id": 17583,
+      "uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-26 15:21:03",
+      "last_updated": "2026-10-26 15:21:47"
+    },
+    {
+      "snapshot_uuid": "d33d7601-90b1-4ef3-9676-112373f9cea7",
+      "id": 17587,
+      "uuid": "e9fe0ffe-f368-49a2-b21e-48877e4bab75",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-26 15:31:03",
+      "last_updated": "2026-10-26 15:31:05"
+    }
+  ],
+  "tags": [],
+  "api": {
+    "scheduled": {
+      "policies": {},
+      "snapshots": {
+        "count": 3,
+        "snapshot": [
+          {
+            "id": "d33d7601-90b1-4ef3-9676-112373f9cea7",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "volumeid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+            "volumename": "SP06-1500-31-scheduled",
+            "volumetype": "DATADISK",
+            "volumestate": "Ready",
+            "created": "2026-10-27T00:31:03+0900",
+            "name": "detached_SP06-1500-31-scheduled_20261026153103",
+            "intervaltype": "HOURLY",
+            "state": "BackedUp",
+            "physicalsize": 196624,
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "revertable": true,
+            "virtualsize": 1073741824,
+            "tags": [],
+            "hasannotations": false
+          },
+          {
+            "id": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "volumeid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+            "volumename": "SP06-1500-31-scheduled",
+            "volumetype": "DATADISK",
+            "volumestate": "Ready",
+            "created": "2026-10-27T00:21:03+0900",
+            "name": "detached_SP06-1500-31-scheduled_20261026152103",
+            "intervaltype": "HOURLY",
+            "state": "BackedUp",
+            "physicalsize": 196624,
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "revertable": true,
+            "virtualsize": 1073741824,
+            "tags": [],
+            "hasannotations": false
+          },
+          {
+            "id": "80c04455-709f-46b6-9551-548d12649b07",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "volumeid": "57ab07dc-dd86-4053-a4ea-f6498f6bb5e2",
+            "volumename": "SP06-1500-31-scheduled",
+            "volumetype": "DATADISK",
+            "volumestate": "Ready",
+            "created": "2026-10-27T00:10:47+0900",
+            "name": "detached_SP06-1500-31-scheduled_20261026151047",
+            "intervaltype": "HOURLY",
+            "state": "BackedUp",
+            "physicalsize": 196624,
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "revertable": true,
+            "virtualsize": 1073741824,
+            "tags": [],
+            "hasannotations": false
+          }
+        ]
+      }
+    },
+    "volume-tab": {
+      "policies": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "id": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+            "volumeid": "f639a673-2c79-4517-9049-31f2c05c5d2e",
+            "volumename": "SP06-1500-31-volume-tab",
+            "schedule": "23:20:1",
+            "intervaltype": 3,
+            "maxsnaps": 3,
+            "timezone": "Asia/Kathmandu",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": []
+          }
+        ]
+      },
+      "snapshots": {}
+    }
+  }
+}

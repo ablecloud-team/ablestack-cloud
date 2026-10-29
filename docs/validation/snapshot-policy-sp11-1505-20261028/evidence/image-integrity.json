@@ -1,0 +1,245 @@
+{
+  "views": 24,
+  "files": [
+    {
+      "file": "31-light-390-search-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-768-search-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-1280-search-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-390-bulk-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-768-bulk-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-1280-bulk-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-390-search-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-768-search-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-1280-search-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-390-bulk-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-768-bulk-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-1280-bulk-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-390-search-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-768-search-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-1280-search-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-390-bulk-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-768-bulk-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-1280-bulk-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-390-search-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-768-search-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-1280-search-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-390-bulk-final.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-768-bulk-final.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-1280-bulk-final.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    }
+  ]
+}

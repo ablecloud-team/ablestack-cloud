@@ -1,0 +1,1998 @@
+[
+  {
+    "type": "request",
+    "id": "39148.4657",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4657",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4658",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4658",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4659",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4659",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4660",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4660",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4661",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4661",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4662",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4662",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4663",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?id=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4663",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?id=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-28T12:29:46+0900",
+              "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+              "schedulingenabled": true,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "SCHEDULED",
+              "nextscheduled": "2026-11-01T23:59:00+0900",
+              "currentjobknown": false
+            },
+            "id": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "59:23:1",
+            "intervaltype": 3,
+            "maxsnaps": 3,
+            "timezone": "Asia/Seoul",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-edit",
+                "value": "같은 UUID 편집",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.4664",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4665",
+    "method": "GET",
+    "command": "listResourceIcon",
+    "params": {
+      "resourceids": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "domain",
+      "command": "listResourceIcon",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4666",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4664",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4665",
+    "status": 200,
+    "command": "listResourceIcon",
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4666",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4667",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4667",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4668",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4668",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4669",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4669",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4670",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4670",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4671",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4671",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4672",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4672",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4673",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4673",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4674",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4674",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4675",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4675",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4676",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4676",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4677",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "id": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "1",
+      "includepolicycontext": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?id=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4677",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?id=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=1&includepolicycontext=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 1,
+        "snapshotpolicy": [
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "policycontext": {
+              "version": 1,
+              "observedat": "2026-10-28T12:30:16+0900",
+              "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+              "schedulingenabled": true,
+              "pollintervalseconds": 300,
+              "historysource": "RETAINED_SCHEDULER_JOBS",
+              "historylimit": 50,
+              "schedulestate": "SCHEDULED",
+              "nextscheduled": "2026-11-01T23:59:00+0900",
+              "currentjobknown": false
+            },
+            "id": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "59:23:1",
+            "intervaltype": 3,
+            "maxsnaps": 3,
+            "timezone": "Asia/Seoul",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-edit",
+                "value": "같은 UUID 편집",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.4678",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4679",
+    "method": "GET",
+    "command": "listResourceIcon",
+    "params": {
+      "resourceids": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "domain",
+      "command": "listResourceIcon",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4680",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4678",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4679",
+    "status": 200,
+    "command": "listResourceIcon",
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4680",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4681",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4681",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4682",
+    "method": "GET",
+    "command": "listTags",
+    "params": {
+      "resourcetype": "SnapshotPolicy",
+      "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+      "listall": "true",
+      "page": "1",
+      "pagesize": "100",
+      "command": "listTags",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4683",
+    "method": "GET",
+    "command": "listResourceIcon",
+    "params": {
+      "resourceids": "2246448b-b23b-11f1-990e-0024811f8935",
+      "resourcetype": "domain",
+      "command": "listResourceIcon",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4684",
+    "method": "GET",
+    "command": "listAccounts",
+    "params": {
+      "name": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "showicon": "true",
+      "command": "listAccounts",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4685",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4682",
+    "status": 200,
+    "command": "listTags",
+    "url": "http://10.10.32.10:8080/client/api/?resourcetype=SnapshotPolicy&resourceid=f85023df-cc6d-4b90-82c7-c441e4245e46&listall=true&page=1&pagesize=100&command=listTags&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4683",
+    "status": 200,
+    "command": "listResourceIcon",
+    "url": "http://10.10.32.10:8080/client/api/?resourceids=2246448b-b23b-11f1-990e-0024811f8935&resourcetype=domain&command=listResourceIcon&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4684",
+    "status": 200,
+    "command": "listAccounts",
+    "url": "http://10.10.32.10:8080/client/api/?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935&showicon=true&command=listAccounts&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4685",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 36,
+        "snapshotpolicy": [
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "id": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "59:23:1",
+            "intervaltype": 3,
+            "maxsnaps": 3,
+            "timezone": "Asia/Seoul",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-edit",
+                "value": "같은 UUID 편집",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "f85023df-cc6d-4b90-82c7-c441e4245e46",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "id": "eedff403-0177-43cc-b83a-fd0bab53e050",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "59:23:1",
+            "intervaltype": 2,
+            "maxsnaps": 1,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": []
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "id": "a0bd3f7d-bb92-4958-9ea3-2cd34459daa0",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "59:23",
+            "intervaltype": 1,
+            "maxsnaps": 1,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": []
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": true,
+            "id": "9cf8d1d0-d37d-4da3-976e-44ad17256225",
+            "volumeid": "6bab8d5c-8918-46b0-a966-a5ca5492987b",
+            "volumename": "SP13-1507-32-admin-0-한글",
+            "schedule": "58",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-ui",
+                "value": "1507-한글-매시간",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "9cf8d1d0-d37d-4da3-976e-44ad17256225",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-domain-admin",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "3c2b20d4-320d-44cf-9efe-35ff25de7821",
+            "volumeid": "35e26498-814a-484f-beb4-efa6eb120db9",
+            "volumename": "SP13-1507-32-domain-admin-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "3c2b20d4-320d-44cf-9efe-35ff25de7821",
+                "account": "sp13-1507-32-domain-admin",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-domain-admin",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "c6b2db6d-af13-4bc4-a626-917efe68f4c7",
+            "volumeid": "35e26498-814a-484f-beb4-efa6eb120db9",
+            "volumename": "SP13-1507-32-domain-admin-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "c6b2db6d-af13-4bc4-a626-917efe68f4c7",
+                "account": "sp13-1507-32-domain-admin",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-domain-admin",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "c462bbfa-9fd0-44ef-9b35-5d270439309a",
+            "volumeid": "35e26498-814a-484f-beb4-efa6eb120db9",
+            "volumename": "SP13-1507-32-domain-admin-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "c462bbfa-9fd0-44ef-9b35-5d270439309a",
+                "account": "sp13-1507-32-domain-admin",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-domain-admin",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "3ac469a8-c486-4f44-82e7-788c92e6ee57",
+            "volumeid": "35e26498-814a-484f-beb4-efa6eb120db9",
+            "volumename": "SP13-1507-32-domain-admin-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "3ac469a8-c486-4f44-82e7-788c92e6ee57",
+                "account": "sp13-1507-32-domain-admin",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "055614d7-9887-464f-8f73-bfff38b4986f",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "055614d7-9887-464f-8f73-bfff38b4986f",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "ccc33120-1ff2-44cc-8cc2-f97a6d454b2c",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "ccc33120-1ff2-44cc-8cc2-f97a6d454b2c",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "c958d2fa-703a-41a3-8f93-dee7aa76906f",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "c958d2fa-703a-41a3-8f93-dee7aa76906f",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "30044916-e3f4-460b-a153-5d6524683e87",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "30044916-e3f4-460b-a153-5d6524683e87",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "61f7998b-37a6-4b7a-bd9f-458329016f2d",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 4,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "61f7998b-37a6-4b7a-bd9f-458329016f2d",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "5780fdb1-3985-4d0c-958a-b25554ccb872",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "5780fdb1-3985-4d0c-958a-b25554ccb872",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "4b61fce8-0d6b-49a9-b7dc-04e36244ef21",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "4b61fce8-0d6b-49a9-b7dc-04e36244ef21",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "2a9fc9ae-1849-4da9-9565-1d8e9e1f6309",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a9fc9ae-1849-4da9-9565-1d8e9e1f6309",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": false,
+            "id": "c757510b-ef06-44be-91b1-5ebcb2f6e11a",
+            "volumeid": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+            "volumename": "SP13-1507-32-admin-5-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "c757510b-ef06-44be-91b1-5ebcb2f6e11a",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": false,
+            "id": "e5b0cb0b-1d05-4155-9717-ffcee895bd9d",
+            "volumeid": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+            "volumename": "SP13-1507-32-admin-5-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "e5b0cb0b-1d05-4155-9717-ffcee895bd9d",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": false,
+            "id": "aeaeec15-1069-4b66-881f-edd4b20df324",
+            "volumeid": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+            "volumename": "SP13-1507-32-admin-5-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "aeaeec15-1069-4b66-881f-edd4b20df324",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          },
+          {
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "schedulingenabled": false,
+            "id": "23f23b05-5346-41b6-989d-cb8758d2dd39",
+            "volumeid": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+            "volumename": "SP13-1507-32-admin-5-한글",
+            "schedule": "10",
+            "intervaltype": 0,
+            "maxsnaps": 1,
+            "timezone": "UTC",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-natural",
+                "value": "1507-자연-보관1",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "23f23b05-5346-41b6-989d-cb8758d2dd39",
+                "account": "admin",
+                "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.4686",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "keyword": "owner-a",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&keyword=owner-a&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.4687",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "keyword": "owner-b",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&keyword=owner-b&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.4687",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&keyword=owner-b&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 4,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "055614d7-9887-464f-8f73-bfff38b4986f",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "055614d7-9887-464f-8f73-bfff38b4986f",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "ccc33120-1ff2-44cc-8cc2-f97a6d454b2c",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "ccc33120-1ff2-44cc-8cc2-f97a6d454b2c",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "c958d2fa-703a-41a3-8f93-dee7aa76906f",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "c958d2fa-703a-41a3-8f93-dee7aa76906f",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-b",
+            "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+            "domain": "sp13-1507-32-child",
+            "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child",
+            "schedulingenabled": false,
+            "id": "30044916-e3f4-460b-a153-5d6524683e87",
+            "volumeid": "5b9a79a5-0aad-48c0-820a-1a0d32c3c447",
+            "volumename": "SP13-1507-32-owner-b-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "30044916-e3f4-460b-a153-5d6524683e87",
+                "account": "sp13-1507-32-owner-b",
+                "domainid": "9425201c-e084-4cb2-8753-4be4400be884",
+                "domain": "sp13-1507-32-child",
+                "domainpath": "ROOT/sp13-1507-32-parent/sp13-1507-32-child"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "response",
+    "id": "39148.4686",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&keyword=owner-a&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "count": 4,
+        "snapshotpolicy": [
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "61f7998b-37a6-4b7a-bd9f-458329016f2d",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "59:23:28",
+            "intervaltype": 3,
+            "maxsnaps": 4,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "61f7998b-37a6-4b7a-bd9f-458329016f2d",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "5780fdb1-3985-4d0c-958a-b25554ccb872",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "5:3:2",
+            "intervaltype": 2,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "5780fdb1-3985-4d0c-958a-b25554ccb872",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "4b61fce8-0d6b-49a9-b7dc-04e36244ef21",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "9:7",
+            "intervaltype": 1,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "4b61fce8-0d6b-49a9-b7dc-04e36244ef21",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          },
+          {
+            "account": "sp13-1507-32-owner-a",
+            "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+            "domain": "sp13-1507-32-parent",
+            "domainpath": "ROOT/sp13-1507-32-parent",
+            "schedulingenabled": false,
+            "id": "2a9fc9ae-1849-4da9-9565-1d8e9e1f6309",
+            "volumeid": "1fc47461-ff8b-4c5d-a1a4-6aad378746a4",
+            "volumename": "SP13-1507-32-owner-a-한글",
+            "schedule": "5",
+            "intervaltype": 0,
+            "maxsnaps": 2,
+            "timezone": "Asia/Seoul",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "991d2f57-0f37-4445-b956-09773d064816",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp13-test",
+                "value": "1507-한글",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "2a9fc9ae-1849-4da9-9565-1d8e9e1f6309",
+                "account": "sp13-1507-32-owner-a",
+                "domainid": "45d75684-b6c2-4697-b495-e92bade5ac58",
+                "domain": "sp13-1507-32-parent",
+                "domainpath": "ROOT/sp13-1507-32-parent"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "api": "listVolumes",
+      "existingObjects": 51,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "path",
+        "size",
+        "type",
+        "storageid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listSnapshots",
+      "existingObjects": 7,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "volumeid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listVirtualMachines",
+      "existingObjects": 51,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "hostid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    }
+  ]
+}

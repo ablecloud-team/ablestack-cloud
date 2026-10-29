@@ -1,0 +1,234 @@
+{
+  "verified": true,
+  "archiveCount": 36,
+  "bytesPreserved": 2070536646,
+  "before": {
+    "total": 375626137600,
+    "used": 338710913024,
+    "free": 36915224576
+  },
+  "after": {
+    "total": 375626137600,
+    "used": 336547971072,
+    "free": 39078166528
+  },
+  "destination": "/root/snapshot-ui-archives-20261026-sp04",
+  "archives": [
+    {
+      "source": "/nfs/snapshot-tags-1484-20261024-ui-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tags-1484-20261024-ui-stage",
+      "fileCount": 924,
+      "manifestSha256": "49924a292672f85a9a6bcc522440488f5a2a30696e78a36073d805798d3b1cab"
+    },
+    {
+      "source": "/nfs/snapshot-tags-1484-20261024-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tags-1484-20261024-ui-backup",
+      "fileCount": 919,
+      "manifestSha256": "632937ac89ee8bae330ba0eac1fa64f4efb05386b4dafe7a2ba3560d8f64785c"
+    },
+    {
+      "source": "/nfs/snapshot-tags-1484-20261024-ui-final-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tags-1484-20261024-ui-final-stage",
+      "fileCount": 924,
+      "manifestSha256": "897748adbb127d6fdeb0aaa942de6ae2af501018817d59cc7eb2d184f4aed04d"
+    },
+    {
+      "source": "/nfs/snapshot-tags-1484-20261024-ui-final-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tags-1484-20261024-ui-final-backup",
+      "fileCount": 919,
+      "manifestSha256": "9f9677543ae521b887e62ba5ab597a81c48a7083650c99c08fbdcd6511119818"
+    },
+    {
+      "source": "/nfs/snapshot-list-1485-20261024-ui-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-list-1485-20261024-ui-stage",
+      "fileCount": 924,
+      "manifestSha256": "834ac12e178a2216042d55a7a5b3eaa3a8f548f31f314d725868dee596650860"
+    },
+    {
+      "source": "/nfs/snapshot-list-1485-20261024-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-list-1485-20261024-ui-backup",
+      "fileCount": 919,
+      "manifestSha256": "45a0260792f57afc5baed0433c8b51131435db62295479ac0e89bef1583589ea"
+    },
+    {
+      "source": "/nfs/snapshot-list-1485-20261024-ui-columns-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-list-1485-20261024-ui-columns-stage",
+      "fileCount": 924,
+      "manifestSha256": "b4a09d4434f83eb34b7a58722a094fd7a258b13af610c51a531b6ff4ed161186"
+    },
+    {
+      "source": "/nfs/snapshot-list-1485-20261024-ui-columns-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-list-1485-20261024-ui-columns-backup",
+      "fileCount": 919,
+      "manifestSha256": "d1510f1484e674aac71d3a0cf397da504994713419371bdf1da83a1dfdd157c4"
+    },
+    {
+      "source": "/nfs/snapshot-detail-1486-20261025-ui-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-detail-1486-20261025-ui-stage",
+      "fileCount": 927,
+      "manifestSha256": "911636a3a47518b7ac9dc7fd98c4030f15764b078658e30f820e9dd93cc5ca41"
+    },
+    {
+      "source": "/nfs/snapshot-detail-1486-20261025-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-detail-1486-20261025-ui-backup",
+      "fileCount": 917,
+      "manifestSha256": "7dd988e1d5f931ac5c74d981d2993a440794fedf732c3b3a3a8fcb0a89e439cb"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-stage",
+      "fileCount": 925,
+      "manifestSha256": "60032260441a02f86f8dcbd596375a9cda05bd88e2d9ccd324648ef535b7e001"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-backup",
+      "fileCount": 881,
+      "manifestSha256": "fa64e32b66b40c28d41a4068a85d1a567f7cb60d50b0b1ee4080b8a5de0c73b4"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-stage-layout",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-stage-layout",
+      "fileCount": 925,
+      "manifestSha256": "6be7a67ad296ee06db3009a8c2492c457046fb32ea1238ab001e985bf41bca1c"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-layout-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-layout-backup",
+      "fileCount": 903,
+      "manifestSha256": "a444c2e09867911f28e89305c53e137952447d186a57efa16c0cefe8ea5b6cca"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-stage-final",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-stage-final",
+      "fileCount": 925,
+      "manifestSha256": "1e2adf4cc93aa24c9dfc0e4757dee2957358cacada2d59e7479a71028cbd716a"
+    },
+    {
+      "source": "/nfs/snapshot-tabs-1487-20261025-ui-final-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-tabs-1487-20261025-ui-final-backup",
+      "fileCount": 901,
+      "manifestSha256": "b84d76e42b9b62cb19cd2244756f2a18e57e992006d03caed486349e7384aa9f"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-stage-final",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-stage-final",
+      "fileCount": 925,
+      "manifestSha256": "b6dfb1e8810012e75dea7e9c58a4c5ffa57a7bb057f27657b9ea6806c9ae5155"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-final-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-final-backup",
+      "fileCount": 897,
+      "manifestSha256": "cf3b4c8704bfdc6416de5645b382b5b1be02307ccffe8b939dd69d6ad8848bea"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-stage-focus",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-stage-focus",
+      "fileCount": 925,
+      "manifestSha256": "abd96f170519a1042464c0aa74aa843a0fd05221a40a58db5572b12da50c3719"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-focus-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-focus-backup",
+      "fileCount": 905,
+      "manifestSha256": "a75c7f2a99ae99f1bb227749c3b081021938c765acbc544853b026621a68bc32"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-stage-return",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-stage-return",
+      "fileCount": 925,
+      "manifestSha256": "4b4afbc743fe1005013d78559942e2feaa26baf577dc34509a42b887d77ed928"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-return-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-return-backup",
+      "fileCount": 920,
+      "manifestSha256": "087b59f63b8afc5049916038280e69c5972baa383a6046b48680783851008062"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-stage-repair",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-stage-repair",
+      "fileCount": 925,
+      "manifestSha256": "99bb36ecf380b2b313b165506b881bd1359b015b2c71798a43675d9be40c8926"
+    },
+    {
+      "source": "/nfs/snapshot-dialogs-1488-20261025-ui-repair-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-dialogs-1488-20261025-ui-repair-backup",
+      "fileCount": 915,
+      "manifestSha256": "365da58da67aedbde57030213e31b2d4b9b961def02e3c221bb1ff2c4ee4c5b0"
+    },
+    {
+      "source": "/nfs/snapshot-breadcrumb-20261025-ui-stage-repair",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-breadcrumb-20261025-ui-stage-repair",
+      "fileCount": 925,
+      "manifestSha256": "d3490814ad4754fafa2477789a994f185d53817cf503f82a8ecb27fcc2e9d1d7"
+    },
+    {
+      "source": "/nfs/snapshot-breadcrumb-20261025-ui-repair-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-breadcrumb-20261025-ui-repair-backup",
+      "fileCount": 920,
+      "manifestSha256": "c20b7ce69e62116662176c3f372fd0eefaf53abf8c8a2ae633b0c709ffb4e065"
+    },
+    {
+      "source": "/nfs/snapshot-breadcrumb-20261025-ui-stage-submit",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-breadcrumb-20261025-ui-stage-submit",
+      "fileCount": 925,
+      "manifestSha256": "f7b12b119df273813c0dcf620c4e3746367ef4d267aa69425148feac5a740372"
+    },
+    {
+      "source": "/nfs/snapshot-breadcrumb-20261025-ui-submit-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-breadcrumb-20261025-ui-submit-backup",
+      "fileCount": 918,
+      "manifestSha256": "116c7a9c0fa49ab5089c2eb294ab329d656a759af0b52ae5bb6e74bd9f1b369b"
+    },
+    {
+      "source": "/nfs/snapshot-regression-1489-20261025-ui-stage-regression",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-regression-1489-20261025-ui-stage-regression",
+      "fileCount": 925,
+      "manifestSha256": "b1ceb93d61eded78655ae4920a2437ce80e58528a8070bfd08fae373e12a7f38"
+    },
+    {
+      "source": "/nfs/snapshot-regression-1489-20261025-ui-regression-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-regression-1489-20261025-ui-regression-backup",
+      "fileCount": 923,
+      "manifestSha256": "dcbe8aaa82b85fb16bf5f0cf47370ce6561c0c59701cb194bb4e444d729cf414"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1495-20261026-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1495-20261026-ui-backup",
+      "fileCount": 318,
+      "manifestSha256": "2fba01e9ce8de007831a5d862cbafcee87b68422d4261bc58b82f3794eaca092"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1496-20261026-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1496-20261026-ui-backup",
+      "fileCount": 920,
+      "manifestSha256": "293f087b190fba6866cf017befeeb159074506ed1d1e019e56bc4fc0bb6fa245"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1496-20261026-ui-final-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1496-20261026-ui-final-backup",
+      "fileCount": 917,
+      "manifestSha256": "f72fc983082c0877e338108baa0c8623e9007aec2254bf981412277290121789"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1498-20261026-ui-sp04.tgz",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1498-20261026-ui-sp04.tgz",
+      "fileCount": 1,
+      "manifestSha256": "cec53a3f02aed86605335a7d957107a56704fcee1e5dc72f0e597d368989f7f0"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1498-20261026-stage",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1498-20261026-stage",
+      "fileCount": 924,
+      "manifestSha256": "47a73680be9904f7c04187d0199647529aa00714ff1e08c8c54e218d3bc0988e"
+    },
+    {
+      "source": "/nfs/snapshot-policy-1498-20261026-ui-backup",
+      "destination": "/root/snapshot-ui-archives-20261026-sp04/snapshot-policy-1498-20261026-ui-backup",
+      "fileCount": 918,
+      "manifestSha256": "1f5f16284fdc1149c758a13cd48fd59be4e9ad485afc40e2ab0a8af25fa2ccf5"
+    }
+  ]
+}

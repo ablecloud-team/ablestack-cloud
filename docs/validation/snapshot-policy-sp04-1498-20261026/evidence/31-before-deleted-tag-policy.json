@@ -1,0 +1,43 @@
+{
+  "count": 1,
+  "snapshotpolicy": [
+    {
+      "id": "c924976b-c38c-4990-8bc4-8775200acf38",
+      "volumeid": "3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6",
+      "volumename": "SP04-1498-31-scheduled",
+      "schedule": "20",
+      "intervaltype": 0,
+      "maxsnaps": 1,
+      "timezone": "Asia/Seoul",
+      "fordisplay": true,
+      "zone": [
+        {
+          "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "name": "Primary"
+        }
+      ],
+      "tags": [
+        {
+          "key": "sp04-remove",
+          "value": "yes",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "c924976b-c38c-4990-8bc4-8775200acf38",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "cluster": "31",
+    "passed": true,
+    "sourceCommit": "282fe03cd51",
+    "policyUuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+    "initialScheduledUtc": "2026-10-26 15:17:00",
+    "changedMinute": 27,
+    "completionNextScheduledUtc": "2026-10-26 15:27:00",
+    "finalNaturalJobs": [
+      {
+        "snapshot_uuid": "e226e3e3-bc8a-4960-81d8-dae2f39316ad",
+        "id": 17583,
+        "uuid": "42b60deb-cc91-4c7e-8c31-76ea6a94ac52",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:21:03",
+        "last_updated": "2026-10-26 15:21:47"
+      },
+      {
+        "snapshot_uuid": "d33d7601-90b1-4ef3-9676-112373f9cea7",
+        "id": 17587,
+        "uuid": "e9fe0ffe-f368-49a2-b21e-48877e4bab75",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:31:03",
+        "last_updated": "2026-10-26 15:31:05"
+      }
+    ],
+    "totalBackedUpIncludingEarlierDiagnostic": 3,
+    "backupFiles": 3
+  },
+  {
+    "cluster": "32",
+    "passed": true,
+    "sourceCommit": "282fe03cd51",
+    "policyUuid": "4b1c8313-33fe-4069-b9fd-704827d6cd3a",
+    "initialScheduledUtc": "2026-10-26 15:19:00",
+    "changedMinute": 27,
+    "completionNextScheduledUtc": "2026-10-26 15:27:00",
+    "finalNaturalJobs": [
+      {
+        "snapshot_uuid": "21578090-bf25-40d2-bc00-d5e9fc2f511a",
+        "id": 4687,
+        "uuid": "94e0bf18-7820-4568-900e-0857237d433e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:21:10",
+        "last_updated": "2026-10-26 15:21:50"
+      },
+      {
+        "snapshot_uuid": "92c780cc-ad1a-4651-9e04-a47619abbb46",
+        "id": 4691,
+        "uuid": "f73aca0d-f96c-44e0-967f-4c2844e35b3a",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 15:31:10",
+        "last_updated": "2026-10-26 15:31:15"
+      }
+    ],
+    "totalBackedUpIncludingEarlierDiagnostic": 3,
+    "backupFiles": 3
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "policiesUnchanged": 10,
+  "keys": [
+    "policies",
+    "schedules",
+    "tags",
+    "policy_details",
+    "historical_policy_tags",
+    "historical_policy_details",
+    "snapshots",
+    "refs"
+  ]
+}

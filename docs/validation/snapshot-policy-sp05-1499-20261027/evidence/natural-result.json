@@ -1,0 +1,97 @@
+{
+  "passed": true,
+  "clusters": [
+    {
+      "cluster": "31",
+      "passed": true,
+      "policyUuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "scheduledUtc": "2026-10-26 22:44:00",
+      "snapshotUuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+      "jobUuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+      "createdUtc": "2026-10-26 22:46:20",
+      "jobApiStatus": 1,
+      "snapshotApiState": "BackedUp",
+      "sameAcceptedJobAndSnapshot": true,
+      "rowLockSeconds": 43.726,
+      "explicitRelease": true,
+      "runningDeleteRejected": 431,
+      "latestPolicySchedule": "1",
+      "latestNextUtc": "2026-10-26 23:01:00",
+      "snapshotTags": [
+        {
+          "key": "sp05-keep",
+          "value": "한글 보존",
+          "resourcetype": "Snapshot",
+          "resourceid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "sp05-remove",
+          "value": "삭제 대상",
+          "resourcetype": "Snapshot",
+          "resourceid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ],
+      "backupFiles": [
+        {
+          "id": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+          "state": "Ready",
+          "path": "snapshots/2/1126/7af2a4ed-131a-4a22-ab49-52d6cdc83264",
+          "present": true,
+          "size": 196624
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "passed": true,
+      "policyUuid": "4886ebe3-5268-472b-aacc-b97184e54129",
+      "scheduledUtc": "2026-10-26 22:49:00",
+      "snapshotUuid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+      "jobUuid": "fb26e276-9729-4b0a-9ea7-bd4713a4f738",
+      "createdUtc": "2026-10-26 22:52:29",
+      "jobApiStatus": 1,
+      "snapshotApiState": "BackedUp",
+      "sameAcceptedJobAndSnapshot": true,
+      "rowLockSeconds": 29.605,
+      "explicitRelease": true,
+      "runningDeleteRejected": 431,
+      "latestPolicySchedule": "7",
+      "latestNextUtc": "2026-10-26 23:07:00",
+      "snapshotTags": [
+        {
+          "key": "sp05-keep",
+          "value": "한글 보존",
+          "resourcetype": "Snapshot",
+          "resourceid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT"
+        },
+        {
+          "key": "sp05-remove",
+          "value": "삭제 대상",
+          "resourcetype": "Snapshot",
+          "resourceid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT"
+        }
+      ],
+      "backupFiles": [
+        {
+          "id": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+          "state": "Ready",
+          "path": "snapshots/2/533/0dcbefce-717a-4a9c-9805-aac5c1e63811",
+          "present": true,
+          "size": 196624
+        }
+      ]
+    }
+  ]
+}

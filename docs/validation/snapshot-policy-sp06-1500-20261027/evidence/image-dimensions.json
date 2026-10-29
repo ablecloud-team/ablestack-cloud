@@ -1,0 +1,65 @@
+[
+  {
+    "name": "31-natural-final.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "32-natural-final.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "31-running-delete.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "32-running-delete.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "31-policy-updated.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "31-cleanup-ui.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "32-cleanup-ui.jpg",
+    "width": 1280,
+    "height": 720,
+    "format": "Jpeg",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "31-cleanup-mobile.png",
+    "width": 390,
+    "height": 844,
+    "format": "Png",
+    "dimensionsMatch": true
+  },
+  {
+    "name": "32-cleanup-mobile.png",
+    "width": 390,
+    "height": 844,
+    "format": "Png",
+    "dimensionsMatch": true
+  }
+]

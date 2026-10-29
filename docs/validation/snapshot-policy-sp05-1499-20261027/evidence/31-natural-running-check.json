@@ -1,0 +1,432 @@
+{
+  "passed": true,
+  "held": {
+    "state": "held",
+    "snapshot": {
+      "id": 279,
+      "uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+      "status": "Allocated",
+      "volume_id": 1126
+    },
+    "schedule": {
+      "id": 72,
+      "scheduled_timestamp": "2026-10-26 22:44:00",
+      "async_job_id": 17633,
+      "snapshot_id": 279,
+      "job_uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+      "job_status": 0
+    },
+    "at": 1793054780.3682308,
+    "watchdogSeconds": 90
+  },
+  "sameAcceptedJobAndSnapshot": true,
+  "latestPolicy": {
+    "id": 85,
+    "uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+    "volume_id": 1126,
+    "schedule": "1",
+    "timezone": "UTC",
+    "interval": 0,
+    "active": 1,
+    "display": 1,
+    "max_snaps": 3
+  },
+  "schedule": {
+    "id": 72,
+    "uuid": "2d218c92-9930-462b-b442-2a2326981b63",
+    "volume_id": 1126,
+    "policy_id": 85,
+    "scheduled_timestamp": "2026-10-26 22:44:00",
+    "async_job_id": 17633,
+    "snapshot_id": 279,
+    "policy_uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+    "job_uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+    "job_status": 0
+  },
+  "deleteRejected": {
+    "status": 431,
+    "data": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot policy has a snapshot job in progress. Retry deletion after the job finishes."
+    }
+  },
+  "database": {
+    "at": "2026-10-26 22:47:03.320496",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1126,
+        "uuid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+        "name": "SP05-1499-31-volume-tab",
+        "state": "Snapshotting",
+        "path": "6f5c6e58-ad47-4296-9d8a-a3a2ef9d7e53",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1125,
+        "uuid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+        "name": "SP05-1499-31-scheduled",
+        "state": "Ready",
+        "path": "b80a047d-49a5-4e3b-839e-315ab48360af",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1128,
+        "uuid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+        "name": "SP05-1499-31-project",
+        "state": "Ready",
+        "path": "49e0add8-a54a-4a5d-ae70-ab2be680b327",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1127,
+        "uuid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+        "name": "SP05-1499-31-owner",
+        "state": "Ready",
+        "path": "2fcab35e-c8bc-474d-a5c1-478bedab8248",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 85,
+        "uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+        "volume_id": 1126,
+        "schedule": "1",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 86,
+        "uuid": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+        "volume_id": 1126,
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 87,
+        "uuid": "aad169ce-112e-4959-8184-ae7a793463f5",
+        "volume_id": 1126,
+        "schedule": "59:23:7",
+        "timezone": "UTC",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 88,
+        "uuid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+        "volume_id": 1126,
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 82,
+        "uuid": "309af718-6183-4def-be23-d6881a5c10c5",
+        "volume_id": 1125,
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 83,
+        "uuid": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+        "volume_id": 1125,
+        "schedule": "59:23:7",
+        "timezone": "UTC",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 84,
+        "uuid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+        "volume_id": 1125,
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      {
+        "id": 90,
+        "uuid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+        "volume_id": 1128,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      },
+      {
+        "id": 89,
+        "uuid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+        "volume_id": 1127,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 63,
+        "uuid": "990a9cce-da9d-47e7-9099-fab33fad1d88",
+        "volume_id": 1125,
+        "policy_id": 82,
+        "scheduled_timestamp": "2026-10-26 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "309af718-6183-4def-be23-d6881a5c10c5",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 64,
+        "uuid": "9963b236-ef23-4937-8184-49f7efb15e84",
+        "volume_id": 1125,
+        "policy_id": 83,
+        "scheduled_timestamp": "2026-10-31 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 65,
+        "uuid": "0effca63-c65e-44bd-80f0-1bf26414843a",
+        "volume_id": 1125,
+        "policy_id": 84,
+        "scheduled_timestamp": "2026-10-28 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 66,
+        "uuid": "b7abe838-db40-44e8-882e-261aeb2835a3",
+        "volume_id": 1126,
+        "policy_id": 86,
+        "scheduled_timestamp": "2026-10-26 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 67,
+        "uuid": "f606a00f-12a8-4900-9824-ce60cf1453ca",
+        "volume_id": 1126,
+        "policy_id": 87,
+        "scheduled_timestamp": "2026-10-31 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "aad169ce-112e-4959-8184-ae7a793463f5",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 68,
+        "uuid": "e3900b4a-f362-40ae-a1cb-fdaf56dc1f26",
+        "volume_id": 1126,
+        "policy_id": 88,
+        "scheduled_timestamp": "2026-10-28 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 69,
+        "uuid": "2dc1b0ff-549e-408d-85fd-237ec2211393",
+        "volume_id": 1127,
+        "policy_id": 89,
+        "scheduled_timestamp": "2026-10-27 06:07:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 70,
+        "uuid": "edf14916-fb66-42df-b1ff-b3f6bdf340e9",
+        "volume_id": 1128,
+        "policy_id": 90,
+        "scheduled_timestamp": "2026-10-27 06:07:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 72,
+        "uuid": "2d218c92-9930-462b-b442-2a2326981b63",
+        "volume_id": 1126,
+        "policy_id": 85,
+        "scheduled_timestamp": "2026-10-26 22:44:00",
+        "async_job_id": 17633,
+        "snapshot_id": 279,
+        "policy_uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+        "job_uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+        "job_status": 0
+      }
+    ],
+    "snapshots": [
+      {
+        "id": 279,
+        "uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "volume_id": 1126,
+        "status": "Allocated",
+        "created": "2026-10-26 22:46:20",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [],
+    "jobs": [
+      {
+        "snapshot_uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+        "id": 17633,
+        "uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+        "job_status": 0,
+        "job_result_code": 0,
+        "created": "2026-10-26 22:46:20",
+        "last_updated": null
+      }
+    ],
+    "tags": [
+      {
+        "id": 587,
+        "resource_uuid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 588,
+        "resource_uuid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+        "key": "sp05-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 589,
+        "resource_uuid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 590,
+        "resource_uuid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+        "key": "sp05-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 617,
+        "resource_uuid": "309af718-6183-4def-be23-d6881a5c10c5",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 618,
+        "resource_uuid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+        "key": "sp05-draft",
+        "value": "저장 초안",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 619,
+        "resource_uuid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 620,
+        "resource_uuid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+        "key": "sp05-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 623,
+        "resource_uuid": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 624,
+        "resource_uuid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+        "key": "sp05-draft",
+        "value": "저장 초안",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 625,
+        "resource_uuid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 626,
+        "resource_uuid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+        "key": "sp05-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 633,
+        "resource_uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+        "key": "sp05-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 634,
+        "resource_uuid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+        "key": "sp05-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      }
+    ]
+  }
+}

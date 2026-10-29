@@ -1,0 +1,65 @@
+{
+  "backendSourceCommit": "4e41e7b70fb",
+  "uiSourceCommit": "416128e440773e5c827e319bc2786a685a99eddc",
+  "fullCloudBuildRun": false,
+  "githubActionsDispatched": false,
+  "checks": {
+    "api-test.txt": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "SUCCESS",
+      "logSha256": "94cadfc074a7d51ca6f7632ddef974bb0c133091f75e2385a80eeb2e61f9005d",
+      "classes": [
+        "org.apache.cloudstack.api.command.user.snapshot.SnapshotPolicyIntentTest",
+        "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmdTest",
+        "org.apache.cloudstack.api.command.user.config.CapabilitiesSnapshotPolicyTest"
+      ]
+    },
+    "server-test.txt": {
+      "tests": 204,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "SUCCESS",
+      "logSha256": "540b2daad1ae141039f18d68d8f8561cfb0cfd94e99a4f1da65632426155a33c",
+      "classes": [
+        "com.cloud.storage.snapshot.SnapshotPolicyInputValidatorTest",
+        "com.cloud.storage.snapshot.SnapshotManagerImplTest",
+        "com.cloud.storage.snapshot.SnapshotManagerTest",
+        "com.cloud.storage.snapshot.SnapshotPolicySchedulingTest",
+        "com.cloud.storage.snapshot.SnapshotSchedulerImplTest",
+        "com.cloud.storage.snapshot.SnapshotPolicyRetentionTest"
+      ]
+    },
+    "api-compat32-test.txt": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build": "SUCCESS",
+      "logSha256": "96d7b4b609201e185a7dd095b2f002cb96896bfd7594483c5b59bf6df15c97a1",
+      "classes": [
+        "org.apache.cloudstack.api.command.user.snapshot.SnapshotPolicyIntentTest",
+        "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmdTest",
+        "org.apache.cloudstack.api.command.user.config.CapabilitiesSnapshotPolicyTest"
+      ]
+    },
+    "ui-test.txt": {
+      "passed": true,
+      "summary": "Tests:       110 passed, 110 total",
+      "logSha256": "e07c0ba619d5e7206fcd9ddfdecead7faf32f736e3d6b18c5db0beddf5b0a51a"
+    },
+    "ui-lint.txt": {
+      "passed": true,
+      "summary": "No lint errors found!",
+      "logSha256": "5be46f4f6522d803334ad8697884b4d206773d37fc12eb0d2010a73e079f2930"
+    },
+    "ui-build.txt": {
+      "passed": true,
+      "summary": "Build complete",
+      "logSha256": "ff6cf596db27ffb05be5be53fd062c98a75df1b442d659b8c6d45081922eab5a"
+    }
+  }
+}

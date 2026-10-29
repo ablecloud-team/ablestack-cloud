@@ -1,0 +1,489 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "volumes": 10,
+  "accounts": 3,
+  "projects": 1,
+  "domains": 2,
+  "cleanupPolicyIds": [
+    "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+    "c16d82ce-313f-4974-baf5-bab029123f05",
+    "8df6856f-f36f-4c56-bdee-6b98b506c716",
+    "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+    "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+    "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+    "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+    "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+    "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+    "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+    "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+    "90884a4a-e266-4af8-b546-e03c14dec8e4",
+    "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+    "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+    "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+    "bd746709-2399-4dca-94bb-0192a842bf59",
+    "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+    "058af620-dd75-45fa-b9ab-11084ccb06b0",
+    "c3232065-6a3d-4588-89ab-4009ffe2702d",
+    "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+    "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+    "f329a2c9-23f9-4d72-946a-c9a0e4de37d5"
+  ],
+  "snapshotHistory": [
+    "572e8899-1518-466b-8281-cdcc8190b0ae",
+    "86240d44-9084-4b92-a399-e1a6678ae477",
+    "a231c7ff-3078-45ec-840a-58eab67a5186",
+    "bc6c3b5f-8021-4a57-99f8-ad643032ef0a"
+  ],
+  "manualSnapshotTagCleanupForOpen1506": [
+    {
+      "snapshot": "a231c7ff-3078-45ec-840a-58eab67a5186",
+      "keys": [
+        "sp11-preserve"
+      ]
+    }
+  ],
+  "mutationResponses": [
+    {
+      "at": "2026-10-27T15:46:27.639439+00:00",
+      "command": "deleteSnapshot",
+      "params": {
+        "id": "572e8899-1518-466b-8281-cdcc8190b0ae"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "1b7c8bd1-0fb7-479a-9aa2-8238d214dbec"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:28.673338+00:00",
+      "command": "deleteTags",
+      "params": {
+        "resourceids": "a231c7ff-3078-45ec-840a-58eab67a5186",
+        "resourcetype": "Snapshot",
+        "tags[0].key": "sp11-preserve",
+        "tags[0].value": "한글 스냅샷 유지"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "67ad17d8-9d85-4ef1-b754-fd25e8e572a5"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:29.703032+00:00",
+      "command": "deleteSnapshot",
+      "params": {
+        "id": "a231c7ff-3078-45ec-840a-58eab67a5186"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "26441ce1-3c46-4e39-b5d7-e662d57e6c7e"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:30.795558+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "53451d2f-c945-4870-b226-8a032e4dee02"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:30.881227+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:30.966722+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "84e10781-816c-4b7e-88c1-574f5902bec0"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:31.010841+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "d6d96d03-c3df-4b2b-a1f3-9630373b6083"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:31.097716+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "e20f976b-0ea8-4994-9624-2a1967106a83"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:31.179146+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "91cfa11b-85e0-491f-b948-89180c586eb6"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:31.300634+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:32.421213+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "595b620a-8419-4550-b1dc-927a929ddfbd"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:32.505931+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "c6951f21-1779-40d6-9650-5a3ded8322ee"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:32.589914+00:00",
+      "command": "deleteVolume",
+      "params": {
+        "id": "432ae931-2900-4783-978d-f84719c54397"
+      },
+      "status": 200,
+      "data": {
+        "success": true
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:32.955589+00:00",
+      "command": "deleteProject",
+      "params": {
+        "id": "8636a5d8-9e57-4c0b-8648-9560958798fe"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "48ef6098-0428-4aa4-8954-8a112d6ab97d"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:33.988651+00:00",
+      "command": "deleteAccount",
+      "params": {
+        "id": "5b4ef5a1-ec39-4a8c-880d-1867c42b1f78"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "ae9f6162-07f1-470a-9583-f10c9cb640b2"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:35.020806+00:00",
+      "command": "deleteAccount",
+      "params": {
+        "id": "e9207b38-b2d3-45af-a04c-341faf606b06"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "0f3e1cef-0273-48e7-969b-c48242e434d5"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:36.049918+00:00",
+      "command": "deleteAccount",
+      "params": {
+        "id": "d2b4c0d0-7a96-4565-a600-055cd86f847a"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "c16018eb-c163-4391-8672-f56530ec4e57"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:37.082599+00:00",
+      "command": "deleteDomain",
+      "params": {
+        "id": "4f866c5d-a5cc-4daa-9d0f-06e1259f30e4"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "b2757de8-a740-48d2-b5b0-aeffcff66115"
+      }
+    },
+    {
+      "at": "2026-10-27T15:46:38.112861+00:00",
+      "command": "deleteDomain",
+      "params": {
+        "id": "04b34a41-2b69-4213-b440-05c9a2c6a015"
+      },
+      "status": 200,
+      "data": {
+        "jobid": "11a9ecf6-840d-486d-8363-89a5986954de"
+      }
+    }
+  ],
+  "database": {
+    "at": "2026-10-27 15:47:35.252153",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1157,
+        "uuid": "432ae931-2900-4783-978d-f84719c54397",
+        "name": "SP11-1505-31-project-한글",
+        "state": "Expunged",
+        "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:35"
+      },
+      {
+        "id": 1148,
+        "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+        "name": "SP11-1505-31-admin-0-한글",
+        "state": "Expunged",
+        "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1155,
+        "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+        "name": "SP11-1505-31-owner-b-한글",
+        "state": "Expunged",
+        "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:34"
+      },
+      {
+        "id": 1154,
+        "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+        "name": "SP11-1505-31-owner-a-한글",
+        "state": "Expunged",
+        "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1150,
+        "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+        "name": "SP11-1505-31-admin-2-한글",
+        "state": "Expunged",
+        "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1153,
+        "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+        "name": "SP11-1505-31-admin-5-한글",
+        "state": "Expunged",
+        "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1149,
+        "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+        "name": "SP11-1505-31-admin-1-한글",
+        "state": "Expunged",
+        "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1156,
+        "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+        "name": "SP11-1505-31-domain-admin-한글",
+        "state": "Expunged",
+        "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:35"
+      },
+      {
+        "id": 1151,
+        "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+        "name": "SP11-1505-31-admin-3-한글",
+        "state": "Expunged",
+        "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      },
+      {
+        "id": 1152,
+        "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+        "name": "SP11-1505-31-admin-4-한글",
+        "state": "Expunged",
+        "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+        "pool_id": 1,
+        "removed": "2026-10-27 15:46:33"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [
+      {
+        "id": 286,
+        "uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+        "volume_id": 1151,
+        "status": "Error",
+        "created": "2026-10-27 15:02:26",
+        "removed": "2026-10-27 15:46:28",
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 287,
+        "uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+        "volume_id": 1151,
+        "status": "Error",
+        "created": "2026-10-27 15:12:26",
+        "removed": "2026-10-27 15:46:29",
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 284,
+        "uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+        "volume_id": 1152,
+        "status": "Allocated",
+        "created": "2026-10-27 14:34:12",
+        "removed": "2026-10-27 15:46:30",
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 285,
+        "uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+        "volume_id": 1152,
+        "status": "Destroyed",
+        "created": "2026-10-27 14:47:03",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1152/1f033f0f-31fa-4427-abfb-34aeeaedf6b4",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+        "id": 17736,
+        "uuid": "17468c27-4f02-4e47-810c-3f54704ca262",
+        "job_status": 2,
+        "job_result_code": 530,
+        "created": "2026-10-27 14:34:12",
+        "last_updated": "2026-10-27 14:34:12"
+      },
+      {
+        "snapshot_uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+        "id": 17749,
+        "uuid": "1b7c8bd1-0fb7-479a-9aa2-8238d214dbec",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 15:46:30",
+        "last_updated": "2026-10-27 15:46:30"
+      },
+      {
+        "snapshot_uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+        "id": 17737,
+        "uuid": "2bbd84d7-868e-4fd7-90ac-b9edee110775",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 14:47:03",
+        "last_updated": "2026-10-27 14:47:03"
+      },
+      {
+        "snapshot_uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+        "id": 17751,
+        "uuid": "26441ce1-3c46-4e39-b5d7-e662d57e6c7e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 15:46:32",
+        "last_updated": "2026-10-27 15:46:32"
+      },
+      {
+        "snapshot_uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+        "id": 17740,
+        "uuid": "df896fa1-ea2f-4717-90c1-4dff1e701ae9",
+        "job_status": 2,
+        "job_result_code": 530,
+        "created": "2026-10-27 15:02:26",
+        "last_updated": "2026-10-27 15:02:58"
+      },
+      {
+        "snapshot_uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+        "id": 17747,
+        "uuid": "56cc609b-61df-491e-af6a-b26c74dc9158",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 15:46:28",
+        "last_updated": "2026-10-27 15:46:28"
+      },
+      {
+        "snapshot_uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+        "id": 17742,
+        "uuid": "2ae74fd4-9ce8-4922-923c-d3fdfc18c4a2",
+        "job_status": 2,
+        "job_result_code": 530,
+        "created": "2026-10-27 15:12:26",
+        "last_updated": "2026-10-27 15:12:58"
+      },
+      {
+        "snapshot_uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+        "id": 17748,
+        "uuid": "3a9fbd09-c39c-44b0-b648-e2859abc88a1",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 15:46:29",
+        "last_updated": "2026-10-27 15:46:29"
+      }
+    ],
+    "tags": [],
+    "historical_policy_tags": [],
+    "historical_policy_details": [],
+    "apiPolicies": []
+  },
+  "harnessNote": "Final capture helper initially shadowed rows function after all cleanup operations. Fixed helper and independently read back final state; no cleanup mutation was replayed."
+}

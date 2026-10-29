@@ -1,0 +1,18 @@
+{
+  "active_volumes": 0,
+  "policies": 0,
+  "schedules": 0,
+  "active_snapshots": 0,
+  "nonterminal_refs": 0,
+  "test_tags": 0,
+  "active_accounts": 0,
+  "active_roles": 0,
+  "active_role_permissions": 0,
+  "pending_jobs": 0,
+  "volumeTombstones": "Expunged\t3",
+  "snapshotHistory": "Destroyed\t0\t1",
+  "mold": "active",
+  "clientHttp": 200,
+  "webInf": true,
+  "passed": true
+}

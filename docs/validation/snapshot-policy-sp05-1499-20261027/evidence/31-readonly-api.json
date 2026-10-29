@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "apis": {
+    "createSnapshotPolicy": false,
+    "updateSnapshotPolicy": false,
+    "listSnapshotPolicies": true,
+    "listVolumes": true
+  },
+  "checks": [
+    {
+      "kind": "owner",
+      "rejected": 432
+    },
+    {
+      "kind": "project",
+      "rejected": 432
+    },
+    {
+      "crossOwnerRejected": 432
+    }
+  ]
+}

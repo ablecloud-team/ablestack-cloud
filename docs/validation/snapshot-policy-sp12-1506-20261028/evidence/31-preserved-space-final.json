@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "archiveRetained": "/var/lib/ablestack-space-preserved/sp11-1505-20261027/prometheus-wal",
+  "filesVerified": 20,
+  "bytesPreserved": 2254798848,
+  "prometheusPidUnchanged": 2491742,
+  "readyHttp": 200,
+  "historicalSeries": {
+    "recent": {
+      "series": 50,
+      "expected": 50
+    },
+    "history": {
+      "series": 50,
+      "expected": 50
+    }
+  },
+  "latestSampleAgeSeconds": 14.420000076293945,
+  "nfsUsedRatio": 0.8998659623839765,
+  "nfsFreeBytes": 37612961792,
+  "belowUnchangedThreshold": true
+}

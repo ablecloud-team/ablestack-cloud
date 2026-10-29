@@ -1,0 +1,23 @@
+[
+  {
+    "file": "test.log",
+    "rawSha256": "3d115dbd83302a1a3337d8df8244b7d8262234782be61dedbc5381144f265da5",
+    "publishedSha256": "26cbf52fc2626cca0896bcd24fdaf97dd3e751a58b6b5d5148f8761ab040cd24",
+    "publicationChange": "Trailing whitespace and line endings normalized; original output content preserved",
+    "rawLocalPath": "C:\\Users\\ablecloud\\.codex\\artifacts\\snapshot-policy-ui-polish-20261028\\test.log"
+  },
+  {
+    "file": "lint.log",
+    "rawSha256": "ef8a58e7a0982f008f25d72cbeb996423a559db6e54e3574d7e9ef36c9942df6",
+    "publishedSha256": "ef8a58e7a0982f008f25d72cbeb996423a559db6e54e3574d7e9ef36c9942df6",
+    "publicationChange": "Trailing whitespace and line endings normalized; original output content preserved",
+    "rawLocalPath": "C:\\Users\\ablecloud\\.codex\\artifacts\\snapshot-policy-ui-polish-20261028\\lint.log"
+  },
+  {
+    "file": "build.log",
+    "rawSha256": "714e021f163d010fee895e2b0b709def76531530ef34c6f110cbb0f6f490973f",
+    "publishedSha256": "a48aa5d845ed31c7b6811caf316b413ff42d6176911eff760e629cb71b7aa5a2",
+    "publicationChange": "Trailing whitespace and line endings normalized; original output content preserved",
+    "rawLocalPath": "C:\\Users\\ablecloud\\.codex\\artifacts\\snapshot-policy-ui-polish-20261028\\build.log"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "jarSha256": "0c0f296dfed432fccfa1a5fc2f2eed60f7d1f9ec06fb5f9f2270f4de3d32ef0c",
+  "patchedClasses": 3,
+  "otherJarEntriesUnchanged": 204535,
+  "staticFiles": 931,
+  "protectedServerFiles": 2,
+  "managementConfigFiles": 7,
+  "largeFilesPreserved": 1,
+  "pid": "3586351",
+  "mold": "active",
+  "clientHttp": 200,
+  "webInf": true,
+  "uiSource": "6fa5e07f3c3f73784a214d329e519cd7c99daf5f",
+  "backendSource": "198fc04b7fadd55fc07b972e30ec4c30b980ebb5"
+}

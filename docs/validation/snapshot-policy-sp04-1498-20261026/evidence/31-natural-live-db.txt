@@ -1,0 +1,30 @@
+[volumes]
+092230b5-087d-4906-881d-6b2b86297cfc	SP04-1498-31-volume-tab	Ready	248ac7a3-772a-4be6-8b4d-7604ac1038a4	1	NULL
+3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	SP04-1498-31-scheduled	Ready	15f78fab-4ab7-41fe-99b3-971627f953e0	1	NULL
+7b626c48-82ba-427e-ab86-c478f731b7aa	SP04-1498-31-owner	Ready	6706c2c9-d9a8-4f0a-a532-25f706012f1c	1	NULL
+[policies]
+96c5f21a-ea0e-4518-9759-a18b334c431d	092230b5-087d-4906-881d-6b2b86297cfc	58:23	1	1	Asia/Seoul	1	1
+c4824e8a-95c4-4b31-a23a-823ab685072b	7b626c48-82ba-427e-ab86-c478f731b7aa	59:23	1	1	Asia/Seoul	1	1
+609e234e-db0f-40dc-962b-02b21d80eb34	3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	28	0	1	Asia/Seoul	1	1
+[schedules]
+96c5f21a-ea0e-4518-9759-a18b334c431d	2026-10-26 14:58:00	NULL
+c4824e8a-95c4-4b31-a23a-823ab685072b	2026-10-26 14:59:00	NULL
+609e234e-db0f-40dc-962b-02b21d80eb34	2026-10-26 13:28:00	17563
+[snapshots]
+a723e935-9fdd-4ca5-b765-4f2534de5b23	3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	Allocated	2026-10-26 13:14:13	2026-10-26 13:23:03	NULL
+828f141d-81b1-403b-b458-abb13695c51d	3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	BackedUp	2026-10-26 13:29:13	NULL	NULL
+[policy_tags]
+609e234e-db0f-40dc-962b-02b21d80eb34	sp04-keep	한글 태그 유지	SnapshotPolicy
+609e234e-db0f-40dc-962b-02b21d80eb34	sp04-pending	입력 중인 태그	SnapshotPolicy
+[snapshot_tags]
+828f141d-81b1-403b-b458-abb13695c51d	sp04-keep	한글 태그 유지	Snapshot
+828f141d-81b1-403b-b458-abb13695c51d	sp04-pending	입력 중인 태그	Snapshot
+[snapshot_refs]
+828f141d-81b1-403b-b458-abb13695c51d	Image	Ready	snapshots/2/1117/a995b5a3-d6ba-4677-bdde-998b91332097	NULL
+[snapshot_jobs]
+a723e935-9fdd-4ca5-b765-4f2534de5b23	2a701497-5973-409e-b75c-f9ee4da70296	2	530	2026-10-26 13:14:13	2026-10-26 13:14:13
+a723e935-9fdd-4ca5-b765-4f2534de5b23	71b2770c-5ac8-439a-a802-b0b75aaee99b	1	0	2026-10-26 13:23:03	2026-10-26 13:23:03
+828f141d-81b1-403b-b458-abb13695c51d	979c75cf-0a76-4fe1-b01d-77b8d6b2a0d8	1	0	2026-10-26 13:29:13	2026-10-26 13:29:13
+[poll_interval]
+snapshot.delta.max	16
+snapshot.poll.interval	300

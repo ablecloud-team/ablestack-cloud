@@ -1,0 +1,82 @@
+[
+  {
+    "cluster": 31,
+    "kind": "project",
+    "buttons": [
+      "",
+      "업데이트",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "deleteActions": [],
+    "rows": [
+      " DAILY\t2\t\n15:07\n\tAsia/Seoul [Korea Standard Time]\tSP07-1501-31-project\t"
+    ],
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/app.95671954.js"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": 32,
+    "kind": "project",
+    "buttons": [
+      "",
+      "업데이트",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "deleteActions": [],
+    "rows": [
+      " DAILY\t2\t\n15:07\n\tAsia/Seoul [Korea Standard Time]\tSP07-1501-32-project\t"
+    ],
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/app.95671954.js"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": 31,
+    "kind": "owner",
+    "buttons": [
+      "",
+      "업데이트",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "deleteActions": [],
+    "rows": [
+      " DAILY\t2\t\n15:07\n\tAsia/Seoul [Korea Standard Time]\tSP07-1501-31-owner\t"
+    ],
+    "scripts": [
+      "http://10.10.31.10:8080/client/js/app.95671954.js"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": 32,
+    "kind": "owner",
+    "buttons": [
+      "",
+      "업데이트",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "deleteActions": [],
+    "rows": [
+      " DAILY\t2\t\n15:07\n\tAsia/Seoul [Korea Standard Time]\tSP07-1501-32-owner\t"
+    ],
+    "scripts": [
+      "http://10.10.32.10:8080/client/js/app.95671954.js"
+    ],
+    "passed": true
+  }
+]

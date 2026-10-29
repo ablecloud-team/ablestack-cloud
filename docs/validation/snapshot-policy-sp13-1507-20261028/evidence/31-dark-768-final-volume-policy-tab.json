@@ -1,0 +1,92 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 219,
+        "height": 111,
+        "left": 68,
+        "right": 760,
+        "top": 108,
+        "width": 692,
+        "x": 68,
+        "y": 108
+      },
+      "text": "/볼륨/SP13-1507-31-admin-0-한글업데이트\n작업"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 194,
+        "height": 55,
+        "left": 414,
+        "right": 735,
+        "top": 139,
+        "width": 321,
+        "x": 414,
+        "y": 139
+      },
+      "text": "작업"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성",
+    ""
+  ],
+  "pageWidth": 758,
+  "rows": [
+    {
+      "href": "#/snapshotpolicy/768a45b8-68e9-4267-928c-d99c9542b1a9",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/5b1d648c-f746-4cfc-b102-2c5f8af5f117",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/ddf884fd-50e3-4cad-ab2b-5a439860d315",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/f5be95e7-ea47-4074-8bbe-41db06df3599",
+      "text": "매시간"
+    }
+  ],
+  "tabs": [
+    {
+      "selected": "false",
+      "text": "상세"
+    },
+    {
+      "selected": "false",
+      "text": "스냅샷"
+    },
+    {
+      "selected": "true",
+      "text": "정기스냅샷"
+    },
+    {
+      "selected": "false",
+      "text": "이벤트"
+    },
+    {
+      "selected": "false",
+      "text": "코멘트"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://10.10.31.10:8080/client/#/volume/4a2c2061-910c-4d4f-9828-2b3b07bef6ce?tab=recurringsnapshots",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  },
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/app.8516507f.js"
+  ],
+  "tabLayouts": [
+    "ant-tabs ant-tabs-left"
+  ]
+}

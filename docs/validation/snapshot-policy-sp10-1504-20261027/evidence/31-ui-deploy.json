@@ -1,0 +1,43 @@
+{
+  "managementPid": "3554783",
+  "files": 934,
+  "verified": true,
+  "backup": "/root/snapshot-policy-1504-20261027-ui-876c07a8a30-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "5905e58b954e86f79a975b6bd422e79f7cc7e4e7b589b23fe1e8ed3923db57f4",
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-policy-details": true,
+    "policycontext": true,
+    "includepolicycontext": true,
+    "message.snapshot.policy.created": true,
+    "message.snapshot.policy.detail.history": true,
+    "message.snapshot.policy.schedule.sort": true,
+    "filterDayOfMonth": true,
+    "message.snapshot.policy.delete.unverified": true,
+    "policy-delete-target": true,
+    "message.snapshot.policy.delete.effect": true,
+    "label.snapshot.policy.delete.check": true,
+    "clearzoneids": true,
+    "policy-action-target": true,
+    "message.snapshot.policy.running.effect": true,
+    "label.snapshot.policy.edit": true,
+    "snapshotpolicymax": true,
+    "policy-retention-help": true,
+    "message.snapshot.policy.minute.range": true,
+    "snapshot-policy-tags": true,
+    "message.snapshot.policy.tag.duplicate": true,
+    "volume-search-options": true,
+    "message.volume.search.unavailable": true,
+    "snapshot-policy-volume-dropdown": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "31": [],
+  "32": [
+    {
+      "level": "error",
+      "message": "i",
+      "timestamp": "2026-10-26T13:31:05.237Z",
+      "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+    }
+  ],
+  "diagnosis": "32: one ERR_CANCELED from shared beforeRouteLeave on rapid navigation; tracked in SP-13; tag flow did not produce JS exceptions."
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "type": "request",
+    "id": "39148.8467",
+    "method": "POST",
+    "command": "logout",
+    "params": {
+      "command": "logout",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/"
+  },
+  {
+    "type": "response",
+    "id": "39148.8467",
+    "status": 200,
+    "command": "logout",
+    "url": "http://10.10.32.10:8080/client/api/"
+  },
+  {
+    "type": "request",
+    "id": "39148.8469",
+    "method": "GET",
+    "command": "listGuiThemes",
+    "params": {
+      "commonname": "10.10.32.10",
+      "command": "listGuiThemes",
+      "response": "json"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?commonname=10.10.32.10&command=listGuiThemes&response=json"
+  },
+  {
+    "type": "response",
+    "id": "39148.8469",
+    "status": 200,
+    "command": "listGuiThemes",
+    "url": "http://10.10.32.10:8080/client/api/?commonname=10.10.32.10&command=listGuiThemes&response=json"
+  },
+  {
+    "type": "request",
+    "id": "39148.8470",
+    "method": "GET",
+    "command": "listGuiThemes",
+    "params": {
+      "listonlydefaulttheme": "true",
+      "command": "listGuiThemes",
+      "response": "json"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listonlydefaulttheme=true&command=listGuiThemes&response=json"
+  },
+  {
+    "type": "response",
+    "id": "39148.8470",
+    "status": 200,
+    "command": "listGuiThemes",
+    "url": "http://10.10.32.10:8080/client/api/?listonlydefaulttheme=true&command=listGuiThemes&response=json"
+  },
+  {
+    "type": "request",
+    "id": "39148.8476",
+    "method": "GET",
+    "command": "listOauthProvider",
+    "params": {
+      "command": "listOauthProvider",
+      "response": "json"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listOauthProvider&response=json"
+  },
+  {
+    "type": "response",
+    "id": "39148.8476",
+    "status": 200,
+    "command": "listOauthProvider",
+    "url": "http://10.10.32.10:8080/client/api/?command=listOauthProvider&response=json"
+  }
+]

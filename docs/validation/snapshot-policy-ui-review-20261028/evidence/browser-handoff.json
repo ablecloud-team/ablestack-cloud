@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "reviewTabsRetained": [
+    "4",
+    "5"
+  ],
+  "originalEpicTabPreserved": "3",
+  "theme": "dark",
+  "requestInterceptionCleared": true,
+  "viewportOverridesCleared": true,
+  "fixturesRetained": true,
+  "explicitDeletionRequired": true
+}

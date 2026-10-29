@@ -38,7 +38,7 @@ export default {
       } catch (error) {
         if (current()) {
           this.zoneError = true
-          this.form.zoneids = []
+          if (!this.preserveSnapshotZones) this.form.zoneids = []
         }
       } finally { if (current()) this.zoneLoading = false }
     }

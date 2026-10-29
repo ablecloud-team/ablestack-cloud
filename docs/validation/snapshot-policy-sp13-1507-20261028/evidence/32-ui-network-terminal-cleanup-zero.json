@@ -1,0 +1,2837 @@
+[
+  {
+    "truncated": true
+  },
+  {
+    "type": "response",
+    "id": "39148.8340",
+    "status": 200,
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8341",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8341",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8342",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8342",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8343",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8343",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8344",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8344",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8345",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8345",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8346",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8346",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8347",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8347",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8348",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8348",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8349",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8349",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8350",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8350",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8351",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8351",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8352",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8352",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8353",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8353",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8354",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8354",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8355",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8355",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8356",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8356",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8357",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8357",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8358",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8358",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8359",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8359",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8360",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8360",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8361",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8361",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8362",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8362",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8363",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8363",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8364",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8364",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8365",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8365",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8366",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8366",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8367",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8367",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8368",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8368",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8369",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8369",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8370",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8370",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8371",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8371",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8372",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8372",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8373",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8373",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8374",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8374",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8375",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8375",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8376",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8376",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8377",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8377",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8378",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8378",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8379",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8379",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8380",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8380",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8381",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8381",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8382",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8382",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8383",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8383",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8384",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8384",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8385",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8385",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8386",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8386",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8387",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8387",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8388",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8388",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8389",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8389",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8390",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8390",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8391",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8391",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8392",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8392",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8393",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8393",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8394",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8394",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8395",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8395",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8396",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8396",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8397",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8397",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8398",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8398",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8399",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8399",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8400",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8400",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8401",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8401",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8402",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8402",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8403",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8403",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8404",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8404",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8405",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8405",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8406",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8406",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8407",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8407",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8408",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8408",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8409",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8409",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8410",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8410",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8411",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8411",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8412",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8412",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8413",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8413",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8414",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8414",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8415",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8415",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8416",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8416",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8417",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8417",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8418",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8418",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8419",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8419",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8420",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8420",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8421",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8421",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8422",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8422",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8423",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8423",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8424",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8424",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8425",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8425",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8426",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8426",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8427",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8427",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8428",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8428",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8429",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8429",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8430",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8430",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8431",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8431",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8432",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8432",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8433",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8433",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8434",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8434",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8435",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8435",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8436",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8436",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8437",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8437",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8438",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8438",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8439",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8439",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8440",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8440",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8441",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8441",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8442",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8442",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8443",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8443",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8444",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8444",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8445",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8445",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8446",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8446",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8447",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8447",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8448",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8448",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8449",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8449",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.32.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8450",
+    "method": "GET",
+    "command": "listWallAlertRules",
+    "params": {
+      "includestatus": "true",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listWallAlertRules",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8450",
+    "status": 200,
+    "command": "listWallAlertRules",
+    "url": "http://10.10.32.10:8080/client/api/?includestatus=true&page=1&pagesize=200&command=listWallAlertRules&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8451",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "listAll": "true",
+      "listall": "true",
+      "page": "1",
+      "pageSize": "200",
+      "pagesize": "200",
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listAll=true&listall=true&page=1&pageSize=200&pagesize=200&command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8452",
+    "method": "GET",
+    "command": "listVirtualMachines",
+    "params": {
+      "listAll": "true",
+      "listall": "true",
+      "details": "all",
+      "page": "1",
+      "pageSize": "200",
+      "pagesize": "200",
+      "command": "listVirtualMachines",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listAll=true&listall=true&details=all&page=1&pageSize=200&pagesize=200&command=listVirtualMachines&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8451",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?listAll=true&listall=true&page=1&pageSize=200&pagesize=200&command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8452",
+    "status": 200,
+    "command": "listVirtualMachines",
+    "url": "http://10.10.32.10:8080/client/api/?listAll=true&listall=true&details=all&page=1&pageSize=200&pagesize=200&command=listVirtualMachines&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8453",
+    "method": "GET",
+    "command": "listWallAlertSilences",
+    "params": {
+      "page": "1",
+      "pageSize": "1000",
+      "pagesize": "1000",
+      "states": "active",
+      "command": "listWallAlertSilences",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8453",
+    "status": 200,
+    "command": "listWallAlertSilences",
+    "url": "http://10.10.32.10:8080/client/api/?page=1&pageSize=1000&pagesize=1000&states=active&command=listWallAlertSilences&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8454",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8454",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8455",
+    "method": "GET",
+    "command": "listHostsMetrics",
+    "params": {
+      "command": "listHostsMetrics",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8455",
+    "status": 200,
+    "command": "listHostsMetrics",
+    "url": "http://10.10.32.10:8080/client/api/?command=listHostsMetrics&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8456",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8456",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8457",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8457",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8458",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8458",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8459",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8459",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8460",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8460",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8461",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8461",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8462",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8462",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "39148.8463",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8463",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8464",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8464",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8465",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "id",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8465",
+    "status": 200,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.32.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=id&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {}
+    }
+  },
+  {
+    "type": "request",
+    "id": "39148.8466",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "39148.8466",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.32.10:8080/client/api/?managementserverid=09c71016-1716-4de1-89ba-da513d7562e0&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  }
+]

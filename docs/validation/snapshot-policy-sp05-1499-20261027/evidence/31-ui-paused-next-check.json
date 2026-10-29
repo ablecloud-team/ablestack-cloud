@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "policy": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "paused": true,
+      "pending": 0
+    },
+    {
+      "policy": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "interval": 1,
+      "schedule": "59:23",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-26T23:59:00+00:00",
+      "independentNextUtc": "2026-10-26T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "aad169ce-112e-4959-8184-ae7a793463f5",
+      "interval": 2,
+      "schedule": "59:23:7",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-31T23:59:00+00:00",
+      "independentNextUtc": "2026-10-31T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "interval": 3,
+      "schedule": "59:23:28",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-28T23:59:00+00:00",
+      "independentNextUtc": "2026-10-28T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "paused": true,
+      "pending": 0
+    },
+    {
+      "policy": "309af718-6183-4def-be23-d6881a5c10c5",
+      "interval": 1,
+      "schedule": "59:23",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-26T23:59:00+00:00",
+      "independentNextUtc": "2026-10-26T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "interval": 2,
+      "schedule": "59:23:7",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-31T23:59:00+00:00",
+      "independentNextUtc": "2026-10-31T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "interval": 3,
+      "schedule": "59:23:28",
+      "timezone": "UTC",
+      "actualNextUtc": "2026-10-28T23:59:00+00:00",
+      "independentNextUtc": "2026-10-28T23:59:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "interval": 1,
+      "schedule": "07:15",
+      "timezone": "Asia/Seoul",
+      "actualNextUtc": "2026-10-27T06:07:00+00:00",
+      "independentNextUtc": "2026-10-27T06:07:00+00:00",
+      "matched": true
+    },
+    {
+      "policy": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "interval": 1,
+      "schedule": "07:15",
+      "timezone": "Asia/Seoul",
+      "actualNextUtc": "2026-10-27T06:07:00+00:00",
+      "independentNextUtc": "2026-10-27T06:07:00+00:00",
+      "matched": true
+    }
+  ]
+}

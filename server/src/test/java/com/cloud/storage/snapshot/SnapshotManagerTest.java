@@ -478,7 +478,7 @@ public class SnapshotManagerTest {
     @Test
     public void validateUpdateSnapshotPolicy(){
         Mockito.doReturn(true).when(snapshotPolicyDaoMock).update(anyLong(), any());
-        Mockito.doNothing().when(snapshotSchedulerMock).scheduleOrCancelNextSnapshotJobOnDisplayChange(any(), Mockito.anyBoolean());
+
         Mockito.doReturn(true).when(taggedResourceServiceMock).deleteTags(any(), any(), any());
 
         SnapshotPolicyVO snapshotPolicyVo = new SnapshotPolicyVO(TEST_VOLUME_ID, TEST_SNAPSHOT_POLICY_SCHEDULE, TEST_SNAPSHOT_POLICY_TIMEZONE, TEST_SNAPSHOT_POLICY_INTERVAL,
@@ -525,11 +525,16 @@ public class SnapshotManagerTest {
     }
 
     private void testPersistSnapshotPolicyLockAcquired(boolean forUpdate) {
-        try (MockedStatic<GlobalLock> ignored = Mockito.mockStatic(GlobalLock.class)) {
+        try (MockedStatic<com.cloud.utils.db.Transaction> tx = Mockito.mockStatic(com.cloud.utils.db.Transaction.class);
+             MockedStatic<GlobalLock> ignored = Mockito.mockStatic(GlobalLock.class)) {
+            tx.when(() -> com.cloud.utils.db.Transaction.execute(Mockito.any(com.cloud.utils.db.TransactionCallback.class)))
+                    .thenAnswer(i -> ((com.cloud.utils.db.TransactionCallback<?>) i.getArgument(0)).doInTransaction(null));
+            Mockito.lenient().when(snapshotPolicyDaoMock.lockRow(Mockito.anyLong(), Mockito.eq(true))).thenAnswer(i -> snapshotPolicyVoInstance);
 
             BDDMockito.given(GlobalLock.getInternLock(Mockito.anyString())).willReturn(globalLockMock);
             Mockito.doReturn(true).when(globalLockMock).lock(Mockito.anyInt());
             List<SnapshotPolicyVO> persistedPolicies = new ArrayList<>();
+            Mockito.when(volumeMock.getState()).thenReturn(Volume.State.Ready);
             List<SnapshotPolicyVO> updatedPolicies = new ArrayList<>();
             Mockito.when(snapshotPolicyDaoMock.persist(Mockito.any(SnapshotPolicyVO.class))).thenAnswer((Answer<SnapshotPolicyVO>) invocation -> {
                 SnapshotPolicyVO policy = (SnapshotPolicyVO)invocation.getArguments()[0];

@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "testSource": "b4fe893857ce6d582bda5eca1ed0f11455910c5b",
+  "deployedSource": "388fa05d02e1d18b9192ce27d7cd885ea9223de5",
+  "classHashesMatch": {
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": true,
+    "com/cloud/tags/TaggedResourceManagerImpl.class": true,
+    "com/cloud/tags/TaggedResourceManagerImpl$1.class": true
+  }
+}

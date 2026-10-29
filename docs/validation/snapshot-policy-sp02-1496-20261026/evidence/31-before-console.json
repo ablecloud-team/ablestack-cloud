@@ -1,0 +1,8 @@
+[
+  {
+    "level": "error",
+    "message": "Unknown API command: listvolumes",
+    "timestamp": "2026-10-26T10:14:30.143Z",
+    "url": "http://10.10.31.10:8080/client/js/vendors.a26facc0.js"
+  }
+]

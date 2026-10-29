@@ -1,0 +1,1 @@
+{"activeVolumes": 0, "policies": 0, "schedules": 0, "activeSnapshots": 0, "nonterminalCopies": 0, "pendingJobs": 0, "activeTestAccount": 0, "accountResourceLimits": 0, "tags": 0, "policyDetails": 0, "volumeHistory": [{"state": "Expunged", "n": 3}], "snapshotHistory": [], "mold": "active", "clientHttp": 200, "WEB-INF": true, "passed": true}

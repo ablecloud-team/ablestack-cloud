@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "cluster": "31",
+      "path": "root-create",
+      "policyUuid": "dd30de24-507a-4601-8c03-e79ff4b8a7be",
+      "schedule": "59:23:1",
+      "timezone": "UTC",
+      "nextUtc": "2026-11-01 23:59:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "path": "root-edit",
+      "policyUuid": "dd30de24-507a-4601-8c03-e79ff4b8a7be",
+      "schedule": "59:23:28",
+      "timezone": "UTC",
+      "nextUtc": "2026-10-28 23:59:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "path": "volume-create",
+      "policyUuid": "548ee28c-5cad-43fe-a739-c68bce0c63b6",
+      "schedule": "58:23:28",
+      "timezone": "Asia/Seoul",
+      "nextUtc": "2026-10-28 14:58:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "path": "volume-edit",
+      "policyUuid": "548ee28c-5cad-43fe-a739-c68bce0c63b6",
+      "schedule": "58:23:1",
+      "timezone": "Asia/Seoul",
+      "nextUtc": "2026-11-01 14:58:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "path": "root-create",
+      "policyUuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "schedule": "59:23:28",
+      "timezone": "Asia/Seoul",
+      "nextUtc": "2026-10-28 14:59:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "path": "root-edit",
+      "policyUuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "schedule": "59:23:1",
+      "timezone": "Asia/Seoul",
+      "nextUtc": "2026-11-01 14:59:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "path": "volume-create",
+      "policyUuid": "05490830-882f-41d5-9d33-4be8605f10e7",
+      "schedule": "58:23:1",
+      "timezone": "UTC",
+      "nextUtc": "2026-11-01 23:58:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "path": "volume-edit",
+      "policyUuid": "05490830-882f-41d5-9d33-4be8605f10e7",
+      "schedule": "58:23:28",
+      "timezone": "UTC",
+      "nextUtc": "2026-10-28 23:58:00",
+      "maxSnaps": 2,
+      "tagPreserved": true,
+      "passed": true
+    }
+  ]
+}

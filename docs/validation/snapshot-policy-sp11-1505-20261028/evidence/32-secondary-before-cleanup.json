@@ -1,0 +1,18 @@
+[
+  {
+    "id": "4e820281-818b-4feb-94b3-957691b3526b",
+    "state": "Ready",
+    "path": "snapshots/2/559/6e72c21d-b067-4d3b-9402-fc7a98ec6792",
+    "present": true,
+    "size": 196624,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  },
+  {
+    "id": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+    "state": "Ready",
+    "path": "snapshots/2/558/62a86bd2-e30b-4702-9a6d-1b98287216e1",
+    "present": true,
+    "size": 196624,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  }
+]

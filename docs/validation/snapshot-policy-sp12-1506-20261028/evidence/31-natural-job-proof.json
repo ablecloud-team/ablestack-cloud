@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "actualSchedulerJobs": [
+    {
+      "job_uuid": "0c50cac8-7ae0-47bc-bedb-5f024be22ea0",
+      "user_id": 1,
+      "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "job_status": 1,
+      "job_result_code": 0,
+      "snapshot_uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+      "status": "Destroyed"
+    },
+    {
+      "job_uuid": "2d2d29e2-495f-4bc4-9d28-22ce00f32021",
+      "user_id": 1,
+      "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "job_status": 1,
+      "job_result_code": 0,
+      "snapshot_uuid": "968e98e4-d45a-4036-8010-7d40e6483e83",
+      "status": "BackedUp"
+    }
+  ],
+  "apiCreateSnapshotCallsForThisVolume": 0
+}

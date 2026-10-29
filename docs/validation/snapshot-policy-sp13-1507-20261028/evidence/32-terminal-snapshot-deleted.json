@@ -1,0 +1,64 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 278,
+        "height": 111,
+        "left": 68,
+        "right": 760,
+        "top": 167,
+        "width": 692,
+        "x": 68,
+        "y": 167
+      },
+      "text": "/스냅샷/detached_SP13-1507-32-admin-5-한글_20261028031426업데이트\n작업"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 253,
+        "height": 55,
+        "left": 414,
+        "right": 735,
+        "top": 198,
+        "width": 321,
+        "x": 414,
+        "y": 198
+      },
+      "text": "작업"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+    ""
+  ],
+  "pageWidth": 758,
+  "rows": [],
+  "tabs": [
+    {
+      "selected": "true",
+      "text": "상세"
+    },
+    {
+      "selected": "false",
+      "text": "Zone"
+    },
+    {
+      "selected": "false",
+      "text": "이벤트"
+    },
+    {
+      "selected": "false",
+      "text": "코멘트"
+    }
+  ],
+  "theme": "light",
+  "url": "http://10.10.32.10:8080/client/#/snapshot/d2452a4a-1bcd-4ba3-814c-4e97205cbae8",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

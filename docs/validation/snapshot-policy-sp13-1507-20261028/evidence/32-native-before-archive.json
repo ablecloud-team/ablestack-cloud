@@ -1,0 +1,13 @@
+{
+  "volume": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+  "path": "bfc12155-b9e2-407d-a63e-34523297a216",
+  "snapshots": [
+    {
+      "id": 618,
+      "name": "eb359c8e-11ba-415d-a90b-cae7c25e3151",
+      "size": 1073741824,
+      "protected": "false",
+      "timestamp": "Wed Oct 28 12:14:29 2026"
+    }
+  ]
+}

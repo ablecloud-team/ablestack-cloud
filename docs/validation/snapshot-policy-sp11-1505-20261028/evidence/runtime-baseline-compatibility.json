@@ -1,0 +1,57 @@
+[
+  {
+    "cluster": "31",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 10,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 5,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 152,
+    "changedMethods": [
+      "public com.cloud.utils.Pair<java.util.List<? extends com.cloud.storage.snapshot.SnapshotPolicy>, java.lang.Integer> listSnapshotPolicies(org.apache.cloudstack.api.command.user.snapshot.ListSnapshotPoliciesCmd);"
+    ],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 8,
+    "changedMethods": [],
+    "addedMethods": [
+      "public boolean isIgnoreProject();",
+      "public java.lang.Boolean getDisplay();"
+    ]
+  },
+  {
+    "cluster": "32",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 5,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 152,
+    "changedMethods": [
+      "public com.cloud.utils.Pair<java.util.List<? extends com.cloud.storage.snapshot.SnapshotPolicy>, java.lang.Integer> listSnapshotPolicies(org.apache.cloudstack.api.command.user.snapshot.ListSnapshotPoliciesCmd);"
+    ],
+    "addedMethods": []
+  }
+]

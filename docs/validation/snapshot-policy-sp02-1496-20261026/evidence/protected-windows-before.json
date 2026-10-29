@@ -1,0 +1,6 @@
+{
+  "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+  "branch": "feature/ftctl-cloud-integration",
+  "status": " M docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md\n M plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java\n M plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java\n",
+  "diffHash": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e"
+}

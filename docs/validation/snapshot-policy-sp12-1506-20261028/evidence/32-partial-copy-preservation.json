@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "snapshotId": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+  "actualPartialCopyDeletion": "Primary removed by archive; Secondary and logical snapshot retained",
+  "snapshot": {
+    "id": 267,
+    "uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+    "volume_id": 566,
+    "status": "BackedUp",
+    "created": "2026-10-28 00:28:03",
+    "removed": null,
+    "path": null,
+    "backup_snap_id": null
+  },
+  "tags": [
+    {
+      "id": 438,
+      "resource_uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "key": "sp12-natural",
+      "value": "1506-자연-보관1",
+      "resource_type": "Snapshot"
+    }
+  ],
+  "copies": [
+    {
+      "uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "store_id": 3,
+      "store_role": "Primary",
+      "state": "Destroyed",
+      "install_path": "rbd/09107f44-f82b-4960-85b7-3a3073303e4b/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "job_id": null
+    },
+    {
+      "uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/566/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "job_id": null
+    }
+  ],
+  "secondaryFileUnchanged": [
+    {
+      "id": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "state": "Ready",
+      "path": "snapshots/2/566/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "present": true,
+      "size": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "nativeSnapshotProbe": {
+    "passed": true,
+    "image": "rbd/09107f44-f82b-4960-85b7-3a3073303e4b",
+    "remainingNativeSnapshots": []
+  }
+}

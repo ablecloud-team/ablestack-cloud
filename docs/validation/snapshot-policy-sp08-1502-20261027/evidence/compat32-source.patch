@@ -1,0 +1,26 @@
+--- a/api/src/main/java/org/apache/cloudstack/api/response/CapabilitiesResponse.java
++++ b/api/src/main/java/org/apache/cloudstack/api/response/CapabilitiesResponse.java
+@@ -35,13 +35,6 @@
+         this.snapshotPolicyMax = snapshotPolicyMax;
+     }
+ 
+-    @SerializedName("userdatamaxlength")
+-    @Param(description = "Maximum user data length in canonical Base64 encoded bytes")
+-    private Integer userDataMaxLength;
+-
+-    public void setUserDataMaxLength(Integer userDataMaxLength) {
+-        this.userDataMaxLength = userDataMaxLength;
+-    }
+     @SerializedName("securitygroupsenabled")
+     @Param(description = "True if security groups support is enabled, false otherwise")
+     private boolean securityGroupsEnabled;
+--- a/api/src/main/java/org/apache/cloudstack/api/command/user/config/ListCapabilitiesCmd.java
++++ b/api/src/main/java/org/apache/cloudstack/api/command/user/config/ListCapabilitiesCmd.java
+@@ -53,7 +53,6 @@
+         Map<String, Object> capabilities = _mgr.listCapabilities(this);
+         CapabilitiesResponse response = new CapabilitiesResponse();
+         response.setSnapshotPolicyMax(snapshotPolicyMaxima());
+-        response.setUserDataMaxLength((Integer) capabilities.get("userdatamaxlength"));
+         response.setSecurityGroupsEnabled((Boolean)capabilities.get("securityGroupsEnabled"));
+         response.setDynamicRolesEnabled(roleService.isEnabled());
+         response.setCloudStackVersion((String)capabilities.get("cloudStackVersion"));

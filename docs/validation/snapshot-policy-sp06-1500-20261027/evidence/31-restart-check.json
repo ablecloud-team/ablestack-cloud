@@ -1,0 +1,62 @@
+{
+  "cluster": "31",
+  "passed": true,
+  "checks": [
+    {
+      "policy": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+      "before": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "after": {
+        "id": 33,
+        "uuid": "2c0c56e5-8bfd-4bd6-8b73-831dcdef9ec3",
+        "volume_id": 1120,
+        "policy_id": 54,
+        "scheduled_timestamp": "2026-10-26 15:17:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "267624e2-878e-43ac-8d7c-e321a81d6f3e",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "unchanged": true
+    },
+    {
+      "policy": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+      "before": {
+        "id": 41,
+        "uuid": "f5b28e61-9e04-4f36-970b-6fab22a447cc",
+        "volume_id": 1121,
+        "policy_id": 59,
+        "scheduled_timestamp": "2026-11-01 14:38:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "after": {
+        "id": 41,
+        "uuid": "f5b28e61-9e04-4f36-970b-6fab22a447cc",
+        "volume_id": 1121,
+        "policy_id": 59,
+        "scheduled_timestamp": "2026-11-01 14:38:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "c70e98b2-1f17-45d8-9b83-515b133580b7",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "unchanged": true
+    }
+  ]
+}

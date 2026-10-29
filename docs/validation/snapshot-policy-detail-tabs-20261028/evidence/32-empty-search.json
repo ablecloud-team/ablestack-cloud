@@ -1,0 +1,45 @@
+{
+  "app": [
+    "http://10.10.32.10:8080/client/js/app.ce659810.js"
+  ],
+  "button": {
+    "background": "rgb(24, 144, 255)",
+    "border": "rgb(24, 144, 255)",
+    "color": "rgb(255, 255, 255)",
+    "disabled": false,
+    "height": 32,
+    "opacity": "1",
+    "width": 79.765625,
+    "x": 1167.234375,
+    "y": 166
+  },
+  "dark": true,
+  "errors": [],
+  "eventRows": [],
+  "headers": [
+    "레벨",
+    "유형",
+    "상태",
+    "사용자 이름",
+    "계정",
+    "도메인",
+    "생성일"
+  ],
+  "pagination": "전체 0개 항목 중 0-0 표시110 / 쪽",
+  "search": "SP-없는이벤트-20261028",
+  "tabClass": "ant-tabs ant-tabs-left",
+  "tabs": [
+    {
+      "selected": "false",
+      "text": "상세"
+    },
+    {
+      "selected": "true",
+      "text": "이벤트"
+    }
+  ],
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

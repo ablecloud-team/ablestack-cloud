@@ -1,0 +1,8 @@
+{
+  "source": "ddafa9bcee40806a1d03de539d89a9522920accd",
+  "volumeTabCancel": {
+    "tag": "BODY",
+    "passed": false
+  },
+  "fix": "defer parent teardown until Modal.afterClose"
+}

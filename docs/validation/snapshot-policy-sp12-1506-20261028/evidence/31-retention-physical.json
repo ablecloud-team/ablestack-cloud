@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "secondary": [
+    {
+      "uuid": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+      "status": "Destroyed",
+      "store_role": "Image",
+      "state": "Destroyed",
+      "install_path": "snapshots/2/1159/c5ac8154-6759-4107-9515-d7bb587c7484",
+      "present": false,
+      "size": null
+    },
+    {
+      "uuid": "968e98e4-d45a-4036-8010-7d40e6483e83",
+      "status": "BackedUp",
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1159/ffbd8ea9-d831-4ec2-bf9a-9924c85b3b1f",
+      "present": true,
+      "size": 196624
+    }
+  ]
+}

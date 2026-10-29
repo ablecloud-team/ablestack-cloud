@@ -1,0 +1,718 @@
+{
+  "app": [
+    "http://10.10.32.10:8080/client/js/app.7b6d9f14.js"
+  ],
+  "buttons": [
+    {
+      "disabled": false,
+      "height": 32,
+      "text": "정기 스냅샷 생성",
+      "width": 153.84375,
+      "x": 419,
+      "y": 198
+    }
+  ],
+  "checks": [
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    }
+  ],
+  "header": [
+    {
+      "height": 69,
+      "text": "",
+      "width": 32,
+      "x": 92,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "간격 유형",
+      "width": 65.15625,
+      "x": 124,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "최대 스냅샷 수",
+      "width": 79.984375,
+      "x": 189.15625,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "스케줄",
+      "width": 83.40625,
+      "x": 269.140625,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "시간대",
+      "width": 151.625,
+      "x": 352.546875,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "볼륨 이름",
+      "width": 145.625,
+      "x": 504.171875,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "미래 예약",
+      "width": 50.203125,
+      "x": 649.796875,
+      "y": 295
+    },
+    {
+      "height": 69,
+      "text": "",
+      "width": 36,
+      "x": 700,
+      "y": 295
+    }
+  ],
+  "pageWidth": 758,
+  "popup": {
+    "background": "rgb(39, 46, 54)",
+    "cells": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "12"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "01"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "02"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "03"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "04"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "05"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "06"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "07"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "08"
+      },
+      {
+        "background": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": true,
+        "text": "09"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "10"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "11"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "00"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "01"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "02"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "03"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "04"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "05"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "06"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "07"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "08"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "09"
+      },
+      {
+        "background": "rgb(23, 55, 90)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": true,
+        "text": "10"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "11"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "12"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "13"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "14"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "15"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "16"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "17"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "18"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "19"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "20"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "21"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "22"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "23"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "24"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "25"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "26"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "27"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "28"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "29"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "30"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "31"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "32"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "33"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "34"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "35"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "36"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "37"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "38"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "39"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "40"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "41"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "42"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "43"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "44"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "45"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "46"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "47"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "48"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "49"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "50"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "51"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "52"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "53"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "54"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "55"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "56"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "57"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "58"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "59"
+      },
+      {
+        "background": "rgb(44, 52, 61)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": true,
+        "text": "AM"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "disabled": false,
+        "selected": false,
+        "text": "PM"
+      }
+    ],
+    "class": "ant-picker-dropdown snapshot-policy-time-dropdown ant-picker-dropdown-placement-bottomLeft",
+    "rect": {
+      "height": 273,
+      "width": 168,
+      "x": 53,
+      "y": 375
+    }
+  },
+  "rows": [
+    "daab54bf-8ce4-415b-8253-b82781e3cdaa",
+    "9547fff4-c004-43cb-950d-61d867843cb6",
+    "35c365b3-95b4-40b6-9507-2039f188051c",
+    "c82a1e77-b858-43c3-8a10-bc24736536af",
+    "c8633a7e-3496-466f-9997-1c7dccd565cd",
+    "9587cb97-6276-474d-aa4f-418e761e0924",
+    "5cba59e9-d816-4570-85d8-6ae673d90e12",
+    "10aa07bf-3aaa-4d5f-b185-ebb1a6452dd3",
+    "945b00ff-67e2-4158-9e69-e12b522da268",
+    "c884c230-b906-4dbb-a8e6-cd25c4b4c3dc",
+    "2ddabaa7-6125-4a90-baf0-4e5b5c537f52",
+    "63f774c7-f130-4094-83a1-f5db7626581c",
+    "84bfbdbe-b81d-4ba6-ba81-7a7a53c82043",
+    "0395e3b3-41e2-441b-a409-f358f5cb5ebd",
+    "776ce422-0d30-48f6-9ebf-c7953a4632a4",
+    "d92ff684-7a0b-4843-8de8-7264aa51ed45",
+    "3b87525e-cb5a-456b-986b-c39d2f84456f",
+    "6f680a19-893c-4c04-aa29-465da7ece815",
+    "27223b3f-a22f-4d2e-86af-a8af99f974a3",
+    "25f7aa4e-766f-4706-92eb-a34fca7a28d1"
+  ],
+  "theme": "dark",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?projectid=0&page=1&pagesize=20&sortkey=id&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

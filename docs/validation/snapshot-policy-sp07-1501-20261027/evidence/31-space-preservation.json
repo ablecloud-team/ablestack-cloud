@@ -1,0 +1,159 @@
+{
+  "purpose": "space preservation without changing storage threshold or restarting services",
+  "prometheusPid": 2491742,
+  "walSourceVersion": "3.5.1",
+  "walSource": "https://github.com/prometheus/prometheus/blob/v3.5.1/tsdb/wlog/wlog.go",
+  "archive": "/var/lib/ablestack-space-preserved/sp07-1501-20261027/prometheus-wal",
+  "files": [
+    {
+      "name": "00000610",
+      "source": "/nfs/prometheus/wal/00000610",
+      "size": 134217728,
+      "allocatedBefore": 134217728,
+      "inodeBefore": 21281895,
+      "mtimeNs": 1792692704378504075,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "d7dbb64b3c1f5f62818f3a1770fcb642e782790862e836f8c7c0ea80e080bca2",
+      "preserved": true
+    },
+    {
+      "name": "00000611",
+      "source": "/nfs/prometheus/wal/00000611",
+      "size": 77299712,
+      "allocatedBefore": 77299712,
+      "inodeBefore": 21281882,
+      "mtimeNs": 1792695601278262179,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "77d2062808846a13329ed89f9c8920579d30338828acffbd2371fe30ddd17e91",
+      "preserved": true
+    },
+    {
+      "name": "00000612",
+      "source": "/nfs/prometheus/wal/00000612",
+      "size": 134217728,
+      "allocatedBefore": 134217728,
+      "inodeBefore": 21281907,
+      "mtimeNs": 1792700008155908001,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "a13b2f348ce8bde6edea04e9570cb5c550cea80b467c08d7ad4cc600101408e5",
+      "preserved": true
+    },
+    {
+      "name": "00000613",
+      "source": "/nfs/prometheus/wal/00000613",
+      "size": 85393408,
+      "allocatedBefore": 85393408,
+      "inodeBefore": 21281900,
+      "mtimeNs": 1792702801225733696,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "4e869c4c65c44dd278cf2a319957185b23793c17829ed6ef4fb61f05b864848d",
+      "preserved": true
+    },
+    {
+      "name": "00000614",
+      "source": "/nfs/prometheus/wal/00000614",
+      "size": 134217728,
+      "allocatedBefore": 134217728,
+      "inodeBefore": 21281910,
+      "mtimeNs": 1792707202753947577,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "263b25cf8940c0f5119ee0eb107e1600124f14fb238d0dd1eeb68e197a16c3a1",
+      "preserved": true
+    },
+    {
+      "name": "00000615",
+      "source": "/nfs/prometheus/wal/00000615",
+      "size": 85524480,
+      "allocatedBefore": 85524480,
+      "inodeBefore": 21281914,
+      "mtimeNs": 1792710001188581129,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "f7064a1a89469e410b687c8022f55177713e6015118e2cc9eeaad88e73242a4f",
+      "preserved": true
+    },
+    {
+      "name": "00000616",
+      "source": "/nfs/prometheus/wal/00000616",
+      "size": 134217728,
+      "allocatedBefore": 134217728,
+      "inodeBefore": 91794843,
+      "mtimeNs": 1792714398138504479,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "ef96e8052874508d7dcf54cff5cae41b0f06f460bdfd2e95530ce038c9640824",
+      "preserved": true
+    },
+    {
+      "name": "00000617",
+      "source": "/nfs/prometheus/wal/00000617",
+      "size": 85721088,
+      "allocatedBefore": 85721088,
+      "inodeBefore": 21281902,
+      "mtimeNs": 1792717201216269658,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "105ddfb12fe1305fbc4841f93a217b54ffbaf32929bcef007e07a65ed5394502",
+      "preserved": true
+    },
+    {
+      "name": "00000618",
+      "source": "/nfs/prometheus/wal/00000618",
+      "size": 134217728,
+      "allocatedBefore": 134217728,
+      "inodeBefore": 91794845,
+      "mtimeNs": 1792721494673718639,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "b335c79239338b0014be13bcee7107786df59d5949bc8b8c01c11bb5cd223cef",
+      "preserved": true
+    },
+    {
+      "name": "00000619",
+      "source": "/nfs/prometheus/wal/00000619",
+      "size": 91160576,
+      "allocatedBefore": 91160576,
+      "inodeBefore": 91794871,
+      "mtimeNs": 1792724401214329106,
+      "mode": 420,
+      "uid": 0,
+      "gid": 0,
+      "sha256": "5765c907d533bb1754bb6225d32f60096dc9fd9dc44a03e430dfe46360494371",
+      "preserved": true
+    }
+  ],
+  "nfsUsedBefore": 338136207360,
+  "state": "complete",
+  "passed": true,
+  "nfsUsedAfter": 337039720448,
+  "freedBytes": 1096486912,
+  "pidUnchanged": true,
+  "readyHttp": 200,
+  "queries": {
+    "recent": {
+      "time": 1793063321,
+      "series": 50,
+      "unchanged": true
+    },
+    "history": {
+      "time": 1792804121,
+      "series": 50,
+      "unchanged": true
+    }
+  },
+  "rootArchiveBytes": 1096187904
+}

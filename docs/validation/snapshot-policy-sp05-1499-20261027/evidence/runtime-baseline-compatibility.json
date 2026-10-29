@@ -1,0 +1,22 @@
+[
+  {
+    "cluster": "31",
+    "class": "com.cloud.storage.snapshot.SnapshotManagerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "31",
+    "class": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "32",
+    "class": "com.cloud.storage.snapshot.SnapshotManagerImpl",
+    "baselineMethodBytecodeUnchanged": true
+  },
+  {
+    "cluster": "32",
+    "class": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd",
+    "baselineMethodBytecodeUnchanged": true
+  }
+]

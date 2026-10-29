@@ -1,0 +1,1762 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "sameUuidEdit": "8d482985-7af1-4d1a-ada4-caf09a954077",
+      "interval": "hourly",
+      "response": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "uniqueIntervalCount": 4
+    },
+    {
+      "sameUuidEdit": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+      "interval": "daily",
+      "response": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "id": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59:23",
+        "intervaltype": 1,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "uniqueIntervalCount": 4
+    },
+    {
+      "sameUuidEdit": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+      "interval": "weekly",
+      "response": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "id": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "0:0:1",
+        "intervaltype": 2,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "uniqueIntervalCount": 4
+    },
+    {
+      "sameUuidEdit": "b9eef16b-101a-4397-9526-47e28ca55079",
+      "interval": "monthly",
+      "response": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "id": "b9eef16b-101a-4397-9526-47e28ca55079",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "b9eef16b-101a-4397-9526-47e28ca55079",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "uniqueIntervalCount": 4
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "-1",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "60",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "1.5",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 0,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "maxsnaps must be a whole number between 1 and 8 for HOURLY."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": -1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "maxsnaps must be a whole number between 1 and 8 for HOURLY."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": "1.5",
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to invalid value 1.5 for parameter maxsnaps"
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "hourly",
+        "schedule": "59",
+        "timezone": "Bad/Timezone",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "timezone must identify a supported time zone."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "monthly",
+        "schedule": "0:0:29",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "daily",
+        "schedule": "0:24",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for DAILY must use MM:HH with whole numbers: minute 0-59; hour 0-23."
+        }
+      }
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "intervaltype": "weekly",
+        "schedule": "0:0:0",
+        "timezone": "UTC",
+        "maxsnaps": 1,
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      }
+    },
+    {
+      "pauseResume": true,
+      "policy": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": true,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-28T12:04:21+0900",
+          "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+          "schedulingenabled": true,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "SCHEDULED",
+          "nextscheduled": "2026-10-28T12:59:00+0900",
+          "currentjobknown": false
+        },
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": true,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "pauseResume": false,
+      "policy": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-28T12:04:22+0900",
+          "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "pauseResume": true,
+      "policy": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": true,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-28T12:04:23+0900",
+          "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+          "schedulingenabled": true,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "SCHEDULED",
+          "nextscheduled": "2026-10-28T12:59:00+0900",
+          "currentjobknown": false
+        },
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": true,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "pauseResume": false,
+      "policy": {
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-28T12:04:24+0900",
+          "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volumeid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "volumename": "SP13-1507-31-admin-1-한글",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 1,
+        "timezone": "America/New_York",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-contract",
+            "value": "경계값",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    }
+  ],
+  "database": {
+    "at": "2026-10-28 03:04:24.815487",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1170,
+        "uuid": "107b6c9e-d633-4f70-8f60-7c456b0aeb07",
+        "name": "SP13-1507-31-owner-a-한글",
+        "state": "Ready",
+        "path": "7c061bbf-9e0c-4c52-ac52-614c3a40dc6e",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1167,
+        "uuid": "135069aa-29cd-450d-aab6-b38c07726cb2",
+        "name": "SP13-1507-31-admin-3-한글",
+        "state": "Ready",
+        "path": "6d4ef154-265a-4cfc-a9ac-61af1a91909d",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1168,
+        "uuid": "29fa9b10-7b77-42ee-ad50-4f6dabfd43c5",
+        "name": "SP13-1507-31-admin-4-한글",
+        "state": "Ready",
+        "path": "bd3327e8-e237-4738-97f2-334fa1287659",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1164,
+        "uuid": "4a2c2061-910c-4d4f-9828-2b3b07bef6ce",
+        "name": "SP13-1507-31-admin-0-한글",
+        "state": "Ready",
+        "path": "4100c6fe-bd80-4374-a04d-166403cd6ea8",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1172,
+        "uuid": "5aba93d0-2bcd-441a-8e9f-fbf91f67ce82",
+        "name": "SP13-1507-31-domain-admin-한글",
+        "state": "Ready",
+        "path": "5390e8a1-5f5c-4244-a159-890df15a6ada",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1171,
+        "uuid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "name": "SP13-1507-31-owner-b-한글",
+        "state": "Ready",
+        "path": "189b257d-f4d7-4e36-abf4-9e5d2d48780a",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1169,
+        "uuid": "83c54ddb-92ce-4fb7-b888-776e9bf6a0b2",
+        "name": "SP13-1507-31-admin-5-한글",
+        "state": "Ready",
+        "path": "b2eb1fb5-fc7f-4d54-86de-982b9504bd42",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1166,
+        "uuid": "c723005a-dd3a-47c7-8f53-b300981a5616",
+        "name": "SP13-1507-31-admin-2-한글",
+        "state": "Ready",
+        "path": "6e8eb6b8-0eff-4f33-98eb-9a555bd2a9cb",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1165,
+        "uuid": "cdda1b19-7a65-4422-b9e0-dd89873108fa",
+        "name": "SP13-1507-31-admin-1-한글",
+        "state": "Ready",
+        "path": "56b5d9be-64c4-46e2-85d8-7f369ed21ac9",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1173,
+        "uuid": "df6800d0-2622-4cf0-8fc8-26651297d69c",
+        "name": "SP13-1507-31-project-한글",
+        "state": "Ready",
+        "path": "87f044c0-7af7-4f14-a139-dcfead104f38",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 218,
+        "uuid": "f82f72a9-851d-48e8-a252-808dbd8bfe69",
+        "volume_id": 1170,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 219,
+        "uuid": "91ed7999-5aee-4460-93cf-08edf9a4e67c",
+        "volume_id": 1170,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 220,
+        "uuid": "bc20208f-3e30-4e42-aa46-871d482386c8",
+        "volume_id": 1170,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 221,
+        "uuid": "465c45fd-3b90-433e-b329-e5a7208a2c9f",
+        "volume_id": 1170,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 3
+      },
+      {
+        "id": 206,
+        "uuid": "f9ab2796-53ba-4e28-8846-4e8a80b8613e",
+        "volume_id": 1167,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 207,
+        "uuid": "03eebff5-96eb-4df4-9a65-1f85c2e83e2f",
+        "volume_id": 1167,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 208,
+        "uuid": "5ec04d50-96ca-48cd-a3f7-1d2c941a6ec2",
+        "volume_id": 1167,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 209,
+        "uuid": "135e27a7-847c-4518-8f2d-5f8e2e876c02",
+        "volume_id": 1167,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 210,
+        "uuid": "fa6d2e09-3963-4d45-bd91-970e9e86c641",
+        "volume_id": 1168,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 211,
+        "uuid": "388c186f-8f14-4ee5-a02a-c79669a83363",
+        "volume_id": 1168,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 212,
+        "uuid": "f7765413-2d0d-4daa-bd4d-fdba82092a35",
+        "volume_id": 1168,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 213,
+        "uuid": "e5156a62-9dfc-4ffe-b633-939e59759d06",
+        "volume_id": 1168,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 226,
+        "uuid": "391d8a78-7971-4ec8-bfe0-a0eab2c1a468",
+        "volume_id": 1172,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 227,
+        "uuid": "dacd29f5-9892-4472-9da4-c98fd98c5d95",
+        "volume_id": 1172,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 228,
+        "uuid": "58d2de15-7ef9-43f0-a491-b82bed3f48be",
+        "volume_id": 1172,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 229,
+        "uuid": "a47e95fd-864a-4f12-b8ba-96384885764e",
+        "volume_id": 1172,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 222,
+        "uuid": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+        "volume_id": 1171,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 223,
+        "uuid": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+        "volume_id": 1171,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 224,
+        "uuid": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+        "volume_id": 1171,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 225,
+        "uuid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+        "volume_id": 1171,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 214,
+        "uuid": "d32af797-c770-47da-bbae-920c62af1fa2",
+        "volume_id": 1169,
+        "schedule": "11",
+        "timezone": "UTC",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 1
+      },
+      {
+        "id": 215,
+        "uuid": "1fa6f158-a9ad-45cb-a29d-9501d963fc6a",
+        "volume_id": 1169,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 216,
+        "uuid": "728c9048-d663-4593-9a2c-1c08d03330a7",
+        "volume_id": 1169,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 217,
+        "uuid": "9780f625-3e3c-45c4-9704-0e6f6b1187dc",
+        "volume_id": 1169,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 202,
+        "uuid": "a2f6cffc-06b4-4371-9e0d-77f07d8e7bfd",
+        "volume_id": 1166,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 203,
+        "uuid": "8e62c2fa-08d5-43cd-880c-4db6674d4ba5",
+        "volume_id": 1166,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 204,
+        "uuid": "8711410f-56e3-4abd-866f-44beeb691b16",
+        "volume_id": 1166,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 205,
+        "uuid": "dfb616cb-b9d2-43a0-ae61-3392b304b4f9",
+        "volume_id": 1166,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 198,
+        "uuid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "volume_id": 1165,
+        "schedule": "59",
+        "timezone": "America/New_York",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 1
+      },
+      {
+        "id": 199,
+        "uuid": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+        "volume_id": 1165,
+        "schedule": "59:23",
+        "timezone": "America/New_York",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 1
+      },
+      {
+        "id": 200,
+        "uuid": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+        "volume_id": 1165,
+        "schedule": "0:0:1",
+        "timezone": "America/New_York",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 1
+      },
+      {
+        "id": 201,
+        "uuid": "b9eef16b-101a-4397-9526-47e28ca55079",
+        "volume_id": 1165,
+        "schedule": "59:23:28",
+        "timezone": "America/New_York",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 1
+      },
+      {
+        "id": 230,
+        "uuid": "7fbc8b73-a4d4-4a2d-9854-60a081aef149",
+        "volume_id": 1173,
+        "schedule": "5",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 231,
+        "uuid": "dd752171-70ff-4e52-bed7-7c737c0a85af",
+        "volume_id": 1173,
+        "schedule": "9:7",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 232,
+        "uuid": "53dcfead-f910-4d21-a827-10615df750f1",
+        "volume_id": 1173,
+        "schedule": "5:3:2",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 233,
+        "uuid": "9e30f176-17e0-4245-b85f-3fa9259956a3",
+        "volume_id": 1173,
+        "schedule": "59:23:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [],
+    "snapshots": [
+      {
+        "id": 295,
+        "uuid": "0707829e-1c51-4ec1-8453-5aa45dce604f",
+        "volume_id": 1169,
+        "status": "Destroyed",
+        "created": "2026-10-28 01:57:42",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 296,
+        "uuid": "12c8e691-b31f-461c-bb24-4dc70228d7cd",
+        "volume_id": 1169,
+        "status": "Destroyed",
+        "created": "2026-10-28 02:02:42",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 297,
+        "uuid": "1e200087-8571-4928-889e-978bd8182a8a",
+        "volume_id": 1169,
+        "status": "Destroyed",
+        "created": "2026-10-28 02:10:45",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 298,
+        "uuid": "3ea443aa-8030-4e1a-8d7c-7611a065f6fe",
+        "volume_id": 1169,
+        "status": "BackedUp",
+        "created": "2026-10-28 02:15:45",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "0707829e-1c51-4ec1-8453-5aa45dce604f",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1169/ea8de9f9-8691-4653-9c19-948ae48c0e95",
+        "job_id": null
+      },
+      {
+        "uuid": "12c8e691-b31f-461c-bb24-4dc70228d7cd",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1169/ceaebc99-ae17-4ccf-a1e9-97144a8f5186",
+        "job_id": null
+      },
+      {
+        "uuid": "1e200087-8571-4928-889e-978bd8182a8a",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/1169/e5652eaf-c449-47e7-9d91-106582e56ce8",
+        "job_id": null
+      },
+      {
+        "uuid": "3ea443aa-8030-4e1a-8d7c-7611a065f6fe",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Ready",
+        "install_path": "snapshots/2/1169/e5503136-774b-4b73-9dda-d0eac1832948",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "0707829e-1c51-4ec1-8453-5aa45dce604f",
+        "id": 17837,
+        "uuid": "d179ebc1-7902-46fd-99bf-68859d7dbc4a",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 01:57:42",
+        "last_updated": "2026-10-28 01:57:44"
+      },
+      {
+        "snapshot_uuid": "12c8e691-b31f-461c-bb24-4dc70228d7cd",
+        "id": 17838,
+        "uuid": "e8af26a9-36c2-48dd-b9df-2b495b336a30",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 02:02:42",
+        "last_updated": "2026-10-28 02:02:44"
+      },
+      {
+        "snapshot_uuid": "1e200087-8571-4928-889e-978bd8182a8a",
+        "id": 17848,
+        "uuid": "df9c45cf-8b3b-41f7-a19c-d4e629c7d243",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 02:10:45",
+        "last_updated": "2026-10-28 02:10:47"
+      },
+      {
+        "snapshot_uuid": "3ea443aa-8030-4e1a-8d7c-7611a065f6fe",
+        "id": 17849,
+        "uuid": "d9553d4c-5fc0-4596-af0f-118c1e3bc12e",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-28 02:15:45",
+        "last_updated": "2026-10-28 02:15:47"
+      }
+    ],
+    "tags": [
+      {
+        "id": 785,
+        "resource_uuid": "a2f6cffc-06b4-4371-9e0d-77f07d8e7bfd",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 786,
+        "resource_uuid": "8e62c2fa-08d5-43cd-880c-4db6674d4ba5",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 787,
+        "resource_uuid": "8711410f-56e3-4abd-866f-44beeb691b16",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 788,
+        "resource_uuid": "dfb616cb-b9d2-43a0-ae61-3392b304b4f9",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 789,
+        "resource_uuid": "f9ab2796-53ba-4e28-8846-4e8a80b8613e",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 790,
+        "resource_uuid": "03eebff5-96eb-4df4-9a65-1f85c2e83e2f",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 791,
+        "resource_uuid": "5ec04d50-96ca-48cd-a3f7-1d2c941a6ec2",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 792,
+        "resource_uuid": "135e27a7-847c-4518-8f2d-5f8e2e876c02",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 793,
+        "resource_uuid": "fa6d2e09-3963-4d45-bd91-970e9e86c641",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 794,
+        "resource_uuid": "388c186f-8f14-4ee5-a02a-c79669a83363",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 795,
+        "resource_uuid": "f7765413-2d0d-4daa-bd4d-fdba82092a35",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 796,
+        "resource_uuid": "e5156a62-9dfc-4ffe-b633-939e59759d06",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 798,
+        "resource_uuid": "1fa6f158-a9ad-45cb-a29d-9501d963fc6a",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 799,
+        "resource_uuid": "728c9048-d663-4593-9a2c-1c08d03330a7",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 800,
+        "resource_uuid": "9780f625-3e3c-45c4-9704-0e6f6b1187dc",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 801,
+        "resource_uuid": "f82f72a9-851d-48e8-a252-808dbd8bfe69",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 802,
+        "resource_uuid": "91ed7999-5aee-4460-93cf-08edf9a4e67c",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 803,
+        "resource_uuid": "bc20208f-3e30-4e42-aa46-871d482386c8",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 805,
+        "resource_uuid": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 806,
+        "resource_uuid": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 807,
+        "resource_uuid": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 808,
+        "resource_uuid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 809,
+        "resource_uuid": "391d8a78-7971-4ec8-bfe0-a0eab2c1a468",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 810,
+        "resource_uuid": "dacd29f5-9892-4472-9da4-c98fd98c5d95",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 811,
+        "resource_uuid": "58d2de15-7ef9-43f0-a491-b82bed3f48be",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 812,
+        "resource_uuid": "a47e95fd-864a-4f12-b8ba-96384885764e",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 813,
+        "resource_uuid": "7fbc8b73-a4d4-4a2d-9854-60a081aef149",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 814,
+        "resource_uuid": "dd752171-70ff-4e52-bed7-7c737c0a85af",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 815,
+        "resource_uuid": "53dcfead-f910-4d21-a827-10615df750f1",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 816,
+        "resource_uuid": "9e30f176-17e0-4245-b85f-3fa9259956a3",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 831,
+        "resource_uuid": "d32af797-c770-47da-bbae-920c62af1fa2",
+        "key": "sp13-natural",
+        "value": "1507-자연-보관1",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 832,
+        "resource_uuid": "3ea443aa-8030-4e1a-8d7c-7611a065f6fe",
+        "key": "sp13-natural",
+        "value": "1507-자연-보관1",
+        "resource_type": "Snapshot"
+      },
+      {
+        "id": 835,
+        "resource_uuid": "465c45fd-3b90-433e-b329-e5a7208a2c9f",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 836,
+        "resource_uuid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 837,
+        "resource_uuid": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 838,
+        "resource_uuid": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 839,
+        "resource_uuid": "b9eef16b-101a-4397-9526-47e28ca55079",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 785,
+        "resource_uuid": "a2f6cffc-06b4-4371-9e0d-77f07d8e7bfd",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 786,
+        "resource_uuid": "8e62c2fa-08d5-43cd-880c-4db6674d4ba5",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 787,
+        "resource_uuid": "8711410f-56e3-4abd-866f-44beeb691b16",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 788,
+        "resource_uuid": "dfb616cb-b9d2-43a0-ae61-3392b304b4f9",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 789,
+        "resource_uuid": "f9ab2796-53ba-4e28-8846-4e8a80b8613e",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 790,
+        "resource_uuid": "03eebff5-96eb-4df4-9a65-1f85c2e83e2f",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 791,
+        "resource_uuid": "5ec04d50-96ca-48cd-a3f7-1d2c941a6ec2",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 792,
+        "resource_uuid": "135e27a7-847c-4518-8f2d-5f8e2e876c02",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 793,
+        "resource_uuid": "fa6d2e09-3963-4d45-bd91-970e9e86c641",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 794,
+        "resource_uuid": "388c186f-8f14-4ee5-a02a-c79669a83363",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 795,
+        "resource_uuid": "f7765413-2d0d-4daa-bd4d-fdba82092a35",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 796,
+        "resource_uuid": "e5156a62-9dfc-4ffe-b633-939e59759d06",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 798,
+        "resource_uuid": "1fa6f158-a9ad-45cb-a29d-9501d963fc6a",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 799,
+        "resource_uuid": "728c9048-d663-4593-9a2c-1c08d03330a7",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 800,
+        "resource_uuid": "9780f625-3e3c-45c4-9704-0e6f6b1187dc",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 801,
+        "resource_uuid": "f82f72a9-851d-48e8-a252-808dbd8bfe69",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 802,
+        "resource_uuid": "91ed7999-5aee-4460-93cf-08edf9a4e67c",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 803,
+        "resource_uuid": "bc20208f-3e30-4e42-aa46-871d482386c8",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 805,
+        "resource_uuid": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 806,
+        "resource_uuid": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 807,
+        "resource_uuid": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 808,
+        "resource_uuid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 809,
+        "resource_uuid": "391d8a78-7971-4ec8-bfe0-a0eab2c1a468",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 810,
+        "resource_uuid": "dacd29f5-9892-4472-9da4-c98fd98c5d95",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 811,
+        "resource_uuid": "58d2de15-7ef9-43f0-a491-b82bed3f48be",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 812,
+        "resource_uuid": "a47e95fd-864a-4f12-b8ba-96384885764e",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 813,
+        "resource_uuid": "7fbc8b73-a4d4-4a2d-9854-60a081aef149",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 814,
+        "resource_uuid": "dd752171-70ff-4e52-bed7-7c737c0a85af",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 815,
+        "resource_uuid": "53dcfead-f910-4d21-a827-10615df750f1",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 816,
+        "resource_uuid": "9e30f176-17e0-4245-b85f-3fa9259956a3",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 831,
+        "resource_uuid": "d32af797-c770-47da-bbae-920c62af1fa2",
+        "key": "sp13-natural",
+        "value": "1507-자연-보관1",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 835,
+        "resource_uuid": "465c45fd-3b90-433e-b329-e5a7208a2c9f",
+        "key": "sp13-test",
+        "value": "1507-한글",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 836,
+        "resource_uuid": "8d482985-7af1-4d1a-ada4-caf09a954077",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 837,
+        "resource_uuid": "d39c06c8-17cd-42a0-aaa1-fd94e29fa679",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 838,
+        "resource_uuid": "b8dad806-db1f-4656-a47a-4ba56223b3be",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 839,
+        "resource_uuid": "b9eef16b-101a-4397-9526-47e28ca55079",
+        "key": "sp13-contract",
+        "value": "경계값",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  }
+}

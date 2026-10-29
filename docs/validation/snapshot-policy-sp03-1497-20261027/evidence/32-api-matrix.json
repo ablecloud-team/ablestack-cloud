@@ -1,0 +1,413 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "day": 1,
+      "policy": {
+        "id": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "volumeid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+        "volumename": "SP03-1497-32-scheduled",
+        "schedule": "59:23:1",
+        "intervaltype": 3,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": true,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp03-api",
+            "value": "한글 API 보존",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "database": {
+        "at": "2026-10-27 02:04:11.932869",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 540,
+            "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+            "name": "SP03-1497-32-scheduled",
+            "state": "Ready",
+            "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+            "pool_id": 3,
+            "removed": null
+          },
+          {
+            "id": 541,
+            "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+            "name": "SP03-1497-32-volume-tab",
+            "state": "Ready",
+            "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+            "pool_id": 3,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 89,
+            "uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "volume_id": 540,
+            "schedule": "59:23:1",
+            "timezone": "UTC",
+            "interval": 3,
+            "active": 1,
+            "display": 1,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [
+          {
+            "id": 79,
+            "uuid": "44e6c06a-6db2-4872-8468-e598fb443dc2",
+            "volume_id": 540,
+            "policy_id": 89,
+            "scheduled_timestamp": "2026-11-01 23:59:00",
+            "async_job_id": null,
+            "snapshot_id": null,
+            "policy_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "job_uuid": null,
+            "job_status": null
+          }
+        ],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 329,
+            "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "key": "sp03-api",
+            "value": "한글 API 보존",
+            "resource_type": "SnapshotPolicy"
+          }
+        ]
+      },
+      "expectedNextUtc": "2026-11-01 23:59:00"
+    },
+    {
+      "day": 28,
+      "policy": {
+        "id": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "volumeid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+        "volumename": "SP03-1497-32-scheduled",
+        "schedule": "58:22:28",
+        "intervaltype": 3,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": true,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp03-api",
+            "value": "한글 API 보존",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      },
+      "database": {
+        "at": "2026-10-27 02:04:12.383796",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 540,
+            "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+            "name": "SP03-1497-32-scheduled",
+            "state": "Ready",
+            "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+            "pool_id": 3,
+            "removed": null
+          },
+          {
+            "id": 541,
+            "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+            "name": "SP03-1497-32-volume-tab",
+            "state": "Ready",
+            "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+            "pool_id": 3,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 89,
+            "uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "volume_id": 540,
+            "schedule": "58:22:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 1,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [
+          {
+            "id": 79,
+            "uuid": "44e6c06a-6db2-4872-8468-e598fb443dc2",
+            "volume_id": 540,
+            "policy_id": 89,
+            "scheduled_timestamp": "2026-10-28 13:58:00",
+            "async_job_id": null,
+            "snapshot_id": null,
+            "policy_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "job_uuid": null,
+            "job_status": null
+          }
+        ],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 330,
+            "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "key": "sp03-api",
+            "value": "한글 API 보존",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_tags": [
+          {
+            "id": 330,
+            "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+            "key": "sp03-api",
+            "value": "한글 API 보존",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_details": []
+      },
+      "expectedNextUtc": "2026-10-28 13:58:00"
+    }
+  ],
+  "invalid29": {
+    "status": 431,
+    "data": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+    }
+  },
+  "invalidUnchanged": true,
+  "beforeInvalid": {
+    "at": "2026-10-27 02:04:12.795410",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 540,
+        "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+        "name": "SP03-1497-32-scheduled",
+        "state": "Ready",
+        "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+        "pool_id": 3,
+        "removed": null
+      },
+      {
+        "id": 541,
+        "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+        "name": "SP03-1497-32-volume-tab",
+        "state": "Ready",
+        "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+        "pool_id": 3,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 89,
+        "uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "volume_id": 540,
+        "schedule": "58:22:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 79,
+        "uuid": "44e6c06a-6db2-4872-8468-e598fb443dc2",
+        "volume_id": 540,
+        "policy_id": 89,
+        "scheduled_timestamp": "2026-10-28 13:58:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "job_uuid": null,
+        "job_status": null
+      }
+    ],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [
+      {
+        "id": 330,
+        "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "key": "sp03-api",
+        "value": "한글 API 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 330,
+        "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "key": "sp03-api",
+        "value": "한글 API 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  },
+  "afterInvalid": {
+    "at": "2026-10-27 02:04:13.224835",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 540,
+        "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+        "name": "SP03-1497-32-scheduled",
+        "state": "Ready",
+        "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+        "pool_id": 3,
+        "removed": null
+      },
+      {
+        "id": 541,
+        "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+        "name": "SP03-1497-32-volume-tab",
+        "state": "Ready",
+        "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+        "pool_id": 3,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 89,
+        "uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "volume_id": 540,
+        "schedule": "58:22:28",
+        "timezone": "Asia/Seoul",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 79,
+        "uuid": "44e6c06a-6db2-4872-8468-e598fb443dc2",
+        "volume_id": 540,
+        "policy_id": 89,
+        "scheduled_timestamp": "2026-10-28 13:58:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "job_uuid": null,
+        "job_status": null
+      }
+    ],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [
+      {
+        "id": 330,
+        "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "key": "sp03-api",
+        "value": "한글 API 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 330,
+        "resource_uuid": "4be42dd2-a1b6-4caa-a7e0-f9aea142ae2d",
+        "key": "sp03-api",
+        "value": "한글 API 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  },
+  "cleanup": {
+    "at": "2026-10-27 02:04:13.658326",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 540,
+        "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+        "name": "SP03-1497-32-scheduled",
+        "state": "Ready",
+        "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+        "pool_id": 3,
+        "removed": null
+      },
+      {
+        "id": 541,
+        "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+        "name": "SP03-1497-32-volume-tab",
+        "state": "Ready",
+        "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+        "pool_id": 3,
+        "removed": null
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [],
+    "historical_policy_tags": [],
+    "historical_policy_details": []
+  }
+}

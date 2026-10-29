@@ -1,0 +1,197 @@
+{
+  "passed": true,
+  "images": [
+    {
+      "file": "31-dark-1280-refresh-locked-menu.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "37502d186c87935b388ba1540dcad555f438886039ad0ee3e971b1c081ada131"
+    },
+    {
+      "file": "31-dark-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "1034b4c0b3831395abaab805710f754833177cd13245541eab6aea9aa2eed47e"
+    },
+    {
+      "file": "31-dark-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "7e0b3627a9f5e05b687bafafdb6e86a6a2840d2fd7d881682bb5c4bcfe733d3e"
+    },
+    {
+      "file": "31-dark-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "e26aa01243b04e523a712ab476641baff3228d2085721c6f99ac04209b3a0a20"
+    },
+    {
+      "file": "31-dark-mobile-events-content.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "232055038e6c8a9c5f0142efd126683fba9a0e1b366f5f528b52763a2b4e21ee"
+    },
+    {
+      "file": "31-empty-search.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "14b9f3572b25dab73bf0e4d44315a97aba0171148a9a8384748e404cd35a97af"
+    },
+    {
+      "file": "31-events-final.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "f50f36cd847abba4fa8f3f47503f87fd4641738dad6f750115306d026944a418"
+    },
+    {
+      "file": "31-events-read-failure-manual.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "5dda4550a412a1a23373d54440a044e9177b1623c5238f3499e15ae2de9d5a44"
+    },
+    {
+      "file": "31-light-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "7fd61223fa4412ae0681452de9fee92a5751ff5828777bf8bafa5140dc10c276"
+    },
+    {
+      "file": "31-light-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "55cfa52a694b6e1bed1a1ca006dea433e53e4af0d7adebd6ae976c7a648fa90a"
+    },
+    {
+      "file": "31-light-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "0e35d9582bcf1c43e4c0a6ca7246cdf317b34458ff8668a65e8dd283a360c917"
+    },
+    {
+      "file": "31-light-mobile-events-content.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "d5c9ef2e4f9b9b5cadde20459a2de4c1ce51e0574ea153938296afd4d694c0bf"
+    },
+    {
+      "file": "32-dark-1280-refresh-locked-menu.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "bbfa753d0beb5bba1d78cf791945483e05e514fd09fe3a908b9d75298c140041"
+    },
+    {
+      "file": "32-dark-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "9e59fea88a08998c7cc2b462ba0dd13725ac39a4ed53b2fad8110e2d55a05cbd"
+    },
+    {
+      "file": "32-dark-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "1778f8ff0eb073e3f5f376a588bc3f7be3a34b097ec6f15c8db97decfaf5126c"
+    },
+    {
+      "file": "32-dark-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "9672e94a40803e31e5bfa8c65af0c49d33b3d14919afb6acf98c9ea03f95719a"
+    },
+    {
+      "file": "32-dark-mobile-events-content.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "9ce5c616701ab3d75a066a1acda676fd697fa82fcbf22af3a66dd69884b5ec2e"
+    },
+    {
+      "file": "32-empty-search.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "4026243416524d8197c387f530be7b7d054d92ababc6d472f6c9158b598b0381"
+    },
+    {
+      "file": "32-events-final.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "156698276e56f5044dd3914a2dd25b449c0e5a96c821dbcf17472de19614c993"
+    },
+    {
+      "file": "32-events-read-failure-manual.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "2e00a4ef1dd69bc6c8f04759a6e55774ec231429f2ba12576a6e5717772d0c7e"
+    },
+    {
+      "file": "32-light-1280-refresh.png",
+      "width": 1280,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "fc95aa029f030227774f794f230a08a3ba3aff8a764cf9e939036d3e8605e836"
+    },
+    {
+      "file": "32-light-390-refresh.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "6075290cfe2e73c0b6cf6554e15eb6c27e65f00600afe8473b208f569c8ea81a"
+    },
+    {
+      "file": "32-light-768-refresh.png",
+      "width": 768,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "d497baa25958b50380e2460b9aeb3fbb2c0475542c3392f4921f5e6eebf187cc"
+    },
+    {
+      "file": "32-light-mobile-events-content.png",
+      "width": 390,
+      "height": 720,
+      "pngCrcAndDecode": true,
+      "viewportMatches": true,
+      "sha256": "9c999571cfb36be5de32c9fbc4d14afba1d344a06ab09c94f6d4ca8af375d1e8"
+    }
+  ]
+}

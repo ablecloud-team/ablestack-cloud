@@ -105,6 +105,8 @@ public class SnapshotManagerImplTest {
     @Mock
     SnapshotPolicyDao snapshotPolicyDao;
     @Mock
+    com.cloud.storage.dao.SnapshotScheduleDao snapshotScheduleDao;
+    @Mock
     SnapshotScheduler snapshotScheduler;
     @Mock
     TaggedResourceService taggedResourceService;
@@ -435,10 +437,16 @@ public class SnapshotManagerImplTest {
     public void testListSnapshotPolicies() {
         long volumeId = 42L;
         ListSnapshotPoliciesCmd cmd = Mockito.mock(ListSnapshotPoliciesCmd.class);
+        Mockito.when(cmd.getProjectId()).thenReturn(null);
+        Mockito.when(cmd.getDomainId()).thenReturn(null);
+        Mockito.when(cmd.getDisplay()).thenReturn(null);
         Mockito.when(cmd.getVolumeId()).thenReturn(volumeId);
         Mockito.when(cmd.getId()).thenReturn(null);
         Mockito.when(cmd.getStartIndex()).thenReturn(0L);
         Mockito.when(cmd.getPageSizeVal()).thenReturn(10L);
+
+        Mockito.when(cmd.getSortKey()).thenReturn("maxsnaps");
+        Mockito.when(cmd.getSortOrder()).thenReturn("asc");
 
         Account caller = Mockito.mock(Account.class);
         Mockito.when(caller.getId()).thenReturn(1L);
@@ -465,11 +473,18 @@ public class SnapshotManagerImplTest {
         Assert.assertEquals(2, result.first().size());
         Assert.assertEquals(Integer.valueOf(2), result.second());
         Assert.assertEquals(mockPolicies, result.first());
+        org.mockito.ArgumentCaptor<com.cloud.utils.db.Filter> filter = org.mockito.ArgumentCaptor.forClass(com.cloud.utils.db.Filter.class);
+        Mockito.verify(snapshotPolicyDao).searchAndCount(Mockito.eq(mockSearchCriteria), filter.capture());
+        Assert.assertEquals(" ORDER BY snapshot_policy.max_snaps ASC, snapshot_policy.id ASC", filter.getValue().getOrderBy());
+        Mockito.verify(mockSearchBuilder).join(Mockito.eq("volumeJoin"), Mockito.eq(mockVolumeSearchBuilder), Mockito.anyLong(), Mockito.anyLong(), Mockito.eq(com.cloud.utils.db.JoinBuilder.JoinType.INNER));
     }
 
     @Test
     public void testListSnapshotPolicies_NonRootAdmin() {
         ListSnapshotPoliciesCmd cmd = Mockito.mock(ListSnapshotPoliciesCmd.class);
+        Mockito.when(cmd.getProjectId()).thenReturn(null);
+        Mockito.when(cmd.getDomainId()).thenReturn(null);
+        Mockito.when(cmd.getDisplay()).thenReturn(null);
         Mockito.when(cmd.getVolumeId()).thenReturn(1L);
         Mockito.when(cmd.getId()).thenReturn(null);
         Mockito.when(cmd.getStartIndex()).thenReturn(0L);
@@ -505,6 +520,9 @@ public class SnapshotManagerImplTest {
     @Test
     public void testListSnapshotPolicies_RootAdmin() {
         ListSnapshotPoliciesCmd cmd = Mockito.mock(ListSnapshotPoliciesCmd.class);
+        Mockito.when(cmd.getProjectId()).thenReturn(null);
+        Mockito.when(cmd.getDomainId()).thenReturn(null);
+        Mockito.when(cmd.getDisplay()).thenReturn(null);
         Mockito.when(cmd.getVolumeId()).thenReturn(1L);
         Mockito.when(cmd.getId()).thenReturn(null);
         Mockito.when(cmd.getStartIndex()).thenReturn(0L);
@@ -548,10 +566,11 @@ public class SnapshotManagerImplTest {
         CallContext.register(Mockito.mock(User.class), caller);
 
         SnapshotPolicyVO policyVO = Mockito.mock(SnapshotPolicyVO.class);
-        Mockito.when(policyVO.getId()).thenReturn(policyId);
         Mockito.when(policyVO.getVolumeId()).thenReturn(volumeId);
         Mockito.when(policyVO.getUuid()).thenReturn("policy-uuid");
         Mockito.when(snapshotPolicyDao.findById(policyId)).thenReturn(policyVO);
+        Mockito.when(snapshotPolicyDao.lockRow(policyId, true)).thenReturn(policyVO);
+        Mockito.when(snapshotScheduler.removeSchedule(volumeId, policyId)).thenReturn(true);
 
         // Volume is removed (expunged) but findByIdIncludingRemoved should still return it
         VolumeVO volumeVO = Mockito.mock(VolumeVO.class);

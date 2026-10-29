@@ -1,0 +1,53 @@
+{
+  "stores": {
+    "count": 1,
+    "imagestore": [
+      {
+        "id": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "name": "Secondary",
+        "url": "nfs://10.10.31.10/nfs/secondary",
+        "protocol": "nfs",
+        "providername": "NFS",
+        "scope": "ZONE",
+        "readonly": false,
+        "disksizetotal": 375626137600,
+        "disksizeused": 337079435264,
+        "hasannotations": false
+      }
+    ]
+  },
+  "capacity": {
+    "count": 1,
+    "capacity": [
+      {
+        "type": 6,
+        "name": "SECONDARY_STORAGE",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "capacityused": 337079435264,
+        "capacitytotal": 375626137600,
+        "percentused": "89.74"
+      }
+    ]
+  },
+  "threshold": {
+    "count": 1,
+    "configuration": [
+      {
+        "category": "Advanced",
+        "group": "System VMs",
+        "subgroup": "SecStorageVM",
+        "name": "secondary.storage.capacity.threshold",
+        "value": "0.90",
+        "defaultvalue": "0.90",
+        "description": "Percentage (as a value between 0 and 1) of secondary storage capacity threshold.",
+        "isdynamic": true,
+        "component": "CapacityManager",
+        "displaytext": "Secondary storage capacity threshold",
+        "type": "Range"
+      }
+    ]
+  }
+}

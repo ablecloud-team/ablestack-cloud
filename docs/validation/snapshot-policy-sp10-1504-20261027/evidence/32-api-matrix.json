@@ -1,0 +1,885 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "metadata-0-owner-b",
+      "policy": {
+        "account": "sp10-1504-32-owner-b",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+        "volumeid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+        "volumename": "SP10-1504-32-owner-b-한글",
+        "schedule": "5",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+            "account": "sp10-1504-32-owner-b",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-3-owner-a",
+      "policy": {
+        "account": "sp10-1504-32-owner-a",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+        "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+        "volumename": "SP10-1504-32-owner-a-한글",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+            "account": "sp10-1504-32-owner-a",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-2-owner-a",
+      "policy": {
+        "account": "sp10-1504-32-owner-a",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+        "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+        "volumename": "SP10-1504-32-owner-a-한글",
+        "schedule": "5:3:2",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+            "account": "sp10-1504-32-owner-a",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-1-owner-a",
+      "policy": {
+        "account": "sp10-1504-32-owner-a",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+        "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+        "volumename": "SP10-1504-32-owner-a-한글",
+        "schedule": "9:7",
+        "intervaltype": 1,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+            "account": "sp10-1504-32-owner-a",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-0-owner-a",
+      "policy": {
+        "account": "sp10-1504-32-owner-a",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+        "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+        "volumename": "SP10-1504-32-owner-a-한글",
+        "schedule": "5",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "9097bb06-1e76-4197-a10e-9337656563a2",
+            "account": "sp10-1504-32-owner-a",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-0-runtime",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+        "volumename": "SP10-1504-32-runtime-한글",
+        "schedule": "5",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-3-admin",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "volumename": "SP10-1504-32-admin-한글",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "364f9736-123d-4006-84e9-b7035e4ef9f3",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-2-admin",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "volumename": "SP10-1504-32-admin-한글",
+        "schedule": "5:3:2",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-1-admin",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "volumename": "SP10-1504-32-admin-한글",
+        "schedule": "9:7",
+        "intervaltype": 1,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-0-admin",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+        "volumeid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "volumename": "SP10-1504-32-admin-한글",
+        "schedule": "5",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp10-test",
+            "value": "1504-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "a71c5cad-2a89-4a06-ba7f-3365100da185",
+            "account": "admin",
+            "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    },
+    {
+      "case": "project-metadata",
+      "policy": {
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd",
+        "project": "SP10-1504-32",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:54+0900",
+          "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+        "volumename": "SP10-1504-32-project",
+        "schedule": "7:8:7",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "case": "root-admin-explicit-project-read",
+      "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd",
+      "passed": true
+    },
+    {
+      "case": "standard-user-own-context-no-admin-flag",
+      "rows": [
+        {
+          "account": "sp10-1504-32-owner-a",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "schedulingenabled": false,
+          "policycontext": {
+            "version": 1,
+            "observedat": "2026-10-27T14:24:55+0900",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "schedulingenabled": false,
+            "pollintervalseconds": 300,
+            "historysource": "RETAINED_SCHEDULER_JOBS",
+            "historylimit": 50,
+            "schedulestate": "PAUSED",
+            "currentjobknown": false
+          },
+          "id": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "volumename": "SP10-1504-32-owner-a-한글",
+          "schedule": "59:23:28",
+          "intervaltype": 3,
+          "maxsnaps": 2,
+          "timezone": "Asia/Seoul",
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone"
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp10-test",
+              "value": "1504-한글",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+              "account": "sp10-1504-32-owner-a",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        },
+        {
+          "account": "sp10-1504-32-owner-a",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "schedulingenabled": false,
+          "policycontext": {
+            "version": 1,
+            "observedat": "2026-10-27T14:24:55+0900",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "schedulingenabled": false,
+            "pollintervalseconds": 300,
+            "historysource": "RETAINED_SCHEDULER_JOBS",
+            "historylimit": 50,
+            "schedulestate": "PAUSED",
+            "currentjobknown": false
+          },
+          "id": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "volumename": "SP10-1504-32-owner-a-한글",
+          "schedule": "5:3:2",
+          "intervaltype": 2,
+          "maxsnaps": 2,
+          "timezone": "Asia/Seoul",
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone"
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp10-test",
+              "value": "1504-한글",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+              "account": "sp10-1504-32-owner-a",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        },
+        {
+          "account": "sp10-1504-32-owner-a",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "schedulingenabled": false,
+          "policycontext": {
+            "version": 1,
+            "observedat": "2026-10-27T14:24:55+0900",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "schedulingenabled": false,
+            "pollintervalseconds": 300,
+            "historysource": "RETAINED_SCHEDULER_JOBS",
+            "historylimit": 50,
+            "schedulestate": "PAUSED",
+            "currentjobknown": false
+          },
+          "id": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "volumename": "SP10-1504-32-owner-a-한글",
+          "schedule": "9:7",
+          "intervaltype": 1,
+          "maxsnaps": 2,
+          "timezone": "Asia/Seoul",
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone"
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp10-test",
+              "value": "1504-한글",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+              "account": "sp10-1504-32-owner-a",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        },
+        {
+          "account": "sp10-1504-32-owner-a",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "schedulingenabled": false,
+          "policycontext": {
+            "version": 1,
+            "observedat": "2026-10-27T14:24:55+0900",
+            "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+            "schedulingenabled": false,
+            "pollintervalseconds": 300,
+            "historysource": "RETAINED_SCHEDULER_JOBS",
+            "historylimit": 50,
+            "schedulestate": "PAUSED",
+            "currentjobknown": false
+          },
+          "id": "9097bb06-1e76-4197-a10e-9337656563a2",
+          "volumeid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+          "volumename": "SP10-1504-32-owner-a-한글",
+          "schedule": "5",
+          "intervaltype": 0,
+          "maxsnaps": 2,
+          "timezone": "Asia/Seoul",
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone"
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp10-test",
+              "value": "1504-한글",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "9097bb06-1e76-4197-a10e-9337656563a2",
+              "account": "sp10-1504-32-owner-a",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "foreign-policy-id",
+      "response": {}
+    },
+    {
+      "case": "foreign-volume-denied",
+      "response": {
+        "status": 531,
+        "data": {
+          "uuidList": [],
+          "errorcode": 531,
+          "cserrorcode": 4365,
+          "errortext": "Caller does not have permission to operate with provided resource."
+        }
+      }
+    },
+    {
+      "case": "project-member-context",
+      "policy": {
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "projectid": "a8b49efb-3bfc-4820-8225-674c9ed6c1cd",
+        "project": "SP10-1504-32",
+        "schedulingenabled": false,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:55+0900",
+          "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+          "schedulingenabled": false,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "PAUSED",
+          "currentjobknown": false
+        },
+        "id": "f11d0b92-fdb6-4233-8d21-941c6246bca9",
+        "volumeid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+        "volumename": "SP10-1504-32-project",
+        "schedule": "7:8:7",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "case": "real-next-schedule",
+      "policy": {
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "schedulingenabled": true,
+        "policycontext": {
+          "version": 1,
+          "observedat": "2026-10-27T14:24:55+0900",
+          "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+          "schedulingenabled": true,
+          "pollintervalseconds": 300,
+          "historysource": "RETAINED_SCHEDULER_JOBS",
+          "historylimit": 50,
+          "schedulestate": "SCHEDULED",
+          "nextscheduled": "2026-10-27T14:26:00+0900",
+          "currentjobknown": false
+        },
+        "id": "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+        "volumeid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+        "volumename": "SP10-1504-32-runtime-한글",
+        "schedule": "26",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": true,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone"
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    }
+  ]
+}

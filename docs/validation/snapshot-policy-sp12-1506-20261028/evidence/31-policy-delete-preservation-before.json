@@ -1,0 +1,78 @@
+{
+  "database": {
+    "snapshots": [
+      {
+        "id": 292,
+        "uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "volume_id": 1163,
+        "status": "BackedUp",
+        "created": "2026-10-28 00:18:59",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 290,
+        "uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "volume_id": 1161,
+        "status": "BackedUp",
+        "created": "2026-10-28 00:18:57",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Ready",
+        "install_path": "snapshots/319/1163/3bd3e6da-1864-4efc-99aa-d6d2c142fc1b",
+        "job_id": null
+      },
+      {
+        "uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Ready",
+        "install_path": "snapshots/317/1161/76ee26a2-a9ba-4d39-a2a4-5766ffb946b4",
+        "job_id": null
+      }
+    ],
+    "tags": [
+      {
+        "id": 768,
+        "resource_uuid": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+        "key": "sp12-live",
+        "value": "1506-태그-owner-a",
+        "resource_type": "Snapshot"
+      },
+      {
+        "id": 770,
+        "resource_uuid": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+        "key": "sp12-live",
+        "value": "1506-태그-project",
+        "resource_type": "Snapshot"
+      }
+    ]
+  },
+  "files": [
+    {
+      "id": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+      "state": "Ready",
+      "path": "snapshots/317/1161/76ee26a2-a9ba-4d39-a2a4-5766ffb946b4",
+      "present": true,
+      "size": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "id": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+      "state": "Ready",
+      "path": "snapshots/319/1163/3bd3e6da-1864-4efc-99aa-d6d2c142fc1b",
+      "present": true,
+      "size": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ]
+}

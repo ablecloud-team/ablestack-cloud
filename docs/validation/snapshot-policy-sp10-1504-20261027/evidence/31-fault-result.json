@@ -1,0 +1,31 @@
+{
+  "cluster": "31",
+  "volume": "d244a24d-703b-4c58-af12-06614a95a659",
+  "policy": "f43b2b3a-3042-49a6-95be-479d71cdca66",
+  "nextUtc": "2026-10-27 05:34:00",
+  "startedUtc": "2026-10-27 05:32:23.110202",
+  "watchdogSeconds": 480,
+  "before": {
+    "inode": 52460862,
+    "size": 196624,
+    "mtime_ns": 1793078306409423081,
+    "held": true
+  },
+  "job": {
+    "id": 17690,
+    "uuid": "c2b5b7ff-57c1-4ee1-bba9-a7ca8fd3c8b9",
+    "job_status": 2,
+    "job_result_code": 530,
+    "created": "2026-10-27 05:38:56",
+    "last_updated": "2026-10-27 05:39:28",
+    "snapshot_uuid": "8b808bc1-752c-4fba-815c-a9df4ce75709",
+    "snapshot_state": "Error"
+  },
+  "after": {
+    "inode": 52460862,
+    "size": 196624,
+    "mtime_ns": 1793078306409423081,
+    "held": false
+  },
+  "restoredUtc": "2026-10-27 05:39:30.666749"
+}

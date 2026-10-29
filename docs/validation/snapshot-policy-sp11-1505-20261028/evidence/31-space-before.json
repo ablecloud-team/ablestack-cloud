@@ -1,0 +1,157 @@
+{
+  "prometheusPid": 2491742,
+  "version": {
+    "status": "success",
+    "data": {
+      "version": "3.5.1",
+      "revision": "7d42ddfaad88c3a1fd52236e5a7707315c58e84d",
+      "branch": "HEAD",
+      "buildUser": "root@d3dbcb608645",
+      "buildDate": "20260121-13:31:05",
+      "goVersion": "go1.24.12"
+    }
+  },
+  "currentSegment": 727,
+  "candidates": [
+    {
+      "name": "00000620",
+      "symlink": false,
+      "size": 134184960,
+      "ageHours": 106.52132816407416,
+      "open": false
+    },
+    {
+      "name": "00000621",
+      "symlink": false,
+      "size": 91586560,
+      "ageHours": 105.7118091041512,
+      "open": false
+    },
+    {
+      "name": "00000622",
+      "symlink": false,
+      "size": 134152192,
+      "ageHours": 104.52064746293756,
+      "open": false
+    },
+    {
+      "name": "00000623",
+      "symlink": false,
+      "size": 91160576,
+      "ageHours": 103.7118125259214,
+      "open": false
+    },
+    {
+      "name": "00000624",
+      "symlink": false,
+      "size": 134184960,
+      "ageHours": 102.51715967509482,
+      "open": false
+    },
+    {
+      "name": "00000625",
+      "symlink": false,
+      "size": 90669056,
+      "ageHours": 101.71181033306652,
+      "open": false
+    },
+    {
+      "name": "00000626",
+      "symlink": false,
+      "size": 134184960,
+      "ageHours": 100.51960702651077,
+      "open": false
+    },
+    {
+      "name": "00000627",
+      "symlink": false,
+      "size": 90931200,
+      "ageHours": 99.71181066883935,
+      "open": false
+    },
+    {
+      "name": "00000628",
+      "symlink": false,
+      "size": 134217728,
+      "ageHours": 98.51832212050756,
+      "open": false
+    },
+    {
+      "name": "00000629",
+      "symlink": false,
+      "size": 91029504,
+      "ageHours": 97.71180774165525,
+      "open": false
+    },
+    {
+      "name": "00000630",
+      "symlink": false,
+      "size": 134217728,
+      "ageHours": 96.5209791595406,
+      "open": false
+    },
+    {
+      "name": "00000631",
+      "symlink": false,
+      "size": 91488256,
+      "ageHours": 95.71179684334331,
+      "open": false
+    },
+    {
+      "name": "00000632",
+      "symlink": false,
+      "size": 134217728,
+      "ageHours": 94.5237572955423,
+      "open": false
+    },
+    {
+      "name": "00000633",
+      "symlink": false,
+      "size": 91750400,
+      "ageHours": 93.7117921806044,
+      "open": false
+    },
+    {
+      "name": "00000634",
+      "symlink": false,
+      "size": 134184960,
+      "ageHours": 92.52097994910346,
+      "open": false
+    },
+    {
+      "name": "00000635",
+      "symlink": false,
+      "size": 91357184,
+      "ageHours": 91.71178937408659,
+      "open": false
+    },
+    {
+      "name": "00000636",
+      "symlink": false,
+      "size": 134217728,
+      "ageHours": 90.52099677768018,
+      "open": false
+    },
+    {
+      "name": "00000637",
+      "symlink": false,
+      "size": 91389952,
+      "ageHours": 89.7118090903759,
+      "open": false
+    },
+    {
+      "name": "00000638",
+      "symlink": false,
+      "size": 134184960,
+      "ageHours": 88.52133000539409,
+      "open": false
+    },
+    {
+      "name": "00000639",
+      "symlink": false,
+      "size": 91488256,
+      "ageHours": 87.71180802729394,
+      "open": false
+    }
+  ]
+}

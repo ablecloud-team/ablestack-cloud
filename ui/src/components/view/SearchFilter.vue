@@ -31,7 +31,7 @@
           @close="() => $emit('removeFilter', filter)"
         >
           <a-tooltip
-            :title="retrieveFieldLabel(filter.key) + ': ' + filter.value + (filter.key === 'affinitygroupid' && filter.rawValue !== filter.value ? ' (' + filter.rawValue + ')' : '')"
+            :title="retrieveFieldLabel(filter.key) + ': ' + filter.value + (['affinitygroupid', 'volumeid'].includes(filter.key) && filter.rawValue !== filter.value ? ' (' + filter.rawValue + ')' : '')"
             placement="bottom"
           >
             {{ retrieveFieldLabel(filter.key) }} : {{ getTrimmedText(filter.value, 20) }}
@@ -215,6 +215,7 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listSnapshotPolicies' && fieldName === 'fordisplay') return this.$t('label.snapshot.policy.scheduling')
       if (this.apiName === 'listSnapshots') return this.$t(snapshotSearchLabel(fieldName))
       if (fieldName === 'affinitygroupid') return this.$t('label.affinitygroup')
       if (fieldName === 'groupid') {
@@ -244,6 +245,7 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.apiName === 'listSnapshotPolicies' && key === 'fordisplay') return this.$t(value === 'true' ? 'label.snapshot.policy.schedule.enabled' : 'label.snapshot.policy.schedule.paused')
       if (this.apiName === 'listSnapshots') {
         const label = snapshotSearchValue(key, value)
         if (label) return this.$t(label)
@@ -296,7 +298,7 @@ export default {
       let formattedValue = ''
 
       if (this.apiName === 'listSnapshots' && key === 'account') return value
-      if (this.apiName === 'listSnapshots' && key === 'volumeid') {
+      if (['listSnapshots', 'listSnapshotPolicies'].includes(this.apiName) && key === 'volumeid') {
         if (!this.$store.getters.apis?.listVolumes) return value
         const query = this.$route.query
         const project = query.projectid || this.$store.getters.project?.id || (this.$store.getters.listAllProjects ? '-1' : '')

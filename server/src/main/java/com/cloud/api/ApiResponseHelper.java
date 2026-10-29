@@ -910,6 +910,8 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         policyResponse.setMaxSnaps(policy.getMaxSnaps());
         policyResponse.setTimezone(policy.getTimezone());
         policyResponse.setForDisplay(policy.isDisplay());
+        policyResponse.setSchedulingEnabled(policy.isActive() && policy.isDisplay());
+        populateOwner(policyResponse, policy);
         policyResponse.setObjectName("snapshotpolicy");
 
         List<? extends ResourceTag> tags = _resourceTagDao.listBy(policy.getId(), ResourceObjectType.SnapshotPolicy);

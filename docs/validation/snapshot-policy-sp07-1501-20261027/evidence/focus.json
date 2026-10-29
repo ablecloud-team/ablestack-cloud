@@ -1,0 +1,100 @@
+[
+  {
+    "cluster": 31,
+    "label": "final-menu-cancel",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "정기 스냅샷 생성",
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-tab-cancel",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "",
+    "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-cancel",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "정기 스냅샷 생성",
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-tab-cancel",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "",
+    "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+  },
+  {
+    "cluster": 31,
+    "label": "mobile-dark-Escape",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "정기 스냅샷 생성",
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "cluster": 32,
+    "label": "mobile-dark-Escape",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "",
+    "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+  },
+  {
+    "cluster": 31,
+    "label": "menu-delete-success",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "정기 스냅샷 생성",
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "cluster": 32,
+    "label": "menu-delete-success",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "정기 스냅샷 생성",
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "cluster": 31,
+    "label": "volume-delete-query-recovery",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "업데이트",
+    "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+  },
+  {
+    "cluster": 32,
+    "label": "volume-delete-query-recovery",
+    "disabled": false,
+    "modal": false,
+    "tag": "BUTTON",
+    "text": "업데이트",
+    "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+  },
+  {
+    "cluster": 31,
+    "label": "natural-completed-policy-delete-focus",
+    "tag": "BUTTON",
+    "text": "업데이트",
+    "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots",
+    "modal": false
+  }
+]

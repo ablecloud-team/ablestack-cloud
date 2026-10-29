@@ -1,0 +1,23 @@
+{
+  "activeVolumes": 0,
+  "policies": 0,
+  "schedules": 0,
+  "activeSnapshots": 0,
+  "pendingJobs": 0,
+  "tags": 0,
+  "policyDetails": 0,
+  "activeAccounts": 0,
+  "activeUsers": 0,
+  "pendingAccountJobs": 0,
+  "activeProject": 0,
+  "activeProjectAccount": 0,
+  "nonterminalSnapshotRefs": 0,
+  "pendingPolicyJobs": 0,
+  "volumeHistory": [
+    {
+      "state": "Expunged",
+      "n": 5
+    }
+  ],
+  "passed": true
+}

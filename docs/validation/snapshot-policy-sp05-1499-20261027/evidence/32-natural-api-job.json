@@ -1,0 +1,51 @@
+{
+  "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+  "account": "admin",
+  "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+  "domainpath": "ROOT",
+  "userid": "6d3ea396-b23b-11f1-990e-0024811f8935",
+  "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 0,
+  "jobresulttype": "object",
+  "jobresult": {
+    "snapshot": {
+      "id": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "snapshottype": "HOURLY",
+      "volumeid": "b68e4840-138f-4db0-b7c5-8d9f5d67b0f0",
+      "volumename": "SP05-1499-32-volume-tab",
+      "volumetype": "DATADISK",
+      "volumestate": "Ready",
+      "created": "2026-10-27T07:52:29+0900",
+      "name": "detached_SP05-1499-32-volume-tab_20261026225229",
+      "intervaltype": "HOURLY",
+      "state": "Allocated",
+      "physicalsize": 1073741824,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "revertable": true,
+      "virtualsize": 1073741824,
+      "tags": [
+        {
+          "key": "sp05-keep",
+          "value": "한글 보존"
+        },
+        {
+          "key": "sp05-remove",
+          "value": "삭제 대상"
+        }
+      ],
+      "hasannotations": false
+    }
+  },
+  "jobinstancetype": "Snapshot",
+  "jobinstanceid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+  "created": "2026-10-27T07:52:29+0900",
+  "completed": "2026-10-27T07:53:01+0900",
+  "jobid": "fb26e276-9729-4b0a-9ea7-bd4713a4f738",
+  "jobstatus": 1
+}

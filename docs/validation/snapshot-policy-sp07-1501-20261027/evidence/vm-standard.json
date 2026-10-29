@@ -1,0 +1,270 @@
+[
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "measure": {
+      "button": {
+        "background": "rgb(9, 105, 218)",
+        "borderRadius": "4px",
+        "color": "rgb(255, 255, 255)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 32,
+        "padding": "4px 15px",
+        "rect": {
+          "h": 32,
+          "w": 57.765625,
+          "x": 797.234375,
+          "y": 473
+        }
+      },
+      "buttons": [
+        {
+          "text": "취소",
+          "x": 726.46875,
+          "y": 473
+        },
+        {
+          "text": "확인",
+          "x": 797.234375,
+          "y": 473
+        }
+      ],
+      "height": 720,
+      "input": null,
+      "label": {
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 22,
+        "padding": "0px",
+        "rect": {
+          "h": 22,
+          "w": 71.359375,
+          "x": 410,
+          "y": 354
+        }
+      },
+      "modal": {
+        "background": "rgb(34, 40, 47)",
+        "borderRadius": "4px",
+        "color": "rgb(197, 204, 212)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 338,
+        "padding": "0px",
+        "rect": {
+          "h": 338,
+          "w": 498,
+          "x": 386,
+          "y": 191
+        }
+      },
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "measure": {
+      "button": {
+        "background": "rgb(9, 105, 218)",
+        "borderRadius": "4px",
+        "color": "rgb(255, 255, 255)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 32,
+        "padding": "4px 15px",
+        "rect": {
+          "h": 32,
+          "w": 57.765625,
+          "x": 797.234375,
+          "y": 520
+        }
+      },
+      "buttons": [
+        {
+          "text": "취소",
+          "x": 726.46875,
+          "y": 520
+        },
+        {
+          "text": "확인",
+          "x": 797.234375,
+          "y": 520
+        }
+      ],
+      "height": 720,
+      "input": null,
+      "label": {
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 22,
+        "padding": "0px",
+        "rect": {
+          "h": 22,
+          "w": 71.359375,
+          "x": 410,
+          "y": 307
+        }
+      },
+      "modal": {
+        "background": "rgb(34, 40, 47)",
+        "borderRadius": "4px",
+        "color": "rgb(197, 204, 212)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 432,
+        "padding": "0px",
+        "rect": {
+          "h": 432,
+          "w": 498,
+          "x": 386,
+          "y": 144
+        }
+      },
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 31,
+    "theme": "light",
+    "measure": {
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "borderRadius": "4px",
+        "color": "rgb(255, 255, 255)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 32,
+        "padding": "4px 15px",
+        "rect": {
+          "h": 32,
+          "w": 57.765625,
+          "x": 797.234375,
+          "y": 473
+        }
+      },
+      "buttons": [
+        {
+          "text": "취소",
+          "x": 726.46875,
+          "y": 473
+        },
+        {
+          "text": "확인",
+          "x": 797.234375,
+          "y": 473
+        }
+      ],
+      "height": 720,
+      "input": null,
+      "label": {
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "color": "rgb(75, 85, 99)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 22,
+        "padding": "0px",
+        "rect": {
+          "h": 22,
+          "w": 71.359375,
+          "x": 410,
+          "y": 354
+        }
+      },
+      "modal": {
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "4px",
+        "color": "rgb(75, 85, 99)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 338,
+        "padding": "0px",
+        "rect": {
+          "h": 338,
+          "w": 498,
+          "x": 386,
+          "y": 191
+        }
+      },
+      "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "measure": {
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "borderRadius": "4px",
+        "color": "rgb(255, 255, 255)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 32,
+        "padding": "4px 15px",
+        "rect": {
+          "h": 32,
+          "w": 57.765625,
+          "x": 797.234375,
+          "y": 520
+        }
+      },
+      "buttons": [
+        {
+          "text": "취소",
+          "x": 726.46875,
+          "y": 520
+        },
+        {
+          "text": "확인",
+          "x": 797.234375,
+          "y": 520
+        }
+      ],
+      "height": 720,
+      "input": null,
+      "label": {
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "color": "rgb(75, 85, 99)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 22,
+        "padding": "0px",
+        "rect": {
+          "h": 22,
+          "w": 71.359375,
+          "x": 410,
+          "y": 307
+        }
+      },
+      "modal": {
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "4px",
+        "color": "rgb(75, 85, 99)",
+        "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "height": 432,
+        "padding": "0px",
+        "rect": {
+          "h": 432,
+          "w": 498,
+          "x": 386,
+          "y": 144
+        }
+      },
+      "url": "http://10.10.32.10:8080/client/#/vm/d76c74bc-c7cc-4793-9401-fb889e7b227b",
+      "width": 1280
+    }
+  }
+]

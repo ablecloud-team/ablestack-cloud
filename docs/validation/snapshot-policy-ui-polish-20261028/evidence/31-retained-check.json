@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "volumes": 7,
+  "policies": 24,
+  "snapshots": 1,
+  "allOriginalIdsPreserved": true,
+  "policyFieldsUnchanged": true,
+  "allPaused": true,
+  "explicitUserDeletionRequired": true,
+  "snapshotIds": [
+    "887af746-5c20-4d95-8ce4-356604b482fe"
+  ]
+}

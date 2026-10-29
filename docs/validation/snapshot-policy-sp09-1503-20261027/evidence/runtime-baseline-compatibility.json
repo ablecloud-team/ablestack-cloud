@@ -1,0 +1,44 @@
+[
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "baselineBytecodeUnchanged": true,
+    "unrelatedMethodsUnchanged": 151,
+    "changedMethods": [
+      "listSnapshotPolicies"
+    ],
+    "addedAccessors": []
+  },
+  {
+    "cluster": "31",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "baselineBytecodeUnchanged": true,
+    "unrelatedMethodsUnchanged": 5,
+    "changedMethods": [],
+    "addedAccessors": [
+      "getSortKey",
+      "getSortOrder"
+    ]
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "baselineBytecodeUnchanged": true,
+    "unrelatedMethodsUnchanged": 151,
+    "changedMethods": [
+      "listSnapshotPolicies"
+    ],
+    "addedAccessors": []
+  },
+  {
+    "cluster": "32",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "baselineBytecodeUnchanged": true,
+    "unrelatedMethodsUnchanged": 5,
+    "changedMethods": [],
+    "addedAccessors": [
+      "getSortKey",
+      "getSortOrder"
+    ]
+  }
+]

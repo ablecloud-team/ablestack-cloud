@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "cluster": "31",
+  "job": {
+    "id": 17876,
+    "uuid": "17e071ba-d299-4756-afeb-c31a52b5a7e8",
+    "job_status": 2,
+    "job_result_code": 530,
+    "created": "2026-10-28 03:39:04",
+    "last_updated": "2026-10-28 03:39:36",
+    "snapshot_uuid": "38867cb7-bf3c-48b1-80ea-4b24ee637be9",
+    "snapshot_state": "Error"
+  },
+  "selectedIds": [
+    "03eebff5-96eb-4df4-9a65-1f85c2e83e2f",
+    "135e27a7-847c-4518-8f2d-5f8e2e876c02",
+    "5ec04d50-96ca-48cd-a3f7-1d2c941a6ec2",
+    "f9ab2796-53ba-4e28-8846-4e8a80b8613e"
+  ],
+  "removedIdleIds": [
+    "03eebff5-96eb-4df4-9a65-1f85c2e83e2f",
+    "135e27a7-847c-4518-8f2d-5f8e2e876c02",
+    "5ec04d50-96ca-48cd-a3f7-1d2c941a6ec2"
+  ],
+  "retainedRunningId": "f9ab2796-53ba-4e28-8846-4e8a80b8613e",
+  "pausedWhileJobRunning": true,
+  "assignedJobRetainedWhenPaused": true,
+  "editedMaxsnaps": 3,
+  "editedCaptureJobStatus": 2,
+  "editCaptureNote": "31 capture reached terminal state; 32 capture remained running",
+  "normalUiRetryRemovedRemainingId": true,
+  "afterRetryPoliciesAndSchedules": 0,
+  "imageRestored": {
+    "cluster": "31",
+    "volume": "135069aa-29cd-450d-aab6-b38c07726cb2",
+    "policy": "f9ab2796-53ba-4e28-8846-4e8a80b8613e",
+    "nextUtc": "2026-10-28 03:35:00",
+    "startedUtc": "2026-10-28 03:32:46.218559",
+    "watchdogSeconds": 900,
+    "restoreUnit": "sp13-1507-31-restore-1793158366",
+    "before": {
+      "inode": 52427806,
+      "size": 196624,
+      "mtime_ns": 1793152266576752288,
+      "held": true
+    },
+    "job": {
+      "id": 17876,
+      "uuid": "17e071ba-d299-4756-afeb-c31a52b5a7e8",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-28 03:39:04",
+      "last_updated": "2026-10-28 03:39:36",
+      "snapshot_uuid": "38867cb7-bf3c-48b1-80ea-4b24ee637be9",
+      "snapshot_state": "Error"
+    },
+    "after": {
+      "inode": 52427806,
+      "size": 196624,
+      "mtime_ns": 1793152266576752288,
+      "held": false
+    },
+    "restoredUtc": "2026-10-28 03:39:37.753903"
+  },
+  "snapshotDeletionManualTagCleanup": false
+}

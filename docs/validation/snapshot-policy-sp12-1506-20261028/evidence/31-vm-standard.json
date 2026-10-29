@@ -1,0 +1,104 @@
+{
+  "body": "dark-mode",
+  "buttons": [
+    {
+      "cssHeight": "24px",
+      "font": "14px",
+      "text": "업데이트"
+    },
+    {
+      "cssHeight": "23px",
+      "font": "14px",
+      "text": "메트릭"
+    },
+    {
+      "cssHeight": "23px",
+      "font": "14px",
+      "text": "프로젝트"
+    },
+    {
+      "cssHeight": "32px",
+      "font": "14px",
+      "text": "가상머신 추가"
+    },
+    {
+      "cssHeight": "25px",
+      "font": "14px",
+      "text": ""
+    },
+    {
+      "cssHeight": "32px",
+      "font": "16px",
+      "text": ""
+    },
+    {
+      "cssHeight": "24px",
+      "font": "12px",
+      "text": ""
+    },
+    {
+      "cssHeight": "24px",
+      "font": "12px",
+      "text": ""
+    }
+  ],
+  "height": 720,
+  "inputs": [
+    {
+      "cssHeight": "32px",
+      "font": "14px",
+      "radius": "4px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "30px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "24px",
+      "font": "14px",
+      "radius": "4px 0px 0px 4px"
+    },
+    {
+      "cssHeight": "24px",
+      "font": "14px",
+      "radius": "0px"
+    },
+    {
+      "cssHeight": "24px",
+      "font": "14px",
+      "radius": "0px"
+    }
+  ],
+  "width": 768
+}

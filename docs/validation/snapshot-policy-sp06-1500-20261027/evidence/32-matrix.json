@@ -1,0 +1,266 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "policy": {
+        "id": 48,
+        "uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "volume_id": 528,
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 30,
+        "uuid": "9d764a3b-ef78-41d8-92be-b23809aa0cd8",
+        "volume_id": 528,
+        "policy_id": 48,
+        "scheduled_timestamp": "2026-10-26 23:59:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-26 23:59:00"
+    },
+    {
+      "policy": {
+        "id": 48,
+        "uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "volume_id": 528,
+        "schedule": "58:22",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 30,
+        "uuid": "9d764a3b-ef78-41d8-92be-b23809aa0cd8",
+        "volume_id": 528,
+        "policy_id": 48,
+        "scheduled_timestamp": "2026-10-27 13:58:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-27 13:58:00"
+    },
+    {
+      "policy": {
+        "id": 48,
+        "uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "volume_id": 528,
+        "schedule": "58:22",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 31,
+        "uuid": "e7dc00f0-fedc-44c8-88e6-9b0ab74f8f6f",
+        "volume_id": 528,
+        "policy_id": 48,
+        "scheduled_timestamp": "2026-10-27 13:58:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "29e0515e-89ad-41f6-bcb1-01512929d77a",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-27 13:58:00"
+    },
+    {
+      "policy": {
+        "id": 49,
+        "uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "volume_id": 528,
+        "schedule": "21:18:1",
+        "timezone": "UTC",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 32,
+        "uuid": "7694dc60-977a-4fb7-b585-fe8c8de3a157",
+        "volume_id": 528,
+        "policy_id": 49,
+        "scheduled_timestamp": "2026-11-01 18:21:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-11-01 18:21:00"
+    },
+    {
+      "policy": {
+        "id": 49,
+        "uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "volume_id": 528,
+        "schedule": "22:19:2",
+        "timezone": "Pacific/Honolulu",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 32,
+        "uuid": "7694dc60-977a-4fb7-b585-fe8c8de3a157",
+        "volume_id": 528,
+        "policy_id": 49,
+        "scheduled_timestamp": "2026-10-27 05:22:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-27 05:22:00"
+    },
+    {
+      "policy": {
+        "id": 49,
+        "uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "volume_id": 528,
+        "schedule": "22:19:2",
+        "timezone": "Pacific/Honolulu",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 33,
+        "uuid": "b4c64d35-038a-4488-84af-32949d150844",
+        "volume_id": 528,
+        "policy_id": 49,
+        "scheduled_timestamp": "2026-10-27 05:22:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "e806d737-e372-4d80-94f5-26f521e6e34c",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-27 05:22:00"
+    },
+    {
+      "policy": {
+        "id": 50,
+        "uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "volume_id": 528,
+        "schedule": "22:19:28",
+        "timezone": "UTC",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 34,
+        "uuid": "768decea-0b0a-404e-a07a-bcd541f2b4c0",
+        "volume_id": 528,
+        "policy_id": 50,
+        "scheduled_timestamp": "2026-10-28 19:22:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-28 19:22:00"
+    },
+    {
+      "policy": {
+        "id": 50,
+        "uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "volume_id": 528,
+        "schedule": "23:20:1",
+        "timezone": "Asia/Kathmandu",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 34,
+        "uuid": "768decea-0b0a-404e-a07a-bcd541f2b4c0",
+        "volume_id": 528,
+        "policy_id": 50,
+        "scheduled_timestamp": "2026-11-01 14:38:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-11-01 14:38:00"
+    },
+    {
+      "policy": {
+        "id": 50,
+        "uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "volume_id": 528,
+        "schedule": "23:20:1",
+        "timezone": "Asia/Kathmandu",
+        "interval": 3,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 35,
+        "uuid": "80e8a299-8186-453e-bb9f-07e79eba80b8",
+        "volume_id": 528,
+        "policy_id": 50,
+        "scheduled_timestamp": "2026-11-01 14:38:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "503f4365-e019-4771-81c0-ce87bbd017f3",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-11-01 14:38:00"
+    },
+    {
+      "policy": {
+        "id": 51,
+        "uuid": "0627f29d-45fa-478b-b649-35db9dbcb49f",
+        "volume_id": 528,
+        "schedule": "45",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 3
+      },
+      "schedule": {
+        "id": 36,
+        "uuid": "96c3afb0-2db8-43b0-9195-6379be828497",
+        "volume_id": 528,
+        "policy_id": 51,
+        "scheduled_timestamp": "2026-10-26 15:45:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "0627f29d-45fa-478b-b649-35db9dbcb49f",
+        "job_uuid": null,
+        "job_status": null
+      },
+      "independentExpectedUtc": "2026-10-26 15:45:00"
+    }
+  ],
+  "concurrentUpserts": 6
+}

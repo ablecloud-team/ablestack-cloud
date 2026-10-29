@@ -23,6 +23,8 @@ import { isAdmin } from '@/role'
 import { allocationIntent } from '@/utils/volumeAllocation'
 import { canDeleteVolume, volumeDeleteReason } from '@/utils/volumeEdit'
 import { assignmentReason } from '@/utils/storageManagement'
+import { canEditPolicy, canManagePolicy } from '@/utils/snapshotPolicyEditing'
+import { canDeletePolicy } from '@/utils/snapshotPolicyDeletion'
 
 const activeFastCloneFlattenStatuses = ['pending', 'running']
 
@@ -580,13 +582,55 @@ export default {
       docHelp: 'adminguide/storage.html#working-with-volume-snapshots',
       permission: ['listSnapshotPolicies'],
       resourceType: 'SnapshotPolicy',
+      tabs: [
+        { name: 'details', component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotPolicyDetails.vue'))) },
+        {
+          name: 'events',
+          resourceType: 'SnapshotPolicy',
+          component: shallowRef(defineAsyncComponent(() => import('@/components/view/EventsTab.vue'))),
+          show: () => { return 'listEvents' in store.getters.apis }
+        }
+      ],
       params: { listall: true },
       columns: () => {
-        var fields = ['intervaltype', 'maxsnaps', 'schedule', 'timezone', 'volumename']
+        var fields = ['intervaltype', 'maxsnaps', 'schedule', 'timezone', 'volumename', 'schedulingenabled']
         return fields
       },
       searchFilters: ['volumeid'],
       actions: [
+        {
+          api: 'createSnapshotPolicy',
+          icon: 'edit-outlined',
+          label: 'label.snapshot.policy.edit',
+          dataView: true,
+          show: record => !!record.id && canEditPolicy(store.getters.apis || {}),
+          selfManagedDialog: true,
+          popup: true,
+          policyMode: 'edit',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotPolicyActionDialog.vue')))
+        },
+        {
+          api: 'updateSnapshotPolicy',
+          icon: 'pause-circle-outlined',
+          label: 'label.snapshot.policy.pause',
+          dataView: true,
+          show: record => record.fordisplay === true && canManagePolicy(store.getters),
+          selfManagedDialog: true,
+          popup: true,
+          policyMode: 'pause',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotPolicyActionDialog.vue')))
+        },
+        {
+          api: 'updateSnapshotPolicy',
+          icon: 'play-circle-outlined',
+          label: 'label.snapshot.policy.resume',
+          dataView: true,
+          show: record => record.fordisplay === false && canManagePolicy(store.getters),
+          selfManagedDialog: true,
+          popup: true,
+          policyMode: 'resume',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotPolicyActionDialog.vue')))
+        },
         {
           api: 'createSnapshotPolicy',
           icon: 'plus-outlined',
@@ -595,6 +639,8 @@ export default {
           listView: true,
           show: () => { return 'createSnapshotPolicy' in store.getters.apis },
           popup: true,
+          standardDialogSize: 'md',
+          snapshotStandardDialog: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/RecurringSnapshotVolume.vue'))),
           mapping: {
             intervaltype: {
@@ -606,15 +652,16 @@ export default {
           api: 'deleteSnapshotPolicies',
           icon: 'delete-outlined',
           label: 'label.delete.snapshot.policy',
-          message: 'message.action.delete.snapshot.policy',
+          toolbarLabel: 'label.snapshot.policy.bulk.delete',
+          groupAction: true,
+          groupShow: (selection, getters) => selection.length > 0 && canDeletePolicy(getters.apis),
           dataView: true,
-          show: (record) => true,
-          args: ['id'],
-          mapping: {
-            id: {
-              value: (record) => record.id
-            }
-          }
+          show: record => !!record.id && canDeletePolicy(store.getters.apis),
+          popup: true,
+          selfManagedDialog: true,
+          snapshotStandardDialog: true,
+          policyDeleteDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SnapshotPolicyDeleteAction.vue')))
         }
       ]
     },

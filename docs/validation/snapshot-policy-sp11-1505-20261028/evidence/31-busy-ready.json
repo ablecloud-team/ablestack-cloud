@@ -1,0 +1,55 @@
+{
+  "policy": {
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domain": "ROOT",
+    "domainpath": "ROOT",
+    "schedulingenabled": true,
+    "policycontext": {
+      "version": 1,
+      "observedat": "2026-10-28T00:12:26+0900",
+      "volumeid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+      "schedulingenabled": true,
+      "pollintervalseconds": 300,
+      "historysource": "RETAINED_SCHEDULER_JOBS",
+      "historylimit": 50,
+      "schedulestate": "ASSIGNED",
+      "currentjobknown": true,
+      "currentjobid": "2ae74fd4-9ce8-4922-923c-d3fdfc18c4a2",
+      "latestjob": {
+        "id": "2ae74fd4-9ce8-4922-923c-d3fdfc18c4a2",
+        "status": "IN_PROGRESS",
+        "created": "2026-10-28T00:12:26+0900",
+        "snapshotavailable": true,
+        "snapshotid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+        "snapshotname": "detached_SP11-1505-31-admin-3-한글_20261027151226"
+      }
+    },
+    "id": "5639cf26-462b-45c9-a563-5b2591269244",
+    "volumeid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+    "volumename": "SP11-1505-31-admin-3-한글",
+    "schedule": "8",
+    "intervaltype": 0,
+    "maxsnaps": 2,
+    "timezone": "UTC",
+    "fordisplay": true,
+    "zone": [
+      {
+        "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "name": "Zone",
+        "localstorageenabled": false,
+        "isnsxenabled": false,
+        "ismultiarch": false,
+        "routedmodeenabled": false
+      }
+    ],
+    "storage": [
+      {
+        "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "name": "Primary"
+      }
+    ],
+    "tags": []
+  },
+  "at": "2026-10-27T15:12:24.077171+00:00"
+}

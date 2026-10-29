@@ -1,0 +1,335 @@
+{
+  "passed": true,
+  "layoutViews": 24,
+  "images": [
+    {
+      "file": "31-cleanup-ui.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "728a858e597f4ae1a1ee0e809616b9e88d0f0bf93f7ee444f81d8686e618de82"
+    },
+    {
+      "file": "31-dark-edit-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7c4d2d81eb5a25a9aaef422f77d744bc58e86a545fcf2e858dadae53079f2bf8"
+    },
+    {
+      "file": "31-dark-edit-390-tags-keyboard.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "8e68883ea6d1ba6875f4129aa708e522ce7ae87bf19c224b003fe5c48d5c260c"
+    },
+    {
+      "file": "31-dark-edit-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "71c6a64c552e1adea348f3e9a862ddff0c5a869e344da331b69996a461fe4b91"
+    },
+    {
+      "file": "31-dark-edit-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "ab58f56dfb97b3d104c2cbfc03a53e973d13cf6191489df6d2026bb790eed632"
+    },
+    {
+      "file": "31-dark-pause-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "e5de4ea2c88461896549885b96fa85e8ea074564eb641562aa5dc228edfc61fa"
+    },
+    {
+      "file": "31-dark-pause-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "8050b404bb2c6636b0b315bb17216622862cb01e8c664caa80b7706ea5bf43da"
+    },
+    {
+      "file": "31-dark-pause-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "c8e74df3b3013034c9f90c764a680df9acb44f3c0fefc23b301f8d3f0457e268"
+    },
+    {
+      "file": "31-light-edit-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8f79c4e3fe82fb706afa7f4c2a49c070dec444509e958146e800dca09d2d68a3"
+    },
+    {
+      "file": "31-light-edit-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "ced9739d08923b6176ee03b13f15a3efefe623d550d4a36fcb21ceeaf8ff4efd"
+    },
+    {
+      "file": "31-light-edit-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "e5bf4bdf05ea34fa15a688b4ab7d4d5e541b1f250253295b171043aa8de6298d"
+    },
+    {
+      "file": "31-light-pause-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5320b4fdab3fa0f57ade4b104dc6fabed32033ea912774b933b37b9d2f3327ad"
+    },
+    {
+      "file": "31-light-pause-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "ae8e211d55c304cebd1f6b81390c1358b627e251eb580b46eaac7ddb01cc4f0d"
+    },
+    {
+      "file": "31-light-pause-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "0e9246237e5b59beb2d6555d5ca9c634028e1d2a18d3d2531633da2fe611c567"
+    },
+    {
+      "file": "31-natural-backed-up.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "24fd4e4bddb1b19a6d9efc3971f741a022825c39c7d0339eb1f884ae14a91620"
+    },
+    {
+      "file": "31-natural-running-dialog.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "061951908dd9e5348fa49a4bb6c4cfe0e8245985f4f28a1b61d4c88afad037f2"
+    },
+    {
+      "file": "31-owner-personal.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "50da6e63d6efeca79b13c668edb9dc2921f99c66aea46fff532ff3b6098a7c4f"
+    },
+    {
+      "file": "31-owner-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d73a744bd308230b0c703c4ff451719066359ff4cfe98d134240ac833b3a836d"
+    },
+    {
+      "file": "31-readonly-owner.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "31cf3c958885b7d3cdc72add69e7dce565b73ee1e3d4ddf4819adc66ba8b6802"
+    },
+    {
+      "file": "31-readonly-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b80f0d8d670fd5c652ee5529d75bce73eda2ea87145b5a2d5b85097001053881"
+    },
+    {
+      "file": "31-vm-edit-standard-light.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "82761e3f272e74e2dd956617f3efb4b1a4cb7827d122800a10100c65bdfd957d"
+    },
+    {
+      "file": "31-vm-edit-standard.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "839e031844ab57af97ecf803e27cb9163137df8ab6d46213b6fbd372d3b2efa6"
+    },
+    {
+      "file": "31-vm-list-standard.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0a36cb2f0cf4b90389f2cdfc12fae5d28a622d519ce364000f19417e41ac3a7a"
+    },
+    {
+      "file": "32-candidate-edit-pause.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "6dc0dd93c317131dc45a43bce350a5c290ac4b2b02ddfe96bdaae4b08a0b7b66"
+    },
+    {
+      "file": "32-cleanup-ui.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a3b7e008f6685a74a5e0b0b70fc22c3e67f81d6c5aa83ff989d366389bc95ddc"
+    },
+    {
+      "file": "32-dark-edit-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3f77afa00fd93b065a3fcea3b1a61619c28996ecd979df73f728eecb0c1a2b3b"
+    },
+    {
+      "file": "32-dark-edit-390-tags-keyboard.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "fe1cdcd69bb09586f894595514515f2042373e3331309822b3575a458b26f667"
+    },
+    {
+      "file": "32-dark-edit-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "7a18843229d25ecc1c83c1a93a46d1a6745e324ec4b688ed13cf6a8ba438ab2b"
+    },
+    {
+      "file": "32-dark-edit-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "0094cbfaa1531eea7d971261f9a3cce86956d1c8b0eca9818e8e1442951691f1"
+    },
+    {
+      "file": "32-dark-pause-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c627db5e77885224688c86fe56bab822cea0048e41507628437779afc5ccbd7e"
+    },
+    {
+      "file": "32-dark-pause-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "852c86202dcbb9d8b2a819010fc12f0242c01de0f5e0289c08468d56a5f9ffeb"
+    },
+    {
+      "file": "32-dark-pause-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "19b8767e39e12de792be036a13f1e42fb42402d1832cab3b8c349408ccd0cb42"
+    },
+    {
+      "file": "32-light-edit-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4272391a4f71b0b7ec61ddccb238515ed033962de24ac9a8b864d8c70f9dfcb1"
+    },
+    {
+      "file": "32-light-edit-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "f893e5630f3ff3c4e544b31b06a4b7a89680d92778737453d41ba14de579e57d"
+    },
+    {
+      "file": "32-light-edit-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "c86c76da431d2ebbfca78a4b18c35aae8ca59ed83a03077ae736f85814448009"
+    },
+    {
+      "file": "32-light-pause-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "076b76dcbcfe9e466cdf5d52ad44c82bc841566f157fc765e542ccf9b6ab8d1f"
+    },
+    {
+      "file": "32-light-pause-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "6c3e97d5c9046876af5222369ab5d4a0a3e27e53d98a86a488b3d156145979a9"
+    },
+    {
+      "file": "32-light-pause-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "11089293edea27a4b52a6f2dd9cc26c76e3ddbc93203b7c5c3ca2b7c6971a928"
+    },
+    {
+      "file": "32-natural-backed-up.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "9fd649c35c1da825c4299721e487d8799d2c0664131473a31225484150683819"
+    },
+    {
+      "file": "32-natural-running-dialog.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "87b3b046c37d03989d2dd79f75899f72648687b6f38381458262e1261b04f8f4"
+    },
+    {
+      "file": "32-owner-personal.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d53b5a2508aee08c4468239cbf2d79a5809759db5068ba2c466b9581a0cbc06c"
+    },
+    {
+      "file": "32-owner-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "184b21fbee1c4598aa0880f0b4f9cad82d61633eae71772290cd30c0077a49d7"
+    },
+    {
+      "file": "32-readonly-personal.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7ccd0f9a29faceed2e0e664dccaef83171ad16f328cc05c755a9c2eade992f07"
+    },
+    {
+      "file": "32-readonly-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "16a7c8e05a3deac7b004789c3a58fe8071aad8105987e8c01bac2120f3ee82c0"
+    },
+    {
+      "file": "32-vm-edit-standard-light.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bb4d09afab134d08702ab269f8fbb8b1f7011825597395335a38af6862c6b2fb"
+    },
+    {
+      "file": "32-vm-edit-standard.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7e7624ed6ee1252e93944cfb064beb86e57e590d33328179cedbeb4ca5882837"
+    },
+    {
+      "file": "32-vm-list-standard.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0c052ebc4f4dd6fe771246d47c397f9d014316e6994b65ea4728b83811ecfd66"
+    }
+  ]
+}

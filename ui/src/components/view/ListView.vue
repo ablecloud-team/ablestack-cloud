@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="list-view-table-wrapper" :class="{ 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot' }" @contextmenu="handleGlobalContextMenu">
+  <div class="list-view-table-wrapper" :class="{ 'autoscale-list': $route.name === 'autoscalevmgroup', 'snapshot-list-table': $route.name === 'snapshot', 'snapshot-policy-list-table': $route.name === 'snapshotpolicy' }" @contextmenu="handleGlobalContextMenu">
     <a-table
       size="middle"
       :loading="loading"
@@ -265,7 +265,8 @@
       </template>
       <template v-if="$route.name === 'snapshot' && column.key === 'intervaltype'"><span>{{ $t(snapshotListInterval(text)) }}</span></template>
       <template v-if="column.key === 'schedule'">
-        <div v-if="['/snapshotpolicy', '/backupschedule'].some(path => $route.path.endsWith(path))">
+        <span v-if="$route.meta?.name === 'snapshotpolicy'">{{ policySchedule(record, $t) }}</span>
+        <div v-else-if="$route.path.endsWith('/backupschedule')">
           <label class="interval-content">
             <span v-if="record.intervaltype===0 || record.intervaltype==='HOURLY'">{{ record.schedule + $t('label.min.past.hour') }}</span>
             <span v-else>{{ record.schedule.split(':')[1] + ':' + record.schedule.split(':')[0] }}</span>
@@ -303,8 +304,10 @@
         <span class="custom-icon icon-monthly" v-else-if="record.intervaltype===3">
           <calendar-outlined />
         </span>
-        {{ getIntervalTypeText(record.intervaltype) }}
+        <router-link v-if="$route.meta?.name === 'snapshotpolicy'" :to="{ path: '/snapshotpolicy/' + record.id, ...(record.projectid ? { query: { projectid: record.projectid } } : {}) }">{{ policyInterval(record.intervaltype, $t) }}</router-link>
+        <span v-else>{{ getIntervalTypeText(record.intervaltype) }}</span>
       </template>
+      <template v-if="column.key === 'schedulingenabled'">{{ policyScheduling(record, $t) }}</template>
       <template v-if="column.key === 'timezone'">
         <label>{{ getTimeZone(record.timezone) }}</label>
       </template>
@@ -420,8 +423,8 @@
       </template>
       <template v-if="column.key === 'volumename'">
         <router-link
-          v-if="resourceIdToValidLinksMap[record.id]?.volume"
-          :to="{ path: '/volume/' + record.volumeid }"
+          v-if="resourceIdToValidLinksMap[record.id]?.volume && ($route.meta?.name !== 'snapshotpolicy' || policyVolumePath(record, $store.getters.apis))"
+          :to="$route.meta?.name === 'snapshotpolicy' ? policyVolumePath(record, $store.getters.apis) : { path: '/volume/' + record.volumeid }"
         >{{ text }}</router-link>
         <span v-else>{{ text }}</span>
       </template>
@@ -1205,6 +1208,8 @@
 </template>
 
 <script>
+import { policyInterval, policySchedule, policyScheduling } from '@/utils/snapshotPolicyPresentation'
+import { policyVolumePath } from '@/utils/snapshotPolicyDetail'
 import AutoScaleListCell from '@/views/compute/AutoScaleListCell'
 import InstanceGroupSummary from '@/views/compute/InstanceGroupSummary'
 import { snapshotListSize, snapshotListInterval, snapshotListSizeValue } from '@/utils/storageSnapshotPresentation'
@@ -1446,6 +1451,10 @@ export default {
     }
   },
   methods: {
+    policyVolumePath,
+    policyInterval,
+    policySchedule,
+    policyScheduling,
     snapshotListSize,
     snapshotListSizeValue,
     snapshotListInterval,
@@ -1570,6 +1579,7 @@ export default {
           .test(this.$route.path)
     },
     enableGroupAction () {
+      if (this.$route.name === 'snapshotpolicy') return this.actions.some(action => action.groupAction && action.api in this.$store.getters.apis)
       if (snapshotCopyList(this.$route)) return false
       if (this.resourcePath) return this.explicitlyAllowRowSelection
       return ['vm', 'alert', 'vmgroup', 'ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'autoscalevmgroup', 'volume', 'snapshot',
@@ -2100,6 +2110,11 @@ export default {
     .icon-monthly:before {
       content: "***";
     }
+
+  .snapshot-policy-list-table {
+    .custom-icon:before { color: currentColor; }
+    :deep(.custom-icon path) { fill: currentColor; }
+  }
 
   .resource-summary {
     display: inline-flex;

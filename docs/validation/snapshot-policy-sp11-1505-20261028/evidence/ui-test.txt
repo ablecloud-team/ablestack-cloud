@@ -1,0 +1,666 @@
+SOURCE 6fa5e07f3c3f73784a214d329e519cd7c99daf5f
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runInBand --coverage=false --runTestsByPath tests/unit/utils/snapshotPolicyInput.spec.js tests/unit/utils/snapshotPolicySearch.spec.js tests/unit/utils/snapshotPolicyEditing.spec.js tests/unit/utils/snapshotPolicyDetail.spec.js tests/unit/components/view/VolumeSearchSelect.spec.js tests/unit/components/view/SnapshotPolicySearch.spec.js tests/unit/api/snapshotPolicyProjectRequest.spec.js tests/unit/api/request.spec.js tests/unit/api/cniProjectRequest.spec.js tests/unit/views/AutogenAffinitySearch.spec.js tests/unit/views/SnapshotPolicyList.spec.js tests/unit/views/AutogenSnapshotPolicyDetail.spec.js tests/unit/views/storage/SnapshotPolicyEditing.spec.js tests/unit/views/storage/SnapshotPolicyTags.spec.js tests/unit/views/storage/SnapshotPolicyInput.spec.js tests/unit/views/storage/SnapshotPolicyDeletion.spec.js tests/unit/views/storage/SnapshotPolicyMonthSearch.spec.js tests/unit/views/storage/SnapshotPolicyBulkDelete.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/storage/SnapshotPolicyDeletion.spec.js (5.117s)
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/storage/SnapshotPolicyTags.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/storage/SnapshotPolicyMonthSearch.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'volume', account: 'admin', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+
+PASS tests/unit/views/storage/SnapshotPolicyEditing.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/storage/SnapshotPolicyInput.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'v', account: 'owner', domainid: 'domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: resource-icon
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+        at <FormSchedule resource= { id: 'another', account: 'other', domainid: 'other-domain' } dataSource= [] ref="VTU_COMPONENT" > 
+        at <VTUROOT>
+
+PASS tests/unit/components/view/VolumeSearchSelect.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/storage/SnapshotPolicyBulkDelete.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/components/view/SnapshotPolicySearch.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/SnapshotPolicyList.spec.js
+PASS tests/unit/views/AutogenAffinitySearch.spec.js
+PASS tests/unit/views/AutogenSnapshotPolicyDetail.spec.js
+PASS tests/unit/utils/snapshotPolicyDetail.spec.js
+PASS tests/unit/utils/snapshotPolicySearch.spec.js
+PASS tests/unit/utils/snapshotPolicyInput.spec.js
+PASS tests/unit/utils/snapshotPolicyEditing.spec.js
+PASS tests/unit/api/request.spec.js
+  ● Console
+
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+
+PASS tests/unit/api/cniProjectRequest.spec.js
+PASS tests/unit/api/snapshotPolicyProjectRequest.spec.js
+
+Test Suites: 18 passed, 18 total
+Tests:       288 passed, 288 total
+Snapshots:   0 total
+Time:        37.627s
+Ran all test suites within paths "tests/unit/utils/snapshotPolicyInput.spec.js", "tests/unit/utils/snapshotPolicySearch.spec.js", "tests/unit/utils/snapshotPolicyEditing.spec.js", "tests/unit/utils/snapshotPolicyDetail.spec.js", "tests/unit/components/view/VolumeSearchSelect.spec.js", "tests/unit/components/view/SnapshotPolicySearch.spec.js", "tests/unit/api/snapshotPolicyProjectRequest.spec.js", "tests/unit/api/request.spec.js", "tests/unit/api/cniProjectRequest.spec.js", "tests/unit/views/AutogenAffinitySearch.spec.js", "tests/unit/views/SnapshotPolicyList.spec.js", "tests/unit/views/AutogenSnapshotPolicyDetail.spec.js", "tests/unit/views/storage/SnapshotPolicyEditing.spec.js", "tests/unit/views/storage/SnapshotPolicyTags.spec.js", "tests/unit/views/storage/SnapshotPolicyInput.spec.js", "tests/unit/views/storage/SnapshotPolicyDeletion.spec.js", "tests/unit/views/storage/SnapshotPolicyMonthSearch.spec.js", "tests/unit/views/storage/SnapshotPolicyBulkDelete.spec.js".

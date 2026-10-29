@@ -18,7 +18,7 @@
 <template>
   <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList }">
     <a-affix
-      :key="'affix-' + showSearchFilters + ((isStorageUi || isSnapshotList) ? '-' + storageHeaderWidth + '-' + device : ($route.meta?.name === 'userdata' ? '-' + device + '-' + selectedRowKeys.length : ''))"
+      :key="'affix-' + showSearchFilters + ((isStorageUi || isSnapshotList || isPolicyUi) ? '-' + storageHeaderWidth + '-' + device : ($route.meta?.name === 'userdata' ? '-' + device + '-' + selectedRowKeys.length : ''))"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78"
     >
       <a-card class="breadcrumb-card" style="z-index: 10">
@@ -176,16 +176,16 @@
     <div v-show="showAction">
       <component
         v-if="showAction && currentAction.selfManagedDialog"
-        :key="currentAction.storageSnapshotMode ? storageActionGeneration : undefined"
+        :key="(currentAction.storageSnapshotMode || currentAction.policyDeleteDialog) ? storageActionGeneration : undefined"
         ref="selfManagedAction"
         :is="currentAction.component"
         :resource="resource"
         :current-action="currentAction"
         dialog-only
-        @refresh-data="fetchData"
+        @refresh-data="refreshActionData"
         @close-action="closeAction"
       />
-      <keep-alive :max="isStorageUi ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup'].includes(currentAction.api))">
+      <keep-alive :max="(isStorageUi || isPolicyUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup'].includes(currentAction.api))">
         <component
           :is="standardActionDialog ? 'MoldDialog' : 'a-modal'"
           :size="currentAction.standardDialogSize || (isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
@@ -217,9 +217,9 @@
               <question-circle-outlined />
             </a>
           </template>
-          <keep-alive :max="isStorageUi ? 1 : undefined">
+          <keep-alive :max="(isStorageUi || isPolicyUi) ? 1 : undefined">
             <component
-              :key="isStorageUi ? storageActionGeneration : undefined"
+              :key="(isStorageUi || isPolicyUi) ? storageActionGeneration : undefined"
               :is="currentAction.component"
               :resource="resource"
               :loading="loading"
@@ -834,6 +834,7 @@
         :retained="!!listLoadedScope"
         @retry="fetchData({ irefresh: true })" />
       <a-alert v-if="snapshotSearchFailure" class="storage-query-error" type="error" show-icon :message="$t('message.snapshot.search.' + snapshotSearchFailure)" />
+      <a-alert v-if="policySearchFailure" class="storage-query-error" type="error" show-icon :message="$t('message.snapshot.policy.search.' + policySearchFailure)" />
       <a-alert v-if="isSnapshotCopyList" class="storage-query-error" type="info" show-icon :message="$t('message.snapshot.search.copy.readonly')" />
       <a-alert v-if="(isStorageUi || isSnapshotReadView) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
         <template #description><p v-if="isSnapshotReadView && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
@@ -852,10 +853,10 @@
           v-if="$route.path.startsWith('/publicip')"
         ></slot>
         <resource-view
-          v-else-if="(!isSnapshotDetail || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
-          :key="isSshKeyPairDetail || isSnapshotDetail ? listScope() : $route.path"
+          v-else-if="(!(isSnapshotDetail || isPolicyDetail) || resource.id || loading) && (!isSshKeyPairDetail || sshKeyPairDetailVisible) && ($route.meta?.name !== 'vmgroup' || resource.id || loading)"
+          :key="isSshKeyPairDetail || isSnapshotDetail || isPolicyDetail ? listScope() : $route.path"
           :readPending="listRequestPending"
-          :readyForActions="(isStorageUi || isSnapshotDetail) ? storageActionReady : isSshKeyPairDetail ? sshKeyPairDetailActionReady : ($route.meta?.name === 'cniconfiguration' ? cniDetailActionReady : ($route.meta?.name !== 'vmgroup' || vmGroupQueryReady))"
+          :readyForActions="(isStorageUi || isSnapshotDetail || isPolicyDetail) ? storageActionReady : isSshKeyPairDetail ? sshKeyPairDetailActionReady : ($route.meta?.name === 'cniconfiguration' ? cniDetailActionReady : ($route.meta?.name !== 'vmgroup' || vmGroupQueryReady))"
           :resource="resource"
           :loading="loading"
           :tabs="$route.meta.tabs"
@@ -880,8 +881,9 @@
           :emptyText="$route.meta?.name === 'vmgroup' ? vmGroupEmptyText : snapshotEmptyText"
           :columns="columns"
           :items="items"
-          :actions="isSnapshotCopyList || snapshotSearchFailure || (isSnapshotList && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
-          :selectionDisabled="record => isSnapshotList && !storageActionReady"
+          :actions="isSnapshotCopyList || snapshotSearchFailure || policySearchFailure || ((isSnapshotList || isPolicyList) && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
+          :selectionDisabled="record => (isSnapshotList || isPolicyList) && !storageActionReady"
+          :explicitlyAllowRowSelection="policySelectionAvailable"
           :keyboardContextMenu="isSnapshotList"
           :currentPage="page"
           :pageSize="pageSize"
@@ -940,6 +942,7 @@ import { snapshotDetailRoute, snapshotDetailParams, snapshotDetailPermissions, r
 import { snapshotListPage, snapshotSourceVolumeRoute, loadSnapshotListColumns, saveSnapshotListColumns } from '@/utils/storageSnapshotPresentation'
 import { storageSnapshotListQuery, storageSnapshotSortColumn, storageSnapshotSortQuery } from '@/utils/storageSnapshotList'
 import { normalizeSnapshotSearch, snapshotSearchError, snapshotSearchPermissionError, snapshotSearchQuery, snapshotCopyList, snapshotListRoute } from '@/utils/storageSnapshotSearch'
+import { canDeletePolicy } from '@/utils/snapshotPolicyDeletion'
 import { snapshotBusy, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
 import VmSnapshotSummary from '@/components/view/VmSnapshotSummary'
 import { mixinDevice } from '@/utils/mixin.js'
@@ -954,6 +957,9 @@ import ListView from '@/components/view/ListView'
 import ResourceView from '@/components/view/ResourceView'
 import MoldDialog from '@/components/view/MoldDialog'
 import { storageUiRoute, storageDialogSize, storageDetailRouteKey } from '@/utils/storageUi'
+import { policyDetailRoute, policyDetailPermissions, readPolicyDetail } from '@/utils/snapshotPolicyDetail'
+import { snapshotPolicyListRoute, snapshotPolicyListQuery, snapshotPolicySortColumn, snapshotPolicySortQuery } from '@/utils/snapshotPolicyList'
+import { normalizePolicySearch, policyProjectScope, policySearchError, policySearchForm, policySearchQuery, policySearchParams, policyListPage } from '@/utils/snapshotPolicySearch'
 import ActionButton from '@/components/view/ActionButton'
 import { affinityGroupQuery } from '@/utils/affinityGroupCreation'
 import SearchView from '@/components/view/SearchView'
@@ -1065,6 +1071,7 @@ export default {
       listRefreshError: false,
       snapshotListError: '',
       snapshotSearchFailure: '',
+      policySearchFailure: '',
       listLastUpdated: null,
       storageHeaderWidth: 0,
       vmGroupContextScope: null,
@@ -1234,8 +1241,9 @@ export default {
     },
     isStorageUi () { this.observeStorageHeader() },
     isSnapshotList () { this.observeStorageHeader() },
+    isPolicyUi () { this.observeStorageHeader() },
     snapshotSecurityScope () {
-      if (this.$route.meta?.name === 'vmgroup' || this.isSshKeyPairDetail || this.$route.name === 'snapshot' || snapshotDetailRoute(this.$route)) this.fetchData()
+      if (this.$route.meta?.name === 'vmgroup' || this.isSshKeyPairDetail || this.$route.name === 'snapshot' || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) this.fetchData()
       if (['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot'].includes(this.currentAction.api)) this.closeAction()
       if (this.showAction && (this.$route.meta?.name || this.$route.name) === 'snapshot') this.closeAction()
     },
@@ -1281,7 +1289,7 @@ export default {
       this.fetchData()
     },
     '$store.getters.listAllProjects' (enabled) {
-      if (snapshotListRoute(this.$route) && !this.$store.getters.project?.id) {
+      if ((snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && !this.$store.getters.project?.id) {
         const projectid = enabled ? '-1' : '0'
         if (this.$route.query.projectid !== projectid) return this.$router.push({ query: { ...this.$route.query, projectid, page: '1' } })
       }
@@ -1300,10 +1308,16 @@ export default {
     isStorageUi () { return storageUiRoute(this.$route) },
     isSnapshotList () { return snapshotListRoute(this.$route) },
     isSnapshotDetail () { return snapshotDetailRoute(this.$route) },
-    isSnapshotReadView () { return this.isSnapshotList || this.isSnapshotDetail },
+    isPolicyDetail () { return policyDetailRoute(this.$route) },
+    isPolicyList () { return snapshotPolicyListRoute(this.$route) },
+    isPolicyUi () { return this.isPolicyList || this.isPolicyDetail },
+    isSnapshotReadView () { return this.isSnapshotList || this.isSnapshotDetail || this.isPolicyDetail || snapshotPolicyListRoute(this.$route) },
     isSnapshotCopyList () { return snapshotCopyList(this.$route) },
     standardActionDialog () { return this.isStorageUi || !!this.currentAction.standardDialogSize },
     storageActionReady () { return !this.listRequestPending && !this.listRefreshError && this.listLoadedScope === this.listScope() },
+    policySelectionAvailable () {
+      return this.isPolicyList && !this.policySearchFailure && this.actions.some(action => action.groupAction && action.api in this.$store.getters.apis)
+    },
     isSshKeyPairDetail () { return isSshKeyPairDetailRoute(this.$route) },
     sshKeyPairDetailVisible () {
       return ['ready', 'refreshing'].includes(this.sshKeyPairDetailStatus) &&
@@ -1324,7 +1338,7 @@ export default {
       const filtered = ['keyword', 'q', 'state', 'type', 'current', 'virtualmachineid', 'virtualmachineids', 'account', 'domainid'].some(key => this.$route.query[key] !== undefined && this.$route.query[key] !== '')
       return this.$t(filtered ? 'message.vmsnapshot.list.no.results' : 'message.vmsnapshot.list.empty')
     },
-    snapshotSecurityScope () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token, this.$store.getters.userInfo?.roletype, ...(snapshotDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, snapshotDetailPermissions(this.$store.getters)] : [])]) },
+    snapshotSecurityScope () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token, this.$store.getters.userInfo?.roletype, ...(snapshotDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])]) },
     activeFiltersList () {
       const queryParams = Object.assign({}, this.$route.query)
       const activeFilters = []
@@ -1399,7 +1413,9 @@ export default {
       return 'self'
     },
     visibleDataViewActions () {
-      if (this.isSnapshotDetail && !this.storageActionReady) return []
+      const policyBackgroundRead = this.isPolicyDetail && this.listRequestPending && !this.listRefreshError &&
+        !!this.resource?.id && this.listLoadedScope === this.listScope()
+      if ((this.isSnapshotDetail || this.isPolicyDetail) && !this.storageActionReady && !policyBackgroundRead) return []
       if (this.isStorageUi && !this.resource?.id) return []
       if (this.isSshKeyPairDetail && !this.sshKeyPairDetailActionReady) return []
       if (this.$route.meta?.name === 'vmgroup' && !this.vmGroupQueryReady) return []
@@ -1414,10 +1430,10 @@ export default {
           return false
         }
         return 'show' in action ? action.show(this.resource, this.$store.getters) : true
-      })
+      }).map(action => policyBackgroundRead ? { ...action, disabled: () => true } : action)
     },
     visibleListActions () {
-      if (this.isSnapshotCopyList || this.snapshotSearchFailure || (this.isSnapshotList && !this.storageActionReady)) return []
+      if (this.isSnapshotCopyList || this.snapshotSearchFailure || this.policySearchFailure || (this.isSnapshotList && !this.storageActionReady) || (this.isPolicyList && this.listLoadedScope !== this.listScope())) return []
       if (!this.actions || this.actions.length === 0 || this.dataView) {
         return []
       }
@@ -1436,7 +1452,7 @@ export default {
         const showOnGroup = action.groupAction && selectionCount > 0 &&
           ('groupShow' in action ? action.groupShow(this.selectedItems, this.$store.getters) : true)
         return showOnList || showOnGroup
-      })
+      }).map(action => this.isPolicyList && !this.storageActionReady && !this.canOpenPolicyCreate(action, false) ? { ...action, disabled: () => true } : action)
     },
     requiresNameConfirmation () {
       return !!this.currentAction?.requireNameConfirmation &&
@@ -1451,7 +1467,7 @@ export default {
   methods: {
     observeStorageHeader () {
       if (this.storageHeaderObserver) this.storageHeaderObserver.disconnect()
-      if ((!this.isStorageUi && !this.isSnapshotList) || !this.$el || typeof ResizeObserver === 'undefined') return
+      if ((!this.isStorageUi && !this.isSnapshotList && !this.isPolicyUi) || !this.$el || typeof ResizeObserver === 'undefined') return
       // The sidebar and embedded browser can resize the container without
       // scrolling the window. Recreate Affix's cached placeholder width.
       this.storageHeaderObserver = new ResizeObserver(entries => {
@@ -1549,14 +1565,14 @@ export default {
     listScope () {
       if (isSshKeyPairDetailRoute(this.$route)) return sshKeyPairDetailScope(this.$route, this.$store.getters, this.$store.state?.user?.token)
       if (this.$route.meta?.name === 'vmgroup') return vmGroupQueryScope(this.$route, this.$store.getters, this.$store.state?.user?.token)
-      const routeKey = (storageUiRoute(this.$route) || snapshotDetailRoute(this.$route)) && this.$route.params?.id
+      const routeKey = (storageUiRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route)) && this.$route.params?.id
         ? storageDetailRouteKey(this.$route)
         : this.$route.meta?.name === 'cniconfiguration' && this.$route.params?.id ? cniHistoryRouteKey(this.$route) : this.$route.fullPath
-      return JSON.stringify([routeKey, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route)) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : [])] : []), this.$store.getters.project?.id,
+      return JSON.stringify([routeKey, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : []), this.$store.getters.project?.id,
         this.$store.getters.userInfo?.id, this.$store.getters.metrics, this.$store.getters.listAllProjects])
     },
     getStyle () {
-      if (['snapshot', 'vmsnapshot', 'publicip'].includes(this.$route.name)) {
+      if (['snapshot', 'snapshotpolicy', 'vmsnapshot', 'publicip'].includes(this.$route.name)) {
         return 'table-cell'
       }
       return 'inline-flex'
@@ -1628,14 +1644,14 @@ export default {
           project = json?.listprojectsresponse?.project?.find(item => item.id === projectId)
           if (!project) throw new Error(this.$t('message.snapshot.search.lookup.denied'))
         }
-        if (!snapshotListRoute(this.$route) || captured !== scope() || this.$route.query.projectid !== projectId) return
+        if (!(snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route)) || captured !== scope() || this.$route.query.projectid !== projectId) return
         await this.$store.dispatch('SetProject', project)
         await this.$store.dispatch('SetListAllProjects', projectId === '-1')
         this.fetchData({ irefresh: true })
-      } catch (error) { if (snapshotListRoute(this.$route) && captured === scope()) this.$notifyError(error) }
+      } catch (error) { if ((snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && captured === scope()) this.$notifyError(error) }
     },
     switchProject (projectId) {
-      if (snapshotListRoute(this.$route)) return this.syncSnapshotProject(projectId)
+      if (snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route)) return this.syncSnapshotProject(projectId)
       if (!projectId || !projectId.length || projectId.length !== 36) {
         return
       }
@@ -1653,6 +1669,34 @@ export default {
       })
     },
     fetchData (params = {}) {
+      const policyRoute = snapshotPolicyListRoute(this.$route) || policyDetailRoute(this.$route)
+      // Apply the destination view before URL/permission guards can return early.
+      if (policyRoute) this.dataView = !!this.$route.params?.id
+      if (policyRoute && !('listSnapshotPolicies' in (this.$store.getters.apis || {}))) {
+        // Logout/role discovery can clear permissions before this view leaves.
+        // Invalidate pending reads without sending a new request with a revoked session.
+        this.listRequestVersion++; this.listRequestPending = false; this.listRefreshQueued = false
+        this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null; this.loading = false
+        this.listRefreshError = true; this.snapshotListError = 'message.snapshot.policy.detail.missing'
+        this.resetSelection(); this.$emit('change-resource', this.resource)
+        return
+      }
+      if (snapshotPolicyListRoute(this.$route)) {
+        const clean = snapshotPolicyListQuery(normalizePolicySearch({ ...this.$route.query, projectid: policyProjectScope(this.$route, this.$store.getters) }), this.pageSize)
+        if (JSON.stringify(clean) !== JSON.stringify(this.$route.query)) {
+          this.listRequestVersion++; this.listRequestPending = false; this.listLoadedScope = null
+          this.items = []; this.resource = {}; this.itemCount = 0; this.loading = false; this.resetSelection()
+          return this.$router.replace({ query: clean })
+        }
+        this.policySearchFailure = policySearchError(clean, this.$store.getters)
+        if (this.policySearchFailure) {
+          this.listRequestVersion++; this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
+          this.listRequestPending = false; this.loading = false; this.listRefreshError = false; this.resetSelection()
+          return
+        }
+      } else {
+        this.policySearchFailure = ''
+      }
       if (this.$route.name === 'snapshot' && !this.$route.params.id) {
         const projectId = this.$route.query.projectid || this.$store.getters.project?.id || (this.$store.getters.listAllProjects ? '-1' : '0')
         const clean = storageSnapshotListQuery(normalizeSnapshotSearch({ ...this.$route.query, ...(projectId ? { projectid: projectId } : {}) }))
@@ -1720,7 +1764,7 @@ export default {
           : null
         this.routeName = matchedRoute?.meta?.name || this.$route?.meta?.name || this.$route?.name || ''
       }
-      const securityScope = JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route)) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : [])] : [])])
+      const securityScope = JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id, ...((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token, this.$store.getters.userInfo?.roleid, ...(snapshotDetailRoute(this.$route) ? [snapshotDetailPermissions(this.$store.getters)] : []), ...(policyDetailRoute(this.$route) ? [this.$store.getters.userInfo?.roleid, policyDetailPermissions(this.$store.getters)] : [])] : [])])
       if (this.listSecurityScope !== securityScope) {
         this.items = []
         this.resource = {}
@@ -1735,7 +1779,7 @@ export default {
       }
       const version = ++this.listRequestVersion
       const sameList = this.listLoadedScope === scope
-      if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route)) && !sameList) {
+      if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && !sameList) {
         this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
         this.snapshotListError = ''; this.listRefreshError = false
         this.resetSelection()
@@ -1793,6 +1837,9 @@ export default {
       if (this.$route.name === 'snapshot' && !this.dataView && !rebuildSchema) {
         this.columns.forEach(column => Object.assign(column, storageSnapshotSortColumn(column.key, params)))
       }
+      if (snapshotPolicyListRoute(this.$route) && !rebuildSchema) {
+        this.columns.forEach(column => Object.assign(column, snapshotPolicySortColumn(column.key, params, this.$t)))
+      }
       delete params.q
       delete params.filter
       delete params.irefresh
@@ -1812,7 +1859,7 @@ export default {
       this.projectView = Boolean(store.getters.project && store.getters.project.id)
       this.hasProjectId = ['vm', 'vmgroup', 'ssh', 'affinitygroup', 'userdata', 'cniconfiguration', 'volume', 'snapshot', 'buckets', 'vmsnapshot', 'guestnetwork',
         'vpc', 'securitygroups', 'publicip', 'vpncustomergateway', 'template', 'iso', 'event', 'kubernetes', 'sharedfs',
-        'autoscalevmgroup', 'vnfapp', 'webhook', 'kmskey', 'hsmprofile'].includes(this.$route.name)
+        'autoscalevmgroup', 'vnfapp', 'webhook', 'kmskey', 'hsmprofile', 'snapshotpolicy'].includes(this.$route.name)
 
       if (this.dataView && !refreshed && !sameList) {
         this.resource = {}
@@ -1905,7 +1952,8 @@ export default {
             dataIndex: key,
             sorter: this.$route.name === 'vmsnapshot' ? ['displayname', 'state', 'type', 'current', 'created'].includes(key) : sorter,
             ...((this.$route.name === 'vmsnapshot' || ['vmgroup', 'cniconfiguration'].includes(this.$route.meta?.name)) ? { sortOrder: (this.$route.query.sortkey || (this.$route.name === 'vmsnapshot' ? 'created' : '')) === key ? (this.$route.query.sortorder === 'asc' ? 'ascend' : 'descend') : null } : {}),
-            ...(this.$route.name === 'snapshot' ? storageSnapshotSortColumn(key, this.$route.query) : {})
+            ...(this.$route.name === 'snapshot' ? storageSnapshotSortColumn(key, this.$route.query) : {}),
+            ...(snapshotPolicyListRoute(this.$route) ? snapshotPolicySortColumn(key, this.$route.query, this.$t) : {})
           })
           if (this.$route.name !== 'autoscalevmgroup' || defaultColumnKeys.some(column => (typeof column === 'object' ? column.field : column) === key)) this.selectedColumns.push(key)
         }
@@ -2030,9 +2078,10 @@ export default {
       }
 
       if (this.$store.getters.listAllProjects && !this.projectView) {
-        params.projectid = (this.$route.meta?.name === 'affinitygroup' || snapshotListRoute(this.$route)) ? (this.$route.query.projectid || '-1') : '-1'
+        params.projectid = (this.$route.meta?.name === 'affinitygroup' || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route)) ? (this.$route.query.projectid || '-1') : '-1'
       }
       if (snapshotListRoute(this.$route) && params.projectid === '0') { delete params.projectid; params.ignoreproject = true }
+      if (snapshotPolicyListRoute(this.$route)) params = policySearchParams(params)
 
       params.page = Number.isFinite(Number(this.page)) && Number(this.page) > 0 ? Number(this.page) : 1
       params.pagesize = this.getValidPageSize(this.pageSize)
@@ -2081,11 +2130,13 @@ export default {
       }
       const cniQuery = ['cniconfiguration', 'affinitygroup'].includes(this.$route.meta?.name)
       const snapshotDetail = snapshotDetailRoute(this.$route)
-      const response = snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
+      const policyDetail = policyDetailRoute(this.$route)
+      const response = policyDetail ? Promise.resolve().then(() => readPolicyDetail(getAPI, this.$route, this.$store.getters.project, () => version === this.listRequestVersion && scope === this.listScope())) : snapshotDetail ? Promise.resolve().then(() => readSnapshotDetail(getAPI, snapshotDetailParams(this.$route, this.$store.getters.project), this.$store.getters, () => version === this.listRequestVersion && scope === this.listScope())) : vmGroups || sshDetail || cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotPolicyListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
       const request = response.then(async json => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         const groupResult = vmGroups ? vmGroupQueryRows(json) : null
         const snapshotPage = snapshotListRoute(this.$route) ? snapshotListPage(json, this.$route, this.page, this.pageSize) : null
+        const policyPage = snapshotPolicyListRoute(this.$route) ? policyListPage(json, params) : null
         this.snapshotListError = ''
         if (sshDetail) {
           const result = sshKeyPairDetailResult(json, sshTarget)
@@ -2108,7 +2159,7 @@ export default {
             break
           }
         }
-        let apiItemCount = 0
+        let apiItemCount = json[responseName]?.count || 0
         for (const key in json[responseName]) {
           if (key === 'count') {
             apiItemCount = json[responseName].count
@@ -2120,6 +2171,7 @@ export default {
 
         if (groupResult) apiItemCount = groupResult.count
         if (snapshotPage) apiItemCount = snapshotPage.count
+        if (policyPage) apiItemCount = policyPage.count
 
         const idFromRouteMatchesApiParameter = this.$route.params.id === params.id ||
           this.apiName === 'quotaSummary' && this.$route.params.id === params.accountid ||
@@ -2130,18 +2182,19 @@ export default {
           return
         }
 
-        if (!this.dataView && Object.prototype.hasOwnProperty.call(json[responseName], 'count')) {
+        if (!this.dataView && (policyPage || Object.prototype.hasOwnProperty.call(json[responseName], 'count'))) {
           const lastPage = Math.max(1, Math.ceil(apiItemCount / this.pageSize))
           if (this.page > lastPage) {
             this.$router.replace({ query: { ...this.$route.query, page: String(lastPage) } })
             return
           }
         }
-        let responseItems = snapshotPage ? snapshotPage.rows : groupResult ? groupResult.rows : json[responseName][objectName]
+        let responseItems = policyPage ? policyPage.rows : snapshotPage ? snapshotPage.rows : groupResult ? groupResult.rows : json[responseName][objectName]
         if (this.$route.name === 'autoscalevmgroup' && !this.dataView && this.selectedColumns.includes('zonename')) {
           responseItems = await autoScaleInfrastructureRows(getAPI, responseItems || [], 'listNetworks' in this.$store.getters.apis)
           if (version !== this.listRequestVersion || scope !== this.listScope()) return
         }
+        if (policyDetail) responseItems = responseItems.map(record => ({ ...record, name: (record.volumename || record.volumeid) + ' · ' + this.$t(['label.hourly', 'label.daily', 'label.weekly', 'label.monthly'][Number(record.intervaltype)] || 'label.snapshot.list.unknown') }))
         this.items = responseItems
         if (!this.items || this.items.length === 0) {
           this.items = []
@@ -2202,15 +2255,15 @@ export default {
       }).catch(error => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         if (sshDetail) { this.rejectSshKeyPairDetail(sshKeyPairDetailFailure(error)); return }
-        if (cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotDetail) {
-          if (snapshotListRoute(this.$route) || snapshotDetail) this.snapshotListError = Object.values(error?.response?.data || {}).find(value => value?.errortext)?.errortext || (error.message?.startsWith('message.') ? error.message : 'message.snapshot.list.read.failed')
+        if (cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route) || snapshotDetail || policyDetail || snapshotPolicyListRoute(this.$route)) {
+          if (snapshotListRoute(this.$route) || snapshotDetail || policyDetail) this.snapshotListError = Object.values(error?.response?.data || {}).find(value => value?.errortext)?.errortext || (error.message?.startsWith('message.') ? error.message : 'message.snapshot.list.read.failed')
           this.listRefreshError = true
           if (cniQuery) {
             this.resetSelection()
             if (this.$refs.listview) this.$refs.listview.resetSelection()
           }
           const code = Number(error?.response?.data?.errorresponse?.errorcode || error?.response?.status)
-          if (!sameList || [401, 403, 431, 432, 531].includes(code) || (snapshotDetail && code === 404)) {
+          if (!sameList || [401, 403, 431, 432, 531].includes(code) || ((snapshotDetail || policyDetail) && code === 404)) {
             this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
             this.resetSelection()
             if (this.$refs.listview) this.$refs.listview.resetSelection()
@@ -2291,8 +2344,30 @@ export default {
       }
       return request
     },
+    refreshActionData (result) {
+      // A confirmed policy deletion must close before navigation. Refetching its
+      // detail here clears the dialog scope and loses the after-close result.
+      if (this.currentAction?.policyDeleteDialog) {
+        if (policyDetailRoute(this.$route) && result?.removed?.includes(this.$route.params?.id)) return
+        return this.fetchData()
+      }
+      return this.fetchData(result)
+    },
     closeAction (result) {
       const snapshotDialog = this.currentAction?.storageSnapshotMode || this.currentAction?.snapshotStandardDialog
+      const policyDeleteDialog = this.currentAction?.policyDeleteDialog
+      const deletedPolicyDetail = policyDeleteDialog && policyDetailRoute(this.$route) && this.currentAction.policyListScope === this.listScope() && result?.removed?.includes(this.$route.params?.id)
+      let policyListLocation
+      if (deletedPolicyDetail) {
+        const query = snapshotPolicyListQuery(policySearchQuery(this.$route.query, policySearchForm(this.$route.query), this.$route.query.pagesize || this.pageSize || 20))
+        if (query.id === this.$route.params.id) delete query.id
+        policyListLocation = { path: '/snapshotpolicy', query }
+        this.listRequestVersion++; this.listRequestPending = false; this.listLoadedScope = null
+        this.resource = {}; this.items = []; this.itemCount = 0; this.snapshotListError = ''; this.listRefreshError = false
+      }
+      if (policyDeleteDialog && result?.clearSelection && this.currentAction.policyListScope === this.listScope()) {
+        this.resetSelection(); if (this.$refs.listview) this.$refs.listview.resetSelection()
+      }
       const cniAction = this.currentAction?.api === 'deleteCniConfiguration' && this.currentAction.cniListScope === this.listScope()
       const cniLocation = this.currentAction?.cniListLocation
       const deletedCniDetail = cniAction && this.dataView && result?.removed?.includes(this.resource?.id)
@@ -2324,6 +2399,7 @@ export default {
       this.currentAction = {}
       this.actionConfirmText = ''
       if (deletedCniDetail) this.$router.replace(cniLocation || { path: '/cniconfiguration' })
+      if (deletedPolicyDetail) this.$router.replace(policyListLocation)
       if (deletedSshDetail) this.$router.push('/ssh')
       if (deletedUserDataDetail) this.$router.push('/userdata')
       // Clearing currentAction unmounts the legacy modal before AntD can restore focus.
@@ -2331,9 +2407,10 @@ export default {
       const scope = this.listScope?.()
       const restoreFocus = () => {
         if (snapshotDialog && (generation !== this.storageActionGeneration || scope !== this.listScope?.() || originPath !== this.$route?.path)) return
-        const replacement = (this.isStorageUi || snapshotDialog) && originPath === this.$route?.path
+        let replacement = (this.isStorageUi || snapshotDialog) && originPath === this.$route?.path
           ? (this.$refs?.detailActionsTrigger?.$el || (triggerLabel && Array.from(this.$el?.querySelectorAll('.autogen-toolbar-actions button') || []).find(button => button.getAttribute('aria-label') === triggerLabel)))
           : null
+        if (policyDeleteDialog && !replacement && originPath === this.$route?.path) replacement = this.$el?.querySelector('.autogen-toolbar-actions button:not([disabled])')
         // A portal menu item may remain connected but hidden after its dropdown closes.
         // Snapshot dialogs return to the stable toolbar/detail button in the current route.
         const target = snapshotDialog && replacement?.isConnected ? replacement : trigger?.isConnected ? trigger : replacement
@@ -2369,6 +2446,7 @@ export default {
           if (filter.key === 'domainid') delete queryParams.account
         }
         if (this.$route.name === 'vmsnapshot' && filter.key === 'state') delete queryParams.filter
+        if (snapshotPolicyListRoute(this.$route) && filter.key === 'domainid') delete queryParams.account
       }
       queryParams.page = '1'
       queryParams.pagesize = String(this.pageSize)
@@ -2398,8 +2476,15 @@ export default {
         this.actionTrigger = this.$refs?.detailActionsTrigger?.$el || this.actionTrigger
       }
     },
+    canOpenPolicyCreate (action, isGroupAction) {
+      // Creating starts an independent volume read; it does not act on stale list rows.
+      return snapshotPolicyListRoute(this.$route) && !isGroupAction && !action.dataView && action.listView &&
+        action.api === 'createSnapshotPolicy' && action.popup && action.snapshotStandardDialog &&
+        !this.policySearchFailure && !this.listRefreshError && this.listLoadedScope === this.listScope() &&
+        ['listSnapshotPolicies', 'listVolumes', 'createSnapshotPolicy'].every(api => api in (this.$store.getters.apis || {}))
+    },
     execAction (action, isGroupAction) {
-      if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route)) && this.storageActionReady === false) return
+      if ((snapshotListRoute(this.$route) || snapshotDetailRoute(this.$route) || policyDetailRoute(this.$route) || snapshotPolicyListRoute(this.$route)) && this.storageActionReady === false && !this.canOpenPolicyCreate(action, isGroupAction)) return
       if (storageUiRoute(this.$route) && (action.dataView || isGroupAction) && !this.storageActionReady) return
       this.storageActionGeneration++
       this.actionFocusReturn = null
@@ -2416,6 +2501,14 @@ export default {
       this.actionTrigger = document.activeElement
       this.actionTriggerLabel = this.actionTrigger?.getAttribute('aria-label')
       this.actionOriginPath = this.$route?.path
+      if (action.policyDeleteDialog) {
+        const targets = isGroupAction ? this.selectedItems : [action.resource || this.resource]
+        if (!canDeletePolicy(this.$store.getters.apis) || !targets.length || targets.some(p => !p?.id || !p.volumeid)) return
+        this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, policyListScope: this.listScope(), policyDeleteTargets: Object.freeze(targets.map(p => Object.freeze({ ...p }))) }
+        this.resource = Object.freeze({ ...targets[0] })
+        this.showAction = true
+        return
+      }
       if (action.api === 'deleteAffinityGroup') {
         if (!['listAffinityGroups', 'deleteAffinityGroup'].every(api => api in this.$store.getters.apis)) return
         this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, affinityTargets: Object.freeze((isGroupAction ? this.selectedItems : [action.resource]).filter(Boolean).map(row => Object.freeze({ ...row }))) }
@@ -3327,6 +3420,13 @@ export default {
       this.$router.push({ query })
     },
     onSearch (opts) {
+      if (snapshotPolicyListRoute(this.$route) && opts && Object.prototype.hasOwnProperty.call(opts, 'policySearch')) {
+        const query = snapshotPolicyListQuery(policySearchQuery(this.$route.query, opts.policySearch, this.pageSize))
+        this.searchParams = {}
+        if (JSON.stringify(query) === JSON.stringify(this.$route.query)) this.fetchData(query)
+        else this.$router.push({ query })
+        return
+      }
       if (this.$route.name === 'snapshot' && opts && Object.prototype.hasOwnProperty.call(opts, 'snapshotSearch')) {
         const query = storageSnapshotListQuery(snapshotSearchQuery(this.$route.query, opts.snapshotSearch, this.pageSize))
         this.searchParams = {}
@@ -3335,7 +3435,7 @@ export default {
         return
       }
       const query = Object.assign({}, this.$route.query)
-      const snapshotKeywordSearch = this.$route.name === 'snapshot' && opts && Object.prototype.hasOwnProperty.call(opts, 'searchQuery')
+      const snapshotKeywordSearch = (this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) && opts && Object.prototype.hasOwnProperty.call(opts, 'searchQuery')
       let searchFilters = this.$route?.meta?.searchFilters || []
       if (typeof searchFilters === 'function') {
         searchFilters = searchFilters()
@@ -3387,11 +3487,15 @@ export default {
     },
     changePage (page, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot') && Number(pageSize) !== this.pageSize ? 1 : page
+      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) && Number(pageSize) !== this.pageSize ? 1 : page
       query.pagesize = pageSize
       this.$router.push({ query })
     },
     handleTableChange (pagination, filters, sorter) {
+      if (snapshotPolicyListRoute(this.$route)) {
+        this.$router.push({ query: snapshotPolicySortQuery(this.$route.query, sorter, this.pageSize) })
+        return
+      }
       if (this.$route.name === 'snapshot') {
         this.$router.push({ query: storageSnapshotSortQuery(this.$route.query, sorter, this.pageSize) })
         return
@@ -3407,7 +3511,7 @@ export default {
     },
     changePageSize (currentPage, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot') ? 1 : currentPage
+      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot' || snapshotPolicyListRoute(this.$route)) ? 1 : currentPage
       query.pagesize = pageSize
       this.$router.push({ query })
     },

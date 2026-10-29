@@ -1,0 +1,32 @@
+{
+  "popup": [
+    {
+      "background": "rgb(39, 46, 54)",
+      "cells": [
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "12"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "01"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "02"
+        },
+        {
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgba(0, 0, 0, 0.65)",
+          "text": "03"
+        }
+      ],
+      "class": "ant-picker-dropdown ant-picker-dropdown-placement-bottomLeft",
+      "text": "0212223242526272829303132333435363738394041424344454647484950515253545556575859AMPM현재 시각확인"
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

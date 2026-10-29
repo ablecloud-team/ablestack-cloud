@@ -1,0 +1,498 @@
+[
+  {
+    "headers": [
+      {
+        "sort": null,
+        "text": "간격 유형"
+      },
+      {
+        "sort": null,
+        "text": "최대 스냅샷 수"
+      },
+      {
+        "sort": null,
+        "text": "스케줄"
+      },
+      {
+        "sort": null,
+        "text": "시간대"
+      },
+      {
+        "sort": null,
+        "text": "볼륨 이름"
+      },
+      {
+        "sort": null,
+        "text": ""
+      },
+      {
+        "sort": null,
+        "text": "레벨"
+      },
+      {
+        "sort": null,
+        "text": "유형"
+      },
+      {
+        "sort": null,
+        "text": "상태"
+      },
+      {
+        "sort": null,
+        "text": "설명"
+      },
+      {
+        "sort": null,
+        "text": "리소스"
+      },
+      {
+        "sort": null,
+        "text": "사용자 이름"
+      },
+      {
+        "sort": null,
+        "text": "계정"
+      },
+      {
+        "sort": null,
+        "text": "도메인"
+      },
+      {
+        "sort": null,
+        "text": "생성일"
+      },
+      {
+        "sort": null,
+        "text": ""
+      }
+    ],
+    "pagination": "전체 32 개 항목 중 1-20 표시",
+    "rows": [
+      {
+        "cells": [
+          "MONTHLY",
+          "3",
+          "2:11 일 9 월",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-owner-a",
+          ""
+        ],
+        "id": "608c0639-9f99-498e-9221-e4ede78b5edb"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "3",
+          "2:11 매 wednesday",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-owner-a",
+          ""
+        ],
+        "id": "b1876eb7-5a4f-4dd0-bd17-aa675f706c55"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "3",
+          "2:11",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-owner-a",
+          ""
+        ],
+        "id": "71829787-9a3e-43dd-a864-fa413a081b62"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "3",
+          "11분(매시)",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-owner-a",
+          ""
+        ],
+        "id": "79e9035c-175e-4fad-bd98-81cfb6bbc6ce"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "3",
+          "0:0 일 10 월",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "ee6577dc-4920-4482-980e-732553fc1320"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "3",
+          "0:0 매 monday",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "8e540faf-a298-4e9d-93a7-8104d8f80051"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "3",
+          "0:0",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "d5db2e5f-89c4-403e-beaf-765b275353e5"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "3",
+          "0분(매시)",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "d2991a73-cf22-4139-abeb-13b8c5f098f7"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "2",
+          "9:9 일 10 월",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-owner-b",
+          ""
+        ],
+        "id": "ff2e247c-f688-4663-abb0-6ab2abee26a6"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "2",
+          "9:9 매 tuesday",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-owner-b",
+          ""
+        ],
+        "id": "eb179497-bdf7-49a2-84ef-049769c05cf2"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "2",
+          "9:9",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-owner-b",
+          ""
+        ],
+        "id": "8a0e42be-eb04-4999-8c4a-a66a372307ba"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "2",
+          "9분(매시)",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-owner-b",
+          ""
+        ],
+        "id": "e944bf86-cace-4ae1-9606-92d6bfd818db"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "2",
+          "11:2 일 1 월",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-Alpha",
+          ""
+        ],
+        "id": "52d2c7f9-4b84-4094-863f-71d27ceddac5"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "2",
+          "11:2 매 saturday",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-Alpha",
+          ""
+        ],
+        "id": "717cd780-7da6-42d0-bc78-e72174054b33"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "2",
+          "11:2",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-Alpha",
+          ""
+        ],
+        "id": "a21e1926-934e-45cb-8594-554d611f3f95"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "2",
+          "2분(매시)",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-Alpha",
+          ""
+        ],
+        "id": "be43f68d-87e7-45d4-b902-c1102322dfd9"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "1",
+          "23:59 일 28 월",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-한글",
+          ""
+        ],
+        "id": "5c838f10-8b6e-41a4-a00f-c47b53ae6080"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "1",
+          "23:59 매 friday",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-한글",
+          ""
+        ],
+        "id": "0a72d3fc-e42b-46cd-bb27-c18b58f8d282"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "1",
+          "23:59",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-한글",
+          ""
+        ],
+        "id": "4ac6d726-f377-4d8a-8f45-6780942e42f9"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "1",
+          "59분(매시)",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-한글",
+          ""
+        ],
+        "id": "9bc1dae5-56e3-49d2-88a5-ac3bc1f340b9"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+  },
+  {
+    "headers": [
+      {
+        "sort": null,
+        "text": "간격 유형"
+      },
+      {
+        "sort": null,
+        "text": "최대 스냅샷 수"
+      },
+      {
+        "sort": null,
+        "text": "스케줄"
+      },
+      {
+        "sort": null,
+        "text": "시간대"
+      },
+      {
+        "sort": null,
+        "text": "볼륨 이름"
+      },
+      {
+        "sort": null,
+        "text": ""
+      },
+      {
+        "sort": null,
+        "text": "레벨"
+      },
+      {
+        "sort": null,
+        "text": "유형"
+      },
+      {
+        "sort": null,
+        "text": "상태"
+      },
+      {
+        "sort": null,
+        "text": "설명"
+      },
+      {
+        "sort": null,
+        "text": "리소스"
+      },
+      {
+        "sort": null,
+        "text": "사용자 이름"
+      },
+      {
+        "sort": null,
+        "text": "계정"
+      },
+      {
+        "sort": null,
+        "text": "도메인"
+      },
+      {
+        "sort": null,
+        "text": "생성일"
+      },
+      {
+        "sort": null,
+        "text": ""
+      }
+    ],
+    "pagination": "전체 32 개 항목 중 21-32 표시",
+    "rows": [
+      {
+        "cells": [
+          "MONTHLY",
+          "2",
+          "9:9 일 9 월",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "1423e806-6115-4c03-ad4d-222b341ab066"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "2",
+          "9:9 매 sunday",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "88999f04-bdc5-47ae-aa8f-36cd6ca213c2"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "2",
+          "9:9",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "285d678a-3e96-46c1-ba67-ec8a936249ff"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "2",
+          "9분(매시)",
+          "Etc/UTC [Coordinated Universal Time]",
+          "SP09-1503-32-same",
+          ""
+        ],
+        "id": "5ff35340-697a-4d06-af65-c1b7d4ca4180"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "2",
+          "11:2 일 1 월",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-zeta",
+          ""
+        ],
+        "id": "a8dd4918-ed70-4975-a0a7-c5183149ffbb"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "2",
+          "11:2 매 monday",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-zeta",
+          ""
+        ],
+        "id": "6ffba116-fba1-43b1-a6ab-8ad81913fef9"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "2",
+          "11:2",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-zeta",
+          ""
+        ],
+        "id": "2ce139af-6453-422e-b6fa-db56edffcf5f"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "2",
+          "2분(매시)",
+          "UTC [Coordinated Universal Time]",
+          "SP09-1503-32-zeta",
+          ""
+        ],
+        "id": "e9a59c05-4a52-4987-bb28-6a291a849711"
+      },
+      {
+        "cells": [
+          "MONTHLY",
+          "1",
+          "2:11 일 28 월",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-alpha",
+          ""
+        ],
+        "id": "cbb2aa8c-b6af-4c3c-ab45-db28d13ea05d"
+      },
+      {
+        "cells": [
+          "WEEKLY",
+          "1",
+          "2:11 매 saturday",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-alpha",
+          ""
+        ],
+        "id": "0882b705-8bfd-4af7-96ce-116ea5930c54"
+      },
+      {
+        "cells": [
+          "DAILY",
+          "1",
+          "2:11",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-alpha",
+          ""
+        ],
+        "id": "fae5fb4e-6a3c-406a-927a-3e80eadb7a02"
+      },
+      {
+        "cells": [
+          "HOURLY",
+          "1",
+          "11분(매시)",
+          "Asia/Seoul [Korea Standard Time]",
+          "SP09-1503-32-alpha",
+          ""
+        ],
+        "id": "dca66011-15b5-4b1a-90cc-4bbe48d2a9cd"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?page=2&pagesize=20"
+  }
+]

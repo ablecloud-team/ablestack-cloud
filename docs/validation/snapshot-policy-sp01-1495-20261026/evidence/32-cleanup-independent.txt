@@ -1,0 +1,12 @@
+active_volumes	0
+policies	0
+schedules	0
+active_snapshots	0
+nonterminal_refs	0
+active_projects	0
+pending_jobs	0
+Destroy	53
+Expunged	2
+tags	0
+active
+200

@@ -1,0 +1,3482 @@
+[
+  {
+    "at": "2026-10-26T22:36:54.414Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:01.113Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:01.126Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:08.224Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:08.245Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:08.265Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "fordisplay": "false",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "0",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+          "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+          "volumename": "SP05-1499-31-scheduled",
+          "schedule": "0",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": false,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:37:08.346Z",
+    "label": "final-menu-hourly",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:17.277Z",
+    "label": "final-menu-daily",
+    "params": {
+      "id": "309af718-6183-4def-be23-d6881a5c10c5",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:17.300Z",
+    "label": "final-menu-daily",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:26.071Z",
+    "label": "final-menu-daily",
+    "params": {
+      "id": "309af718-6183-4def-be23-d6881a5c10c5",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:26.094Z",
+    "label": "final-menu-daily",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:26.111Z",
+    "label": "final-menu-daily",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "309af718-6183-4def-be23-d6881a5c10c5",
+      "fordisplay": "true",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "intervaltype": "daily",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "309af718-6183-4def-be23-d6881a5c10c5",
+          "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+          "volumename": "SP05-1499-31-scheduled",
+          "schedule": "59:23",
+          "intervaltype": 1,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "309af718-6183-4def-be23-d6881a5c10c5",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:37:26.187Z",
+    "label": "final-menu-daily",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:35.687Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "id": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:35.710Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:44.110Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "id": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:44.138Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:44.152Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "fordisplay": "true",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "intervaltype": "weekly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23:7"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "e4fa501a-d094-48c5-a76d-34223e8931b1",
+          "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+          "volumename": "SP05-1499-31-scheduled",
+          "schedule": "59:23:7",
+          "intervaltype": 2,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:37:44.212Z",
+    "label": "final-menu-weekly",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:54.184Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:57.970Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:37:57.992Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:07.404Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:07.431Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:07.447Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "fordisplay": "true",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "intervaltype": "monthly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23:28",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상",
+      "tags[2].key": "sp05-draft",
+      "tags[2].value": "저장 초안"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+          "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+          "volumename": "SP05-1499-31-scheduled",
+          "schedule": "59:23:28",
+          "intervaltype": 3,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-draft",
+              "value": "저장 초안",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "0d30c378-e23e-4217-a9cd-22b10baae5ad",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:38:07.513Z",
+    "label": "final-menu-monthly",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:17.480Z",
+    "label": "final-volume-0",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:27.536Z",
+    "label": "final-volume-0",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:37.599Z",
+    "label": "final-volume-0",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:43.371Z",
+    "label": "final-volume-0",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:50.203Z",
+    "label": "final-volume-0",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:50.221Z",
+    "label": "final-volume-0",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:51.660Z",
+    "label": "final-volume-0",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:51.683Z",
+    "label": "final-volume-0",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:51.703Z",
+    "label": "final-volume-0",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "0",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "0",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": false,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:38:51.767Z",
+    "label": "final-volume-0",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:52.264Z",
+    "label": "final-volume-1",
+    "params": {
+      "id": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:52.276Z",
+    "label": "final-volume-1",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:54.476Z",
+    "label": "final-volume-1",
+    "params": {
+      "id": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:54.500Z",
+    "label": "final-volume-1",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:54.520Z",
+    "label": "final-volume-1",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "fordisplay": "true",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "daily",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "59:23",
+          "intervaltype": 1,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "f3844804-db56-4dd6-8061-928b6c1cbb94",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:38:54.578Z",
+    "label": "final-volume-1",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:55.076Z",
+    "label": "final-volume-2",
+    "params": {
+      "id": "aad169ce-112e-4959-8184-ae7a793463f5",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:55.088Z",
+    "label": "final-volume-2",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:58.610Z",
+    "label": "final-volume-2",
+    "params": {
+      "id": "aad169ce-112e-4959-8184-ae7a793463f5",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:58.636Z",
+    "label": "final-volume-2",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:58.652Z",
+    "label": "final-volume-2",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "aad169ce-112e-4959-8184-ae7a793463f5",
+      "fordisplay": "true",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "weekly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23:7"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "aad169ce-112e-4959-8184-ae7a793463f5",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "59:23:7",
+          "intervaltype": 2,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:38:58.726Z",
+    "label": "final-volume-2",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:59.233Z",
+    "label": "final-volume-3",
+    "params": {
+      "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:38:59.246Z",
+    "label": "final-volume-3",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:39:02.244Z",
+    "label": "final-volume-3",
+    "params": {
+      "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:39:02.271Z",
+    "label": "final-volume-3",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:39:02.287Z",
+    "label": "final-volume-3",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+      "fordisplay": "true",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "monthly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "59:23:28",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상",
+      "tags[2].key": "sp05-draft",
+      "tags[2].value": "저장 초안"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "531df21b-4b66-4192-9b4a-41c49e58d556",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "59:23:28",
+          "intervaltype": 3,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-draft",
+              "value": "저장 초안",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "531df21b-4b66-4192-9b4a-41c49e58d556",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:39:02.347Z",
+    "label": "final-volume-3",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:03.864Z",
+    "label": "final-preflight-failure",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:13.243Z",
+    "label": "final-preflight-failure",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:13.682Z",
+    "label": "final-preflight-failure",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:13.700Z",
+    "label": "final-preflight-failure",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:14.366Z",
+    "label": "final-preflight-failure",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 503
+  },
+  {
+    "at": "2026-10-26T22:40:21.273Z",
+    "label": "final-preflight-retry",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:21.294Z",
+    "label": "final-preflight-retry",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:21.308Z",
+    "label": "final-preflight-retry",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "6",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "6",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": false,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:40:21.359Z",
+    "label": "final-preflight-retry",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:23.940Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:34.010Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:42.613Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:42.626Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:48.531Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:48.546Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "true",
+      "customjobid": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:40:48.582Z",
+    "label": "final-resume-query-failure",
+    "params": {
+      "jobid": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 503,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "errorcode": 503,
+        "errortext": "SP05 job status fault"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:40:52.873Z",
+    "label": "final-resume-query-retry",
+    "params": {
+      "jobid": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "6",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:40:48+0900",
+        "completed": "2026-10-27T07:40:48+0900",
+        "jobid": "ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:40:52.893Z",
+    "label": "final-resume-query-retry",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:52.937Z",
+    "label": "final-resume-query-retry",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:40:54.088Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:04.175Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:13.330Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:14.251Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:24.332Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:28.985Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:29.000Z",
+    "label": "final-pause-cancel",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:30.266Z",
+    "label": "final-volume-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:30.278Z",
+    "label": "final-volume-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:31.188Z",
+    "label": "final-volume-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:31.201Z",
+    "label": "final-volume-pause",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "customjobid": "1770f048-3faf-4a41-8298-2b1ce11f196c"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "1770f048-3faf-4a41-8298-2b1ce11f196c"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:41:31.225Z",
+    "label": "final-volume-pause",
+    "params": {
+      "jobid": "1770f048-3faf-4a41-8298-2b1ce11f196c",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "None",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-27T07:41:31+0900",
+        "jobid": "1770f048-3faf-4a41-8298-2b1ce11f196c",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:41:32.751Z",
+    "label": "final-volume-pause",
+    "params": {
+      "jobid": "1770f048-3faf-4a41-8298-2b1ce11f196c",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "6",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:41:31+0900",
+        "completed": "2026-10-27T07:41:31+0900",
+        "jobid": "1770f048-3faf-4a41-8298-2b1ce11f196c",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:41:32.793Z",
+    "label": "final-volume-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:32.836Z",
+    "label": "final-volume-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:34.402Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:43.390Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:44.502Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:41:54.572Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:03.141Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:03.154Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:03.929Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:03.947Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:03.964Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "44",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "44",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": false,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:42:04.019Z",
+    "label": "natural-initial-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:04.641Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:04.727Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:04.739Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:05.626Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:05.639Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "true",
+      "customjobid": "50477a91-6b1c-4d50-874c-21ee54d02434"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "50477a91-6b1c-4d50-874c-21ee54d02434"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:42:05.655Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "jobid": "50477a91-6b1c-4d50-874c-21ee54d02434",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "None",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-27T07:42:05+0900",
+        "jobid": "50477a91-6b1c-4d50-874c-21ee54d02434",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:42:07.172Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "jobid": "50477a91-6b1c-4d50-874c-21ee54d02434",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "44",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:42:05+0900",
+        "completed": "2026-10-27T07:42:05+0900",
+        "jobid": "50477a91-6b1c-4d50-874c-21ee54d02434",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:42:07.185Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:07.222Z",
+    "label": "natural-initial-resume",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:13.462Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:14.718Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:24.785Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:34.849Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:43.533Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:44.917Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:42:54.978Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:05.041Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:13.595Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:15.038Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:15.038Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:24.910Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:25.377Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:25.399Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:26.379Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:26.785Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "id": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:27.164Z",
+    "label": "final-edit-deletion-race",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "fordisplay": "false",
+      "volumeid": "4a69b3ed-3bfa-4e4b-bc01-400f89550678",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "7",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 431,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 9999,
+        "errortext": "Unable to execute API command createsnapshotpolicy due to invalid value. Invalid parameter id value=d4b60615-edb8-4f51-9748-ccd78d3f0b8f due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:43:46.548Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:43:56.556Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:06.625Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:16.397Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:16.693Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:26.753Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:36.831Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:46.459Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:46.911Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:44:56.984Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:07.050Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:16.529Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:17.122Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:27.183Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:37.253Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:46.596Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:47.318Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:45:57.379Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:07.447Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:16.667Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:17.519Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:27.587Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:37.647Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:45.860Z",
+    "label": "natural-running-edit",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:45.877Z",
+    "label": "natural-running-edit",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:46.586Z",
+    "label": "natural-running-edit",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:46.604Z",
+    "label": "natural-running-edit",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:46.618Z",
+    "label": "natural-running-edit",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "true",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "intervaltype": "hourly",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "1",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+          "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+          "volumename": "SP05-1499-31-volume-tab",
+          "schedule": "1",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:46.679Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:46.796Z",
+    "label": "natural-running-edit",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:47.334Z",
+    "label": "natural-running-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:47.348Z",
+    "label": "natural-running-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:48.281Z",
+    "label": "natural-running-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:48.295Z",
+    "label": "natural-running-pause",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "customjobid": "ad331a8a-32f0-44d4-8e87-7126d1350397"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "ad331a8a-32f0-44d4-8e87-7126d1350397"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:48.312Z",
+    "label": "natural-running-pause",
+    "params": {
+      "jobid": "ad331a8a-32f0-44d4-8e87-7126d1350397",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "None",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-27T07:46:48+0900",
+        "jobid": "ad331a8a-32f0-44d4-8e87-7126d1350397",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:49.835Z",
+    "label": "natural-running-pause",
+    "params": {
+      "jobid": "ad331a8a-32f0-44d4-8e87-7126d1350397",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "1",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:46:48+0900",
+        "completed": "2026-10-27T07:46:48+0900",
+        "jobid": "ad331a8a-32f0-44d4-8e87-7126d1350397",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:49.851Z",
+    "label": "natural-running-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:49.888Z",
+    "label": "natural-running-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:50.419Z",
+    "label": "natural-running-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:50.431Z",
+    "label": "natural-running-resume",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:51.438Z",
+    "label": "natural-running-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:51.451Z",
+    "label": "natural-running-resume",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "true",
+      "customjobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:51.469Z",
+    "label": "natural-running-resume",
+    "params": {
+      "jobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "None",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-27T07:46:51+0900",
+        "jobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:52.994Z",
+    "label": "natural-running-resume",
+    "params": {
+      "jobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "1",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": true,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:46:51+0900",
+        "completed": "2026-10-27T07:46:51+0900",
+        "jobid": "f5e70405-7c57-4ff5-8f1d-ac2273df1c85",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:46:53.008Z",
+    "label": "natural-running-resume",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:53.045Z",
+    "label": "natural-running-resume",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:46:57.718Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:07.778Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:16.905Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:17.837Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:27.901Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:37.972Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:46.981Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:48.049Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:47:58.121Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:15.372Z",
+    "label": "final-owner-personal",
+    "params": {
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:29.978Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:34.505Z",
+    "label": "final-owner-personal",
+    "params": {
+      "id": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:34.521Z",
+    "label": "final-owner-personal",
+    "params": {
+      "id": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:36.257Z",
+    "label": "final-owner-personal",
+    "params": {
+      "id": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:36.279Z",
+    "label": "final-owner-personal",
+    "params": {
+      "id": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:36.294Z",
+    "label": "final-owner-personal",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "intervaltype": "daily",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "58:23",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+          "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+          "volumename": "SP05-1499-31-owner",
+          "schedule": "58:23",
+          "intervaltype": 1,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+              "account": "sp05-u31-1499",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+              "account": "sp05-u31-1499",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:48:36.351Z",
+    "label": "final-owner-personal",
+    "params": {
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:39.966Z",
+    "label": "final-owner-project",
+    "params": {
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:42.740Z",
+    "label": "final-owner-project",
+    "params": {
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:42.912Z",
+    "label": "final-owner-project",
+    "params": {
+      "volumeid": "9a2a3ea0-b04c-4140-8b78-b7ec607b3387",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:42.915Z",
+    "label": "final-owner-project",
+    "params": {
+      "command": "listVolumes",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:51.228Z",
+    "label": "final-owner-project",
+    "params": {
+      "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:54.285Z",
+    "label": "final-owner-project",
+    "params": {
+      "id": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:54.301Z",
+    "label": "final-owner-project",
+    "params": {
+      "id": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listVolumes",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:56.041Z",
+    "label": "final-owner-project",
+    "params": {
+      "id": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:56.069Z",
+    "label": "final-owner-project",
+    "params": {
+      "id": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listVolumes",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:48:56.085Z",
+    "label": "final-owner-project",
+    "params": {
+      "command": "createSnapshotPolicy",
+      "id": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "intervaltype": "daily",
+      "timezone": "UTC",
+      "maxsnaps": "3",
+      "schedule": "58:23",
+      "tags[0].key": "sp05-keep",
+      "tags[0].value": "한글 보존",
+      "tags[1].key": "sp05-remove",
+      "tags[1].value": "삭제 대상",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200,
+    "response": {
+      "createsnapshotpolicyresponse": {
+        "snapshotpolicy": {
+          "id": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+          "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+          "volumename": "SP05-1499-31-project",
+          "schedule": "58:23",
+          "intervaltype": 1,
+          "maxsnaps": 3,
+          "timezone": "UTC",
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp05-keep",
+              "value": "한글 보존",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+              "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362",
+              "project": "SP05-1499-31-project",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "sp05-remove",
+              "value": "삭제 대상",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "d67ffa76-6bb1-4685-8396-64a4be2166cd",
+              "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362",
+              "project": "SP05-1499-31-project",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:48:56.152Z",
+    "label": "final-owner-project",
+    "params": {
+      "volumeid": "554c25f3-b8a2-4a1a-b516-b09fa6dbe636",
+      "command": "listSnapshotPolicies",
+      "projectid": "ee05e80f-cf5e-4d34-a67a-2663fabd1362"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:11.143Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:21.135Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:28.298Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:28.316Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:31.857Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:31.872Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:41.105Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:41.209Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:51:51.276Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:01.412Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:11.177Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:11.475Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:21.536Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:24.806Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:24.824Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:28.546Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:28.560Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:31.603Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:41.248Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:41.667Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:52:51.744Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:01.816Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:11.311Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:11.891Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:21.949Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:26.921Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:26.934Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:32.020Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:38.822Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:38.835Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listVolumes"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:39.785Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:39.799Z",
+    "label": "natural-final-pause",
+    "params": {
+      "command": "updateSnapshotPolicy",
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "fordisplay": "false",
+      "customjobid": "f2440a44-c23c-47b2-891d-1186326df44c"
+    },
+    "http": 200,
+    "response": {
+      "updatesnapshotpolicyresponse": {
+        "jobid": "f2440a44-c23c-47b2-891d-1186326df44c"
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:53:39.818Z",
+    "label": "natural-final-pause",
+    "params": {
+      "jobid": "f2440a44-c23c-47b2-891d-1186326df44c",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "None",
+        "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-27T07:53:40+0900",
+        "jobid": "f2440a44-c23c-47b2-891d-1186326df44c",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:53:41.336Z",
+    "label": "natural-final-pause",
+    "params": {
+      "jobid": "f2440a44-c23c-47b2-891d-1186326df44c",
+      "command": "queryAsyncJobResult"
+    },
+    "http": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.user.snapshot.UpdateSnapshotPolicyCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "snapshotpolicy": {
+            "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+            "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+            "volumename": "SP05-1499-31-volume-tab",
+            "schedule": "1",
+            "intervaltype": 0,
+            "maxsnaps": 3,
+            "timezone": "UTC",
+            "fordisplay": false,
+            "zone": [
+              {
+                "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+                "name": "Zone",
+                "localstorageenabled": false,
+                "tags": [],
+                "isnsxenabled": false,
+                "ismultiarch": false,
+                "routedmodeenabled": false
+              }
+            ],
+            "storage": [
+              {
+                "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+                "name": "Primary"
+              }
+            ],
+            "tags": [
+              {
+                "key": "sp05-keep",
+                "value": "한글 보존",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              },
+              {
+                "key": "sp05-remove",
+                "value": "삭제 대상",
+                "resourcetype": "SnapshotPolicy",
+                "resourceid": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+                "account": "admin",
+                "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+                "domain": "ROOT",
+                "domainpath": "ROOT"
+              }
+            ]
+          }
+        },
+        "jobinstancetype": "None",
+        "created": "2026-10-27T07:53:40+0900",
+        "completed": "2026-10-27T07:53:40+0900",
+        "jobid": "f2440a44-c23c-47b2-891d-1186326df44c",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-26T22:53:41.351Z",
+    "label": "natural-final-pause",
+    "params": {
+      "id": "57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  },
+  {
+    "at": "2026-10-26T22:53:41.398Z",
+    "label": "natural-final-pause",
+    "params": {
+      "volumeid": "1782f6f9-8eec-4976-bbfa-5e8aa801ee89",
+      "command": "listSnapshotPolicies"
+    },
+    "http": 200
+  }
+]

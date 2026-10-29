@@ -1,0 +1,169 @@
+{
+  "source": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "backendSource": "63314d20c489ab21b04049b502cb3698a2e1eb62",
+  "date": "2026-10-28",
+  "focusedTests": {
+    "server": 286,
+    "ui": 828,
+    "uiSuites": 56,
+    "total": 1114,
+    "lintChangedFiles": 27
+  },
+  "visualScreenshots": 96,
+  "uiAssertions": 189,
+  "clusters": {
+    "31": {
+      "passed": true,
+      "storage": "GFS2",
+      "aclCases": 30,
+      "boundaryCases": 18,
+      "sortCases": 47,
+      "invalidSortInputs": 12,
+      "naturalSystemJobs": [
+        {
+          "job_uuid": "5614a8d6-22d8-4372-980c-0a5f55c78b6d",
+          "user_id": 1,
+          "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "job_status": 1,
+          "job_result_code": 0,
+          "created": "2026-10-28 03:09:04",
+          "last_updated": "2026-10-28 03:09:06",
+          "snapshot_uuid": "23cf957c-6585-4730-9205-58787cfc3d4c",
+          "status": "Destroyed"
+        },
+        {
+          "job_uuid": "05410d74-aa2b-4536-90bd-2306cc95357c",
+          "user_id": 1,
+          "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "job_status": 1,
+          "job_result_code": 0,
+          "created": "2026-10-28 03:14:04",
+          "last_updated": "2026-10-28 03:14:06",
+          "snapshot_uuid": "5ad0468b-e0d6-42a9-a74f-f18d99c66396",
+          "status": "BackedUp"
+        }
+      ],
+      "cleanup": {
+        "activeVolumes": 0,
+        "policies": 0,
+        "schedules": 0,
+        "activeSnapshots": 0,
+        "nonterminalSnapshotRefs": 0,
+        "pendingJobs": 0,
+        "tags": 0,
+        "policyDetails": 0,
+        "activeAccounts": 0,
+        "activeUsers": 0,
+        "pendingAccountJobs": 0,
+        "activeProject": 0,
+        "activeProjectAccount": 0,
+        "pendingPolicyJobs": 0,
+        "pendingProjectJobs": 0,
+        "pendingFixtureUserJobs": 0,
+        "activeDomains": 0,
+        "pendingDomainJobs": 0,
+        "volumeHistory": [
+          {
+            "state": "Expunged",
+            "n": 10
+          }
+        ],
+        "passed": true
+      },
+      "runtime": {
+        "passed": true,
+        "mold": "active",
+        "pid": "3688598",
+        "clientHttp": 200,
+        "webInf": true,
+        "metaInfPresent": false,
+        "serverConfigFilesPreserved": 7,
+        "jarSha256": "36d9b46d1bf37092c7424a7b811a5acb9cc797b0bedc26fe52735856bc279c28",
+        "servedApp": {
+          "path": "js/app.8516507f.js",
+          "sha256": "86c65a25014113d21d0fa8c7035cbf319cc2c39cbc41b756b31902fd35f35353"
+        }
+      }
+    },
+    "32": {
+      "passed": true,
+      "storage": "RBD",
+      "aclCases": 30,
+      "boundaryCases": 18,
+      "sortCases": 47,
+      "invalidSortInputs": 12,
+      "naturalSystemJobs": [
+        {
+          "job_uuid": "c9ce4584-00ac-4e1f-9745-da01e600faa6",
+          "user_id": 1,
+          "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "job_status": 1,
+          "job_result_code": 0,
+          "created": "2026-10-28 03:09:26",
+          "last_updated": "2026-10-28 03:09:32",
+          "snapshot_uuid": "fc52c1de-b390-492a-8919-01b1c3dbbff7",
+          "status": "Destroyed"
+        },
+        {
+          "job_uuid": "bdc3be24-fb0d-4980-bb60-598844870149",
+          "user_id": 1,
+          "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+          "job_status": 1,
+          "job_result_code": 0,
+          "created": "2026-10-28 03:14:26",
+          "last_updated": "2026-10-28 03:14:32",
+          "snapshot_uuid": "d2452a4a-1bcd-4ba3-814c-4e97205cbae8",
+          "status": "BackedUp"
+        }
+      ],
+      "cleanup": {
+        "activeVolumes": 0,
+        "policies": 0,
+        "schedules": 0,
+        "activeSnapshots": 0,
+        "nonterminalSnapshotRefs": 0,
+        "pendingJobs": 0,
+        "tags": 0,
+        "policyDetails": 0,
+        "activeAccounts": 0,
+        "activeUsers": 0,
+        "pendingAccountJobs": 0,
+        "activeProject": 0,
+        "activeProjectAccount": 0,
+        "pendingPolicyJobs": 0,
+        "pendingProjectJobs": 0,
+        "pendingFixtureUserJobs": 0,
+        "activeDomains": 0,
+        "pendingDomainJobs": 0,
+        "volumeHistory": [
+          {
+            "state": "Expunged",
+            "n": 10
+          }
+        ],
+        "passed": true
+      },
+      "runtime": {
+        "passed": true,
+        "mold": "active",
+        "pid": "3668072",
+        "clientHttp": 200,
+        "webInf": true,
+        "metaInfPresent": false,
+        "serverConfigFilesPreserved": 7,
+        "jarSha256": "2c4cc158c79ed512eb8d7512b43c70884c02e97793e0bcef25c9a431c0f97065",
+        "servedApp": {
+          "path": "js/app.8516507f.js",
+          "sha256": "86c65a25014113d21d0fa8c7035cbf319cc2c39cbc41b756b31902fd35f35353"
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Single Zone only; no live extra-Zone copy",
+    "Encrypted snapshot scheduling unsupported by backend",
+    "No multi-management failover/physical job-expiry load trial",
+    "Focused Maven package only; no full Cloud CI",
+    "No PR or Europa merge performed"
+  ]
+}

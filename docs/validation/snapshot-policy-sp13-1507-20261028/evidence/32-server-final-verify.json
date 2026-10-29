@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "jarSha256": "2c4cc158c79ed512eb8d7512b43c70884c02e97793e0bcef25c9a431c0f97065",
+  "changedEntries": 2,
+  "otherJarEntriesUnchanged": 204536,
+  "staticFilesPreserved": 8490,
+  "managementConfigFilesPreserved": 7,
+  "largeFilesPreserved": 1,
+  "mold": "active",
+  "clientHttp": 200,
+  "webInf": true,
+  "pid": "3668072",
+  "backup": "/nfs/snapshot-policy-1507-20261028-backend/rev-display-scope/management-before.jar"
+}

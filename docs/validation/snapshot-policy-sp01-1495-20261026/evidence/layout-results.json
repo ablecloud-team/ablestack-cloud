@@ -1,0 +1,782 @@
+[
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": true,
+      "height": 844,
+      "options": [
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 664,
+        "height": 264,
+        "left": 97,
+        "right": 281,
+        "top": 400,
+        "width": 184,
+        "x": 97,
+        "y": 400
+      },
+      "width": 390
+    },
+    "selected": {
+      "client": 332,
+      "modal": {
+        "bottom": 832,
+        "height": 820,
+        "left": 3,
+        "right": 377,
+        "top": 12,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "scroll": 332,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 844,
+      "rect": {
+        "bottom": 827.625,
+        "height": 32,
+        "left": 288.234375,
+        "right": 346,
+        "top": 795.625,
+        "width": 57.765625,
+        "x": 288.234375,
+        "y": 795.625
+      },
+      "text": "확인",
+      "width": 390
+    },
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": true,
+      "height": 900,
+      "options": [
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 696,
+        "top": 186,
+        "width": 644,
+        "x": 52,
+        "y": 186
+      },
+      "width": 768
+    },
+    "selected": {
+      "client": 678,
+      "modal": {
+        "bottom": 876,
+        "height": 852,
+        "left": 11,
+        "right": 747,
+        "top": 24,
+        "width": 736,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 678,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 900,
+      "rect": {
+        "bottom": 841.859375,
+        "height": 32,
+        "left": 650.234375,
+        "right": 708,
+        "top": 809.859375,
+        "width": 57.765625,
+        "x": 650.234375,
+        "y": 809.859375
+      },
+      "text": "확인",
+      "width": 768
+    },
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": true,
+      "height": 800,
+      "options": [
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 1208,
+        "top": 186,
+        "width": 1156,
+        "x": 52,
+        "y": 186
+      },
+      "width": 1280
+    },
+    "selected": {
+      "client": 1190,
+      "modal": {
+        "bottom": 776,
+        "height": 752,
+        "left": 11,
+        "right": 1259,
+        "top": 24,
+        "width": 1248,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 1190,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 800,
+      "rect": {
+        "bottom": 741.859375,
+        "height": 32,
+        "left": 1162.234375,
+        "right": 1220,
+        "top": 709.859375,
+        "width": 57.765625,
+        "x": 1162.234375,
+        "y": 709.859375
+      },
+      "text": "확인",
+      "width": 1280
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": true,
+      "height": 844,
+      "options": [
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 663.6202392578125,
+        "height": 263.6202392578125,
+        "left": 97,
+        "right": 281,
+        "top": 400,
+        "width": 184,
+        "x": 97,
+        "y": 400
+      },
+      "width": 390
+    },
+    "selected": {
+      "client": 332,
+      "modal": {
+        "bottom": 832,
+        "height": 820,
+        "left": 3,
+        "right": 377,
+        "top": 12,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "scroll": 332,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 844,
+      "rect": {
+        "bottom": 827.625,
+        "height": 32,
+        "left": 288.234375,
+        "right": 346,
+        "top": 795.625,
+        "width": 57.765625,
+        "x": 288.234375,
+        "y": 795.625
+      },
+      "text": "확인",
+      "width": 390
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": true,
+      "height": 900,
+      "options": [
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 696,
+        "top": 186,
+        "width": 644,
+        "x": 52,
+        "y": 186
+      },
+      "width": 768
+    },
+    "selected": {
+      "client": 678,
+      "modal": {
+        "bottom": 876,
+        "height": 852,
+        "left": 11,
+        "right": 747,
+        "top": 24,
+        "width": 736,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 678,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 900,
+      "rect": {
+        "bottom": 841.859375,
+        "height": 32,
+        "left": 650.234375,
+        "right": 708,
+        "top": 809.859375,
+        "width": 57.765625,
+        "x": 650.234375,
+        "y": 809.859375
+      },
+      "text": "확인",
+      "width": 768
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": true,
+      "height": 800,
+      "options": [
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 1208,
+        "top": 186,
+        "width": 1156,
+        "x": 52,
+        "y": 186
+      },
+      "width": 1280
+    },
+    "selected": {
+      "client": 1190,
+      "modal": {
+        "bottom": 776,
+        "height": 752,
+        "left": 11,
+        "right": 1259,
+        "top": 24,
+        "width": 1248,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 1190,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 800,
+      "rect": {
+        "bottom": 741.859375,
+        "height": 32,
+        "left": 1162.234375,
+        "right": 1220,
+        "top": 709.859375,
+        "width": 57.765625,
+        "x": 1162.234375,
+        "y": 709.859375
+      },
+      "text": "확인",
+      "width": 1280
+    },
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": false,
+      "height": 844,
+      "options": [
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 663.8612060546875,
+        "height": 263.8612060546875,
+        "left": 97,
+        "right": 281,
+        "top": 400,
+        "width": 184,
+        "x": 97,
+        "y": 400
+      },
+      "width": 390
+    },
+    "selected": {
+      "client": 332,
+      "modal": {
+        "bottom": 832,
+        "height": 820,
+        "left": 3,
+        "right": 377,
+        "top": 12,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "scroll": 332,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 844,
+      "rect": {
+        "bottom": 827.625,
+        "height": 32,
+        "left": 288.234375,
+        "right": 346,
+        "top": 795.625,
+        "width": 57.765625,
+        "x": 288.234375,
+        "y": 795.625
+      },
+      "text": "확인",
+      "width": 390
+    },
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": false,
+      "height": 900,
+      "options": [
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 696,
+        "top": 186,
+        "width": 644,
+        "x": 52,
+        "y": 186
+      },
+      "width": 768
+    },
+    "selected": {
+      "client": 678,
+      "modal": {
+        "bottom": 876,
+        "height": 852,
+        "left": 11,
+        "right": 747,
+        "top": 24,
+        "width": 736,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 678,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 900,
+      "rect": {
+        "bottom": 841.859375,
+        "height": 32,
+        "left": 650.234375,
+        "right": 708,
+        "top": 809.859375,
+        "width": 57.765625,
+        "x": 650.234375,
+        "y": 809.859375
+      },
+      "text": "확인",
+      "width": 768
+    },
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": false,
+      "height": 800,
+      "options": [
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8"
+        },
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 1208,
+        "top": 186,
+        "width": 1156,
+        "x": 52,
+        "y": 186
+      },
+      "width": 1280
+    },
+    "selected": {
+      "client": 1190,
+      "modal": {
+        "bottom": 776,
+        "height": 752,
+        "left": 11,
+        "right": 1259,
+        "top": 24,
+        "width": 1248,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 1190,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    },
+    "focus": {
+      "height": 800,
+      "rect": {
+        "bottom": 741.859375,
+        "height": 32,
+        "left": 1162.234375,
+        "right": 1220,
+        "top": 709.859375,
+        "width": 57.765625,
+        "x": 1162.234375,
+        "y": 709.859375
+      },
+      "text": "확인",
+      "width": 1280
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": false,
+      "height": 844,
+      "options": [
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 160,
+          "scroll": 160,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 663.9960327148438,
+        "height": 263.99603271484375,
+        "left": 97,
+        "right": 281,
+        "top": 400,
+        "width": 184,
+        "x": 97,
+        "y": 400
+      },
+      "width": 390
+    },
+    "selected": {
+      "client": 332,
+      "modal": {
+        "bottom": 832,
+        "height": 820,
+        "left": 3,
+        "right": 377,
+        "top": 12,
+        "width": 374,
+        "x": 3,
+        "y": 12
+      },
+      "scroll": 332,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 844,
+      "rect": {
+        "bottom": 827.625,
+        "height": 32,
+        "left": 288.234375,
+        "right": 346,
+        "top": 795.625,
+        "width": 57.765625,
+        "x": 288.234375,
+        "y": 795.625
+      },
+      "text": "확인",
+      "width": 390
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": false,
+      "height": 900,
+      "options": [
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 620,
+          "scroll": 620,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 696,
+        "top": 186,
+        "width": 644,
+        "x": 52,
+        "y": 186
+      },
+      "width": 768
+    },
+    "selected": {
+      "client": 678,
+      "modal": {
+        "bottom": 876,
+        "height": 852,
+        "left": 11,
+        "right": 747,
+        "top": 24,
+        "width": 736,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 678,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 900,
+      "rect": {
+        "bottom": 841.859375,
+        "height": 32,
+        "left": 650.234375,
+        "right": 708,
+        "top": 809.859375,
+        "width": 57.765625,
+        "x": 650.234375,
+        "y": 809.859375
+      },
+      "text": "확인",
+      "width": 768
+    },
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": false,
+      "height": 800,
+      "options": [
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539"
+        },
+        {
+          "client": 1132,
+          "scroll": 1132,
+          "text": "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+        }
+      ],
+      "rect": {
+        "bottom": 302,
+        "height": 116,
+        "left": 52,
+        "right": 1208,
+        "top": 186,
+        "width": 1156,
+        "x": 52,
+        "y": 186
+      },
+      "width": 1280
+    },
+    "selected": {
+      "client": 1190,
+      "modal": {
+        "bottom": 776,
+        "height": 752,
+        "left": 11,
+        "right": 1259,
+        "top": 24,
+        "width": 1248,
+        "x": 11,
+        "y": 24
+      },
+      "scroll": 1190,
+      "selectHeight": 32,
+      "text": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    },
+    "focus": {
+      "height": 800,
+      "rect": {
+        "bottom": 741.859375,
+        "height": 32,
+        "left": 1162.234375,
+        "right": 1220,
+        "top": 709.859375,
+        "width": 57.765625,
+        "x": 1162.234375,
+        "y": 709.859375
+      },
+      "text": "확인",
+      "width": 1280
+    },
+    "passed": true
+  }
+]

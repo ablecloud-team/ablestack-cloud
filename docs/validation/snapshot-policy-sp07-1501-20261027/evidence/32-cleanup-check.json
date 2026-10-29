@@ -1,0 +1,31 @@
+{
+  "activeVolumes": 0,
+  "policies": 0,
+  "schedules": 0,
+  "activeSnapshots": 0,
+  "nonterminalCopies": 0,
+  "pendingJobs": 0,
+  "activeTestAccount": 0,
+  "accountResourceLimits": 0,
+  "activeProject": 0,
+  "tags": 0,
+  "policyDetails": 0,
+  "pendingPolicyManagementJobs": 0,
+  "pendingAccountProjectJobs": 0,
+  "volumeHistory": [
+    {
+      "state": "Expunged",
+      "n": 4
+    }
+  ],
+  "snapshotHistory": [
+    {
+      "status": "Destroyed",
+      "n": 1
+    }
+  ],
+  "mold": "active",
+  "clientHttp": 200,
+  "WEB-INF": true,
+  "passed": true
+}

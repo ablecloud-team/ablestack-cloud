@@ -1,0 +1,62 @@
+{
+  "buttons": [
+    {
+      "font": "14px",
+      "height": 24,
+      "radius": "24px",
+      "text": "업데이트"
+    },
+    {
+      "font": "14px",
+      "height": 32,
+      "radius": "32px",
+      "text": "가상머신 추가"
+    }
+  ],
+  "fields": [
+    {
+      "font": "14px",
+      "height": 25.599998474121097,
+      "radius": "4px"
+    },
+    {
+      "font": "14px",
+      "height": 25.59999084472656,
+      "radius": "4px"
+    },
+    {
+      "font": "14px",
+      "height": 24,
+      "radius": "0px"
+    },
+    {
+      "font": "14px",
+      "height": 25.600006103515625,
+      "radius": "4px"
+    },
+    {
+      "font": "14px",
+      "height": 24,
+      "radius": "0px"
+    },
+    {
+      "font": "14px",
+      "height": 25.600006103515625,
+      "radius": "4px"
+    },
+    {
+      "font": "14px",
+      "height": 24,
+      "radius": "0px"
+    },
+    {
+      "font": "14px",
+      "height": 25.600006103515625,
+      "radius": "4px"
+    }
+  ],
+  "viewport": [
+    768,
+    720
+  ]
+}

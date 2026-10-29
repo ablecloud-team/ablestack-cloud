@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "cluster": "31",
+      "rowsPage1": 20,
+      "rowsPage2": 4,
+      "total": "전체 24 개 항목 중 1-20 표시",
+      "app": [
+        "http://10.10.31.10:8080/client/js/app.7b6d9f14.js"
+      ],
+      "theme": "dark"
+    },
+    {
+      "cluster": "32",
+      "rowsPage1": 20,
+      "rowsPage2": 4,
+      "total": "전체 24 개 항목 중 1-20 표시",
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.7b6d9f14.js"
+      ],
+      "theme": "dark"
+    }
+  ]
+}

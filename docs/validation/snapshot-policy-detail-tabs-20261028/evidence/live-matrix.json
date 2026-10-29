@@ -1,0 +1,236 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 139
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 4
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 655.234375,
+        "y": 139
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 4
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 13,
+        "y": 250
+      },
+      "tabClass": "ant-tabs ant-tabs-top",
+      "events": 4
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 139
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 4
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 655.234375,
+        "y": 139
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 4
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 13,
+        "y": 250
+      },
+      "tabClass": "ant-tabs ant-tabs-top",
+      "events": 4
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 166
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 2
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 655.234375,
+        "y": 198
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 2
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 13,
+        "y": 283
+      },
+      "tabClass": "ant-tabs ant-tabs-top",
+      "events": 2
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 166
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 2
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 655.234375,
+        "y": 198
+      },
+      "tabClass": "ant-tabs ant-tabs-left",
+      "events": 2
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "passed": true,
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 13,
+        "y": 283
+      },
+      "tabClass": "ant-tabs ant-tabs-top",
+      "events": 2
+    }
+  ],
+  "sharedVmStandard": "ResourceView + EventsTab",
+  "themesRestored": "dark",
+  "temporaryNetworkAndViewportOverridesCleared": true
+}

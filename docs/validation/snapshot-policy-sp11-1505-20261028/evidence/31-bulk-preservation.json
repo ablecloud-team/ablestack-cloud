@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "snapshotRowsUnchanged": 2,
+  "snapshotRefRowsUnchanged": 1,
+  "snapshotTagRowsUnchanged": 1,
+  "physicalFilesHashesUnchanged": true,
+  "policiesBefore": 40,
+  "policiesAfter": 38
+}

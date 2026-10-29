@@ -1,0 +1,26 @@
+[
+  {
+    "requestId": "53792.1242",
+    "command": "deleteSnapshotPolicies",
+    "params": {
+      "id": "4b1c8313-33fe-4069-b9fd-704827d6cd3a"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "53792.1243",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "53792.1245",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "volumeid": "50f1fb96-9b7a-47a9-9654-65e6d0c77585"
+    },
+    "status": 200
+  }
+]

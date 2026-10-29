@@ -1,0 +1,99 @@
+{
+  "dialogs": [
+    {
+      "bodyOverflow": false,
+      "footer": [
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 671,
+            "height": 32,
+            "left": 967.46875,
+            "right": 1025.234375,
+            "top": 639,
+            "width": 57.765625,
+            "x": 967.46875,
+            "y": 639
+          },
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 671,
+            "height": 32,
+            "left": 1033.234375,
+            "right": 1091,
+            "top": 639,
+            "width": 57.765625,
+            "x": 1033.234375,
+            "y": 639
+          },
+          "text": "저장"
+        }
+      ],
+      "forms": 1,
+      "left": 160,
+      "text": "정책 편집\nSP13-1507-31-admin-0-한글\n매월 · 768a45b8-68e9-4267-928c-d99c9542b1a9\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n28\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "width": 960
+    }
+  ],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 197,
+        "height": 89,
+        "left": 244,
+        "right": 1272,
+        "top": 108,
+        "width": 1028,
+        "x": 244,
+        "y": 108
+      },
+      "text": "/스냅샷 정책/SP13-1507-31-admin-0-한글 · 매월업데이트\n작업"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 172,
+        "height": 33,
+        "left": 758,
+        "right": 1247,
+        "top": 139,
+        "width": 489,
+        "x": 758,
+        "y": 139
+      },
+      "text": "작업"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성",
+    "",
+    "기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.",
+    "스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다."
+  ],
+  "pageWidth": 1270,
+  "rows": [],
+  "tabs": [
+    {
+      "selected": "true",
+      "text": "상세"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://10.10.31.10:8080/client/#/snapshotpolicy/768a45b8-68e9-4267-928c-d99c9542b1a9",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/app.8516507f.js"
+  ],
+  "tabLayouts": [
+    "ant-tabs ant-tabs-left"
+  ]
+}

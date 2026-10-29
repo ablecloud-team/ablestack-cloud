@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "sessions": [
+    {
+      "cluster": 31,
+      "tab": "29",
+      "loggedOut": true,
+      "requestInterceptionCleared": true,
+      "deviceMetricsCleared": true,
+      "themeRestored": "dark"
+    },
+    {
+      "cluster": 32,
+      "tab": "30",
+      "loggedOut": true,
+      "requestInterceptionCleared": true,
+      "deviceMetricsCleared": true,
+      "themeRestored": "dark"
+    }
+  ],
+  "viewportReset": true,
+  "ownTabsClosed": true,
+  "userEpicTabPreserved": true,
+  "remaining": [
+    {
+      "id": "3",
+      "url": "https://github.com/ablecloud-team/ablestack-cloud/issues/1494"
+    }
+  ]
+}

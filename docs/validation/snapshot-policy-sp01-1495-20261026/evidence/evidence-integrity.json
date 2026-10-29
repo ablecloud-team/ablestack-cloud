@@ -1,0 +1,154 @@
+{
+  "searchCases": 24,
+  "safetyCases": 8,
+  "layoutCases": 12,
+  "consoleExceptions": 0,
+  "preservation": true,
+  "images": [
+    {
+      "name": "31-dark-390-options.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b8bd0c545f3f4cddac6bcb8741b5d0da01b3de63e1f101da4ebe2f0a5990a756"
+    },
+    {
+      "name": "31-dark-390-selected.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "c1ee09364ef2420d1be966d442defa2abc43f95faccc05901bf82d2f64a363d5"
+    },
+    {
+      "name": "31-dark-768-options.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "73966783387517a88b03f86ed75f8eeaf597aad1f1355986f0a93a832d833abe"
+    },
+    {
+      "name": "31-dark-768-selected.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "eba4466438d1cf87388d9fb2e7cacd6cb26318b8b650075b008c995a6a3a74ea"
+    },
+    {
+      "name": "31-dark-1280-options.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "5dc274575fd971ebf9f77f34e54ee2e989e2c8ba179125883058bcbdfca4c84b"
+    },
+    {
+      "name": "31-dark-1280-selected.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "c932691c935cd47863f6d208ff23d4d0d8ac787f09ababcae371411eed21cc67"
+    },
+    {
+      "name": "32-dark-390-options.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "c95a140558d0e51ccab4a24df698eb7b3ac1dee8b15275da31932f521237e2af"
+    },
+    {
+      "name": "32-dark-390-selected.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "b2134318ad135b3b51a0b3192138c47bd4d1326e58639d13dfe804987200b4ce"
+    },
+    {
+      "name": "32-dark-768-options.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "f87fb01ef51517049f7d44b2e72273bf3b3d51e7b5f1d1ece44b99917a88efae"
+    },
+    {
+      "name": "32-dark-768-selected.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "cd4068435efda70c8d8ce0634913cd00a946bfe7dd7358e69befc1bf643fd34e"
+    },
+    {
+      "name": "32-dark-1280-options.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "fa4a58cb35eaec301b69d5dd1bbdaf010eed48c87bee8d57e5693f40851ad379"
+    },
+    {
+      "name": "32-dark-1280-selected.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "830c591f7dcfa7f13fd77589169b000972fd9fbca2b7192bc231579fee2eeee5"
+    },
+    {
+      "name": "31-light-390-options.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "177f424954fc60df77325491cc3cf2a9a8bae71356796f634e1739a90dedd975"
+    },
+    {
+      "name": "31-light-390-selected.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "e21a22a36d022dd93b6dfa7751a9f62537a8a0947dd7773df685e40344269e9d"
+    },
+    {
+      "name": "31-light-768-options.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "733f84eb747948fb9016fdc77a66bdca7c5eb5d4a2df7aad070e07bd7310a80c"
+    },
+    {
+      "name": "31-light-768-selected.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "ae8cb98e5692ccf628e225da0d74a5f68df00d0266e91081ad16833ef67dde27"
+    },
+    {
+      "name": "31-light-1280-options.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "06cb8bffbfbbf1710cdc27f466f01fcabf80079686bd9b2f086987796255a762"
+    },
+    {
+      "name": "31-light-1280-selected.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "a2ef0179b5bcd1129d433ea4871f1db76cbd32e3c06165dd9e34fc1d8fad7fe6"
+    },
+    {
+      "name": "32-light-390-options.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f8363ffafb753ab2dea9fd50d33e6337f24568fe948cf4b7e566de1788c2c921"
+    },
+    {
+      "name": "32-light-390-selected.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ea98c41837ab49c1d8b2ab2b54b9fb307582f8224c6e5450193deea0c94e7960"
+    },
+    {
+      "name": "32-light-768-options.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "b40bd0d1c7689d1e0b53d520134b45e2762716babd31ab8440fa3c8499ec8c2e"
+    },
+    {
+      "name": "32-light-768-selected.png",
+      "width": 768,
+      "height": 900,
+      "sha256": "bbfcd35fbaae3159f4504cb83518e293f52a63cbbcb660ae662afbb2dfb306a4"
+    },
+    {
+      "name": "32-light-1280-options.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "323322e5f04e8ed4918f840110baa1eebc4114ec692f39530c321567f8898f88"
+    },
+    {
+      "name": "32-light-1280-selected.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "122b78dfce51c358a5835d18abb96a3283c86cd077f9c070830aace29ef10fa5"
+    }
+  ],
+  "passed": true
+}

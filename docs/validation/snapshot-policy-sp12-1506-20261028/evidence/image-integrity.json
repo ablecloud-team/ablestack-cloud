@@ -1,0 +1,125 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "file": "31-light-390-delete.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-768-delete.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-light-1280-delete.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-390-delete.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-768-delete.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "31-dark-1280-delete.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-390-delete.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-768-delete.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-light-1280-delete.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-390-delete.png",
+      "width": 390,
+      "height": 844,
+      "viewport": [
+        390,
+        844
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-768-delete.png",
+      "width": 768,
+      "height": 900,
+      "viewport": [
+        768,
+        900
+      ],
+      "signature": "[REDACTED]"
+    },
+    {
+      "file": "32-dark-1280-delete.png",
+      "width": 1280,
+      "height": 720,
+      "viewport": [
+        1280,
+        720
+      ],
+      "signature": "[REDACTED]"
+    }
+  ]
+}

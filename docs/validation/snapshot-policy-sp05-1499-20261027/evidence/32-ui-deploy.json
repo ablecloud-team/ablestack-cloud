@@ -1,0 +1,53 @@
+{
+  "managementPid": "3477070",
+  "files": 928,
+  "verified": true,
+  "backup": "/nfs/snapshot-policy-1499-20261027-ui-673d6578779-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "e3839c761e59e77f960b9f9f717055ea91882682a3a036b07e4c69277aac8687"
+  },
+  "managementJarUnchanged": "916884ed998dfae21e3d725c2f06b2c75a2e2d2f4c214f16060ef697e3fd1419",
+  "largeFileMetadataUnchanged": {
+    "monitoring-vm.qcow2": {
+      "size": 29194321920,
+      "inode": 27209289,
+      "mtime_ns": 1791859614464247580
+    }
+  },
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "clearzoneids": true,
+    "policy-action-target": true,
+    "message.snapshot.policy.running.effect": true,
+    "label.snapshot.policy.edit": true,
+    "snapshotpolicymax": true,
+    "policy-retention-help": true,
+    "message.snapshot.policy.minute.range": true,
+    "snapshot-policy-tags": true,
+    "message.snapshot.policy.tag.duplicate": true,
+    "volume-search-options": true,
+    "message.volume.search.unavailable": true,
+    "snapshot-policy-volume-dropdown": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "css/chunk-55bdb2fc.a056fba9.css",
+    "css/chunk-b17f86d0.74293eec.css",
+    "css/chunk-e3fc8e86.98416ea0.css",
+    "js/app.52da11a6.js",
+    "js/app.52da11a6.js.map",
+    "js/chunk-55bdb2fc.3b8a840f.js",
+    "js/chunk-55bdb2fc.3b8a840f.js.map",
+    "js/chunk-b17f86d0.b3e3e2f5.js",
+    "js/chunk-b17f86d0.b3e3e2f5.js.map",
+    "js/chunk-e3fc8e86.81fa8d99.js",
+    "js/chunk-e3fc8e86.81fa8d99.js.map"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   79G  4.1G  96% /\n/dev/mapper/rl-nfs   350G   92G  259G  27% /nfs\n"
+}

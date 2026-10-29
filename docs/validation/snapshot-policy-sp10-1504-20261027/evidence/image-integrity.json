@@ -1,0 +1,439 @@
+{
+  "passed": true,
+  "images": [
+    {
+      "file": "screenshots/31-cleanup-final.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "096a7a17ee5fa2d3fec2d2148982e28e71fea66f251da47a9ab341e22cac4ead",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-dark-1280x720-metadata.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5ca3fd8b66f1ef8a8088b4a075fadeea1432f89f67f178086b8de16f49fcee8f",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-dark-1280x720-operations.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bc13c25f791c42575469d89b84e0cc9729dffc1ea463589a0e6267e9dc24eb10",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-dark-390x844-metadata.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "0610bb1571fea12decc23c7de45e97e80e180139e60041fb569f6a15174621e5",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-dark-390x844-operations.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "efa55984e9bf3be9f3be7e348f2170cca1caf1814555b9c994ff8d7225b4fac4",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-dark-768x900-metadata.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "ec934fab5517b9bc54d00a61a431e91baa18914cf2c0e0fd9073e64c4d1c843e",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-dark-768x900-operations.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "255e6230d061e5ebe7cca6495d0e308e5a873fb5ef8ab473e1a6a675b667d511",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-final-503-preserved.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "297034573b215077c7dd18f53ce3efe2d5a46ff5725734e3a16fad4cebf7d75b",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-incomplete-preserved.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7106678ea37cb76521c1b18fbdd6f58bc3a0add57ae224cde86d7d32d16b0885",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-pause-effect.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3bc68117a25c1828eb15bed0e187d3277cc3cc173e6985f48d16911641f34576",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-pause-notification.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "9a5a3a5c4309d93253684364ac8ece1d3423e3086cf2f3e0ac3fc582ce101a47",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-resume-dialog.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f5d8e61fdfde3e4f63a04f1169bd020556f521e913ab5a74ae31467279e876d9",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-resume-effect.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a52b507045761226100a20b543dff0354301d1eac623186b3e5a979703ac95ca",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-final-resume-notification.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "36ee7fdd1ce908f8f9e8f009781a969a166c3ea0eeda2b71c6363363bac49103",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-light-1280x720-metadata.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "ccd081f7c2c787f826940c35b0d715b01e1f91de32dd9aa4b1be7d80ac1064ae",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-light-1280x720-operations.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "1a5692e7191e5f0d79adc6380af3112bc10ef6794108a2c3b7087e29939d6aea",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-light-390x844-metadata.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "74e2a1e510e9e4024af587b94abdd6335db522c54114d73f29c4dfdf0749b061",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-light-390x844-operations.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "6caacc8b5cf96be7f166efdfb5c5445ac22357c87c133b5cc733be7d6e464db8",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-light-768x900-metadata.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "ba67a38bddfa3c029126fd73e9a65e6a6bca6b9e0f0cbfbd47e6942b3942696a",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-light-768x900-operations.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "2de0633e008b67314735ed7c083623ac74adb59d6e923b7c4ffb3fc044e74d89",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/31-owner-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "9de394a1e3ce5c6a91f8131a408aa2e918c5285043f47dc61e099134af9942c9",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-owner-foreign-denied-final.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "843e555c68286a35222cfdfeaa7f33fc9109d83e461aa73c57cab90b6dedb6b9",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-owner-project-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "195eaead3aa8ec2db7526bbe13cd9511be780ada27bfbc6abe9f9a266c87b0a3",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-readonly-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "9f51930d8c15ec5fff7ad976b7d7e248ba5eeaad4fcaf061dc8bfa53afa67dcc",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-readonly-project-denied.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "569887764af789cbb7d466d3d7b68badf40d1ecb78c132f90124aa9c3c21cd7a",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-vm-standard-dark.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3044ea50f86da457e48515d4a7dab45a97341c5d1477234093aaef4dfba03735",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/31-vm-standard-light.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3a41e12530dc889eb66a5823c8f667905806709463b51740c6d52b3e225bba81",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-cleanup-final.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a0a73085781ccc990dfa99be268d7c07ae60eef3da6454fce2134986ff0638cb",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-dark-1280x720-metadata.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4dfe7309c787ac9ed08a4977044987706ed8ec85d4143f6113cf2a99e0b5f58b",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-dark-1280x720-operations.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d7ffa0254a7b44c9bd224ebbd29a0010afd35724dbe5406d5701c3ece42414a8",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-dark-390x844-metadata.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "d86f32cf60c583ae0d7f5ef64df56f57d1704b1f06ea1758146374326db0e2b4",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-dark-390x844-operations.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "7a3dfeb10f0b85ba71b5db6fc72b37d5c93817c0e4f2c90f1b7271ee33f1e7e9",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-dark-768x900-metadata.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "0f39cf3d7ef9b9c9ecf5aa8c324ec19a9fc05bf96fbfc98f7977ee992818e6b2",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-dark-768x900-operations.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "e1157a6ca9a5e72cfab366715c5f34b6b43bace501f79dad1ef68835fae8a1a5",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-final-503-preserved.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b57ea1ee64464214c43083f60e7cf3f4fe17650ea3037df3b55665914f4ced92",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-incomplete-preserved.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "26c8121f6d51c4419e633537ebf8e19e1d7b027ebbe2a9bb834bba3b4465a747",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-pause-effect.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3dfc8df5c8edcf1f919b668db28aa226dbe2b3abafe4582a4361607d85c84f52",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-pause-notification.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8c7d6be4f3f3705ea4c74060f26135b3a85a6f098dd7a7740eef3c9ee165f9bb",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-resume-dialog.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "cdcc004261834350b194a42e680d0d8ac60cd52313ad7a58ef1351f69c4b7248",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-resume-effect.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d78c2ccec7b00feb631aecc75e6b6397521b8664a5e26d60991e46f8c37e74bb",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-final-resume-notification.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4d3b4001ddeecb12e0a7d83ac77dd1d2d4de7a2e1bcf5dfc052c5fae19b482e5",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-light-1280x720-metadata.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4bc348f87299676bd4cc9539ad06c23fe9fc09c67a074f2f8eb749861083030a",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-light-1280x720-operations.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b1db1b6bd8a1dc842b669bbf1356912ce23dd063340fd47dba3b6e9c5524f122",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-light-390x844-metadata.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "031e5c6f5be319a850b19b4f805b7073ca62ddc5ff68e08135153a94a3f90e19",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-light-390x844-operations.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "559b45a292bbef362d0c1739b42ae007a500e6d68a184eba3c5324c8e8044edb",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-light-768x900-metadata.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "98e5c9ed6be2f25fd4ff396067510ec445755df87823deed65048a944a8bc3bb",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-light-768x900-operations.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "d8c32206343172dc29c3ad87e2a4a9298a0b89408346a780b0065f74721b4a54",
+      "viewportVerified": true
+    },
+    {
+      "file": "screenshots/32-owner-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "06fb00cc28518702da1b3e39afb27dfc5220073878129cbbe00c415bcf5b7998",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-owner-foreign-denied-final.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "041bd186a13a0066cb0ffa62d47586fda581f77aed44fe8dafc7bd42bc479643",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-owner-project-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "32c63ea82a96f8fd8d5d32ad370341f8956309b53240d90e6d5aaf80ded5f3f7",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-readonly-details.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3f5c807b15a0bf370df10fc587ed19553a975c76c57b51eff0bdb2eeeef95d13",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-readonly-project-denied.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "9770b9e599f05eba0388a48afb1e285f72e20b577a38a398f9621b1ce8db280b",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-vm-standard-dark.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "486d58519e5c629eeb045a466c6f22c173b308db66883af3688dc0b8a6cb8efd",
+      "capture": "explicit 1280x720 CDP clip"
+    },
+    {
+      "file": "screenshots/32-vm-standard-light.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "2a6d486212b51b6c5573b5815186448a0760b890bfd6f3a96b2268c3f03b5d73",
+      "capture": "explicit 1280x720 CDP clip"
+    }
+  ],
+  "responsiveFrames": 24,
+  "allResponsiveViewportAndPngDimensionsMatch": true
+}

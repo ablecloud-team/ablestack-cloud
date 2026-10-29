@@ -1,0 +1,47 @@
+{
+  "managementPid": "3512207",
+  "files": 928,
+  "verified": true,
+  "backup": "/root/snapshot-policy-1499-20261027-ui-673d6578779-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "62e3ece1b533f1a2474168b84fdb026a971aa5c55255341c3a9354324c419291",
+  "largeFileMetadataUnchanged": {},
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "clearzoneids": true,
+    "policy-action-target": true,
+    "message.snapshot.policy.running.effect": true,
+    "label.snapshot.policy.edit": true,
+    "snapshotpolicymax": true,
+    "policy-retention-help": true,
+    "message.snapshot.policy.minute.range": true,
+    "snapshot-policy-tags": true,
+    "message.snapshot.policy.tag.duplicate": true,
+    "volume-search-options": true,
+    "message.volume.search.unavailable": true,
+    "snapshot-policy-volume-dropdown": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "css/chunk-55bdb2fc.a056fba9.css",
+    "css/chunk-b17f86d0.74293eec.css",
+    "css/chunk-e3fc8e86.98416ea0.css",
+    "js/app.52da11a6.js",
+    "js/app.52da11a6.js.map",
+    "js/chunk-55bdb2fc.3b8a840f.js",
+    "js/chunk-55bdb2fc.3b8a840f.js.map",
+    "js/chunk-b17f86d0.b3e3e2f5.js",
+    "js/chunk-b17f86d0.b3e3e2f5.js.map",
+    "js/chunk-e3fc8e86.81fa8d99.js",
+    "js/chunk-e3fc8e86.81fa8d99.js.map"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root  383G  191G  192G  50% /\n/dev/mapper/rl-nfs   350G  315G   36G  90% /nfs\n"
+}

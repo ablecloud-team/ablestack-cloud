@@ -1,0 +1,231 @@
+{
+  "at": "2026-10-27 01:17:10.727241",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 1131,
+      "uuid": "0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+      "name": "SP07-1501-31-owner",
+      "state": "Ready",
+      "path": "2361afed-d5c3-42f9-a90a-38483ace2f52",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1132,
+      "uuid": "418dd34f-5a80-4628-9164-2f97a956275d",
+      "name": "SP07-1501-31-project",
+      "state": "Ready",
+      "path": "f763bffc-4db7-4c5e-8d02-f7bc4d2555d2",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1130,
+      "uuid": "bdc59561-9805-4b7c-9624-36c9267515cc",
+      "name": "SP07-1501-31-volume-tab",
+      "state": "Ready",
+      "path": "1f157635-1784-43f0-8c57-711dfea4e28d",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1129,
+      "uuid": "ce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+      "name": "SP07-1501-31-scheduled",
+      "state": "Ready",
+      "path": "23b1f5d9-1007-475e-9c02-66f0d2bda2b8",
+      "pool_id": 1,
+      "removed": null
+    }
+  ],
+  "policies": [
+    {
+      "id": 97,
+      "uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "volume_id": 1130,
+      "schedule": "04:16:1",
+      "timezone": "Asia/Seoul",
+      "interval": 2,
+      "active": 1,
+      "display": 0,
+      "max_snaps": 2
+    }
+  ],
+  "schedules": [],
+  "snapshots": [
+    {
+      "id": 280,
+      "uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "volume_id": 1130,
+      "status": "BackedUp",
+      "created": "2026-10-27 01:16:20",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    }
+  ],
+  "refs": [
+    {
+      "uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/1130/ec2fd327-61dd-43be-a5fa-861e6ad9b2d3",
+      "job_id": null
+    }
+  ],
+  "jobs": [
+    {
+      "snapshot_uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "id": 17659,
+      "uuid": "29863e3d-8c4e-4c84-8f20-069087350fe6",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 01:16:20",
+      "last_updated": "2026-10-27 01:16:39"
+    }
+  ],
+  "tags": [
+    {
+      "id": 653,
+      "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "key": "sp07-remove",
+      "value": "삭제 대상",
+      "resource_type": "SnapshotPolicy"
+    },
+    {
+      "id": 654,
+      "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "key": "sp07-keep",
+      "value": "한글 보존",
+      "resource_type": "SnapshotPolicy"
+    },
+    {
+      "id": 665,
+      "resource_uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "key": "sp07-remove",
+      "value": "삭제 대상",
+      "resource_type": "Snapshot"
+    },
+    {
+      "id": 666,
+      "resource_uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "key": "sp07-keep",
+      "value": "한글 보존",
+      "resource_type": "Snapshot"
+    }
+  ],
+  "historical_policy_tags": [
+    {
+      "id": 653,
+      "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "key": "sp07-remove",
+      "value": "삭제 대상",
+      "resource_type": "SnapshotPolicy"
+    },
+    {
+      "id": 654,
+      "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "key": "sp07-keep",
+      "value": "한글 보존",
+      "resource_type": "SnapshotPolicy"
+    }
+  ],
+  "historical_policy_details": [],
+  "api": {
+    "policies": [
+      {
+        "id": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "volumeid": "bdc59561-9805-4b7c-9624-36c9267515cc",
+        "volumename": "SP07-1501-31-volume-tab",
+        "schedule": "04:16:1",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp07-remove",
+            "value": "삭제 대상",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          },
+          {
+            "key": "sp07-keep",
+            "value": "한글 보존",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT"
+          }
+        ]
+      }
+    ],
+    "snapshots": [
+      {
+        "id": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "bdc59561-9805-4b7c-9624-36c9267515cc",
+        "volumename": "SP07-1501-31-volume-tab",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-27T10:16:20+0900",
+        "name": "detached_SP07-1501-31-volume-tab_20261027011620",
+        "intervaltype": "HOURLY",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [
+          {
+            "key": "sp07-keep",
+            "value": "한글 보존",
+            "resourcetype": "Snapshot",
+            "resourceid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT"
+          },
+          {
+            "key": "sp07-remove",
+            "value": "삭제 대상",
+            "resourcetype": "Snapshot",
+            "resourceid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT"
+          }
+        ],
+        "hasannotations": false
+      }
+    ]
+  }
+}

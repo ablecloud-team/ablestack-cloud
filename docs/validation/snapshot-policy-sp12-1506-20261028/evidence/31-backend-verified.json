@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "jarSha256": "0c3114032fd7add2e605baa84790caaf8a9faaf70876d5bd1c4b3670d53bc95d",
+  "changedEntries": 3,
+  "otherJarEntriesUnchanged": 204541,
+  "staticFilesPreserved": 16103,
+  "managementConfigFilesPreserved": 7,
+  "largeFilesPreserved": 0,
+  "mold": "active",
+  "clientHttp": 200,
+  "webInf": true,
+  "pid": "3668627",
+  "backup": "/root/snapshot-policy-1506-20261028-backend/management-before.jar"
+}

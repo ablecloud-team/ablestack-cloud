@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "snapshot": "cb399ff3-c602-4879-bb2a-79ed84a1da52",
+      "path": "snapshots/2/1159/c5ac8154-6759-4107-9515-d7bb587c7484",
+      "present": false
+    },
+    {
+      "snapshot": "968e98e4-d45a-4036-8010-7d40e6483e83",
+      "path": "snapshots/2/1159/ffbd8ea9-d831-4ec2-bf9a-9924c85b3b1f",
+      "present": false
+    },
+    {
+      "snapshot": "17d50ad9-741a-4414-801a-ff9537eebfe4",
+      "path": "snapshots/319/1163/3bd3e6da-1864-4efc-99aa-d6d2c142fc1b",
+      "present": false
+    },
+    {
+      "snapshot": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+      "path": "snapshots/2/1160/b18e8999-5952-4101-b88a-3d2d97e5b848",
+      "present": false
+    },
+    {
+      "snapshot": "75b84795-101c-4c7e-bd68-b8636b3350e5",
+      "path": "snapshots/318/1162/b342b007-4f69-42af-bb93-b7206704f78b",
+      "present": false
+    },
+    {
+      "snapshot": "7092cce9-c28a-4eb2-93e9-17effa1e2954",
+      "path": "snapshots/317/1161/76ee26a2-a9ba-4d39-a2a4-5766ffb946b4",
+      "present": false
+    },
+    {
+      "snapshot": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+      "path": "snapshots/2/1158/35824d81-f176-4db0-afb5-893b3ef10643",
+      "present": false
+    }
+  ]
+}

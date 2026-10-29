@@ -117,7 +117,8 @@ fetch('config.json?ts=' + Date.now())
       })
     }
 
-    await applyCustomGuiTheme(accountid, domainid)
+    // Authenticated theme discovery follows GetInfo's role/API discovery.
+    await applyCustomGuiTheme(accountid, domainid, !accountid)
 
     loadLanguageAsync().then(() => {
       vueApp.use(store)

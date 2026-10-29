@@ -1,0 +1,483 @@
+{
+  "policyUuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+  "before": {
+    "at": "2026-10-27 00:41:20.863376",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1131,
+        "uuid": "0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "name": "SP07-1501-31-owner",
+        "state": "Ready",
+        "path": "2361afed-d5c3-42f9-a90a-38483ace2f52",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1132,
+        "uuid": "418dd34f-5a80-4628-9164-2f97a956275d",
+        "name": "SP07-1501-31-project",
+        "state": "Ready",
+        "path": "f763bffc-4db7-4c5e-8d02-f7bc4d2555d2",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1130,
+        "uuid": "bdc59561-9805-4b7c-9624-36c9267515cc",
+        "name": "SP07-1501-31-volume-tab",
+        "state": "Ready",
+        "path": "1f157635-1784-43f0-8c57-711dfea4e28d",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1129,
+        "uuid": "ce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "name": "SP07-1501-31-scheduled",
+        "state": "Ready",
+        "path": "23b1f5d9-1007-475e-9c02-66f0d2bda2b8",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 95,
+        "uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "volume_id": 1130,
+        "schedule": "55",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 97,
+        "uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "volume_id": 1130,
+        "schedule": "04:16:1",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      },
+      {
+        "id": 99,
+        "uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "volume_id": 1131,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 100,
+        "uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "volume_id": 1132,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 77,
+        "uuid": "7acf2a7f-c417-4308-95ec-80830a18ad1a",
+        "volume_id": 1130,
+        "policy_id": 97,
+        "scheduled_timestamp": "2026-11-01 07:04:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 80,
+        "uuid": "f78a3ff7-763b-4748-b91e-25ff2de34d05",
+        "volume_id": 1132,
+        "policy_id": 100,
+        "scheduled_timestamp": "2026-10-27 06:07:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "job_uuid": null,
+        "job_status": null
+      }
+    ],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [
+      {
+        "id": 649,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 650,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 653,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 654,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 657,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 658,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 659,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 660,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 649,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 650,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 653,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 654,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 657,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 658,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 659,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 660,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  },
+  "after": {
+    "at": "2026-10-27 00:41:22.268345",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1131,
+        "uuid": "0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "name": "SP07-1501-31-owner",
+        "state": "Ready",
+        "path": "2361afed-d5c3-42f9-a90a-38483ace2f52",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1132,
+        "uuid": "418dd34f-5a80-4628-9164-2f97a956275d",
+        "name": "SP07-1501-31-project",
+        "state": "Ready",
+        "path": "f763bffc-4db7-4c5e-8d02-f7bc4d2555d2",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1130,
+        "uuid": "bdc59561-9805-4b7c-9624-36c9267515cc",
+        "name": "SP07-1501-31-volume-tab",
+        "state": "Ready",
+        "path": "1f157635-1784-43f0-8c57-711dfea4e28d",
+        "pool_id": 1,
+        "removed": null
+      },
+      {
+        "id": 1129,
+        "uuid": "ce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "name": "SP07-1501-31-scheduled",
+        "state": "Ready",
+        "path": "23b1f5d9-1007-475e-9c02-66f0d2bda2b8",
+        "pool_id": 1,
+        "removed": null
+      }
+    ],
+    "policies": [
+      {
+        "id": 95,
+        "uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "volume_id": 1130,
+        "schedule": "55",
+        "timezone": "Asia/Seoul",
+        "interval": 0,
+        "active": 1,
+        "display": 0,
+        "max_snaps": 2
+      },
+      {
+        "id": 97,
+        "uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "volume_id": 1130,
+        "schedule": "04:16:1",
+        "timezone": "Asia/Seoul",
+        "interval": 2,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      },
+      {
+        "id": 99,
+        "uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "volume_id": 1131,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      },
+      {
+        "id": 100,
+        "uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "volume_id": 1132,
+        "schedule": "07:15",
+        "timezone": "Asia/Seoul",
+        "interval": 1,
+        "active": 1,
+        "display": 1,
+        "max_snaps": 2
+      }
+    ],
+    "schedules": [
+      {
+        "id": 77,
+        "uuid": "7acf2a7f-c417-4308-95ec-80830a18ad1a",
+        "volume_id": 1130,
+        "policy_id": 97,
+        "scheduled_timestamp": "2026-11-01 07:04:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 80,
+        "uuid": "f78a3ff7-763b-4748-b91e-25ff2de34d05",
+        "volume_id": 1132,
+        "policy_id": 100,
+        "scheduled_timestamp": "2026-10-27 06:07:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "job_uuid": null,
+        "job_status": null
+      },
+      {
+        "id": 81,
+        "uuid": "3354cad7-4a15-4059-9844-a08af2f0dfcb",
+        "volume_id": 1131,
+        "policy_id": 99,
+        "scheduled_timestamp": "2026-10-27 06:07:00",
+        "async_job_id": null,
+        "snapshot_id": null,
+        "policy_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "job_uuid": null,
+        "job_status": null
+      }
+    ],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [
+      {
+        "id": 649,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 650,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 653,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 654,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 657,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 658,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 659,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 660,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_tags": [
+      {
+        "id": 649,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 650,
+        "resource_uuid": "100ab48c-73ce-474a-be98-c29553bbe13d",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 653,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 654,
+        "resource_uuid": "7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 657,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 658,
+        "resource_uuid": "bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 659,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-remove",
+        "value": "삭제 대상",
+        "resource_type": "SnapshotPolicy"
+      },
+      {
+        "id": 660,
+        "resource_uuid": "1e023eb9-e079-481c-8cfd-95c480b23f3c",
+        "key": "sp07-keep",
+        "value": "한글 보존",
+        "resource_type": "SnapshotPolicy"
+      }
+    ],
+    "historical_policy_details": []
+  }
+}

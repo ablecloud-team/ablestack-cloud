@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "volumes": 8,
+  "accounts": 2,
+  "database": {
+    "at": "2026-10-27 03:28:01.506861",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 544,
+        "uuid": "05122e06-5438-4977-ac23-5a0982977c59",
+        "name": "SP09-1503-32-same",
+        "state": "Expunged",
+        "path": "41423445-3c55-498e-8018-d1aca09ef204",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:57"
+      },
+      {
+        "id": 546,
+        "uuid": "11033000-9947-4ba4-a0be-489242f6c957",
+        "name": "SP09-1503-32-한글",
+        "state": "Expunged",
+        "path": "10ccf9c6-a486-45d6-8391-e564a0473cc8",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:59"
+      },
+      {
+        "id": 549,
+        "uuid": "56445865-5f25-4d3d-adcd-3abc2f6ebc70",
+        "name": "SP09-1503-32-owner-b",
+        "state": "Expunged",
+        "path": "faf674da-7015-4a64-bdf1-5531dc018998",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:28:01"
+      },
+      {
+        "id": 543,
+        "uuid": "8a70d21c-47ea-42aa-9959-9a2e881daa0d",
+        "name": "SP09-1503-32-alpha",
+        "state": "Expunged",
+        "path": "115a2e6c-f4f2-481b-8274-2f3c582ba1cb",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:56"
+      },
+      {
+        "id": 542,
+        "uuid": "c053243d-12d2-450f-ad5b-fbf32fe4be81",
+        "name": "SP09-1503-32-zeta",
+        "state": "Expunged",
+        "path": "61678520-1900-44b7-ada7-79598d3f3549",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:56"
+      },
+      {
+        "id": 547,
+        "uuid": "f3e92322-34ad-4730-9afc-37f10f054d71",
+        "name": "SP09-1503-32-Alpha",
+        "state": "Expunged",
+        "path": "bfdb3146-e1bf-41b3-b2c6-b17e6fdc2ef5",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:59"
+      },
+      {
+        "id": 545,
+        "uuid": "f75fef74-6b0d-44e4-8bd0-132afefc6272",
+        "name": "SP09-1503-32-same",
+        "state": "Expunged",
+        "path": "83de06a2-d7cc-4573-a649-15ee98e0895a",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:27:58"
+      },
+      {
+        "id": 548,
+        "uuid": "f92062ad-8b34-4a17-bf35-074d153ea8d8",
+        "name": "SP09-1503-32-owner-a",
+        "state": "Expunged",
+        "path": "72d76d3b-fd6c-4650-a4bf-98d3f5fa6910",
+        "pool_id": 3,
+        "removed": "2026-10-27 03:28:00"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [],
+    "historical_policy_tags": [],
+    "historical_policy_details": []
+  }
+}

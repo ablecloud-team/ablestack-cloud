@@ -1,0 +1,6471 @@
+{
+  "passed": true,
+  "matrixImages": [
+    {
+      "file": "31-light-390-list.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "901c339dcaa7a8413edb900e7dc530f5c125a8a636306e642c4fe11e7bd0e309",
+      "pngVerified": true
+    },
+    {
+      "file": "31-light-390-daily-selected.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "f7861fb43c0091f7fe35e698f0cc92c8c25ed7ea5d09f34c2e92cab37d4053cf",
+      "pngVerified": true
+    },
+    {
+      "file": "31-light-768-list.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "09f507cd46e53d1b33d33b9f12ed772c353fb7b78d8941baeb061ca6871bb995",
+      "pngVerified": true
+    },
+    {
+      "file": "31-light-768-daily-selected.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "9c4c719778b3df1170dd24c6950986349032806885479e83619f7f0f3552e8cb",
+      "pngVerified": true
+    },
+    {
+      "file": "31-light-1280-list.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "db0abac897003dc69fe627f28c1e86a9588da622c2c16e6835c444f5affb6562",
+      "pngVerified": true
+    },
+    {
+      "file": "31-light-1280-daily-selected.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "010c0ce4cd7b442042d748f04f3d728f790a4fd607411319c559c4db23ef5a3d",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-390-list.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "8f7b0f387374632f6878547c3f71efa7de27acd5296d32a5ddc15244a54eed46",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-390-daily-selected.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "26dc1256898ad9dd03c5dab81029a77ed9995af192a3a3d90844d3f69249405b",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-768-list.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "c913f902865ec4f11d63180bf238563e295b69c22dd1a65d845b94a865ede190",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-768-daily-selected.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "6232ada99c6ac565d78edccff99ea486cecf6e434a5b697bf3dcbf0b2d9fc35a",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-1280-list.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b4fc844933d894d92c605dae52e22cf5a2f8da2f3501a030b8ac6781ab0de062",
+      "pngVerified": true
+    },
+    {
+      "file": "31-dark-1280-daily-selected.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4cd0cb18579258134c817b24c764f7627673d5baf19db277eea541abfdf8812e",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-390-list.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "6941a1d131ea6f9d077ffff6da2313b247f16f6a18e71f6411154fc699848b44",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-390-daily-selected.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "2177b838599f11a98ba1e738ea1e29c9a5f645ec9ba8ef4223834a01652a3852",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-768-list.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "b1aadd9e01705252ec48f1a36f71a92e91613e6dcba2977d02b9188ba5fa0fdf",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-768-daily-selected.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "58131f2f31d24234268a78d2e700c197f52649eb4e4511c6b0e3907f07b31ad7",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-1280-list.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d954f253647d1e86ae97d4fae1e9b5923967e2f94f56e87fe8444dea33d00a2a",
+      "pngVerified": true
+    },
+    {
+      "file": "32-light-1280-daily-selected.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "43ed857525dea78009d41879e9ebfb3569edc485f6baab527d1e4459d8cabfa1",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-390-list.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "79725f792cf31d805ea26114f05d3f962c885259fca688127ded3b37595fb7c0",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-390-daily-selected.png",
+      "width": 390,
+      "height": 720,
+      "sha256": "ab19d0484fe9180e14b9cef46143441993596b17452e629456834c39f39bb3f7",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-768-list.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "2ca7d8e9463afba2926e8828ce78fc8f025c1b20173c737286e21b9e67368b19",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-768-daily-selected.png",
+      "width": 768,
+      "height": 720,
+      "sha256": "6ae0ee8a73711c74e0574b2ffce7ffdd3dd7e677328a5c98613132e7c079c0cb",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-1280-list.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "42b1ae6970fcc37c5bb7cb30776c882ae5c1f0f3777670617947faf654c1f44d",
+      "pngVerified": true
+    },
+    {
+      "file": "32-dark-1280-daily-selected.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "8127b6d9d504f43763c41a053a9ef0f37025c7ad36fd1fd57ac40a4de122e0ed",
+      "pngVerified": true
+    }
+  ],
+  "matrixCombinations": 12,
+  "refresh": [
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "passed": true
+    }
+  ],
+  "minimumContrast": {
+    "light": 13.105567501506352,
+    "dark": 10.896026523763803
+  },
+  "contrastRatios": [
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "31",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "31",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 390,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 768,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.105567501506352
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 13.427909637069291
+    },
+    {
+      "cluster": "32",
+      "theme": "light",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 14.67911847763172
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 390,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 768,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 10.896026523763803
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "selected-or-hover",
+      "ratio": 11.320364576954955
+    },
+    {
+      "cluster": "32",
+      "theme": "dark",
+      "width": 1280,
+      "state": "normal",
+      "ratio": 12.3215335857083
+    }
+  ],
+  "notes": "24 primary matrix PNGs verified against actual DOM viewport and decoded PNG size/CRC/zlib. Additional weekly/monthly and refresh sequence images retain native pixels."
+}

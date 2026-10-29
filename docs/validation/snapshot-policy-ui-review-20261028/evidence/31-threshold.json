@@ -1,0 +1,15 @@
+[
+  {
+    "category": "Advanced",
+    "group": "System VMs",
+    "subgroup": "SecStorageVM",
+    "name": "secondary.storage.capacity.threshold",
+    "value": "0.90",
+    "defaultvalue": "0.90",
+    "description": "Percentage (as a value between 0 and 1) of secondary storage capacity threshold.",
+    "isdynamic": true,
+    "component": "CapacityManager",
+    "displaytext": "Secondary storage capacity threshold",
+    "type": "Range"
+  }
+]

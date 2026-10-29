@@ -1,0 +1,108 @@
+===== test.log =====
+PASS tests/unit/views/storage/SnapshotPolicyTags.spec.js (6.685s)
+PASS tests/unit/views/storage/SnapshotPolicyEditing.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyMonthSearch.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyDeletion.spec.js
+PASS tests/unit/views/AutogenSnapshotPolicyDetail.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyInput.spec.js
+PASS tests/unit/views/storage/RecurringSnapshotUnified.spec.js
+PASS tests/unit/views/storage/RecurringSnapshotVolumeSearch.spec.js
+PASS tests/unit/components/view/SnapshotPolicySearch.spec.js
+PASS tests/unit/components/view/SnapshotSearch.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyBulkDelete.spec.js
+PASS tests/unit/views/storage/StorageSnapshotActionDialog.spec.js
+PASS tests/unit/views/storage/SnapshotDeletionRecovery.spec.js
+PASS tests/unit/views/storage/SnapshotTabs.spec.js
+PASS tests/unit/components/view/ResourceView.spec.js
+PASS tests/unit/views/storage/SnapshotDialogZones.spec.js
+PASS tests/unit/components/header/StorageSnapshotNotifications.spec.js
+PASS tests/unit/components/view/ResourceTags.spec.js
+PASS tests/unit/utils/GuiTheme.spec.js
+PASS tests/unit/views/storage/SnapshotCopies.spec.js
+PASS tests/unit/views/AutogenSnapshotFilters.spec.js
+PASS tests/unit/components/view/ListViewSnapshotContext.spec.js
+PASS tests/unit/views/compute/VmSnapshotDialog.spec.js
+PASS tests/unit/views/AutogenSnapshotActions.spec.js
+PASS tests/unit/views/SnapshotPolicyList.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotList.spec.js
+PASS tests/unit/views/storage/SnapshotRestoreInheritance.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSort.spec.js
+PASS tests/unit/views/storage/SnapshotTransfer.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSearch.spec.js
+PASS tests/unit/components/view/InfoCardIconLifecycle.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotDetail.spec.js
+PASS tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js
+PASS tests/unit/views/compute/VmSnapshotsTab.spec.js
+PASS tests/unit/optionalDiscovery.spec.js
+PASS tests/unit/utils/storageSnapshotPresentation.spec.js
+PASS tests/unit/views/storage/VolumeSnapshotPolicies.spec.js
+PASS tests/unit/utils/resourceTags.spec.js
+PASS tests/unit/views/storage/SnapshotDialogStandard.spec.js
+PASS tests/unit/utils/snapshotPolicyInput.spec.js
+PASS tests/unit/utils/storageSnapshotOperations.spec.js
+PASS tests/unit/utils/snapshotPolicyDetail.spec.js
+PASS tests/unit/utils/storageSnapshotContext.spec.js
+PASS tests/unit/components/view/StorageSnapshotSummary.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyVolumeLinks.spec.js
+PASS tests/unit/api/snapshotPolicyProjectRequest.spec.js
+PASS tests/unit/utils/snapshotPolicyEditing.spec.js
+PASS tests/unit/utils/storageSnapshotDetail.spec.js
+PASS tests/unit/views/storage/CreateSnapshotFromVMSnapshot.spec.js
+PASS tests/unit/utils/vmSnapshotList.spec.js
+PASS tests/unit/utils/snapshotPolicySearch.spec.js
+PASS tests/unit/api/jobRequest.spec.js
+PASS tests/unit/api/optionalRequest.spec.js
+PASS tests/unit/views/storage/StorageSnapshotSafety.spec.js
+PASS tests/unit/utils/snapshotDownload.spec.js
+PASS tests/unit/utils/vmSnapshotActions.spec.js
+Test Suites: 56 passed, 56 total
+Tests:       830 passed, 830 total
+Time:        65.309s
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+
+===== lint.log =====
+
+> cloudstack-ui@4.22.0 lint
+> vue-cli-service lint --no-fix src/views/AutogenView.vue src/views/storage/FormSchedule.vue tests/unit/views/SnapshotPolicyList.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ DONE  No lint errors found!
+
+===== build.log =====
+  dist/css/chunk-6f3f800a.b9b8871b.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-7b9dd3a5.eeddb6e7.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-c2e831aa.d06f64cc.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-cc1eb720.5e7ed221.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-de8a6fb8.7d5e0a57.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-f2e8809c.24cb69dc.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-2ecd4d9b.ff148455.css    0.09 KiB          0.09 KiB
+  dist/css/chunk-0763689b.c8084e7a.css    0.09 KiB          0.08 KiB
+  dist/css/chunk-4f9f3f67.b30b3809.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-cd074484.b3a9685a.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-e4a819bc.cf001108.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-1b161184.e6029dd8.css    0.08 KiB          0.09 KiB
+  dist/css/chunk-43963091.d1d9040b.css    0.08 KiB          0.09 KiB
+  dist/css/chunk-382e63a6.ed84acc9.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-62ecf9d6.56be705d.css    0.07 KiB          0.09 KiB
+  dist/css/chunk-681f2b02.5d38c646.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-e888b8ce.ed84acc9.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-2fea127e.b78c5347.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-40c2f2e1.a89ddab2.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-76164dea.0ee2ad71.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-f8c1fd06.bccd434d.css    0.06 KiB          0.08 KiB
+  dist/css/chunk-275a37c6.b5ab1173.css    0.04 KiB          0.06 KiB
+  dist/css/chunk-306332a8.afadbd41.css    0.04 KiB          0.06 KiB
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

@@ -1,0 +1,19 @@
+{
+  "state": "held",
+  "snapshot": {
+    "id": 253,
+    "uuid": "dcb87b56-2443-44b2-8984-bf7261560f6b",
+    "status": "Allocated",
+    "volume_id": 537
+  },
+  "schedule": {
+    "id": 77,
+    "scheduled_timestamp": "2026-10-27 00:41:00",
+    "async_job_id": 4766,
+    "snapshot_id": 253,
+    "job_uuid": "6e180e95-cb3a-4e13-8c43-c175f1c4ac5b",
+    "job_status": 0
+  },
+  "at": 1793061749.4570107,
+  "watchdogSeconds": 90
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 149,
+    "changedMethods": [
+      "public com.cloud.storage.SnapshotPolicyVO createPolicy(org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd, com.cloud.user.Account);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>, java.lang.Long);",
+      "public com.cloud.storage.snapshot.SnapshotPolicy createPolicy(org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd, com.cloud.user.Account);",
+      "private com.cloud.storage.SnapshotPolicyVO lambda$persistSnapshotPolicy$14(long, com.cloud.utils.DateUtil$IntervalType, java.lang.Long, boolean, java.lang.String, java.lang.String, int, java.util.List, java.util.List, boolean, java.util.Map, com.cloud.utils.db.TransactionStatus);"
+    ],
+    "addedMethods": [
+      "private com.cloud.storage.SnapshotPolicyVO lambda$persistSnapshotPolicy$14(long, com.cloud.utils.DateUtil$IntervalType, java.lang.Long, boolean, boolean, java.lang.String, java.lang.String, int, java.util.List, java.util.List, boolean, java.util.Map, com.cloud.utils.db.TransactionStatus);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>, java.lang.Long, boolean);"
+    ]
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotPolicyInputValidator",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 4,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 149,
+    "changedMethods": [
+      "public com.cloud.storage.SnapshotPolicyVO createPolicy(org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd, com.cloud.user.Account);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>, java.lang.Long);",
+      "public com.cloud.storage.snapshot.SnapshotPolicy createPolicy(org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotPolicyCmd, com.cloud.user.Account);",
+      "private com.cloud.storage.SnapshotPolicyVO lambda$persistSnapshotPolicy$14(long, com.cloud.utils.DateUtil$IntervalType, java.lang.Long, boolean, java.lang.String, java.lang.String, int, java.util.List, java.util.List, boolean, java.util.Map, com.cloud.utils.db.TransactionStatus);"
+    ],
+    "addedMethods": [
+      "private com.cloud.storage.SnapshotPolicyVO lambda$persistSnapshotPolicy$14(long, com.cloud.utils.DateUtil$IntervalType, java.lang.Long, boolean, boolean, java.lang.String, java.lang.String, int, java.util.List, java.util.List, boolean, java.util.Map, com.cloud.utils.db.TransactionStatus);",
+      "protected com.cloud.storage.SnapshotPolicyVO persistSnapshotPolicy(com.cloud.storage.VolumeVO, java.lang.String, java.lang.String, com.cloud.utils.DateUtil$IntervalType, int, boolean, boolean, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.lang.Long>, java.util.List<java.lang.Long>, java.lang.Long, boolean);"
+    ]
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotPolicyInputValidator",
+    "runtimeMatchesBaseline": true,
+    "unrelatedMethodsUnchanged": 4,
+    "changedMethods": [],
+    "addedMethods": []
+  }
+]

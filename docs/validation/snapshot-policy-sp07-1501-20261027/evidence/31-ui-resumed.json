@@ -1,0 +1,188 @@
+[
+  {
+    "label": "natural-waiting-confirm",
+    "at": "2026-10-27T01:12:57.929Z",
+    "state": {
+      "focus": {
+        "tag": "DIV",
+        "text": ""
+      },
+      "modal": {
+        "buttons": [
+          {
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "disabled": false,
+            "text": "삭제 대상 다시 조회"
+          },
+          {
+            "disabled": false,
+            "text": "취소"
+          },
+          {
+            "disabled": true,
+            "text": "삭제"
+          }
+        ],
+        "checkbox": [
+          {
+            "checked": false,
+            "disabled": false
+          }
+        ],
+        "summary": [
+          "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+          "간격 유형\t매시간",
+          "일정\t14분(매시)",
+          "시간대\tUTC",
+          "유지\t2",
+          "계정\tadmin",
+          "도메인\tROOT",
+          "프로젝트\t개인 계정 범위"
+        ],
+        "target": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d",
+        "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t14분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제"
+      },
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/app.95671954.js"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "label": "natural-running-delete-rejected",
+    "at": "2026-10-27T01:16:31.556Z",
+    "state": {
+      "focus": {
+        "tag": "DIV",
+        "text": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\nSnapshot policy has a snapshot job in progress. Retry deletion after the job finishes.\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t14분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다."
+      },
+      "modal": {
+        "buttons": [
+          {
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "disabled": false,
+            "text": "삭제 대상 다시 조회"
+          },
+          {
+            "disabled": false,
+            "text": "취소"
+          },
+          {
+            "disabled": true,
+            "text": "삭제"
+          }
+        ],
+        "checkbox": [
+          {
+            "checked": false,
+            "disabled": true
+          }
+        ],
+        "summary": [
+          "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+          "간격 유형\t매시간",
+          "일정\t14분(매시)",
+          "시간대\tUTC",
+          "유지\t2",
+          "계정\tadmin",
+          "도메인\tROOT",
+          "프로젝트\t개인 계정 범위"
+        ],
+        "target": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d",
+        "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\nSnapshot policy has a snapshot job in progress. Retry deletion after the job finishes.\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t14분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제"
+      },
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/app.95671954.js"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "label": "natural-completed-reloaded-unchecked",
+    "at": "2026-10-27T01:17:00.680Z",
+    "state": {
+      "focus": {
+        "tag": "DIV",
+        "text": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t14분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다."
+      },
+      "modal": {
+        "buttons": [
+          {
+            "disabled": false,
+            "text": ""
+          },
+          {
+            "disabled": false,
+            "text": "삭제 대상 다시 조회"
+          },
+          {
+            "disabled": false,
+            "text": "취소"
+          },
+          {
+            "disabled": true,
+            "text": "삭제"
+          }
+        ],
+        "checkbox": [
+          {
+            "checked": false,
+            "disabled": false
+          }
+        ],
+        "summary": [
+          "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+          "간격 유형\t매시간",
+          "일정\t14분(매시)",
+          "시간대\tUTC",
+          "유지\t2",
+          "계정\tadmin",
+          "도메인\tROOT",
+          "프로젝트\t개인 계정 범위"
+        ],
+        "target": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d",
+        "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t14분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제"
+      },
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/app.95671954.js"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "label": "natural-completed-policy-delete-focus",
+    "at": "2026-10-27T01:17:01.875Z",
+    "state": {
+      "focus": {
+        "tag": "BUTTON",
+        "text": "업데이트"
+      },
+      "modal": null,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/app.95671954.js"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "label": "final-cleaned-root",
+    "at": "2026-10-27T01:19:03.170Z",
+    "state": {
+      "focus": {
+        "tag": "BODY",
+        "text": "대시보드\n컴퓨트\n스토리지\n볼륨\n스냅샷\n스냅샷 정책\n버킷\n공유 파일 시스템\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\nAC\nadmin cloud\n/스냅샷 정책업데이트\n정기 스냅샷 생성\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n\n\n데이터 없음\n\n전체 0 개 항목 중 0-0 표시\n1\n20 / 쪽\nWall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성"
+      },
+      "modal": null,
+      "scripts": [
+        "http://10.10.31.10:8080/client/js/app.95671954.js"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  }
+]

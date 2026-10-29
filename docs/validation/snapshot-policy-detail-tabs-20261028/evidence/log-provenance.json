@@ -1,0 +1,26 @@
+[
+  {
+    "file": "test.log.txt",
+    "rawSha256": "f0a73ee0bad3164287a9ac12218035a4a8375799e5dae649ddcc9960754848b6",
+    "publishedSha256": "37cd9d88812848004637b76829cf365cc21b4ad720e1be67ed14779f25e9078d",
+    "change": "Trailing whitespace and line endings normalized; raw logs retained locally"
+  },
+  {
+    "file": "lint.log.txt",
+    "rawSha256": "e1f21a46ae6d9a68a3c4fe267ef77d881ecee845a87172da5d7f79b7b04b3afb",
+    "publishedSha256": "e1f21a46ae6d9a68a3c4fe267ef77d881ecee845a87172da5d7f79b7b04b3afb",
+    "change": "Trailing whitespace and line endings normalized; raw logs retained locally"
+  },
+  {
+    "file": "build.log.txt",
+    "rawSha256": "f83041145d8528347496b1528620ec8ce0c42096fee26978ee1c17d239c6c051",
+    "publishedSha256": "87f99792c5c9fe6e9280de131159c338eb8a075371ad27f4d5766628e60dec4d",
+    "change": "Trailing whitespace and line endings normalized; raw logs retained locally"
+  },
+  {
+    "file": "api-build.log.txt",
+    "rawSha256": "9b1358d8d252b12afeabdda879dea56c616466e9565633cd10c499fd91d804f9",
+    "publishedSha256": "5ca862bd53b569c4b7369b0515ad7ef8adb828da4ac5ac4a330b2dc17be7146f",
+    "change": "Trailing whitespace and line endings normalized; raw logs retained locally"
+  }
+]

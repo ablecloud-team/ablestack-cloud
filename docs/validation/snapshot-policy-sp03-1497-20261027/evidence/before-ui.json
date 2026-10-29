@@ -1,0 +1,16 @@
+[
+  {
+    "cluster": 31,
+    "source": "a94c23195f4bf31045b79259329dfaa5eb2b4795",
+    "errors": [
+      "TypeError: t.value.toLowerCase is not a function\n    at filterOption (http://10.10.31.10:8080/client/js/chunk-b17f86d0.b3e3e2f5.js:1:11663)\n    at http://10.10.31.10:8080/client/js/vendors.a26facc0.js:170:84331\n    at Array.forEach (<anonymous>)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:170:84133)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:32:25303)\n    at o1.run (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:81:938143)\n    at get value (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:81:947143)\n    at o1.fn (http://10.10.31.10:8080/client/js/vendors.a26facc0.js:32:25477)"
+    ]
+  },
+  {
+    "cluster": 32,
+    "source": "a94c23195f4bf31045b79259329dfaa5eb2b4795",
+    "errors": [
+      "TypeError: t.value.toLowerCase is not a function\n    at filterOption (http://10.10.32.10:8080/client/js/chunk-b17f86d0.b3e3e2f5.js:1:11663)\n    at http://10.10.32.10:8080/client/js/vendors.a26facc0.js:170:84331\n    at Array.forEach (<anonymous>)\n    at o1.fn (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:170:84133)\n    at o1.run (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:81:938143)\n    at get value (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:81:947143)\n    at o1.fn (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:32:25303)\n    at o1.run (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:81:938143)\n    at get value (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:81:947143)\n    at o1.fn (http://10.10.32.10:8080/client/js/vendors.a26facc0.js:32:25477)"
+    ]
+  }
+]

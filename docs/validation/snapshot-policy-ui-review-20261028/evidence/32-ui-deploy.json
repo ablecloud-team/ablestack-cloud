@@ -1,0 +1,65 @@
+{
+  "managementPid": "3720525",
+  "files": 931,
+  "verified": true,
+  "backup": "/nfs/snapshot-policy-ui-review-20261028-ui-42f37107270-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "e3839c761e59e77f960b9f9f717055ea91882682a3a036b07e4c69277aac8687"
+  },
+  "managementJarUnchanged": "2c4cc158c79ed512eb8d7512b43c70884c02e97793e0bcef25c9a431c0f97065",
+  "largeFileMetadataUnchanged": {
+    "monitoring-vm.qcow2": {
+      "size": 29194321920,
+      "inode": 27209289,
+      "mtime_ns": 1791859614464247580
+    }
+  },
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-policy-time-dropdown": true,
+    "policySelectionAvailable": true,
+    "policy-create-volume": true,
+    "policyDeleteTargets": true,
+    "policy-search-id": true,
+    "message.snapshot.policy.bulk.partial": true,
+    "label.snapshot.policy.bulk.submit": true,
+    "message.snapshot.policy.search.project": true,
+    "message.snapshot.policy.delete.unverified": true,
+    "policy-delete-target": true,
+    "message.snapshot.policy.delete.effect": true,
+    "label.snapshot.policy.delete.check": true,
+    "clearzoneids": true,
+    "policy-action-target": true,
+    "message.snapshot.policy.running.effect": true,
+    "label.snapshot.policy.edit": true,
+    "snapshotpolicymax": true,
+    "policy-retention-help": true,
+    "message.snapshot.policy.minute.range": true,
+    "snapshot-policy-tags": true,
+    "message.snapshot.policy.tag.duplicate": true,
+    "volume-search-options": true,
+    "message.volume.search.unavailable": true,
+    "snapshot-policy-volume-dropdown": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  },
+  "newStaticFiles": [
+    "css/app.eec28016.css",
+    "css/chunk-0e6b5a53.0429285e.css",
+    "css/chunk-17020235.67a515c4.css",
+    "css/chunk-1aca2723.3be822a5.css",
+    "css/chunk-4d506b80.d71d06a6.css",
+    "css/chunk-4f51d7c4.9bc44262.css",
+    "css/chunk-fb54d366.01f644dc.css",
+    "js/app.7b6d9f14.js",
+    "js/app.7b6d9f14.js.map",
+    "js/chunk-0e6b5a53.5a19d05f.js",
+    "js/chunk-0e6b5a53.5a19d05f.js.map"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   79G  3.9G  96% /\n/dev/mapper/rl-nfs   350G   99G  252G  29% /nfs\n"
+}

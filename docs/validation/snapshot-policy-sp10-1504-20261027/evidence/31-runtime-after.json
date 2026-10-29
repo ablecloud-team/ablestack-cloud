@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "backendChangedClasses": 8,
+  "otherJarEntriesUnchanged": 204536,
+  "jarSha256": "5905e58b954e86f79a975b6bd422e79f7cc7e4e7b589b23fe1e8ed3923db57f4",
+  "backendRestartOldPid": "3553590",
+  "currentPid": "3554783",
+  "staticFilesVerified": 934,
+  "configFilesUnchanged": 7,
+  "WEB-INF": true,
+  "clientHttp": 200,
+  "mold": "active"
+}

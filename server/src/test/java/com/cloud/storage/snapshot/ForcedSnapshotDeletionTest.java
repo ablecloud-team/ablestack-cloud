@@ -94,6 +94,7 @@ public class ForcedSnapshotDeletionTest {
     @Mock private SnapshotZoneDao snapshotZoneDao;
     @Mock private DataCenterDao dataCenterDao;
     @Mock private AnnotationDao annotationDao;
+    @Mock private com.cloud.tags.dao.ResourceTagDao snapshotTags;
     @Mock private org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector _epSelector;
     private SnapshotVO snapshot;
     private SnapshotDataStoreVO ref;
@@ -158,6 +159,30 @@ public class ForcedSnapshotDeletionTest {
     private SnapshotDeletionResponse run(Long zone) {
         String revision = manager.forcedSnapshotScopeHash(snapshot, zone, manager.forcedSnapshotScope(7L, zone));
         return manager.forceDeleteSnapshotWithLock(7L, zone, revision);
+    }
+    @Test public void physicalCompletionCleansTerminatedSnapshotTags() {
+        when(_snapshotDao.findByIdIncludingRemoved(7L)).thenReturn(snapshot);
+        doReturn(true).when(snapshotSrv).deleteSnapshot(info);
+        assertTrue(run(null).isPhysicalCleanupComplete());
+        verify(snapshotTags).removeByIdAndType(7L, com.cloud.server.ResourceTag.ResourceObjectType.Snapshot);
+    }
+    @Test public void physicalFailurePreservesTagsUntilSuccessfulForceRetry() {
+        when(_snapshotDao.findByIdIncludingRemoved(7L)).thenReturn(snapshot);
+        when(snapshotSrv.deleteSnapshot(info)).thenThrow(new IllegalStateException("physical failure"));
+        assertFalse(run(null).isPhysicalCleanupComplete()); verifyNoInteractions(snapshotTags);
+        doReturn(true).when(snapshotSrv).deleteSnapshot(info);
+        assertTrue(run(null).isPhysicalCleanupComplete());
+        verify(snapshotTags).removeByIdAndType(7L, com.cloud.server.ResourceTag.ResourceObjectType.Snapshot);
+    }
+    @Test public void zoneLocalForceDoesNotEraseTagsOfRemainingCopy() {
+        when(_snapshotDao.findByIdIncludingRemoved(7L)).thenReturn(snapshot);
+        SnapshotDataStoreVO other = reference(12L, 2L); refs.add(other);
+        when(dataCenterDao.findById(1L)).thenReturn(mock(DataCenterVO.class));
+        when(dataStoreMgr.getStoreZoneId(1L, DataStoreRole.Primary)).thenReturn(1L);
+        when(dataStoreMgr.getStoreZoneId(2L, DataStoreRole.Primary)).thenReturn(2L);
+        doReturn(true).when(snapshotSrv).deleteSnapshot(info);
+        assertTrue(run(1L).isPhysicalCleanupComplete()); assertEquals(Snapshot.State.BackedUp, global.get());
+        verifyNoInteractions(snapshotTags);
     }
     @Test public void identifiedPhysicalCleanupTerminatesOnlyInspectedMetadata() {
         doReturn(true).when(snapshotSrv).deleteSnapshot(info);

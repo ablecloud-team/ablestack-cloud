@@ -1,0 +1,87 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "api": "listVolumes",
+      "existingObjects": 157,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "path",
+        "size",
+        "type",
+        "storageid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": false,
+      "differences": [
+        {
+          "id": "6c46c36d-d061-4ab2-8123-beb38231865b",
+          "name": "ROOT-771",
+          "fields": {
+            "state": {
+              "before": "Allocated",
+              "after": "Ready"
+            },
+            "path": {
+              "before": null,
+              "after": "6c46c36d-d061-4ab2-8123-beb38231865b"
+            },
+            "storageid": {
+              "before": null,
+              "after": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "api": "listSnapshots",
+      "existingObjects": 23,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "volumeid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true,
+      "differences": []
+    },
+    {
+      "api": "listVirtualMachines",
+      "existingObjects": 118,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "hostid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": false,
+      "differences": [
+        {
+          "id": "e3b14f81-89cf-4247-bbfd-4fa3023b76d8",
+          "name": "tj-win2025-1",
+          "fields": {
+            "state": {
+              "before": "Stopped",
+              "after": "Running"
+            },
+            "hostid": {
+              "before": null,
+              "after": "3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

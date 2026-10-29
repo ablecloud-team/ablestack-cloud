@@ -1,0 +1,12 @@
+{
+  "commit": "859cce4313e7428ecf1447b23a35e57d12d5ebdf",
+  "backendBuildCommit": "4e41e7b70fb",
+  "sha256": "339b349dd291e0ee94a9f2136cfb82e11270ed46fefd5c4af9a70a260cd8ddf0",
+  "entries": {
+    "org/apache/cloudstack/api/response/CapabilitiesResponse.class": "18a0abf57e638b65acde9968ec2c04f757b7ac9fef22ff54da016630336ead08",
+    "org/apache/cloudstack/api/command/user/config/ListCapabilitiesCmd.class": "2e63f097b6fb6c3f092c7e755fc831a81b45483f8e5514fdac652b520a260dea",
+    "com/cloud/storage/snapshot/SnapshotPolicyInputValidator.class": "37db52035dcd5aaef73c9217c0ecc12287a3b1a6d95f01729b4a36e32f974140",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "fea2f26e09775d0b5490baab21f2101ce201bffb89d2b063c43d95b175c0a480",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class": "e31b3cd7fb79be01fa32b5e48bf6d3c5417a525b2b3794fb8a6947028f8a6000"
+  }
+}

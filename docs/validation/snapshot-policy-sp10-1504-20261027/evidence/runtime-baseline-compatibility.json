@@ -1,0 +1,86 @@
+[
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotApiService",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 25,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 8,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "org/apache/cloudstack/api/response/SnapshotPolicyResponse",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 28,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/api/ApiResponseHelper",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 206,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 152,
+    "changedMethods": [
+      "public java.util.Map<java.lang.String, java.lang.Object> getSnapshotPolicyContext(long);"
+    ],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotApiService",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 25,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotPoliciesCmd",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 8,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "org/apache/cloudstack/api/response/SnapshotPolicyResponse",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 28,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/api/ApiResponseHelper",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 206,
+    "changedMethods": [],
+    "addedMethods": []
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl",
+    "runtimeMatchesSourceBaseline": true,
+    "unrelatedMethodsUnchanged": 152,
+    "changedMethods": [
+      "public java.util.Map<java.lang.String, java.lang.Object> getSnapshotPolicyContext(long);"
+    ],
+    "addedMethods": []
+  }
+]

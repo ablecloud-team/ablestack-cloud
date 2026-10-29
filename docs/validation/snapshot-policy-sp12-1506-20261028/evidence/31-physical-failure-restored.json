@@ -1,0 +1,15 @@
+{
+  "snapshot": "3acf5493-1077-491d-b461-07fbe8bd5f59",
+  "path": "/nfs/secondary/snapshots/2/1160/b18e8999-5952-4101-b88a-3d2d97e5b848",
+  "inode": 438014980,
+  "size": 196624,
+  "mtimeNs": 1793146736667357602,
+  "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8",
+  "unit": "sp12-1506-31-immutable-restore-1793146818",
+  "watchdogSeconds": 480,
+  "startedUtc": "2026-10-28T00:20:18Z",
+  "immutable": false,
+  "passed": true,
+  "contentAndMetadataRestored": true,
+  "timer": "inactive"
+}

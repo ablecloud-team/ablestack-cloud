@@ -1,0 +1,46 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 178,
+        "height": 116,
+        "left": 68,
+        "right": 770,
+        "top": 62,
+        "width": 702,
+        "x": 68,
+        "y": 62
+      },
+      "text": "/스냅샷 정책업데이트\n프로젝트\n\t"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 153,
+        "height": 60,
+        "left": 419,
+        "right": 745,
+        "top": 93,
+        "width": 326,
+        "x": 419,
+        "y": 93
+      },
+      "text": "\t"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "데이터를 조회하지 못했습니다. 검색 조건을 확인한 뒤 다시 조회하세요.\n재시도"
+  ],
+  "pageWidth": 758,
+  "rows": [],
+  "tabs": [],
+  "theme": "light",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?projectid=0&page=1&pagesize=20&sortkey=volumename&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

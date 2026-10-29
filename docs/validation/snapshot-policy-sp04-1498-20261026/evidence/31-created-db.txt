@@ -1,0 +1,18 @@
+[volumes]
+092230b5-087d-4906-881d-6b2b86297cfc	SP04-1498-31-volume-tab	Ready	248ac7a3-772a-4be6-8b4d-7604ac1038a4	1	NULL
+3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	SP04-1498-31-scheduled	Ready	15f78fab-4ab7-41fe-99b3-971627f953e0	1	NULL
+7b626c48-82ba-427e-ab86-c478f731b7aa	SP04-1498-31-owner	Ready	6706c2c9-d9a8-4f0a-a532-25f706012f1c	1	NULL
+[policies]
+f1b449f9-320e-4991-8789-8ad007699780	3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6	12	0	1	Asia/Seoul	1	1
+[schedules]
+f1b449f9-320e-4991-8789-8ad007699780	2026-10-26 13:12:00	NULL
+[snapshots]
+[policy_tags]
+f1b449f9-320e-4991-8789-8ad007699780	sp04-keep	한글 태그 유지	SnapshotPolicy
+f1b449f9-320e-4991-8789-8ad007699780	sp04-pending	입력 중인 태그	SnapshotPolicy
+[snapshot_tags]
+[snapshot_refs]
+[snapshot_jobs]
+[poll_interval]
+snapshot.delta.max	16
+snapshot.poll.interval	300

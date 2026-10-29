@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "prometheusPidUnchanged": 2491742,
+  "readyHttp": 200,
+  "preservedSegments": [
+    {
+      "name": "00000610",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000611",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000612",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000613",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000614",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000615",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000616",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000617",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000618",
+      "readable": true,
+      "sha256Unchanged": true
+    },
+    {
+      "name": "00000619",
+      "readable": true,
+      "sha256Unchanged": true
+    }
+  ],
+  "latestSampleTimestamp": 1793063926.9,
+  "ingestionFresh": true,
+  "archiveMustRetain": "/var/lib/ablestack-space-preserved/sp07-1501-20261027/prometheus-wal",
+  "configurationChanged": false
+}

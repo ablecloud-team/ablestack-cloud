@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "concurrentPairs": 5,
+  "checks": [
+    {
+      "iteration": 1,
+      "policies": 1,
+      "schedules": 1,
+      "policyUuids": [
+        "b4af41bd-558b-4407-9ffb-d8a9fbcbea8f"
+      ]
+    },
+    {
+      "iteration": 2,
+      "policies": 1,
+      "schedules": 1,
+      "policyUuids": [
+        "b500dee4-db40-438a-bc4f-c7bd235d4c48"
+      ]
+    },
+    {
+      "iteration": 3,
+      "policies": 1,
+      "schedules": 1,
+      "policyUuids": [
+        "175f1fe4-c080-4c98-9e00-99f86169cbad"
+      ]
+    },
+    {
+      "iteration": 4,
+      "policies": 1,
+      "schedules": 1,
+      "policyUuids": [
+        "8e99e426-bd9c-4d81-bbf8-2293db821712"
+      ]
+    },
+    {
+      "iteration": 5,
+      "policies": 1,
+      "schedules": 1,
+      "policyUuids": [
+        "46c83b6e-13f6-4a14-b988-38a43de9e636"
+      ]
+    }
+  ]
+}

@@ -20,52 +20,49 @@
     <a-alert v-if="volumesError || policyError" type="error" :message="volumesError || policyError" show-icon />
     <a-button v-if="volumesError" @click="fetchVolumes">{{ $t('label.retry') }}</a-button>
     <a-button v-if="policyError" @click="fetchData">{{ $t('label.retry') }}</a-button>
-    <div v-if="!isVolumeResource" class="volume-selection">
-      <a-form layout="vertical">
-        <a-form-item :label="$t('label.volume')" required>
+    <div v-if="isVolumeResource" class="volume-operation-target">
+      <hdd-outlined aria-hidden="true" /><span>{{ currentVolumeResource.name }}</span><span class="operation-secondary">{{ currentVolumeResource.type }}</span>
+    </div>
+    <FormSchedule
+      :key="currentVolumeResource?.id || 'unselected'"
+      :loading="loading"
+      :disabled="!currentVolumeResource?.id || loading || !!policyError || (!isVolumeResource && (volumesLoading || !!volumesError))"
+      :resource="currentVolumeResource || {}"
+      :dataSource="dataSource"
+      resourceType="Volume"
+      @busy="busy = $event"
+      @close-action="closeAction"
+      @refresh="handleRefresh">
+      <template v-if="!isVolumeResource" #resource-selection>
+        <a-form-item :label="$t('label.volume')" html-for="policy-create-volume" required>
           <a-select
+            id="policy-create-volume"
             v-model:value="selectedVolumeId"
             :placeholder="$t('label.select.volume')"
             :loading="volumesLoading"
+            :disabled="busy || volumesLoading || !!volumesError"
+            :options="volumeOptions"
+            option-label-prop="label"
+            dropdown-class-name="snapshot-policy-volume-dropdown"
             show-search
             :filter-option="filterOption"
             @change="onVolumeChange"
           >
-            <a-select-option
-              v-for="volume in volumes"
-              :key="volume.id"
-              :value="volume.id"
-            >
-              {{ volume.name }} ({{ (volume.size / 1024 / 1024 / 1024).toFixed(2) }} GB)
-            </a-select-option>
+            <template #option="{ label, description }">
+              <div class="snapshot-policy-volume-option">
+                <div>{{ label }}</div>
+                <div class="operation-secondary">{{ description }}</div>
+              </div>
+            </template>
           </a-select>
+          <template v-if="selectedVolume" #extra><p class="selected-volume-description">{{ volumeDescription(selectedVolume) }}</p></template>
         </a-form-item>
-      </a-form>
-    </div>
-    <div v-if="currentVolumeResource?.id" class="volume-operation-target">
-      <hdd-outlined aria-hidden="true" /><span>{{ currentVolumeResource.name }}</span><span class="operation-secondary">{{ currentVolumeResource.type }}</span>
-    </div>
-    <FormSchedule
-      v-if="currentVolumeResource?.id"
-      :key="currentVolumeResource.id"
-      :loading="loading"
-      :disabled="loading || !!policyError"
-      :resource="currentVolumeResource"
-      :dataSource="dataSource"
-      resourceType="Volume"
-      @close-action="closeAction"
-      @refresh="handleRefresh" />
-    <MoldDialogActions v-else><a-button @click="closeAction">{{ $t('label.close') }}</a-button></MoldDialogActions>
-    <div v-if="!currentVolumeResource || !currentVolumeResource.id" class="no-volume-selected">
-      <div class="empty-state">
-        <p>{{ $t('message.select.volume.to.continue') }}</p>
-      </div>
-    </div>
+      </template>
+    </FormSchedule>
   </div>
 </template>
 
 <script>
-import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { getAPI } from '@/utils/storageApi'
 import { readAllocationList } from '@/utils/volumeAllocation'
 import FormSchedule from '@/views/storage/FormSchedule'
@@ -73,7 +70,6 @@ import FormSchedule from '@/views/storage/FormSchedule'
 export default {
   name: 'RecurringSnapshotVolume',
   components: {
-    MoldDialogActions,
     FormSchedule
   },
   props: {
@@ -87,6 +83,7 @@ export default {
   data () {
     return {
       loading: false,
+      busy: false,
       dataSource: [],
       volumes: [],
       volumesLoading: false,
@@ -101,6 +98,19 @@ export default {
   },
   computed: {
     ownerContext () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.state?.user?.token, this.$store.getters.project?.id]) },
+    volumeOptions () {
+      return this.volumes.map(volume => {
+        const description = this.volumeDescription(volume)
+        const size = volume.size == null ? NaN : Number(volume.size)
+        const label = `${volume.name || volume.id} (${Number.isFinite(size) && size >= 0 ? (size / 1024 / 1024 / 1024).toFixed(2) + ' GiB' : '—'})`
+        return {
+          value: volume.id,
+          label,
+          description,
+          searchText: [label, description, volume.vmname, volume.vmdisplayname].filter(value => value != null).join(' ')
+        }
+      })
+    },
     resourceType () {
       if (!this.resource) return 'none'
       if (this.resource.type === 'ROOT' || this.resource.type === 'DATADISK' ||
@@ -165,13 +175,15 @@ export default {
       }
     },
     onVolumeChange (volumeId) {
+      if (this.busy) return
       const volume = this.volumes.find(v => v.id === volumeId)
-      if (volume) {
-        this.selectedVolume = volume
-        this.selectedVolumeId = volumeId
-        this.dataSource = []
-        this.fetchData()
-      }
+      this.policyVersion++
+      this.selectedVolume = volume || null
+      this.selectedVolumeId = volume?.id || null
+      this.dataSource = []
+      this.policyError = ''
+      this.loading = false
+      if (volume) this.fetchData()
     },
     failureText (error) { return Object.values(error?.response?.data || {}).find(value => value?.errortext)?.errortext || error?.message || this.$t('message.request.failed') },
     async fetchData () {
@@ -203,7 +215,21 @@ export default {
       this.$emit('close-action')
     },
     filterOption (input, option) {
-      return option.children[0].children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      return String(option?.searchText ?? option?.label ?? '').toLowerCase().includes(String(input ?? '').trim().toLowerCase())
+    },
+    volumeDescription (volume) {
+      const vm = volume.vmdisplayname || volume.vmname || volume.virtualmachineid
+      const project = volume.project || volume.projectid
+      const owner = project || volume.account
+      const domain = volume.domain || volume.domainid
+      const zone = volume.zonename || volume.zoneid
+      return [
+        vm && `${this.$t('label.virtualmachine')}: ${vm}`,
+        owner && `${this.$t(project ? 'label.project' : 'label.account')}: ${owner}`,
+        domain && `${this.$t('label.domain')}: ${domain}`,
+        zone && `${this.$t('label.zone')}: ${zone}`,
+        `${this.$t('label.id')}: ${volume.id}`
+      ].filter(Boolean).join(' · ')
     }
   }
 }
@@ -216,28 +242,22 @@ export default {
   min-width: 0;
   max-width: 100%;
 
-  .volume-selection {
-    margin-bottom: 20px;
-    padding: 16px;
-    border: 1px solid var(--ui-border);
-    border-radius: 6px;
-    background: var(--ui-bg-surface);
-    .ant-form-item {
-      margin-bottom: 0;
-      .ant-select {
-        width: 100%;
-        min-width: 0;
-      }
-    }
+  .selected-volume-description {
+    overflow-wrap: anywhere;
+    margin: 0;
+    color: var(--ui-text-secondary);
   }
+}
+</style>
 
-  .current-volume-info {
-    margin-bottom: 16px;
-  }
+<style lang="scss">
+.snapshot-policy-volume-dropdown .snapshot-policy-volume-option {
+  white-space: normal;
+  overflow-wrap: anywhere;
 
-  .no-volume-selected {
-    text-align: center;
-    padding: 40px 20px;
+  .operation-secondary {
+    font-size: 12px;
+    color: var(--ui-text-secondary);
   }
 }
 </style>

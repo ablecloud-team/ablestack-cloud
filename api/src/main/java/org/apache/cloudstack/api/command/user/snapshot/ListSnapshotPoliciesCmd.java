@@ -50,6 +50,20 @@ public class ListSnapshotPoliciesCmd extends BaseListProjectAndAccountResourcesC
     @Parameter(name = ApiConstants.FOR_DISPLAY, type = CommandType.BOOLEAN, description = "List resources by display flag; only ROOT admin is eligible to pass this parameter", since = "4.4", authorized = {RoleType.Admin})
     private Boolean display;
 
+    @Parameter(name = "ignoreproject", type = CommandType.BOOLEAN, description = "Exclude project-owned policies, including ID lookups. Cannot be combined with projectid. Defaults to false.")
+    private Boolean ignoreProject;
+
+    @Parameter(name = "sortkey", type = CommandType.STRING, description = "Server sort field: id (default), intervaltype, maxsnaps, schedule, timezone or volumename. Schedule uses local time of day (hourly minutes use hour zero), then interval and weekday/day. This is not next execution time.")
+    private String sortKey;
+
+    @Parameter(name = "sortorder", type = CommandType.STRING, description = "Sort direction: asc or desc (default). Equal values use policy ID in the same direction.")
+    private String sortOrder;
+
+    @Parameter(name = "includepolicycontext", type = CommandType.BOOLEAN, description = "Include ACL-checked next schedule and retained scheduler job facts. Defaults to false; not a complete execution history.")
+    private Boolean includePolicyContext;
+
+    public boolean isIncludePolicyContext() { return Boolean.TRUE.equals(includePolicyContext); }
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -70,6 +84,15 @@ public class ListSnapshotPoliciesCmd extends BaseListProjectAndAccountResourcesC
         return id;
     }
 
+    @Override
+    public Boolean getDisplay() { return display; }
+
+    public boolean isIgnoreProject() { return Boolean.TRUE.equals(ignoreProject); }
+
+    public String getSortKey() { return sortKey; }
+
+    public String getSortOrder() { return sortOrder; }
+
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -81,6 +104,9 @@ public class ListSnapshotPoliciesCmd extends BaseListProjectAndAccountResourcesC
         List<SnapshotPolicyResponse> policyResponses = new ArrayList<SnapshotPolicyResponse>();
         for (SnapshotPolicy policy : result.first()) {
             SnapshotPolicyResponse policyResponse = _responseGenerator.createSnapshotPolicyResponse(policy);
+            if (isIncludePolicyContext()) {
+                policyResponse.setPolicyContext(_snapshotService.getSnapshotPolicyContext(policy.getId()));
+            }
             policyResponse.setObjectName("snapshotpolicy");
             policyResponses.add(policyResponse);
         }

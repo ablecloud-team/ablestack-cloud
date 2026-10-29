@@ -1,0 +1,28 @@
+[
+  {
+    "requestId": "57640.1194",
+    "command": "listSnapshotPolicies",
+    "params": {},
+    "status": 200
+  },
+  {
+    "requestId": "57640.1196",
+    "command": "deleteSnapshotPolicies",
+    "params": {
+      "id": "267624e2-878e-43ac-8d7c-e321a81d6f3e"
+    },
+    "status": 200
+  },
+  {
+    "requestId": "57640.1197",
+    "command": "listSnapshotPolicies",
+    "params": {},
+    "status": 200
+  },
+  {
+    "requestId": "57640.1200",
+    "command": "listSnapshotPolicies",
+    "params": {},
+    "status": 200
+  }
+]

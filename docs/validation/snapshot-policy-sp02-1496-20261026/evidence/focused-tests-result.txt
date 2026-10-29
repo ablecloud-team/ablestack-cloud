@@ -1,0 +1,12 @@
+        at <ATag key=0 closable="" onClose=fn<onClose> >
+        at <ACol key=0 >
+        at <ARow style= { overflow: 'auto' } wrap=false >
+        at <SearchFilter apiName="listVirtualMachines" filters= [ { key: 'affinitygroupid', value: 'group-id' } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+
+
+Test Suites: 6 passed, 6 total
+Tests:       95 passed, 95 total
+Snapshots:   0 total
+Time:        19.576s
+Ran all test suites within paths "tests/unit/components/view/VolumeSearchSelect.spec.js", "tests/unit/components/view/SearchFilter.spec.js", "tests/unit/views/AutogenAffinitySearch.spec.js", "tests/unit/views/AutogenCniSearch.spec.js", "tests/unit/components/view/SnapshotSearch.spec.js", "tests/unit/views/storage/RecurringSnapshotVolumeSearch.spec.js".

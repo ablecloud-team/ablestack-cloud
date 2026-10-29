@@ -1,0 +1,211 @@
+{
+  "source": "Unmodified deployed APIs; read-only audit including includesnapshotcontext=true",
+  "contracts": {
+    "listSnapshots": [
+      "volumeid",
+      "name",
+      "storageid",
+      "ids",
+      "page",
+      "snapshottype",
+      "includesnapshotcontext",
+      "imagestoreid",
+      "id",
+      "keyword",
+      "sortorder",
+      "isrecursive",
+      "projectid",
+      "sortkey",
+      "listall",
+      "account",
+      "showunique",
+      "domainid",
+      "intervaltype",
+      "tags",
+      "locationtype",
+      "zoneid",
+      "pagesize"
+    ],
+    "listSnapshotPolicies": [
+      "sortorder",
+      "account",
+      "id",
+      "page",
+      "listall",
+      "domainid",
+      "keyword",
+      "includepolicycontext",
+      "ignoreproject",
+      "projectid",
+      "volumeid",
+      "isrecursive",
+      "sortkey",
+      "fordisplay",
+      "pagesize"
+    ],
+    "listAsyncJobs": [
+      "domainid",
+      "startdate",
+      "account",
+      "resourceid",
+      "resourcetype",
+      "keyword",
+      "listall",
+      "isrecursive",
+      "page",
+      "managementserverid",
+      "pagesize"
+    ]
+  },
+  "policyCountForVolume": 4,
+  "policyDetails": [
+    {
+      "id": "c89ab36f-389f-4035-85d2-435b25ff8628",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "intervaltype": 3,
+      "policycontext": {
+        "version": 1,
+        "observedat": "2026-10-28T16:03:55+0900",
+        "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+        "schedulingenabled": false,
+        "pollintervalseconds": 300,
+        "historysource": "RETAINED_SCHEDULER_JOBS",
+        "historylimit": 50,
+        "schedulestate": "PAUSED",
+        "currentjobknown": false
+      }
+    },
+    {
+      "id": "d3792488-0054-4d62-890a-fe9c236fb4b9",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "intervaltype": 2,
+      "policycontext": {
+        "version": 1,
+        "observedat": "2026-10-28T16:03:55+0900",
+        "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+        "schedulingenabled": false,
+        "pollintervalseconds": 300,
+        "historysource": "RETAINED_SCHEDULER_JOBS",
+        "historylimit": 50,
+        "schedulestate": "PAUSED",
+        "currentjobknown": false
+      }
+    },
+    {
+      "id": "ca05fb89-4e70-4783-b50d-efc9b9d025bf",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "intervaltype": 1,
+      "policycontext": {
+        "version": 1,
+        "observedat": "2026-10-28T16:03:55+0900",
+        "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+        "schedulingenabled": false,
+        "pollintervalseconds": 300,
+        "historysource": "RETAINED_SCHEDULER_JOBS",
+        "historylimit": 50,
+        "schedulestate": "PAUSED",
+        "currentjobknown": false
+      }
+    },
+    {
+      "id": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "intervaltype": 0,
+      "policycontext": {
+        "version": 1,
+        "observedat": "2026-10-28T16:03:55+0900",
+        "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+        "schedulingenabled": false,
+        "pollintervalseconds": 300,
+        "historysource": "RETAINED_SCHEDULER_JOBS",
+        "historylimit": 50,
+        "schedulestate": "PAUSED",
+        "currentjobknown": false,
+        "latestjob": {
+          "id": "bd36f46b-fa4f-4e10-b563-65d8e14cdf01",
+          "status": "SUCCEEDED",
+          "created": "2026-10-28T14:29:04+0900",
+          "updated": "2026-10-28T14:29:06+0900",
+          "snapshotavailable": true,
+          "snapshotid": "887af746-5c20-4d95-8ce4-356604b482fe",
+          "snapshotname": "detached_UI검토-SP-31-20261028-볼륨01_20261028052904"
+        }
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "887af746-5c20-4d95-8ce4-356604b482fe",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "intervaltype": "HOURLY",
+      "created": "2026-10-28T14:29:04+0900",
+      "state": "BackedUp",
+      "name": "detached_UI검토-SP-31-20261028-볼륨01_20261028052904",
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Snapshot",
+          "resourceid": "887af746-5c20-4d95-8ce4-356604b482fe",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Snapshot",
+          "resourceid": "887af746-5c20-4d95-8ce4-356604b482fe",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ],
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": true,
+        "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+        "volumename": "UI검토-SP-31-20261028-볼륨01",
+        "volumestate": "Ready",
+        "revertreason": "",
+        "createreason": "",
+        "restore": {
+          "size": 1073741824,
+          "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+          "diskofferingname": "Custom-GFS-Sparse",
+          "available": true
+        }
+      }
+    }
+  ],
+  "snapshotResponseFields": [
+    "account",
+    "created",
+    "domain",
+    "domainid",
+    "domainpath",
+    "hasannotations",
+    "id",
+    "intervaltype",
+    "name",
+    "physicalsize",
+    "revertable",
+    "snapshotcontext",
+    "state",
+    "tags",
+    "virtualsize",
+    "volumeid",
+    "volumename",
+    "volumestate",
+    "volumetype",
+    "zoneid",
+    "zonename"
+  ],
+  "decision": "API_CHANGE_REQUIRED_FOR_COMPLETE_EXACT_POLICY_SNAPSHOT_TAB",
+  "reasons": [
+    "No policy-id filter on listSnapshots and no snapshot policy-id in SnapshotResponse, including snapshotcontext",
+    "policycontext exposes latestjob only, bounded by 50 retained volume jobs",
+    "Volume and interval filtering can include snapshots created by a deleted and recreated policy; tags are mutable and are not provenance"
+  ],
+  "tabsOrBackendModified": false
+}

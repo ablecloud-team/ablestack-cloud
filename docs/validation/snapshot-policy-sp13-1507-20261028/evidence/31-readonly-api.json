@@ -1,0 +1,310 @@
+{
+  "passed": true,
+  "apis": [
+    "cloudianIsEnabled",
+    "getApiLimit",
+    "getCloudIdentifier",
+    "getSolidFireAccountId",
+    "getSolidFireVolumeSize",
+    "getVMPassword",
+    "getVirtualMachineUserData",
+    "listAccounts",
+    "listAffinityGroupTypes",
+    "listAffinityGroups",
+    "listApis",
+    "listAsyncJobs",
+    "listAutoScalePolicies",
+    "listAutoScaleVmGroups",
+    "listAutoScaleVmProfiles",
+    "listCapabilities",
+    "listConditions",
+    "listCounters",
+    "listDiskOfferings",
+    "listEgressFirewallRules",
+    "listEventTypes",
+    "listEvents",
+    "listFirewallRules",
+    "listGlobalLoadBalancerRules",
+    "listHypervisors",
+    "listInstanceGroups",
+    "listIpForwardingRules",
+    "listIsoPermissions",
+    "listIsos",
+    "listLBHealthCheckPolicies",
+    "listLBStickinessPolicies",
+    "listLdapConfigurations",
+    "listLoadBalancerRuleInstances",
+    "listLoadBalancerRules",
+    "listLoadBalancers",
+    "listNetworkACLLists",
+    "listNetworkACLs",
+    "listNetworkOfferings",
+    "listNetworks",
+    "listNics",
+    "listOsCategories",
+    "listOsTypes",
+    "listPortForwardingRules",
+    "listPrivateGateways",
+    "listProjectAccounts",
+    "listProjectInvitations",
+    "listProjects",
+    "listPublicIpAddresses",
+    "listRegions",
+    "listRemoteAccessVpns",
+    "listResourceDetails",
+    "listResourceLimits",
+    "listSSHKeyPairs",
+    "listSecurityGroups",
+    "listServiceOfferings",
+    "listSnapshotPolicies",
+    "listSnapshots",
+    "listSslCerts",
+    "listStaticRoutes",
+    "listTags",
+    "listTemplatePermissions",
+    "listTemplates",
+    "listUserTwoFactorAuthenticatorProviders",
+    "listUsers",
+    "listVMSnapshot",
+    "listVPCOfferings",
+    "listVPCs",
+    "listVirtualMachines",
+    "listVolumes",
+    "listVpnConnections",
+    "listVpnCustomerGateways",
+    "listVpnGateways",
+    "listVpnUsers",
+    "listZones",
+    "queryAsyncJobResult",
+    "quotaIsEnabled",
+    "setupUserTwoFactorAuthentication",
+    "validateUserTwoFactorAuthenticationCode"
+  ],
+  "policies": {
+    "count": 4,
+    "snapshotpolicy": [
+      {
+        "account": "sp13-1507-31-owner-b",
+        "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+        "domain": "sp13-1507-31-child",
+        "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+        "schedulingenabled": false,
+        "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+        "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "volumename": "SP13-1507-31-owner-b-한글",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-test",
+            "value": "1507-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+          }
+        ]
+      },
+      {
+        "account": "sp13-1507-31-owner-b",
+        "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+        "domain": "sp13-1507-31-child",
+        "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+        "schedulingenabled": false,
+        "id": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+        "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "volumename": "SP13-1507-31-owner-b-한글",
+        "schedule": "5:3:2",
+        "intervaltype": 2,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-test",
+            "value": "1507-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "cec21215-cde5-44fd-9a59-e2d2a93da231",
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+          }
+        ]
+      },
+      {
+        "account": "sp13-1507-31-owner-b",
+        "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+        "domain": "sp13-1507-31-child",
+        "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+        "schedulingenabled": false,
+        "id": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+        "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "volumename": "SP13-1507-31-owner-b-한글",
+        "schedule": "9:7",
+        "intervaltype": 1,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-test",
+            "value": "1507-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "d5963a9e-3054-4f66-9e2e-d7beea905486",
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+          }
+        ]
+      },
+      {
+        "account": "sp13-1507-31-owner-b",
+        "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+        "domain": "sp13-1507-31-child",
+        "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child",
+        "schedulingenabled": false,
+        "id": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+        "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "volumename": "SP13-1507-31-owner-b-한글",
+        "schedule": "5",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "Asia/Seoul",
+        "zone": [
+          {
+            "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "name": "Primary"
+          }
+        ],
+        "tags": [
+          {
+            "key": "sp13-test",
+            "value": "1507-한글",
+            "resourcetype": "SnapshotPolicy",
+            "resourceid": "b93428c0-34f8-4f62-af39-c0411b9108c1",
+            "account": "sp13-1507-31-owner-b",
+            "domainid": "650ea542-1add-4656-913d-63937453e6bb",
+            "domain": "sp13-1507-31-child",
+            "domainpath": "ROOT/sp13-1507-31-parent/sp13-1507-31-child"
+          }
+        ]
+      }
+    ]
+  },
+  "deniedWrites": [
+    {
+      "command": "createSnapshotPolicy",
+      "args": {
+        "volumeid": "7cd2a1e9-643e-470f-84ed-d235ca4932d5",
+        "intervaltype": "hourly",
+        "schedule": "1",
+        "timezone": "UTC",
+        "maxsnaps": 1
+      },
+      "denied": {
+        "status": 432,
+        "data": {
+          "uuidList": [],
+          "errorcode": 432,
+          "cserrorcode": 9999,
+          "errortext": "The API [createSnapshotPolicy] does not exist or is not available for the account sp13-1507-31-owner-b."
+        }
+      }
+    },
+    {
+      "command": "updateSnapshotPolicy",
+      "args": {
+        "id": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+        "fordisplay": false
+      },
+      "denied": {
+        "status": 432,
+        "data": {
+          "uuidList": [],
+          "errorcode": 432,
+          "cserrorcode": 9999,
+          "errortext": "The API [updateSnapshotPolicy] does not exist or is not available for the account sp13-1507-31-owner-b."
+        }
+      }
+    },
+    {
+      "command": "deleteSnapshotPolicies",
+      "args": {
+        "ids": "2a11b77e-ac21-4b68-b064-5bc9468a2cf6"
+      },
+      "denied": {
+        "status": 432,
+        "data": {
+          "uuidList": [],
+          "errorcode": 432,
+          "cserrorcode": 9999,
+          "errortext": "The API [deleteSnapshotPolicies] does not exist or is not available for the account sp13-1507-31-owner-b."
+        }
+      }
+    }
+  ],
+  "themeDiscovered": false,
+  "volumeMetricsDiscovered": false
+}

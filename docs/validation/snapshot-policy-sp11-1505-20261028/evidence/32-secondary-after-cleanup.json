@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "snapshot": "4e820281-818b-4feb-94b3-957691b3526b",
+      "path": "snapshots/2/559/6e72c21d-b067-4d3b-9402-fc7a98ec6792",
+      "wasPresent": true,
+      "present": false
+    },
+    {
+      "snapshot": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+      "path": "snapshots/2/558/62a86bd2-e30b-4702-9a6d-1b98287216e1",
+      "wasPresent": true,
+      "present": false
+    }
+  ]
+}

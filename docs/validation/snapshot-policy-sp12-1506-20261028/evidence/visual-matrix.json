@@ -1,0 +1,374 @@
+[
+  {
+    "n": 31,
+    "theme": "light",
+    "file": "31-light-390-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 844,
+    "modal": {
+      "clientWidth": 364,
+      "font": "14px",
+      "scrollWidth": 364,
+      "width": 366,
+      "x": 12
+    },
+    "width": 390
+  },
+  {
+    "n": 31,
+    "theme": "light",
+    "file": "31-light-768-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 900,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24
+    },
+    "width": 768
+  },
+  {
+    "n": 31,
+    "theme": "light",
+    "file": "31-light-1280-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 720,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280
+    },
+    "width": 1280
+  },
+  {
+    "n": 31,
+    "theme": "dark",
+    "file": "31-dark-390-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 844,
+    "modal": {
+      "clientWidth": 364,
+      "font": "14px",
+      "scrollWidth": 364,
+      "width": 366,
+      "x": 12
+    },
+    "width": 390
+  },
+  {
+    "n": 31,
+    "theme": "dark",
+    "file": "31-dark-768-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 900,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24
+    },
+    "width": 768
+  },
+  {
+    "n": 31,
+    "theme": "dark",
+    "file": "31-dark-1280-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 720,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280
+    },
+    "width": 1280
+  },
+  {
+    "n": 32,
+    "theme": "light",
+    "file": "32-light-390-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 844,
+    "modal": {
+      "clientWidth": 364,
+      "font": "14px",
+      "scrollWidth": 364,
+      "width": 366,
+      "x": 12
+    },
+    "width": 390
+  },
+  {
+    "n": 32,
+    "theme": "light",
+    "file": "32-light-768-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 900,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24
+    },
+    "width": 768
+  },
+  {
+    "n": 32,
+    "theme": "light",
+    "file": "32-light-1280-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 720,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280
+    },
+    "width": 1280
+  },
+  {
+    "n": 32,
+    "theme": "dark",
+    "file": "32-dark-390-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 844,
+    "modal": {
+      "clientWidth": 364,
+      "font": "14px",
+      "scrollWidth": 364,
+      "width": 366,
+      "x": 12
+    },
+    "width": 390
+  },
+  {
+    "n": 32,
+    "theme": "dark",
+    "file": "32-dark-768-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 900,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 24
+    },
+    "width": 768
+  },
+  {
+    "n": 32,
+    "theme": "dark",
+    "file": "32-dark-1280-delete.png",
+    "buttons": [
+      {
+        "font": "14px",
+        "height": "48px",
+        "text": ""
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "취소"
+      },
+      {
+        "font": "14px",
+        "height": "32px",
+        "text": "스냅샷 삭제"
+      }
+    ],
+    "height": 720,
+    "modal": {
+      "clientWidth": 718,
+      "font": "14px",
+      "scrollWidth": 718,
+      "width": 720,
+      "x": 280
+    },
+    "width": 1280
+  }
+]

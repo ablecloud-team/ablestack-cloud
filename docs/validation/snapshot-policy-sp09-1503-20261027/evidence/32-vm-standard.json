@@ -1,0 +1,488 @@
+[
+  {
+    "theme": "light",
+    "buttons": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 24,
+        "radius": "24px",
+        "text": "업데이트"
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "font": "14px",
+        "height": 32,
+        "radius": "32px",
+        "text": "가상머신 추가"
+      }
+    ],
+    "headers": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "4px 0px 0px",
+        "text": ""
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "VM 표시 명"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "내부 이름"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "상태"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "할당 자원"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "에이전트 버전"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "IP 주소"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "템플릿 형식"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "백업 오퍼링 이름"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "CPU 아키텍처"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "호스트"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "계정"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px 4px 0px 0px",
+        "text": ""
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "4px 0px 0px",
+        "text": "레벨"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "유형"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "상태"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "설명"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "리소스"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "사용자 이름"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "계정"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "도메인"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "생성일"
+      },
+      {
+        "background": "rgb(250, 250, 250)",
+        "color": "rgb(75, 85, 99)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px 4px 0px 0px",
+        "text": ""
+      }
+    ],
+    "height": 720,
+    "inputs": [
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "height": 20,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "height": 20,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(31, 41, 55)",
+        "font": "14px",
+        "height": 22,
+        "radius": "0px",
+        "text": ""
+      }
+    ],
+    "width": 1280
+  },
+  {
+    "theme": "dark",
+    "buttons": [
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "font": "14px",
+        "height": 24,
+        "radius": "24px",
+        "text": "업데이트"
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "font": "14px",
+        "height": 32,
+        "radius": "32px",
+        "text": "가상머신 추가"
+      }
+    ],
+    "headers": [
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "4px 0px 0px",
+        "text": ""
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "VM 표시 명"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "내부 이름"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "상태"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "할당 자원"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "에이전트 버전"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "IP 주소"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "템플릿 형식"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "백업 오퍼링 이름"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "CPU 아키텍처"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "호스트"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "계정"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px",
+        "text": "Zone"
+      },
+      {
+        "background": "rgb(34, 40, 47)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "14px",
+        "height": 179,
+        "radius": "0px 4px 0px 0px",
+        "text": ""
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "4px 0px 0px",
+        "text": "레벨"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "유형"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "상태"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "설명"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "리소스"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "사용자 이름"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "계정"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "도메인"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px",
+        "text": "생성일"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.85)",
+        "font": "12px",
+        "height": 0,
+        "radius": "0px 4px 0px 0px",
+        "text": ""
+      }
+    ],
+    "height": 720,
+    "inputs": [
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgb(127, 137, 148)",
+        "font": "14px",
+        "height": 20,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgb(127, 137, 148)",
+        "font": "14px",
+        "height": 20,
+        "radius": "4px",
+        "text": ""
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(240, 243, 246)",
+        "font": "14px",
+        "height": 22,
+        "radius": "0px",
+        "text": ""
+      }
+    ],
+    "width": 1280
+  }
+]

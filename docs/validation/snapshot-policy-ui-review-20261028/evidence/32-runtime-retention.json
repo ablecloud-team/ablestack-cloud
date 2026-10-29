@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "job": "d0942a10-6fc3-4cc6-965c-28d1eb65c2ed",
+      "status": 1,
+      "userId": 1,
+      "created": "2026-10-28 05:29:26.000000",
+      "snapshot": "445f9035-5812-4dbb-b9ef-c8113663f517",
+      "resultCode": 0
+    },
+    {
+      "enabled": 0,
+      "policies": 24,
+      "schedules": 0
+    }
+  ],
+  "nfsUsedRatio": 0.28045491224091,
+  "mold": "active",
+  "pid": "3720525"
+}

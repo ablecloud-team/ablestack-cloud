@@ -35,6 +35,35 @@ public class ListSnapshotPoliciesCmdTest {
     private SnapshotApiService snapshotService;
     private ResponseGenerator responseGenerator;
 
+    @Test
+    public void displayIsNullableAndPersonalScopeIsExplicit() throws Exception {
+        Assert.assertNull(cmd.getDisplay());
+        Assert.assertTrue(cmd.isDisplay());
+        Assert.assertFalse(cmd.isIgnoreProject());
+        java.lang.reflect.Field display = ListSnapshotPoliciesCmd.class.getDeclaredField("display");
+        display.setAccessible(true); display.set(cmd, false);
+        Assert.assertEquals(Boolean.FALSE, cmd.getDisplay());
+        Assert.assertFalse(cmd.isDisplay());
+        java.lang.reflect.Field ignore = ListSnapshotPoliciesCmd.class.getDeclaredField("ignoreProject");
+        ignore.setAccessible(true); ignore.set(cmd, true);
+        Assert.assertTrue(cmd.isIgnoreProject());
+        Assert.assertEquals("ignoreproject", ignore.getAnnotation(org.apache.cloudstack.api.Parameter.class).name());
+    }
+
+    @Test
+    public void sortingParametersAreExposedWithoutInventingDefaults() throws Exception {
+        Assert.assertEquals("sortkey", ListSnapshotPoliciesCmd.class.getDeclaredField("sortKey").getAnnotation(org.apache.cloudstack.api.Parameter.class).name());
+        Assert.assertEquals("sortorder", ListSnapshotPoliciesCmd.class.getDeclaredField("sortOrder").getAnnotation(org.apache.cloudstack.api.Parameter.class).name());
+        Assert.assertNull(cmd.getSortKey());
+        Assert.assertNull(cmd.getSortOrder());
+        java.lang.reflect.Field key = ListSnapshotPoliciesCmd.class.getDeclaredField("sortKey");
+        key.setAccessible(true); key.set(cmd, "maxsnaps");
+        java.lang.reflect.Field order = ListSnapshotPoliciesCmd.class.getDeclaredField("sortOrder");
+        order.setAccessible(true); order.set(cmd, "asc");
+        Assert.assertEquals("maxsnaps", cmd.getSortKey());
+        Assert.assertEquals("asc", cmd.getSortOrder());
+    }
+
     @Before
     public void setUp() {
         cmd = new ListSnapshotPoliciesCmd();
@@ -75,5 +104,24 @@ public class ListSnapshotPoliciesCmdTest {
         ListResponse<?> response = (ListResponse<?>) cmd.getResponseObject();
         Assert.assertNotNull(response);
         Assert.assertTrue(response.getResponses().isEmpty());
+    }
+
+    @Test
+    public void operationalFactsAreOptInAndOnlyForAuthorizedListResults() throws Exception {
+        SnapshotPolicy policy = Mockito.mock(SnapshotPolicy.class);
+        Mockito.when(policy.getId()).thenReturn(7L);
+        SnapshotPolicyResponse policyResponse = new SnapshotPolicyResponse();
+        Mockito.when(snapshotService.listSnapshotPolicies(cmd)).thenReturn(new Pair<>(java.util.Collections.singletonList(policy), 1));
+        Mockito.when(responseGenerator.createSnapshotPolicyResponse(policy)).thenReturn(policyResponse);
+        cmd.execute();
+        Mockito.verify(snapshotService, Mockito.never()).getSnapshotPolicyContext(Mockito.anyLong());
+        Assert.assertNull(policyResponse.getPolicyContext());
+        java.lang.reflect.Field field = ListSnapshotPoliciesCmd.class.getDeclaredField("includePolicyContext");
+        field.setAccessible(true); field.set(cmd, true);
+        java.util.Map<String, Object> context = java.util.Collections.singletonMap("version", 1);
+        Mockito.when(snapshotService.getSnapshotPolicyContext(7L)).thenReturn(context);
+        cmd.execute(); Assert.assertEquals(context, policyResponse.getPolicyContext());
+        Mockito.when(snapshotService.listSnapshotPolicies(cmd)).thenReturn(new Pair<>(new ArrayList<>(), 0));
+        cmd.execute(); Mockito.verify(snapshotService, Mockito.times(1)).getSnapshotPolicyContext(7L);
     }
 }

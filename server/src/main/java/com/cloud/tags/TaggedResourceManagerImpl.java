@@ -47,6 +47,8 @@ import com.cloud.server.ResourceTag.ResourceObjectType;
 import com.cloud.server.TaggedResourceService;
 import com.cloud.storage.DataStoreRole;
 import com.cloud.storage.SnapshotPolicyVO;
+import com.cloud.storage.Snapshot;
+import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.tags.dao.ResourceTagDao;
@@ -60,6 +62,7 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.DB;
 import com.cloud.utils.db.EntityManager;
+import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.Transaction;
@@ -184,6 +187,38 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_TAGS_CREATE, eventDescription = "creating resource tags")
     public List<ResourceTag> createTags(final List<String> resourceIds, final ResourceObjectType resourceType, final Map<String, String> tags, final String customer) {
+        List<GlobalLock> locks = new ArrayList<>();
+        try {
+            if (resourceType == ResourceObjectType.Snapshot) {
+                java.util.SortedSet<Long> ids = new java.util.TreeSet<>();
+                for (String resourceId : resourceIds) { ids.add(resourceManagerUtil.getResourceId(resourceId, resourceType)); }
+                for (Long id : ids) {
+                    GlobalLock lock = GlobalLock.getInternLock("snapshot-delete-" + id);
+                    boolean acquired = false;
+                    try { acquired = lock.lock(30); }
+                    finally { if (!acquired) { lock.releaseRef(); } }
+                    if (!acquired) { throw new CloudRuntimeException("Snapshot operation is already running; retry tag creation"); }
+                    locks.add(lock);
+                }
+            }
+            return createTagsWithSnapshotLocksHeld(resourceIds, resourceType, tags, customer);
+        } finally {
+            for (int i = locks.size() - 1; i >= 0; i--) {
+                try { locks.get(i).unlock(); } finally { locks.get(i).releaseRef(); }
+            }
+        }
+    }
+
+    protected void validateSnapshotTagTarget(long id, ResourceObjectType type) {
+        if (type != ResourceObjectType.Snapshot) { return; }
+        SnapshotVO snapshot = _entityMgr.findById(SnapshotVO.class, id);
+        if (snapshot == null || snapshot.getRemoved() != null || snapshot.getState() == Snapshot.State.Destroyed) {
+            throw new InvalidParameterValueException("Cannot create tags for a deleted snapshot");
+        }
+    }
+
+    protected List<ResourceTag> createTagsWithSnapshotLocksHeld(final List<String> resourceIds, final ResourceObjectType resourceType,
+            final Map<String, String> tags, final String customer) {
         final Account caller = CallContext.current().getCallingAccount();
 
         final List<ResourceTag> resourceTags = new ArrayList<>(tags.size());
@@ -206,6 +241,8 @@ public class TaggedResourceManagerImpl extends ManagerBase implements TaggedReso
 
                         resourceManagerUtil.checkResourceAccessible(accountId, domainId,
                                 String.format("Account '%s' doesn't have permissions to create tags for resource [id: %d, uuid: %s] (%s).", caller, id, resourceUuid, key));
+
+                        validateSnapshotTagTarget(id, resourceType);
 
                         String value = tags.get(key);
 

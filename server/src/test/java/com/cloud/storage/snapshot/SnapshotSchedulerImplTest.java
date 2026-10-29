@@ -98,38 +98,6 @@ public class SnapshotSchedulerImplTest {
     }
 
     @Test
-    public void scheduleNextSnapshotJobTestPolicyIsNotNullDoNotCallExpunge() {
-        Date expected = new Date();
-        SnapshotScheduleVO snapshotScheduleVO = new SnapshotScheduleVO();
-        snapshotScheduleVO.setPolicyId(1l);
-
-        Mockito.doReturn(snapshotPolicyVoMock).when(snapshotPolicyDaoMock).findById(Mockito.anyLong());
-        Mockito.doReturn(expected).when(snapshotSchedulerImplSpy).scheduleNextSnapshotJob(Mockito.any(SnapshotPolicyVO.class));
-
-        Date result = snapshotSchedulerImplSpy.scheduleNextSnapshotJob(snapshotScheduleVO);
-        Assert.assertEquals(expected, result);
-
-        Mockito.verify(snapshotScheduleDaoMock, Mockito.never()).expunge(Mockito.anyLong());
-    }
-
-    @Test
-    public void scheduleNextSnapshotJobTestPolicyIsNullCallExpunge() {
-        Date expected = new Date();
-        SnapshotPolicyVO snapshotPolicyVO = null;
-        SnapshotScheduleVO snapshotScheduleVO = new SnapshotScheduleVO();
-        snapshotScheduleVO.setPolicyId(1l);
-
-        Mockito.doReturn(snapshotPolicyVO).when(snapshotPolicyDaoMock).findById(Mockito.anyLong());
-        Mockito.doReturn(true).when(snapshotScheduleDaoMock).expunge(Mockito.anyLong());
-        Mockito.doReturn(expected).when(snapshotSchedulerImplSpy).scheduleNextSnapshotJob(snapshotPolicyVO);
-
-        Date result = snapshotSchedulerImplSpy.scheduleNextSnapshotJob(snapshotScheduleVO);
-        Assert.assertEquals(expected, result);
-
-        Mockito.verify(snapshotScheduleDaoMock).expunge(Mockito.anyLong());
-    }
-
-    @Test
     public void isAccountRemovedOrDisabledTestVolumeAccountIsNullReturnTrue() {
         SnapshotScheduleVO snapshotScheduleVO = new SnapshotScheduleVO();
 
@@ -208,7 +176,7 @@ public class SnapshotSchedulerImplTest {
 
         boolean result = snapshotSchedulerImplSpy.canSnapshotBeScheduled(snapshotScheduleVO, volumeVoMock);
 
-        Assert.assertTrue(result);
+        Assert.assertFalse(result);
 
         Mockito.verify(snapshotScheduleDaoMock).remove(Mockito.anyLong());
     }

@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "snapshot": "1f3d29e7-1e73-429e-8cce-57fb30b7e2d7",
+  "failedJobs": [
+    {
+      "snapshot_uuid": "1f3d29e7-1e73-429e-8cce-57fb30b7e2d7",
+      "id": 4897,
+      "uuid": "f1b0d7ce-3015-444e-9602-7b378f1fe340",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-28 00:20:36",
+      "last_updated": "2026-10-28 00:20:38"
+    }
+  ],
+  "stateDuringPhysicalFailure": "BackedUp",
+  "tagRowsDuringFailure": 1,
+  "stateAfterRetry": "Destroyed",
+  "tagRowsAfterRetry": 0,
+  "actualPartialPrimarySecondaryDeletionObserved": false,
+  "referencesDuringFailure": [
+    {
+      "uuid": "1f3d29e7-1e73-429e-8cce-57fb30b7e2d7",
+      "store_id": 3,
+      "store_role": "Primary",
+      "state": "Ready",
+      "install_path": "rbd/4345f30a-9044-4933-bf4a-c5e9ebc29004/21e30444-8dcb-4453-a904-9890a4ea2def",
+      "job_id": null
+    },
+    {
+      "uuid": "1f3d29e7-1e73-429e-8cce-57fb30b7e2d7",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/567/21e30444-8dcb-4453-a904-9890a4ea2def",
+      "job_id": null
+    }
+  ],
+  "manualSnapshotTagCleanup": false
+}

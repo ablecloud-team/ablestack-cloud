@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "configuration": {
+    "snapshot.max.hourly": "8",
+    "snapshot.max.daily": "8"
+  },
+  "appliedBefore": {
+    "hourly": 3,
+    "monthly": 8,
+    "weekly": 8,
+    "daily": 0
+  },
+  "appliedAfter": {
+    "hourly": 3,
+    "monthly": 8,
+    "weekly": 8,
+    "daily": 0
+  }
+}

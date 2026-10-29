@@ -1,0 +1,22 @@
+{
+  "finalSourceCommit": "416128e4407",
+  "invalidInputValuesPreserved": true,
+  "invalidUIRequestsBlocked": true,
+  "unknownLimitServer431PreservesDraft": true,
+  "limitRetryPreservesDraft": true,
+  "administratorUsesTargetOwnerLimit": true,
+  "ordinaryUserDomainScopeUnknown": true,
+  "ordinaryUserChangedLimitApplied": true,
+  "serverStaleLimit431ThenCorrectedCreate": true,
+  "uiScheduleEncodingBothClusters": [
+    "0",
+    "59",
+    "59:23",
+    "59:23:7",
+    "59:23:28"
+  ],
+  "viewportViews": 12,
+  "themeAndViewportRestored": true,
+  "temporaryXhrInterceptionCleared": true,
+  "ordinaryUserLimitChangeSessionExpired": true
+}

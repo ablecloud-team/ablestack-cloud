@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "snapshotpolicymax": {
+    "hourly": 3,
+    "monthly": 8,
+    "weekly": 8,
+    "daily": 0
+  },
+  "otherFieldsUnchanged": true
+}

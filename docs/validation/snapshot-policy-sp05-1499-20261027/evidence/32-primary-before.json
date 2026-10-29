@@ -1,0 +1,114 @@
+{
+  "images": [
+    {
+      "path": "56afe4ee-c0fd-4d63-bff9-ba8129b81c08",
+      "present": true,
+      "info": {
+        "name": "56afe4ee-c0fd-4d63-bff9-ba8129b81c08",
+        "id": "0776c7c69e13ba",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.0776c7c69e13ba",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Tue Oct 27 07:03:12 2026",
+        "access_timestamp": "Tue Oct 27 07:03:12 2026",
+        "modify_timestamp": "Tue Oct 27 07:03:12 2026"
+      }
+    },
+    {
+      "path": "d254860d-21fa-4d37-bfe9-907dc698bdbc",
+      "present": true,
+      "info": {
+        "name": "d254860d-21fa-4d37-bfe9-907dc698bdbc",
+        "id": "06b4cd8ceb34a1",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.06b4cd8ceb34a1",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Tue Oct 27 07:03:14 2026",
+        "access_timestamp": "Tue Oct 27 07:03:14 2026",
+        "modify_timestamp": "Tue Oct 27 07:03:14 2026"
+      }
+    },
+    {
+      "path": "db0f4e4d-a818-40de-b383-68ad1620ac59",
+      "present": true,
+      "info": {
+        "name": "db0f4e4d-a818-40de-b383-68ad1620ac59",
+        "id": "0816743f2e948f",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.0816743f2e948f",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Tue Oct 27 07:04:42 2026",
+        "access_timestamp": "Tue Oct 27 07:04:42 2026",
+        "modify_timestamp": "Tue Oct 27 07:04:42 2026"
+      }
+    },
+    {
+      "path": "405dce10-6329-4bfc-b875-41172f9adab1",
+      "present": true,
+      "info": {
+        "name": "405dce10-6329-4bfc-b875-41172f9adab1",
+        "id": "077b446264267b",
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "object_size": 4194304,
+        "snapshot_count": 0,
+        "block_name_prefix": "rbd_data.077b446264267b",
+        "format": 2,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ],
+        "op_features": [],
+        "flags": [],
+        "create_timestamp": "Tue Oct 27 07:04:44 2026",
+        "access_timestamp": "Tue Oct 27 07:04:44 2026",
+        "modify_timestamp": "Tue Oct 27 07:04:44 2026"
+      }
+    }
+  ],
+  "trash": [],
+  "fixtureTrash": []
+}

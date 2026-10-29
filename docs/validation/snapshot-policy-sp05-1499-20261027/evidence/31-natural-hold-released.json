@@ -1,0 +1,19 @@
+{
+  "state": "released",
+  "snapshot": {
+    "id": 279,
+    "uuid": "c9e19d58-c567-4e7e-87ba-6f9c26199dd7",
+    "status": "Allocated",
+    "volume_id": 1126
+  },
+  "schedule": {
+    "id": 72,
+    "scheduled_timestamp": "2026-10-26 22:44:00",
+    "async_job_id": 17633,
+    "snapshot_id": 279,
+    "job_uuid": "24ea6c7d-a6c9-4337-ab38-9d8c6f2d3d56",
+    "job_status": 0
+  },
+  "explicitRelease": true,
+  "at": 1793054824.0944326
+}

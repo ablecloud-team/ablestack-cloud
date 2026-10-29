@@ -1,0 +1,18 @@
+{
+  "cluster": "32",
+  "request": {
+    "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+    "resourcetype": "SnapshotPolicy",
+    "listall": true,
+    "page": 1,
+    "pagesize": 10
+  },
+  "response": {
+    "uuidList": [],
+    "errorcode": 431,
+    "cserrorcode": 4350,
+    "errortext": "Invalid resourcetype"
+  },
+  "recordedPolicyCreationCount": 465,
+  "globalRowsOmitted": true
+}

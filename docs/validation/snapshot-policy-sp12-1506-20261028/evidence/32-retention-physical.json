@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "secondary": [
+    {
+      "uuid": "56ddef0a-d340-4185-b052-d0dd7c2682f0",
+      "status": "Destroyed",
+      "store_role": "Image",
+      "state": "Destroyed",
+      "install_path": "snapshots/2/566/34861bd8-bbd4-4b2b-a484-8c64c3540d1a",
+      "present": false,
+      "size": null
+    },
+    {
+      "uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "status": "BackedUp",
+      "store_role": "Image",
+      "state": "Ready",
+      "install_path": "snapshots/2/566/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "present": true,
+      "size": 196624
+    }
+  ],
+  "rbdNativeSnapshots": [
+    {
+      "uuid": "56ddef0a-d340-4185-b052-d0dd7c2682f0",
+      "status": "Destroyed",
+      "store_role": "Primary",
+      "state": "Destroyed",
+      "install_path": "rbd/09107f44-f82b-4960-85b7-3a3073303e4b/34861bd8-bbd4-4b2b-a484-8c64c3540d1a",
+      "nativeSnapshotName": "34861bd8-bbd4-4b2b-a484-8c64c3540d1a",
+      "present": false
+    },
+    {
+      "uuid": "9f2488e1-83df-4ce8-b797-75278aab6f3a",
+      "status": "BackedUp",
+      "store_role": "Primary",
+      "state": "Ready",
+      "install_path": "rbd/09107f44-f82b-4960-85b7-3a3073303e4b/324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "nativeSnapshotName": "324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "present": true
+    }
+  ],
+  "rbdSnapshotInventory": [
+    {
+      "id": 606,
+      "name": "324b46a3-2dbd-4864-b16b-51ac211ea70c",
+      "size": 1073741824,
+      "protected": "false",
+      "timestamp": "Wed Oct 28 09:28:06 2026"
+    }
+  ]
+}

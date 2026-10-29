@@ -30,7 +30,7 @@ import org.apache.cloudstack.api.response.SuccessResponse;
 
 import com.cloud.user.Account;
 
-@APICommand(name = "deleteSnapshotPolicies", description = "Deletes Snapshot policies for the account.", responseObject = SuccessResponse.class,
+@APICommand(name = "deleteSnapshotPolicies", description = "Deletes Snapshot policies for the account. All IDs and permissions are checked first; deletion then commits per policy. A later runtime failure can leave earlier policies deleted. Re-read the captured IDs before retrying. Existing snapshots are preserved.", responseObject = SuccessResponse.class,
         requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class DeleteSnapshotPoliciesCmd extends BaseCmd {
 

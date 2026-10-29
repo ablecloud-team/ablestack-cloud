@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "snapshot": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+  "job": "29863e3d-8c4e-4c84-8f20-069087350fe6",
+  "naturalScheduledAt": "2026-10-27 01:14:00",
+  "createdAt": "2026-10-27 01:16:20",
+  "runningDeleteHttp": 431,
+  "holdSeconds": 18.583775281906128,
+  "explicitRelease": true,
+  "finalJobStatus": 1,
+  "state": "BackedUp",
+  "snapshotTagRows": [
+    {
+      "id": 665,
+      "resource_uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "key": "sp07-remove",
+      "value": "삭제 대상",
+      "resource_type": "Snapshot"
+    },
+    {
+      "id": 666,
+      "resource_uuid": "d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+      "key": "sp07-keep",
+      "value": "한글 보존",
+      "resource_type": "Snapshot"
+    }
+  ],
+  "policyDeletionPreservation": {
+    "passed": true,
+    "removed": [
+      "100ab48c-73ce-474a-be98-c29553bbe13d"
+    ],
+    "before": "natural-completed-before-delete",
+    "after": "natural-completed-after-delete",
+    "preserved": {
+      "policies": true,
+      "schedules": true,
+      "historical_policy_tags": true,
+      "historical_policy_details": true,
+      "snapshots": true,
+      "refs": true,
+      "snapshotTags": true
+    }
+  }
+}

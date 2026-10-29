@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "policies": [
+    {
+      "account": "sp10-1504-31-owner-b",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "schedulingenabled": false,
+      "policycontext": {
+        "version": 1,
+        "observedat": "2026-10-27T14:51:31+0900",
+        "volumeid": "65f20a68-7c1f-4170-bce8-4f4f52e5cf54",
+        "schedulingenabled": false,
+        "pollintervalseconds": 300,
+        "historysource": "RETAINED_SCHEDULER_JOBS",
+        "historylimit": 50,
+        "schedulestate": "PAUSED",
+        "currentjobknown": false
+      },
+      "id": "d86fc064-68b1-4195-9eb5-7f24da4fe3f7",
+      "volumeid": "65f20a68-7c1f-4170-bce8-4f4f52e5cf54",
+      "volumename": "SP10-1504-31-owner-b-한글",
+      "schedule": "5",
+      "intervaltype": 0,
+      "maxsnaps": 2,
+      "timezone": "Asia/Seoul",
+      "zone": [
+        {
+          "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "name": "Zone"
+        }
+      ],
+      "storage": [
+        {
+          "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+          "name": "Primary"
+        }
+      ],
+      "tags": [
+        {
+          "key": "sp10-test",
+          "value": "1504-한글",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "d86fc064-68b1-4195-9eb5-7f24da4fe3f7",
+          "account": "sp10-1504-31-owner-b",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ],
+  "deleteDenied": {
+    "status": 432,
+    "data": {
+      "uuidList": [],
+      "errorcode": 432,
+      "cserrorcode": 9999,
+      "errortext": "The API [deleteSnapshotPolicies] does not exist or is not available for the account sp10-1504-31-owner-b."
+    }
+  }
+}

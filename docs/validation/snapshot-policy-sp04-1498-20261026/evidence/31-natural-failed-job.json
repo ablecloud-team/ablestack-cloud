@@ -1,0 +1,21 @@
+{
+  "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+  "account": "admin",
+  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+  "domainpath": "ROOT",
+  "userid": "a75c8202-b253-11f1-a895-0024814c313f",
+  "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+  "jobprocstatus": 0,
+  "jobresultcode": 530,
+  "jobresulttype": "object",
+  "jobresult": {
+    "errorcode": 530,
+    "errortext": "Failed to create Snapshot due to an internal error creating Snapshot for volume 3f0f2ab4-cb36-48d6-8ebe-7d1d7f61b2b6"
+  },
+  "jobinstancetype": "Snapshot",
+  "jobinstanceid": "a723e935-9fdd-4ca5-b765-4f2534de5b23",
+  "created": "2026-10-26T22:14:13+0900",
+  "completed": "2026-10-26T22:14:13+0900",
+  "jobid": "2a701497-5973-409e-b75c-f9ee4da70296",
+  "jobstatus": 2
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "11bbbe78-78d6-4a68-ac0a-b225f9b6fcb8",
+    "state": "Ready",
+    "path": "snapshots/2/1158/35824d81-f176-4db0-afb5-893b3ef10643",
+    "present": true,
+    "size": 196624,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  }
+]

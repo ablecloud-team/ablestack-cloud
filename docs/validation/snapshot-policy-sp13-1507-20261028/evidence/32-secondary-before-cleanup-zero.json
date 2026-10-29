@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "beforeVolumeCleanup": true,
+  "knownSnapshotFiles": [
+    {
+      "path": "snapshots/2/576/06dd7731-54f4-469a-a35b-f0973be6cf47",
+      "present": false
+    },
+    {
+      "path": "snapshots/2/576/0a8bd18e-3c80-4931-853a-c48e2c686657",
+      "present": false
+    },
+    {
+      "path": "snapshots/2/576/20aadac9-2cda-4c35-9694-15e7d03a7948",
+      "present": false
+    },
+    {
+      "path": "snapshots/2/576/8736f73f-9b8c-441f-855a-471a17e391b9",
+      "present": false
+    },
+    {
+      "path": "snapshots/2/576/d1657ba7-6cf4-4834-983b-b61290b9780c",
+      "present": false
+    },
+    {
+      "path": "snapshots/2/576/eb359c8e-11ba-415d-a90b-cae7c25e3151",
+      "present": false
+    }
+  ]
+}

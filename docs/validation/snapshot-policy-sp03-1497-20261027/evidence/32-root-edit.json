@@ -1,0 +1,113 @@
+{
+  "at": "2026-10-27 02:18:54.314547",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 540,
+      "uuid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+      "name": "SP03-1497-32-scheduled",
+      "state": "Ready",
+      "path": "10e94c02-727c-46d1-99f4-0f66927523e4",
+      "pool_id": 3,
+      "removed": null
+    },
+    {
+      "id": 541,
+      "uuid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+      "name": "SP03-1497-32-volume-tab",
+      "state": "Ready",
+      "path": "a07b0dce-7b07-4060-bdf5-6d2f8ac82436",
+      "pool_id": 3,
+      "removed": null
+    }
+  ],
+  "policies": [
+    {
+      "id": 90,
+      "uuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "volume_id": 540,
+      "schedule": "59:23:1",
+      "timezone": "Asia/Seoul",
+      "interval": 3,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 2
+    }
+  ],
+  "schedules": [
+    {
+      "id": 80,
+      "uuid": "d49d7a20-1439-4dff-a1b2-26cf6fe69d51",
+      "volume_id": 540,
+      "policy_id": 90,
+      "scheduled_timestamp": "2026-11-01 14:59:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "job_uuid": null,
+      "job_status": null
+    }
+  ],
+  "snapshots": [],
+  "refs": [],
+  "jobs": [],
+  "tags": [
+    {
+      "id": 332,
+      "resource_uuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "key": "sp03-keep",
+      "value": "한글 유지",
+      "resource_type": "SnapshotPolicy"
+    }
+  ],
+  "historical_policy_tags": [
+    {
+      "id": 332,
+      "resource_uuid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "key": "sp03-keep",
+      "value": "한글 유지",
+      "resource_type": "SnapshotPolicy"
+    }
+  ],
+  "historical_policy_details": [],
+  "apiPolicies": [
+    {
+      "id": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+      "volumeid": "4c856b1d-a8e2-41e1-a230-91315a7f2377",
+      "volumename": "SP03-1497-32-scheduled",
+      "schedule": "59:23:1",
+      "intervaltype": 3,
+      "maxsnaps": 2,
+      "timezone": "Asia/Seoul",
+      "fordisplay": true,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": [
+        {
+          "key": "sp03-keep",
+          "value": "한글 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "3dbf6a37-01c8-441a-8d00-1894ecf24a02",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ]
+}

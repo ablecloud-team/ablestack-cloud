@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "apis": {
+    "createSnapshotPolicy": true,
+    "updateSnapshotPolicy": true,
+    "listSnapshotPolicies": true,
+    "listVolumes": true
+  },
+  "checks": [
+    {
+      "kind": "owner",
+      "sameUuid": true,
+      "policyId": "3de6be2f-5247-4ebc-8fee-1816c59ce4b4"
+    },
+    {
+      "kind": "project",
+      "sameUuid": true,
+      "policyId": "d67ffa76-6bb1-4685-8396-64a4be2166cd"
+    },
+    {
+      "crossOwnerRejected": 531
+    }
+  ]
+}

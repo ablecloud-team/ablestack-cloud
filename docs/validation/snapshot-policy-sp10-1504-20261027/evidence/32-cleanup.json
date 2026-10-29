@@ -1,0 +1,201 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "volumes": 5,
+  "accounts": 2,
+  "projects": 1,
+  "deletedPolicyIds": [
+    "364f9736-123d-4006-84e9-b7035e4ef9f3",
+    "e2ed2f69-2d49-49ae-9035-9e603287c1ab",
+    "8200aac1-ab45-4bfc-bd33-926782d6b2f2",
+    "a71c5cad-2a89-4a06-ba7f-3365100da185",
+    "c211f5cb-cd44-4b19-97aa-d38098f40645",
+    "f40ef6df-4ef7-4946-b5d7-e9398cc0d178",
+    "300f69e3-8009-4c38-bf95-3c3d4abaa049",
+    "5821f66c-3ca7-4dcd-a2e3-d73505cef3ad",
+    "ea6eb8a5-9bde-4478-b05b-e37e98edf727",
+    "9097bb06-1e76-4197-a10e-9337656563a2",
+    "cfaa4e47-373c-4d5b-9550-f56f8a544c18",
+    "f11d0b92-fdb6-4233-8d21-941c6246bca9"
+  ],
+  "deletedSnapshotsNow": [
+    "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+    "f52377be-f1ff-48eb-a45c-4f4bf38e7b14"
+  ],
+  "snapshotHistory": [
+    "bab5f008-8942-4102-8e18-5e1b296e081f",
+    "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+    "f52377be-f1ff-48eb-a45c-4f4bf38e7b14"
+  ],
+  "manualSnapshotTagCleanupForOpen1506": [
+    {
+      "snapshot": "f52377be-f1ff-48eb-a45c-4f4bf38e7b14",
+      "keys": [
+        "sp10-recovery"
+      ]
+    }
+  ],
+  "database": {
+    "at": "2026-10-27 06:25:00.808161",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 554,
+        "uuid": "4ed8f61b-3a60-4b17-b1e5-7d5c0961370c",
+        "name": "SP10-1504-32-project",
+        "state": "Expunged",
+        "path": "9d429238-e51d-411d-b2e4-23949629a207",
+        "pool_id": 3,
+        "removed": "2026-10-27 06:24:56"
+      },
+      {
+        "id": 551,
+        "uuid": "7e1db5c2-ada9-4de0-8400-ee0b2f6c8ba4",
+        "name": "SP10-1504-32-runtime-한글",
+        "state": "Expunged",
+        "path": "383428d4-51f5-42b9-a989-9d6d98fbe561",
+        "pool_id": 3,
+        "removed": "2026-10-27 06:24:54"
+      },
+      {
+        "id": 552,
+        "uuid": "7f42cf60-7621-416c-82b0-88a9c1bdfc80",
+        "name": "SP10-1504-32-owner-a-한글",
+        "state": "Expunged",
+        "path": "a31e9b86-328b-4ca7-bd1e-1ccd48c6dffe",
+        "pool_id": 3,
+        "removed": "2026-10-27 06:24:55"
+      },
+      {
+        "id": 553,
+        "uuid": "8ff41d96-0351-49d1-abea-0ef8984b3878",
+        "name": "SP10-1504-32-owner-b-한글",
+        "state": "Expunged",
+        "path": "ee0bcb5d-4236-41bc-bc99-4a2bb6125d7b",
+        "pool_id": 3,
+        "removed": "2026-10-27 06:24:56"
+      },
+      {
+        "id": 550,
+        "uuid": "c485c170-0033-4de1-8e4c-200dbc0f672a",
+        "name": "SP10-1504-32-admin-한글",
+        "state": "Expunged",
+        "path": "a0424193-197d-45f2-adb5-19e1a7b6c1b1",
+        "pool_id": 3,
+        "removed": "2026-10-27 06:24:54"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [
+      {
+        "id": 254,
+        "uuid": "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+        "volume_id": 551,
+        "status": "Destroyed",
+        "created": "2026-10-27 05:29:18",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 255,
+        "uuid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+        "volume_id": 551,
+        "status": "Error",
+        "created": "2026-10-27 05:34:18",
+        "removed": "2026-10-27 05:54:37",
+        "path": null,
+        "backup_snap_id": null
+      },
+      {
+        "id": 256,
+        "uuid": "f52377be-f1ff-48eb-a45c-4f4bf38e7b14",
+        "volume_id": 551,
+        "status": "Destroyed",
+        "created": "2026-10-27 05:58:25",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/551/66c39f42-6cb5-4ad8-bc25-b6dfc1953de9",
+        "job_id": null
+      },
+      {
+        "uuid": "f52377be-f1ff-48eb-a45c-4f4bf38e7b14",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/551/93728fb6-ab11-4127-9e1e-e6a10bfe86d2",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+        "id": 4804,
+        "uuid": "1be5b397-dd61-42e3-90b9-24c002ebf9ea",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 05:29:18",
+        "last_updated": "2026-10-27 05:29:23"
+      },
+      {
+        "snapshot_uuid": "e3f8f269-c4d2-4bfe-b7ab-7f820647ab46",
+        "id": 4818,
+        "uuid": "cac57baa-8e52-44a1-9d08-1f7ddbf6e9ea",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 06:24:48",
+        "last_updated": "2026-10-27 06:24:49"
+      },
+      {
+        "snapshot_uuid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+        "id": 4805,
+        "uuid": "9f8aff4a-6f41-42e4-8ed9-ccd0d3dabfd9",
+        "job_status": 2,
+        "job_result_code": 530,
+        "created": "2026-10-27 05:34:18",
+        "last_updated": "2026-10-27 05:35:01"
+      },
+      {
+        "snapshot_uuid": "bab5f008-8942-4102-8e18-5e1b296e081f",
+        "id": 4813,
+        "uuid": "0a666f96-8522-48f7-adfd-97a12cf02ce4",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 05:54:37",
+        "last_updated": "2026-10-27 05:54:37"
+      },
+      {
+        "snapshot_uuid": "f52377be-f1ff-48eb-a45c-4f4bf38e7b14",
+        "id": 4814,
+        "uuid": "d049a06f-e1d2-4bb9-9433-1c7afe0a031f",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 05:58:25",
+        "last_updated": "2026-10-27 05:58:30"
+      },
+      {
+        "snapshot_uuid": "f52377be-f1ff-48eb-a45c-4f4bf38e7b14",
+        "id": 4820,
+        "uuid": "0f2b7dd3-60e8-4699-8463-3552fbcc9037",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-27 06:24:51",
+        "last_updated": "2026-10-27 06:24:52"
+      }
+    ],
+    "tags": [],
+    "historical_policy_tags": [],
+    "historical_policy_details": [],
+    "apiPolicies": []
+  }
+}

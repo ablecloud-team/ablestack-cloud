@@ -1,0 +1,197 @@
+[
+  {
+    "cluster": "31",
+    "query": "SP01-1495-한글-Volume",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "SP01-1495",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "sp01-1495-한글-volume",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "한글",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "SP01-missing-1495",
+    "found": [],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "95638c7a-8d4e-4d17-a432-f3bfd9b75bd7",
+    "found": [
+      "ROOT-7 (100.00 GiB)\n가상머신: GFS-TEST-VM · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 95638c7a-8d4e-4d17-a432-f3bfd9b75bd7"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "GFS-TEST-VM",
+    "found": [
+      "ROOT-7 (100.00 GiB)\n가상머신: GFS-TEST-VM · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 95638c7a-8d4e-4d17-a432-f3bfd9b75bd7"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "0dfc8c40-ac37-4d70-81f5-ea194e1cc7b3",
+    "found": [],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "",
+    "found": [
+      "ROOT-204 (40.00 GiB)\n가상머신: k8s-lifecycle31-v1349-gfs2-r11-node-1a11073c7e1 · 계정: k1230-20261006 · 도메인: ROOT · Zone: Zone · 아이디: 9af10cc9-7868-4a70-8d71-5d137b5ce188",
+      "ROOT-205 (40.00 GiB)\n가상머신: k8s-lifecycle31-v1349-gfs2-r11-node-1a11073ff3e · 계정: k1230-20261006 · 도메인: ROOT · Zone: Zone · 아이디: 1ea7ca6b-315d-4304-a1a8-aeff5447ff1f",
+      "ROOT-209 (40.00 GiB)\n가상머신: k8s-lifecycle31-v13412-gfs2-r12-control-1a110d2d317 · 계정: k1230-20261006 · 도메인: ROOT · Zone: Zone · 아이디: 2ee89c74-195e-47a1-aa91-1a7ccdd58a9f"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-1495-한글-Volume",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-1495",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "sp01-1495-한글-volume",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "한글",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-missing-1495",
+    "found": [],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "72e3d207-9e7c-4f8b-b909-930789fd9608",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "dc15fddc-1e50-4dd3-9de5-ce4edc82f2f1",
+    "found": [
+      "ROOT-3 (100.00 GiB)\n가상머신: ShareVolume-VM-1 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: dc15fddc-1e50-4dd3-9de5-ce4edc82f2f1"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "ShareVolume-VM-1",
+    "found": [
+      "ROOT-3 (100.00 GiB)\n가상머신: ShareVolume-VM-1 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: dc15fddc-1e50-4dd3-9de5-ce4edc82f2f1",
+      "Share-1 (100.00 GiB)\n가상머신: ShareVolume-VM-1 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: a6352aed-5e23-4233-b0b3-295a4d365660"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-1495-page",
+    "found": [],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "",
+    "found": [
+      "ROOT-17 (100.00 GiB)\n가상머신: HA-VM-13 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 96812cd9-c034-4c0d-8fc0-94060b1cd416",
+      "ROOT-18 (100.00 GiB)\n가상머신: HA-VM-14 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c983cc25-7dc9-4095-8614-5b50655032f8",
+      "ROOT-19 (100.00 GiB)\n가상머신: HA-VM-15 · 계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 5fe86262-d87f-4309-b118-d2de15df4c4a"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "SP01-1495",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 69c6baaa-b271-40d1-8253-3b86b6c18dd8",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-1495",
+    "found": [
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: b184c821-b418-4b18-b7a0-628666d8d539",
+      "SP01-1495-한글-Volume (1.00 GiB)\n계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608"
+    ],
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "query": "SP01-1495",
+    "found": [],
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "query": "SP01-1495",
+    "found": [],
+    "passed": true
+  }
+]

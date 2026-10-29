@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "database": {
+    "at": "2026-10-27 02:25:14.540450",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 1134,
+        "uuid": "ada946a6-4e71-4c2a-ab7f-8d4b45ce96a2",
+        "name": "SP03-1497-31-volume-tab",
+        "state": "Expunged",
+        "path": "f02198ab-4f0b-45ae-8dd1-f4a1aa9f115a",
+        "pool_id": 1,
+        "removed": "2026-10-27 02:25:14"
+      },
+      {
+        "id": 1133,
+        "uuid": "b91d2884-750a-4ab5-97c4-0c2ddaa5c265",
+        "name": "SP03-1497-31-scheduled",
+        "state": "Expunged",
+        "path": "fe0167ae-1522-43c9-b064-1ab28fd0e3a1",
+        "pool_id": 1,
+        "removed": "2026-10-27 02:25:14"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [],
+    "refs": [],
+    "jobs": [],
+    "tags": [],
+    "historical_policy_tags": [],
+    "historical_policy_details": []
+  }
+}

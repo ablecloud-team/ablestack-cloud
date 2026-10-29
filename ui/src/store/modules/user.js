@@ -370,6 +370,7 @@ const user = {
         const msId = vueProps.$localStorage.get(MS_ID, false) || Cookies.get('managementserverid') || ''
         const latestVersion = vueProps.$localStorage.get(LATEST_CS_VERSION, { version: '', fetchedTs: 0 })
         const hasAuth = Object.keys(cachedApis).length > 0
+        let themePermissions = Promise.resolve(cachedApis)
 
         commit('SET_DOMAIN_STORE', domainStore)
         commit('SET_DARK_MODE', darkMode)
@@ -448,7 +449,7 @@ const user = {
           }).catch(error => {
             reject(error)
           })
-          getAPI('listApis').then(response => {
+          themePermissions = getAPI('listApis').then(response => {
             if (!current()) { hide(); resolve({}); return }
             const apis = {}
             const apiList = response.listapisresponse.api
@@ -476,8 +477,10 @@ const user = {
               hide()
               message.success(i18n.global.t('message.sussess.discovering.feature'))
             })
+            return apis
           }).catch(error => {
             reject(error)
+            return {}
           })
 
           getAPI('listNetworks', { restartrequired: true, forvpc: false }).then(response => {
@@ -514,7 +517,9 @@ const user = {
         getAPI('listUsers', { id: Cookies.get('userid'), showicon: true }).then(response => {
           const result = response.listusersresponse.user[0]
           if (!current()) return
-          applyCustomGuiTheme(result.accountid, result.domainid).catch(() => {})
+          themePermissions.then(apis => {
+            if (current()) return applyCustomGuiTheme(result.accountid, result.domainid, 'listGuiThemes' in (apis || {}))
+          }).catch(() => {})
           commit('SET_INFO', result)
           commit('SET_NAME', result.firstname + ' ' + result.lastname)
           commit('SET_AVATAR', result.icon?.base64image || '')

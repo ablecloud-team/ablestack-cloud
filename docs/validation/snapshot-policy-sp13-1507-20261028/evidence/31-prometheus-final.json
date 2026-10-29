@@ -1,0 +1,273 @@
+{
+  "passed": true,
+  "prometheusPid": 2491742,
+  "pidUnchanged": true,
+  "readyHttp": 200,
+  "newSamplesAgeSeconds": 0.023622512817382812,
+  "fixedTimeQueries": {
+    "recent": {
+      "time": 1793151896,
+      "series": 50,
+      "available": true
+    },
+    "history": {
+      "time": 1792892696,
+      "series": 50,
+      "available": true
+    }
+  },
+  "preservedFiles": [
+    {
+      "name": "00000640",
+      "sha256": "f2bf452449cd8a6363100f83e614421169667908e23c2346349d436211c48397",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000641",
+      "sha256": "15f6c161cfb1d4e1fb16d7632d9fa19257ac1ef81ee6d7976bce92e986332e38",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000642",
+      "sha256": "9cd9018aff8486cabdbf11f97d46aacadb605bd5538783e6c026ec30c2a720a4",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000643",
+      "sha256": "dd32e7c28475fe7a98ac1967dfcbbb0303953b0e22bef9857a7c8b5e7fc7b92d",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000644",
+      "sha256": "6b74667086514ab4fd7796207cc3ec79b9f5e3412c86acfd47ef25e70c739fff",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000645",
+      "sha256": "5a30d072d6f8c0e0904064b5972ad8872633c67ee46de831809e3b2b634feed7",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000646",
+      "sha256": "fea60c08b4c486f77df8c40301f808023d75d673e8546e1e344009c076b5eef3",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000647",
+      "sha256": "5b6130c6b381b36e4ac1fd64576e4eb8d0bc2705465596c006f380cea07275a6",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000648",
+      "sha256": "b38e7e27ddeac292bf1f7957db962d6a391802df1f69abcb79db6fec6c5d5f45",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000649",
+      "sha256": "e6d8f8b1c3fa65c50e592a405aae4df5785e9171684af93c13c9014acbe92d13",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000650",
+      "sha256": "57672b6b0a36c535a8845929ebfd987e21b7382b6d89a8a8d5f75811edbdebb4",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000651",
+      "sha256": "0d96a482e355bec08ec805c28841447052b973429b89eb4f947d038031816b6e",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000652",
+      "sha256": "22a98481d09c1ad9a99ba169e24017d552af150493384276612c0a735d5c4afe",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000653",
+      "sha256": "f8299ca0eb014cecb9a4d031941134aa4c100ee3d38b6f90d6eba9b2985ff6cb",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000654",
+      "sha256": "081862730f6dbc479ecebf608549960c9d46eb0ebf7b05bfc7d40030ffb2bb5c",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000655",
+      "sha256": "b7afa1685a4f645dd20a96cefabdecbf54c14a69370f66700fd6fd0bb71b27c2",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000656",
+      "sha256": "b306622ccf71e04fcf4797da32028cf379bee538363c4db88fc6a551bf7d8ad2",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000657",
+      "sha256": "61f1f6725ed1367d2ade31f096101ef38888777696710f818041ceec8fea0780",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000658",
+      "sha256": "78efabf07a704eba04ad6e7ae1a97d4e0d59fe35d2d5941e8b9483891d79a83f",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000659",
+      "sha256": "518e5998616eed3d970d520bb662ac0f22d14faca82352765312ee20d7e40249",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000660",
+      "sha256": "a040dbb6e61953afc3f42f69dba5132e45072728af843fe36e72d6f74b955566",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000661",
+      "sha256": "0413df1a53ce8c44a35f9e4c65dd318ed0a68e33d0690eae416f9a1eeba87ef8",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000662",
+      "sha256": "b63d4e1b79ef81b9ead4484399b86be80845f94157fc84f93c3280638a757b96",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000663",
+      "sha256": "949497d13a1601189c0bb58f30e1f87064a7894516595871d283923c5dad21c2",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000664",
+      "sha256": "e09161e000addd438bc3448e358e86266e51a6f8bd1e52cdd66081ff547f02b7",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000665",
+      "sha256": "666139b2d98af41553f3c8ef1fd29a2f7586b67aaac9415455a2db3e7bd6d980",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000666",
+      "sha256": "a2a578a8b71be4d854f25a6171fea18f8bec6ee980f161ac255afe34a4c475b8",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000667",
+      "sha256": "9de5d6d2fab2f2c4c80813f500d5a769115d58848bf952360a8cb77f8969ca56",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000668",
+      "sha256": "250d39aa489a9942dbe0fdcf526a61022eaa4c42adbb61bc806c96252091b71b",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000669",
+      "sha256": "45f03cf612192ea03bf6e82c3f2e1e7d2c099602986b71e9120fc078e869b0e4",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000670",
+      "sha256": "ab1c0071bb8253a5caee8ad039f699bea8eaaa8bd31d20652fb455ba2414ebdc",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000671",
+      "sha256": "12a91a960d75c975ff0c1bfb6a3d75dc1be052806f36428402ae2f7c6cbc668a",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000672",
+      "sha256": "d170a794b4bbf0fa5fb0bd4298fb8ca9f1e30018ac78ad6ae970c5d1d2aab6bf",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000673",
+      "sha256": "11faf750c3898297c7f28bee9af41704a38e914a1ff44e00ecd1d95734d7f0bc",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000674",
+      "sha256": "dab24a3b74d19353121f14cd3eaf3345f7e2bafc29880ffb8233f5091918aefa",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000675",
+      "sha256": "be933fe397f35ccbabc377cb909cbb84decaada767cfb162d84e23ea1727b16b",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000676",
+      "sha256": "8cd899cf601543f5e3f741193b439961aea2364a8130c1b5ddd7975f53c9dcd2",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000677",
+      "sha256": "d56a1841dd3bb0187c96dcfbd5822b983b52b10e769e55c670bbee455a1fa93f",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000678",
+      "sha256": "26d79e3b77e2a4155d306ea8987743aa5546a96e86dd0a076078d344248e61f0",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    },
+    {
+      "name": "00000679",
+      "sha256": "769be1f57ca30c17637e7bc8a8903f940e0a1057958eee35101b47b48e5da89f",
+      "metadataPreserved": true,
+      "originalLinkPresent": true
+    }
+  ],
+  "archive": "/var/lib/ablestack-space-preserved/sp13-1507-20261028/prometheus-wal",
+  "nfs": {
+    "total": 375626137600,
+    "used": 334075256832,
+    "free": 41550880768,
+    "ratio": 0.8893823496056947
+  },
+  "preservedArchives": [
+    "/var/lib/ablestack-space-preserved/sp07-1501-20261027/prometheus-wal",
+    "/var/lib/ablestack-space-preserved/sp11-1505-20261027/prometheus-wal",
+    "/var/lib/ablestack-space-preserved/sp13-1507-20261028/prometheus-wal"
+  ]
+}

@@ -26,6 +26,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class CreateSnapshotPolicyCmdTest {
     @Test
+    public void editingIntentIsOptionalAndExplicit() {
+        CreateSnapshotPolicyCmd command = new CreateSnapshotPolicyCmd();
+        Assert.assertNull(command.getId());Assert.assertFalse(command.isClearZoneIds());
+        ReflectionTestUtils.setField(command, "id", 20L);
+        ReflectionTestUtils.setField(command, "clearZoneIds", true);
+        Assert.assertEquals(Long.valueOf(20), command.getId());Assert.assertTrue(command.isClearZoneIds());
+    }
+    @Test
     public void testParsingTags() {
         final CreateSnapshotPolicyCmd createSnapshotPolicyCmd = new CreateSnapshotPolicyCmd();
         final Map<String, String> tag1 = new HashMap<>();

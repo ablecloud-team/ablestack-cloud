@@ -1,0 +1,109 @@
+{
+  "app": [
+    "http://10.10.32.10:8080/client/js/app.7b6d9f14.js"
+  ],
+  "buttons": [
+    {
+      "disabled": false,
+      "height": 32,
+      "text": "정기 스냅샷 생성",
+      "width": 153.84375,
+      "x": 768,
+      "y": 166
+    }
+  ],
+  "checks": [
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    },
+    {
+      "checked": false,
+      "disabled": false
+    }
+  ],
+  "header": [
+    {
+      "height": 47,
+      "text": "",
+      "width": 32,
+      "x": 268,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "간격 유형",
+      "width": 96.859375,
+      "x": 300,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "최대 스냅샷 수",
+      "width": 130.0625,
+      "x": 396.859375,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "스케줄",
+      "width": 131.765625,
+      "x": 526.921875,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "시간대",
+      "width": 248.75,
+      "x": 658.6875,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "볼륨 이름",
+      "width": 234.484375,
+      "x": 907.4375,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "미래 예약",
+      "width": 80.078125,
+      "x": 1141.921875,
+      "y": 236
+    },
+    {
+      "height": 47,
+      "text": "",
+      "width": 36,
+      "x": 1222,
+      "y": 236
+    }
+  ],
+  "pageWidth": 1270,
+  "popup": null,
+  "rows": [
+    "f5be8740-62da-4394-88da-9a736d1b3a09",
+    "3a9bb54d-daec-4d10-81f9-efce57f337d5",
+    "d1bc1cda-725c-48e6-b68f-f8f878eb705c",
+    "7d76a3a6-eed6-4078-90dc-d4d72319ad73"
+  ],
+  "theme": "dark",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?projectid=0&page=2&pagesize=20&sortkey=id&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

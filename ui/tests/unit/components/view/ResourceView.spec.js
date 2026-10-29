@@ -92,7 +92,7 @@ describe('ResourceView resource navigation', () => {
 
   it('isolates general detail by path and SSH or snapshot detail by verified identity scope', () => {
     const source = fs.readFileSync(path.resolve(__dirname, '../../../../src/views/AutogenView.vue'), 'utf8')
-    expect(source).toMatch(/<resource-view\s+v-else(?:-if="[^"]*")?\s+:key="isSshKeyPairDetail \|\| isSnapshotDetail \? listScope\(\) : \$route.path"/)
+    expect(source).toMatch(/<resource-view\s+v-else(?:-if="[^"]*")?\s+:key="isSshKeyPairDetail \|\| isSnapshotDetail \|\| isPolicyDetail \? listScope\(\) : \$route.path"/)
   })
 
   it.each([
@@ -174,15 +174,23 @@ describe('ResourceView standard tab layout', () => {
     render () { return h('input', { value: this.draft, onInput: event => { this.draft = event.target.value } }) }
   })
   const tabs = [{ name: 'details', component: details }, { name: 'comments', component: comments }]
-  function mountLayout (device = 'desktop', extra = {}) {
+  function mountLayout (device = 'desktop', extra = {}, meta = {}) {
     return mount(ResourceView, {
       props: { resource: { id: 'snapshot-1' }, tabs, ...extra },
       global: {
-        mocks: { $route: { path: '/vmsnapshot/snapshot-1', query: {} }, $t: key => key, $store: reactive({ state: { app: { device } }, getters: { userInfo: {} } }) },
+        mocks: { $route: { path: '/vmsnapshot/snapshot-1', query: {}, meta }, $t: key => key, $store: reactive({ state: { app: { device } }, getters: { userInfo: {} } }) },
         stubs: { ResourceLayout: layout, ACard: slot }
       }
     })
   }
+
+  it.each(['desktop', 'mobile'])('shows the policy details tab with the VM tab positioning on %s', device => {
+    const wrapper = mountLayout(device, { tabs: [tabs[0]] }, { name: 'snapshotpolicy' })
+    expect(wrapper.find('.ant-tabs-' + (device === 'mobile' ? 'top' : 'left')).exists()).toBe(true)
+    expect(wrapper.findAll('[role="tab"]').map(tab => tab.text())).toEqual(['label.details'])
+    expect(wrapper.text()).toContain('snapshot:snapshot-1')
+    wrapper.unmount()
+  })
 
   it('uses shared vertical layout by default and preserves single-tab content without a tab bar', async () => {
     const wrapper = mountLayout()

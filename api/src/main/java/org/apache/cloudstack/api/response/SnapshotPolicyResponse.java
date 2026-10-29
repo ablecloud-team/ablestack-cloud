@@ -28,7 +28,26 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @EntityReference(value = SnapshotPolicy.class)
-public class SnapshotPolicyResponse extends BaseResponseWithTagInformation {
+public class SnapshotPolicyResponse extends BaseResponseWithTagInformation implements ControlledEntityResponse {
+    @SerializedName("account") @Param(description = "Policy owner account") private String account;
+    @SerializedName("domainid") @Param(description = "Policy owner domain ID") private String domainId;
+    @SerializedName("domain") @Param(description = "Policy owner domain name") private String domain;
+    @SerializedName("domainpath") @Param(description = "Policy owner domain path") private String domainPath;
+    @SerializedName("projectid") @Param(description = "Policy project ID") private String projectId;
+    @SerializedName("project") @Param(description = "Policy project name") private String project;
+    @SerializedName("schedulingenabled") @Param(description = "Whether the policy is active and enabled for future scheduling; visible to every authorized reader") private Boolean schedulingEnabled;
+    @SerializedName("policycontext") @Param(description = "Versioned operational facts, only with includepolicycontext=true. Retained scheduler jobs are bounded and are not a permanent audit history.") private java.util.Map<String, Object> policyContext;
+
+    public void setAccountName(String value) { account = value; }
+    public void setDomainId(String value) { domainId = value; }
+    public void setDomainName(String value) { domain = value; }
+    public void setDomainPath(String value) { domainPath = value; }
+    public void setProjectId(String value) { projectId = value; }
+    public void setProjectName(String value) { project = value; }
+    public void setSchedulingEnabled(boolean value) { schedulingEnabled = value; }
+    public void setPolicyContext(java.util.Map<String, Object> value) { policyContext = value; }
+    public java.util.Map<String, Object> getPolicyContext() { return policyContext; }
+
     @SerializedName("id")
     @Param(description = "The ID of the Snapshot policy")
     private String id;

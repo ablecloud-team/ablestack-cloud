@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "views": 12,
+  "frames": 24,
+  "newDetailFieldOverflow": 0,
+  "font": "14px",
+  "viewports": [
+    [
+      390,
+      844
+    ],
+    [
+      768,
+      900
+    ],
+    [
+      1280,
+      720
+    ]
+  ],
+  "colors": {
+    "light": [
+      "rgb(255, 255, 255)"
+    ],
+    "dark": [
+      "rgb(34, 40, 47)"
+    ]
+  }
+}

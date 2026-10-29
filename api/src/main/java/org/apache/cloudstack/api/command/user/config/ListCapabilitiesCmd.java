@@ -52,6 +52,7 @@ public class ListCapabilitiesCmd extends BaseCmd {
     public void execute() {
         Map<String, Object> capabilities = _mgr.listCapabilities(this);
         CapabilitiesResponse response = new CapabilitiesResponse();
+        response.setSnapshotPolicyMax(snapshotPolicyMaxima());
         response.setUserDataMaxLength((Integer) capabilities.get("userdatamaxlength"));
         response.setSecurityGroupsEnabled((Boolean)capabilities.get("securityGroupsEnabled"));
         response.setDynamicRolesEnabled(roleService.isEnabled());
@@ -107,5 +108,13 @@ public class ListCapabilitiesCmd extends BaseCmd {
         response.setObjectName("capability");
         response.setResponseName(getCommandName());
         this.setResponseObject(response);
+    }
+
+    /** Report the same applied values used by snapshot policy validation, not pending configuration. */
+    protected static Map<String, Integer> snapshotPolicyMaxima() {
+        return Map.of("hourly", com.cloud.storage.Snapshot.Type.HOURLY.getMax(),
+                "daily", com.cloud.storage.Snapshot.Type.DAILY.getMax(),
+                "weekly", com.cloud.storage.Snapshot.Type.WEEKLY.getMax(),
+                "monthly", com.cloud.storage.Snapshot.Type.MONTHLY.getMax());
     }
 }

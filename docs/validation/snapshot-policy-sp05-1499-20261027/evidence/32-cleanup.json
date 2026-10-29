@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "normalApiCleanup": true,
+  "policyCount": 9,
+  "volumes": 4,
+  "snapshots": 1,
+  "projectDeleted": "feca055b-7384-4748-a8aa-c428f6d8021d",
+  "accountDeleted": "dfddd930-10ff-4ec1-afcb-769960ff91ae",
+  "database": {
+    "at": "2026-10-26 22:58:12.778504",
+    "policy_details": [],
+    "volumes": [
+      {
+        "id": 534,
+        "uuid": "3f491610-4b4a-44fe-b56f-cadbdf6bbad4",
+        "name": "SP05-1499-32-owner",
+        "state": "Expunged",
+        "path": "db0f4e4d-a818-40de-b383-68ad1620ac59",
+        "pool_id": 3,
+        "removed": "2026-10-26 22:58:07"
+      },
+      {
+        "id": 535,
+        "uuid": "891f1cfc-f872-4d76-872d-94fa81063a6b",
+        "name": "SP05-1499-32-project",
+        "state": "Expunged",
+        "path": "405dce10-6329-4bfc-b875-41172f9adab1",
+        "pool_id": 3,
+        "removed": "2026-10-26 22:58:09"
+      },
+      {
+        "id": 533,
+        "uuid": "b68e4840-138f-4db0-b7c5-8d9f5d67b0f0",
+        "name": "SP05-1499-32-volume-tab",
+        "state": "Expunged",
+        "path": "d254860d-21fa-4d37-bfe9-907dc698bdbc",
+        "pool_id": 3,
+        "removed": "2026-10-26 22:58:06"
+      },
+      {
+        "id": 532,
+        "uuid": "d54a4159-0150-4305-bb09-cf7a77a11a61",
+        "name": "SP05-1499-32-scheduled",
+        "state": "Expunged",
+        "path": "56afe4ee-c0fd-4d63-bff9-ba8129b81c08",
+        "pool_id": 3,
+        "removed": "2026-10-26 22:57:59"
+      }
+    ],
+    "policies": [],
+    "schedules": [],
+    "snapshots": [
+      {
+        "id": 252,
+        "uuid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+        "volume_id": 533,
+        "status": "Destroyed",
+        "created": "2026-10-26 22:52:29",
+        "removed": null,
+        "path": null,
+        "backup_snap_id": null
+      }
+    ],
+    "refs": [
+      {
+        "uuid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+        "store_id": 1,
+        "store_role": "Image",
+        "state": "Destroyed",
+        "install_path": "snapshots/2/533/0dcbefce-717a-4a9c-9805-aac5c1e63811",
+        "job_id": null
+      }
+    ],
+    "jobs": [
+      {
+        "snapshot_uuid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+        "id": 4744,
+        "uuid": "fb26e276-9729-4b0a-9ea7-bd4713a4f738",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 22:52:29",
+        "last_updated": "2026-10-26 22:53:01"
+      },
+      {
+        "snapshot_uuid": "6de20b2d-68d8-453f-972c-b02f5153ed05",
+        "id": 4755,
+        "uuid": "35e50ca0-f504-42d1-aa2b-952786b96498",
+        "job_status": 1,
+        "job_result_code": 0,
+        "created": "2026-10-26 22:58:03",
+        "last_updated": "2026-10-26 22:58:05"
+      }
+    ],
+    "tags": []
+  }
+}

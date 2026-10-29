@@ -96,6 +96,9 @@ public interface SnapshotApiService {
      */
     Pair<List<? extends SnapshotPolicy>, Integer> listSnapshotPolicies(ListSnapshotPoliciesCmd cmd);
 
+    /** Rechecks policy and source-volume ACL before returning sanitized operational facts. */
+    java.util.Map<String, Object> getSnapshotPolicyContext(long policyId);
+
     boolean deleteSnapshotPolicies(DeleteSnapshotPoliciesCmd cmd);
 
     Snapshot allocSnapshot(Long volumeId, Long policyId, String snapshotName, Snapshot.LocationType locationType) throws ResourceAllocationException;

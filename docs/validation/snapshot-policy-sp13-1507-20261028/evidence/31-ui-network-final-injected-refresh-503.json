@@ -1,0 +1,210 @@
+[
+  {
+    "type": "request",
+    "id": "57960.4129",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4129",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4130",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4130",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4131",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4131",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4132",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4132",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4133",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4133",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4134",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "volumename",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=volumename&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4134",
+    "status": 503,
+    "command": "listSnapshotPolicies",
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=volumename&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]",
+    "body": {
+      "listsnapshotpoliciesresponse": {
+        "errorcode": 503,
+        "errortext": "SP13 controlled refresh failure"
+      }
+    }
+  },
+  {
+    "type": "request",
+    "id": "57960.4135",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4135",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4136",
+    "method": "GET",
+    "command": "listSnapshotPolicies",
+    "params": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "sortkey": "volumename",
+      "sortorder": "desc",
+      "ignoreproject": "true",
+      "command": "listSnapshotPolicies",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&page=1&pagesize=20&sortkey=volumename&sortorder=desc&ignoreproject=true&command=listSnapshotPolicies&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4137",
+    "method": "GET",
+    "command": "getWallAlertAvailability",
+    "params": {
+      "command": "getWallAlertAvailability",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4137",
+    "status": 200,
+    "command": "getWallAlertAvailability",
+    "url": "http://10.10.31.10:8080/client/api/?command=getWallAlertAvailability&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "request",
+    "id": "57960.4138",
+    "method": "GET",
+    "command": "readyForShutdown",
+    "params": {
+      "managementserverid": "716fb21e-86f3-4f8c-b34d-11c8d0220230",
+      "command": "readyForShutdown",
+      "response": "json",
+      "sessionkey": "[REDACTED]"
+    },
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  },
+  {
+    "type": "response",
+    "id": "57960.4138",
+    "status": 200,
+    "command": "readyForShutdown",
+    "url": "http://10.10.31.10:8080/client/api/?managementserverid=716fb21e-86f3-4f8c-b34d-11c8d0220230&command=readyForShutdown&response=json&sessionkey=[REDACTED]"
+  }
+]

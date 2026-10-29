@@ -1,0 +1,13 @@
+{
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "jarSha256": "d59b64781da9123ef981b6f2341a58cb4c71d6ca4e74d0fe295e21ff700d9117",
+  "pid": "3681668",
+  "started": 1793156573.9734488,
+  "patchedSha256": "36d9b46d1bf37092c7424a7b811a5acb9cc797b0bedc26fe52735856bc279c28",
+  "family": {
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "1543f196d77ee9960f7ffb48164eb448d6a2634244946bcdf51652f17b092d4e",
+    "com/cloud/storage/snapshot/SnapshotPolicyInputValidator.class": "8474429aa6029c2f228d8c49e0a8af707bbf6d0d54e086469978208105ce7961"
+  },
+  "unchangedEntries": 204542,
+  "backup": "/root/snapshot-policy-1507-20261028-backend/rev-display-scope/management-before.jar"
+}

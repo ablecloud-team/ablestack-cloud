@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "removed": [
+    "100ab48c-73ce-474a-be98-c29553bbe13d"
+  ],
+  "before": "natural-completed-before-delete",
+  "after": "natural-completed-after-delete",
+  "preserved": {
+    "policies": true,
+    "schedules": true,
+    "historical_policy_tags": true,
+    "historical_policy_details": true,
+    "snapshots": true,
+    "refs": true,
+    "snapshotTags": true
+  }
+}

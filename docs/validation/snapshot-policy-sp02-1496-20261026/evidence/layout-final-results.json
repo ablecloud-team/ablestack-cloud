@@ -1,0 +1,950 @@
+[
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": true,
+      "height": 844,
+      "rect": {
+        "bottom": 613,
+        "height": 264,
+        "left": 30,
+        "right": 200,
+        "top": 349,
+        "width": 170,
+        "x": 30,
+        "y": 349
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 390
+    },
+    "layout": {
+      "apply": {
+        "bottom": 428.6875,
+        "height": 24,
+        "left": 299.234375,
+        "right": 363,
+        "top": 404.6875,
+        "width": 63.765625,
+        "x": 299.234375,
+        "y": 404.6875
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 442.6875,
+        "height": 182.6875,
+        "left": 133,
+        "right": 380,
+        "top": 260,
+        "width": 247,
+        "x": 133,
+        "y": 260
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 428.6875,
+        "height": 24,
+        "left": 150,
+        "right": 226.640625,
+        "top": 404.6875,
+        "width": 76.640625,
+        "x": 150,
+        "y": 404.6875
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 213,
+      "targetWidth": 213
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": true,
+      "height": 900,
+      "rect": {
+        "bottom": 524,
+        "height": 264,
+        "left": 436,
+        "right": 606,
+        "top": 260,
+        "width": 170,
+        "x": 436,
+        "y": 260
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 768
+    },
+    "layout": {
+      "apply": {
+        "bottom": 320.84375,
+        "height": 24,
+        "left": 542.40625,
+        "right": 606.171875,
+        "top": 296.84375,
+        "width": 63.765625,
+        "x": 542.40625,
+        "y": 296.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 334.84375,
+        "height": 163.84375,
+        "left": 251,
+        "right": 623.171875,
+        "top": 171,
+        "width": 372.171875,
+        "x": 251,
+        "y": 171
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 320.84375,
+        "height": 24,
+        "left": 268,
+        "right": 344.640625,
+        "top": 296.84375,
+        "width": 76.640625,
+        "x": 268,
+        "y": 296.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 338,
+      "targetWidth": 338
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "theme": "dark",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": true,
+      "height": 800,
+      "rect": {
+        "bottom": 524,
+        "height": 264,
+        "left": 780,
+        "right": 950,
+        "top": 260,
+        "width": 170,
+        "x": 780,
+        "y": 260
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 1280
+    },
+    "layout": {
+      "apply": {
+        "bottom": 320.84375,
+        "height": 24,
+        "left": 886.40625,
+        "right": 950.171875,
+        "top": 296.84375,
+        "width": 63.765625,
+        "x": 886.40625,
+        "y": 296.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 334.84375,
+        "height": 163.84375,
+        "left": 595,
+        "right": 967.171875,
+        "top": 171,
+        "width": 372.171875,
+        "x": 595,
+        "y": 171
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 320.84375,
+        "height": 24,
+        "left": 612,
+        "right": 688.640625,
+        "top": 296.84375,
+        "width": 76.640625,
+        "x": 612,
+        "y": 296.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 338,
+      "targetWidth": 338
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": true,
+      "height": 844,
+      "rect": {
+        "bottom": 646,
+        "height": 264,
+        "left": 30,
+        "right": 200,
+        "top": 382,
+        "width": 170,
+        "x": 30,
+        "y": 382
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 390
+    },
+    "layout": {
+      "apply": {
+        "bottom": 461.6875,
+        "height": 24,
+        "left": 299.234375,
+        "right": 363,
+        "top": 437.6875,
+        "width": 63.765625,
+        "x": 299.234375,
+        "y": 437.6875
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 475.6875,
+        "height": 182.6875,
+        "left": 133,
+        "right": 380,
+        "top": 293,
+        "width": 247,
+        "x": 133,
+        "y": 293
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 461.6875,
+        "height": 24,
+        "left": 150,
+        "right": 226.640625,
+        "top": 437.6875,
+        "width": 76.640625,
+        "x": 150,
+        "y": 437.6875
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 213,
+      "targetWidth": 213
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": true,
+      "height": 900,
+      "rect": {
+        "bottom": 583,
+        "height": 264,
+        "left": 436,
+        "right": 606,
+        "top": 319,
+        "width": 170,
+        "x": 436,
+        "y": 319
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 768
+    },
+    "layout": {
+      "apply": {
+        "bottom": 379.84375,
+        "height": 24,
+        "left": 542.4375,
+        "right": 606.203125,
+        "top": 355.84375,
+        "width": 63.765625,
+        "x": 542.4375,
+        "y": 355.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 393.84375,
+        "height": 163.84375,
+        "left": 250,
+        "right": 623.203125,
+        "top": 230,
+        "width": 373.203125,
+        "x": 250,
+        "y": 230
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 379.84375,
+        "height": 24,
+        "left": 267,
+        "right": 343.640625,
+        "top": 355.84375,
+        "width": 76.640625,
+        "x": 267,
+        "y": 355.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 339,
+      "targetWidth": 339
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "dark",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": true,
+      "height": 800,
+      "rect": {
+        "bottom": 551,
+        "height": 264,
+        "left": 780,
+        "right": 950,
+        "top": 287,
+        "width": 170,
+        "x": 780,
+        "y": 287
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 1280
+    },
+    "layout": {
+      "apply": {
+        "bottom": 347.84375,
+        "height": 24,
+        "left": 886.4375,
+        "right": 950.203125,
+        "top": 323.84375,
+        "width": 63.765625,
+        "x": 886.4375,
+        "y": 323.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 361.84375,
+        "height": 163.84375,
+        "left": 594,
+        "right": 967.203125,
+        "top": 198,
+        "width": 373.203125,
+        "x": 594,
+        "y": 198
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 347.84375,
+        "height": 24,
+        "left": 611,
+        "right": 687.640625,
+        "top": 323.84375,
+        "width": 76.640625,
+        "x": 611,
+        "y": 323.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 339,
+      "targetWidth": 339
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": false,
+      "height": 844,
+      "rect": {
+        "bottom": 612,
+        "height": 264,
+        "left": 31,
+        "right": 201,
+        "top": 348,
+        "width": 170,
+        "x": 31,
+        "y": 348
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 390
+    },
+    "layout": {
+      "apply": {
+        "bottom": 427.6875,
+        "height": 24,
+        "left": 300.234375,
+        "right": 364,
+        "top": 403.6875,
+        "width": 63.765625,
+        "x": 300.234375,
+        "y": 403.6875
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 440.6875,
+        "height": 180.6875,
+        "left": 135,
+        "right": 380,
+        "top": 260,
+        "width": 245,
+        "x": 135,
+        "y": 260
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 427.6875,
+        "height": 24,
+        "left": 151,
+        "right": 227.640625,
+        "top": 403.6875,
+        "width": 76.640625,
+        "x": 151,
+        "y": 403.6875
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 213,
+      "targetWidth": 213
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": false,
+      "height": 900,
+      "rect": {
+        "bottom": 523,
+        "height": 264,
+        "left": 437,
+        "right": 607,
+        "top": 259,
+        "width": 170,
+        "x": 437,
+        "y": 259
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 768
+    },
+    "layout": {
+      "apply": {
+        "bottom": 319.84375,
+        "height": 24,
+        "left": 543.40625,
+        "right": 607.171875,
+        "top": 295.84375,
+        "width": 63.765625,
+        "x": 543.40625,
+        "y": 295.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 332.84375,
+        "height": 161.84375,
+        "left": 253,
+        "right": 623.171875,
+        "top": 171,
+        "width": 370.171875,
+        "x": 253,
+        "y": 171
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 319.84375,
+        "height": 24,
+        "left": 269,
+        "right": 345.640625,
+        "top": 295.84375,
+        "width": 76.640625,
+        "x": 269,
+        "y": 295.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 338,
+      "targetWidth": 338
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "theme": "light",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": false,
+      "height": 800,
+      "rect": {
+        "bottom": 523,
+        "height": 264,
+        "left": 781,
+        "right": 951,
+        "top": 259,
+        "width": 170,
+        "x": 781,
+        "y": 259
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244",
+          "width": 146
+        }
+      ],
+      "width": 1280
+    },
+    "layout": {
+      "apply": {
+        "bottom": 319.84375,
+        "height": 24,
+        "left": 887.40625,
+        "right": 951.171875,
+        "top": 295.84375,
+        "width": 63.765625,
+        "x": 887.40625,
+        "y": 295.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 332.84375,
+        "height": 161.84375,
+        "left": 597,
+        "right": 967.171875,
+        "top": 171,
+        "width": 370.171875,
+        "x": 597,
+        "y": 171
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 319.84375,
+        "height": 24,
+        "left": 613,
+        "right": 689.640625,
+        "top": 295.84375,
+        "width": 76.640625,
+        "x": 613,
+        "y": 295.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "targetScroll": 338,
+      "targetWidth": 338
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "dropdown": {
+      "dark": false,
+      "height": 844,
+      "rect": {
+        "bottom": 645,
+        "height": 264,
+        "left": 31,
+        "right": 201,
+        "top": 381,
+        "width": 170,
+        "x": 31,
+        "y": 381
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 390
+    },
+    "layout": {
+      "apply": {
+        "bottom": 460.6875,
+        "height": 24,
+        "left": 300.234375,
+        "right": 364,
+        "top": 436.6875,
+        "width": 63.765625,
+        "x": 300.234375,
+        "y": 436.6875
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 473.6875,
+        "height": 180.6875,
+        "left": 145,
+        "right": 380,
+        "top": 293,
+        "width": 235,
+        "x": 145,
+        "y": 293
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 460.6875,
+        "height": 24,
+        "left": 161,
+        "right": 237.640625,
+        "top": 436.6875,
+        "width": 76.640625,
+        "x": 161,
+        "y": 436.6875
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 203,
+      "targetWidth": 203
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 768,
+    "height": 900,
+    "dropdown": {
+      "dark": false,
+      "height": 900,
+      "rect": {
+        "bottom": 582,
+        "height": 264,
+        "left": 437,
+        "right": 607,
+        "top": 318,
+        "width": 170,
+        "x": 437,
+        "y": 318
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 768
+    },
+    "layout": {
+      "apply": {
+        "bottom": 378.84375,
+        "height": 24,
+        "left": 543.4375,
+        "right": 607.203125,
+        "top": 354.84375,
+        "width": 63.765625,
+        "x": 543.4375,
+        "y": 354.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 391.84375,
+        "height": 161.84375,
+        "left": 252,
+        "right": 623.203125,
+        "top": 230,
+        "width": 371.203125,
+        "x": 252,
+        "y": 230
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 378.84375,
+        "height": 24,
+        "left": 268,
+        "right": 344.640625,
+        "top": 354.84375,
+        "width": 76.640625,
+        "x": 268,
+        "y": 354.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 339,
+      "targetWidth": 339
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "theme": "light",
+    "width": 1280,
+    "height": 800,
+    "dropdown": {
+      "dark": false,
+      "height": 800,
+      "rect": {
+        "bottom": 550,
+        "height": 264,
+        "left": 781,
+        "right": 951,
+        "top": 286,
+        "width": 170,
+        "x": 781,
+        "y": 286
+      },
+      "rows": [
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+          "width": 146
+        },
+        {
+          "scroll": 146,
+          "text": "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32",
+          "width": 146
+        }
+      ],
+      "width": 1280
+    },
+    "layout": {
+      "apply": {
+        "bottom": 346.84375,
+        "height": 24,
+        "left": 887.4375,
+        "right": 951.203125,
+        "top": 322.84375,
+        "width": 63.765625,
+        "x": 887.4375,
+        "y": 322.84375
+      },
+      "focus": "검색",
+      "font": "14px",
+      "popover": {
+        "bottom": 359.84375,
+        "height": 161.84375,
+        "left": 596,
+        "right": 967.203125,
+        "top": 198,
+        "width": 371.203125,
+        "x": 596,
+        "y": 198
+      },
+      "radius": "4px",
+      "reset": {
+        "bottom": 346.84375,
+        "height": 24,
+        "left": 612,
+        "right": 688.640625,
+        "top": 322.84375,
+        "width": 76.640625,
+        "x": 612,
+        "y": 322.84375
+      },
+      "selectHeight": 32,
+      "target": "admin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "targetScroll": 339,
+      "targetWidth": 339
+    },
+    "passed": true,
+    "build": "44b5f0d40cd"
+  }
+]

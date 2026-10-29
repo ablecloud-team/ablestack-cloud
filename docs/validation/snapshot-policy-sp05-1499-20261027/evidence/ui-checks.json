@@ -1,0 +1,5448 @@
+[
+  {
+    "phase": "candidate",
+    "cluster": 32,
+    "volumePath": "same-id hourly edit, resume and pause verified",
+    "policyId": "4886ebe3-5268-472b-aacc-b97184e54129"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-hourly-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "55"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:01.621Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-hourly-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:08.061Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-daily-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:03 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매일 · 309af718-6183-4def-be23-d6881a5c10c5",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매일 · 309af718-6183-4def-be23-d6881a5c10c5\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:17.766Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-daily-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존"
+      ],
+      "target": "SP05-1499-31-scheduled\n매일 · 309af718-6183-4def-be23-d6881a5c10c5",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매일 · 309af718-6183-4def-be23-d6881a5c10c5\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:25.901Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-weekly-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "4:04 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매주 · e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매주 · e4fa501a-d094-48c5-a76d-34223e8931b1\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n일요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:36.184Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-weekly-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-scheduled\n매주 · e4fa501a-d094-48c5-a76d-34223e8931b1",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매주 · e4fa501a-d094-48c5-a76d-34223e8931b1\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n토요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:43.983Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-monthly-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "5:05 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매월 · 0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매월 · 0d30c378-e23e-4217-a9cd-22b10baae5ad\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n1\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:37:58.474Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-menu-monthly-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "sp05-draft"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "저장 초안"
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매월 · 0d30c378-e23e-4217-a9cd-22b10baae5ad",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매월 · 0d30c378-e23e-4217-a9cd-22b10baae5ad\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n28\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:38:07.236Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-0-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Tokyo\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:27.910Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-0-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:28.653Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-1-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:03 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매일 · 81b78e08-cc35-4a5e-a948-069db10e488f",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매일 · 81b78e08-cc35-4a5e-a948-069db10e488f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:30.006Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-1-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매일 · 81b78e08-cc35-4a5e-a948-069db10e488f",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매일 · 81b78e08-cc35-4a5e-a948-069db10e488f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:31.687Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-2-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "4:04 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매주 · a4048a20-cd02-461e-b6b4-5ea33d2bd113",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매주 · a4048a20-cd02-461e-b6b4-5ea33d2bd113\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n일요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:33.028Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-2-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-volume-tab\n매주 · a4048a20-cd02-461e-b6b4-5ea33d2bd113",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매주 · a4048a20-cd02-461e-b6b4-5ea33d2bd113\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n토요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:35.847Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-3-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "5:05 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매월 · 121e4e78-13ad-46a9-979d-a9cbcb1f6732",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매월 · 121e4e78-13ad-46a9-979d-a9cbcb1f6732\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n1\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:37.225Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-3-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "sp05-draft"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "저장 초안"
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-volume-tab\n매월 · 121e4e78-13ad-46a9-979d-a9cbcb1f6732",
+      "text": "정책 편집\nSP05-1499-32-volume-tab\n매월 · 121e4e78-13ad-46a9-979d-a9cbcb1f6732\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n28\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:39.531Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-0-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "55"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:50.738Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-0-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:51.492Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-1-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:03 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매일 · f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매일 · f3844804-db56-4dd6-8061-928b6c1cbb94\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:52.800Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-1-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매일 · f3844804-db56-4dd6-8061-928b6c1cbb94",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매일 · f3844804-db56-4dd6-8061-928b6c1cbb94\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:54.308Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-2-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "4:04 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매주 · aad169ce-112e-4959-8184-ae7a793463f5",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매주 · aad169ce-112e-4959-8184-ae7a793463f5\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n일요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:55.625Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-2-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매주 · aad169ce-112e-4959-8184-ae7a793463f5",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매주 · aad169ce-112e-4959-8184-ae7a793463f5\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n토요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:58.445Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-3-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "5:05 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매월 · 531df21b-4b66-4192-9b4a-41c49e58d556",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매월 · 531df21b-4b66-4192-9b4a-41c49e58d556\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n1\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:38:59.782Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-3-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "sp05-draft"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "저장 초안"
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매월 · 531df21b-4b66-4192-9b4a-41c49e58d556",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매월 · 531df21b-4b66-4192-9b4a-41c49e58d556\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n28\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:39:02.055Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-0-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "55"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:03.956Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-0-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:04.711Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-1-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:03 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매일 · 8a26bb98-9e6d-4e3a-97ef-db32cfa70c60",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매일 · 8a26bb98-9e6d-4e3a-97ef-db32cfa70c60\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:06.660Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-1-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존"
+      ],
+      "target": "SP05-1499-32-scheduled\n매일 · 8a26bb98-9e6d-4e3a-97ef-db32cfa70c60",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매일 · 8a26bb98-9e6d-4e3a-97ef-db32cfa70c60\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:08.148Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-2-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "4:04 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매주 · ccc8d01a-135c-4113-8572-e86cfd90e5de",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매주 · ccc8d01a-135c-4113-8572-e86cfd90e5de\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n일요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:10.047Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-2-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-week",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-scheduled\n매주 · ccc8d01a-135c-4113-8572-e86cfd90e5de",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매주 · ccc8d01a-135c-4113-8572-e86cfd90e5de\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n요일\n토요일\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:12.755Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-3-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "5:05 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매월 · 8401d02b-c7b7-46ae-99c6-d38fa90dbe1e",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매월 · 8401d02b-c7b7-46ae-99c6-d38fa90dbe1e\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n1\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:14.641Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-3-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:59 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_day-of-month",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "sp05-draft"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "저장 초안"
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매월 · 8401d02b-c7b7-46ae-99c6-d38fa90dbe1e",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매월 · 8401d02b-c7b7-46ae-99c6-d38fa90dbe1e\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n일자\n28\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:39:16.935Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-preflight-pending",
+    "state": null,
+    "at": "2026-10-26T22:39:52.956Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-preflight-pending",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "6"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:40:14.577Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-preflight-failure-preserved",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "6"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "정책 편집\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:40:17.977Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-preflight-pending",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "6"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:40:28.672Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-preflight-failure-preserved",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "6"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:40:29.063Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-resume-query-pending",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "작업 상태 다시 확인"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 재개\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n\n예약 변경 작업을 확인하고 있습니다: ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958\n\n취소\n작업 상태 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:40:48.762Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-resume-query-failure",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "작업 상태 다시 확인"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 재개\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\nSP05 job status fault\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n\n예약 변경 작업을 확인하고 있습니다: ab96ee9b-fbc6-4ebd-b07c-5f3a3d267958\n\n취소\n작업 상태 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:40:52.527Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-resume-query-pending",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "작업 상태 다시 확인"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "예약 재개\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n\n예약 변경 작업을 확인하고 있습니다: 95757484-86f0-4b5d-ae62-9c9e3cd80db2\n\n취소\n작업 상태 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:41:03.406Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-resume-query-failure",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "작업 상태 다시 확인"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "예약 재개\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\nSP05 job status fault\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n\n예약 변경 작업을 확인하고 있습니다: 95757484-86f0-4b5d-ae62-9c9e3cd80db2\n\n취소\n작업 상태 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:41:03.845Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-pause-cancel",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 중지\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:41:29.530Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 중지\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:41:30.756Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-menu-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "예약 중지\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t6\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:41:34.863Z"
+  },
+  {
+    "cluster": 31,
+    "label": "natural-initial-resume-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 재개"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 재개\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t44\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 재개",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:42:05.176Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-edit-deletion-race-held",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "7"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:42:52.901Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-edit-deletion-race-rejected",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "7"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:43:05.234Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-edit-deleted-reload-unavailable",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        }
+      ],
+      "inputs": [],
+      "tags": [],
+      "target": "SP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb",
+      "text": "정책 편집\nSP05-1499-32-scheduled\n매시간 · 56f4af09-e4f6-4c16-8746-9483daffe7cb\nUnable to execute API command listsnapshotpolicies due to invalid value. Invalid parameter id value=56f4af09-e4f6-4c16-8746-9483daffe7cb due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class.\n재시도\n취소",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:43:14.273Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-edit-deletion-race-held",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": true,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "7"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:43:27.576Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-edit-deletion-race-rejected",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "7"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f",
+      "text": "정책 편집\nSP05-1499-31-scheduled\n매시간 · d4b60615-edb8-4f51-9748-ccd78d3f0b8f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n0~59 사이의 정수를 입력하십시오. 0은 매시 정각입니다.\n유지\n현재 적용된 주기별 상한: 8\n관리자 소유 볼륨: 주기별 상한을 적용합니다.\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    },
+    "at": "2026-10-26T22:43:45.544Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-owner-personal-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:07 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-owner\n매일 · f41f957b-34b8-4119-a114-650e34a7cf5b",
+      "text": "정책 편집\nSP05-1499-32-owner\n매일 · f41f957b-34b8-4119-a114-650e34a7cf5b\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n계정 스냅샷 한도: 3\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/3f491610-4b4a-44fe-b56f-cadbdf6bbad4?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:44:37.267Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-owner-personal-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:58 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-owner\n매일 · f41f957b-34b8-4119-a114-650e34a7cf5b",
+      "text": "정책 편집\nSP05-1499-32-owner\n매일 · f41f957b-34b8-4119-a114-650e34a7cf5b\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n계정 스냅샷 한도: 3\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/3f491610-4b4a-44fe-b56f-cadbdf6bbad4?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:44:38.437Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-project-switch",
+    "state": {
+      "oldPolicyAbsent": true,
+      "url": "http://10.10.32.10:8080/client/#/dashboard"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-owner-project-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:07 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-project\n매일 · 2644d539-2cf3-409c-9f55-34ab9075107f",
+      "text": "정책 편집\nSP05-1499-32-project\n매일 · 2644d539-2cf3-409c-9f55-34ab9075107f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n프로젝트 스냅샷 한도: 확인 불가\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/891f1cfc-f872-4d76-872d-94fa81063a6b?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:45:15.179Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-owner-project-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:58 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-32-project\n매일 · 2644d539-2cf3-409c-9f55-34ab9075107f",
+      "text": "정책 편집\nSP05-1499-32-project\n매일 · 2644d539-2cf3-409c-9f55-34ab9075107f\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n프로젝트 스냅샷 한도: 확인 불가\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.32.10:8080/client/#/volume/891f1cfc-f872-4d76-872d-94fa81063a6b?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:45:16.316Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-readonly-personal",
+    "state": {
+      "editAbsent": true,
+      "text": "대시보드\n컴퓨트\n스토리지\n스냅샷\n스냅샷 정책\n네트워크\n이미지\n이벤트\n프로젝트\n계정\nZone\n서비스 오퍼링\nAPI 문서\n기본 보기\nST\nSP05 Test\n/스냅샷 정책업데이트\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n DAILY\t3\t\n23:58\n\tUTC [Coordinated Universal Time]\tSP05-1499-32-owner\t\n전체 1 개 항목 중 1-1 표시\n1\n20 / 쪽",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "natural-running-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 중지\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t1\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:46:47.828Z"
+  },
+  {
+    "cluster": 31,
+    "label": "natural-running-resume-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 재개"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 재개\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t1\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 재개",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:46:51.000Z"
+  },
+  {
+    "cluster": 32,
+    "label": "final-readonly-project",
+    "state": {
+      "editAbsent": true,
+      "text": "대시보드\n컴퓨트\n스토리지\n스냅샷\n스냅샷 정책\n네트워크\n이미지\n이벤트\n프로젝트\n계정\nZone\n서비스 오퍼링\nAPI 문서\nSP05-1499-32-project\nST\nSP05 Test\n/스냅샷 정책업데이트\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n DAILY\t3\t\n23:58\n\tUTC [Coordinated Universal Time]\tSP05-1499-32-project\t\n전체 1 개 항목 중 1-1 표시\n1\n20 / 쪽",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-initial-resume-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 재개"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "예약 재개\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t49\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 재개",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:47:57.610Z"
+  },
+  {
+    "cluster": 31,
+    "label": "natural-backed-up-ui",
+    "state": {
+      "text": "업데이트\n이름\t상태\t간격 유형\t물리적 크기\t생성일\ndetached_SP05-1499-31-volume-tab_20261026224620\t\n백업 됨\n\tHOURLY\t0.00 GiB\t2026. 10. 27. 오전 7:46:20\n전체 1 개 항목\n1\n20 / 쪽",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=snapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-owner-personal-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:07 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-owner\n매일 · 3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "text": "정책 편집\nSP05-1499-31-owner\n매일 · 3de6be2f-5247-4ebc-8fee-1816c59ce4b4\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n계정 스냅샷 한도: 3\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/9a2a3ea0-b04c-4140-8b78-b7ec607b3387?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:48:34.964Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-owner-personal-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:58 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-owner\n매일 · 3de6be2f-5247-4ebc-8fee-1816c59ce4b4",
+      "text": "정책 편집\nSP05-1499-31-owner\n매일 · 3de6be2f-5247-4ebc-8fee-1816c59ce4b4\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n계정 스냅샷 한도: 3\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/9a2a3ea0-b04c-4140-8b78-b7ec607b3387?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:48:36.097Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-project-switch",
+    "state": {
+      "oldPolicyAbsent": true,
+      "url": "http://10.10.31.10:8080/client/#/dashboard"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-owner-project-preload",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "3:07 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "2"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-project\n매일 · d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "text": "정책 편집\nSP05-1499-31-project\n매일 · d67ffa76-6bb1-4685-8396-64a4be2166cd\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n프로젝트 스냅샷 한도: 확인 불가\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nAsia/Seoul\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/554c25f3-b8a2-4a1a-b516-b09fa6dbe636?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:48:54.743Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-owner-project-draft",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "재시도"
+        },
+        {
+          "disabled": false,
+          "text": "새 태그"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "저장"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "hourly"
+        },
+        {
+          "checked": true,
+          "disabled": false,
+          "id": "",
+          "type": "radio",
+          "value": "daily"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "weekly"
+        },
+        {
+          "checked": false,
+          "disabled": true,
+          "id": "",
+          "type": "radio",
+          "value": "monthly"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timeSelect",
+          "type": "text",
+          "value": "11:58 PM"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "text",
+          "value": "3"
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "form_item_timezone",
+          "type": "search",
+          "value": ""
+        },
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "zone-selection",
+          "type": "search",
+          "value": ""
+        }
+      ],
+      "tags": [
+        "sp05-keep = 한글 보존",
+        "sp05-remove = 삭제 대상"
+      ],
+      "target": "SP05-1499-31-project\n매일 · d67ffa76-6bb1-4685-8396-64a4be2166cd",
+      "text": "정책 편집\nSP05-1499-31-project\n매일 · d67ffa76-6bb1-4685-8396-64a4be2166cd\n저장된 값 다시 불러오기 (입력 초기화)\n기존 정책을 편집합니다. 볼륨·주기·아이디는 유지됩니다. 저장하면 정책 태그는 아래 표시된 태그로 전체 교체됩니다.\n간격 유형\n매시간\n매일\n매주\n매월\n시간\n유지\n현재 적용된 주기별 상한: 8\n프로젝트 스냅샷 한도: 확인 불가\n도메인 스냅샷 한도: 확인 불가\n일부 한도를 확인하지 못했습니다. 재시도\n제출 시 서버가 최신 한도를 검증합니다. 남은 생성 가능 수가 아닌 보관 한도입니다.\n시간대\nUTC\nUTC [Coordinated Universal Time]\nZone\n스냅샷은 항상 기본 영역(Zone)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.\n태그\nsp05-keep = 한글 보존\nsp05-remove = 삭제 대상\n새 태그\n정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.\n취소\n저장",
+      "url": "http://10.10.31.10:8080/client/#/volume/554c25f3-b8a2-4a1a-b516-b09fa6dbe636?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:48:55.869Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-readonly-owner",
+    "state": {
+      "editAbsent": true,
+      "text": "대시보드\n컴퓨트\n스토리지\n스냅샷\n스냅샷 정책\n네트워크\n이미지\n이벤트\n프로젝트\n계정\nZone\n서비스 오퍼링\nAPI 문서\n기본 보기\nST\nSP05 Test\n/스냅샷 정책업데이트\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n DAILY\t3\t\n23:58\n\tUTC [Coordinated Universal Time]\tSP05-1499-31-owner\t\n전체 1 개 항목 중 1-1 표시\n1\n20 / 쪽",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-readonly-project",
+    "state": {
+      "editAbsent": true,
+      "text": "대시보드\n컴퓨트\n스토리지\n스냅샷\n스냅샷 정책\n네트워크\n이미지\n이벤트\n프로젝트\n계정\nZone\n서비스 오퍼링\nAPI 문서\nSP05-1499-31-project\nST\nSP05 Test\n/스냅샷 정책업데이트\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n DAILY\t3\t\n23:58\n\tUTC [Coordinated Universal Time]\tSP05-1499-31-project\t\n전체 1 개 항목 중 1-1 표시\n1\n20 / 쪽",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-running-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "예약 중지\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t7\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:52:47.218Z"
+  },
+  {
+    "cluster": 32,
+    "label": "natural-running-resume-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 재개"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "예약 재개\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t7\n시간대\tUTC\n유지\t3\n일반 사용자에게 정책을 표시하고 현재 시각 이후의 다음 일정을 예약합니다. 스냅샷을 즉시 실행하지 않습니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 재개",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:52:50.340Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-mobile-tags-keyboard",
+    "state": {
+      "height": 844,
+      "rect": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "tags": [
+        {
+          "bottom": 664.65625,
+          "text": "sp05-keep = 한글 보존",
+          "y": 642.65625
+        },
+        {
+          "bottom": 664.65625,
+          "text": "sp05-remove = 삭제 대상",
+          "y": 642.65625
+        }
+      ],
+      "text": "저장",
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-mobile-tags-keyboard",
+    "state": {
+      "height": 844,
+      "rect": {
+        "bottom": 815,
+        "height": 32,
+        "left": 303.234375,
+        "right": 361,
+        "top": 783,
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      },
+      "tags": [
+        {
+          "bottom": 664.65625,
+          "text": "sp05-keep = 한글 보존",
+          "y": 642.65625
+        },
+        {
+          "bottom": 664.65625,
+          "text": "sp05-remove = 삭제 대상",
+          "y": 642.65625
+        }
+      ],
+      "text": "저장",
+      "width": 390
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-backed-up-ui",
+    "state": {
+      "text": "대시보드\n컴퓨트\n스토리지\n볼륨\n스냅샷\n스냅샷 정책\n버킷\n공유 파일 시스템\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\nAC\nadmin cloud\n/볼륨/SP05-1499-32-volume-tab업데이트\n작업\nSP05-1499-32-volume-tab\nDATADISK\nKVM\n상태\n사용 가능\n아이디\nb68e4840-138f-4db0-b7c5-8d9f5d67b0f0 \n디스크 크기(GB 단위)\n1.00 GiB\n스토리지 풀\nPrimary\nShared (DATADISK)\n클러스터\nCluster\nPod\nPod\nZone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 27. 오전 7:03:13\n스냅샷 보기\n태그\n태그 새로고침\n태그가 없습니다.\n새 태그\n상세\n스냅샷\n정기스냅샷\n이벤트\n코멘트\n업데이트\n이름\t상태\t간격 유형\t물리적 크기\t생성일\ndetached_SP05-1499-32-volume-tab_20261026225229\t\n백업 됨\n\tHOURLY\t0.00 GiB\t2026. 10. 27. 오전 7:52:29\n전체 1 개 항목\n1\n20 / 쪽\n조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=snapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "natural-final-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329",
+      "text": "예약 중지\nSP05-1499-31-volume-tab\n매시간 · 57b03fe6-3b20-4c10-b0b9-83e78f642329\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t1\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.31.10:8080/client/#/volume/1782f6f9-8eec-4976-bbfa-5e8aa801ee89?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:53:39.335Z"
+  },
+  {
+    "cluster": 32,
+    "label": "natural-final-pause-confirm",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "저장된 값 다시 불러오기 (입력 초기화)"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "예약 중지"
+        }
+      ],
+      "inputs": [
+        {
+          "checked": false,
+          "disabled": false,
+          "id": "",
+          "type": "checkbox",
+          "value": "on"
+        }
+      ],
+      "tags": [],
+      "target": "SP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129",
+      "text": "예약 중지\nSP05-1499-32-volume-tab\n매시간 · 4886ebe3-5268-472b-aacc-b97184e54129\n저장된 값 다시 불러오기 (입력 초기화)\n시간\t7\n시간대\tUTC\n유지\t3\n미래 정기 스냅샷 예약을 중지하고 일반 사용자 목록에서 이 정책을 숨깁니다. 기존 스냅샷은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n대상 정책과 미래 예약에 미치는 영향을 확인했습니다.\n취소\n예약 중지",
+      "url": "http://10.10.32.10:8080/client/#/volume/b68e4840-138f-4db0-b7c5-8d9f5d67b0f0?tab=recurringsnapshots"
+    },
+    "at": "2026-10-26T22:57:47.400Z"
+  },
+  {
+    "cluster": 31,
+    "label": "final-cleanup-ui",
+    "state": {
+      "height": 720,
+      "text": "대시보드\n컴퓨트\n스토리지\n볼륨\n스냅샷\n스냅샷 정책\n버킷\n공유 파일 시스템\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\nAC\nadmin cloud\n/스냅샷 정책업데이트\n정기 스냅샷 생성\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n\n\n데이터 없음\n\n전체 0 개 항목 중 0-0 표시\n1\n20 / 쪽\nWall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy",
+      "width": 1280
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-cleanup-ui",
+    "state": {
+      "height": 720,
+      "text": "대시보드\n컴퓨트\n스토리지\n볼륨\n스냅샷\n스냅샷 정책\n버킷\n공유 파일 시스템\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\nAC\nadmin cloud\n/스냅샷 정책업데이트\n정기 스냅샷 생성\n\t\n간격 유형\n\t\n최대 스냅샷 수\n\t\n스케줄\n\t\n시간대\n\t\n볼륨 이름\n\t\n\n\n\n데이터 없음\n\n전체 0 개 항목 중 0-0 표시\n1\n20 / 쪽\n조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy",
+      "width": 1280
+    }
+  }
+]

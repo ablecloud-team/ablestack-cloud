@@ -1,0 +1,164 @@
+===== server-ui.txt =====
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.12 s - in com.cloud.tags.TaggedResourceManagerImplTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.841 s - in com.cloud.tags.SnapshotTagCreationTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.045 s - in com.cloud.storage.snapshot.SnapshotTagLifecycleTest
+[INFO] Tests run: 77, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s - in com.cloud.storage.snapshot.SnapshotPolicyInputValidatorTest
+[INFO] Tests run: 51, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.968 s - in com.cloud.storage.snapshot.SnapshotManagerTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.667 s - in com.cloud.storage.snapshot.SnapshotPolicySchedulingTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.25 s - in com.cloud.storage.snapshot.SnapshotPolicyScopeTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.321 s - in com.cloud.storage.snapshot.ForcedSnapshotDeletionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s - in com.cloud.storage.snapshot.AccountSnapshotCleanupTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.storage.snapshot.SnapshotPolicyClassificationTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s - in com.cloud.storage.snapshot.SnapshotPolicyDisplayPermissionTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.324 s - in com.cloud.storage.snapshot.SnapshotPolicyContextTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s - in com.cloud.storage.snapshot.SnapshotArchiveTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.072 s - in com.cloud.storage.snapshot.SnapshotPolicyEditingTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.storage.snapshot.SnapshotPolicyListOrderingTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.storage.snapshot.SnapshotPolicyRetentionTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in com.cloud.storage.snapshot.SnapshotPolicyBulkContractTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s - in com.cloud.storage.snapshot.SnapshotPolicyTimezoneTest
+[INFO] Tests run: 286, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-snapshot-policy-1494/server/target/cloud-server-4.23.0.0.jar
+[INFO] BUILD SUCCESS
+[INFO] Total time:  59.979 s
+[INFO] Finished at: 2026-10-28T11:59:01+09:00
+
+===== regression-ui.txt =====
+PASS tests/unit/views/AutogenSnapshotPolicyDetail.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyTags.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyEditing.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyMonthSearch.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyInput.spec.js
+PASS tests/unit/views/storage/RecurringSnapshotUnified.spec.js
+PASS tests/unit/views/storage/RecurringSnapshotVolumeSearch.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyDeletion.spec.js
+PASS tests/unit/views/storage/SnapshotDialogZones.spec.js
+PASS tests/unit/components/view/SnapshotPolicySearch.spec.js
+PASS tests/unit/components/view/SnapshotSearch.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyBulkDelete.spec.js
+PASS tests/unit/views/storage/SnapshotTabs.spec.js
+PASS tests/unit/views/storage/SnapshotDeletionRecovery.spec.js
+PASS tests/unit/components/view/ResourceView.spec.js
+PASS tests/unit/components/header/StorageSnapshotNotifications.spec.js
+PASS tests/unit/components/view/ResourceTags.spec.js
+PASS tests/unit/utils/GuiTheme.spec.js
+PASS tests/unit/views/AutogenSnapshotFilters.spec.js
+PASS tests/unit/views/storage/SnapshotCopies.spec.js
+PASS tests/unit/components/view/ListViewSnapshotContext.spec.js
+PASS tests/unit/views/AutogenSnapshotActions.spec.js
+PASS tests/unit/views/compute/VmSnapshotDialog.spec.js
+PASS tests/unit/views/storage/SnapshotRestoreInheritance.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSort.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotList.spec.js
+PASS tests/unit/views/SnapshotPolicyList.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSearch.spec.js
+PASS tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js
+PASS tests/unit/views/storage/SnapshotTransfer.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotDetail.spec.js
+PASS tests/unit/components/view/InfoCardIconLifecycle.spec.js
+PASS tests/unit/views/compute/VmSnapshotsTab.spec.js
+PASS tests/unit/views/storage/StorageSnapshotActionDialog.spec.js
+PASS tests/unit/optionalDiscovery.spec.js
+PASS tests/unit/utils/storageSnapshotPresentation.spec.js
+PASS tests/unit/views/storage/VolumeSnapshotPolicies.spec.js
+PASS tests/unit/utils/resourceTags.spec.js
+PASS tests/unit/utils/snapshotPolicyDetail.spec.js
+PASS tests/unit/views/storage/SnapshotDialogStandard.spec.js
+PASS tests/unit/utils/storageSnapshotOperations.spec.js
+PASS tests/unit/utils/snapshotPolicyInput.spec.js
+PASS tests/unit/utils/storageSnapshotContext.spec.js
+PASS tests/unit/utils/storageSnapshotDetail.spec.js
+PASS tests/unit/components/view/StorageSnapshotSummary.spec.js
+PASS tests/unit/api/snapshotPolicyProjectRequest.spec.js
+PASS tests/unit/views/storage/SnapshotPolicyVolumeLinks.spec.js
+PASS tests/unit/utils/snapshotPolicyEditing.spec.js
+PASS tests/unit/utils/snapshotPolicySearch.spec.js
+PASS tests/unit/views/storage/CreateSnapshotFromVMSnapshot.spec.js
+PASS tests/unit/utils/vmSnapshotList.spec.js
+PASS tests/unit/views/storage/StorageSnapshotSafety.spec.js
+PASS tests/unit/api/optionalRequest.spec.js
+PASS tests/unit/utils/vmSnapshotActions.spec.js
+PASS tests/unit/utils/snapshotDownload.spec.js
+PASS tests/unit/api/jobRequest.spec.js
+Test Suites: 56 passed, 56 total
+Tests:       828 passed, 828 total
+Snapshots:   0 total
+Time:        62.148s
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+
+===== lint-ui.txt =====
+
+> cloudstack-ui@4.22.0 lint
+> vue-cli-service lint --no-fix src/components/view/InfoCard.vue src/components/view/ListView.vue src/components/view/ResourceView.vue src/components/view/SnapshotPolicySearch.vue src/config/section/storage.js src/main.js src/store/modules/user.js src/utils/guiTheme.js src/utils/snapshotPolicyDetail.js src/views/AutogenView.vue src/views/storage/FormSchedule.vue src/views/storage/RecurringSnapshotVolume.vue src/views/storage/SnapshotPolicyActionDialog.vue src/views/storage/SnapshotPolicyDeleteAction.vue src/views/storage/SnapshotPolicyDeleteDialog.vue src/views/storage/SnapshotPolicyDetails.vue tests/unit/components/view/InfoCardIconLifecycle.spec.js tests/unit/components/view/ResourceView.spec.js tests/unit/optionalDiscovery.spec.js tests/unit/utils/GuiTheme.spec.js tests/unit/views/AutogenSnapshotPolicyDetail.spec.js tests/unit/views/SnapshotPolicyList.spec.js tests/unit/views/storage/RecurringSnapshotUnified.spec.js tests/unit/views/storage/RecurringSnapshotVolumeSearch.spec.js tests/unit/views/storage/SnapshotPolicyDeletion.spec.js tests/unit/views/storage/SnapshotPolicyEditing.spec.js tests/unit/views/storage/SnapshotPolicyVolumeLinks.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ DONE  No lint errors found!
+
+===== build-ui.txt =====
+  dist/css/chunk-20781f05.8a07acd6.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-251eb5ab.02939a65.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-2a372232.67488e7f.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-2a39e0ef.971d3a8f.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-2f5d0610.987de764.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-31badcf8.b4b3bd5a.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-383cde55.a9146246.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-38c7c412.0eabedda.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-3900aa6a.2c198307.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-3984ee9e.3ca07278.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-3b81d8c9.39b54f79.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-40f49bde.45c2d41f.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-44e2ba40.06ae456d.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-458063e0.8173202f.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-58db6e12.b95d1cd3.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-628c5fd4.14305648.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-81279b0c.7369efc2.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-96a0c18a.398350d9.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-9a4686f0.fa4c5326.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-a6c41bb0.b8aec724.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-b8f2201e.8c2e25ac.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-c932ea92.2e423a8b.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-d82500ee.22b51395.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-e2761bb2.5e83be04.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-ebc17a30.cba612ca.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-f9cf91b4.6f9e9dbb.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-00c8064a.ee248e22.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-0b85b53b.3be5cea9.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-40b94d98.905fcd04.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-690a0a97.8ca55deb.css    0.11 KiB          0.08 KiB
+  dist/css/chunk-6f3f800a.b9b8871b.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-7b9dd3a5.eeddb6e7.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-c2e831aa.d06f64cc.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-cc1eb720.5e7ed221.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-de8a6fb8.7d5e0a57.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-f2e8809c.24cb69dc.css    0.11 KiB          0.09 KiB
+  dist/css/chunk-2ecd4d9b.ff148455.css    0.09 KiB          0.09 KiB
+  dist/css/chunk-0763689b.c8084e7a.css    0.09 KiB          0.08 KiB
+  dist/css/chunk-4f9f3f67.b30b3809.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-cd074484.b3a9685a.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-e4a819bc.cf001108.css    0.08 KiB          0.08 KiB
+  dist/css/chunk-1b161184.e6029dd8.css    0.08 KiB          0.09 KiB
+  dist/css/chunk-43963091.d1d9040b.css    0.08 KiB          0.09 KiB
+  dist/css/chunk-382e63a6.ed84acc9.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-62ecf9d6.56be705d.css    0.07 KiB          0.09 KiB
+  dist/css/chunk-681f2b02.5d38c646.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-e888b8ce.ed84acc9.css    0.07 KiB          0.08 KiB
+  dist/css/chunk-2fea127e.b78c5347.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-40c2f2e1.a89ddab2.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-76164dea.0ee2ad71.css    0.06 KiB          0.07 KiB
+  dist/css/chunk-f8c1fd06.bccd434d.css    0.06 KiB          0.08 KiB
+  dist/css/chunk-275a37c6.b5ab1173.css    0.04 KiB          0.06 KiB
+  dist/css/chunk-306332a8.afadbd41.css    0.04 KiB          0.06 KiB
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

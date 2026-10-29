@@ -1,0 +1,14 @@
+{
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "jarSha256": "050db6481e32a97f59eb1c48ca763cc042dc1a6307cf95f6eeca17b4213bfe3f",
+  "pid": "3510296",
+  "started": 1793052609.409364,
+  "patchedSha256": "62e3ece1b533f1a2474168b84fdb026a971aa5c55255341c3a9354324c419291",
+  "family": {
+    "org/apache/cloudstack/api/command/user/snapshot/CreateSnapshotPolicyCmd.class": "a359039e79d299ee5c06b089e776914c4a5f713f60ea5fce3178b3adad70f722",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "d847af88f9337c6f8a66ab4ef6fa59f3d4831ea768f6923d2fa62142648086ea",
+    "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class": "d25ec14d18c31deb6adc0bbbba1a32a2c63820436b730526502afec149af90a2"
+  },
+  "unchangedEntries": 204538,
+  "backup": "/root/snapshot-policy-1499-20261027/rev-zones-clear/management-before.jar"
+}

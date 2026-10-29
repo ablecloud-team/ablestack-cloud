@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "configuration": {
+    "snapshot.max.hourly": "8",
+    "snapshot.max.daily": "8"
+  },
+  "applied": {
+    "hourly": 8,
+    "daily": 8,
+    "weekly": 8,
+    "monthly": 8
+  }
+}

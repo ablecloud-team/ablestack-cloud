@@ -1,0 +1,6 @@
+{
+  "head": "084d43aa0b37c46a94256fff6fcd966696d9f1b0",
+  "branch": "feature/ftctl-cloud-integration",
+  "status": " M docs/ftctl/506-cross-hypervisor-dr-cloud-ui-design-20260630.md\n M docs/ftctl/530-cross-hypervisor-dr-site-inventory-and-detail-ux-design-20260703.md\n M docs/ftctl/625-dr-cutover-authority-commit-serialization-and-failback-readiness-convergence-design-20260901.md\n M docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md\n M plugins/integrations/disaster-recovery/src/main/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapter.java\n M plugins/integrations/disaster-recovery/src/test/java/com/cloud/dr/adapter/ftctl/FtctlDrRuntimeProjectionAdapterTest.java\n M plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java\n M plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java\n M ui/public/locales/en.json\n M ui/public/locales/ko_KR.json\n M ui/src/views/infra/dr/DrSiteList.vue\n?? ui/tests/unit/views/infra/dr/DrSiteList.spec.js\n",
+  "diffHash": "4616f42e7bfef16d6dae3c185e8e23eb1fd80d91a0d941f3158958a858f77a45"
+}

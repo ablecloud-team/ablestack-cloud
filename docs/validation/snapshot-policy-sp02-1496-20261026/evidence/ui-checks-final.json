@@ -1,0 +1,714 @@
+[
+  {
+    "cluster": "31",
+    "case": "page 2 adds 20 options",
+    "total": 158,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "yttest",
+    "options": [
+      "yttest\nadmin · ROOT · Zone · 548764e4-89d0-419e-83a2-6681f178ebd3"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "policy filter exact UUID",
+    "volumeid": "548764e4-89d0-419e-83a2-6681f178ebd3",
+    "count": 0,
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=548764e4-89d0-419e-83a2-6681f178ebd3",
+    "links": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496-한글-Volume",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "sp02-1496-한글-volume",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "한글",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-NOT-EXISTS-1496",
+    "options": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "page 2 adds 20 options",
+    "total": 54,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "jsjs2-ROOT-24",
+    "options": [
+      "jsjs2-ROOT-24\njsjs2 · admin · ROOT · Zone · 57da5cf0-dd42-4fbb-a482-cb224ebbfefa"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "policy filter exact UUID",
+    "volumeid": "57da5cf0-dd42-4fbb-a482-cb224ebbfefa",
+    "count": 0,
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=57da5cf0-dd42-4fbb-a482-cb224ebbfefa",
+    "links": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496-한글-Volume",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "sp02-1496-한글-volume",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "한글",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-NOT-EXISTS-1496",
+    "options": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "URL restore keeps selected UUID and name",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "clear and apply removes UUID filter",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "reset clears target and never exposes internal listall",
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?page=1&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "policy filter exact UUID",
+    "volumeid": "468e322c-b5e2-482d-be68-4d312ce6cff6",
+    "count": 1,
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=468e322c-b5e2-482d-be68-4d312ce6cff6",
+    "links": [
+      "#/volume/468e322c-b5e2-482d-be68-4d312ce6cff6"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "policy filter exact UUID",
+    "volumeid": "468e322c-b5e2-482d-be68-4d312ce6cff6",
+    "count": 1,
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=468e322c-b5e2-482d-be68-4d312ce6cff6",
+    "links": [
+      "#/volume/468e322c-b5e2-482d-be68-4d312ce6cff6"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "URL restore keeps selected UUID and name",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "clear and apply removes UUID filter",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "reset clears target and never exposes internal listall",
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?page=1&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "policy filter exact UUID",
+    "volumeid": "2720ca69-da82-401e-9ca9-9417c6f53d88",
+    "count": 1,
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=2720ca69-da82-401e-9ca9-9417c6f53d88",
+    "links": [
+      "#/volume/2720ca69-da82-401e-9ca9-9417c6f53d88"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "policy filter exact UUID",
+    "volumeid": "2720ca69-da82-401e-9ca9-9417c6f53d88",
+    "count": 1,
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?page=1&pagesize=20&volumeid=2720ca69-da82-401e-9ca9-9417c6f53d88",
+    "links": [
+      "#/volume/2720ca69-da82-401e-9ca9-9417c6f53d88"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "503 lookup blocks apply and normal API retry recovers",
+    "loadingBlocked": true,
+    "failureBlocked": true,
+    "recovered": true,
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "503 lookup blocks apply and normal API retry recovers",
+    "loadingBlocked": true,
+    "failureBlocked": true,
+    "recovered": true,
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "old keyword response arrives after newer empty result",
+    "oldCompleted": true,
+    "stillEmpty": true,
+    "applyEnabled": true,
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "old keyword response arrives after newer empty result",
+    "oldCompleted": true,
+    "stillEmpty": true,
+    "applyEnabled": true,
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nSP02-1496-31 · ROOT · Zone · 6c6dc548-5bab-416b-89b3-ff92a0dc0c0c"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "project scope exposes only its own fixture",
+    "projectid": "e82c17f3-1445-4ca5-a11d-117811a73c71",
+    "target": "6c6dc548-5bab-416b-89b3-ff92a0dc0c0c",
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "policy filter exact UUID",
+    "volumeid": "6c6dc548-5bab-416b-89b3-ff92a0dc0c0c",
+    "count": 1,
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?volumeid=6c6dc548-5bab-416b-89b3-ff92a0dc0c0c&page=1&pagesize=20",
+    "links": [
+      "#/volume/6c6dc548-5bab-416b-89b3-ff92a0dc0c0c"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nSP02-1496-32 · ROOT · Zone · d32d84b1-eb60-4589-a387-590b9f693831"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "project scope exposes only its own fixture",
+    "projectid": "68642f85-d4a5-4943-88e0-bd49d4ddd2dd",
+    "target": "d32d84b1-eb60-4589-a387-590b9f693831",
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "policy filter exact UUID",
+    "volumeid": "d32d84b1-eb60-4589-a387-590b9f693831",
+    "count": 1,
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?volumeid=d32d84b1-eb60-4589-a387-590b9f693831&page=1&pagesize=20",
+    "links": [
+      "#/volume/d32d84b1-eb60-4589-a387-590b9f693831"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "ordinary owner only sees own volume and policy",
+    "username": "sp02-owner-31-1496",
+    "target": "b1091f95-6b87-48b5-9fe3-c6da7abee244",
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "policy filter exact UUID",
+    "volumeid": "b1091f95-6b87-48b5-9fe3-c6da7abee244",
+    "count": 1,
+    "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?volumeid=b1091f95-6b87-48b5-9fe3-c6da7abee244&page=1&pagesize=20",
+    "links": [
+      "#/volume/b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "nonmember project not offered to ordinary user",
+    "options": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "ordinary owner only sees own volume and policy",
+    "username": "sp02-owner-32-1496",
+    "target": "cc7c2396-4245-4050-9644-d01d4de23e32",
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "policy filter exact UUID",
+    "volumeid": "cc7c2396-4245-4050-9644-d01d4de23e32",
+    "count": 1,
+    "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?volumeid=cc7c2396-4245-4050-9644-d01d4de23e32&page=1&pagesize=20",
+    "links": [
+      "#/volume/cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "nonmember project not offered to ordinary user",
+    "options": [],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "volume menu isencrypted=true boolean filter",
+    "url": "http://10.10.31.10:8080/client/#/volume?isencrypted=true&page=1&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "isencrypted=false and URL boolean restoration",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "encryption reset removes condition",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "volume menu isencrypted=true boolean filter",
+    "url": "http://10.10.32.10:8080/client/#/volume?isencrypted=true&page=1&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "isencrypted=false and URL boolean restoration",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "encryption reset removes condition",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "existing SnapshotSearch volume filter remains correct",
+    "target": "468e322c-b5e2-482d-be68-4d312ce6cff6",
+    "url": "http://10.10.31.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&volumeid=468e322c-b5e2-482d-be68-4d312ce6cff6&showunique=true&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "SnapshotSearch reset restores existing snapshot count",
+    "count": 23,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "SP-01 creation volume search regression",
+    "count": 3,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "existing SnapshotSearch volume filter remains correct",
+    "target": "2720ca69-da82-401e-9ca9-9417c6f53d88",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&volumeid=2720ca69-da82-401e-9ca9-9417c6f53d88&showunique=true&pagesize=20",
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "SnapshotSearch reset restores existing snapshot count",
+    "count": 7,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "SP-01 creation volume search regression",
+    "count": 3,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "VM standard advanced search and reset regression",
+    "count": 116,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "VM standard advanced search and reset regression",
+    "count": 51,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "31",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 9ff246c4-c70c-4a65-a598-f211094213b6",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 468e322c-b5e2-482d-be68-4d312ce6cff6",
+      "SP02-1496-한글-Volume\nsp02-owner-31-1496 · ROOT · Zone · b1091f95-6b87-48b5-9fe3-c6da7abee244"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  },
+  {
+    "cluster": "32",
+    "case": "server volume search",
+    "query": "SP02-1496",
+    "options": [
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 8fcdf2e8-4ab3-452e-9f48-49a61c88679f",
+      "SP02-1496-한글-Volume\nadmin · ROOT · Zone · 2720ca69-da82-401e-9ca9-9417c6f53d88",
+      "SP02-1496-한글-Volume\nsp02-owner-32-1496 · ROOT · Zone · cc7c2396-4245-4050-9644-d01d4de23e32"
+    ],
+    "passed": true,
+    "build": "44b5f0d40cd"
+  }
+]

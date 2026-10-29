@@ -1,0 +1,133 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 283,
+        "height": 116,
+        "left": 68,
+        "right": 760,
+        "top": 167,
+        "width": 692,
+        "x": 68,
+        "y": 167
+      },
+      "text": "/스냅샷 정책업데이트\n프로젝트\n정기 스냅샷 생성\t\n\t"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 258,
+        "height": 60,
+        "left": 414,
+        "right": 735,
+        "top": 198,
+        "width": 321,
+        "x": 414,
+        "y": 198
+      },
+      "text": "정기 스냅샷 생성\t\n\t"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+    ""
+  ],
+  "pageWidth": 758,
+  "rows": [
+    {
+      "href": "#/snapshotpolicy/50ab9a36-bd5f-459e-9388-a2a6d7670ade",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/0c0df3d5-0dd0-4da8-bf9a-76a366d5f60d",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/e10bfa69-0610-47d8-93c8-25a95b0033bf",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/636e9cfe-9697-4651-97fa-ef9ec488d73e",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/3c2b20d4-320d-44cf-9efe-35ff25de7821",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/c6b2db6d-af13-4bc4-a626-917efe68f4c7",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/c462bbfa-9fd0-44ef-9b35-5d270439309a",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/3ac469a8-c486-4f44-82e7-788c92e6ee57",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/055614d7-9887-464f-8f73-bfff38b4986f",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/ccc33120-1ff2-44cc-8cc2-f97a6d454b2c",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/c958d2fa-703a-41a3-8f93-dee7aa76906f",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/30044916-e3f4-460b-a153-5d6524683e87",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/61f7998b-37a6-4b7a-bd9f-458329016f2d",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/5780fdb1-3985-4d0c-958a-b25554ccb872",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/4b61fce8-0d6b-49a9-b7dc-04e36244ef21",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/2a9fc9ae-1849-4da9-9565-1d8e9e1f6309",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/c757510b-ef06-44be-91b1-5ebcb2f6e11a",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/e5b0cb0b-1d05-4155-9717-ffcee895bd9d",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/aeaeec15-1069-4b66-881f-edd4b20df324",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/bf6995f5-f06e-482c-acb1-d37c7965a223",
+      "text": "매월"
+    }
+  ],
+  "tabs": [],
+  "theme": "light",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?projectid=0&page=1&pagesize=20&sortkey=id&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  },
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "scripts": [
+    "http://10.10.32.10:8080/client/js/app.8516507f.js"
+  ],
+  "tabLayouts": []
+}

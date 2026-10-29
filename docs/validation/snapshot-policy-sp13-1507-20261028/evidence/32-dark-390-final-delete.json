@@ -1,0 +1,98 @@
+{
+  "dialogs": [
+    {
+      "bodyOverflow": false,
+      "footer": [
+        {
+          "disabled": false,
+          "rect": {
+            "bottom": 691,
+            "height": 32,
+            "left": 237.46875,
+            "right": 295.234375,
+            "top": 659,
+            "width": 57.765625,
+            "x": 237.46875,
+            "y": 659
+          },
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "rect": {
+            "bottom": 691,
+            "height": 32,
+            "left": 303.234375,
+            "right": 361,
+            "top": 659,
+            "width": 57.765625,
+            "x": 303.234375,
+            "y": 659
+          },
+          "text": "삭제"
+        }
+      ],
+      "forms": 0,
+      "left": 12,
+      "text": "스냅샷 정책 삭제\nSP13-1507-32-admin-0-한글\n아이디: 50ab9a36-bd5f-459e-9388-a2a6d7670ade\n삭제 대상 다시 조회\n볼륨\t6bab8d5c-8918-46b0-a966-a5ca5492987b\n간격 유형\t매월\n일정\t23:59 · 매월 28일\n시간대\tUTC\n유지\t1\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "width": 366
+    }
+  ],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 334,
+        "height": 149,
+        "left": -12,
+        "right": 382,
+        "top": 185,
+        "width": 394,
+        "x": -12,
+        "y": 185
+      },
+      "text": "/스냅샷 정책/SP13-1507-32-admin-0-한글 · 매월업데이트\n작업"
+    },
+    {
+      "class": "ant-col ant-col-24 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 315,
+        "height": 32,
+        "left": 13,
+        "right": 357,
+        "top": 283,
+        "width": 344,
+        "x": 13,
+        "y": 283
+      },
+      "text": "작업"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+    "",
+    "이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다."
+  ],
+  "pageWidth": 380,
+  "rows": [],
+  "tabs": [
+    {
+      "selected": "true",
+      "text": "상세"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy/50ab9a36-bd5f-459e-9388-a2a6d7670ade",
+  "viewport": {
+    "height": 720,
+    "width": 390
+  },
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "scripts": [
+    "http://10.10.32.10:8080/client/js/app.8516507f.js"
+  ],
+  "tabLayouts": [
+    "ant-tabs ant-tabs-top"
+  ]
+}

@@ -235,7 +235,7 @@ function handleGetRequestParams (config) {
         config.params.projectid = project.id
       }
     }
-    if (config.params.ignoreproject !== undefined) {
+    if (config.params.ignoreproject !== undefined && String(config.params.command).toLowerCase() !== 'listsnapshotpolicies') {
       delete config.params.ignoreproject
     }
   }
@@ -255,7 +255,7 @@ function handlePostRequestParams (config) {
         config.data.append('projectid', project.id)
       }
     }
-    if (config.data.has('ignoreproject')) {
+    if (config.data.has('ignoreproject') && String(command).toLowerCase() !== 'listsnapshotpolicies') {
       config.data.delete('ignoreproject')
     }
   }

@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "runtime": [
+    {
+      "cluster": "31",
+      "passed": true,
+      "jarSha256": "5905e58b954e86f79a975b6bd422e79f7cc7e4e7b589b23fe1e8ed3923db57f4",
+      "pid": "3554783"
+    },
+    {
+      "cluster": "32",
+      "passed": true,
+      "jarSha256": "7e71fcc87d79d29dee692b1d684881984e12d17fa91aa12bac270572bac42e98",
+      "pid": "3533163"
+    }
+  ],
+  "cleanupNormalApis": true,
+  "storageThresholdUnchanged": "0.90"
+}

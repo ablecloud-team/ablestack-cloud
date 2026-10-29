@@ -1,0 +1,133 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 306,
+        "height": 154,
+        "left": -12,
+        "right": 382,
+        "top": 152,
+        "width": 394,
+        "x": -12,
+        "y": 152
+      },
+      "text": "/스냅샷 정책업데이트\n프로젝트\n정기 스냅샷 생성\t\n\t"
+    },
+    {
+      "class": "ant-col ant-col-24 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 287,
+        "height": 32,
+        "left": 13,
+        "right": 357,
+        "top": 255,
+        "width": 344,
+        "x": 13,
+        "y": 255
+      },
+      "text": "정기 스냅샷 생성\t\n\t"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성",
+    ""
+  ],
+  "pageWidth": 380,
+  "rows": [
+    {
+      "href": "#/snapshotpolicy/768a45b8-68e9-4267-928c-d99c9542b1a9",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/5b1d648c-f746-4cfc-b102-2c5f8af5f117",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/ddf884fd-50e3-4cad-ab2b-5a439860d315",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/f5be95e7-ea47-4074-8bbe-41db06df3599",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/a47e95fd-864a-4f12-b8ba-96384885764e",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/58d2de15-7ef9-43f0-a491-b82bed3f48be",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/dacd29f5-9892-4472-9da4-c98fd98c5d95",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/391d8a78-7971-4ec8-bfe0-a0eab2c1a468",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/2a11b77e-ac21-4b68-b064-5bc9468a2cf6",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/cec21215-cde5-44fd-9a59-e2d2a93da231",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/d5963a9e-3054-4f66-9e2e-d7beea905486",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/b93428c0-34f8-4f62-af39-c0411b9108c1",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/465c45fd-3b90-433e-b329-e5a7208a2c9f",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/bc20208f-3e30-4e42-aa46-871d482386c8",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/91ed7999-5aee-4460-93cf-08edf9a4e67c",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/f82f72a9-851d-48e8-a252-808dbd8bfe69",
+      "text": "매시간"
+    },
+    {
+      "href": "#/snapshotpolicy/9780f625-3e3c-45c4-9704-0e6f6b1187dc",
+      "text": "매월"
+    },
+    {
+      "href": "#/snapshotpolicy/728c9048-d663-4593-9a2c-1c08d03330a7",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/1fa6f158-a9ad-45cb-a29d-9501d963fc6a",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/e5156a62-9dfc-4ffe-b633-939e59759d06",
+      "text": "매월"
+    }
+  ],
+  "tabs": [],
+  "theme": "light",
+  "url": "http://10.10.31.10:8080/client/#/snapshotpolicy?projectid=0&page=1&pagesize=20&sortkey=id&sortorder=desc",
+  "viewport": {
+    "height": 720,
+    "width": 390
+  },
+  "uiSource": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "scripts": [
+    "http://10.10.31.10:8080/client/js/app.8516507f.js"
+  ],
+  "tabLayouts": []
+}

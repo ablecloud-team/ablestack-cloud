@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "clusters": [
+    {
+      "cluster": "31",
+      "apiScenarios": 47,
+      "invalidSortInputs": 12,
+      "globalUiPageComparisons": 20,
+      "uiObservations": 55,
+      "lastPageDeletionAndUrlPreserved": true,
+      "legacyVolumeQueryOrderVerified": true,
+      "observedRuntimeExceptions": 0,
+      "synthetic503Responses": 1,
+      "ownerUiRecovered": true
+    },
+    {
+      "cluster": "32",
+      "apiScenarios": 47,
+      "invalidSortInputs": 12,
+      "globalUiPageComparisons": 20,
+      "uiObservations": 55,
+      "lastPageDeletionAndUrlPreserved": true,
+      "legacyVolumeQueryOrderVerified": true,
+      "observedRuntimeExceptions": 0,
+      "synthetic503Responses": 2,
+      "ownerUiRecovered": true
+    }
+  ],
+  "apiTests": 10,
+  "serverTests": 158,
+  "uiTests": 312,
+  "totalFocusedTests": 480,
+  "responsiveViews": 12,
+  "images": 63,
+  "fullCloudCiRun": false
+}

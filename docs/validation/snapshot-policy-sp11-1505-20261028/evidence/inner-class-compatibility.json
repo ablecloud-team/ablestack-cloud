@@ -1,0 +1,14 @@
+[
+  {
+    "cluster": "31",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+    "bytecodeUnchanged": true,
+    "preserveOriginalEntry": true
+  },
+  {
+    "cluster": "32",
+    "class": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+    "bytecodeUnchanged": true,
+    "preserveOriginalEntry": true
+  }
+]

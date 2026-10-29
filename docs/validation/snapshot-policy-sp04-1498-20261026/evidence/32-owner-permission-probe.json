@@ -1,0 +1,26 @@
+{
+  "user": "sp04-owner-32-1498",
+  "policy": "909c6963-8293-4202-83c5-04c3276e1c0d",
+  "denied": [
+    {
+      "command": "createTags",
+      "status": 432,
+      "errorcode": 432
+    },
+    {
+      "command": "createSnapshotPolicy",
+      "status": 432,
+      "errorcode": 432
+    },
+    {
+      "command": "listSnapshotPolicies",
+      "status": 531,
+      "errorcode": 531
+    }
+  ],
+  "deleteOwnPersistedTag": {
+    "success": true
+  },
+  "remainingTags": 0,
+  "passed": true
+}

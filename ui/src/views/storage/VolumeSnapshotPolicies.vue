@@ -23,7 +23,7 @@
     <a-alert v-if="error" type="error" show-icon :message="$t(loaded ? 'message.list.refresh.stale' : 'error.fetching.data')">
       <template #description><a-button :loading="pending" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
-    <ScheduledSnapshots :resource="resource" :dataSource="rows" :loading="pending && !loaded" :disabled="pending || parentPending || !!error || !active" @refresh="fetchData" />
+    <ScheduledSnapshots :resource="resource" :dataSource="rows" :active="active" :loading="pending && !loaded" :disabled="pending || parentPending || !!error || !active" @refresh="fetchData" />
   </section>
 </template>
 <script>

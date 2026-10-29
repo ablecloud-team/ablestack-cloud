@@ -1,0 +1,15 @@
+{
+  "zones": 1,
+  "encryptedVolumes": 0,
+  "encryptedOfferings": 0,
+  "judgment": {
+    "extraZone": "UNAVAILABLE_SINGLE_ZONE",
+    "encryptedSchedule": "UNSUPPORTED_BACKEND_CONTRACT"
+  },
+  "snapshotpolicymax": {
+    "monthly": 8,
+    "weekly": 8,
+    "daily": 8,
+    "hourly": 8
+  }
+}

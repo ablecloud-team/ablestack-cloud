@@ -1,0 +1,160 @@
+{
+  "policies": [
+    {
+      "id": "374fe77f-4ea2-4d81-8bbd-e2716e8af6c1",
+      "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+      "volumename": "SP04-1498-32-scheduled",
+      "schedule": "12",
+      "intervaltype": 0,
+      "maxsnaps": 1,
+      "timezone": "Asia/Seoul",
+      "fordisplay": true,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": [
+        {
+          "key": "sp04-keep",
+          "value": "한글 태그 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "374fe77f-4ea2-4d81-8bbd-e2716e8af6c1",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "sp04-pending",
+          "value": "입력 중인 태그",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "374fe77f-4ea2-4d81-8bbd-e2716e8af6c1",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "be344424-0582-4551-a91c-36f72ea41cfd",
+      "volumeid": "8bbe91a9-2a21-4fa0-8c8d-ac18bc1664ba",
+      "volumename": "SP04-1498-32-volume-tab",
+      "schedule": "58:23",
+      "intervaltype": 1,
+      "maxsnaps": 1,
+      "timezone": "Asia/Seoul",
+      "fordisplay": true,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "909c6963-8293-4202-83c5-04c3276e1c0d",
+      "volumeid": "b3a3205d-fc5e-4946-9019-48631fee8cae",
+      "volumename": "SP04-1498-32-owner",
+      "schedule": "59:23",
+      "intervaltype": 1,
+      "maxsnaps": 1,
+      "timezone": "Asia/Seoul",
+      "fordisplay": true,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": [
+        {
+          "key": "sp04-owner",
+          "value": "한글 소유자",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "909c6963-8293-4202-83c5-04c3276e1c0d",
+          "account": "sp04-owner-32-1498",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "c5e66710-1122-42e1-a321-399afc5484b9",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "c418324c-7c33-43f2-a817-c8cf4a169fd4",
+      "volumename": "SP04-1498-32-scheduled",
+      "volumetype": "DATADISK",
+      "volumestate": "Ready",
+      "created": "2026-10-26T22:14:37+0900",
+      "name": "detached_SP04-1498-32-scheduled_20261026131437",
+      "intervaltype": "HOURLY",
+      "state": "BackedUp",
+      "physicalsize": 196624,
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "revertable": true,
+      "virtualsize": 1073741824,
+      "tags": [
+        {
+          "key": "sp04-keep",
+          "value": "한글 태그 유지",
+          "resourcetype": "Snapshot",
+          "resourceid": "c5e66710-1122-42e1-a321-399afc5484b9",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT"
+        },
+        {
+          "key": "sp04-pending",
+          "value": "입력 중인 태그",
+          "resourcetype": "Snapshot",
+          "resourceid": "c5e66710-1122-42e1-a321-399afc5484b9",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT"
+        }
+      ],
+      "hasannotations": false
+    }
+  ]
+}

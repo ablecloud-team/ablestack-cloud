@@ -1,0 +1,1205 @@
+[
+  {
+    "label": "search",
+    "query": "1",
+    "empty": false,
+    "options": [
+      "1",
+      "10",
+      "1",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "9",
+    "empty": false,
+    "options": [
+      "9",
+      "19",
+      "9",
+      "19"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "10",
+    "empty": false,
+    "options": [
+      "10",
+      "10"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "28",
+    "empty": false,
+    "options": [
+      "28",
+      "28"
+    ]
+  },
+  {
+    "label": "search",
+    "query": "29",
+    "empty": true,
+    "options": []
+  },
+  {
+    "label": "search",
+    "query": "missing",
+    "empty": true,
+    "options": []
+  },
+  {
+    "label": "search",
+    "query": "",
+    "empty": false,
+    "options": [
+      "27",
+      "28",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28"
+    ]
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "56140.2562",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2562",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "keyboard-and-draft",
+    "before": {
+      "day": "28",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "UTC"
+    },
+    "after": {
+      "day": "28",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "UTC"
+    },
+    "noSubmit": true
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "56140.2563",
+        "command": "getWallAlertAvailability",
+        "params": {
+          "command": "getWallAlertAvailability",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2563",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2564",
+        "command": "listWallAlertRules",
+        "params": {
+          "includestatus": "true",
+          "page": "1",
+          "pagesize": "200",
+          "command": "listWallAlertRules",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2565",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2565",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2564",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2566",
+        "command": "listWallAlertSilences",
+        "params": {
+          "page": "1",
+          "pageSize": "1000",
+          "pagesize": "1000",
+          "states": "active",
+          "command": "listWallAlertSilences",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2566",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2567",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2567",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2568",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2568",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2569",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2569",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2570",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "id": "05490830-882f-41d5-9d33-4be8605f10e7",
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2570",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2571",
+        "command": "listVolumes",
+        "params": {
+          "id": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "command": "listVolumes",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2571",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2572",
+        "command": "listZones",
+        "params": {
+          "showicon": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2573",
+        "command": "listCapabilities",
+        "params": {
+          "command": "listCapabilities",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2574",
+        "command": "listAccounts",
+        "params": {
+          "name": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "listall": "true",
+          "command": "listAccounts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2575",
+        "command": "listResourceLimits",
+        "params": {
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2576",
+        "command": "listResourceLimits",
+        "params": {
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2576",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2575",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2572",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2573",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2574",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2578",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2578",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "cancel-reopen",
+    "fields": {
+      "day": "28",
+      "keep": "2",
+      "tags": "sp03-keep = 한글 유지새 태그정책 확인 시 입력 중인 태그도 함께 저장됩니다. 제외하려면 태그 입력을 취소하십시오.",
+      "time": "11:58 PM",
+      "timezone": "UTC"
+    },
+    "passed": true
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "56140.2579",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2579",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2580",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2580",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2581",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2581",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2582",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2582",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2583",
+        "command": "listHostsMetrics",
+        "params": {
+          "command": "listHostsMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2583",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2584",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2584",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2586",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "id": "05490830-882f-41d5-9d33-4be8605f10e7",
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2586",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2587",
+        "command": "listVolumes",
+        "params": {
+          "id": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "command": "listVolumes",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2587",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2588",
+        "command": "listZones",
+        "params": {
+          "showicon": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2589",
+        "command": "listCapabilities",
+        "params": {
+          "command": "listCapabilities",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2590",
+        "command": "listAccounts",
+        "params": {
+          "name": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "listall": "true",
+          "command": "listAccounts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2591",
+        "command": "listResourceLimits",
+        "params": {
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2592",
+        "command": "listResourceLimits",
+        "params": {
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "resourcetype": "3",
+          "command": "listResourceLimits",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2588",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2592",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2591",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2590",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2589",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "events",
+    "events": [
+      {
+        "type": "request",
+        "id": "56140.2593",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2593",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2594",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2594",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2595",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2595",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2596",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2596",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2597",
+        "command": "listVolumesMetrics",
+        "params": {
+          "listall": "true",
+          "tab": "recurringsnapshots",
+          "listsystemvms": "true",
+          "id": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listVolumesMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2597",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2598",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2598",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2599",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2599",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2600",
+        "command": "getWallAlertAvailability",
+        "params": {
+          "command": "getWallAlertAvailability",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2600",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2601",
+        "command": "listWallAlertRules",
+        "params": {
+          "includestatus": "true",
+          "page": "1",
+          "pagesize": "200",
+          "command": "listWallAlertRules",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2602",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2602",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2601",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2603",
+        "command": "listWallAlertSilences",
+        "params": {
+          "page": "1",
+          "pageSize": "1000",
+          "pagesize": "1000",
+          "states": "active",
+          "command": "listWallAlertSilences",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2603",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2604",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2604",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2605",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2605",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2606",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2606",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2607",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2607",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2608",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2608",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2609",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2609",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2610",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2610",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2611",
+        "command": "listVolumesMetrics",
+        "params": {
+          "listall": "true",
+          "tab": "recurringsnapshots",
+          "listsystemvms": "true",
+          "id": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listVolumesMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2611",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2612",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "volumeid": "b46e4f35-7576-4f6a-83bf-710ccc6c51b9",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2613",
+        "command": "listTags",
+        "params": {
+          "resourcetype": "Volume",
+          "listall": "true",
+          "page": "1",
+          "pagesize": "100",
+          "command": "listTags",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2612",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2613",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2618",
+        "command": "listZones",
+        "params": {
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2619",
+        "command": "listZones",
+        "params": {
+          "showicon": "true",
+          "command": "listZones",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2620",
+        "command": "listAlerts",
+        "params": {
+          "page": "1",
+          "pagesize": "8",
+          "listall": "true",
+          "command": "listAlerts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2621",
+        "command": "listEvents",
+        "params": {
+          "page": "1",
+          "pagesize": "8",
+          "listall": "true",
+          "command": "listEvents",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2620",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2618",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2619",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2622",
+        "command": "listCapacity",
+        "params": {
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "fetchlatest": "false",
+          "command": "listCapacity",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2623",
+        "command": "listPods",
+        "params": {
+          "command": "listPods",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2624",
+        "command": "listClusters",
+        "params": {
+          "command": "listClusters",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2625",
+        "command": "listHosts",
+        "params": {
+          "listall": "true",
+          "details": "min",
+          "type": "routing",
+          "page": "1",
+          "pagesize": "1",
+          "command": "listHosts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2626",
+        "command": "listHosts",
+        "params": {
+          "listall": "true",
+          "details": "min",
+          "type": "routing",
+          "command": "listHosts",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2627",
+        "command": "listStoragePools",
+        "params": {
+          "command": "listStoragePools",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2628",
+        "command": "listSystemVms",
+        "params": {
+          "command": "listSystemVms",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2629",
+        "command": "listRouters",
+        "params": {
+          "listall": "true",
+          "projectid": "-1",
+          "command": "listRouters",
+          "response": "json"
+        }
+      },
+      {
+        "type": "request",
+        "id": "56140.2630",
+        "command": "listVirtualMachines",
+        "params": {
+          "listall": "true",
+          "projectid": "-1",
+          "details": "min",
+          "page": "1",
+          "pagesize": "1",
+          "command": "listVirtualMachines",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2623",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2621",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2624",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2622",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2625",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2627",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2626",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2629",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2630",
+        "status": 200
+      },
+      {
+        "type": "response",
+        "id": "56140.2628",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2631",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2631",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2632",
+        "command": "readyForShutdown",
+        "params": {
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "command": "readyForShutdown",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2632",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2633",
+        "command": "listHostsMetrics",
+        "params": {
+          "command": "listHostsMetrics",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2633",
+        "status": 200
+      },
+      {
+        "type": "request",
+        "id": "56140.2634",
+        "command": "listSnapshotPolicies",
+        "params": {
+          "listall": "true",
+          "page": "1",
+          "pagesize": "20",
+          "command": "listSnapshotPolicies",
+          "response": "json"
+        }
+      },
+      {
+        "type": "response",
+        "id": "56140.2634",
+        "status": 200
+      }
+    ]
+  }
+]

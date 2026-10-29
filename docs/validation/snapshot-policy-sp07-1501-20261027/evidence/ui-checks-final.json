@@ -1,0 +1,2632 @@
+[
+  {
+    "cluster": 31,
+    "label": "final-scheduled-0-summary-cancel",
+    "at": "2026-10-27T00:33:16.113Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-tab-0-summary-cancel",
+    "at": "2026-10-27T00:33:21.760Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-tab-1-summary-cancel",
+    "at": "2026-10-27T00:33:25.870Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: 006544d4-68f4-4836-82a6-f18d674b16ae",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 006544d4-68f4-4836-82a6-f18d674b16ae\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-tab-2-summary-cancel",
+    "at": "2026-10-27T00:33:27.077Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: 7c755cdb-30b4-44f8-b63f-cae37fbd7591",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 7c755cdb-30b4-44f8-b63f-cae37fbd7591\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-volume-tab-3-summary-cancel",
+    "at": "2026-10-27T00:33:28.317Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-scheduled-1-summary-cancel",
+    "at": "2026-10-27T00:33:30.653Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-scheduled-2-summary-cancel",
+    "at": "2026-10-27T00:33:32.423Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "final-scheduled-3-summary-cancel",
+    "at": "2026-10-27T00:33:34.111Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: dc696698-02ab-42e1-bde5-336c16efbaf3",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: dc696698-02ab-42e1-bde5-336c16efbaf3\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-scheduled-0-summary-cancel",
+    "at": "2026-10-27T00:33:35.988Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-scheduled-1-summary-cancel",
+    "at": "2026-10-27T00:33:37.737Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-scheduled-2-summary-cancel",
+    "at": "2026-10-27T00:33:39.476Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-scheduled-3-summary-cancel",
+    "at": "2026-10-27T00:33:41.240Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 1810183d-32c2-4842-8230-53c838035dff",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 1810183d-32c2-4842-8230-53c838035dff\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-tab-0-summary-cancel",
+    "at": "2026-10-27T00:33:46.728Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-tab-1-summary-cancel",
+    "at": "2026-10-27T00:33:47.930Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: e62a62d4-4f60-4b11-a108-e79b216a4598",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: e62a62d4-4f60-4b11-a108-e79b216a4598\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-tab-2-summary-cancel",
+    "at": "2026-10-27T00:33:49.128Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 3ae7d543-b59d-4065-a901-2ba2f745d8ba",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 3ae7d543-b59d-4065-a901-2ba2f745d8ba\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "final-volume-tab-3-summary-cancel",
+    "at": "2026-10-27T00:33:50.378Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 79b0d72b-0b6b-4079-9f3e-b2c9b72629e0",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 79b0d72b-0b6b-4079-9f3e-b2c9b72629e0\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "preflight-read-503",
+    "at": "2026-10-27T00:36:28.577Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4\nSP07 preflight verification fault\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "preflight-read-503",
+    "at": "2026-10-27T00:36:31.641Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927\nSP07 preflight verification fault\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "preflight-reload-unchecked",
+    "at": "2026-10-27T00:36:32.263Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "preflight-reload-unchecked",
+    "at": "2026-10-27T00:36:32.857Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "menu-daily-success-confirm",
+    "at": "2026-10-27T00:36:42.134Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 39c10839-2720-420b-b340-571d3976f7a4\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "menu-daily-success-confirm",
+    "at": "2026-10-27T00:36:43.240Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 2c675999-fe20-4db1-9331-180a0d0e9927\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "changed-weekly-rejected",
+    "at": "2026-10-27T00:37:09.931Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275\n창을 연 뒤 저장된 정책이 변경됐습니다. 입력은 유지됩니다. 저장된 값을 다시 불러온 뒤 편집하십시오.\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "changed-weekly-reloaded-three",
+    "at": "2026-10-27T00:37:10.591Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t3",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t3\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "weekly-reconfirmed-success-confirm",
+    "at": "2026-10-27T00:37:10.610Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t3",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: 08fc4735-78bd-46c2-a946-9ef183c6d275\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t3\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "changed-weekly-rejected",
+    "at": "2026-10-27T00:37:12.511Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786\n창을 연 뒤 저장된 정책이 변경됐습니다. 입력은 유지됩니다. 저장된 값을 다시 불러온 뒤 편집하십시오.\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "changed-weekly-reloaded-three",
+    "at": "2026-10-27T00:37:13.170Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t3",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t3\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "weekly-reconfirmed-success-confirm",
+    "at": "2026-10-27T00:37:13.189Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매주",
+        "일정\t16:04 · 매 일요일",
+        "시간대\tAsia/Seoul",
+        "유지\t3",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 5279f2d9-eeee-413e-a8cd-dc71ea4f2786\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매주\n일정\t16:04 · 매 일요일\n시간대\tAsia/Seoul\n유지\t3\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "external-removal-no-post",
+    "at": "2026-10-27T00:37:39.926Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: dc696698-02ab-42e1-bde5-336c16efbaf3",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: dc696698-02ab-42e1-bde5-336c16efbaf3\n정책 또는 원본 볼륨을 조회할 수 없거나 대상이 변경됐습니다. 창을 닫고 정책 목록을 갱신하십시오.\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "external-removal-reload-unavailable",
+    "at": "2026-10-27T00:37:40.497Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        }
+      ],
+      "checkbox": [],
+      "summary": [],
+      "text": "스냅샷 정책 삭제\n정책 또는 원본 볼륨을 조회할 수 없거나 대상이 변경됐습니다. 창을 닫고 정책 목록을 갱신하십시오.\n삭제 대상 다시 조회\n취소",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "busy-response-paused",
+    "at": "2026-10-27T00:37:43.453Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": true,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "busy-response-paused",
+    "at": "2026-10-27T00:38:05.149Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": true,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-scheduled\n아이디: fa41f2b0-fdd9-494d-8384-df6af3e936ce\n삭제 대상 다시 조회\n볼륨\tce5fa872-fcf5-46b6-bab8-a60c4154aa6c\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "external-removal-no-post",
+    "at": "2026-10-27T00:38:33.974Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: 1810183d-32c2-4842-8230-53c838035dff",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: 1810183d-32c2-4842-8230-53c838035dff\n정책 또는 원본 볼륨을 조회할 수 없거나 대상이 변경됐습니다. 창을 닫고 정책 목록을 갱신하십시오.\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "external-removal-reload-unavailable",
+    "at": "2026-10-27T00:38:34.550Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        }
+      ],
+      "checkbox": [],
+      "summary": [],
+      "text": "스냅샷 정책 삭제\n정책 또는 원본 볼륨을 조회할 수 없거나 대상이 변경됐습니다. 창을 닫고 정책 목록을 갱신하십시오.\n삭제 대상 다시 조회\n취소",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "busy-response-paused",
+    "at": "2026-10-27T00:38:37.767Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": true,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "lost-success-response-retained",
+    "at": "2026-10-27T00:38:38.402Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "lost-success-absence-unverified",
+    "at": "2026-10-27T00:38:44.367Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-scheduled\n아이디: a07447f8-491e-443c-b98c-1abcc9f176fb\n원래 정책이 현재 목록에 보이지 않습니다. 삭제 응답을 확인하지 못했으므로 삭제와 표시·접근 권한 변경을 구분할 수 없습니다. 재삭제하지 말고 관리자에게 결과를 확인하십시오.\n삭제 대상 다시 조회\n볼륨\tee0d2617-6f83-4dcc-8dce-f974e2dd72f0\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "busy-response-paused-repeat",
+    "at": "2026-10-27T00:39:10.157Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": true,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": true,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "lost-success-response-retained-repeat",
+    "at": "2026-10-27T00:39:10.526Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "lost-success-absence-unverified",
+    "at": "2026-10-27T00:39:11.147Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매월",
+        "일정\t17:05 · 매월 1일",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: e906cf64-0c12-4dc1-b85f-09253c172b17\n원래 정책이 현재 목록에 보이지 않습니다. 삭제 응답을 확인하지 못했으므로 삭제와 표시·접근 권한 변경을 구분할 수 없습니다. 재삭제하지 말고 관리자에게 결과를 확인하십시오.\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매월\n일정\t17:05 · 매월 1일\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "accepted-delete-read-503",
+    "at": "2026-10-27T00:39:26.361Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: 006544d4-68f4-4836-82a6-f18d674b16ae",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 006544d4-68f4-4836-82a6-f18d674b16ae\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/volume/bdc59561-9805-4b7c-9624-36c9267515cc?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "accepted-delete-read-503",
+    "at": "2026-10-27T00:39:29.956Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매일",
+        "일정\t15:03",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: e62a62d4-4f60-4b11-a108-e79b216a4598",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: e62a62d4-4f60-4b11-a108-e79b216a4598\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매일\n일정\t15:03\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "owner-summary-before-role-change",
+    "at": "2026-10-27T00:40:02.783Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "role-revoked-open-dialog",
+    "at": "2026-10-27T00:40:13.514Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\nThe API [deleteSnapshotPolicies] does not exist or is not available for the account sp07-u31-1501.\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "owner-request-lost-before-server",
+    "at": "2026-10-27T00:40:28.743Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "hidden-policy-must-not-report-success",
+    "at": "2026-10-27T00:40:37.951Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\n정책이 현재 범위에 남아 있습니다. 삭제 대상을 다시 조회하고 확인한 뒤 재시도하십시오.\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "hidden-policy-remains-reconfirm",
+    "at": "2026-10-27T00:41:11.757Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\n정책이 현재 범위에 남아 있습니다. 삭제 대상을 다시 조회하고 확인한 뒤 재시도하십시오.\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "owner-personal-success-confirm",
+    "at": "2026-10-27T00:41:28.482Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u31-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-owner\n아이디: bcbf8e26-7892-48c9-8890-b1c79d1bea7f\n삭제 대상 다시 조회\n볼륨\t0f0b6bc9-1850-42ff-8da5-ca10072c3ff6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u31-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "owner-project-summary",
+    "at": "2026-10-27T00:41:32.385Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t418dd34f-5a80-4628-9164-2f97a956275d",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\t—",
+        "도메인\tROOT",
+        "프로젝트\tSP07-1501-31-project"
+      ],
+      "target": "SP07-1501-31-project\n아이디: 1e023eb9-e079-481c-8cfd-95c480b23f3c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-project\n아이디: 1e023eb9-e079-481c-8cfd-95c480b23f3c\n삭제 대상 다시 조회\n볼륨\t418dd34f-5a80-4628-9164-2f97a956275d\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\t—\n도메인\tROOT\n프로젝트\tSP07-1501-31-project\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "owner-project-success-confirm",
+    "at": "2026-10-27T00:41:41.562Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t418dd34f-5a80-4628-9164-2f97a956275d",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\t—",
+        "도메인\tROOT",
+        "프로젝트\tSP07-1501-31-project"
+      ],
+      "target": "SP07-1501-31-project\n아이디: 1e023eb9-e079-481c-8cfd-95c480b23f3c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-project\n아이디: 1e023eb9-e079-481c-8cfd-95c480b23f3c\n삭제 대상 다시 조회\n볼륨\t418dd34f-5a80-4628-9164-2f97a956275d\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\t—\n도메인\tROOT\n프로젝트\tSP07-1501-31-project\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "owner-summary-before-role-change",
+    "at": "2026-10-27T00:42:20.621Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u32-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899\n삭제 대상 다시 조회\n볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u32-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "role-revoked-open-dialog",
+    "at": "2026-10-27T00:42:38.895Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u32-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899\nThe API [deleteSnapshotPolicies] does not exist or is not available for the account sp07-u32-1501.\n삭제 대상 다시 조회\n볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u32-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-running-delete-rejected",
+    "at": "2026-10-27T00:42:44.198Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매시간",
+        "일정\t41분(매시)",
+        "시간대\tUTC",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c\nSnapshot policy has a snapshot job in progress. Retry deletion after the job finishes.\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매시간\n일정\t41분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-running-error-retained-after-release",
+    "at": "2026-10-27T00:42:56.796Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매시간",
+        "일정\t41분(매시)",
+        "시간대\tUTC",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c\nSnapshot policy has a snapshot job in progress. Retry deletion after the job finishes.\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매시간\n일정\t41분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "natural-completed-policy-delete-confirm",
+    "at": "2026-10-27T00:43:11.767Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694",
+        "간격 유형\t매시간",
+        "일정\t41분(매시)",
+        "시간대\tUTC",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-volume-tab\n아이디: 40292d6e-ff16-40f2-b931-757a7293480c\n삭제 대상 다시 조회\n볼륨\tf3df49b4-87b1-41b8-ab20-d9e57fc93694\n간격 유형\t매시간\n일정\t41분(매시)\n시간대\tUTC\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/volume/f3df49b4-87b1-41b8-ab20-d9e57fc93694?tab=recurringsnapshots"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "owner-request-lost-before-server",
+    "at": "2026-10-27T00:43:32.117Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": true,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": false,
+          "text": "삭제 결과 다시 확인"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u32-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899\n삭제 결과를 아직 확인하지 못했습니다. 다시 삭제하지 않고 원래 정책의 존재 여부만 확인합니다.\n삭제 대상 다시 조회\n볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u32-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제 결과 다시 확인",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "hidden-policy-query-result",
+    "at": "2026-10-27T00:43:50.714Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ],
+      "summary": [
+        "볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u32-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899\n정책이 현재 범위에 남아 있습니다. 삭제 대상을 다시 조회하고 확인한 뒤 재시도하십시오.\n삭제 대상 다시 조회\n볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u32-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "owner-personal-success-confirm",
+    "at": "2026-10-27T00:44:12.002Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tsp07-u32-1501",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-owner\n아이디: cef21499-07f0-418b-8dfe-3adfae94d899\n삭제 대상 다시 조회\n볼륨\tbb5ac6e0-9b22-487d-b6e1-5e636fbb088c\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\tsp07-u32-1501\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "owner-project-summary",
+    "at": "2026-10-27T00:44:26.350Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t1e6d4f26-685d-474e-bdbf-f28ea025f0a6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\t—",
+        "도메인\tROOT",
+        "프로젝트\tSP07-1501-32-project"
+      ],
+      "target": "SP07-1501-32-project\n아이디: c5464f75-908e-4364-8164-68b4fcb12162",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-project\n아이디: c5464f75-908e-4364-8164-68b4fcb12162\n삭제 대상 다시 조회\n볼륨\t1e6d4f26-685d-474e-bdbf-f28ea025f0a6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\t—\n도메인\tROOT\n프로젝트\tSP07-1501-32-project\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 32,
+    "label": "owner-project-success-confirm",
+    "at": "2026-10-27T00:44:36.077Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\t1e6d4f26-685d-474e-bdbf-f28ea025f0a6",
+        "간격 유형\t매일",
+        "일정\t15:07",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\t—",
+        "도메인\tROOT",
+        "프로젝트\tSP07-1501-32-project"
+      ],
+      "target": "SP07-1501-32-project\n아이디: c5464f75-908e-4364-8164-68b4fcb12162",
+      "text": "스냅샷 정책 삭제\nSP07-1501-32-project\n아이디: c5464f75-908e-4364-8164-68b4fcb12162\n삭제 대상 다시 조회\n볼륨\t1e6d4f26-685d-474e-bdbf-f28ea025f0a6\n간격 유형\t매일\n일정\t15:07\n시간대\tAsia/Seoul\n유지\t2\n계정\t—\n도메인\tROOT\n프로젝트\tSP07-1501-32-project\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.32.10:8080/client/#/snapshotpolicy"
+    }
+  },
+  {
+    "cluster": 31,
+    "label": "context-row-weekly-to-hourly",
+    "at": "2026-10-27T00:47:48.106Z",
+    "state": {
+      "buttons": [
+        {
+          "disabled": false,
+          "text": ""
+        },
+        {
+          "disabled": false,
+          "text": "삭제 대상 다시 조회"
+        },
+        {
+          "disabled": false,
+          "text": "취소"
+        },
+        {
+          "disabled": true,
+          "text": "삭제"
+        }
+      ],
+      "checkbox": [
+        {
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "summary": [
+        "볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc",
+        "간격 유형\t매시간",
+        "일정\t55분(매시)",
+        "시간대\tAsia/Seoul",
+        "유지\t2",
+        "계정\tadmin",
+        "도메인\tROOT",
+        "프로젝트\t개인 계정 범위"
+      ],
+      "target": "SP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d",
+      "text": "스냅샷 정책 삭제\nSP07-1501-31-volume-tab\n아이디: 100ab48c-73ce-474a-be98-c29553bbe13d\n삭제 대상 다시 조회\n볼륨\tbdc59561-9805-4b7c-9624-36c9267515cc\n간격 유형\t매시간\n일정\t55분(매시)\n시간대\tAsia/Seoul\n유지\t2\n계정\tadmin\n도메인\tROOT\n프로젝트\t개인 계정 범위\n이 정책과 미래 예약을 삭제합니다. 기존 스냅샷과 그 태그, 다른 주기 정책은 유지됩니다.\n이미 시작된 스냅샷 작업은 계속 실행됩니다. 변경 사항은 미래 예약에 적용되며 진행 중인 작업을 취소하지 않습니다. 실행 중 정책 삭제는 서버가 거부합니다.\n위 정책 1개의 삭제 대상과 영향을 확인했습니다.\n취소\n삭제",
+      "url": "http://10.10.31.10:8080/client/#/snapshotpolicy"
+    }
+  }
+]

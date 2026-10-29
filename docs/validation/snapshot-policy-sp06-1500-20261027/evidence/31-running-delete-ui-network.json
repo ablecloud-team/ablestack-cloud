@@ -1,0 +1,10 @@
+[
+  {
+    "requestId": "57640.979",
+    "command": "deleteSnapshotPolicies",
+    "params": {
+      "id": "267624e2-878e-43ac-8d7c-e321a81d6f3e"
+    },
+    "status": 431
+  }
+]

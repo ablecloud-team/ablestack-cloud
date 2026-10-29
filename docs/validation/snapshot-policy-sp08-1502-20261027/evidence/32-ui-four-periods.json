@@ -1,0 +1,295 @@
+{
+  "at": "2026-10-26 20:48:53.270668",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 529,
+      "uuid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "name": "SP08-1502-32-scheduled",
+      "state": "Ready",
+      "path": "6932c845-0a9f-42ef-ae38-16bff24a14c8",
+      "pool_id": 3,
+      "removed": null
+    },
+    {
+      "id": 530,
+      "uuid": "7a72559b-cceb-459d-87db-ed3cc2589cb4",
+      "name": "SP08-1502-32-volume-tab",
+      "state": "Ready",
+      "path": "a437bc1d-eb38-4699-804e-1d9a173dedf9",
+      "pool_id": 3,
+      "removed": null
+    },
+    {
+      "id": 531,
+      "uuid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "name": "SP08-1502-32-owner",
+      "state": "Ready",
+      "path": "cc1ecec3-a899-4298-9f82-2bafbad7844f",
+      "pool_id": 3,
+      "removed": null
+    }
+  ],
+  "policies": [
+    {
+      "id": 65,
+      "uuid": "49ee26dc-1b00-43ac-84d6-04bd8a67040e",
+      "volume_id": 529,
+      "schedule": "59",
+      "timezone": "Asia/Seoul",
+      "interval": 0,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 8
+    },
+    {
+      "id": 66,
+      "uuid": "a7b1992e-4261-457f-a14b-01a9c2275ab3",
+      "volume_id": 529,
+      "schedule": "59:23",
+      "timezone": "Asia/Seoul",
+      "interval": 1,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 8
+    },
+    {
+      "id": 67,
+      "uuid": "a2c35424-44eb-44e7-9cff-5277775a91a1",
+      "volume_id": 529,
+      "schedule": "59:23:7",
+      "timezone": "Asia/Seoul",
+      "interval": 2,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 8
+    },
+    {
+      "id": 68,
+      "uuid": "95c565d3-2717-4dac-88cb-45a16af5765f",
+      "volume_id": 529,
+      "schedule": "59:23:28",
+      "timezone": "Asia/Seoul",
+      "interval": 3,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 8
+    },
+    {
+      "id": 64,
+      "uuid": "ba5a28d5-5e9d-469d-80ab-e933ce894af3",
+      "volume_id": 531,
+      "schedule": "45",
+      "timezone": "Asia/Seoul",
+      "interval": 0,
+      "active": 1,
+      "display": 0,
+      "max_snaps": 1
+    }
+  ],
+  "schedules": [
+    {
+      "id": 50,
+      "uuid": "4da3055e-8eb5-4c11-811b-36d000e632bb",
+      "volume_id": 529,
+      "policy_id": 65,
+      "scheduled_timestamp": "2026-10-26 20:59:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "49ee26dc-1b00-43ac-84d6-04bd8a67040e",
+      "job_uuid": null,
+      "job_status": null
+    },
+    {
+      "id": 51,
+      "uuid": "e95ea40a-b897-4fa5-ad9f-8ed137bff09f",
+      "volume_id": 529,
+      "policy_id": 66,
+      "scheduled_timestamp": "2026-10-27 14:59:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "a7b1992e-4261-457f-a14b-01a9c2275ab3",
+      "job_uuid": null,
+      "job_status": null
+    },
+    {
+      "id": 52,
+      "uuid": "c486b974-03d1-456f-bd19-1a9761f94e20",
+      "volume_id": 529,
+      "policy_id": 67,
+      "scheduled_timestamp": "2026-10-31 14:59:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "a2c35424-44eb-44e7-9cff-5277775a91a1",
+      "job_uuid": null,
+      "job_status": null
+    },
+    {
+      "id": 53,
+      "uuid": "45feceae-942a-4f91-80e8-b5df8a8a1f91",
+      "volume_id": 529,
+      "policy_id": 68,
+      "scheduled_timestamp": "2026-10-28 14:59:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "95c565d3-2717-4dac-88cb-45a16af5765f",
+      "job_uuid": null,
+      "job_status": null
+    }
+  ],
+  "snapshots": [],
+  "refs": [],
+  "jobs": [],
+  "tags": [],
+  "api": {
+    "scheduled": {
+      "policies": [
+        {
+          "id": "95c565d3-2717-4dac-88cb-45a16af5765f",
+          "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+          "volumename": "SP08-1502-32-scheduled",
+          "schedule": "59:23:28",
+          "intervaltype": 3,
+          "maxsnaps": 8,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        },
+        {
+          "id": "a2c35424-44eb-44e7-9cff-5277775a91a1",
+          "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+          "volumename": "SP08-1502-32-scheduled",
+          "schedule": "59:23:7",
+          "intervaltype": 2,
+          "maxsnaps": 8,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        },
+        {
+          "id": "a7b1992e-4261-457f-a14b-01a9c2275ab3",
+          "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+          "volumename": "SP08-1502-32-scheduled",
+          "schedule": "59:23",
+          "intervaltype": 1,
+          "maxsnaps": 8,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        },
+        {
+          "id": "49ee26dc-1b00-43ac-84d6-04bd8a67040e",
+          "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+          "volumename": "SP08-1502-32-scheduled",
+          "schedule": "59",
+          "intervaltype": 0,
+          "maxsnaps": 8,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      ],
+      "snapshots": {}
+    },
+    "volume-tab": {
+      "policies": [],
+      "snapshots": {}
+    },
+    "owner": {
+      "policies": [
+        {
+          "id": "ba5a28d5-5e9d-469d-80ab-e933ce894af3",
+          "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+          "volumename": "SP08-1502-32-owner",
+          "schedule": "45",
+          "intervaltype": 0,
+          "maxsnaps": 1,
+          "timezone": "Asia/Seoul",
+          "fordisplay": false,
+          "zone": [
+            {
+              "id": "991d2f57-0f37-4445-b956-09773d064816",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      ],
+      "snapshots": {}
+    }
+  }
+}

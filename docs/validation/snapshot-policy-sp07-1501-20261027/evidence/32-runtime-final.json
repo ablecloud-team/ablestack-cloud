@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "pidUnchanged": "3477070",
+  "jarUnchanged": "916884ed998dfae21e3d725c2f06b2c75a2e2d2f4c214f16060ef697e3fd1419",
+  "staticFilesVerified": 931,
+  "configFilesUnchanged": 7,
+  "mold": "active",
+  "clientHttp": 200,
+  "WEB-INF": true
+}

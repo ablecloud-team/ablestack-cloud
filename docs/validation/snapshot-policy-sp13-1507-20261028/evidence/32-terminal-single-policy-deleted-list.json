@@ -1,0 +1,60 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 319,
+        "height": 152,
+        "left": 68,
+        "right": 770,
+        "top": 167,
+        "width": 702,
+        "x": 68,
+        "y": 167
+      },
+      "text": "/스냅샷 정책업데이트\n프로젝트\n정기 스냅샷 생성\t\n\t\n볼륨 : SP13-1507-32-admi..."
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 258,
+        "height": 60,
+        "left": 419,
+        "right": 745,
+        "top": 198,
+        "width": 326,
+        "x": 419,
+        "y": 198
+      },
+      "text": "정기 스냅샷 생성\t\n\t"
+    }
+  ],
+  "messages": [
+    "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.",
+    "조치가 필요한 경보\n(2건)\n-\n주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.\n세부 경보 내용 확인\n경보 규칙으로 이동",
+    "스냅샷 정책 삭제\n스냅샷 정책을 삭제했습니다."
+  ],
+  "pageWidth": 758,
+  "rows": [
+    {
+      "href": "#/snapshotpolicy/e5b0cb0b-1d05-4155-9717-ffcee895bd9d",
+      "text": "매주"
+    },
+    {
+      "href": "#/snapshotpolicy/aeaeec15-1069-4b66-881f-edd4b20df324",
+      "text": "매일"
+    },
+    {
+      "href": "#/snapshotpolicy/c757510b-ef06-44be-91b1-5ebcb2f6e11a",
+      "text": "매월"
+    }
+  ],
+  "tabs": [],
+  "theme": "dark",
+  "url": "http://10.10.32.10:8080/client/#/snapshotpolicy?projectid=0&sortkey=schedule&sortorder=asc&keyword=SP13-1507-32-admin-5-%ED%95%9C%EA%B8%80&volumeid=a974297e-f709-4ede-a58c-f36a6505ddfa&page=1&pagesize=20&q=SP13-1507-32-admin-5-%ED%95%9C%EA%B8%80",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

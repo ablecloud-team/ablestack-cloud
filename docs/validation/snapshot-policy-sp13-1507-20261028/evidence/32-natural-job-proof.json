@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "actualSchedulerJobs": [
+    {
+      "job_uuid": "c9ce4584-00ac-4e1f-9745-da01e600faa6",
+      "user_id": 1,
+      "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-28 03:09:26",
+      "last_updated": "2026-10-28 03:09:32",
+      "snapshot_uuid": "fc52c1de-b390-492a-8919-01b1c3dbbff7",
+      "status": "Destroyed"
+    },
+    {
+      "job_uuid": "bdc3be24-fb0d-4980-bb60-598844870149",
+      "user_id": 1,
+      "job_cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-28 03:14:26",
+      "last_updated": "2026-10-28 03:14:32",
+      "snapshot_uuid": "d2452a4a-1bcd-4ba3-814c-4e97205cbae8",
+      "status": "BackedUp"
+    }
+  ],
+  "afterBackendDeployment": "2026-10-28 03:02:53.395443",
+  "apiCreateSnapshotCallsForThisVolume": 0,
+  "volume": "a974297e-f709-4ede-a58c-f36a6505ddfa",
+  "snapshots": [
+    "fc52c1de-b390-492a-8919-01b1c3dbbff7",
+    "d2452a4a-1bcd-4ba3-814c-4e97205cbae8"
+  ],
+  "backendSourceCommit": "63314d20c489ab21b04049b502cb3698a2e1eb62"
+}

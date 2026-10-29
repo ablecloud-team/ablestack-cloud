@@ -27,6 +27,14 @@ import com.google.gson.annotations.SerializedName;
 
 @SuppressWarnings("unused")
 public class CapabilitiesResponse extends BaseResponse {
+    @SerializedName("snapshotpolicymax")
+    @Param(description = "Applied maximum snapshot policy retention by interval; zero disables that interval")
+    private Map<String, Integer> snapshotPolicyMax;
+
+    public void setSnapshotPolicyMax(Map<String, Integer> snapshotPolicyMax) {
+        this.snapshotPolicyMax = snapshotPolicyMax;
+    }
+
     @SerializedName("userdatamaxlength")
     @Param(description = "Maximum user data length in canonical Base64 encoded bytes")
     private Integer userDataMaxLength;

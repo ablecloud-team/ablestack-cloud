@@ -1,0 +1,227 @@
+{
+  "at": "2026-10-26 16:50:26.737644",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 1124,
+      "uuid": "083eea8e-aac1-4cbe-aedb-3915cf873f55",
+      "name": "SP08-1502-31-owner",
+      "state": "Ready",
+      "path": "6cc83f08-6e59-488d-a435-cfecd08019dc",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1123,
+      "uuid": "a73077b6-4fdb-417f-8cb7-dd503efe6e59",
+      "name": "SP08-1502-31-volume-tab",
+      "state": "Ready",
+      "path": "b89a47cc-eba6-4c29-8fb5-3a4bc10e5ebe",
+      "pool_id": 1,
+      "removed": null
+    },
+    {
+      "id": 1122,
+      "uuid": "f0f53b74-313d-4462-9752-3675ff5929f9",
+      "name": "SP08-1502-31-scheduled",
+      "state": "Ready",
+      "path": "5eff2680-b6be-4135-8dd6-96789990c74f",
+      "pool_id": 1,
+      "removed": null
+    }
+  ],
+  "policies": [
+    {
+      "id": 70,
+      "uuid": "6110e87f-960f-4b14-8fe4-855ff3060d47",
+      "volume_id": 1122,
+      "schedule": "0",
+      "timezone": "Asia/Seoul",
+      "interval": 0,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 3
+    },
+    {
+      "id": 71,
+      "uuid": "f29c6ecb-1d04-4fda-8029-970d1875db5d",
+      "volume_id": 1123,
+      "schedule": "0",
+      "timezone": "Asia/Seoul",
+      "interval": 0,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 3
+    },
+    {
+      "id": 72,
+      "uuid": "f26af324-16f6-4901-83c8-4b94679fa756",
+      "volume_id": 1124,
+      "schedule": "45",
+      "timezone": "Asia/Seoul",
+      "interval": 0,
+      "active": 1,
+      "display": 1,
+      "max_snaps": 1
+    }
+  ],
+  "schedules": [
+    {
+      "id": 52,
+      "uuid": "499df399-05ae-467c-a730-c091682836c9",
+      "volume_id": 1122,
+      "policy_id": 70,
+      "scheduled_timestamp": "2026-10-26 17:00:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "6110e87f-960f-4b14-8fe4-855ff3060d47",
+      "job_uuid": null,
+      "job_status": null
+    },
+    {
+      "id": 53,
+      "uuid": "9ab5df03-1a77-4b38-a1d1-1a1c9b5a61c7",
+      "volume_id": 1123,
+      "policy_id": 71,
+      "scheduled_timestamp": "2026-10-26 17:00:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "f29c6ecb-1d04-4fda-8029-970d1875db5d",
+      "job_uuid": null,
+      "job_status": null
+    },
+    {
+      "id": 54,
+      "uuid": "0448ab77-4824-438e-a31b-a0966dd0d767",
+      "volume_id": 1124,
+      "policy_id": 72,
+      "scheduled_timestamp": "2026-10-26 17:45:00",
+      "async_job_id": null,
+      "snapshot_id": null,
+      "policy_uuid": "f26af324-16f6-4901-83c8-4b94679fa756",
+      "job_uuid": null,
+      "job_status": null
+    }
+  ],
+  "snapshots": [],
+  "refs": [],
+  "jobs": [],
+  "tags": [
+    {
+      "id": 536,
+      "resource_uuid": "6110e87f-960f-4b14-8fe4-855ff3060d47",
+      "key": "sp08-keep",
+      "value": "한글 경계값",
+      "resource_type": "SnapshotPolicy"
+    }
+  ],
+  "api": {
+    "scheduled": {
+      "policies": [
+        {
+          "id": "6110e87f-960f-4b14-8fe4-855ff3060d47",
+          "volumeid": "f0f53b74-313d-4462-9752-3675ff5929f9",
+          "volumename": "SP08-1502-31-scheduled",
+          "schedule": "0",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": [
+            {
+              "key": "sp08-keep",
+              "value": "한글 경계값",
+              "resourcetype": "SnapshotPolicy",
+              "resourceid": "6110e87f-960f-4b14-8fe4-855ff3060d47",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      ],
+      "snapshots": {}
+    },
+    "volume-tab": {
+      "policies": [
+        {
+          "id": "f29c6ecb-1d04-4fda-8029-970d1875db5d",
+          "volumeid": "a73077b6-4fdb-417f-8cb7-dd503efe6e59",
+          "volumename": "SP08-1502-31-volume-tab",
+          "schedule": "0",
+          "intervaltype": 0,
+          "maxsnaps": 3,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      ],
+      "snapshots": {}
+    },
+    "owner": {
+      "policies": [
+        {
+          "id": "f26af324-16f6-4901-83c8-4b94679fa756",
+          "volumeid": "083eea8e-aac1-4cbe-aedb-3915cf873f55",
+          "volumename": "SP08-1502-31-owner",
+          "schedule": "45",
+          "intervaltype": 0,
+          "maxsnaps": 1,
+          "timezone": "Asia/Seoul",
+          "fordisplay": true,
+          "zone": [
+            {
+              "id": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+              "name": "Zone",
+              "localstorageenabled": false,
+              "isnsxenabled": false,
+              "ismultiarch": false,
+              "routedmodeenabled": false
+            }
+          ],
+          "storage": [
+            {
+              "id": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+              "name": "Primary"
+            }
+          ],
+          "tags": []
+        }
+      ],
+      "snapshots": {}
+    }
+  }
+}

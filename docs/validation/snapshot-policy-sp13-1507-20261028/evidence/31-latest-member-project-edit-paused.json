@@ -1,0 +1,50 @@
+{
+  "dialogs": [],
+  "header": [
+    {
+      "class": "ant-card ant-card-bordered breadcrumb-card",
+      "rect": {
+        "bottom": 173,
+        "height": 111,
+        "left": 68,
+        "right": 760,
+        "top": 62,
+        "width": 692,
+        "x": 68,
+        "y": 62
+      },
+      "text": "/스냅샷 정책/SP13-1507-31-project-한글 · 매월업데이트\n작업"
+    },
+    {
+      "class": "ant-col ant-col-12 autogen-toolbar-actions",
+      "rect": {
+        "bottom": 148,
+        "height": 55,
+        "left": 414,
+        "right": 735,
+        "top": 93,
+        "width": 321,
+        "x": 414,
+        "y": 93
+      },
+      "text": "작업"
+    }
+  ],
+  "messages": [
+    "정책 편집\n정책 변경 사항을 저장했습니다.\n정책 편집\n정책 변경 사항을 저장했습니다."
+  ],
+  "pageWidth": 758,
+  "rows": [],
+  "tabs": [
+    {
+      "selected": "true",
+      "text": "상세"
+    }
+  ],
+  "theme": "dark",
+  "url": "http://10.10.31.10:8080/client/#/snapshotpolicy/9e30f176-17e0-4245-b85f-3fa9259956a3",
+  "viewport": {
+    "height": 720,
+    "width": 768
+  }
+}

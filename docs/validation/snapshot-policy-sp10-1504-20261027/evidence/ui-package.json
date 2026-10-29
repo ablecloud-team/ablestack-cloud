@@ -1,0 +1,13 @@
+{
+  "uiSourceCommit": "876c07a8a30ec53dbd8214a5f05b97564c3bf385",
+  "files": 934,
+  "sha256": "962b938d9de0d5189ddce113237ba89c7f49fdd35849e6254b1bcc95556a0547",
+  "sourceConfigRestored": true,
+  "compiledUiSourceCommit": "0d8a365e1e0a53db32aab411aacbc2caa3ae203e",
+  "staticLocaleSourceCommit": "876c07a8a30ec53dbd8214a5f05b97564c3bf385",
+  "staticLocaleOnlyDelta": [
+    "locales/en.json",
+    "locales/ko_KR.json"
+  ],
+  "other932FilesUnchanged": true
+}

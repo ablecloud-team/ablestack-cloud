@@ -1,0 +1,49 @@
+{
+  "before": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ba681e4b.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 139
+    },
+    "events": null,
+    "tabs": [
+      {
+        "selected": "true",
+        "text": "상세"
+      }
+    ],
+    "theme": "dark",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "during": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ba681e4b.js"
+    ],
+    "button": null,
+    "events": null,
+    "tabs": [
+      {
+        "selected": "true",
+        "text": "상세"
+      }
+    ],
+    "theme": "dark",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "rootRequestsHeld": 1
+}

@@ -1,0 +1,9 @@
+{
+  "backendSourceCommit": "388fa05d02e1d18b9192ce27d7cd885ea9223de5",
+  "sha256": "93dc728680db2da86f89cf3e8d9470ec77b9820c1c29af3711e9b566fd9742e8",
+  "entries": {
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "5539e3f9c1ce9811b6445ccb7d8123af14c5fdaab41ecd838fc7d909d082c1d9",
+    "com/cloud/tags/TaggedResourceManagerImpl.class": "95a5d5ff0c3bf78f71de43d7fb4c2f777912c484bde70886e39e6f902458c1f9",
+    "com/cloud/tags/TaggedResourceManagerImpl$1.class": "4b4995e1f3ca9d86a4b481d96d43fabec630e06415aae375363a0c4f6d2ddafa"
+  }
+}

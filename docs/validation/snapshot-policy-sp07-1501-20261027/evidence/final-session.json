@@ -1,0 +1,13 @@
+{
+  "startedAt": "2026-10-27T00:32:34.977Z",
+  "uiSourceCommit": "5f58e1ea3743b4455a3b9b2ba523515ac8635358",
+  "bundle": "app.95671954.js",
+  "checks": 61,
+  "layouts": 12,
+  "readonlyCases": 4,
+  "networkCaptureNote": "Initial reload/long idle buffers included truncation. Scoped later request/response cases were harvested separately and independently checked with SQL.",
+  "resumedCluster": 31,
+  "resumedUIStates": 5,
+  "totalRecordedUIStates": 66,
+  "bothClustersNaturalValidated": true
+}

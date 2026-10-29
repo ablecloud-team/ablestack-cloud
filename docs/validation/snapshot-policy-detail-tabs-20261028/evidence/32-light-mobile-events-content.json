@@ -1,0 +1,48 @@
+{
+  "app": [
+    "http://10.10.32.10:8080/client/js/app.ce659810.js"
+  ],
+  "button": {
+    "background": "rgb(24, 144, 255)",
+    "border": "rgb(24, 144, 255)",
+    "color": "rgb(255, 255, 255)",
+    "disabled": false,
+    "height": 32,
+    "opacity": "1",
+    "width": 79.765625,
+    "x": 13,
+    "y": 283
+  },
+  "dark": false,
+  "errors": [],
+  "eventRows": [
+    "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+    "448f7bea-7e2e-4477-a2be-c4b444669d55"
+  ],
+  "headers": [
+    "레벨",
+    "유형",
+    "상태",
+    "사용자 이름",
+    "계정",
+    "도메인",
+    "생성일"
+  ],
+  "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+  "search": "",
+  "tabClass": "ant-tabs ant-tabs-top",
+  "tabs": [
+    {
+      "selected": "false",
+      "text": "상세"
+    },
+    {
+      "selected": "true",
+      "text": "이벤트"
+    }
+  ],
+  "viewport": {
+    "height": 720,
+    "width": 390
+  }
+}

@@ -20,7 +20,8 @@
     <div class="form-layout" v-ctrl-enter="handleSubmit">
       <a-alert type="warning">
         <template #message>
-          <div v-html="$t('label.header.volume.snapshot')"></div>
+          <div v-if="isEditing">{{ $t('message.snapshot.policy.edit.effect') }}</div>
+          <div v-else v-html="$t('label.header.volume.snapshot')"></div>
         </template>
       </a-alert>
       <div class="form">
@@ -31,11 +32,13 @@
           layout="vertical"
           @finish="handleSubmit"
          >
+          <slot name="resource-selection" />
           <a-row :gutter="12">
             <a-col :xs="24" :md="24" :lg="24">
               <a-form-item :label="$t('label.intervaltype')" name="intervaltype" ref="intervaltype">
                 <a-radio-group
                   v-model:value="form.intervaltype"
+                  :disabled="actionLoading || disabled"
                   buttonStyle="solid"
                   @change="handleChangeIntervalType">
                   <a-radio-button value="hourly" :disabled="isIntervalDisabled('hourly')">
@@ -60,12 +63,12 @@
                   :title="$t('label.minute.past.hour')">
                   <a-input-number
                     style="width: 100%"
-                    :disabled="isIntervalDisabled(form.intervaltype)"
+                    :disabled="isIntervalDisabled(form.intervaltype) || actionLoading || disabled"
                     v-model:value="form.time"
-                    :min="1"
-                    :max="59"
+                    :step="1"
                     v-focus="true" />
                 </a-tooltip>
+                <template #extra>{{ $t('message.snapshot.policy.minute.range') }}</template>
               </a-form-item>
             </a-col>
             <a-col :xs="24" :md="24" :lg="12" v-if="['daily', 'weekly', 'monthly'].includes(form.intervaltype)">
@@ -75,9 +78,10 @@
                 name="timeSelect"
                 ref="timeSelect">
                 <a-time-picker
+                  popupClassName="snapshot-policy-time-dropdown"
                   use12Hours
                   format="h:mm A"
-                  :disabled="isIntervalDisabled(form.intervaltype)"
+                  :disabled="isIntervalDisabled(form.intervaltype) || actionLoading || disabled"
                   v-model:value="form.timeSelect"
                   style="width: 100%;" />
               </a-form-item>
@@ -87,7 +91,7 @@
                 <a-select
                   v-model:value="form['day-of-week']"
                   showSearch
-                  :disabled="isIntervalDisabled(form.intervaltype)"
+                  :disabled="isIntervalDisabled(form.intervaltype) || actionLoading || disabled"
                   optionFilterProp="label"
                   :filterOption="(input, option) => {
                     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -103,12 +107,10 @@
                 <a-select
                   v-model:value="form['day-of-month']"
                   showSearch
-                  :disabled="isIntervalDisabled(form.intervaltype)"
+                  :disabled="isIntervalDisabled(form.intervaltype) || actionLoading || disabled"
                   optionFilterProp="value"
-                  :filterOption="(input, option) => {
-                    return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }" >
-                  <a-select-option v-for="opt in dayOfMonth" :key="opt.name">
+                  :filterOption="filterDayOfMonth" >
+                  <a-select-option v-for="opt in dayOfMonth" :key="opt.id" :value="opt.id" :label="String(opt.name)">
                     {{ opt.name }}
                   </a-select-option>
                 </a-select>
@@ -122,14 +124,31 @@
                   <a-input-number
                     style="width: 100%"
                     v-model:value="form.maxsnaps"
-                    :min="1" />
+                    :disabled="actionLoading || disabled"
+                    :step="1" />
                 </a-tooltip>
+                <template #extra>
+                  <div v-if="resource.id" class="policy-retention-help" role="status" aria-live="polite" data-testid="policy-retention-help">
+                    <div v-if="limitsLoading">{{ $t('message.snapshot.policy.limits.loading') }}</div>
+                    <template v-else>
+                      <div>{{ $t('message.snapshot.policy.limits.interval', { max: limitText(policyLimits.maxima[form.intervaltype]) }) }}</div>
+                      <div v-if="policyLimits.exempt === true">{{ $t('message.snapshot.policy.limits.admin') }}</div>
+                      <template v-else>
+                        <div>{{ $t(resource.projectid ? 'message.snapshot.policy.limits.project' : 'message.snapshot.policy.limits.account', { max: limitText(policyLimits.owner) }) }}</div>
+                        <div>{{ $t('message.snapshot.policy.limits.domain', { max: limitText(policyLimits.domain) }) }}</div>
+                      </template>
+                      <div v-if="limitsIncomplete">{{ $t('message.snapshot.policy.limits.unavailable') }} <a-button type="link" size="small" @click="fetchPolicyLimits">{{ $t('label.retry') }}</a-button></div>
+                      <div>{{ $t('message.snapshot.policy.limits.server') }}</div>
+                    </template>
+                  </div>
+                </template>
               </a-form-item>
             </a-col>
             <a-col :xs="24" :md="24" :lg="24">
               <a-form-item :label="$t('label.timezone')" ref="timezone" name="timezone">
                 <a-select
                   v-model:value="form.timezone"
+                  :disabled="actionLoading || disabled"
                   :loading="fetching"
                   showSearch
                   optionFilterProp="label"
@@ -147,7 +166,7 @@
                 <template #label>
                   <tooltip-label :title="$t('label.zones')" :tooltip="''"/>
                 </template>
-                <a-alert type="info" style="margin-bottom: 2%">
+                <a-alert v-if="resource.id" type="info" style="margin-bottom: 2%">
                   <template #message>
                     <div v-html="formattedAdditionalZoneMessage"/>
                   </template>
@@ -162,10 +181,10 @@
                     return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }"
                   :loading="zoneLoading"
-                  :disabled="zoneLoading || zoneError"
+                  :disabled="zoneLoading || zoneError || actionLoading || disabled"
                   :notFoundContent="$t('message.snapshot.zones.empty')"
                   :placeholder="''">
-                  <a-select-option v-for="opt in this.zones" :key="opt.id" :label="opt.name || opt.description">
+                  <a-select-option v-for="opt in policyZoneOptions" :key="opt.id" :label="opt.name || opt.description" :disabled="opt.unavailable">
                     <span>
                       <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
                       <global-outlined v-else style="margin-right: 5px"/>
@@ -182,34 +201,26 @@
           </a-row>
           <a-divider/>
           <div class="tagsTitle">{{ $t('label.tags') }}</div>
-          <div>
-            <div v-for="(tag, index) in tags" :key="index">
-              <a-tag :key="index" :closable="'deleteTags' in $store.getters.apis" @close="() => handleDeleteTag(tag)">
+          <section class="snapshot-policy-tags" data-testid="snapshot-policy-tags">
+            <div class="policy-tag-list">
+              <a-tag v-for="tag in tags" :key="tag.key" :closable="canEditTags" @close.prevent="handleDeleteTag(tag)">
                 {{ tag.key }} = {{ tag.value }}
               </a-tag>
             </div>
-            <div v-if="inputVisible">
-              <a-input-group
-                type="text"
-                size="small"
-                @blur="handleInputConfirm"
-                @keyup.enter="handleInputConfirm"
-                compact>
-                <a-input ref="input" :value="inputKey" @change="handleKeyChange" style="width: 100px; text-align: center" :placeholder="$t('label.key')" />
-                <a-input
-                  class="tag-disabled-input"
-                  style=" width: 30px; border-left: 0; pointer-events: none; text-align: center"
-                  placeholder="="
-                  disabled />
-                <a-input :value="inputValue" @change="handleValueChange" style="width: 100px; text-align: center; border-left: 0" :placeholder="$t('label.value')" />
-                <tooltip-button :tooltip="$t('label.ok')" icon="check-outlined" size="small" @onClick="handleInputConfirm" />
-                <tooltip-button :tooltip="$t('label.cancel')" icon="close-outlined" size="small" @onClick="inputVisible=false" />
-              </a-input-group>
+            <div v-if="inputVisible && tagPermission" class="policy-tag-editor" @keydown.enter.prevent.stop="handleInputConfirm" @keydown.esc.prevent.stop="cancelTagInput">
+              <a-input ref="input" v-model:value="inputKey" :aria-label="$t('label.key')" :placeholder="$t('label.key')" :maxlength="255" :disabled="!canEditTags" />
+              <a-input ref="tagValue" v-model:value="inputValue" :aria-label="$t('label.value')" :placeholder="$t('label.value')" :maxlength="255" :disabled="!canEditTags" />
+              <div class="policy-tag-editor-actions">
+                <a-button :aria-label="$t('label.ok')" :disabled="!canEditTags" @click="handleInputConfirm"><check-outlined /></a-button>
+                <a-button :aria-label="$t('label.cancel')" :disabled="!canEditTags" @click="cancelTagInput"><close-outlined /></a-button>
+              </div>
             </div>
-            <a-tag v-else @click="showInput" class="btn-add-tag" style="borderStyle: dashed;">
+            <a-button v-else-if="tagPermission" ref="tagAdd" type="dashed" size="small" :disabled="!canEditTags" @click="showInput">
               <plus-outlined /> {{ $t('label.new.tag') }}
-            </a-tag>
-          </div>
+            </a-button>
+            <div v-if="tagError" role="alert" class="policy-tag-error">{{ $t(tagError) }}</div>
+            <div v-if="tagPermission" class="policy-tag-hint">{{ $t('message.snapshot.policy.tags.draft') }}</div>
+          </section>
           <MoldDialogActions v-if="actionsVisible" :span="24" :busy="actionLoading">
             <a-button
               :loading="actionLoading"
@@ -218,12 +229,12 @@
             </a-button>
             <a-button
               v-if="handleShowButton()"
-              :disabled="disabled"
+              :disabled="disabled || limitsLoading"
               :loading="actionLoading"
               type="primary"
               ref="submit"
               @click="handleSubmit">
-              {{ $t('label.ok') }}
+              {{ $t(isEditing ? 'label.save' : 'label.ok') }}
             </a-button>
           </MoldDialogActions>
         </a-form>
@@ -237,22 +248,25 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import snapshotZones from '@/utils/snapshotZones'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
-import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { timeZone } from '@/utils/timezone'
 import { mixinForm } from '@/utils/mixin'
 import storageDialogContext from '@/utils/storageDialogContext'
 import debounce from 'lodash/debounce'
+import { getAPI } from '@/utils/storageApi'
+import { emptyPolicyLimits, readPolicyLimits, effectivePolicyMaximum, policyFieldErrors, encodePolicySchedule } from '@/utils/snapshotPolicyInput'
+import { policyFormValues, extraPolicyZones, editingZoneParams } from '@/utils/snapshotPolicyEditing'
 
 export default {
   name: 'FormSchedule',
   mixins: [mixinForm, storageDialogContext, snapshotZones],
   components: {
     MoldDialogActions,
-    TooltipButton,
     TooltipLabel
   },
   props: {
+    policy: { type: Object, default: null },
+    validateEdit: { type: Function, default: null },
     actionsVisible: { type: Boolean, default: true },
     disabled: { type: Boolean, default: false },
     loading: {
@@ -279,8 +293,9 @@ export default {
       actionLoading: false,
       volumeId: '',
       inputKey: '',
-      inputVisible: '',
+      inputVisible: false,
       inputValue: '',
+      tagError: '',
       intervalType: 'hourly',
       intervalValue: 0,
       tags: [],
@@ -288,6 +303,9 @@ export default {
       dayOfMonth: [],
       timeZoneMap: [],
       fetching: false,
+      policyLimits: emptyPolicyLimits(),
+      limitsLoading: false,
+      limitsVersion: 0,
       listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     }
   },
@@ -296,11 +314,17 @@ export default {
   },
   created () {
     this.initForm()
+    if (this.policy) {
+      Object.assign(this.form, policyFormValues(this.policy), { zoneids: extraPolicyZones(this.policy, this.resource) })
+      this.tags = (this.policy.tags || []).map(tag => ({ key: tag.key, value: tag.value }))
+      this.handleChangeIntervalType()
+    }
     this.volumeId = this.resource.id
     this.fetchTimeZone()
+    this.fetchPolicyLimits()
   },
   mounted () {
-    if (this.form.intervaltype && this.isIntervalDisabled(this.form.intervaltype)) {
+    if (!this.isEditing && this.form.intervaltype && this.isIntervalDisabled(this.form.intervaltype)) {
       const nextAvailable = this.getNextAvailableIntervalType(this.form.intervaltype)
       if (nextAvailable) {
         this.form.intervaltype = nextAvailable
@@ -309,13 +333,41 @@ export default {
     }
   },
   computed: {
+    isEditing () { return !!this.policy },
+    preserveSnapshotZones () { return this.isEditing },
+    policyZoneOptions () {
+      const known = this.zones || []
+      return [...known, ...(this.policy?.zone || []).filter(zone => zone.id !== this.resource.zoneid && !known.some(item => item.id === zone.id)).map(zone => ({ ...zone, unavailable: true }))]
+    },
+    policyLimitContext () {
+      const apis = this.$store.getters.apis || {}
+      return JSON.stringify([this.dialogScope(), this.resource.account, this.resource.domainid, this.resource.projectid,
+        'listCapabilities' in apis, 'listAccounts' in apis, 'listResourceLimits' in apis])
+    },
+    policyMaximum () { return effectivePolicyMaximum(this.policyLimits, this.form.intervaltype) },
+    limitsIncomplete () {
+      return this.policyLimits.maxima[this.form.intervaltype] == null || this.policyLimits.exempt == null ||
+        (this.policyLimits.exempt === false && (this.policyLimits.owner == null || this.policyLimits.domain == null))
+    },
+    tagPermission () {
+      return 'createSnapshotPolicy' in this.$store.getters.apis && 'createTags' in this.$store.getters.apis
+    },
+    canEditTags () {
+      return this.tagPermission && !this.actionLoading && !this.disabled && this.dialogCurrent()
+    },
     formattedAdditionalZoneMessage () {
       return `${this.$t('message.snapshot.additional.zones').replace('%x', this.resource.zonename)}`
     }
   },
   watch: {
+    actionLoading (busy) { this.$emit('busy', busy) },
+    policyLimitContext () { this.fetchPolicyLimits() },
+    tagPermission (allowed) {
+      if (!allowed) { this.tags = (this.policy?.tags || []).map(tag => ({ key: tag.key, value: tag.value })); this.clearTagInput() }
+    },
     dataSource: {
       handler () {
+        if (this.isEditing) return
         if (this.form.intervaltype && this.getNextAvailableIntervalType && this.isIntervalDisabled(this.form.intervaltype)) {
           const nextAvailable = this.getNextAvailableIntervalType(this.form.intervaltype)
           if (nextAvailable) {
@@ -328,6 +380,16 @@ export default {
     }
   },
   methods: {
+    limitText (value) { return value == null ? this.$t('message.snapshot.policy.limits.unknown') : value === -1 ? this.$t('label.unlimited') : String(value) },
+    async fetchPolicyLimits () {
+      const version = ++this.limitsVersion; const context = this.policyLimitContext
+      this.policyLimits = emptyPolicyLimits(); this.limitsLoading = false
+      if (!this.resource.id) return
+      this.limitsLoading = true
+      const result = await readPolicyLimits(getAPI, this.$store.getters.apis || {}, { ...this.resource })
+      if (version !== this.limitsVersion || context !== this.policyLimitContext || !this.dialogCurrent()) return
+      this.policyLimits = result; this.limitsLoading = false
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -340,16 +402,20 @@ export default {
         timezone: undefined
       })
       this.rules = reactive({
-        time: [{ type: 'number', required: true, message: this.$t('message.error.required.input') }],
+        time: [{ required: true, validator: () => this.validatePolicyField('time') }],
         timeSelect: [{ type: 'object', required: true, message: this.$t('message.error.time') }],
-        'day-of-week': [{ type: 'number', required: true, message: `${this.$t('message.error.select')}` }],
-        'day-of-month': [{ required: true, message: `${this.$t('message.error.select')}` }],
-        maxsnaps: [{ required: true, message: this.$t('message.error.required.input') }],
+        'day-of-week': [{ required: true, validator: () => this.validatePolicyField('day-of-week') }],
+        'day-of-month': [{ required: true, validator: () => this.validatePolicyField('day-of-month') }],
+        maxsnaps: [{ required: true, validator: () => this.validatePolicyField('maxsnaps') }],
         timezone: [{ required: true, message: `${this.$t('message.error.select')}` }]
       })
-      if (this.resourceType === 'Volume') {
+      if (this.resourceType === 'Volume' && this.resource.id) {
         this.fetchZoneData()
       }
+    },
+    async validatePolicyField (field) {
+      const error = policyFieldErrors(this.form, this.policyMaximum).find(error => error.name === field)
+      if (error) throw new Error(this.$t(error.key, error.params))
     },
     fetchTimeZone (value) {
       this.timeZoneMap = []
@@ -370,6 +436,9 @@ export default {
           name: this.$t('label.' + dayName)
         })
       }
+    },
+    filterDayOfMonth (input, option) {
+      return option?.value != null && String(option.value).includes(String(input ?? ''))
     },
     fetchDayOfMonth () {
       this.dayOfMonth = []
@@ -417,6 +486,7 @@ export default {
       return null
     },
     isIntervalDisabled (intervalType) {
+      if (this.isEditing) return this.getIntervalValue(intervalType) !== Number(this.policy.intervaltype)
       const intervalValue = this.getIntervalValue(intervalType)
       if (this.dataSource.length === 0) {
         return false
@@ -428,6 +498,7 @@ export default {
       return false
     },
     handleShowButton () {
+      if (this.isEditing) return true
       if (this.dataSource.length === 0) {
         return true
       }
@@ -437,80 +508,113 @@ export default {
       }
       return true
     },
-    handleKeyChange (e) {
-      this.inputKey = e.target.value
-    },
-    handleValueChange (e) {
-      this.inputValue = e.target.value
-    },
-    handleInputConfirm () {
-      this.tags.push({
-        key: this.inputKey,
-        value: this.inputValue
-      })
+    clearTagInput () {
       this.inputVisible = false
       this.inputKey = ''
       this.inputValue = ''
+      this.tagError = ''
+    },
+    handleInputConfirm (event, focus = true) {
+      if (!this.canEditTags || !this.inputVisible || event?.isComposing || event?.keyCode === 229) return false
+      const key = this.inputKey.trim()
+      if (!key || !this.inputValue.trim()) {
+        this.tagError = 'message.tags.fields.required'
+        this.$nextTick(() => (key ? this.$refs.tagValue : this.$refs.input)?.focus())
+        return false
+      }
+      if (this.tags.some(tag => tag.key === key)) {
+        this.tagError = 'message.snapshot.policy.tag.duplicate'
+        this.$nextTick(() => this.$refs.input?.focus())
+        return false
+      }
+      this.tags.push({ key, value: this.inputValue })
+      this.clearTagInput()
+      if (focus) this.focusTagAdd()
+      return true
     },
     handleDeleteTag (tag) {
+      if (!this.canEditTags) return
+      this.tags = this.tags.filter(item => item.key !== tag.key)
+      this.focusTagAdd()
+    },
+    focusTagAdd () {
+      this.$nextTick(() => {
+        const target = this.$refs.tagAdd?.$el
+        if (this.canEditTags && target) target.focus({ preventScroll: true })
+      })
+    },
+    cancelTagInput () {
+      if (!this.canEditTags) return
+      this.clearTagInput()
+      this.focusTagAdd()
     },
     handleSubmit (e) {
-      if (this.actionLoading || this.disabled || !this.dialogCurrent()) return
-      this.formRef.value.validate().then(() => {
-        if (this.actionLoading || this.disabled || !this.dialogCurrent()) return
+      if (!this.volumeId || this.actionLoading || this.disabled || this.limitsLoading || !this.dialogCurrent() || !('createSnapshotPolicy' in this.$store.getters.apis)) return
+      // Draft tags are part of this create request; they never call createTags/deleteTags.
+      if (this.inputVisible && !this.handleInputConfirm(undefined, false)) return
+      return this.formRef.value.validate().then(async () => {
+        if (this.actionLoading || this.disabled || this.limitsLoading || !this.dialogCurrent() || !('createSnapshotPolicy' in this.$store.getters.apis)) return
         const formRaw = toRaw(this.form)
+        const errors = policyFieldErrors(formRaw, this.policyMaximum)
+        if (errors.length) {
+          if (this.formRef.value.setFields) this.formRef.value.setFields(errors.map(error => ({ name: error.name, errors: [this.$t(error.key, error.params)] })))
+          return
+        }
         const values = this.handleRemoveFields(formRaw)
 
         let params = {}
+        if (this.isEditing) {
+          params.id = this.policy.id
+          if (typeof this.policy.fordisplay === 'boolean' && this.$store.getters.userInfo?.roletype === 'Admin') params.fordisplay = this.policy.fordisplay
+          Object.assign(params, editingZoneParams(this.policy, this.resource, values.zoneids, this.zoneLoading || this.zoneError))
+        }
         params.volumeid = this.volumeId
         params.intervaltype = values.intervaltype
         params.timezone = values.timezone
         params.maxsnaps = values.maxsnaps
         params.useStorageReplication = false
-        if (values.zoneids && values.zoneids.length > 0) {
+        if (!this.isEditing && values.zoneids && values.zoneids.length > 0) {
           params.zoneids = values.zoneids.join()
         }
-        switch (values.intervaltype) {
-          case 'hourly':
-            params.schedule = values.time
-            break
-          case 'daily':
-            params.schedule = values.timeSelect.format('mm:HH')
-            break
-          case 'weekly':
-            params.schedule = [values.timeSelect.format('mm:HH'), (values['day-of-week'] + 1)].join(':')
-            break
-          case 'monthly':
-            params.schedule = [values.timeSelect.format('mm:HH'), values['day-of-month']].join(':')
-            break
-        }
-        for (let i = 0; i < this.tags.length; i++) {
+        params.schedule = encodePolicySchedule(values)
+        const tagPermission = this.tagPermission
+        const tags = tagPermission || this.isEditing ? this.tags : []
+        for (let i = 0; i < tags.length; i++) {
           const formattedTagData = {}
-          const tag = this.tags[i]
+          const tag = tags[i]
           formattedTagData['tags[' + i + '].key'] = tag.key
           formattedTagData['tags[' + i + '].value'] = tag.value
           params = Object.assign({}, params, formattedTagData)
         }
         this.actionLoading = true
-        postAPI('createSnapshotPolicy', params, { preserveOnFailure: true }).then(json => {
+        try {
+          if (this.isEditing && this.validateEdit) await this.validateEdit()
+          if (!this.dialogCurrent() || this.disabled || this.limitsLoading || !('createSnapshotPolicy' in this.$store.getters.apis)) return
+          if (tagPermission !== this.tagPermission) throw new Error(this.$t('message.snapshot.policy.context.changed'))
+          const json = await postAPI('createSnapshotPolicy', params, { preserveOnFailure: true })
           if (!this.dialogCurrent()) return
+          if (this.isEditing && json.createsnapshotpolicyresponse?.snapshotpolicy?.id !== this.policy.id) throw new Error(this.$t('message.snapshot.policy.changed'))
           this.$emit('refresh')
           this.$notification.success({
-            message: this.$t('label.action.recurring.snapshot'),
-            description: this.$t('message.success.recurring.snapshot')
+            message: this.$t(this.isEditing ? 'label.snapshot.policy.edit' : 'label.action.recurring.snapshot'),
+            description: this.$t(this.isEditing ? 'message.snapshot.policy.saved' : 'message.snapshot.policy.created')
           })
-          this.resetForm()
-        }).catch(error => {
+          if (!this.isEditing) this.resetForm()
+        } catch (error) {
           if (this.dialogCurrent()) this.$notifyError(error)
-        }).finally(() => {
+        } finally {
           this.actionLoading = false
-        })
+        }
+      }).catch(error => {
+        if (error instanceof Error && this.dialogCurrent()) this.$notifyError(new Error(error.message.startsWith('message.') ? this.$t(error.message) : error.message))
       })
     },
     showInput () {
+      if (!this.canEditTags) return
+      this.clearTagInput()
       this.inputVisible = true
       this.$nextTick(function () {
-        this.$refs.input.focus()
+        if (this.canEditTags && this.$refs.input) this.$refs.input.focus()
       })
     },
     resetForm () {
@@ -521,6 +625,7 @@ export default {
       this.form['day-of-week'] = undefined
       this.form['day-of-month'] = undefined
       this.tags = []
+      this.clearTagInput()
     },
     closeAction () {
       this.$emit('close-action')
@@ -552,4 +657,12 @@ export default {
   font-weight: 500;
   margin-bottom: 12px;
 }
+.policy-tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.policy-tag-list :deep(.ant-tag) { margin: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.policy-tag-list :deep(.ant-tag-close-icon) { color: inherit; }
+.policy-tag-editor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.policy-tag-editor-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.policy-tag-error { color: var(--ant-error-color, #ff4d4f); margin-top: 6px; }
+.policy-tag-hint { color: var(--ui-text-secondary); font-size: 12px; margin-top: 6px; }
+.policy-retention-help { color: var(--ui-text-secondary); font-size: 12px; overflow-wrap: anywhere; }
 </style>

@@ -1,0 +1,4461 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "foreign-prevalidation",
+      "ids": "c14e44b8-8bd0-4515-b475-9ff1b999f905,22ac785e-42ce-46cf-836d-b1d36913797f",
+      "rejected": {
+        "status": 531,
+        "data": {
+          "uuidList": [],
+          "errorcode": 531,
+          "cserrorcode": 4365,
+          "errortext": "Caller does not have permission to operate with provided resource."
+        }
+      },
+      "policyScheduleTagsUnchanged": true,
+      "before": {
+        "at": "2026-10-27 14:31:34.270106",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 1157,
+            "uuid": "432ae931-2900-4783-978d-f84719c54397",
+            "name": "SP11-1505-31-project-한글",
+            "state": "Ready",
+            "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1148,
+            "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+            "name": "SP11-1505-31-admin-0-한글",
+            "state": "Ready",
+            "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1155,
+            "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+            "name": "SP11-1505-31-owner-b-한글",
+            "state": "Ready",
+            "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1154,
+            "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+            "name": "SP11-1505-31-owner-a-한글",
+            "state": "Ready",
+            "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1150,
+            "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+            "name": "SP11-1505-31-admin-2-한글",
+            "state": "Ready",
+            "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1153,
+            "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+            "name": "SP11-1505-31-admin-5-한글",
+            "state": "Ready",
+            "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1149,
+            "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+            "name": "SP11-1505-31-admin-1-한글",
+            "state": "Ready",
+            "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1156,
+            "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+            "name": "SP11-1505-31-domain-admin-한글",
+            "state": "Ready",
+            "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1151,
+            "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+            "name": "SP11-1505-31-admin-3-한글",
+            "state": "Ready",
+            "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1152,
+            "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+            "name": "SP11-1505-31-admin-4-한글",
+            "state": "Ready",
+            "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+            "pool_id": 1,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 184,
+            "uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "volume_id": 1157,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 185,
+            "uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "volume_id": 1157,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 186,
+            "uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "volume_id": 1157,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 187,
+            "uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "volume_id": 1157,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 148,
+            "uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "volume_id": 1148,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 149,
+            "uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "volume_id": 1148,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 150,
+            "uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "volume_id": 1148,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 151,
+            "uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "volume_id": 1148,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 176,
+            "uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "volume_id": 1155,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 177,
+            "uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "volume_id": 1155,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 178,
+            "uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "volume_id": 1155,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 179,
+            "uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "volume_id": 1155,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 172,
+            "uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "volume_id": 1154,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 173,
+            "uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "volume_id": 1154,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 174,
+            "uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "volume_id": 1154,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 175,
+            "uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "volume_id": 1154,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 156,
+            "uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "volume_id": 1150,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 157,
+            "uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "volume_id": 1150,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 158,
+            "uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "volume_id": 1150,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 159,
+            "uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "volume_id": 1150,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 168,
+            "uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "volume_id": 1153,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 169,
+            "uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "volume_id": 1153,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 170,
+            "uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "volume_id": 1153,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 171,
+            "uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "volume_id": 1153,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 152,
+            "uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "volume_id": 1149,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 153,
+            "uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "volume_id": 1149,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 154,
+            "uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "volume_id": 1149,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 155,
+            "uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "volume_id": 1149,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 180,
+            "uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "volume_id": 1156,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 181,
+            "uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "volume_id": 1156,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 182,
+            "uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "volume_id": 1156,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 183,
+            "uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "volume_id": 1156,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 160,
+            "uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "volume_id": 1151,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 161,
+            "uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "volume_id": 1151,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 162,
+            "uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "volume_id": 1151,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 163,
+            "uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "volume_id": 1151,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 164,
+            "uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "volume_id": 1152,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 165,
+            "uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "volume_id": 1152,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 166,
+            "uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "volume_id": 1152,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 167,
+            "uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "volume_id": 1152,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_details": []
+      },
+      "after": {
+        "at": "2026-10-27 14:31:34.631965",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 1157,
+            "uuid": "432ae931-2900-4783-978d-f84719c54397",
+            "name": "SP11-1505-31-project-한글",
+            "state": "Ready",
+            "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1148,
+            "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+            "name": "SP11-1505-31-admin-0-한글",
+            "state": "Ready",
+            "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1155,
+            "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+            "name": "SP11-1505-31-owner-b-한글",
+            "state": "Ready",
+            "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1154,
+            "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+            "name": "SP11-1505-31-owner-a-한글",
+            "state": "Ready",
+            "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1150,
+            "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+            "name": "SP11-1505-31-admin-2-한글",
+            "state": "Ready",
+            "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1153,
+            "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+            "name": "SP11-1505-31-admin-5-한글",
+            "state": "Ready",
+            "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1149,
+            "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+            "name": "SP11-1505-31-admin-1-한글",
+            "state": "Ready",
+            "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1156,
+            "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+            "name": "SP11-1505-31-domain-admin-한글",
+            "state": "Ready",
+            "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1151,
+            "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+            "name": "SP11-1505-31-admin-3-한글",
+            "state": "Ready",
+            "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1152,
+            "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+            "name": "SP11-1505-31-admin-4-한글",
+            "state": "Ready",
+            "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+            "pool_id": 1,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 184,
+            "uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "volume_id": 1157,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 185,
+            "uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "volume_id": 1157,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 186,
+            "uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "volume_id": 1157,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 187,
+            "uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "volume_id": 1157,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 148,
+            "uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "volume_id": 1148,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 149,
+            "uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "volume_id": 1148,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 150,
+            "uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "volume_id": 1148,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 151,
+            "uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "volume_id": 1148,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 176,
+            "uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "volume_id": 1155,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 177,
+            "uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "volume_id": 1155,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 178,
+            "uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "volume_id": 1155,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 179,
+            "uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "volume_id": 1155,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 172,
+            "uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "volume_id": 1154,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 173,
+            "uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "volume_id": 1154,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 174,
+            "uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "volume_id": 1154,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 175,
+            "uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "volume_id": 1154,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 156,
+            "uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "volume_id": 1150,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 157,
+            "uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "volume_id": 1150,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 158,
+            "uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "volume_id": 1150,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 159,
+            "uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "volume_id": 1150,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 168,
+            "uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "volume_id": 1153,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 169,
+            "uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "volume_id": 1153,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 170,
+            "uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "volume_id": 1153,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 171,
+            "uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "volume_id": 1153,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 152,
+            "uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "volume_id": 1149,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 153,
+            "uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "volume_id": 1149,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 154,
+            "uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "volume_id": 1149,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 155,
+            "uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "volume_id": 1149,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 180,
+            "uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "volume_id": 1156,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 181,
+            "uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "volume_id": 1156,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 182,
+            "uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "volume_id": 1156,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 183,
+            "uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "volume_id": 1156,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 160,
+            "uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "volume_id": 1151,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 161,
+            "uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "volume_id": 1151,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 162,
+            "uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "volume_id": 1151,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 163,
+            "uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "volume_id": 1151,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 164,
+            "uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "volume_id": 1152,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 165,
+            "uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "volume_id": 1152,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 166,
+            "uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "volume_id": 1152,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 167,
+            "uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "volume_id": 1152,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_details": []
+      }
+    },
+    {
+      "name": "missing-id-prevalidation",
+      "ids": "c14e44b8-8bd0-4515-b475-9ff1b999f905,00000000-0000-4000-8000-000000001505",
+      "rejected": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command deletesnapshotpolicies due to invalid value. Invalid parameter ids value=00000000-0000-4000-8000-000000001505 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+        }
+      },
+      "policyScheduleTagsUnchanged": true,
+      "before": {
+        "at": "2026-10-27 14:31:34.985586",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 1157,
+            "uuid": "432ae931-2900-4783-978d-f84719c54397",
+            "name": "SP11-1505-31-project-한글",
+            "state": "Ready",
+            "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1148,
+            "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+            "name": "SP11-1505-31-admin-0-한글",
+            "state": "Ready",
+            "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1155,
+            "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+            "name": "SP11-1505-31-owner-b-한글",
+            "state": "Ready",
+            "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1154,
+            "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+            "name": "SP11-1505-31-owner-a-한글",
+            "state": "Ready",
+            "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1150,
+            "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+            "name": "SP11-1505-31-admin-2-한글",
+            "state": "Ready",
+            "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1153,
+            "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+            "name": "SP11-1505-31-admin-5-한글",
+            "state": "Ready",
+            "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1149,
+            "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+            "name": "SP11-1505-31-admin-1-한글",
+            "state": "Ready",
+            "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1156,
+            "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+            "name": "SP11-1505-31-domain-admin-한글",
+            "state": "Ready",
+            "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1151,
+            "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+            "name": "SP11-1505-31-admin-3-한글",
+            "state": "Ready",
+            "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1152,
+            "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+            "name": "SP11-1505-31-admin-4-한글",
+            "state": "Ready",
+            "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+            "pool_id": 1,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 184,
+            "uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "volume_id": 1157,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 185,
+            "uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "volume_id": 1157,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 186,
+            "uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "volume_id": 1157,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 187,
+            "uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "volume_id": 1157,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 148,
+            "uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "volume_id": 1148,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 149,
+            "uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "volume_id": 1148,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 150,
+            "uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "volume_id": 1148,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 151,
+            "uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "volume_id": 1148,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 176,
+            "uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "volume_id": 1155,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 177,
+            "uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "volume_id": 1155,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 178,
+            "uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "volume_id": 1155,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 179,
+            "uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "volume_id": 1155,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 172,
+            "uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "volume_id": 1154,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 173,
+            "uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "volume_id": 1154,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 174,
+            "uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "volume_id": 1154,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 175,
+            "uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "volume_id": 1154,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 156,
+            "uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "volume_id": 1150,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 157,
+            "uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "volume_id": 1150,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 158,
+            "uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "volume_id": 1150,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 159,
+            "uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "volume_id": 1150,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 168,
+            "uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "volume_id": 1153,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 169,
+            "uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "volume_id": 1153,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 170,
+            "uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "volume_id": 1153,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 171,
+            "uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "volume_id": 1153,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 152,
+            "uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "volume_id": 1149,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 153,
+            "uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "volume_id": 1149,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 154,
+            "uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "volume_id": 1149,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 155,
+            "uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "volume_id": 1149,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 180,
+            "uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "volume_id": 1156,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 181,
+            "uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "volume_id": 1156,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 182,
+            "uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "volume_id": 1156,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 183,
+            "uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "volume_id": 1156,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 160,
+            "uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "volume_id": 1151,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 161,
+            "uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "volume_id": 1151,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 162,
+            "uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "volume_id": 1151,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 163,
+            "uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "volume_id": 1151,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 164,
+            "uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "volume_id": 1152,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 165,
+            "uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "volume_id": 1152,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 166,
+            "uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "volume_id": 1152,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 167,
+            "uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "volume_id": 1152,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_details": []
+      },
+      "after": {
+        "at": "2026-10-27 14:31:35.347460",
+        "policy_details": [],
+        "volumes": [
+          {
+            "id": 1157,
+            "uuid": "432ae931-2900-4783-978d-f84719c54397",
+            "name": "SP11-1505-31-project-한글",
+            "state": "Ready",
+            "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1148,
+            "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+            "name": "SP11-1505-31-admin-0-한글",
+            "state": "Ready",
+            "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1155,
+            "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+            "name": "SP11-1505-31-owner-b-한글",
+            "state": "Ready",
+            "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1154,
+            "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+            "name": "SP11-1505-31-owner-a-한글",
+            "state": "Ready",
+            "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1150,
+            "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+            "name": "SP11-1505-31-admin-2-한글",
+            "state": "Ready",
+            "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1153,
+            "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+            "name": "SP11-1505-31-admin-5-한글",
+            "state": "Ready",
+            "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1149,
+            "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+            "name": "SP11-1505-31-admin-1-한글",
+            "state": "Ready",
+            "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1156,
+            "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+            "name": "SP11-1505-31-domain-admin-한글",
+            "state": "Ready",
+            "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1151,
+            "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+            "name": "SP11-1505-31-admin-3-한글",
+            "state": "Ready",
+            "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+            "pool_id": 1,
+            "removed": null
+          },
+          {
+            "id": 1152,
+            "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+            "name": "SP11-1505-31-admin-4-한글",
+            "state": "Ready",
+            "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+            "pool_id": 1,
+            "removed": null
+          }
+        ],
+        "policies": [
+          {
+            "id": 184,
+            "uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "volume_id": 1157,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 185,
+            "uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "volume_id": 1157,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 186,
+            "uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "volume_id": 1157,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 187,
+            "uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "volume_id": 1157,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 148,
+            "uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "volume_id": 1148,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 149,
+            "uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "volume_id": 1148,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 150,
+            "uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "volume_id": 1148,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 151,
+            "uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "volume_id": 1148,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 176,
+            "uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "volume_id": 1155,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 177,
+            "uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "volume_id": 1155,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 178,
+            "uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "volume_id": 1155,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 179,
+            "uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "volume_id": 1155,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 172,
+            "uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "volume_id": 1154,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 173,
+            "uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "volume_id": 1154,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 174,
+            "uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "volume_id": 1154,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 175,
+            "uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "volume_id": 1154,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 156,
+            "uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "volume_id": 1150,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 157,
+            "uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "volume_id": 1150,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 158,
+            "uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "volume_id": 1150,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 159,
+            "uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "volume_id": 1150,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 168,
+            "uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "volume_id": 1153,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 169,
+            "uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "volume_id": 1153,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 170,
+            "uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "volume_id": 1153,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 171,
+            "uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "volume_id": 1153,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 152,
+            "uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "volume_id": 1149,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 153,
+            "uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "volume_id": 1149,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 154,
+            "uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "volume_id": 1149,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 155,
+            "uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "volume_id": 1149,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 180,
+            "uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "volume_id": 1156,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 181,
+            "uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "volume_id": 1156,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 182,
+            "uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "volume_id": 1156,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 183,
+            "uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "volume_id": 1156,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 160,
+            "uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "volume_id": 1151,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 161,
+            "uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "volume_id": 1151,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 162,
+            "uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "volume_id": 1151,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 163,
+            "uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "volume_id": 1151,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 164,
+            "uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "volume_id": 1152,
+            "schedule": "5",
+            "timezone": "Asia/Seoul",
+            "interval": 0,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 165,
+            "uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "volume_id": 1152,
+            "schedule": "9:7",
+            "timezone": "Asia/Seoul",
+            "interval": 1,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 166,
+            "uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "volume_id": 1152,
+            "schedule": "5:3:2",
+            "timezone": "Asia/Seoul",
+            "interval": 2,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          },
+          {
+            "id": 167,
+            "uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "volume_id": 1152,
+            "schedule": "59:23:28",
+            "timezone": "Asia/Seoul",
+            "interval": 3,
+            "active": 1,
+            "display": 0,
+            "max_snaps": 2
+          }
+        ],
+        "schedules": [],
+        "snapshots": [],
+        "refs": [],
+        "jobs": [],
+        "tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_tags": [
+          {
+            "id": 718,
+            "resource_uuid": "e7b6bde7-8ea7-4e3c-b2bc-bc89f1ca35f6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 719,
+            "resource_uuid": "c16d82ce-313f-4974-baf5-bab029123f05",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 720,
+            "resource_uuid": "8df6856f-f36f-4c56-bdee-6b98b506c716",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 721,
+            "resource_uuid": "a3a1302b-a943-4c34-8c40-8d0c9a91936a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 722,
+            "resource_uuid": "dd7c88bf-5759-448a-bc69-4516e9d6e6b9",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 723,
+            "resource_uuid": "1224fc4a-28f0-4d05-92d3-58bec7d195c5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 724,
+            "resource_uuid": "21a7f26a-029e-44f8-a1c6-39c31c21ffeb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 725,
+            "resource_uuid": "56327c98-9b57-41f9-8f76-bf6fdaddc8fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 726,
+            "resource_uuid": "b41eb2a7-31f0-4a31-88dc-6a6b344212b6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 727,
+            "resource_uuid": "18215606-0f7e-4e3d-a7c7-d2f0280b505a",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 728,
+            "resource_uuid": "ba4b6e21-ae0c-4a2f-adaa-f9891bb77eca",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 729,
+            "resource_uuid": "8e4c835d-a854-4c14-a1b0-69da804051a5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 730,
+            "resource_uuid": "5639cf26-462b-45c9-a563-5b2591269244",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 731,
+            "resource_uuid": "e6179285-79d5-4cf1-b4a6-6c950696d7a2",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 732,
+            "resource_uuid": "f14d8745-8077-4ece-9884-751c873dc054",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 733,
+            "resource_uuid": "90884a4a-e266-4af8-b546-e03c14dec8e4",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 734,
+            "resource_uuid": "65fdb5cb-acf9-4b3c-bcaa-96e7967f1bb8",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 735,
+            "resource_uuid": "674c00bf-499b-4b95-a306-fd04f85850a3",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 736,
+            "resource_uuid": "6bbca114-3fab-47c5-8be0-29af4c7fe498",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 737,
+            "resource_uuid": "c5d13b8a-0563-440a-98f8-4e89cc7c8232",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 738,
+            "resource_uuid": "548aeddf-1f91-40dd-ac8b-44d09cbccc6e",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 739,
+            "resource_uuid": "bd746709-2399-4dca-94bb-0192a842bf59",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 740,
+            "resource_uuid": "286d9ce8-feaa-4eac-aa20-08f8297d14cb",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 741,
+            "resource_uuid": "058af620-dd75-45fa-b9ab-11084ccb06b0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 742,
+            "resource_uuid": "c14e44b8-8bd0-4515-b475-9ff1b999f905",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 743,
+            "resource_uuid": "81758594-d01f-475a-a1b2-34f97d461685",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 744,
+            "resource_uuid": "38908279-3b45-4a41-86ba-7dc8a628a301",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 745,
+            "resource_uuid": "9a532d53-867c-49de-941e-179331d353e6",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 746,
+            "resource_uuid": "22ac785e-42ce-46cf-836d-b1d36913797f",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 747,
+            "resource_uuid": "b858be61-87c8-432e-a7a7-e2a2f90210fc",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 748,
+            "resource_uuid": "36f481bb-d17e-426c-ba84-115906788647",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 749,
+            "resource_uuid": "9ce9b138-6134-4965-9b77-d8b9c0bd3c79",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 750,
+            "resource_uuid": "c3232065-6a3d-4588-89ab-4009ffe2702d",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 751,
+            "resource_uuid": "5fdf54ea-3c5b-4e86-8c7d-c11a7a4c1ce0",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 752,
+            "resource_uuid": "befdd3ad-b992-4c26-9757-9f24ef28eec1",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 753,
+            "resource_uuid": "91b6e2e9-4284-4218-ae2c-3dd732f6662c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 754,
+            "resource_uuid": "f0ac9b2c-73eb-4f4d-aa85-c096a1735bed",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 755,
+            "resource_uuid": "b23c55ee-7614-42f7-b098-0ee0c6e4327b",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 756,
+            "resource_uuid": "f329a2c9-23f9-4d72-946a-c9a0e4de37d5",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          },
+          {
+            "id": 757,
+            "resource_uuid": "79e8b52a-1735-463f-ae74-ee0d2912775c",
+            "key": "sp11-test",
+            "value": "1505-한글",
+            "resource_type": "SnapshotPolicy"
+          }
+        ],
+        "historical_policy_details": []
+      }
+    }
+  ]
+}

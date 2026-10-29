@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "uiSuites": 11,
+  "uiTests": 202,
+  "closeCallbackRetest": {
+    "suites": 1,
+    "tests": 31,
+    "sourceCommit": "5f58e1ea374"
+  },
+  "lint": "PASS",
+  "productionBuild": "PASS",
+  "uiSourceCommit": "5f58e1ea3743b4455a3b9b2ba523515ac8635358",
+  "fullCloudBuild": false,
+  "mavenBuild": false,
+  "actionsDispatch": false,
+  "qemuBuild": false,
+  "fullSuiteSourceCommit": "aa927421fb0"
+}

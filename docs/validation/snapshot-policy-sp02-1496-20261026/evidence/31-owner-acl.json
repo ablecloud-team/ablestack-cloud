@@ -1,0 +1,38 @@
+{
+  "owner": "sp02-owner-31-1496",
+  "visibleVolume": "b1091f95-6b87-48b5-9fe3-c6da7abee244",
+  "visiblePolicy": "0f714fed-d9b2-4b3e-b2c6-3fca0249ef12",
+  "attempts": [
+    {
+      "command": "listVolumes",
+      "args": {
+        "id": "9ff246c4-c70c-4a65-a598-f211094213b6",
+        "listall": true
+      },
+      "deniedOrEmpty": true,
+      "count": 0
+    },
+    {
+      "command": "listSnapshotPolicies",
+      "args": {
+        "volumeid": "9ff246c4-c70c-4a65-a598-f211094213b6",
+        "listall": true
+      },
+      "deniedOrEmpty": true,
+      "status": 531,
+      "errorcode": 531
+    },
+    {
+      "command": "listVolumes",
+      "args": {
+        "id": "6c6dc548-5bab-416b-89b3-ff92a0dc0c0c",
+        "projectid": "e82c17f3-1445-4ca5-a11d-117811a73c71",
+        "listall": true
+      },
+      "deniedOrEmpty": true,
+      "status": 432,
+      "errorcode": 432
+    }
+  ],
+  "passed": true
+}

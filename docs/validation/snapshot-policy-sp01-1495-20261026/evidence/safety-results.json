@@ -1,0 +1,59 @@
+[
+  {
+    "cluster": "31",
+    "case": "late policy A after B",
+    "target": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: c224206e-0ec0-4dc9-a8e0-4e6d4686ebbb",
+    "dailyDisabled": true,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "late policy A after B",
+    "target": "계정: admin · 도메인: ROOT · Zone: Zone · 아이디: 72e3d207-9e7c-4f8b-b909-930789fd9608",
+    "dailyDisabled": true,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "injected listVolumes 503 and actual API retry",
+    "loadingDisabled": true,
+    "errorDisabled": true,
+    "retryVisible": true,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "injected listVolumes 503 and actual API retry",
+    "loadingDisabled": true,
+    "errorDisabled": true,
+    "retryVisible": true,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "project switch after unmounting pending volume list",
+    "scheduleCount": 0,
+    "targetCount": 0,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "project switch cancels old read and keeps new project empty",
+    "oldRequestReleased": false,
+    "scheduleCount": 0,
+    "targetCount": 0,
+    "passed": true
+  },
+  {
+    "cluster": "31",
+    "case": "volume detail creation keeps supplied resource",
+    "noGlobalChooser": true,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "case": "volume detail creation keeps supplied resource",
+    "noGlobalChooser": true,
+    "passed": true
+  }
+]

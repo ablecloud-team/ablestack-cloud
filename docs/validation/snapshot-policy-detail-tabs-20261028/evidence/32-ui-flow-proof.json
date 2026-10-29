@@ -1,0 +1,443 @@
+{
+  "passed": true,
+  "matching": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 166
+    },
+    "dark": true,
+    "errors": [],
+    "eventRows": [
+      "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+      "448f7bea-7e2e-4477-a2be-c4b444669d55"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+    "search": "SNAPSHOTPOLICY.UPDATE",
+    "tabClass": "ant-tabs ant-tabs-left",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "empty": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 166
+    },
+    "dark": true,
+    "errors": [],
+    "eventRows": [],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 0개 항목 중 0-0 표시110 / 쪽",
+    "search": "SP-없는이벤트-20261028",
+    "tabClass": "ant-tabs ant-tabs-left",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "withDescription": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 166
+    },
+    "dark": true,
+    "errors": [],
+    "eventRows": [
+      "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+      "448f7bea-7e2e-4477-a2be-c4b444669d55"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "설명",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-left",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "pageSize20": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 166
+    },
+    "dark": true,
+    "errors": [],
+    "eventRows": [
+      "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+      "448f7bea-7e2e-4477-a2be-c4b444669d55"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 2개 항목 중 1-2 표시120 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-left",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "retry": {
+    "failed": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ce659810.js"
+      ],
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 166
+      },
+      "dark": true,
+      "errors": [
+        "목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.탭 데이터를 조회하지 못했습니다. 다시 조회하세요.재시도"
+      ],
+      "eventRows": [
+        "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+        "448f7bea-7e2e-4477-a2be-c4b444669d55"
+      ],
+      "headers": [
+        "레벨",
+        "유형",
+        "상태",
+        "사용자 이름",
+        "계정",
+        "도메인",
+        "생성일"
+      ],
+      "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+      "search": "",
+      "tabClass": "ant-tabs ant-tabs-left",
+      "tabs": [
+        {
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "selected": "true",
+          "text": "이벤트"
+        }
+      ],
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      }
+    },
+    "recovered": {
+      "app": [
+        "http://10.10.32.10:8080/client/js/app.ce659810.js"
+      ],
+      "button": {
+        "background": "rgb(24, 144, 255)",
+        "border": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "opacity": "1",
+        "width": 79.765625,
+        "x": 1167.234375,
+        "y": 135
+      },
+      "dark": true,
+      "errors": [],
+      "eventRows": [
+        "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+        "448f7bea-7e2e-4477-a2be-c4b444669d55"
+      ],
+      "headers": [
+        "레벨",
+        "유형",
+        "상태",
+        "사용자 이름",
+        "계정",
+        "도메인",
+        "생성일"
+      ],
+      "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+      "search": "",
+      "tabClass": "ant-tabs ant-tabs-left",
+      "tabs": [
+        {
+          "selected": "false",
+          "text": "상세"
+        },
+        {
+          "selected": "true",
+          "text": "이벤트"
+        }
+      ],
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      }
+    }
+  },
+  "restoredMenu": [
+    {
+      "disabled": "false",
+      "text": "정책 편집"
+    },
+    {
+      "disabled": "false",
+      "text": "예약 재개"
+    },
+    {
+      "disabled": "false",
+      "text": "스냅샷 정책 삭제"
+    }
+  ],
+  "eventDetailUrl": "http://10.10.32.10:8080/client/#/event/9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+  "eventTabReselectedAfterBack": true,
+  "requests": [
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "keyword": "SNAPSHOTPOLICY.UPDATE",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "keyword": "SP-없는이벤트-20261028",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "20"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "20"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    },
+    {
+      "command": "listEvents",
+      "page": "1",
+      "pagesize": "20",
+      "id": "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f"
+    },
+    {
+      "command": "listEvents",
+      "page": "1",
+      "pagesize": "20",
+      "id": "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f"
+    },
+    {
+      "command": "listEvents",
+      "resourceid": "7d76a3a6-eed6-4078-90dc-d4d72319ad73",
+      "resourcetype": "SnapshotPolicy",
+      "page": "1",
+      "pagesize": "10"
+    }
+  ],
+  "final": {
+    "app": [
+      "http://10.10.32.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 1167.234375,
+      "y": 166
+    },
+    "dark": true,
+    "errors": [],
+    "eventRows": [
+      "9c0fe9a0-fb6b-4601-b1c7-62790a5b1d7f",
+      "448f7bea-7e2e-4477-a2be-c4b444669d55"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 2개 항목 중 1-2 표시110 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-left",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  }
+}

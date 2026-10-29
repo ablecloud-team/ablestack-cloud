@@ -1,0 +1,8 @@
+{
+  "user": "sp04-owner-31-1498",
+  "apis": {
+    "createSnapshotPolicy": true,
+    "createTags": false,
+    "deleteTags": true
+  }
+}

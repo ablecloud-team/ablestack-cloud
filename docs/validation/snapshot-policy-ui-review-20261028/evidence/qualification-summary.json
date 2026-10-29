@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "source": "42f3710727073b2956815840eb9eb18abe5ec921",
+  "uiTests": 830,
+  "uiSuites": 56,
+  "lintFiles": 3,
+  "productionBuildPassed": true,
+  "viewportCombinations": 12,
+  "primaryMatrixScreenshots": 24,
+  "weeklyMonthlyAdditionalScreenshots": 4,
+  "selectedRefreshCases": 2,
+  "retained": {
+    "31": {
+      "volumes": 7,
+      "policies": 24,
+      "naturalSnapshots": 1,
+      "allPaused": true
+    },
+    "32": {
+      "volumes": 7,
+      "policies": 24,
+      "naturalSnapshots": 1,
+      "allPaused": true
+    }
+  },
+  "noFixtureDeletionPerformed": true,
+  "fullCloudBuild": false,
+  "inventoryDrift31": "Existing tj-win2025-1 changed Stopped to Running and ROOT-771 changed Allocated to Ready during the task; no VM start/deploy command was issued by this UI task. See preservation evidence; whole inventory is not marked unchanged."
+}

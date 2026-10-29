@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "c0671272a0a7f9f1462a6aaa3951f3ce55d1ae21",
+  "changedMavenModules": [
+    "api"
+  ],
+  "entries": {
+    "org/apache/cloudstack/api/ApiCommandResourceType.class": "31c3c82860792bd2e5f3e4df61250b303252c30198f83fce13c9c76217ee9088"
+  },
+  "sha256": "12011f452d464c57ef07fe6e67e1d28ec9cd8b97a74851461a481c07d4b784a1",
+  "compatibility": [
+    {
+      "cluster": "31",
+      "runtimeMatchesBuildBaseline": true,
+      "existingEnumOrderPreserved": true,
+      "addedEnum": "SnapshotPolicy"
+    },
+    {
+      "cluster": "32",
+      "runtimeMatchesBuildBaseline": true,
+      "existingEnumOrderPreserved": true,
+      "addedEnum": "SnapshotPolicy"
+    }
+  ]
+}

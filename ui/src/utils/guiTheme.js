@@ -19,12 +19,17 @@ import { vueProps } from '@/vue-app'
 import { getAPI } from '@/api'
 import { loadLanguageAsync } from '../locales'
 
-export async function applyCustomGuiTheme (accountid, domainid) {
+export async function applyCustomGuiTheme (accountid, domainid, allowed = true) {
   await fetch('config.json').then(response => response.json()).then(config => {
     vueProps.$config = config
   })
 
   let guiTheme
+
+  if (!allowed) {
+    await applyDynamicCustomization()
+    return
+  }
 
   if (accountid != null) {
     guiTheme = await fetchGuiTheme({ accountid: accountid })

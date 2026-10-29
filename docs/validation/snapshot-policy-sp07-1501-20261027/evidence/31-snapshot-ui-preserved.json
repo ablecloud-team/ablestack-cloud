@@ -1,0 +1,6 @@
+{
+  "height": 720,
+  "text": "대시보드\n컴퓨트\n스토리지\n볼륨\n스냅샷\n스냅샷 정책\n버킷\n공유 파일 시스템\n네트워크\n이미지\n키 관리\n이벤트\n프로젝트\n역할\n계정\n도메인\n인프라스트럭쳐\n서비스 오퍼링\n구성\n확장\n도구\nAPI 문서\n페이지 스타일 설정\n페이지 스타일 설정\n테마 색상\n네비게이션 설정\n배경색\n텍스트 색상\n설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.\n세팅값 다운로드(json)기본값으로 재설정\n기본 보기\n생성\nAC\nadmin cloud\n/스냅샷/detached_SP07-1501-31-volume-tab_20261027011620업데이트\n작업\ndetached_SP07-1501-31-volume-tab_20261027011620\n상태\n백업 됨\n아이디\nd7e91c9a-1b60-46f7-bda2-a0426d24b754 \n가상 크기\n1.00 GiB\nSecondary 백업 물리 크기\n192.02 KiB\n볼륨\nSP07-1501-31-volume-tab\nVM 이름\n연결된 가상머신 없음\n사본 Zone\nZone\n계정\nadmin\n도메인\nROOT\n생성일\n2026. 10. 27. 오전 10:16:20\n태그\n태그 새로고침\nsp07-remove = 삭제 대상\nsp07-keep = 한글 보존\n새 태그\n상세\nZone\n이벤트\n코멘트\n스냅샷 유형\n정기\n생성 주기\n매시간\n원본 볼륨 유형\n데이터 디스크\n원본 볼륨 현재 상태\n\n사용 가능\n원본 되돌리기\n현재 원본 되돌리기 조건을 충족합니다.\n\n가용성 안내이며 작업 제출 전 권한과 최신 상태를 다시 확인합니다.\n\n스토리지 사본\n\n스토리지 사본 1개. API는 사본별 물리 크기를 제공하지 않습니다.\n\nSecondary\nSecondary · Zone\n사용 가능\n준비됨\n가상 크기: 1.00 GiB\nWall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성",
+  "url": "http://10.10.31.10:8080/client/#/snapshot/d7e91c9a-1b60-46f7-bda2-a0426d24b754",
+  "width": 1280
+}

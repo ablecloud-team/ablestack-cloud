@@ -1,0 +1,342 @@
+{
+  "passed": true,
+  "responsiveViews": 12,
+  "images": [
+    {
+      "file": "31-accepted-delete-read-failure.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b3e50c02987a80ebebae9fc6b9c899c27326836c8f3d31ffe7dab250165acc32",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-before-delete-confirm.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "5aed6c35c6297e2ec12d00b855041bf6c328f93a3aa20fb87f2c40226ac8122b",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-changed-weekly.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d3d89edab78238d0d0f616264115c47756504563f10648b334f0f73a42c4c237",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-dark-delete-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "2deeae83d7a338a4b63c39de1665d0fa84230be8ba2b795d36add8cc44cb72b1",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-dark-delete-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "ae91255ae6bad35d1638d49d286b0c26037c19e2b95fec0f52f9a8b773c0a533",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-dark-delete-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "5572df78b7364268250aa45878785c39ffb384a6b529149dd6986bf5ef9ca149",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-hidden-policy-remains.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "fde6dc77f6f300fdc6d62d3a75e2b3cbb3af44079d9c977a7a21fce91d451b80",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-light-delete-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4baeb5aa7da14cf0bbc8a6e607d4045bd2e99c94c9be126d29a17b7d8ec94468",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-light-delete-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "e663fb9dd157e275ba1bab63489f025b7864e3239e6322ee312abf02a462591b",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-light-delete-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "f777bffd09a64232118625a050ccd19b2f0c82e5fa8ec4980cf84c0d0ecb0800",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-lost-success-unverified.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c8f40b8b2e85861bcf0cb15315c2b04b13e8b774e5c8cad4a38133349729698f",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-project-delete-confirm.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "69621fe7e9756bc106c4de40fc3d7198053f9b4ffdfaeb3a19ab52e140ea565e",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-readonly-owner.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c0460f5f40804a659fac2721ccbb593e5330e4d955ffd915544939bdef949315",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-readonly-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f475b3f8f178b3639612f52c198c3b62b46ba8548e7c9ab1f8591ae0e22381b1",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-role-revoked-open-dialog.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "30670e0189ce8aca9f197a69330320ff80471b63bfc3c1b9996fad0554f6b4d1",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-vm-delete-standard-dark.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "cc425e37a2d1d6d0d77bd7720db54be6a9ec6596af00d2c314b551fb619c5283",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-vm-delete-standard-light.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a375f7a17cfde70a9f0af20a7aa86ac4bab21e9ba74128a999d10de69c9e1887",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-accepted-delete-read-failure.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "e66eff0a85029dc7ca20c8addfac9b84fedc3414fc2cc25cb39999b3ad127035",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-before-volume-tab.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d3a5d48b29572e64f9b29e4233d6020a2c5aeeff07deab9480b6156209efa696",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-changed-weekly.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "37645941fe22a5636f9edbac8ae58559863dff28e2ad683ec7200365de2333fd",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-cleaned-root.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "78a56784bb10d9b8375bbf7d52bea4a7db0afd234f00a9fdfaea669d8dbb839d",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-dark-delete-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "e36f1fa7dac6a2d810e3558b04ef536cf82368c56d6b10d4e674884e91a376b3",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-dark-delete-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "6511e97d0b330ba79c1bcbd22799dd779760d16e8f3111f84a54649a6fc545fd",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-dark-delete-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "514c66edbff3b21683a3bccedc1e173e5ab0194d68df66c4c0c270f8e10cd11e",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-hidden-policy-query.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "879abc3be283c8850c5705b899146a12e40abedc98942649c5d8c4e64279eba0",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-light-delete-1280.png",
+      "format": "PNG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7d00e5503e53b6ec6836651cef2dff46ef27eb0581ad45fabf9656b918cffe41",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-light-delete-390.png",
+      "format": "PNG",
+      "width": 390,
+      "height": 844,
+      "sha256": "320fe65e2016088286dd5a0ffc32e33416ba1c2b771a6e9a6969f1fc42913634",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-light-delete-768.png",
+      "format": "PNG",
+      "width": 768,
+      "height": 900,
+      "sha256": "4eb04e5aa712298b847c24ea1dd944f891db0c5a880e957bf4cad215fb331a95",
+      "viewportMatched": true
+    },
+    {
+      "file": "32-lost-success-unverified.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "6612f43603ad658e27a3be5ed68aef494bd724b422d48accaf78a38b0a9609cb",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-natural-running-delete-431.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7c90772a070d7e68609b65f39d2427b41faec7fdc826d9c6d6ffde637f4e8319",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-natural-snapshot-preserved.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "1838816f31cf4396321eca5761dcc21f76077253f46e95bd4d795a373bc0ae67",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-natural-snapshot-tags-preserved.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "57d873c4a4963c31422307b1d8ce98c9d168b6ddfad82d5bb848da75bbb0fb21",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-project-delete-confirm.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7a3cc24fdb7e66a5a2182b038a46ea3e19dda8a5277a971349b134a4add766cf",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-readonly-owner.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bc878220f7e8042321c32b9a66b580c5efe0d31ba3ca7e51492b5119c2320c80",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-readonly-project.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "6fa4a7ddc047e1045a15928b30db71794e5dfb9b93831564d6f4cfe9e302fbe4",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-role-revoked-open-dialog.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "c7ca7a48cb085e4e466df347e5781c4b527584e1243e3eb651c33b80e9ba0571",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-vm-delete-standard-dark.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "807df4714dc769b1890ddf3ab5b3833ad901536ae4db5509a6bc232cbe7400ba",
+      "viewportMatched": false
+    },
+    {
+      "file": "32-vm-delete-standard-light.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "53014687ebf4d615469059668573885776666fe137c3cd68a0010d4ae64b4a73",
+      "viewportMatched": false
+    },
+    {
+      "file": "31-natural-running-delete-431.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "aada8796512336ecd02582280b02bcd283a4a77b8072eac97964b64245f3f46c",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-natural-snapshot-preserved.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4c706b9767c3cdbd4e46193755bdd60d3be78035fb5c04010a3e62933de83096",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-natural-snapshot-tags-preserved.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "de8457d6b277a224425f8aed8fb8b7bcb79db7b765fa776be05baf7d027345e3",
+      "viewportMatched": true
+    },
+    {
+      "file": "31-cleaned-root.jpg",
+      "format": "JPEG",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f548ffe47ec17b5d399e0eb262d50386a97da854fb78b6a8e74322d765c505bd",
+      "viewportMatched": true
+    }
+  ]
+}

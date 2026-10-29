@@ -1,0 +1,647 @@
+{
+  "passed": true,
+  "appliedMaxima": {
+    "hourly": 3,
+    "monthly": 8,
+    "weekly": 8,
+    "daily": 0
+  },
+  "valid": [],
+  "invalid": [
+    {
+      "request": {
+        "schedule": "60"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "-1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "1.5"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "+1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "1e1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": ""
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Invalid value provided for API arg: schedule"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "0:0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "0:"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "0::1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "schedule": "99999999999999999999"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for HOURLY must use MM with whole numbers: minute 0-59."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": 0
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "maxsnaps must be a whole number between 1 and 3 for HOURLY."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": -1
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "maxsnaps must be a whole number between 1 and 3 for HOURLY."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": 1.5
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to invalid value 1.5 for parameter maxsnaps"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": 4
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "maxsnaps must be a whole number between 1 and 3 for HOURLY."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": "1e0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to invalid value 1e0 for parameter maxsnaps"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": "2147483648"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to invalid value 2147483648 for parameter maxsnaps"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "maxsnaps": ""
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Invalid value provided for API arg: maxsnaps"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "_omit": "schedule"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to missing parameter schedule"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "_omit": "maxsnaps"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to missing parameter maxsnaps"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "_omit": "intervaltype"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to missing parameter intervaltype"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "_omit": "timezone"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 9999,
+          "errortext": "Unable to execute API command createsnapshotpolicy due to missing parameter timezone"
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "YEARLY"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "intervaltype must be HOURLY, DAILY, WEEKLY or MONTHLY."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "DAILY",
+        "schedule": "60:0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for DAILY must use MM:HH with whole numbers: minute 0-59; hour 0-23."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "DAILY",
+        "schedule": "0:24"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for DAILY must use MM:HH with whole numbers: minute 0-59; hour 0-23."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "DAILY",
+        "schedule": "0:1.5"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for DAILY must use MM:HH with whole numbers: minute 0-59; hour 0-23."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "DAILY",
+        "schedule": "0:0:"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for DAILY must use MM:HH with whole numbers: minute 0-59; hour 0-23."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "0:0:0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "0:0:8"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "0:0:1.5"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "60:0:1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "0:24:1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "WEEKLY",
+        "schedule": "0:0:"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for WEEKLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-7 (Sunday-Saturday)."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:29"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:31"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:-1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:1.5"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "60:0:1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:24:1"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "MONTHLY",
+        "schedule": "0:0:"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "schedule for MONTHLY must use MM:HH:DD with whole numbers: minute 0-59; hour 0-23; day 1-28."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    },
+    {
+      "request": {
+        "intervaltype": "DAILY",
+        "schedule": "0:0"
+      },
+      "response": {
+        "status": 431,
+        "data": {
+          "uuidList": [],
+          "errorcode": 431,
+          "cserrorcode": 4350,
+          "errortext": "Scheduled snapshots are disabled for DAILY. Contact an administrator."
+        }
+      },
+      "policyTagsAndScheduleUnchanged": true
+    }
+  ],
+  "invalidCount": 41
+}

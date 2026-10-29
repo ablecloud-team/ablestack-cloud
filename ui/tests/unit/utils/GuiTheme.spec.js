@@ -38,6 +38,12 @@ describe('GUI theme login domain', () => {
     expect(vueProps.$config.loginBaseDomain).toBe('static')
     expect(vueProps.$config.appTitle).toBe('ABLESTACK')
   })
+  it('uses static branding without requesting an API denied by the discovered role', async () => {
+    await applyCustomGuiTheme('read-only-account', 'domain', false)
+    expect(getAPI).not.toHaveBeenCalled()
+    expect(vueProps.$config.appTitle).toBe('ABLESTACK')
+    expect(vueProps.$config.loginBaseDomain).toBe('static')
+  })
   it('uses an explicit override, then restores the static value on a later theme selection', async () => {
     getAPI.mockResolvedValue({ listguithemesresponse: { guiThemes: [{ loginbasedomain: 'tenant' }] } })
     await applyCustomGuiTheme()

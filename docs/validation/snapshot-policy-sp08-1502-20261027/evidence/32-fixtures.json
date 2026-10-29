@@ -1,0 +1,301 @@
+{
+  "volumes": [
+    {
+      "volumemutationblockedreason": "",
+      "allocation": {
+        "fixedpolicy": "unknown",
+        "actualformat": "raw",
+        "evidence": "unverified",
+        "contractversion": "legacy",
+        "effectivepolicy": "unknown",
+        "requestedformat": "unspecified",
+        "requestedpolicy": "thin",
+        "appliedmethod": "unknown",
+        "policyorigin": "legacy"
+      },
+      "id": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "name": "SP08-1502-32-scheduled",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "type": "DATADISK",
+      "provisioningtype": "thin",
+      "size": 1073741824,
+      "created": "2026-10-27T01:11:38+0900",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "storagetype": "shared",
+      "cachemode": "none",
+      "hypervisor": "KVM",
+      "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+      "diskofferingname": "Custom",
+      "diskofferingdisplaytext": "Custom",
+      "storage": "Primary",
+      "snapshotid": "e7aa3617-9096-46b5-82f5-cb25e70276b2",
+      "destroyed": false,
+      "isextractable": true,
+      "displayvolume": true,
+      "path": "6932c845-0a9f-42ef-ae38-16bff24a14c8",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "quiescevm": false,
+      "supportsstoragesnapshot": false,
+      "deleteprotection": false,
+      "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+      "clustername": "Cluster",
+      "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "podname": "Pod",
+      "kvdoenable": false,
+      "compress": false,
+      "dedup": false,
+      "tags": [],
+      "hasannotations": false,
+      "jobid": "d8dd77fb-f7ac-4254-830b-3cd9f061ca4f",
+      "jobstatus": 0,
+      "kind": "scheduled"
+    },
+    {
+      "volumemutationblockedreason": "",
+      "allocation": {
+        "fixedpolicy": "unknown",
+        "actualformat": "raw",
+        "evidence": "unverified",
+        "contractversion": "legacy",
+        "effectivepolicy": "unknown",
+        "requestedformat": "unspecified",
+        "requestedpolicy": "thin",
+        "appliedmethod": "unknown",
+        "policyorigin": "legacy"
+      },
+      "id": "7a72559b-cceb-459d-87db-ed3cc2589cb4",
+      "name": "SP08-1502-32-volume-tab",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "type": "DATADISK",
+      "provisioningtype": "thin",
+      "size": 1073741824,
+      "created": "2026-10-27T01:11:40+0900",
+      "state": "Ready",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "storagetype": "shared",
+      "cachemode": "none",
+      "hypervisor": "KVM",
+      "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+      "diskofferingname": "Custom",
+      "diskofferingdisplaytext": "Custom",
+      "storage": "Primary",
+      "snapshotid": "e7aa3617-9096-46b5-82f5-cb25e70276b2",
+      "destroyed": false,
+      "isextractable": true,
+      "displayvolume": true,
+      "path": "a437bc1d-eb38-4699-804e-1d9a173dedf9",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "quiescevm": false,
+      "supportsstoragesnapshot": false,
+      "deleteprotection": false,
+      "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+      "clustername": "Cluster",
+      "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "podname": "Pod",
+      "kvdoenable": false,
+      "compress": false,
+      "dedup": false,
+      "tags": [],
+      "hasannotations": false,
+      "jobid": "80c426bd-192c-447f-809e-49293d0f0fc1",
+      "jobstatus": 0,
+      "kind": "volume-tab"
+    },
+    {
+      "volumemutationblockedreason": "",
+      "allocation": {
+        "fixedpolicy": "unknown",
+        "actualformat": "raw",
+        "evidence": "unverified",
+        "contractversion": "legacy",
+        "effectivepolicy": "unknown",
+        "requestedformat": "unspecified",
+        "requestedpolicy": "thin",
+        "appliedmethod": "unknown",
+        "policyorigin": "legacy"
+      },
+      "id": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "name": "SP08-1502-32-owner",
+      "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+      "zonename": "Zone",
+      "type": "DATADISK",
+      "provisioningtype": "thin",
+      "size": 1073741824,
+      "created": "2026-10-27T01:22:26+0900",
+      "state": "Ready",
+      "account": "sp08-owner-32-1502",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "storagetype": "shared",
+      "cachemode": "none",
+      "hypervisor": "KVM",
+      "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+      "diskofferingname": "Custom",
+      "diskofferingdisplaytext": "Custom",
+      "storage": "Primary",
+      "snapshotid": "e7aa3617-9096-46b5-82f5-cb25e70276b2",
+      "destroyed": false,
+      "isextractable": true,
+      "displayvolume": true,
+      "path": "cc1ecec3-a899-4298-9f82-2bafbad7844f",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "quiescevm": false,
+      "supportsstoragesnapshot": false,
+      "deleteprotection": false,
+      "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+      "clustername": "Cluster",
+      "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+      "podname": "Pod",
+      "kvdoenable": false,
+      "compress": false,
+      "dedup": false,
+      "tags": [],
+      "hasannotations": false,
+      "jobid": "bfbeada0-460c-4435-9f56-989132d84621",
+      "jobstatus": 0,
+      "kind": "owner"
+    }
+  ],
+  "account": {
+    "id": "265eff60-82f7-4277-8025-bb647cd90023",
+    "name": "sp08-owner-32-1502",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935"
+  },
+  "policies": [
+    {
+      "id": "95c565d3-2717-4dac-88cb-45a16af5765f",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "volumename": "SP08-1502-32-scheduled",
+      "schedule": "59:23:28",
+      "intervaltype": 3,
+      "maxsnaps": 3,
+      "timezone": "Asia/Seoul",
+      "fordisplay": false,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "a2c35424-44eb-44e7-9cff-5277775a91a1",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "volumename": "SP08-1502-32-scheduled",
+      "schedule": "59:23:7",
+      "intervaltype": 2,
+      "maxsnaps": 3,
+      "timezone": "Asia/Seoul",
+      "fordisplay": false,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "a7b1992e-4261-457f-a14b-01a9c2275ab3",
+      "volumeid": "601fbf0a-1738-43e5-9dc9-bf297e5c2921",
+      "volumename": "SP08-1502-32-scheduled",
+      "schedule": "59:23",
+      "intervaltype": 1,
+      "maxsnaps": 3,
+      "timezone": "Asia/Seoul",
+      "fordisplay": false,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "id": "ba5a28d5-5e9d-469d-80ab-e933ce894af3",
+      "volumeid": "f38be159-cb0c-488d-83c6-7ef4244e593b",
+      "volumename": "SP08-1502-32-owner",
+      "schedule": "45",
+      "intervaltype": 0,
+      "maxsnaps": 1,
+      "timezone": "Asia/Seoul",
+      "fordisplay": false,
+      "zone": [
+        {
+          "id": "991d2f57-0f37-4445-b956-09773d064816",
+          "name": "Zone",
+          "localstorageenabled": false,
+          "isnsxenabled": false,
+          "ismultiarch": false,
+          "routedmodeenabled": false
+        }
+      ],
+      "storage": [
+        {
+          "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "name": "Primary"
+        }
+      ],
+      "tags": []
+    }
+  ],
+  "snapshots": [],
+  "testPolicyNumericIds": [
+    63,
+    64,
+    65,
+    66,
+    67,
+    68
+  ],
+  "testPolicyUuids": [
+    "0fd8b324-a0d0-4048-8167-feec1dff26ca",
+    "49ee26dc-1b00-43ac-84d6-04bd8a67040e",
+    "95c565d3-2717-4dac-88cb-45a16af5765f",
+    "a2c35424-44eb-44e7-9cff-5277775a91a1",
+    "a7b1992e-4261-457f-a14b-01a9c2275ab3",
+    "ba5a28d5-5e9d-469d-80ab-e933ce894af3"
+  ]
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "sequence": 8269,
+    "source": {
+      "tabId": 12
+    },
+    "method": "Runtime.exceptionThrown",
+    "params": {
+      "exceptionDetails": {
+        "columnNumber": 172103,
+        "exception": {
+          "className": "i",
+          "description": "i",
+          "objectId": "-6002303021017127566.8.60",
+          "preview": {
+            "description": "i",
+            "overflow": false,
+            "properties": [
+              {
+                "name": "message",
+                "type": "string",
+                "value": "canceled"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "value": "CanceledError"
+              },
+              {
+                "name": "code",
+                "type": "string",
+                "value": "ERR_CANCELED"
+              },
+              {
+                "name": "stack",
+                "type": "string",
+                "value": "CanceledError: canceled\n    at Object.cancel (http…32.10:8080/client/js/vendors.a26facc0.js:81:22618"
+              }
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "exceptionId": 51,
+        "executionContextId": 8,
+        "lineNumber": 81,
+        "scriptId": "11",
+        "stackTrace": {
+          "callFrames": [
+            {
+              "columnNumber": 172103,
+              "functionName": "",
+              "lineNumber": 81,
+              "scriptId": "11",
+              "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+            },
+            {
+              "columnNumber": 851038,
+              "functionName": "cancel",
+              "lineNumber": 0,
+              "scriptId": "381",
+              "url": "http://10.10.32.10:8080/client/js/app.c247393a.js"
+            },
+            {
+              "columnNumber": 691678,
+              "functionName": "beforeRouteLeave",
+              "lineNumber": 0,
+              "scriptId": "381",
+              "url": "http://10.10.32.10:8080/client/js/app.c247393a.js"
+            },
+            {
+              "columnNumber": 13574,
+              "functionName": "",
+              "lineNumber": 80,
+              "scriptId": "11",
+              "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+            },
+            {
+              "columnNumber": 13388,
+              "functionName": "",
+              "lineNumber": 80,
+              "scriptId": "11",
+              "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+            },
+            {
+              "columnNumber": 22617,
+              "functionName": "",
+              "lineNumber": 80,
+              "scriptId": "11",
+              "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+            }
+          ]
+        },
+        "text": "Uncaught (in promise)",
+        "url": "http://10.10.32.10:8080/client/js/vendors.a26facc0.js"
+      },
+      "timestamp": 1793021465228.718
+    }
+  }
+]

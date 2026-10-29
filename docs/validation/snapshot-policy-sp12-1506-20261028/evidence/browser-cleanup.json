@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "sessions": [
+    {
+      "cluster": 31,
+      "tab": "31",
+      "loggedOut": true,
+      "requestInterceptionCleared": true,
+      "deviceMetricsCleared": true,
+      "themeRestored": "dark"
+    },
+    {
+      "cluster": 32,
+      "tab": "32",
+      "loggedOut": true,
+      "requestInterceptionCleared": true,
+      "deviceMetricsCleared": true,
+      "themeRestored": "dark"
+    }
+  ],
+  "ownTabsClosed": true,
+  "userEpicTabPreserved": true
+}

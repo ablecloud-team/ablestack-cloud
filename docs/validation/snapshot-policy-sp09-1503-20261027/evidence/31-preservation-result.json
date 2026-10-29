@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "api": "listZones",
+      "objects": 1,
+      "stableFields": [
+        "id",
+        "name",
+        "allocationstate",
+        "networktype"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listStoragePools",
+      "objects": 1,
+      "stableFields": [
+        "id",
+        "name",
+        "type",
+        "state",
+        "path",
+        "tags",
+        "scope"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listVirtualMachines",
+      "objects": 116,
+      "stableFields": [
+        "id",
+        "name",
+        "displayname",
+        "state",
+        "hostid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listVolumes",
+      "objects": 155,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "path",
+        "size",
+        "type",
+        "storageid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listSnapshots",
+      "objects": 23,
+      "stableFields": [
+        "id",
+        "name",
+        "state",
+        "volumeid",
+        "account",
+        "domainid",
+        "projectid"
+      ],
+      "unchanged": true
+    },
+    {
+      "api": "listRoles",
+      "objects": 11,
+      "stableFields": [
+        "id",
+        "name",
+        "type",
+        "isdefault"
+      ],
+      "unchanged": true
+    }
+  ]
+}

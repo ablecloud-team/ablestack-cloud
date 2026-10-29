@@ -1,0 +1,62 @@
+{
+  "source": "b89ae1b35f45fa3e96548abec6f71cdbdddcedf0",
+  "subissues": [
+    {
+      "number": 1495,
+      "state": "closed"
+    },
+    {
+      "number": 1496,
+      "state": "closed"
+    },
+    {
+      "number": 1497,
+      "state": "closed"
+    },
+    {
+      "number": 1498,
+      "state": "closed"
+    },
+    {
+      "number": 1499,
+      "state": "closed"
+    },
+    {
+      "number": 1500,
+      "state": "closed"
+    },
+    {
+      "number": 1501,
+      "state": "closed"
+    },
+    {
+      "number": 1502,
+      "state": "closed"
+    },
+    {
+      "number": 1503,
+      "state": "closed"
+    },
+    {
+      "number": 1504,
+      "state": "closed"
+    },
+    {
+      "number": 1505,
+      "state": "closed"
+    },
+    {
+      "number": 1506,
+      "state": "closed"
+    },
+    {
+      "number": 1507,
+      "state": "open"
+    }
+  ],
+  "registeredCheckRuns": 0,
+  "registeredStatuses": 0,
+  "workflowRuns": 0,
+  "pullRequests": [],
+  "fullBuildDispatched": false
+}

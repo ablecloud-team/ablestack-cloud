@@ -1,0 +1,12 @@
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+
+Test Suites: 3 passed, 3 total
+Tests:       36 passed, 36 total
+Snapshots:   0 total
+Time:        13.153s
+Ran all test suites within paths "tests/unit/views/storage/RecurringSnapshotVolumeSearch.spec.js", "tests/unit/views/storage/StorageRelatedTabs.spec.js", "tests/unit/views/storage/VolumeSnapshotPolicies.spec.js".

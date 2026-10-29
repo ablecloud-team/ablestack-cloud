@@ -1,0 +1,684 @@
+{
+  "passed": true,
+  "before": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ba681e4b.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 153.84375,
+      "x": 763,
+      "y": 139
+    },
+    "checks": [
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": true,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      }
+    ],
+    "headers": [
+      {
+        "text": "",
+        "width": 32,
+        "x": 268
+      },
+      {
+        "text": "간격 유형",
+        "width": 95.796875,
+        "x": 300
+      },
+      {
+        "text": "최대 스냅샷 수",
+        "width": 128.65625,
+        "x": 395.796875
+      },
+      {
+        "text": "스케줄",
+        "width": 130.328125,
+        "x": 524.453125
+      },
+      {
+        "text": "시간대",
+        "width": 246.0625,
+        "x": 654.78125
+      },
+      {
+        "text": "볼륨 이름",
+        "width": 231.953125,
+        "x": 900.84375
+      },
+      {
+        "text": "미래 예약",
+        "width": 79.203125,
+        "x": 1132.796875
+      },
+      {
+        "text": "",
+        "width": 36,
+        "x": 1212
+      }
+    ],
+    "icons": [
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      }
+    ],
+    "rows": [
+      "2605fec7-2485-43fb-8de0-b6ea16637007",
+      "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+      "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+      "559cd3a5-77ff-4b05-9761-400498f8e662",
+      "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+      "379bc3ad-991d-462d-b839-4389fa55376f",
+      "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+      "e4606051-dd94-4f8c-9008-7ac61550b09d",
+      "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+      "63e73ffb-9238-4025-9afe-421816adaca1",
+      "4f792523-b4ca-4942-85f0-97eff26ca081",
+      "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+      "6da6b776-6c24-4717-a3be-cdaec9c24572",
+      "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+      "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+      "f723336a-a365-4865-95bc-b90014c6053f",
+      "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+      "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+      "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+      "f7aed0d0-689d-4071-9911-cfe9c9fe355a"
+    ],
+    "theme": "dark",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "during": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ba681e4b.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 153.84375,
+      "x": 763,
+      "y": 139
+    },
+    "checks": [
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": true,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      },
+      {
+        "checked": false,
+        "disabled": true
+      }
+    ],
+    "headers": [
+      {
+        "text": "",
+        "width": 32,
+        "x": 268
+      },
+      {
+        "text": "간격 유형",
+        "width": 95.796875,
+        "x": 300
+      },
+      {
+        "text": "최대 스냅샷 수",
+        "width": 128.65625,
+        "x": 395.796875
+      },
+      {
+        "text": "스케줄",
+        "width": 130.328125,
+        "x": 524.453125
+      },
+      {
+        "text": "시간대",
+        "width": 246.0625,
+        "x": 654.78125
+      },
+      {
+        "text": "볼륨 이름",
+        "width": 231.953125,
+        "x": 900.84375
+      },
+      {
+        "text": "미래 예약",
+        "width": 79.203125,
+        "x": 1132.796875
+      },
+      {
+        "text": "",
+        "width": 36,
+        "x": 1212
+      }
+    ],
+    "icons": [
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      }
+    ],
+    "rows": [
+      "2605fec7-2485-43fb-8de0-b6ea16637007",
+      "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+      "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+      "559cd3a5-77ff-4b05-9761-400498f8e662",
+      "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+      "379bc3ad-991d-462d-b839-4389fa55376f",
+      "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+      "e4606051-dd94-4f8c-9008-7ac61550b09d",
+      "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+      "63e73ffb-9238-4025-9afe-421816adaca1",
+      "4f792523-b4ca-4942-85f0-97eff26ca081",
+      "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+      "6da6b776-6c24-4717-a3be-cdaec9c24572",
+      "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+      "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+      "f723336a-a365-4865-95bc-b90014c6053f",
+      "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+      "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+      "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+      "f7aed0d0-689d-4071-9911-cfe9c9fe355a"
+    ],
+    "theme": "dark",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "after": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ba681e4b.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 153.84375,
+      "x": 763,
+      "y": 139
+    },
+    "checks": [
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": true,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      },
+      {
+        "checked": false,
+        "disabled": false
+      }
+    ],
+    "headers": [
+      {
+        "text": "",
+        "width": 32,
+        "x": 268
+      },
+      {
+        "text": "간격 유형",
+        "width": 95.796875,
+        "x": 300
+      },
+      {
+        "text": "최대 스냅샷 수",
+        "width": 128.65625,
+        "x": 395.796875
+      },
+      {
+        "text": "스케줄",
+        "width": 130.328125,
+        "x": 524.453125
+      },
+      {
+        "text": "시간대",
+        "width": 246.0625,
+        "x": 654.78125
+      },
+      {
+        "text": "볼륨 이름",
+        "width": 231.953125,
+        "x": 900.84375
+      },
+      {
+        "text": "미래 예약",
+        "width": 79.203125,
+        "x": 1132.796875
+      },
+      {
+        "text": "",
+        "width": 36,
+        "x": 1212
+      }
+    ],
+    "icons": [
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-monthly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"***\""
+      },
+      {
+        "kind": "custom-icon icon-weekly",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"1-7\""
+      },
+      {
+        "kind": "custom-icon icon-daily",
+        "parentColor": "rgb(197, 204, 212)",
+        "pathFills": [
+          "rgb(197, 204, 212)"
+        ],
+        "pseudoColor": "rgb(197, 204, 212)",
+        "text": "\"01\""
+      }
+    ],
+    "rows": [
+      "2605fec7-2485-43fb-8de0-b6ea16637007",
+      "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+      "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+      "559cd3a5-77ff-4b05-9761-400498f8e662",
+      "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+      "379bc3ad-991d-462d-b839-4389fa55376f",
+      "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+      "e4606051-dd94-4f8c-9008-7ac61550b09d",
+      "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+      "63e73ffb-9238-4025-9afe-421816adaca1",
+      "4f792523-b4ca-4942-85f0-97eff26ca081",
+      "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+      "6da6b776-6c24-4717-a3be-cdaec9c24572",
+      "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+      "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+      "f723336a-a365-4865-95bc-b90014c6053f",
+      "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+      "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+      "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+      "f7aed0d0-689d-4071-9911-cfe9c9fe355a"
+    ],
+    "theme": "dark",
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  }
+}

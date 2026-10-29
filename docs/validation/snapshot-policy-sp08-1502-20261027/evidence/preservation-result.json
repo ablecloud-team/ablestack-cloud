@@ -1,0 +1,64 @@
+[
+  {
+    "cluster": "31",
+    "checks": [
+      {
+        "command": "listVolumes",
+        "before": 155,
+        "after": 155,
+        "unchanged": true
+      },
+      {
+        "command": "listVirtualMachines",
+        "before": 116,
+        "after": 116,
+        "unchanged": true
+      },
+      {
+        "command": "listSnapshots",
+        "before": 23,
+        "after": 23,
+        "unchanged": true
+      },
+      {
+        "command": "listStoragePools",
+        "before": 1,
+        "after": 1,
+        "unchanged": true
+      }
+    ],
+    "policies": 0,
+    "passed": true
+  },
+  {
+    "cluster": "32",
+    "checks": [
+      {
+        "command": "listVolumes",
+        "before": 51,
+        "after": 51,
+        "unchanged": true
+      },
+      {
+        "command": "listVirtualMachines",
+        "before": 51,
+        "after": 51,
+        "unchanged": true
+      },
+      {
+        "command": "listSnapshots",
+        "before": 7,
+        "after": 7,
+        "unchanged": true
+      },
+      {
+        "command": "listStoragePools",
+        "before": 1,
+        "after": 1,
+        "unchanged": true
+      }
+    ],
+    "policies": 0,
+    "passed": true
+  }
+]

@@ -21,6 +21,7 @@ import user from '@/store/modules/user'
 import store from '@/store'
 import { vueProps } from '@/vue-app'
 import UserMenu from '@/components/header/UserMenu.vue'
+import { applyCustomGuiTheme } from '@/utils/guiTheme'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), logout: jest.fn(() => Promise.resolve({})) }))
 jest.mock('@/vue-app', () => ({ vueProps: { $localStorage: { get: jest.fn((key, fallback) => fallback), set: jest.fn(), remove: jest.fn() } } }))
@@ -59,6 +60,16 @@ beforeEach(() => {
   store.getters.loginFlag = true
 })
 afterEach(() => { jest.useRealTimers() })
+
+test.each([true, false])('theme lookup waits for fresh permissions after a faster user reply (allowed=%s)', async allowed => {
+  let release
+  const apis = [...baseApis, ...(allowed ? ['listGuiThemes'] : [])]
+  getAPI.mockImplementation(name => name === 'listApis' ? new Promise(resolve => { release = resolve }) : reply(apis)(name))
+  const pending = user.actions.GetInfo(context()); await flush()
+  expect(applyCustomGuiTheme).not.toHaveBeenCalled()
+  release({ listapisresponse: { api: apis.map(name => ({ name })) } }); await pending; await flush()
+  expect(applyCustomGuiTheme).toHaveBeenCalledWith(undefined, undefined, allowed)
+})
 
 test.each([
   ['ordinary user', baseApis],

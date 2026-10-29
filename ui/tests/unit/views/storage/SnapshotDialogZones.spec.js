@@ -111,6 +111,7 @@ describe.each([Schedule, TakeSnapshot])('$name additional zones', component => {
       volumeId: 'volume',
       resource: { id: 'volume' },
       tags: [],
+      $store: { getters: { apis: { createSnapshotPolicy: {}, createSnapshot: {} } } },
       $t: k => k
     }
     component.methods.handleSubmit.call(vm); await flushPromises()

@@ -1,0 +1,32 @@
+{
+  "cleaned": true,
+  "volumes": 3,
+  "snapshotTagExplicitCleanup": [
+    {
+      "snapshot": "828f141d-81b1-403b-b458-abb13695c51d",
+      "reason": "SP-12 known residual",
+      "tags": [
+        {
+          "key": "sp04-keep",
+          "value": "한글 태그 유지",
+          "resourcetype": "Snapshot",
+          "resourceid": "828f141d-81b1-403b-b458-abb13695c51d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "sp04-pending",
+          "value": "입력 중인 태그",
+          "resourcetype": "Snapshot",
+          "resourceid": "828f141d-81b1-403b-b458-abb13695c51d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ]
+}

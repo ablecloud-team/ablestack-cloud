@@ -1,0 +1,1002 @@
+{
+  "cluster": "31",
+  "prefix": "UI검토-SP-31-20261028",
+  "owner": "admin / ROOT",
+  "explicitUserDeletionRequired": true,
+  "allPoliciesPaused": true,
+  "policyCount": 24,
+  "volumeCount": 7,
+  "snapshotCount": 1,
+  "emptyCreationVolumeId": "8119a223-1e3f-4bc8-b784-c4f2a1a7a48d",
+  "uiCreatedDailyPolicyId": "2605fec7-2485-43fb-8de0-b6ea16637007",
+  "volumes": [
+    {
+      "id": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "name": "UI검토-SP-31-20261028-볼륨01",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+      "name": "UI검토-SP-31-20261028-볼륨02",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+      "name": "UI검토-SP-31-20261028-볼륨03",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "c1b9409e-d3b1-4990-984d-01aab814d660",
+      "name": "UI검토-SP-31-20261028-볼륨04",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+      "name": "UI검토-SP-31-20261028-볼륨05",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+      "name": "UI검토-SP-31-20261028-볼륨06",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "8119a223-1e3f-4bc8-b784-c4f2a1a7a48d",
+      "name": "UI검토-SP-31-20261028-생성검토용-빈볼륨",
+      "state": "Ready",
+      "type": "DATADISK",
+      "size": 1073741824,
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Volume",
+          "resourceid": "8119a223-1e3f-4bc8-b784-c4f2a1a7a48d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Volume",
+          "resourceid": "8119a223-1e3f-4bc8-b784-c4f2a1a7a48d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "id": "2605fec7-2485-43fb-8de0-b6ea16637007",
+      "volumeid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+      "volumename": "UI검토-SP-31-20261028-볼륨06",
+      "intervaltype": 1,
+      "schedule": "10:09",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 2,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "2605fec7-2485-43fb-8de0-b6ea16637007",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "2605fec7-2485-43fb-8de0-b6ea16637007",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+      "volumeid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+      "volumename": "UI검토-SP-31-20261028-볼륨06",
+      "intervaltype": 3,
+      "schedule": "55:15:1",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "1afa612e-601e-4e1e-b6f1-9ec0ccae3596",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+      "volumeid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+      "volumename": "UI검토-SP-31-20261028-볼륨06",
+      "intervaltype": 2,
+      "schedule": "45:14:1",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "fa928679-f3ca-4d2b-8a18-c04b02ed508b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "559cd3a5-77ff-4b05-9761-400498f8e662",
+      "volumeid": "b79d3f98-ed82-4268-814e-5e32822eefbc",
+      "volumename": "UI검토-SP-31-20261028-볼륨06",
+      "intervaltype": 0,
+      "schedule": "35",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "559cd3a5-77ff-4b05-9761-400498f8e662",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "559cd3a5-77ff-4b05-9761-400498f8e662",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+      "volumeid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+      "volumename": "UI검토-SP-31-20261028-볼륨05",
+      "intervaltype": 3,
+      "schedule": "24:11:28",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "6bcec3ec-3e24-40ac-91a9-69d5a910b63b",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "379bc3ad-991d-462d-b839-4389fa55376f",
+      "volumeid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+      "volumename": "UI검토-SP-31-20261028-볼륨05",
+      "intervaltype": 2,
+      "schedule": "19:10:2",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "379bc3ad-991d-462d-b839-4389fa55376f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "379bc3ad-991d-462d-b839-4389fa55376f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+      "volumeid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+      "volumename": "UI검토-SP-31-20261028-볼륨05",
+      "intervaltype": 1,
+      "schedule": "14:9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "7c61c3de-4814-4cb7-bb94-07eb6ec44092",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "e4606051-dd94-4f8c-9008-7ac61550b09d",
+      "volumeid": "63ea416a-20dc-44fe-8b24-cbe5ac48f397",
+      "volumename": "UI검토-SP-31-20261028-볼륨05",
+      "intervaltype": 0,
+      "schedule": "9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "e4606051-dd94-4f8c-9008-7ac61550b09d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "e4606051-dd94-4f8c-9008-7ac61550b09d",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+      "volumeid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+      "volumename": "UI검토-SP-31-20261028-볼륨04",
+      "intervaltype": 3,
+      "schedule": "23:11:28",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "0de6a25b-d2bb-4c71-b89c-f629d1a854c0",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "63e73ffb-9238-4025-9afe-421816adaca1",
+      "volumeid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+      "volumename": "UI검토-SP-31-20261028-볼륨04",
+      "intervaltype": 2,
+      "schedule": "18:10:2",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "63e73ffb-9238-4025-9afe-421816adaca1",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "63e73ffb-9238-4025-9afe-421816adaca1",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "4f792523-b4ca-4942-85f0-97eff26ca081",
+      "volumeid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+      "volumename": "UI검토-SP-31-20261028-볼륨04",
+      "intervaltype": 1,
+      "schedule": "13:9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "4f792523-b4ca-4942-85f0-97eff26ca081",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "4f792523-b4ca-4942-85f0-97eff26ca081",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+      "volumeid": "c1b9409e-d3b1-4990-984d-01aab814d660",
+      "volumename": "UI검토-SP-31-20261028-볼륨04",
+      "intervaltype": 0,
+      "schedule": "8",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "da550ab1-8e8e-424b-8aeb-f0882ae5656e",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "6da6b776-6c24-4717-a3be-cdaec9c24572",
+      "volumeid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+      "volumename": "UI검토-SP-31-20261028-볼륨03",
+      "intervaltype": 3,
+      "schedule": "22:11:28",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "6da6b776-6c24-4717-a3be-cdaec9c24572",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "6da6b776-6c24-4717-a3be-cdaec9c24572",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+      "volumeid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+      "volumename": "UI검토-SP-31-20261028-볼륨03",
+      "intervaltype": 2,
+      "schedule": "17:10:2",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "df2d7a6d-fc5c-4e7d-9686-d6705860022a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+      "volumeid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+      "volumename": "UI검토-SP-31-20261028-볼륨03",
+      "intervaltype": 1,
+      "schedule": "12:9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "2e2bf279-b8f3-4f78-8aff-09dcdd240920",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "f723336a-a365-4865-95bc-b90014c6053f",
+      "volumeid": "30f9ff95-455e-4e43-8927-c359f7e7eca3",
+      "volumename": "UI검토-SP-31-20261028-볼륨03",
+      "intervaltype": 0,
+      "schedule": "7",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "f723336a-a365-4865-95bc-b90014c6053f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "f723336a-a365-4865-95bc-b90014c6053f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+      "volumeid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+      "volumename": "UI검토-SP-31-20261028-볼륨02",
+      "intervaltype": 3,
+      "schedule": "21:11:28",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "d15fafe3-9048-4a96-8f41-5d819e2b2a89",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+      "volumeid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+      "volumename": "UI검토-SP-31-20261028-볼륨02",
+      "intervaltype": 2,
+      "schedule": "16:10:2",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "bcd6a623-c4f7-45e4-b0da-69fbb3674312",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+      "volumeid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+      "volumename": "UI검토-SP-31-20261028-볼륨02",
+      "intervaltype": 1,
+      "schedule": "11:9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "bd5345b3-5ebe-46ab-8909-dbf39abb5e4c",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "f7aed0d0-689d-4071-9911-cfe9c9fe355a",
+      "volumeid": "52ee7b3a-eb39-4346-a482-6893b9cd9b7b",
+      "volumename": "UI검토-SP-31-20261028-볼륨02",
+      "intervaltype": 0,
+      "schedule": "6",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "f7aed0d0-689d-4071-9911-cfe9c9fe355a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "f7aed0d0-689d-4071-9911-cfe9c9fe355a",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "c89ab36f-389f-4035-85d2-435b25ff8628",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "volumename": "UI검토-SP-31-20261028-볼륨01",
+      "intervaltype": 3,
+      "schedule": "20:11:28",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "c89ab36f-389f-4035-85d2-435b25ff8628",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "c89ab36f-389f-4035-85d2-435b25ff8628",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "d3792488-0054-4d62-890a-fe9c236fb4b9",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "volumename": "UI검토-SP-31-20261028-볼륨01",
+      "intervaltype": 2,
+      "schedule": "15:10:2",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "d3792488-0054-4d62-890a-fe9c236fb4b9",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "d3792488-0054-4d62-890a-fe9c236fb4b9",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "ca05fb89-4e70-4783-b50d-efc9b9d025bf",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "volumename": "UI검토-SP-31-20261028-볼륨01",
+      "intervaltype": 1,
+      "schedule": "10:9",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "ca05fb89-4e70-4783-b50d-efc9b9d025bf",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "ca05fb89-4e70-4783-b50d-efc9b9d025bf",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    },
+    {
+      "id": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "volumename": "UI검토-SP-31-20261028-볼륨01",
+      "intervaltype": 0,
+      "schedule": "27",
+      "timezone": "Asia/Seoul",
+      "maxsnaps": 8,
+      "schedulingenabled": false,
+      "tags": [
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        },
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "SnapshotPolicy",
+          "resourceid": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT"
+        }
+      ]
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "887af746-5c20-4d95-8ce4-356604b482fe",
+      "name": "detached_UI검토-SP-31-20261028-볼륨01_20261028052904",
+      "volumeid": "d010a094-684c-4246-8c0d-fd750ac5268a",
+      "state": "BackedUp",
+      "created": "2026-10-28T14:29:04+0900",
+      "tags": [
+        {
+          "key": "retention",
+          "value": "명시적 삭제 요청까지 유지",
+          "resourcetype": "Snapshot",
+          "resourceid": "887af746-5c20-4d95-8ce4-356604b482fe",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        },
+        {
+          "key": "ui-review",
+          "value": "20261028-retain",
+          "resourcetype": "Snapshot",
+          "resourceid": "887af746-5c20-4d95-8ce4-356604b482fe",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT"
+        }
+      ]
+    }
+  ]
+}

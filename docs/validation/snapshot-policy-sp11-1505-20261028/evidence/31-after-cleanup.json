@@ -1,0 +1,228 @@
+{
+  "at": "2026-10-27 15:47:35.252153",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 1157,
+      "uuid": "432ae931-2900-4783-978d-f84719c54397",
+      "name": "SP11-1505-31-project-한글",
+      "state": "Expunged",
+      "path": "77dc6ee9-d93d-453c-a9df-25f2aa081c3e",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:35"
+    },
+    {
+      "id": 1148,
+      "uuid": "53451d2f-c945-4870-b226-8a032e4dee02",
+      "name": "SP11-1505-31-admin-0-한글",
+      "state": "Expunged",
+      "path": "6666c041-0863-4e61-a1db-e0ad86c36641",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1155,
+      "uuid": "595b620a-8419-4550-b1dc-927a929ddfbd",
+      "name": "SP11-1505-31-owner-b-한글",
+      "state": "Expunged",
+      "path": "7d007bbb-b26f-43e7-a9fb-6b64f9bf2b94",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:34"
+    },
+    {
+      "id": 1154,
+      "uuid": "6d6d8dc2-92ea-405e-ad4d-ce1ed22fe365",
+      "name": "SP11-1505-31-owner-a-한글",
+      "state": "Expunged",
+      "path": "c3d79a12-b413-4ead-983d-1188eb6af43a",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1150,
+      "uuid": "84e10781-816c-4b7e-88c1-574f5902bec0",
+      "name": "SP11-1505-31-admin-2-한글",
+      "state": "Expunged",
+      "path": "b03bcd4a-676f-4a17-8f3d-11b3039a84cc",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1153,
+      "uuid": "91cfa11b-85e0-491f-b948-89180c586eb6",
+      "name": "SP11-1505-31-admin-5-한글",
+      "state": "Expunged",
+      "path": "ad27ce2d-66aa-485f-ab97-210778a2cb4b",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1149,
+      "uuid": "b6f95a5d-974d-42ec-8b90-67e9aa618a5b",
+      "name": "SP11-1505-31-admin-1-한글",
+      "state": "Expunged",
+      "path": "2c45fa07-7125-438c-9804-e49791bcda0a",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1156,
+      "uuid": "c6951f21-1779-40d6-9650-5a3ded8322ee",
+      "name": "SP11-1505-31-domain-admin-한글",
+      "state": "Expunged",
+      "path": "34bff0a6-d9e6-4053-9999-b20a6e514fbe",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:35"
+    },
+    {
+      "id": 1151,
+      "uuid": "d6d96d03-c3df-4b2b-a1f3-9630373b6083",
+      "name": "SP11-1505-31-admin-3-한글",
+      "state": "Expunged",
+      "path": "5c44c8a6-e02b-4ef8-8d89-6ee7f6916946",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    },
+    {
+      "id": 1152,
+      "uuid": "e20f976b-0ea8-4994-9624-2a1967106a83",
+      "name": "SP11-1505-31-admin-4-한글",
+      "state": "Expunged",
+      "path": "93b0357e-8dcf-49d2-ab76-8786301af2d3",
+      "pool_id": 1,
+      "removed": "2026-10-27 15:46:33"
+    }
+  ],
+  "policies": [],
+  "schedules": [],
+  "snapshots": [
+    {
+      "id": 286,
+      "uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+      "volume_id": 1151,
+      "status": "Error",
+      "created": "2026-10-27 15:02:26",
+      "removed": "2026-10-27 15:46:28",
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 287,
+      "uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+      "volume_id": 1151,
+      "status": "Error",
+      "created": "2026-10-27 15:12:26",
+      "removed": "2026-10-27 15:46:29",
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 284,
+      "uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+      "volume_id": 1152,
+      "status": "Allocated",
+      "created": "2026-10-27 14:34:12",
+      "removed": "2026-10-27 15:46:30",
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 285,
+      "uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+      "volume_id": 1152,
+      "status": "Destroyed",
+      "created": "2026-10-27 14:47:03",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    }
+  ],
+  "refs": [
+    {
+      "uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Destroyed",
+      "install_path": "snapshots/2/1152/1f033f0f-31fa-4427-abfb-34aeeaedf6b4",
+      "job_id": null
+    }
+  ],
+  "jobs": [
+    {
+      "snapshot_uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+      "id": 17736,
+      "uuid": "17468c27-4f02-4e47-810c-3f54704ca262",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-27 14:34:12",
+      "last_updated": "2026-10-27 14:34:12"
+    },
+    {
+      "snapshot_uuid": "572e8899-1518-466b-8281-cdcc8190b0ae",
+      "id": 17749,
+      "uuid": "1b7c8bd1-0fb7-479a-9aa2-8238d214dbec",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:30",
+      "last_updated": "2026-10-27 15:46:30"
+    },
+    {
+      "snapshot_uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+      "id": 17737,
+      "uuid": "2bbd84d7-868e-4fd7-90ac-b9edee110775",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 14:47:03",
+      "last_updated": "2026-10-27 14:47:03"
+    },
+    {
+      "snapshot_uuid": "a231c7ff-3078-45ec-840a-58eab67a5186",
+      "id": 17751,
+      "uuid": "26441ce1-3c46-4e39-b5d7-e662d57e6c7e",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:32",
+      "last_updated": "2026-10-27 15:46:32"
+    },
+    {
+      "snapshot_uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+      "id": 17740,
+      "uuid": "df896fa1-ea2f-4717-90c1-4dff1e701ae9",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-27 15:02:26",
+      "last_updated": "2026-10-27 15:02:58"
+    },
+    {
+      "snapshot_uuid": "86240d44-9084-4b92-a399-e1a6678ae477",
+      "id": 17747,
+      "uuid": "56cc609b-61df-491e-af6a-b26c74dc9158",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:28",
+      "last_updated": "2026-10-27 15:46:28"
+    },
+    {
+      "snapshot_uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+      "id": 17742,
+      "uuid": "2ae74fd4-9ce8-4922-923c-d3fdfc18c4a2",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-27 15:12:26",
+      "last_updated": "2026-10-27 15:12:58"
+    },
+    {
+      "snapshot_uuid": "bc6c3b5f-8021-4a57-99f8-ad643032ef0a",
+      "id": 17748,
+      "uuid": "3a9fbd09-c39c-44b0-b648-e2859abc88a1",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:29",
+      "last_updated": "2026-10-27 15:46:29"
+    }
+  ],
+  "tags": [],
+  "historical_policy_tags": [],
+  "historical_policy_details": [],
+  "apiPolicies": []
+}

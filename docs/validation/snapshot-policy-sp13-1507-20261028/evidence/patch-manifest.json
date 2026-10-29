@@ -1,0 +1,8 @@
+{
+  "backendSourceCommit": "63314d20c489ab21b04049b502cb3698a2e1eb62",
+  "sha256": "0e14177e6dc2946a032067028614955c82731a5bc7790b3cce7291c1338113a7",
+  "entries": {
+    "com/cloud/storage/snapshot/SnapshotManagerImpl.class": "1543f196d77ee9960f7ffb48164eb448d6a2634244946bcdf51652f17b092d4e",
+    "com/cloud/storage/snapshot/SnapshotPolicyInputValidator.class": "8474429aa6029c2f228d8c49e0a8af707bbf6d0d54e086469978208105ce7961"
+  }
+}

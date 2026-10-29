@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "cluster": "31",
+      "class": "com.cloud.storage.snapshot.SnapshotManagerImpl$BackupSnapshotTask",
+      "bytecodeInstructionsUnchanged": true
+    },
+    {
+      "cluster": "31",
+      "class": "com.cloud.api.ApiResponseHelper$1",
+      "bytecodeInstructionsUnchanged": true
+    },
+    {
+      "cluster": "32",
+      "class": "com.cloud.storage.snapshot.SnapshotManagerImpl$BackupSnapshotTask",
+      "bytecodeInstructionsUnchanged": true
+    },
+    {
+      "cluster": "32",
+      "class": "com.cloud.api.ApiResponseHelper$1",
+      "bytecodeInstructionsUnchanged": true
+    }
+  ]
+}

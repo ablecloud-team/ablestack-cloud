@@ -35,7 +35,7 @@
         :loading="loading && !resource.id"
         :bordered="true"
         style="width:100%">
-        <keep-alive v-if="tabs.length === 1">
+        <keep-alive v-if="tabs.length === 1 && $route.meta?.name !== 'snapshotpolicy'">
           <component
             :is="tabs[0].component"
             :key="tabs[0].name"

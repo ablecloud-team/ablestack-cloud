@@ -1,0 +1,160 @@
+{
+  "passed": true,
+  "before": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 13,
+      "y": 250
+    },
+    "dark": false,
+    "errors": [],
+    "eventRows": [
+      "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+      "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+      "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+      "3ee16924-168f-427c-9640-20daf6870ff3"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 4개 항목 중 1-4 표시110 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-top",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 390
+    }
+  },
+  "during": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 13,
+      "y": 250
+    },
+    "dark": false,
+    "errors": [],
+    "eventRows": [
+      "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+      "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+      "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+      "3ee16924-168f-427c-9640-20daf6870ff3"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 4개 항목 중 1-4 표시110 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-top",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 390
+    }
+  },
+  "after": {
+    "app": [
+      "http://10.10.31.10:8080/client/js/app.ce659810.js"
+    ],
+    "button": {
+      "background": "rgb(24, 144, 255)",
+      "border": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "opacity": "1",
+      "width": 79.765625,
+      "x": 13,
+      "y": 250
+    },
+    "dark": false,
+    "errors": [],
+    "eventRows": [
+      "b240043c-87e7-4ef9-bb31-bd5d751fc99f",
+      "a27c5db3-11fb-46d7-90db-b7c28f884fdf",
+      "f7c63c51-ee3b-4d97-ab8e-4fdc3d8d5bef",
+      "3ee16924-168f-427c-9640-20daf6870ff3"
+    ],
+    "headers": [
+      "레벨",
+      "유형",
+      "상태",
+      "사용자 이름",
+      "계정",
+      "도메인",
+      "생성일"
+    ],
+    "pagination": "전체 4개 항목 중 1-4 표시110 / 쪽",
+    "search": "",
+    "tabClass": "ant-tabs ant-tabs-top",
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "true",
+        "text": "이벤트"
+      }
+    ],
+    "viewport": {
+      "height": 720,
+      "width": 390
+    }
+  },
+  "heldPolicyRead": [
+    {
+      "command": "listSnapshotPolicies",
+      "id": "b330db53-c7c8-4a4b-9cb5-418ba9c876b6"
+    }
+  ],
+  "menu": []
+}

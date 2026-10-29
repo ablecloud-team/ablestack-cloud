@@ -1,0 +1,236 @@
+{
+  "at": "2026-10-27 15:47:36.651814",
+  "policy_details": [],
+  "volumes": [
+    {
+      "id": 555,
+      "uuid": "0d3171be-06c7-425e-88af-7cfd0e710e78",
+      "name": "SP11-1505-32-admin-0-한글",
+      "state": "Expunged",
+      "path": "cd7052b0-9f14-4421-b02a-3f96159b21b6",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:36"
+    },
+    {
+      "id": 557,
+      "uuid": "1900a63a-b500-4523-90c4-77e1bdf9ceb4",
+      "name": "SP11-1505-32-admin-2-한글",
+      "state": "Expunged",
+      "path": "df563f8f-1a41-4e98-9189-54002d420a59",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:37"
+    },
+    {
+      "id": 559,
+      "uuid": "19fff9d1-c632-4ce1-8194-49bd1bf20f25",
+      "name": "SP11-1505-32-admin-4-한글",
+      "state": "Expunged",
+      "path": "4671c35e-62d2-479b-8381-7284818ec2bd",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:39"
+    },
+    {
+      "id": 562,
+      "uuid": "2f297917-a034-4852-99da-409be4115647",
+      "name": "SP11-1505-32-owner-b-한글",
+      "state": "Expunged",
+      "path": "bcb95820-f041-4bbf-821e-b4984698ef5f",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:41"
+    },
+    {
+      "id": 561,
+      "uuid": "35c1c57d-bed5-49f3-b82e-a08760315ddd",
+      "name": "SP11-1505-32-owner-a-한글",
+      "state": "Expunged",
+      "path": "e2f87ab7-883e-4f60-9193-d153626f98b2",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:40"
+    },
+    {
+      "id": 558,
+      "uuid": "413b92af-08f6-451b-bc2c-046158864210",
+      "name": "SP11-1505-32-admin-3-한글",
+      "state": "Expunged",
+      "path": "c1d36111-a1f4-41fe-b0e6-dfd8d1d0b102",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:38"
+    },
+    {
+      "id": 556,
+      "uuid": "530a13ac-5c4b-4d8a-8499-9c82a756bd6c",
+      "name": "SP11-1505-32-admin-1-한글",
+      "state": "Expunged",
+      "path": "7f190bca-130c-445e-bcb8-000d09b0c2b0",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:37"
+    },
+    {
+      "id": 560,
+      "uuid": "6ca76a84-cf68-4cd5-b403-5a44fb85fe44",
+      "name": "SP11-1505-32-admin-5-한글",
+      "state": "Expunged",
+      "path": "20d9130e-75bb-49a5-848d-bb294122cad5",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:39"
+    },
+    {
+      "id": 563,
+      "uuid": "99b3be4f-2a53-4e03-9cd0-d46fdc08cbe8",
+      "name": "SP11-1505-32-domain-admin-한글",
+      "state": "Expunged",
+      "path": "6de35c8d-3986-439e-b37a-2e1463416c4c",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:41"
+    },
+    {
+      "id": 564,
+      "uuid": "d20e68e0-d3e2-4adf-9e27-75695a5b0418",
+      "name": "SP11-1505-32-project-한글",
+      "state": "Expunged",
+      "path": "a28a8479-c954-45f3-86e4-fe9c2856584c",
+      "pool_id": 3,
+      "removed": "2026-10-27 15:46:42"
+    }
+  ],
+  "policies": [],
+  "schedules": [],
+  "snapshots": [
+    {
+      "id": 257,
+      "uuid": "4e820281-818b-4feb-94b3-957691b3526b",
+      "volume_id": 559,
+      "status": "Destroyed",
+      "created": "2026-10-27 14:34:14",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 258,
+      "uuid": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+      "volume_id": 558,
+      "status": "Destroyed",
+      "created": "2026-10-27 14:59:02",
+      "removed": null,
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 259,
+      "uuid": "7afe1a16-a53e-4f28-a4c3-f0e08a7489df",
+      "volume_id": 558,
+      "status": "Error",
+      "created": "2026-10-27 15:04:02",
+      "removed": "2026-10-27 15:46:33",
+      "path": null,
+      "backup_snap_id": null
+    },
+    {
+      "id": 260,
+      "uuid": "2f037e1e-b383-4897-bc92-09e7fabb3d17",
+      "volume_id": 558,
+      "status": "Error",
+      "created": "2026-10-27 15:14:02",
+      "removed": "2026-10-27 15:46:34",
+      "path": null,
+      "backup_snap_id": null
+    }
+  ],
+  "refs": [
+    {
+      "uuid": "4e820281-818b-4feb-94b3-957691b3526b",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Destroyed",
+      "install_path": "snapshots/2/559/6e72c21d-b067-4d3b-9402-fc7a98ec6792",
+      "job_id": null
+    },
+    {
+      "uuid": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+      "store_id": 1,
+      "store_role": "Image",
+      "state": "Destroyed",
+      "install_path": "snapshots/2/558/62a86bd2-e30b-4702-9a6d-1b98287216e1",
+      "job_id": null
+    }
+  ],
+  "jobs": [
+    {
+      "snapshot_uuid": "4e820281-818b-4feb-94b3-957691b3526b",
+      "id": 4843,
+      "uuid": "88cb07c2-45fd-40a2-b013-ad751adcca7d",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 14:34:14",
+      "last_updated": "2026-10-27 14:34:16"
+    },
+    {
+      "snapshot_uuid": "4e820281-818b-4feb-94b3-957691b3526b",
+      "id": 4854,
+      "uuid": "6850ae2c-9cd0-497a-a062-bedcc4649ddd",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:29",
+      "last_updated": "2026-10-27 15:46:31"
+    },
+    {
+      "snapshot_uuid": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+      "id": 4846,
+      "uuid": "871847c5-026c-44c2-96de-4361c093882f",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 14:59:02",
+      "last_updated": "2026-10-27 14:59:06"
+    },
+    {
+      "snapshot_uuid": "99cd6ff1-9b62-4687-b2bb-9e0cf984e3c5",
+      "id": 4855,
+      "uuid": "a8601bd9-0a3d-4fc0-b0b7-0a6463330aa6",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:31",
+      "last_updated": "2026-10-27 15:46:33"
+    },
+    {
+      "snapshot_uuid": "7afe1a16-a53e-4f28-a4c3-f0e08a7489df",
+      "id": 4848,
+      "uuid": "6183a87f-d1cc-46d7-ab04-8428807beb12",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-27 15:04:02",
+      "last_updated": "2026-10-27 15:04:45"
+    },
+    {
+      "snapshot_uuid": "7afe1a16-a53e-4f28-a4c3-f0e08a7489df",
+      "id": 4856,
+      "uuid": "1442a0e9-6799-4743-a7df-c259356ec1c9",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:33",
+      "last_updated": "2026-10-27 15:46:33"
+    },
+    {
+      "snapshot_uuid": "2f037e1e-b383-4897-bc92-09e7fabb3d17",
+      "id": 4850,
+      "uuid": "2226a2a8-f39c-4de0-96ca-3e2113153186",
+      "job_status": 2,
+      "job_result_code": 530,
+      "created": "2026-10-27 15:14:02",
+      "last_updated": "2026-10-27 15:14:39"
+    },
+    {
+      "snapshot_uuid": "2f037e1e-b383-4897-bc92-09e7fabb3d17",
+      "id": 4857,
+      "uuid": "eb585502-6f22-405c-9bcf-5c70e4e83471",
+      "job_status": 1,
+      "job_result_code": 0,
+      "created": "2026-10-27 15:46:34",
+      "last_updated": "2026-10-27 15:46:34"
+    }
+  ],
+  "tags": [],
+  "historical_policy_tags": [],
+  "historical_policy_details": [],
+  "apiPolicies": []
+}

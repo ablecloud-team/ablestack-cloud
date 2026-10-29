@@ -1,0 +1,161 @@
+[
+  {
+    "cluster": 32,
+    "theme": "light",
+    "form": "edit",
+    "pass": true,
+    "buttons": [
+      {
+        "bottom": 671,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 1025.234375,
+        "text": "취소",
+        "width": 57.765625,
+        "x": 967.46875,
+        "y": 639
+      },
+      {
+        "bottom": 671,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 1091,
+        "text": "저장",
+        "width": 57.765625,
+        "x": 1033.234375,
+        "y": 639
+      }
+    ],
+    "documentWidth": 1270,
+    "height": 720,
+    "modal": {
+      "bottom": 688,
+      "font": "14px",
+      "height": 656,
+      "radius": "0px",
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "select": {
+      "bottom": 370.84375,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "right": 1081,
+      "width": 440,
+      "x": 641,
+      "y": 338.84375
+    },
+    "width": 1280
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "form": "edit",
+    "pass": true,
+    "buttons": [
+      {
+        "bottom": 849,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 649.234375,
+        "text": "취소",
+        "width": 57.765625,
+        "x": 591.46875,
+        "y": 817
+      },
+      {
+        "bottom": 849,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 715,
+        "text": "저장",
+        "width": 57.765625,
+        "x": 657.234375,
+        "y": 817
+      }
+    ],
+    "documentWidth": 758,
+    "height": 900,
+    "modal": {
+      "bottom": 866,
+      "font": "14px",
+      "height": 832,
+      "radius": "0px",
+      "right": 744,
+      "width": 720,
+      "x": 24,
+      "y": 34
+    },
+    "select": {
+      "bottom": 460.84375,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "right": 705,
+      "width": 652,
+      "x": 53,
+      "y": 428.84375
+    },
+    "width": 768
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "form": "edit",
+    "pass": true,
+    "buttons": [
+      {
+        "bottom": 815,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 295.234375,
+        "text": "취소",
+        "width": 57.765625,
+        "x": 237.46875,
+        "y": 783
+      },
+      {
+        "bottom": 815,
+        "font": "14px",
+        "height": 32,
+        "radius": "4px",
+        "right": 361,
+        "text": "저장",
+        "width": 57.765625,
+        "x": 303.234375,
+        "y": 783
+      }
+    ],
+    "documentWidth": 380,
+    "height": 844,
+    "modal": {
+      "bottom": 832,
+      "font": "14px",
+      "height": 820,
+      "radius": "0px",
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "select": {
+      "bottom": 432.84375,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "right": 351,
+      "width": 322,
+      "x": 29,
+      "y": 400.84375
+    },
+    "width": 390
+  }
+]
