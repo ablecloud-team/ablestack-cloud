@@ -49,6 +49,7 @@ import java.util.List;
 @APICommand(name = "cloneVirtualMachine", responseObject = UserVmResponse.class, description = "clone a virtual machine",
         responseView = ResponseObject.ResponseView.Restricted, requestHasSensitiveInfo = false, responseHasSensitiveInfo = true, entityType = {VirtualMachine.class}, since="4.19.0")
 public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
+    public static final int MAX_CLONE_COUNT = 50;
     private static final String s_name = "clonevirtualmachineresponse";
     private static final String CLONE_IDENTIFIER = "Clone";
 
@@ -64,27 +65,26 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     private String name;
 
     //Owner information
-    @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "an optional account for the virtual machine. Must be used with domainId.")
+    @Parameter(name = ApiConstants.ACCOUNT, type = CommandType.STRING, description = "Compatibility parameter: only the source VM account is supported. Must be used with its domainId; changing ownership is not supported.")
     private String accountName;
 
-    @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "an optional domainId for the virtual machine. If the account parameter is used, domainId must also be used.")
+    @Parameter(name = ApiConstants.DOMAIN_ID, type = CommandType.UUID, entityType = DomainResponse.class, description = "Compatibility parameter: only the source VM domain is supported. Required with account; changing domain is not supported.")
     private Long domainId;
 
-    @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, required = true, description = "true if start vm after creating; defaulted to false if not specified")
+    @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, description = "Start the cloned VMs after creation. Optional; defaults to false.")
     private Boolean startVm;
 
-    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, description = "select fast(linked) clone type or full clone type(default is full clone)")
+    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, description = "Clone type: full (default) or linked. Linked requires all source disks on RBD and compatible allocation policies. GFS2 uses its fixed Full copy strategy and accepts only omission or full.")
     private String type;
 
-    @Parameter(name=ApiConstants.COUNT, type=CommandType.INTEGER, description="count of clone vm")
+    @Parameter(name=ApiConstants.COUNT, type=CommandType.INTEGER, description="Number of cloned VMs, from 1 to 50 inclusive. Optional; defaults to 1. Names receive -1 through -count when count is greater than 1.")
     private Integer count;
 
     @Parameter(name = ApiConstants.ZONE_ID_LIST,
             type=CommandType.LIST,
             collectionType = CommandType.UUID,
             entityType = ZoneResponse.class,
-            description = "A comma-separated list of IDs of the zones in which the snapshot will be made available. " +
-                    "The snapshot will always be made available in the zone in which the volume is present.",
+            description = "Compatibility parameter: omit or specify only the source VM zone. Cross-zone cloning and multiple target zones are not supported.",
             since = "4.19.0")
     protected List<Long> zoneIds;
 
@@ -125,11 +125,11 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     }
 
     public String getType() {
-        return type;
+        return type == null ? "full" : type;
     }
 
     public Integer getCount() {
-        return count;
+        return count == null ? 1 : count;
     }
 
     @Override
@@ -140,6 +140,17 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Override
     public void create() throws ResourceAllocationException {
         try {
+            // Boolean.valueOf in the shared dispatcher otherwise silently turns
+            // malformed values into false. Validate this API without changing others.
+            if (getFullUrlParams() != null && getFullUrlParams().containsKey(ApiConstants.START_VM)) {
+                String value = getFullUrlParams().get(ApiConstants.START_VM);
+                if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
+                    throw new InvalidParameterValueException("startvm must be true or false");
+                }
+            }
+            if (getFullUrlParams() != null && "".equals(getFullUrlParams().get(ApiConstants.COUNT))) {
+                throw new InvalidParameterValueException("count must be an integer from 1 to " + MAX_CLONE_COUNT);
+            }
             _userVmService.validateCloneCondition(this);
         }
         catch (ResourceUnavailableException e) {
@@ -147,7 +158,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
             throw new ServerApiException(ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR, e.getMessage());
         } catch (InvalidParameterValueException e) {
             logger.warn("Exception: ", e);
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage());
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, e.getMessage());
         } catch (ServerApiException e) {
             throw new ServerApiException(e.getErrorCode(), e.getDescription());
         } catch (CloudRuntimeException e) {
