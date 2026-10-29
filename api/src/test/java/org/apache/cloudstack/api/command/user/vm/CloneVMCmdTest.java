@@ -14,6 +14,7 @@ package org.apache.cloudstack.api.command.user.vm;
 
 import java.util.Map;
 import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.ServerApiException;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.vm.UserVmService;
@@ -49,7 +50,7 @@ public class CloneVMCmdTest {
         ReflectionTestUtils.setField(cmd, "_userVmService", service);
         doThrow(new InvalidParameterValueException("invalid request")).when(service).validateCloneCondition(cmd);
         ServerApiException error = assertThrows(ServerApiException.class, cmd::create);
-        assertEquals(431, error.getErrorCode());
+        assertEquals(ApiErrorCode.PARAM_ERROR, error.getErrorCode());
     }
 
     @Test public void malformedBooleanDoesNotSilentlyBecomeFalse() {
@@ -57,7 +58,7 @@ public class CloneVMCmdTest {
             CloneVMCmd cmd = new CloneVMCmd();
             cmd.setFullUrlParams(Map.of("startvm", value));
             ServerApiException error = assertThrows(ServerApiException.class, cmd::create);
-            assertEquals(431, error.getErrorCode());
+            assertEquals(ApiErrorCode.PARAM_ERROR, error.getErrorCode());
             assertTrue(error.getDescription().contains("startvm"));
         }
     }
@@ -65,7 +66,7 @@ public class CloneVMCmdTest {
     @Test public void emptyCountDoesNotSilentlySelectDefault() {
         CloneVMCmd cmd = new CloneVMCmd();
         cmd.setFullUrlParams(Map.of("count", ""));
-        assertEquals(431, assertThrows(ServerApiException.class, cmd::create).getErrorCode());
+        assertEquals(ApiErrorCode.PARAM_ERROR, assertThrows(ServerApiException.class, cmd::create).getErrorCode());
     }
 
     @Test public void trueAndFalseUseExistingBooleanParsingContract() throws Exception {
