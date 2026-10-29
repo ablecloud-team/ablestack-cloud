@@ -4,7 +4,7 @@
 
 count는 1~50 정수만 허용한다. 기존 API의 50 초과 요청은 431로 거절하는 의도적인 제한 변경이다. 호출자는 최대 50씩 나누고 앞선 Job을 완료한 뒤 새 이름으로 요청해야 한다. 빈 count 및 잘못된 형식은 입력 오류다. startvm은 true/false이며 공통 Boolean 파서의 잘못된 문자열→false 묵시 변환을 이 API에서만 거절한다.
 
-RBD는 full/linked(소문자)를 허용하며 생략은 full이다. 잘못된 값은 legacy/explicit과 무관하게 거절한다. Linked는 모든 원본 디스크가 RBD여야 하며 explicit full 할당 정책 등 기존 보호를 유지한다. GFS2는 고정 Full 전략을 쓰고 생략/full만 허용한다. QCOW2는 기존 fast-copy/독립화, RAW는 기존 검증된 복사 조건을 유지한다.
+RBD는 full/linked(소문자)를 허용하며 생략은 full이다. 잘못된 값은 legacy/explicit과 무관하게 거절한다. Linked는 모든 원본 디스크가 RBD여야 하며 explicit full 할당 정책 등 기존 보호를 유지한다. GFS2에서는 생략/full이 기존 호출의 호환 값이며 복사 전략을 선택하지 않는다. QCOW2는 fast clone 뒤 Running 상태에서 flatten하며 Stopped에서는 backing을 보존하고 일시 정지한다. 따라서 시작 끔 Job 성공 직후의 독립 이미지를 보장하는 RBD Full과 다르다. 조건을 만족하는 정지 RAW는 기존 materialized copy를 사용한다. 이 전략과 전원 조건은 변경하지 않는다.
 
 복제는 원본 계정·도메인·Zone 안에서만 지원한다. account를 보낼 때 domainid도 필요하며 실제 원본 활성 계정과 일치해야 한다. domainid 단독은 원본과 같을 때 호환한다. zoneids는 생략 또는 원본 Zone 하나만 허용한다. 변경 요청을 조용히 무시하지 않고 431로 거절한다. 소유자/Zone 변경 기능은 추가하지 않는다.
 

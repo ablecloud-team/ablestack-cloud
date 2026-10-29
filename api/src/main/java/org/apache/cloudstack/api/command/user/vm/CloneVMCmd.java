@@ -74,7 +74,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = ApiConstants.START_VM, type = CommandType.BOOLEAN, description = "Start the cloned VMs after creation. Optional; defaults to false.")
     private Boolean startVm;
 
-    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, description = "Clone type: full (default) or linked. Linked requires all source disks on RBD and compatible allocation policies. GFS2 uses its fixed Full copy strategy and accepts only omission or full.")
+    @Parameter(name = ApiConstants.CLONE_TYPE, type = CommandType.STRING, description = "RBD clone type: full (default) or linked, subject to allocation policies. GFS2 accepts omission or full as compatibility values, using its fixed storage strategy: QCOW2 fast clone with flatten while Running (paused while Stopped), or materialized copy for qualified stopped RAW sources. This parameter does not select a GFS2 copy strategy.")
     private String type;
 
     @Parameter(name=ApiConstants.COUNT, type=CommandType.INTEGER, description="Number of cloned VMs, from 1 to 50 inclusive. Optional; defaults to 1. Names receive -1 through -count when count is greater than 1.")
