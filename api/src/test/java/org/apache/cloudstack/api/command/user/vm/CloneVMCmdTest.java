@@ -64,9 +64,11 @@ public class CloneVMCmdTest {
     }
 
     @Test public void emptyCountDoesNotSilentlySelectDefault() {
-        CloneVMCmd cmd = new CloneVMCmd();
-        cmd.setFullUrlParams(Map.of("count", ""));
-        assertEquals(ApiErrorCode.PARAM_ERROR, assertThrows(ServerApiException.class, cmd::create).getErrorCode());
+        for (String value : new String[]{"", " ", "\t"}) {
+            CloneVMCmd cmd = new CloneVMCmd();
+            cmd.setFullUrlParams(Map.of("count", value));
+            assertEquals(ApiErrorCode.PARAM_ERROR, assertThrows(ServerApiException.class, cmd::create).getErrorCode());
+        }
     }
 
     @Test public void trueAndFalseUseExistingBooleanParsingContract() throws Exception {

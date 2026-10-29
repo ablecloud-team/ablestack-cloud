@@ -148,7 +148,8 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
                     throw new InvalidParameterValueException("startvm must be true or false");
                 }
             }
-            if (getFullUrlParams() != null && "".equals(getFullUrlParams().get(ApiConstants.COUNT))) {
+            if (getFullUrlParams() != null && getFullUrlParams().get(ApiConstants.COUNT) != null
+                    && getFullUrlParams().get(ApiConstants.COUNT).isBlank()) {
                 throw new InvalidParameterValueException("count must be an integer from 1 to " + MAX_CLONE_COUNT);
             }
             _userVmService.validateCloneCondition(this);
