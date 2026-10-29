@@ -1,0 +1,951 @@
+{
+  "issue": 1519,
+  "parentEpic": 1510,
+  "dateKst": "2026-10-30",
+  "branch": "dhslove/issue-1519-clone-api-contract",
+  "prSourceCodeCommit": "1eaf403fb97",
+  "integrationSourceCommit": "df695fc02df",
+  "defaults": {
+    "count": 1,
+    "startvm": false,
+    "clonetype": "full"
+  },
+  "limits": {
+    "countMin": 1,
+    "countMax": 50,
+    "actual50VmBatchExecuted": false
+  },
+  "tests": {
+    "prSourceMaven": [
+      {
+        "suite": "org.apache.cloudstack.api.command.user.vm.CloneVMCmdTest",
+        "tests": 6,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.vm.CloneApiContractTest",
+        "tests": 11,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.vm.AllocatedVmCloneTest",
+        "tests": 7,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      }
+    ],
+    "ui": {
+      "suite": "CloneAllocation.spec.js",
+      "tests": 11,
+      "failures": 0
+    },
+    "integrationOnly": [
+      {
+        "suite": "com.cloud.vm.CloneSnapshotCleanupTest",
+        "tests": 7,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      }
+    ],
+    "uniqueTests": 42,
+    "fullCloudBuildRun": false,
+    "fullActionsCiRun": false
+  },
+  "negativeRequests": [
+    {
+      "cluster": "22",
+      "requests": [
+        {
+          "case": "count-zero",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-negative",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-over",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-overflow",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-format",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-decimal",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-blank",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-space",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-empty",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-case",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "boolean-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "account-without-domain",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-account",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "multi-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "name-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "suffix-limit",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count50-reaches-name-check",
+          "errorCode": 431,
+          "jobCreated": false
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "requests": [
+        {
+          "case": "count-zero",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-negative",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-over",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-overflow",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-format",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-decimal",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-blank",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-space",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-empty",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-case",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "boolean-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "account-without-domain",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-account",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "multi-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "name-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "suffix-limit",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count50-reaches-name-check",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "gfs-linked",
+          "errorCode": 431,
+          "jobCreated": false
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "requests": [
+        {
+          "case": "count-zero",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-negative",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-over",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-overflow",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-format",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-decimal",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-blank",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count-space",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-empty",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "type-case",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "boolean-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "account-without-domain",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-account",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "multi-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "other-zone",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "name-invalid",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "suffix-limit",
+          "errorCode": 431,
+          "jobCreated": false
+        },
+        {
+          "case": "count50-reaches-name-check",
+          "errorCode": 431,
+          "jobCreated": false
+        }
+      ]
+    }
+  ],
+  "scopeAndRole": [
+    {
+      "case": "other-valid-domain",
+      "errorCode": 431,
+      "jobCreated": false
+    },
+    {
+      "case": "other-valid-account",
+      "errorCode": 431,
+      "jobCreated": false
+    },
+    {
+      "case": "non-owner-permission",
+      "errorCode": 432,
+      "jobCreated": false
+    }
+  ],
+  "uiRequests": [
+    {
+      "label": "32-ui-full",
+      "url": "http://10.10.32.10:8080/client/api/?virtualmachineid=b2713547-8d9a-45b2-abae-ee46e918ffbb&clonetype=full&count=1&name=qa1519-32-ui-full&startvm=false&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "id": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+        "jobid": "8a4aae05-d556-4e60-b797-29cf74085247"
+      }
+    },
+    {
+      "label": "32-ui-linked-2-start",
+      "url": "http://10.10.32.10:8080/client/api/?virtualmachineid=b2713547-8d9a-45b2-abae-ee46e918ffbb&clonetype=linked&startvm=true&count=2&name=qa1519-32-ui-linked&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "id": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+        "jobid": "f0b0e53f-9aa1-45aa-8840-bce08c3d48fb"
+      }
+    },
+    {
+      "label": "31-ui-full-2-stopped",
+      "url": "http://10.10.31.10:8080/client/api/?virtualmachineid=54c66787-de5f-4d0c-a031-3598522efe9a&count=2&name=qa1519-31-ui-batch&startvm=false&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "id": "54c66787-de5f-4d0c-a031-3598522efe9a",
+        "jobid": "e0a4c543-f055-4283-bbb1-6295ee136968"
+      }
+    },
+    {
+      "label": "22-ui-default-full",
+      "url": "http://10.10.22.10:8080/client/api/?virtualmachineid=4e84a39c-fb18-417f-b58e-0f5a03bc912e&clonetype=full&count=1&name=qa1519-22-direct-full&startvm=false&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+        "jobid": "c6bffc22-2e07-4b99-b57e-8e83cbb606ef"
+      }
+    },
+    {
+      "label": "32-ui-duplicate-rejected",
+      "url": "http://10.10.32.10:8080/client/api/?virtualmachineid=b2713547-8d9a-45b2-abae-ee46e918ffbb&clonetype=full&count=1&name=qa1519-32-ui-full&startvm=false&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 9999,
+        "errortext": "There already exists a VM by the name: qa1519-32-ui-full."
+      }
+    },
+    {
+      "label": "31-ui-start-clone-1",
+      "url": "http://10.10.31.10:8080/client/api/",
+      "postData": "command=startVirtualMachine&response=json&id=debea18e-5697-4fc0-915b-d20b69cb4428&considerlasthost=true&sessionkey=[REDACTED]",
+      "response": {
+        "jobid": "4f86111c-e201-4824-ad97-eef768df547f"
+      }
+    },
+    {
+      "label": "22-ui-linked-stopped",
+      "url": "http://10.10.22.10:8080/client/api/?virtualmachineid=a1670f16-7edb-4adc-8311-d6de616a19c9&clonetype=linked&count=1&name=qa1519-22-ui-linked&startvm=false&command=cloneVirtualMachine&response=json&sessionkey=[REDACTED]",
+      "postData": "",
+      "response": {
+        "id": "a1670f16-7edb-4adc-8311-d6de616a19c9",
+        "jobid": "3e7307a0-2067-4835-9f18-f0010aa7562f"
+      }
+    },
+    {
+      "label": "31-ui-start-clone-2",
+      "url": "http://10.10.31.10:8080/client/api/",
+      "postData": "command=startVirtualMachine&response=json&id=b5e82d99-9e4d-42d1-9b3f-7214a0e465a4&considerlasthost=true&sessionkey=[REDACTED]",
+      "response": {
+        "jobid": "8f2bd895-a77b-487c-a92d-bbcf6c762bb2"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "cluster": "22",
+      "cloneJobs": [
+        {
+          "name": "qa1519-22-direct-full",
+          "uuid": "c6bffc22-2e07-4b99-b57e-8e83cbb606ef",
+          "status": 1,
+          "created": "2026-10-29 16:02:40.000000"
+        },
+        {
+          "name": "qa1519-22-api-minimal",
+          "uuid": "0b82d7e1-c0d1-4c59-a7c2-faeabaea2e27",
+          "status": 1,
+          "created": "2026-10-29 16:09:00.000000"
+        },
+        {
+          "name": "qa1519-22-ui-linked",
+          "uuid": "3e7307a0-2067-4835-9f18-f0010aa7562f",
+          "status": 1,
+          "created": "2026-10-29 16:13:35.000000"
+        }
+      ],
+      "activeTestAccounts": 0,
+      "activeTestDomains": 0,
+      "activeTestOfferings": 0
+    },
+    {
+      "cluster": "31",
+      "cloneJobs": [
+        {
+          "name": "qa1519-31-ui-batch",
+          "uuid": "e0a4c543-f055-4283-bbb1-6295ee136968",
+          "status": 1,
+          "created": "2026-10-29 16:00:53.000000"
+        }
+      ],
+      "activeTestAccounts": 0,
+      "activeTestDomains": 0,
+      "activeTestOfferings": 0
+    },
+    {
+      "cluster": "32",
+      "cloneJobs": [
+        {
+          "name": "qa1519-32-api-minimal",
+          "uuid": "b889ce97-68e6-45b4-9a9b-184aabc296e2",
+          "status": 1,
+          "created": "2026-10-29 15:56:02.000000"
+        },
+        {
+          "name": "qa1519-32-ui-full",
+          "uuid": "8a4aae05-d556-4e60-b797-29cf74085247",
+          "status": 1,
+          "created": "2026-10-29 15:58:03.000000"
+        },
+        {
+          "name": "qa1519-32-ui-linked",
+          "uuid": "f0b0e53f-9aa1-45aa-8840-bce08c3d48fb",
+          "status": 1,
+          "created": "2026-10-29 15:59:22.000000"
+        },
+        {
+          "name": "qa1519-32-api-compatible",
+          "uuid": "cd3741a1-f981-4281-ae1a-3ad868ed6d59",
+          "status": 1,
+          "created": "2026-10-29 16:01:03.000000"
+        }
+      ],
+      "activeTestAccounts": 0,
+      "activeTestDomains": 0,
+      "activeTestOfferings": 0
+    }
+  ],
+  "content": [
+    {
+      "cluster": "22",
+      "volumes": [
+        {
+          "volume": "ed4132ae-e2aa-4065-ad35-f5f8b8391570",
+          "vm": "qa1519-22-api-minimal",
+          "type": "ROOT",
+          "independent": true,
+          "parent": null,
+          "size": 107374182400
+        },
+        {
+          "volume": "8be3e6be-8b93-4e1c-a1d1-0f67807397e7",
+          "vm": "qa1519-22-api-minimal",
+          "type": "DATADISK",
+          "independent": true,
+          "parent": null,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "fc6a923e-35ab-418f-9905-e6798ba98613",
+          "vm": "qa1519-22-ui-linked",
+          "type": "ROOT",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "45854419-2d61-441c-bc76-b2c164d8be0a",
+            "id": "0f061f78af9a37",
+            "snapshot": "i-2-10-VM_VS_20261029161346",
+            "trash": false,
+            "overlap": 107374182400
+          },
+          "size": 107374182400
+        },
+        {
+          "volume": "c5059a82-72fd-4098-a88f-c707d2d1c680",
+          "vm": "qa1519-22-ui-linked",
+          "type": "DATADISK",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "d5507193-8230-46ba-ab02-c7ab277959df",
+            "id": "0f1a09d6d2aecc",
+            "snapshot": "i-2-10-VM_VS_20261029161346",
+            "trash": false,
+            "overlap": 1073741824
+          },
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        }
+      ]
+    },
+    {
+      "cluster": "31",
+      "volumes": [
+        {
+          "volume": "718a269a-48e6-4a27-8c57-f1cb3fa12ccc",
+          "vm": "qa1519-31-ui-batch-1",
+          "type": "ROOT",
+          "format": "qcow2",
+          "independent": true,
+          "size": 107374182400
+        },
+        {
+          "volume": "2abcec92-3235-4728-97d6-789dac021bbb",
+          "vm": "qa1519-31-ui-batch-1",
+          "type": "DATADISK",
+          "format": "qcow2",
+          "independent": true,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "620d2333-aea3-45ef-bead-59c4de20c8c7",
+          "vm": "qa1519-31-ui-batch-2",
+          "type": "ROOT",
+          "format": "qcow2",
+          "independent": true,
+          "size": 107374182400
+        },
+        {
+          "volume": "bace5710-22aa-43d6-bb65-afedbcd33924",
+          "vm": "qa1519-31-ui-batch-2",
+          "type": "DATADISK",
+          "format": "qcow2",
+          "independent": true,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        }
+      ]
+    },
+    {
+      "cluster": "32",
+      "volumes": [
+        {
+          "volume": "94362958-f992-4fd3-81da-eb4f4ca5028a",
+          "vm": "qa1519-32-api-minimal",
+          "type": "ROOT",
+          "independent": true,
+          "parent": null,
+          "size": 107374182400
+        },
+        {
+          "volume": "32a457cd-d4be-4f54-ac9e-bac6d549b1de",
+          "vm": "qa1519-32-api-minimal",
+          "type": "DATADISK",
+          "independent": true,
+          "parent": null,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "30f8a7c2-7e60-4d38-a6ed-28de01460415",
+          "vm": "qa1519-32-ui-full",
+          "type": "ROOT",
+          "independent": true,
+          "parent": null,
+          "size": 107374182400
+        },
+        {
+          "volume": "9160df05-c093-4ece-9767-e9595a50d0ac",
+          "vm": "qa1519-32-ui-full",
+          "type": "DATADISK",
+          "independent": true,
+          "parent": null,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "971661fd-fa3d-41b6-aa26-1d9a0a3f3104",
+          "vm": "qa1519-32-ui-linked-1",
+          "type": "ROOT",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "91c06dc4-8f99-4c59-b69a-f02f3fbfb161",
+            "id": "254e7bae7c4696",
+            "snapshot": "i-2-270-VM_VS_20261029155922",
+            "trash": false,
+            "overlap": 107374182400
+          },
+          "size": 107374182400
+        },
+        {
+          "volume": "c7284a04-7088-46fd-aa59-9d564b908b0b",
+          "vm": "qa1519-32-ui-linked-1",
+          "type": "DATADISK",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "3aaf2e31-e6d8-450b-888a-13b2ed90a3fa",
+            "id": "262e4826be6985",
+            "snapshot": "i-2-270-VM_VS_20261029155922",
+            "trash": false,
+            "overlap": 1073741824
+          },
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "e1c63dc3-9312-431f-86ad-8a7129f2b08e",
+          "vm": "qa1519-32-ui-linked-2",
+          "type": "ROOT",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "91c06dc4-8f99-4c59-b69a-f02f3fbfb161",
+            "id": "254e7bae7c4696",
+            "snapshot": "i-2-270-VM_VS_20261029155922",
+            "trash": false,
+            "overlap": 107374182400
+          },
+          "size": 107374182400
+        },
+        {
+          "volume": "bfc03c01-6b87-42fd-83c6-ff8744deaf99",
+          "vm": "qa1519-32-ui-linked-2",
+          "type": "DATADISK",
+          "independent": false,
+          "parent": {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "3aaf2e31-e6d8-450b-888a-13b2ed90a3fa",
+            "id": "262e4826be6985",
+            "snapshot": "i-2-270-VM_VS_20261029155922",
+            "trash": false,
+            "overlap": 1073741824
+          },
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        },
+        {
+          "volume": "5b1dfdd7-1352-4287-9d25-61e63bc49d25",
+          "vm": "qa1519-32-api-compatible",
+          "type": "ROOT",
+          "independent": true,
+          "parent": null,
+          "size": 107374182400
+        },
+        {
+          "volume": "52c520e4-c0c7-40c0-979e-abb02ab3d57b",
+          "vm": "qa1519-32-api-compatible",
+          "type": "DATADISK",
+          "independent": true,
+          "parent": null,
+          "size": 1073741824,
+          "dataPatternsVerified": true
+        }
+      ]
+    }
+  ],
+  "deployment": {
+    "services": 12,
+    "verifiedJars": 30,
+    "allActive": true,
+    "allHashesMatch": true,
+    "agentRestarted": false,
+    "uiStaticFilesChanged": false,
+    "management": [
+      {
+        "cluster": "22",
+        "sha256": "80c871621cc64dd33a1bb2f276ffce0d9e2c1f1c8caa90481b8a27b982ab2245",
+        "http": 200,
+        "webInf": true,
+        "otherEntriesPreserved": true
+      },
+      {
+        "cluster": "31",
+        "sha256": "21c3df034ca56b9fe60a9d364a819b82b47504f6fdcf4a2e8d830de6186d50cf",
+        "http": 200,
+        "webInf": true,
+        "otherEntriesPreserved": true
+      },
+      {
+        "cluster": "32",
+        "sha256": "a73270bee36e48ebce684eb6da49f41d2481f1a8b7dd3ee77d7e5bb864b2140b",
+        "http": 200,
+        "webInf": true,
+        "otherEntriesPreserved": true
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "cluster": "22",
+      "active": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 6,
+      "physicalResiduals": 0,
+      "qaMatchingImages": [],
+      "qaMatchingFiles": []
+    },
+    {
+      "cluster": "31",
+      "active": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 6,
+      "physicalResiduals": 0,
+      "qaMatchingImages": [],
+      "qaMatchingFiles": []
+    },
+    {
+      "cluster": "32",
+      "active": {
+        "vms": 0,
+        "volumes": 0,
+        "vmSnapshots": 0,
+        "snapshots": 0,
+        "storeRefs": 0
+      },
+      "physicalChecks": 12,
+      "physicalResiduals": 0,
+      "qaMatchingImages": [],
+      "qaMatchingFiles": []
+    }
+  ],
+  "protected22": {
+    "before": {
+      "pid": 1516803,
+      "startTicks": 201077163
+    },
+    "after": {
+      "pid": 1516803,
+      "startTicks": 201077163
+    },
+    "invariants": {
+      "invalidCloneCount": 0,
+      "external": {
+        "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+        "state": "Stopped",
+        "pathPolicyEvidencePreserved": true,
+        "activeSnapshots": 0
+      },
+      "protectedPerftest": {
+        "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+        "state": "Running",
+        "host": "ablecube22-3",
+        "volumeCount": 2,
+        "stateHostPathPolicyEvidencePreserved": true
+      }
+    },
+    "forbiddenCommandsIssued": false
+  },
+  "notes": [
+    "GFS2 QCOW2 uses its fixed fast-clone strategy; flatten is paused while Stopped and completes while Running. The full parameter is a compatibility value, not an immediate independent-copy guarantee.",
+    "The 50 boundary was validated by metadata, UI field/name validation, all 50 generated-name preflight checks, and a live request reaching name validation. An actual 50 VM batch was not created.",
+    "22 cleanup had a stale delete Job return 431 after automatic worker cleanup completed first; a fresh inventory and normal API cleanup confirmed zero residuals.",
+    "Runtime preserves unmerged PR 1522 through an integration build. The independent PR source was also built and tested.",
+    "Inactive offering history is retained by normal deletion; no SQL state mutation was used."
+  ],
+  "scopeProtection": [
+    {
+      "cluster": "22",
+      "name": "qa1519-22-api-minimal",
+      "id": "ab789740-0f48-4af4-92af-116f8855be53",
+      "sourceId": "a1670f16-7edb-4adc-8311-d6de616a19c9",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Stopped"
+    },
+    {
+      "cluster": "22",
+      "name": "qa1519-22-ui-linked",
+      "id": "de9ebb8f-1262-4081-8a5e-3f131212d146",
+      "sourceId": "a1670f16-7edb-4adc-8311-d6de616a19c9",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Stopped"
+    },
+    {
+      "cluster": "31",
+      "name": "qa1519-31-ui-batch-1",
+      "id": "debea18e-5697-4fc0-915b-d20b69cb4428",
+      "sourceId": "54c66787-de5f-4d0c-a031-3598522efe9a",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Running"
+    },
+    {
+      "cluster": "31",
+      "name": "qa1519-31-ui-batch-2",
+      "id": "b5e82d99-9e4d-42d1-9b3f-7214a0e465a4",
+      "sourceId": "54c66787-de5f-4d0c-a031-3598522efe9a",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Running"
+    },
+    {
+      "cluster": "32",
+      "name": "qa1519-32-api-minimal",
+      "id": "6d4e1ba1-c910-4c3d-8c51-8a744befc4a1",
+      "sourceId": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Stopped"
+    },
+    {
+      "cluster": "32",
+      "name": "qa1519-32-ui-full",
+      "id": "48f72f0a-679b-4c1c-84e0-8480d6427098",
+      "sourceId": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Stopped"
+    },
+    {
+      "cluster": "32",
+      "name": "qa1519-32-ui-linked-1",
+      "id": "527d9295-59cc-48f6-8a58-7a0217347898",
+      "sourceId": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Running"
+    },
+    {
+      "cluster": "32",
+      "name": "qa1519-32-ui-linked-2",
+      "id": "e30aa464-11f6-4a6b-a037-d2fea65f0a60",
+      "sourceId": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Running"
+    },
+    {
+      "cluster": "32",
+      "name": "qa1519-32-api-compatible",
+      "id": "00b814eb-e61d-4959-b177-12cd83658b8f",
+      "sourceId": "b2713547-8d9a-45b2-abae-ee46e918ffbb",
+      "sameAccountDomainZone": true,
+      "volumeCount": 2,
+      "sizeDeviceFormatAndPolicyPreserved": true,
+      "state": "Stopped"
+    }
+  ]
+}
