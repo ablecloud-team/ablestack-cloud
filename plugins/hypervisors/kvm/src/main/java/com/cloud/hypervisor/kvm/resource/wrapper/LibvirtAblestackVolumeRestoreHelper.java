@@ -436,7 +436,7 @@ final class LibvirtAblestackVolumeRestoreHelper {
                     "Waiting for staging admission");
             step("WAITING", "Waiting for staging and primary storage capacity and an execution slot");
             progress("WAITING", 0, 0);
-            long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.queueTimeout <= 0 ? 3600 : plan.queueTimeout);
+            long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(plan.queueTimeout <= 0 ? 14400 : plan.queueTimeout);
             while (!Files.isRegularFile(job.resolve("staging-admission-granted"))) {
                 checkCancellation();
                 if (System.nanoTime() >= queueDeadline) {

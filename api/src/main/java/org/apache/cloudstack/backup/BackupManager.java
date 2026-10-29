@@ -236,8 +236,10 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Integer> ThirdPartyStagingQueueTimeout = new ConfigKey<>("Advanced", Integer.class,
-            "backup.thirdparty.staging.queue.timeout", "3600",
-            "Maximum staging queue wait in seconds for new jobs, separate from the data operation timeout. Waiting jobs are canceled when this expires; active reservations never expire by age.",
+            "backup.thirdparty.staging.queue.timeout", "14400",
+            "Maximum staging queue wait in seconds for new Backup and Restore jobs (default 4 hours). " +
+                    "Increase for large backups and cumulative waits behind earlier jobs. Separate from the data operation timeout. " +
+                    "Waiting jobs are canceled when this expires; active reservations never expire by age.",
             true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,

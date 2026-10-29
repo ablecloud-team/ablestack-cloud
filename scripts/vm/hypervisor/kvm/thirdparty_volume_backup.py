@@ -282,7 +282,7 @@ class Backup:
         atomic(self.root / ".staging.inprogress", "volume_pipeline=true\n")
         atomic(self.root / ".volume-bootstrap", self.manifest["backupUuid"] + "\n")
         self.progress("WAITING", 0)
-        queue_deadline = time.monotonic() + max(1, self.plan.get("queueTimeout", 3600))
+        queue_deadline = time.monotonic() + max(1, self.plan.get("queueTimeout", 14400))
         while not (self.job / "staging-admission-granted").is_file():
             self.check_cancel()
             if time.monotonic() >= queue_deadline:
