@@ -16,7 +16,12 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading || allocationLookupLoading">
+    <a-alert v-if="allocationLookupError" type="error" show-icon :message="$t('message.clone.allocation.lookup.failed')" style="margin-bottom: 16px">
+      <template #description><a-button @click="fetchSourceVolumes">{{ $t('label.retry') }}</a-button></template>
+    </a-alert>
+    <a-alert v-if="hasFullRbdAllocation" type="info" show-icon :message="$t('message.clone.allocation.full.linked')" style="margin-bottom: 16px" />
+    <a-alert v-if="rawSourceRequiresStop" type="warning" show-icon :message="$t('message.clone.allocation.raw.stop')" style="margin-bottom: 16px" />
     <a-alert
       v-if="extraConfigDiskAttached"
       type="warning"
@@ -48,7 +53,7 @@
         </template>
         <a-select v-model:value="form.clonetype" @change="typeChange">
           <a-select-option value='full'>Full</a-select-option>
-          <a-select-option value='linked'>Linked</a-select-option>
+          <a-select-option value='linked' :disabled="hasFullRbdAllocation">Linked</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item name="startvm" ref="startvm" >
@@ -63,7 +68,7 @@
 
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" :disabled="extraConfigDiskAttached" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading" :disabled="cloneBlocked" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
   </a-spin>
@@ -87,12 +92,28 @@ export default {
   },
   data () {
     return {
-      loading: false
+      loading: false,
+      sourceVolumes: [],
+      allocationLookupLoading: false,
+      allocationLookupError: ''
     }
   },
   computed: {
     extraConfigDiskAttached () {
       return hasExtraConfigDisk(this.resource)
+    },
+    hasFullRbdAllocation () {
+      return this.resource.pooltype === 'RBD' && this.sourceVolumes.some(v =>
+        v.allocation?.policyorigin === 'explicit' && v.allocation?.requestedpolicy === 'full')
+    },
+    rawSourceRequiresStop () {
+      return this.resource.pooltype === 'SharedMountPoint' && this.resource.state !== 'Stopped' &&
+        this.sourceVolumes.some(v => v.allocation?.policyorigin === 'explicit') &&
+        this.sourceVolumes.some(v => v.allocation?.actualformat === 'raw')
+    },
+    cloneBlocked () {
+      return this.extraConfigDiskAttached || this.allocationLookupLoading || !!this.allocationLookupError ||
+        this.rawSourceRequiresStop || (this.hasFullRbdAllocation && this.form.clonetype === 'linked')
     }
   },
   watch: {
@@ -107,8 +128,23 @@ export default {
   },
   created () {
     this.initForm()
+    this.fetchSourceVolumes()
   },
   methods: {
+    async fetchSourceVolumes () {
+      this.allocationLookupLoading = true
+      this.allocationLookupError = ''
+      try {
+        const json = await getAPI('listVolumes', { virtualmachineid: this.resource.id, listall: true })
+        const volumes = json.listvolumesresponse.volume || []
+        if (!volumes.length) throw new Error('No source volumes')
+        this.sourceVolumes = volumes
+      } catch (error) {
+        this.allocationLookupError = this.$t('message.clone.allocation.lookup.failed')
+      } finally {
+        this.allocationLookupLoading = false
+      }
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -137,9 +173,9 @@ export default {
     },
     handleSubmit (e) {
       if (e) e.preventDefault()
-      if (this.loading || this.extraConfigDiskAttached) return
+      if (this.loading || this.cloneBlocked) return
       this.formRef.value.validate().then(() => {
-        if (this.extraConfigDiskAttached) return
+        if (this.loading || this.cloneBlocked) return
         const values = toRaw(this.form)
 
         this.loading = true

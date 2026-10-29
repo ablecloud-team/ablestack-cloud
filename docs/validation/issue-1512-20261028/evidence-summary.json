@@ -1,0 +1,656 @@
+{
+  "sourceCommit": "2768106140dcd74edd6a1c410650ac331ef1080e",
+  "date": "2026-10-28",
+  "automated": {
+    "suites": 4,
+    "tests": 44,
+    "result": "PASS",
+    "lint": "PASS (full UI)",
+    "productionBuild": "PASS",
+    "mavenBuild": "not required; no Java changes",
+    "fullCloudCI": "not requested or run"
+  },
+  "clusters": {
+    "22": {
+      "deployment": {
+        "cluster": "22",
+        "source": "2768106140dcd74edd6a1c410650ac331ef1080e",
+        "backup": "/root/issue1512-ui-20261028-111440",
+        "manifestFiles": 931,
+        "allStaticHashesMatch": true,
+        "protectedFiles": 19,
+        "protectedHashesUnchanged": true,
+        "configUnchanged": true,
+        "pidUnchanged": true,
+        "pid": "4094435",
+        "webInfPresent": true,
+        "http": 200,
+        "mold": "active",
+        "ftctlMarkers": {
+          "blockingLoadingState": true,
+          "fetchSyncProgress": true,
+          "extractJobId": true
+        },
+        "changedStatic": 4,
+        "addedStatic": 644
+      },
+      "validation": {
+        "sourcePreserved": true,
+        "sourceState": "Stopped",
+        "templates": [
+          {
+            "id": "8c3c7936-7025-457b-ab0d-115416ff4fcd",
+            "name": "qa1512-22-root-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 107374182400,
+            "ostypeid": "637dfda6-c1f6-11f1-9ec8-0024812159b3",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "1ead2305-e9ce-4733-87c1-400c2066359d",
+            "name": "qa1512-22-data-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "637dfda6-c1f6-11f1-9ec8-0024812159b3",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "cbb3ae69-9d7b-4c7d-9857-b21ec90ef56c",
+            "name": "qa1512-22-legacy-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "637dfda6-c1f6-11f1-9ec8-0024812159b3",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          }
+        ],
+        "protectedPerftest": {
+          "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+          "state": "Running",
+          "hostId": "e9fdf05f-02fc-410a-a8a5-1701111a9434",
+          "vmAndVolumesUnchanged": true
+        },
+        "bootVm": {
+          "id": "7fe7ba53-bbdd-47f4-9d1f-f1142603747e",
+          "name": "qa1512-22-boot",
+          "state": "Running",
+          "instance": "i-2-5-VM",
+          "host": "ablecube22-2",
+          "templateid": "8c3c7936-7025-457b-ab0d-115416ff4fcd"
+        }
+      },
+      "images": [
+        {
+          "id": "1ead2305-e9ce-4733-87c1-400c2066359d",
+          "name": "qa1512-22-data-template",
+          "installPath": "template/tmpl/2/205/123efcd2-67b8-4630-babf-baa257e23763.qcow2",
+          "size": 1073741824,
+          "physicalSize": 524288,
+          "source": "rbd:rbd/1bb6b23e-1069-4809-8c9a-daaa3a3af58e",
+          "sourceFormat": "raw",
+          "dataPatterns": true,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 524288
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical.",
+          "patternReadsPass": true
+        },
+        {
+          "id": "cbb3ae69-9d7b-4c7d-9857-b21ec90ef56c",
+          "name": "qa1512-22-legacy-template",
+          "installPath": "template/tmpl/2/206/e0922ea9-fa06-4522-a81d-29e2cd26f8f3.qcow2",
+          "size": 1073741824,
+          "physicalSize": 196624,
+          "source": "rbd:rbd/dfe201a1-0ad9-49d0-b05d-9dba698f826e",
+          "sourceFormat": "raw",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 200704
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        },
+        {
+          "id": "8c3c7936-7025-457b-ab0d-115416ff4fcd",
+          "name": "qa1512-22-root-template",
+          "installPath": "template/tmpl/2/204/f4d140d6-3ee5-4923-bc13-ecfbcea642d4.qcow2",
+          "size": 107374182400,
+          "physicalSize": 2454978560,
+          "source": "rbd:rbd/5eea0b9c-44da-4a49-9e23-2e0d3e68cff7",
+          "sourceFormat": "raw",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 107374182400,
+            "actual-size": 2466979840
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        }
+      ]
+    },
+    "31": {
+      "deployment": {
+        "cluster": "31",
+        "source": "2768106140dcd74edd6a1c410650ac331ef1080e",
+        "backup": "/root/issue1512-ui-20261028-111446",
+        "manifestFiles": 931,
+        "allStaticHashesMatch": true,
+        "protectedFiles": 19,
+        "protectedHashesUnchanged": true,
+        "configUnchanged": true,
+        "pidUnchanged": true,
+        "pid": "3720809",
+        "webInfPresent": true,
+        "http": 200,
+        "mold": "active",
+        "ftctlMarkers": {
+          "blockingLoadingState": true,
+          "fetchSyncProgress": true,
+          "extractJobId": true
+        },
+        "changedStatic": 2,
+        "addedStatic": 610
+      },
+      "validation": {
+        "sourcePreserved": true,
+        "sourceState": "Stopped",
+        "templates": [
+          {
+            "id": "c4358b87-6fd4-452e-8eb8-be17e787d801",
+            "name": "qa1512-31-root-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 107374182400,
+            "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "8aa3d2c3-7e49-419e-b67c-a1e0109bbe3a",
+            "name": "qa1512-31-data-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "7a53b413-42b4-4141-9710-b2bfd92c9bf3",
+            "name": "qa1512-31-legacy-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          }
+        ],
+        "protectedPerftest": null,
+        "bootVm": {
+          "id": "6bfa48ac-51e7-4706-9a6e-a8d884b6f856",
+          "name": "qa1512-31-boot",
+          "state": "Running",
+          "instance": "i-2-777-VM",
+          "host": "ablecube31-2",
+          "templateid": "c4358b87-6fd4-452e-8eb8-be17e787d801"
+        }
+      },
+      "images": [
+        {
+          "id": "8aa3d2c3-7e49-419e-b67c-a1e0109bbe3a",
+          "name": "qa1512-31-data-template",
+          "installPath": "template/tmpl/2/417/e28bf1b4-7b25-457e-ad45-cf56b8db04ad.qcow2",
+          "size": 1073741824,
+          "physicalSize": 1074135040,
+          "source": "/mnt/glue-gfs/7d71e6de-f46d-46b4-b0b6-e962cadad846",
+          "sourceFormat": "qcow2",
+          "dataPatterns": true,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 462848
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical.",
+          "patternReadsPass": true
+        },
+        {
+          "id": "7a53b413-42b4-4141-9710-b2bfd92c9bf3",
+          "name": "qa1512-31-legacy-template",
+          "installPath": "template/tmpl/2/419/6bb77fe0-08ca-48a3-bd07-6431f8876201.qcow2",
+          "size": 1073741824,
+          "physicalSize": 196624,
+          "source": "/mnt/glue-gfs/1272a079-8326-4f2c-8eb8-702611f19351",
+          "sourceFormat": "qcow2",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 200704
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        },
+        {
+          "id": "c4358b87-6fd4-452e-8eb8-be17e787d801",
+          "name": "qa1512-31-root-template",
+          "installPath": "template/tmpl/2/416/3091c110-6fa2-4a37-89c5-69149046ef25.qcow2",
+          "size": 107374182400,
+          "physicalSize": 107390828544,
+          "source": "/mnt/glue-gfs/20c9bcc1-d05e-4a89-b2b3-065eb18f0176",
+          "sourceFormat": "qcow2",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 107374182400,
+            "actual-size": 3661049856
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        }
+      ]
+    },
+    "32": {
+      "deployment": {
+        "cluster": "32",
+        "source": "2768106140dcd74edd6a1c410650ac331ef1080e",
+        "backup": "/root/issue1512-ui-20261028-111449",
+        "manifestFiles": 931,
+        "allStaticHashesMatch": true,
+        "protectedFiles": 19,
+        "protectedHashesUnchanged": true,
+        "configUnchanged": true,
+        "pidUnchanged": true,
+        "pid": "3736392",
+        "webInfPresent": true,
+        "http": 200,
+        "mold": "active",
+        "ftctlMarkers": {
+          "blockingLoadingState": true,
+          "fetchSyncProgress": true,
+          "extractJobId": true
+        },
+        "changedStatic": 2,
+        "addedStatic": 610
+      },
+      "validation": {
+        "sourcePreserved": true,
+        "sourceState": "Stopped",
+        "templates": [
+          {
+            "id": "063a25f4-421a-43e9-9046-b8b5a372b317",
+            "name": "qa1512-32-root-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 107374182400,
+            "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "c183f076-226c-4966-b491-6cccb6dbd741",
+            "name": "qa1512-32-data-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          },
+          {
+            "id": "19ee608d-7c4f-4d66-98de-306a474ba077",
+            "name": "qa1512-32-legacy-template",
+            "isready": true,
+            "format": "QCOW2",
+            "size": 1073741824,
+            "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+            "os": "Rocky Linux 9",
+            "arch": "x86_64",
+            "ispublic": false,
+            "isfeatured": false,
+            "account": "admin",
+            "allocation": null
+          }
+        ],
+        "protectedPerftest": null,
+        "bootVm": {
+          "id": "82a4f1c8-d0ac-4284-b94d-de142f639310",
+          "name": "qa1512-32-boot",
+          "state": "Running",
+          "instance": "i-2-250-VM",
+          "host": "ablecube32-2",
+          "templateid": "063a25f4-421a-43e9-9046-b8b5a372b317"
+        }
+      },
+      "images": [
+        {
+          "id": "c183f076-226c-4966-b491-6cccb6dbd741",
+          "name": "qa1512-32-data-template",
+          "installPath": "template/tmpl/2/246/d91eedc3-26e9-445e-8330-874dcc42de52.qcow2",
+          "size": 1073741824,
+          "physicalSize": 524288,
+          "source": "rbd:rbd/abcf4624-dd51-49c0-a789-3c8c540d4643",
+          "sourceFormat": "raw",
+          "dataPatterns": true,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 524288
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical.",
+          "patternReadsPass": true
+        },
+        {
+          "id": "19ee608d-7c4f-4d66-98de-306a474ba077",
+          "name": "qa1512-32-legacy-template",
+          "installPath": "template/tmpl/2/247/a03de1ec-b7b1-4197-bfa6-419f93393f74.qcow2",
+          "size": 1073741824,
+          "physicalSize": 196624,
+          "source": "rbd:rbd/8614fabe-5d17-4c05-830d-823a6c90a57b",
+          "sourceFormat": "raw",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 1073741824,
+            "actual-size": 262144
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        },
+        {
+          "id": "063a25f4-421a-43e9-9046-b8b5a372b317",
+          "name": "qa1512-32-root-template",
+          "installPath": "template/tmpl/2/245/d066bd33-1360-4fc0-9be8-02e66f75a49a.qcow2",
+          "size": 107374182400,
+          "physicalSize": 2744844288,
+          "source": "rbd:rbd/06cdce4f-6238-437a-9c70-a8c2f66d3459",
+          "sourceFormat": "raw",
+          "dataPatterns": false,
+          "imageInfo": {
+            "format": "qcow2",
+            "virtual-size": 107374182400,
+            "actual-size": 2777038848
+          },
+          "compareExit": 0,
+          "compareOutput": "Images are identical."
+        }
+      ]
+    }
+  },
+  "guestEvidence": {
+    "22": [
+      {
+        "probe": [
+          "domstate",
+          "i-2-5-VM"
+        ],
+        "exit": 0,
+        "out": "running",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-5-VM",
+          "{\"execute\":\"guest-ping\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{}}",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-5-VM",
+          "{\"execute\":\"guest-get-osinfo\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{\"name\":\"Rocky Linux\",\"kernel-release\":\"5.14.0-687.10.1.el9_8.0.1.x86_64\",\"version\":\"9.8 (Blue Onyx)\",\"pretty-name\":\"Rocky Linux 9.8 (Blue Onyx)\",\"version-id\":\"9.8\",\"kernel-version\":\"#1 SMP PREEMPT_DYNAMIC Sun May 24 12:01:19 UTC 2026\",\"machine\":\"x86_64\",\"id\":\"rocky\"}}",
+        "err": ""
+      }
+    ],
+    "31": [
+      {
+        "probe": [
+          "domstate",
+          "i-2-777-VM"
+        ],
+        "exit": 0,
+        "out": "running",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-777-VM",
+          "{\"execute\":\"guest-ping\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{}}",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-777-VM",
+          "{\"execute\":\"guest-get-osinfo\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{\"name\":\"Rocky Linux\",\"kernel-release\":\"5.14.0-503.14.1.el9_5.x86_64\",\"version\":\"9.5 (Blue Onyx)\",\"pretty-name\":\"Rocky Linux 9.5 (Blue Onyx)\",\"version-id\":\"9.5\",\"kernel-version\":\"#1 SMP PREEMPT_DYNAMIC Fri Nov 15 12:04:32 UTC 2024\",\"machine\":\"x86_64\",\"id\":\"rocky\"}}",
+        "err": ""
+      }
+    ],
+    "32": [
+      {
+        "probe": [
+          "domstate",
+          "i-2-250-VM"
+        ],
+        "exit": 0,
+        "out": "running",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-250-VM",
+          "{\"execute\":\"guest-ping\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{}}",
+        "err": ""
+      },
+      {
+        "probe": [
+          "qemu-agent-command",
+          "i-2-250-VM",
+          "{\"execute\":\"guest-get-osinfo\"}"
+        ],
+        "exit": 0,
+        "out": "{\"return\":{\"name\":\"Rocky Linux\",\"kernel-release\":\"5.14.0-503.14.1.el9_5.x86_64\",\"version\":\"9.5 (Blue Onyx)\",\"pretty-name\":\"Rocky Linux 9.5 (Blue Onyx)\",\"version-id\":\"9.5\",\"kernel-version\":\"#1 SMP PREEMPT_DYNAMIC Fri Nov 15 12:04:32 UTC 2024\",\"machine\":\"x86_64\",\"id\":\"rocky\"}}",
+        "err": ""
+      }
+    ]
+  },
+  "uiAsyncJobs": {
+    "22": [
+      [
+        "ce227f23-9996-4c1d-b05a-d9fe434c3e0f",
+        "1",
+        "1",
+        "qa1512-22-root-template",
+        "5eea0b9c-44da-4a49-9e23-2e0d3e68cff7",
+        "x86_64"
+      ],
+      [
+        "a1779e57-d3fa-491b-973a-ea5318b3b175",
+        "1",
+        "1",
+        "qa1512-22-data-template",
+        "1bb6b23e-1069-4809-8c9a-daaa3a3af58e",
+        "x86_64"
+      ],
+      [
+        "69d8696b-2fc3-4d5b-8bc9-148246fa7329",
+        "1",
+        "1",
+        "qa1512-22-legacy-template",
+        "dfe201a1-0ad9-49d0-b05d-9dba698f826e",
+        "x86_64"
+      ]
+    ],
+    "31": [
+      [
+        "a5a2ffe8-2a88-4e0d-9420-8a1943da8902",
+        "1",
+        "1",
+        "qa1512-31-root-template",
+        "20c9bcc1-d05e-4a89-b2b3-065eb18f0176",
+        "x86_64"
+      ],
+      [
+        "cf1c3263-7e42-4b0d-aa7f-4bda92efe0ab",
+        "1",
+        "1",
+        "qa1512-31-data-template",
+        "7d71e6de-f46d-46b4-b0b6-e962cadad846",
+        "x86_64"
+      ],
+      [
+        "335f7316-fa11-458c-9ef5-dc95b7233495",
+        "2",
+        "1",
+        "qa1512-31-legacy-template",
+        "1272a079-8326-4f2c-8eb8-702611f19351",
+        "x86_64"
+      ],
+      [
+        "8bcf3b90-c6ce-4959-9723-21f3fffa5687",
+        "1",
+        "1",
+        "qa1512-31-legacy-template",
+        "1272a079-8326-4f2c-8eb8-702611f19351",
+        "x86_64"
+      ]
+    ],
+    "32": [
+      [
+        "097de972-97f6-4f45-826b-a70e2dce4558",
+        "1",
+        "1",
+        "qa1512-32-root-template",
+        "06cdce4f-6238-437a-9c70-a8c2f66d3459",
+        "x86_64"
+      ],
+      [
+        "791365d3-8371-4d01-827c-30883cdc05a0",
+        "1",
+        "1",
+        "qa1512-32-data-template",
+        "abcf4624-dd51-49c0-a789-3c8c540d4643",
+        "x86_64"
+      ],
+      [
+        "655f294d-ea4b-42db-ad21-598cd49b5a9a",
+        "1",
+        "1",
+        "qa1512-32-legacy-template",
+        "8614fabe-5d17-4c05-830d-823a6c90a57b",
+        "x86_64"
+      ]
+    ]
+  },
+  "guards": {
+    "runningAction": "hidden (live UI, 31)",
+    "runningBackend": "530; volume attached to non-stopped Instance (live API, 31)",
+    "explicitDownload": "still disabled; tracked separately in #1513",
+    "flatten": "pending/running covered in regression tests",
+    "ownerAndEncryption": "server source unchanged; not a new live permission/encryption matrix"
+  },
+  "responsive": {
+    "desktop": "1280x720",
+    "mobile": "390x700",
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "dialogFitsViewport": true,
+    "footerVisible": true,
+    "originalThemeAndViewportRestored": true,
+    "capture": "CDP PNG; native captures that scaled incorrectly excluded"
+  },
+  "postRuntime": {
+    "22": {
+      "pid": "4094435",
+      "pidUnchanged": true,
+      "mold": "active",
+      "http": 200,
+      "webInfPresent": true,
+      "protectedHashesUnchanged": true,
+      "staticHashesMatch": true
+    },
+    "31": {
+      "pid": "3720809",
+      "pidUnchanged": true,
+      "mold": "active",
+      "http": 200,
+      "webInfPresent": true,
+      "protectedHashesUnchanged": true,
+      "staticHashesMatch": true
+    },
+    "32": {
+      "pid": "3736392",
+      "pidUnchanged": true,
+      "mold": "active",
+      "http": 200,
+      "webInfPresent": true,
+      "protectedHashesUnchanged": true,
+      "staticHashesMatch": true
+    }
+  }
+}

@@ -24,4 +24,6 @@ public interface VolumeAllocationService extends PluggableService {
     VolumeAllocationCapabilityResponse getCapabilities(GetVolumeAllocationCapabilitiesCmd cmd);
     void validateCreate(java.util.Map<String, String> intent, Storage.ProvisioningType legacy,
             long zoneId, Long poolId, String[] tags);
+    void validateClone(java.util.Map<String, String> intent, Storage.ProvisioningType legacy,
+            long zoneId, long poolId, boolean linked);
 }

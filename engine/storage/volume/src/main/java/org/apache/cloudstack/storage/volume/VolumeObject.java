@@ -681,7 +681,13 @@ public class VolumeObject implements VolumeInfo {
         }
         if (to instanceof VolumeObjectTO) {
             Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.validateStored(volumeDetailsDao.listDetailsKeyPairs(getId()));
-            ((VolumeObjectTO) to).setAllocation(intent);
+            // Allocation belongs to the primary image. A downloadable artifact has an independent format/allocation.
+            ((VolumeObjectTO) to).setAllocation(isPrimaryDataStore() ? intent : java.util.Collections.emptyMap());
+            Map<String, String> cloneDetails = volumeDetailsDao.listDetailsKeyPairs(getId());
+            ((VolumeObjectTO) to).setVmCloneType(cloneDetails.get(com.cloud.storage.VolumeAllocationClone.TYPE));
+            if (cloneDetails.containsKey(com.cloud.storage.VolumeAllocationClone.SOURCE)) {
+                ((VolumeObjectTO) to).setVmCloneSourceVolumeId(Long.valueOf(cloneDetails.get(com.cloud.storage.VolumeAllocationClone.SOURCE)));
+            }
             if (isPrimaryDataStore() && getPath() == null) {
                 org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = (org.apache.cloudstack.storage.to.PrimaryDataStoreTO) to.getDataStore();
                 if (store.getPoolType() == Storage.StoragePoolType.RBD && intent.isEmpty()) {
@@ -794,7 +800,7 @@ public class VolumeObject implements VolumeInfo {
         Map<String, String> supplied = result.getAllocation();
         if (!intent.equals(com.cloud.storage.VolumeAllocationPolicy.validateStored(supplied)) ||
                 !backend.equals(supplied.get(com.cloud.storage.VolumeAllocationPolicy.BACKEND)) ||
-                !List.of("create", "copy").contains(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION))) {
+                !List.of("create", "copy", "clone").contains(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION))) {
             throw new com.cloud.utils.exception.CloudRuntimeException(prefix + "missing or mismatched request and operation receipt");
         }
         try {
@@ -838,6 +844,9 @@ public class VolumeObject implements VolumeInfo {
         String previousValues = ReflectionToStringBuilderUtils.reflectOnlySelectedFields(volStore, "installPath", "size");
 
         volStore.setInstallPath(newVolume.getPath());
+        if (!newVolume.getExportVerification().isEmpty()) {
+            volStore.setPhysicalSize(Long.parseLong(newVolume.getExportVerification().get("fileBytes")));
+        }
         Long newVolumeSize = newVolume.getSize();
 
         if (newVolumeSize != null) {
@@ -966,6 +975,9 @@ public class VolumeObject implements VolumeInfo {
 
     @Override
     public ImageFormat getFormat() {
+        if (dataStore != null && dataStore.getRole() == DataStoreRole.Image && getPath() != null && getPath().endsWith(".qcow2")) {
+            return ImageFormat.QCOW2;
+        }
         return volumeVO.getFormat();
     }
 

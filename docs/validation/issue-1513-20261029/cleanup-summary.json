@@ -1,0 +1,171 @@
+{
+  "normalApiDeletedResources": {
+    "vms": 7,
+    "volumes": 17,
+    "templates": 2,
+    "offerings": 5,
+    "diskOfferings": 10
+  },
+  "verification": {
+    "22": {
+      "database": {
+        "activeVMs": 0,
+        "activeVolumes": 0,
+        "activeExportRefs": 0,
+        "activeTemplates": 0,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0,
+        "activeSnapshots": 0,
+        "activeVmSnapshots": 0
+      },
+      "primaryImages": [],
+      "rbdTrash": [],
+      "secondaryFiles": [],
+      "exportStages": []
+    },
+    "31": {
+      "database": {
+        "activeVMs": 0,
+        "activeVolumes": 0,
+        "activeExportRefs": 0,
+        "activeTemplates": 0,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0,
+        "activeSnapshots": 0,
+        "activeVmSnapshots": 0
+      },
+      "primaryImages": [],
+      "rbdTrash": [],
+      "secondaryFiles": [],
+      "exportStages": []
+    },
+    "32": {
+      "database": {
+        "activeVMs": 0,
+        "activeVolumes": 0,
+        "activeExportRefs": 0,
+        "activeTemplates": 0,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0,
+        "activeSnapshots": 0,
+        "activeVmSnapshots": 0
+      },
+      "primaryImages": [],
+      "rbdTrash": [],
+      "secondaryFiles": [],
+      "exportStages": []
+    }
+  },
+  "exportEarlyRetirement": {
+    "22": {
+      "earlyRetiredRefs": 3,
+      "removedFiles": [],
+      "remainingTemplateFiles": [],
+      "remainingExportFiles": []
+    },
+    "31": {
+      "earlyRetiredRefs": 4,
+      "removedFiles": [
+        "volumes/2/1221/6ccd72a0-ff80-48b4-93a5-b9b3411b2dd1.export-v1.qcow2",
+        "volumes/2/1227/153d4131-8f9c-4cdd-8159-e6daf179074a.export-v1.qcow2"
+      ],
+      "remainingTemplateFiles": [],
+      "remainingExportFiles": []
+    },
+    "32": {
+      "earlyRetiredRefs": 5,
+      "removedFiles": [
+        "volumes/2/623/8e117d82-def5-4bf7-a128-5040fe597b80.export-v1.qcow2",
+        "volumes/2/622/6c85d33a-54e8-44dc-8094-e374d3a51c3b.qcow2",
+        "volumes/2/619/9c68eee3-879b-4658-9b93-f958b1cd394a.qcow2",
+        "volumes/2/620/90599724-f0c8-4caf-9f63-9cf584dc5f6e.export-v1.qcow2",
+        "volumes/2/621/aac157dc-45cf-4a06-88e5-c2ad01b3bc52.export-v1.qcow2"
+      ],
+      "remainingTemplateFiles": [],
+      "remainingExportFiles": []
+    }
+  },
+  "ssvmOwnedLinkCleanup": {
+    "22": {
+      "ssvm": "s-2-VM",
+      "removedSymlinks": 3,
+      "remainingOwnedSymlinks": 0
+    },
+    "31": {
+      "ssvm": "s-173-VM",
+      "removedSymlinks": 4,
+      "remainingOwnedSymlinks": 0
+    },
+    "32": {
+      "ssvm": "s-27-VM",
+      "removedSymlinks": 5,
+      "remainingOwnedSymlinks": 0
+    }
+  },
+  "hostAndTemporaryArtifacts": {
+    "22.10": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "22.1": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "22.2": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "22.3": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "31.10": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "31.1": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "31.2": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "31.3": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "32.10": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "32.1": {
+      "removedDeploymentTemporaryFiles": 0,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "32.2": {
+      "removedDeploymentTemporaryFiles": 7,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    },
+    "32.3": {
+      "removedDeploymentTemporaryFiles": 7,
+      "remainingOwnDomains": [],
+      "rbdAuthTempDirectories": 0
+    }
+  },
+  "retiredUrlsHttp404": 20,
+  "original22BaseAndProtectedVolumesRemain": 3,
+  "original22ExportRefsRemain": 0,
+  "method": "Normal API removal, then explicit early retirement of owned Image files/SSVM links/ref tombstones before four-hour retention elapsed. Periodic GC was not accelerated."
+}

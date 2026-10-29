@@ -24,6 +24,9 @@ import com.cloud.agent.api.CheckVmBackupTrackingCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.hypervisor.kvm.resource.LibvirtDomainXMLParser;
 import com.cloud.hypervisor.kvm.resource.LibvirtVMDef;
+import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
+import com.cloud.hypervisor.kvm.storage.RbdVolumeAllocation;
+import com.cloud.storage.Storage;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
 import com.cloud.utils.script.Script;
@@ -57,9 +60,7 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
                     if (volume == null || volume.getPath() == null || volume.getPath().isEmpty()) {
                         throw new IllegalStateException("Cannot resolve offline VM volume");
                     }
-                    String path = resource.getLibvirtUtilitiesHelper().getPrimaryPoolFromDataTo(volume, resource.getStoragePoolMgr())
-                            .getLocalPathFor(volume.getPath());
-                    if (hasOfflineBitmaps(path)) {
+                    if (hasOfflineVolumeBitmaps(volume, resource)) {
                         return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Persistent disk bitmaps remain.");
                     }
                 }
@@ -75,6 +76,14 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
                 }
                 if (hasBitmaps(block)) return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Dirty bitmaps remain on the VM.");
             } else {
+                if (cmd.isStopped() && cmd.getVolumes() != null && !cmd.getVolumes().isEmpty()) {
+                    for (VolumeObjectTO volume : cmd.getVolumes()) {
+                        if (hasOfflineVolumeBitmaps(volume, resource)) {
+                            return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Persistent disk bitmaps remain.");
+                        }
+                    }
+                    return new Answer(cmd, true, null);
+                }
                 LibvirtDomainXMLParser parser = new LibvirtDomainXMLParser();
                 if (!parser.parseDomainXML(domain.getXMLDesc(0)) || parser.getDisks().isEmpty()) {
                     throw new IllegalStateException("Cannot inspect the VM disk configuration");
@@ -91,6 +100,19 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
         } finally {
             if (domain != null) try { domain.free(); } catch (Exception ignored) { }
         }
+    }
+
+    private boolean hasOfflineVolumeBitmaps(VolumeObjectTO volume, LibvirtComputingResource resource) throws LibvirtException {
+        if (volume == null || volume.getPath() == null || volume.getPath().isEmpty()) {
+            throw new IllegalStateException("Cannot resolve offline VM volume");
+        }
+        KVMStoragePool pool = resource.getLibvirtUtilitiesHelper().getPrimaryPoolFromDataTo(volume, resource.getStoragePoolMgr());
+        return pool.getType() == Storage.StoragePoolType.RBD
+                ? hasBitmaps(inspectRbdOfflineVolume(volume, pool)) : hasOfflineBitmaps(pool.getLocalPathFor(volume.getPath()));
+    }
+
+    JsonElement inspectRbdOfflineVolume(VolumeObjectTO volume, KVMStoragePool pool) {
+        return new RbdVolumeAllocation().inspectOfflineRawImage(volume, pool);
     }
 
     static boolean hasBitmaps(JsonElement value) {

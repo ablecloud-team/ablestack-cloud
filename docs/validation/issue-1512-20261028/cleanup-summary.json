@@ -1,0 +1,59 @@
+{
+  "22": {
+    "counts": {
+      "vms": 0,
+      "volumes": 0,
+      "templates": 0,
+      "activeDiskOfferings": 0,
+      "activeServiceOfferings": 0
+    },
+    "volumesChecked": 3,
+    "templatesChecked": 3,
+    "remainingSecondaryFiles": [],
+    "availableBytes": 351121850368,
+    "remainingPrimaryVolumes": [],
+    "remainingOwnedDomains": []
+  },
+  "31": {
+    "counts": {
+      "vms": 0,
+      "volumes": 0,
+      "templates": 0,
+      "activeDiskOfferings": 0,
+      "activeServiceOfferings": 0,
+      "activeImplicitRootOffering": 0
+    },
+    "volumesChecked": 4,
+    "templatesChecked": 3,
+    "remainingSecondaryFiles": [],
+    "availableBytes": 89240137728,
+    "remainingPrimaryVolumes": [],
+    "remainingOwnedDomains": []
+  },
+  "32": {
+    "counts": {
+      "vms": 0,
+      "volumes": 0,
+      "templates": 0,
+      "activeDiskOfferings": 0,
+      "activeServiceOfferings": 0,
+      "activeImplicitRootOffering": 0
+    },
+    "volumesChecked": 4,
+    "templatesChecked": 3,
+    "remainingSecondaryFiles": [],
+    "availableBytes": 269306114048,
+    "remainingPrimaryVolumes": [],
+    "remainingOwnedDomains": []
+  },
+  "protected22": {
+    "sourcePreserved": true,
+    "sourceState": "Stopped",
+    "perftest": {
+      "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+      "state": "Running",
+      "hostId": "e9fdf05f-02fc-410a-a8a5-1701111a9434",
+      "vmAndVolumesUnchanged": true
+    }
+  }
+}

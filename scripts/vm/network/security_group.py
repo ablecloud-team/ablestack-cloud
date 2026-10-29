@@ -23,6 +23,7 @@ import sys
 import os
 import xml.dom.minidom
 import re
+import shlex
 import libvirt
 import fcntl
 import time
@@ -529,13 +530,15 @@ def check_default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brna
     brfw = get_br_fw(brname)
     vmchain_default = default_chain_name(vm_name)
     try:
-        rules = execute("iptables-save |grep -w %s |grep -w %s |grep -w %s" % (brfw, vif, vmchain_default))
+        rules = execute("iptables-save |grep -w %s |grep -w %s |grep -E -- '-j %s$'" % (brfw, vif, vmchain_default))
     except:
         rules = None
     if not rules:
         logging.debug("iptables rules do not exist, programming default rules for %s %s" % (vm_name,vif))
         default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, sec_ips, is_first_nic)
     else:
+        if not reconcile_bridge_firewall(brname):
+            return False
         vmchain_in = vm_name + "-in"
         try:
             rules = execute("ebtables -t nat -L PREROUTING | grep %s |grep -w %s" % (vmchain_in, vif))
@@ -550,7 +553,7 @@ def check_default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brna
     return True
 
 def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, sec_ips, is_first_nic=False):
-    if not add_fw_framework(brname):
+    if not add_fw_framework(brname, vif, default_chain_name(vm_name)):
         return False
 
     vmName = vm_name
@@ -567,7 +570,9 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
     vmipsetName6 = vmipsetName + '-6'
 
     if is_first_nic:
-        delete_rules_for_vm_in_bridge_firewall_chain(vmName)
+        current_vifs = set(get_vifs(vm_name))
+        current_vifs.add(vif)
+        delete_rules_for_vm_in_bridge_firewall_chain(vmName, current_vifs)
         destroy_ebtables_rules(vmName, vif)
 
         for chain in [vmchain, vmchain_egress, vmchain_default]:
@@ -619,8 +624,10 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
         add_to_ipset(vmipsetName6, ip6s, action)
 
     try:
-        execute("iptables -A " + brfw + "-OUT" + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -j " + vmchain_default)
+        execute("iptables -I " + brfw + "-OUT" + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -j " + vmchain_default)
         execute("iptables -A " + brfw + "-IN" + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -j " + vmchain_default)
+        if not reconcile_bridge_firewall(brname):
+            return False
         #allow dhcp
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-in " + vif + " -p udp --dport 67 --sport 68 -j ACCEPT")
         execute("iptables -A " + vmchain_default + " -m physdev --physdev-is-bridged --physdev-out " + vif + " -p udp --dport 68 --sport 67  -j ACCEPT")
@@ -653,7 +660,7 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
             logging.debug("Failed to log default network rules, ignoring")
 
     try:
-        execute('ip6tables -A ' + brfw + '-OUT' + ' -m physdev --physdev-is-bridged --physdev-out ' + vif + ' -j ' + vmchain_default)
+        execute('ip6tables -I ' + brfw + '-OUT' + ' -m physdev --physdev-is-bridged --physdev-out ' + vif + ' -j ' + vmchain_default)
         execute('ip6tables -A ' + brfw + '-IN' + ' -m physdev --physdev-is-bridged --physdev-in ' + vif + ' -j ' + vmchain_default)
 
         # Allow Instances to receive Router Advertisements, send out solicitations, but block any outgoing Advertisement from a Instance
@@ -712,7 +719,7 @@ def default_network_rules(vm_name, vm_id, vm_ip, vm_ip6, vm_mac, vif, brname, se
         return False
 
     logging.debug("Programmed default rules for vm " + vm_name)
-    return True
+    return reconcile_bridge_firewall(brname)
 
 
 def post_default_network_rules(vm_name, vm_id, vm_ip, vm_mac, vif, brname, dhcpSvr, hostIp, hostMacAddr):
@@ -747,7 +754,7 @@ def post_default_network_rules(vm_name, vm_id, vm_ip, vm_mac, vif, brname, dhcpS
             logging.debug("Failed to log default network rules, ignoring")
 
 
-def delete_rules_for_vm_in_bridge_firewall_chain(vmName):
+def delete_rules_for_vm_in_bridge_firewall_chain(vmName, preserve_vifs=None):
     vm_name = vmName
     if is_system_vm_name(vm_name):
         vmchain = iptables_chain_name(vm_name)
@@ -757,6 +764,10 @@ def delete_rules_for_vm_in_bridge_firewall_chain(vmName):
     delcmd = """iptables-save | awk '/BF(.*)physdev-is-bridged(.*)%s/ { sub(/-A/, "-D", $1) ; print }'""" % vmchain
     delcmds = [_f for _f in execute(delcmd).split('\n') if _f]
     for cmd in delcmds:
+        if preserve_vifs and 'cs-sg-guard:' in cmd:
+            rule = shlex.split(cmd)
+            if '--physdev-out' in rule and rule[rule.index('--physdev-out') + 1] in preserve_vifs:
+                continue
         try:
             execute("iptables " + cmd)
         except:
@@ -765,6 +776,10 @@ def delete_rules_for_vm_in_bridge_firewall_chain(vmName):
     delcmd = """ip6tables-save | awk '/BF(.*)physdev-is-bridged(.*)%s/ { sub(/-A/, "-D", $1) ; print }'""" % vmchain
     delcmds = [_f for _f in execute(delcmd).split('\n') if _f]
     for cmd in delcmds:
+        if preserve_vifs and 'cs-sg-guard:' in cmd:
+            rule = shlex.split(cmd)
+            if '--physdev-out' in rule and rule[rule.index('--physdev-out') + 1] in preserve_vifs:
+                continue
         try:
             execute('ip6tables ' + cmd)
         except:
@@ -881,6 +896,44 @@ def network_rules_for_rebooted_vm(vmName):
 
     rewrite_rule_log_for_vm(vm_name, curr_domid)
     return True
+
+
+
+def reapply_security_groups(vm_name=None):
+    """Request authoritative rules through the existing agent/manager sync."""
+    try:
+        running = [name.rstrip() for name in virshlist(['running'])]
+        if vm_name and vm_name not in running:
+            print('VM is not running on this host: ' + vm_name, file=sys.stderr)
+            return False
+        targets = []
+        for name in running:
+            if not name.startswith('i-') or (vm_name and name != vm_name):
+                continue
+            record = get_rule_log_for_vm(name)
+            if not record:
+                continue
+            fields = record.strip().split(',')
+            if len(fields) != 6 or fields[0] != name or int(fields[1]) <= 0:
+                raise ValueError('Invalid SG synchronization record: ' + name)
+            int(fields[5])
+            targets.append(fields)
+        if not targets:
+            message = 'No running SG VM records found.'
+            print(message, file=sys.stderr if vm_name else sys.stdout)
+            return not vm_name
+        for fields in targets:
+            # Keep the VM metadata and rule signature. A different sequence
+            # makes the manager resend its stored policy on the next sync.
+            if not write_rule_log_for_vm(*(fields[:5] + ['-1'])):
+                raise RuntimeError('Could not request SG rule resend: ' + fields[0])
+            print(fields[0] + ': SG rule resend requested')
+        print('Waiting for the next agent/management-server synchronization.')
+        return True
+    except Exception:
+        logging.exception('Failed to request SG rule resend')
+        print('SG rule resend request failed; check security_group.log.', file=sys.stderr)
+        return False
 
 
 def get_rule_logs_for_vms():
@@ -1141,6 +1194,30 @@ def parse_network_rules(rules):
     return ret
 
 
+def can_disable_conntrack(rules, ip_family):
+    """Only skip tracking when both directions allow all traffic in this family."""
+    all_cidr = '0.0.0.0/0' if ip_family == 'ipv4' else '::/0'
+    ingress_all = False
+    egress_all = False
+    has_egress_rules = False
+
+    for rule in rules:
+        if not rule[ip_family]:
+            continue
+        is_egress = rule['ruletype'] == 'E'
+        if is_egress:
+            has_egress_rules = True
+        if rule['protocol'].lower() == 'all' and all_cidr in rule[ip_family]:
+            if is_egress:
+                egress_all = True
+            else:
+                ingress_all = True
+
+    # Empty egress rules allow all; empty ingress rules deny new connections.
+    # A restricted direction needs tracking to recognize allowed replies.
+    return ingress_all and (egress_all or not has_egress_rules)
+
+
 def add_network_rules(vm_name, vm_id, vm_ip, vm_ip6, signature, seqno, vmMac, rules, vif, brname, sec_ips):
     try:
         vmName = vm_name
@@ -1172,23 +1249,8 @@ def add_network_rules(vm_name, vm_id, vm_ip, vm_ip6, signature, seqno, vmMac, ru
         ip4s, ip6s = split_ips_by_family(vm_ip, vm_ip6, sec_ips, str(ipv6_link_local_addr(vmMac)))
 
         rules = parse_network_rules(rules)
-        conntrack4_not_needed = False
-        conntrack6_not_needed = False
-        for rule in rules:
-            """
-            If any of the rules has an explicit allow all protocols from 0.0.0.0/0 (ipv4)
-            or ::/0 (ipv6), then that IP family doesn't need its connection tracked
-            Example contents of the rules list:
-            [
-	            {'ipv4': ['1.0.0.0/24', '0.0.0.0/0'], 'ipv6': ['::/0'], 'ruletype': 'I', 'start': 0, 'end': 0, 'protocol': 'all'},
-	            {'ipv4': ['1.1.1.1/32'], 'ipv6': [], 'ruletype': 'I', 'start': 1, 'end': 65535, 'protocol': 'tcp'},
-	            {'ipv4': [], 'ipv6': ['2001:db8::/32'], 'ruletype': 'I', 'start': 2000, 'end': 3000, 'protocol': 'tcp'}
-            ]
-            """
-            if '0.0.0.0/0' in rule['ipv4'] and rule['protocol'].lower() == 'all':
-                conntrack4_not_needed = True
-            if '::/0' in rule['ipv6'] and rule['protocol'].lower() == 'all':
-                conntrack6_not_needed = True
+        conntrack4_not_needed = can_disable_conntrack(rules, 'ipv4')
+        conntrack6_not_needed = can_disable_conntrack(rules, 'ipv6')
 
         if conntrack4_not_needed:
             add_to_ipset(NOTRACK_IPV4_IPSET, ip4s, "add")
@@ -1347,7 +1409,111 @@ def get_br_fw(brname):
     return brfwname
 
 
-def add_fw_framework(brname):
+def ensure_bridge_port_guard(tool, brfw, vif, vmchain):
+    guard = ('%s -m physdev --physdev-out %s --physdev-is-bridged '
+             '-m comment --comment %s -j DROP') % (
+                 shlex.quote(brfw + '-OUT'), shlex.quote(vif),
+                 shlex.quote('cs-sg-guard:' + vmchain))
+    try:
+        execute('%s -w 10 -C %s' % (tool, guard))
+    except CalledProcessError as error:
+        if error.returncode != 1:
+            raise
+        execute('%s -w 10 -A %s' % (tool, guard))
+
+
+def bridge_forward_update(brname, brfw, forward_rules):
+    """Plan only SG hook moves and legacy bridge DROP removal in FORWARD."""
+    hooks = [
+        ['-A', 'FORWARD', '-o', brname, '-m', 'physdev', '--physdev-is-bridged', '-j', brfw],
+        ['-A', 'FORWARD', '-i', brname, '-m', 'physdev', '--physdev-is-bridged', '-j', brfw],
+    ]
+    legacy_drops = [
+        ['-A', 'FORWARD', '-i', brname, '-j', 'DROP'],
+        ['-A', 'FORWARD', '-o', brname, '-j', 'DROP'],
+    ]
+    rules = []
+    remaining = []
+    removed = []
+    first_hook = None
+    for line in forward_rules.splitlines():
+        rule = shlex.split(line)
+        if rule[:2] != ['-A', 'FORWARD']:
+            continue
+        rules.append(rule)
+        if rule in hooks:
+            if first_hook is None:
+                first_hook = len(remaining)
+            removed.append(line.replace('-A FORWARD', '-D FORWARD', 1))
+        elif rule in legacy_drops:
+            removed.append(line.replace('-A FORWARD', '-D FORWARD', 1))
+        else:
+            remaining.append(rule)
+
+    # Never move an existing SG check later. In particular, libvirt's per-NIC
+    # allow-all filters must not accept local VM traffic before the SG check.
+    position = first_hook if first_hook is not None else 0
+    for index, rule in enumerate(remaining):
+        if '-j' in rule and rule[rule.index('-j') + 1] in ('libvirt-in', 'libvirt-out', 'libvirt-in-post'):
+            position = min(position, index)
+            break
+
+    if rules == remaining[:position] + hooks + remaining[position:]:
+        return None
+
+    commands = ['*filter'] + removed
+    for index, hook in enumerate(hooks):
+        commands.append('-I FORWARD %s %s' % (
+            position + index + 1, ' '.join(shlex.quote(arg) for arg in hook[2:])))
+    return '\n'.join(commands + ['COMMIT', ''])
+
+
+def ensure_bridge_forward_priority(tool, brname, brfw, forward_rules):
+    for attempt in range(3):
+        update = bridge_forward_update(brname, brfw, forward_rules)
+        if update is None:
+            return
+        # Commit the hook moves together, without flushing any table or chain.
+        # Exact rule deletions also avoid deleting unrelated rules by number.
+        logging.debug('Updating %s SG forwarding priority:\n%s', tool, update)
+        check_output([tool + '-restore', '-w', '10', '--noflush'], input=update.encode())
+        forward_rules = execute('%s -w 10 -S FORWARD' % tool)
+    if bridge_forward_update(brname, brfw, forward_rules) is not None:
+        raise RuntimeError('Could not stabilize %s SG forwarding priority' % tool)
+
+
+def reconcile_bridge_firewall(brname):
+    """Keep SG ingress fail-closed without dropping unrelated bridge ports."""
+    brfw = get_br_fw(brname)
+    forwarding = []
+    try:
+        # Install guards for both families before removing any legacy bridge DROP.
+        # The VM chain must run first; a RETURN must not fall through to libvirt's
+        # allow-all filter on an SG NIC. Non-SG NICs retain their existing filters.
+        for tool in ('iptables', 'ip6tables'):
+            out_rules = execute('%s -w 10 -S %s' % (tool, shlex.quote(brfw + '-OUT')))
+            for line in out_rules.splitlines():
+                rule = shlex.split(line)
+                if (rule[:2] != ['-A', brfw + '-OUT'] or '-j' not in rule
+                        or '--physdev-out' not in rule or '--physdev-is-bridged' not in rule):
+                    continue
+                target = rule[rule.index('-j') + 1]
+                if not target.endswith('-def'):
+                    continue
+                vif = rule[rule.index('--physdev-out') + 1]
+                ensure_bridge_port_guard(tool, brfw, vif, target)
+
+            forwarding.append((tool, execute('%s -w 10 -S FORWARD' % tool)))
+
+        for tool, forward_rules in forwarding:
+            ensure_bridge_forward_priority(tool, brname, brfw, forward_rules)
+        return True
+    except Exception:
+        logging.exception('Failed to reconcile security group bridge %s', brname)
+        return False
+
+
+def add_fw_framework(brname, sg_vif=None, sg_chain=None):
     try:
         execute("modprobe br_netfilter")
     except:
@@ -1397,6 +1563,16 @@ def add_fw_framework(brname):
 
     physdev = get_bridge_physdev(brname)
 
+    # Guard a new SG port before installing forwarding hooks or rebuilding its
+    # policy. The per-VM jump is inserted ahead of this guard once it exists.
+    if sg_vif is not None and sg_chain is not None:
+        try:
+            for tool in ('iptables', 'ip6tables'):
+                ensure_bridge_port_guard(tool, brfw, sg_vif, sg_chain)
+        except Exception:
+            logging.exception('Failed to guard security group port %s', sg_vif)
+            return False
+
     # Add notrack ipset. The IP addresses from it will be excluded from connection tracking
     execute(f"ipset -! create {NOTRACK_IPV4_IPSET} hash:ip family inet")
     execute(f"ipset -! create {NOTRACK_IPV6_IPSET} hash:ip family inet6")
@@ -1428,8 +1604,6 @@ def add_fw_framework(brname):
         refs6 = int(execute("""ip6tables -n -L %s | awk '/%s(.*)references/ {gsub(/\(/, "") ;print $3}'""" % (brfw,brfw)).strip())
 
         if refs == 0 or refs_in == 0 or refs_out == 0:
-            execute("iptables -I FORWARD -i " + brname + " -j DROP")
-            execute("iptables -I FORWARD -o " + brname + " -j DROP")
             execute("iptables -I FORWARD -i " + brname + " -m physdev --physdev-is-bridged -j " + brfw)
             execute("iptables -I FORWARD -o " + brname + " -m physdev --physdev-is-bridged -j " + brfw)
             execute("iptables -A " + brfw + " -m physdev --physdev-is-bridged --physdev-is-in -j " + brfwin)
@@ -1437,15 +1611,13 @@ def add_fw_framework(brname):
             execute("iptables -A " + brfw + " -m physdev --physdev-is-bridged --physdev-out " + physdev + " -j ACCEPT")
 
         if refs6 == 0:
-            execute('ip6tables -I FORWARD -i ' + brname + ' -j DROP')
-            execute('ip6tables -I FORWARD -o ' + brname + ' -j DROP')
             execute('ip6tables -I FORWARD -i ' + brname + ' -m physdev --physdev-is-bridged -j ' + brfw)
             execute('ip6tables -I FORWARD -o ' + brname + ' -m physdev --physdev-is-bridged -j ' + brfw)
             execute('ip6tables -A ' + brfw + ' -m physdev --physdev-is-bridged --physdev-is-in -j ' + brfwin)
             execute('ip6tables -A ' + brfw + ' -m physdev --physdev-is-bridged --physdev-is-out -j ' + brfwout)
             execute('ip6tables -A ' + brfw + ' -m physdev --physdev-is-bridged --physdev-out ' + physdev + ' -j ACCEPT')
 
-        return True
+        return reconcile_bridge_firewall(brname)
     except:
         try:
             execute("iptables -F " + brfw)
@@ -1681,7 +1853,7 @@ def verify_expected_rules_in_order(expected_rules, rules):
 if __name__ == '__main__':
     logging.basicConfig(filename="/var/log/cloudstack/agent/security_group.log", format="%(asctime)s - %(message)s", level=logging.DEBUG)
     parser = argparse.ArgumentParser(description='Apache CloudStack Security Groups')
-    parser.add_argument("command")
+    parser.add_argument("command", help="Use reapply_security_groups to request SG rule resend without changing policy")
     parser.add_argument("--vmname", dest="vmName")
     parser.add_argument("--vmip", dest="vmIP")
     parser.add_argument("--vmip6", dest="vmIP6")
@@ -1704,6 +1876,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     cmd = args.command
     logging.debug("Executing command: %s", cmd)
+
+    if cmd == "reapply_security_groups":
+        deadline = time.monotonic() + 30
+        while not obtain_file_lock(lock_file):
+            if time.monotonic() >= deadline:
+                print("SG lock is busy; retry later.", file=sys.stderr)
+                sys.exit(1)
+            time.sleep(0.5)
+        sys.exit(0 if reapply_security_groups(args.vmName) else 1)
 
     for i in range(0, 30):
         if obtain_file_lock(lock_file) is False:

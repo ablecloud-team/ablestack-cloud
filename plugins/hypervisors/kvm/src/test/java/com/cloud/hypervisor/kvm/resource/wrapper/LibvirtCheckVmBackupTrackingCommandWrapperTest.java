@@ -175,6 +175,26 @@ public class LibvirtCheckVmBackupTrackingCommandWrapperTest {
         assertTrue(answer.getDetails().startsWith("BACKUP_TRACKING_EXISTS:"));
         verify(domain).free();
     }
+    @Test public void stoppedRbdUsesAuthenticatedImageInspection() throws Exception {
+        missingDomain();
+        KVMStoragePool pool=mock(KVMStoragePool.class);
+        when(pool.getType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
+        when(helper.getPrimaryPoolFromDataTo(eq(volume),any())).thenReturn(pool);
+        doReturn(new JsonParser().parse("[{\"format\":\"raw\",\"virtual-size\":1073741824}]")).when(wrapper).inspectRbdOfflineVolume(volume,pool);
+        assertTrue(wrapper.execute(stoppedCommand(),resource).getResult());
+        verify(pool,never()).getLocalPathFor(any());
+        verify(wrapper,never()).run(eq("qemu-img"),any(String[].class));
+    }
+    @Test public void rbdInspectionFailureRemainsUnknown() throws Exception {
+        missingDomain();
+        KVMStoragePool pool=mock(KVMStoragePool.class);
+        when(pool.getType()).thenReturn(com.cloud.storage.Storage.StoragePoolType.RBD);
+        when(helper.getPrimaryPoolFromDataTo(eq(volume),any())).thenReturn(pool);
+        doThrow(new IllegalStateException("image unavailable")).when(wrapper).inspectRbdOfflineVolume(volume,pool);
+        Answer answer=wrapper.execute(stoppedCommand(),resource);
+        assertFalse(answer.getResult());assertTrue(answer.getDetails().startsWith("BACKUP_TRACKING_UNKNOWN:"));
+    }
+
     @Test public void detectsLiveAndOfflineBitmaps() {
         assertTrue(LibvirtCheckVmBackupTrackingCommandWrapper.hasBitmaps(new JsonParser().parse("{\"return\":[{\"inserted\":{\"dirty-bitmaps\":[{\"name\":\"backup\"}]}}]}")));
         assertTrue(LibvirtCheckVmBackupTrackingCommandWrapper.hasBitmaps(new JsonParser().parse("[{\"format-specific\":{\"data\":{\"bitmaps\":[{\"name\":\"backup\"}]}}}]")));

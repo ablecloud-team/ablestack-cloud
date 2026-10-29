@@ -621,6 +621,13 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         DataStore store = dataStoreMgr.getDataStore(pool.getId(), DataStoreRole.Primary);
         // DataStoreRole dataStoreRole = snapshotHelper.getDataStoreRole(snapshot);
         SnapshotInfo snapInfo = snapshotFactory.getSnapshotOnPrimaryStore(snapshot.getId());
+        if (!com.cloud.storage.VolumeAllocationLifecycle.intent(_volDetailDao.listDetailsKeyPairs(volume.getId())).isEmpty()) {
+            // A qualified clone copies within the source pool, preserving its backend/format contract.
+            if (snapInfo == null || snapInfo.getDataStore() == null || snapInfo.getDataStore().getRole() != DataStoreRole.Primary) {
+                throw new CloudRuntimeException("ALLOCATION_CLONE_SOURCE_UNAVAILABLE: primary snapshot required");
+            }
+            store = snapInfo.getDataStore();
+        }
          // create volume on primary from snapshot
         AsyncCallFuture<VolumeApiResult> future = volService.cloneVolumeFromSnapshot(vol, store, snapInfo);
         String snapshotToString = getReflectOnlySelectedFields(snapInfo.getSnapshotVO());

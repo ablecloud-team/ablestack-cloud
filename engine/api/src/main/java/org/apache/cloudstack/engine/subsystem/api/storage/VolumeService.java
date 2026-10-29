@@ -90,6 +90,9 @@ public interface VolumeService {
 
     AsyncCallFuture<VolumeApiResult> copyVolume(VolumeInfo srcVolume, DataStore destStore);
 
+    /** Read-only export to an Image store; never allocation conversion or primary migration. */
+    AsyncCallFuture<VolumeApiResult> exportVolume(VolumeInfo srcVolume, DataStore destStore);
+
     AsyncCallFuture<VolumeApiResult> migrateVolume(VolumeInfo srcVolume, DataStore destStore);
 
     AsyncCallFuture<CommandResult> migrateVolumes(Map<VolumeInfo, DataStore> volumeMap, VirtualMachineTO vmTo, Host srcHost, Host destHost);

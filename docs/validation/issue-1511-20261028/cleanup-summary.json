@@ -1,0 +1,270 @@
+{
+  "verification": {
+    "22": {
+      "checkedVmCount": 2,
+      "checkedVolumeCount": 4,
+      "databaseCounts": {
+        "activeVms": 0,
+        "activeVolumes": 0,
+        "activeVmSnapshots": 0,
+        "activeStorageSnapshots": 0,
+        "activeSnapshotStoreRefs": 0,
+        "destroyedSnapshotHistoryRows": 2,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0
+      },
+      "remainingPrimaryImages": []
+    },
+    "31": {
+      "checkedVmCount": 11,
+      "checkedVolumeCount": 23,
+      "databaseCounts": {
+        "activeVms": 0,
+        "activeVolumes": 0,
+        "activeVmSnapshots": 0,
+        "activeStorageSnapshots": 0,
+        "activeSnapshotStoreRefs": 0,
+        "destroyedSnapshotHistoryRows": 0,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0
+      },
+      "remainingPrimaryImages": []
+    },
+    "32": {
+      "checkedVmCount": 8,
+      "checkedVolumeCount": 19,
+      "databaseCounts": {
+        "activeVms": 0,
+        "activeVolumes": 0,
+        "activeVmSnapshots": 0,
+        "activeStorageSnapshots": 0,
+        "activeSnapshotStoreRefs": 0,
+        "destroyedSnapshotHistoryRows": 9,
+        "activeDiskOfferings": 0,
+        "activeServiceOfferings": 0
+      },
+      "remainingPrimaryImages": []
+    }
+  },
+  "failureEvidence": {
+    "directory": "/mnt/glue-gfs/.cloudstack-allocation-failure-v1",
+    "removed": true,
+    "manifest": {
+      "version": 1,
+      "status": "unverified-content-mismatch",
+      "capturedAt": "2026-10-28T13:00:00.566536571Z",
+      "requestFingerprint": "ef688cd32de7fe52a2776ad27e5c0b198ced669a9a123c45110642947fc848a5",
+      "volumeUuid": "f20dae88-ce58-4d75-9456-9b8aa7f308a8",
+      "format": "qcow2",
+      "policy": "falloc",
+      "expectedVirtualBytes": 1073741824,
+      "operation": "create",
+      "referenceFormat": "raw",
+      "failure": "com.cloud.hypervisor.kvm.storage.Gfs2AllocationCommandRunner$CommandFailure: GFS2_ALLOCATION_COMMAND_FAILED: exit=1 Content mismatch at offset 0!"
+    },
+    "fileCount": 3,
+    "allocatedBytes": 1076219904
+  },
+  "temporaryArtifacts": {
+    "22.2": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "22.3": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "22.1": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "31.1": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "31.2": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "31.10": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "31.3": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "32.1": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "32.2": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "22.10": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    },
+    "32.10": {
+      "removedCount": 2,
+      "remainingOwnedFiles": []
+    },
+    "32.3": {
+      "removedCount": 0,
+      "remainingOwnedFiles": []
+    }
+  },
+  "protectedQemu": {
+    "vm": "rocky98-perftest",
+    "pid": "219715",
+    "processStartTicks": "191152358",
+    "sameProcessAsBaseline": true
+  },
+  "managementHealth": {
+    "22": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 61355536384
+    },
+    "31": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 185215062016
+    },
+    "32": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 3236438016
+    }
+  },
+  "protectedApi": {
+    "invalidCloneCount": 0,
+    "external": {
+      "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+      "state": "Stopped",
+      "pathPolicyEvidencePreserved": true,
+      "activeSnapshots": 0
+    },
+    "protectedPerftest": {
+      "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+      "state": "Running",
+      "host": "ablecube22-3",
+      "volumeCount": 2,
+      "stateHostPathPolicyEvidencePreserved": true
+    }
+  },
+  "normalApi": {
+    "22": {
+      "destroyedVmCount": 2,
+      "deletedDataOrOrphanVolumeCount": 2,
+      "deletedVmSnapshotCount": 1,
+      "deletedDetachedStorageSnapshotCount": 1,
+      "computeOfferingsDeleted": 0,
+      "diskOfferingsDeleted": 1,
+      "hosts": [
+        {
+          "name": "ablecube22-1",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube22-2",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube22-3",
+          "state": "Up"
+        }
+      ]
+    },
+    "31": {
+      "destroyedVmCount": 11,
+      "deletedDataOrOrphanVolumeCount": 12,
+      "deletedVmSnapshotCount": 0,
+      "deletedDetachedStorageSnapshotCount": 0,
+      "computeOfferingsDeleted": 4,
+      "diskOfferingsDeleted": 5,
+      "hosts": [
+        {
+          "name": "ablecube31-1",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube31-2",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube31-3",
+          "state": "Up"
+        }
+      ]
+    },
+    "32": {
+      "destroyedVmCount": 8,
+      "deletedDataOrOrphanVolumeCount": 11,
+      "deletedVmSnapshotCount": 2,
+      "deletedDetachedStorageSnapshotCount": 3,
+      "computeOfferingsDeleted": 2,
+      "diskOfferingsDeleted": 3,
+      "hosts": [
+        {
+          "name": "ablecube32-1",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube32-2",
+          "state": "Up"
+        },
+        {
+          "name": "ablecube32-3",
+          "state": "Up"
+        }
+      ]
+    }
+  },
+  "directDatabaseMutation": false,
+  "note": "Destroyed snapshot and Inactive offering history is retained; active counts and physical images are zero.",
+  "externalBaseNative": {
+    "externalBaseOwnedSnapshotAbsent": true,
+    "nativeSnapshotCount": 0
+  }
+}
