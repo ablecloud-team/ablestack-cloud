@@ -1,0 +1,769 @@
+{
+  "issue": 1513,
+  "epic": 1510,
+  "pr": 1514,
+  "qualificationStatus": "completed",
+  "codeHead": "7eefbf9324fc2bd1ec4f5ba7553038fa28bf9699",
+  "deployedCodeHead": "7eefbf9324fc2bd1ec4f5ba7553038fa28bf9699",
+  "tests": {
+    "java": {
+      "suites": [
+        {
+          "name": "org.apache.cloudstack.storage.to.VolumeExportTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "core"
+        },
+        {
+          "name": "com.cloud.storage.VolumeExportGuardTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "server"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeServiceTest",
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeExportServiceTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeObjectTest",
+          "tests": 37,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeAllocationLifecycleGuardTest",
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeAllocationResultTest",
+          "tests": 17,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "engine/storage/volume"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.RbdVolumeAllocationTest",
+          "tests": 39,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.VerifiedVolumeExportTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.VolumeExportCommandGuardTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.Gfs2VolumeAllocationTest",
+          "tests": 44,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "module": "plugins/hypervisors/kvm"
+        }
+      ],
+      "tests": 205,
+      "suiteCount": 11
+    },
+    "ui": {
+      "suites": 1,
+      "tests": 20,
+      "failures": 0
+    },
+    "uiLint": "PASS",
+    "uiProductionBuild": "PASS",
+    "fullCloudBuildRun": false
+  },
+  "uiCases": [
+    {
+      "cluster": "22",
+      "id": "5eea0b9c-44da-4a49-9e23-2e0d3e68cff7",
+      "name": "ROOT-3",
+      "size": 107374182400,
+      "type": "ROOT",
+      "policy": "off",
+      "format": "raw",
+      "vm": "rocky98-base",
+      "attachment": true,
+      "uiJob": "e5fe4ab9-2601-48d7-8ce7-8e423e4d6ebf",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 2454978560,
+      "sha256": "65b7d204da1fc7ecf5dffd7748d7601c75e825b9819787de0672745b6a38a44e",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "22",
+      "id": "cccec798-3e32-4e6f-bf91-c2e615001bd3",
+      "name": "qa1513-22-off-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "off",
+      "format": "raw",
+      "vm": null,
+      "attachment": false,
+      "uiJob": "422a9887-f745-4970-85d0-c8fff27e23b3",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "22",
+      "id": "8b5f91d8-31d5-43c1-b6fa-7d52e015b0d7",
+      "name": "qa1513-22-full-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "full",
+      "format": "raw",
+      "vm": null,
+      "attachment": false,
+      "uiJob": "e63061fa-9bbc-4aed-8b5c-c60d819ea022",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "22",
+      "id": "780b8bd7-c635-4fcb-8331-e2924be252ea",
+      "name": "qa1513-22-legacy-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "thin",
+      "format": "raw",
+      "vm": null,
+      "attachment": false,
+      "uiJob": "13a2b647-9fed-4973-a003-25329364dc38",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "31",
+      "id": "7392eb8b-f61b-4b7d-8bbb-f7270326924e",
+      "name": "ROOT-794",
+      "size": 107374182400,
+      "type": "ROOT",
+      "policy": "metadata",
+      "format": "qcow2",
+      "vm": "qa1513-31-metadata",
+      "attachment": true,
+      "uiJob": "8f4a7904-63b6-43c2-8740-33e5ef45eceb",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 2744844288,
+      "sha256": "01b377942a4b1e3a50870fe01f2d3b41ef63a88e9598b4ff87d96e183f9545ff",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "31",
+      "id": "72f11453-97da-4f84-82cd-4476340f33fb",
+      "name": "ROOT-795",
+      "size": 107374182400,
+      "type": "ROOT",
+      "policy": "falloc",
+      "format": "qcow2",
+      "vm": "qa1513-31-falloc",
+      "attachment": true,
+      "uiJob": "1ec61b4b-5850-4b24-a738-05ffb382d42c",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 2744844288,
+      "sha256": "b747a6c3d0a75a2ef6650e5e6e1de1217202b12ac35bc8d5e426df72c2a90603",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "31",
+      "id": "140977b1-9aa4-4060-9c4d-038d22532a7b",
+      "name": "ROOT-796",
+      "size": 107374182400,
+      "type": "ROOT",
+      "policy": "thin",
+      "format": "qcow2",
+      "vm": "qa1513-31-legacy",
+      "attachment": true,
+      "uiJob": "3b0147ec-fd7b-44c1-aff8-2eb5aecd5f12",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 2744844288,
+      "sha256": "afd690d73aa6bea29a6fc7f1ce76e4d6c6839d9c7b48440275a68ac61fed8020",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "31",
+      "id": "b621f8ea-52eb-428b-a1d7-efabb9e3cfc9",
+      "name": "qa1513-31-off-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "off",
+      "format": "raw",
+      "vm": null,
+      "attachment": false,
+      "uiJob": "e44a5aca-4085-47d9-8efb-5f3f5062ae72",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 589824,
+      "sha256": "7d5c5d04bde6e741619516d68d7fed7e408720ca921f4ea1d071fe267d51856c",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "31",
+      "id": "7f8a2a65-6912-43e0-8ae4-9a559764f69c",
+      "name": "qa1513-31-full-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "full",
+      "format": "raw",
+      "vm": "qa1513-31-metadata",
+      "attachment": true,
+      "uiJob": "994db2eb-0c76-4988-a7d2-e09c18e237d3",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "31",
+      "id": "024a6f94-6291-4996-ad81-1fa7c0cfc324",
+      "name": "qa1513-31-full-qcow2-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "full",
+      "format": "qcow2",
+      "vm": "qa1513-31-metadata",
+      "attachment": true,
+      "uiJob": "b978d3f6-4772-4934-9bec-a59c96611b96",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "31",
+      "id": "91a285b8-9c52-4026-85b4-fc598c92fb71",
+      "name": "qa1513-31-legacy-qcow2-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "thin",
+      "format": "qcow2",
+      "vm": "qa1513-31-legacy",
+      "attachment": true,
+      "uiJob": "4725a73d-1887-448e-9dab-f4a85c3a8841",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "31",
+      "id": "8d036f5a-088c-4aaf-846d-715c5bb52953",
+      "name": "ROOT-797",
+      "size": 1073741824,
+      "type": "ROOT",
+      "policy": "falloc",
+      "format": "qcow2",
+      "vm": "qa1513-31-small-falloc",
+      "attachment": true,
+      "uiJob": "10353f65-0e31-48ba-9149-1930a472c9ab",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "32",
+      "id": "47e39462-ef93-4039-85ab-d4e5d2bcb3ff",
+      "name": "ROOT-260",
+      "size": 107374182400,
+      "type": "ROOT",
+      "policy": "thin",
+      "format": "raw",
+      "vm": "qa1513-32-legacy",
+      "attachment": true,
+      "uiJob": "b8d94be1-d963-4e4a-a587-c65a88183ac6",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 2744844288,
+      "sha256": "8f73737494cfa4eeca9a47d366ac382060e14f05e11ee3fb6bb1d1e684889010",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    },
+    {
+      "cluster": "32",
+      "id": "235f9215-6bdf-47f5-86e2-dd66001d4aed",
+      "name": "qa1513-32-off-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "off",
+      "format": "raw",
+      "vm": "qa1513-32-full",
+      "attachment": true,
+      "uiJob": "bdbb4493-1fb9-4d27-a83a-30fa4b2d908d",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "32",
+      "id": "e5c43c4a-dea2-44ea-9732-933a2b833c1d",
+      "name": "qa1513-32-full-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "full",
+      "format": "raw",
+      "vm": "qa1513-32-full",
+      "attachment": true,
+      "uiJob": "09dacbaa-89ba-47b2-96cf-01bc4d11d15d",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "32",
+      "id": "6964d2df-58f8-4efc-a4ac-85db80b1dc4d",
+      "name": "qa1513-32-legacy-raw-data",
+      "size": 1073741824,
+      "type": "DATADISK",
+      "policy": "thin",
+      "format": "raw",
+      "vm": "qa1513-32-legacy",
+      "attachment": true,
+      "uiJob": "09553cc2-311c-4127-9b41-18cebb58c7e3",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": true
+    },
+    {
+      "cluster": "32",
+      "id": "1710382e-9b08-488f-b598-b91e7081e578",
+      "name": "ROOT-261",
+      "size": 1073741824,
+      "type": "ROOT",
+      "policy": "full",
+      "format": "raw",
+      "vm": "qa1513-32-small-full",
+      "attachment": true,
+      "uiJob": "37553958-ed46-4d96-94ac-d9473e018534",
+      "uiSuccess": true,
+      "http": 200,
+      "fileBytes": 524288,
+      "sha256": "a59d3e2fce3d4dedf3ef8a69794c4ff3969540e12c799a81be23a59a1df78b19",
+      "independentQcow2": true,
+      "fullContentCompareExit": 0,
+      "patternsVerified": null
+    }
+  ],
+  "successfulUiRequests": 23,
+  "uniqueUiCombinations": 17,
+  "remainingCombinationsCompleted": 10,
+  "sourceDatabaseInvariants": {
+    "22": {
+      "comparedVolumes": 6,
+      "allVolumeFieldsEqual": true,
+      "allAllocationAndCloneDetailsEqual": true
+    },
+    "31": {
+      "comparedVolumes": 8,
+      "allVolumeFieldsEqual": true,
+      "allAllocationAndCloneDetailsEqual": true
+    },
+    "32": {
+      "comparedVolumes": 6,
+      "allVolumeFieldsEqual": true,
+      "allAllocationAndCloneDetailsEqual": true
+    }
+  },
+  "browserFileSave": {
+    "browser": "Chrome",
+    "filesWrittenToWindowsDownloads": 4,
+    "explicitOff22Covered": true,
+    "bytesPerFile": 524288,
+    "virtualBytes": 1073741824,
+    "fullSha256MatchesSecondary": true,
+    "fileMagic": "QFI fb",
+    "nativeTemporaryExtension": ".tmp",
+    "automationCompletionEventReturned": false,
+    "limitation": "Full payload on disk independently verified. Automatic completion event and final filename transition not confirmed. No browser security warning bypassed."
+  },
+  "failureScenarios": [
+    {
+      "kind": "missingOwnedSource",
+      "job": "8ae3b343-e68e-4da3-84b3-204f926c7975",
+      "status": 2,
+      "code": 530,
+      "uiFailureDisplayed": true,
+      "sameInodeSourceRestored": true,
+      "uiRetryJob": "a9e78ba8-2a41-44c5-be52-5ea1c228b976"
+    },
+    {
+      "kind": "ownedConverterSIGTERM",
+      "jobs": [
+        "702367af-9be7-471a-830a-6805bc2533ab",
+        "72d1a13f-648e-42be-a0f8-b5b8b2de3667"
+      ],
+      "status": 2,
+      "code": 530,
+      "agentOrManagementNotStopped": true,
+      "uiRetryJob": "1ec61b4b-5850-4b24-a738-05ffb382d42c",
+      "sourcePreserved": true
+    },
+    {
+      "kind": "concurrentRequestWhileMigrating",
+      "job": "f1e6309a-69fa-4f6e-ba4b-295c49210024",
+      "status": 2,
+      "code": 431
+    },
+    {
+      "kind": "runningOwnedVm",
+      "job": "d3292399-2729-4f0b-86e0-bed1dcaf9eee",
+      "status": 2,
+      "code": 530,
+      "downloadMenuAbsent": true,
+      "ownVmStoppedAfterTest": true
+    },
+    {
+      "kind": "uiCancel",
+      "dialogClosed": true,
+      "extractApiRequests": 0
+    },
+    {
+      "kind": "expiredUrl",
+      "injection": "Only owned export timestamp aged two days",
+      "oldUrlHttp": 404,
+      "newUrlDifferent": true,
+      "physicalOldArtifactDeleted": true
+    },
+    {
+      "kind": "staleCache",
+      "injection": "Only owned detached disk third pattern and volumes.updated changed; same-name updateVolume alone retains cache",
+      "oldUrlHttp": 404,
+      "newFileBytes": 589824,
+      "newSha256": "7d5c5d04bde6e741619516d68d7fed7e408720ca921f4ea1d071fe267d51856c",
+      "fullContentComparePass": true
+    }
+  ],
+  "managementHealth": {
+    "22": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 59627769856
+    },
+    "31": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 180915580928
+    },
+    "32": {
+      "http": 200,
+      "mold": "active",
+      "staticFiles": 931,
+      "allStaticHashesMatch": true,
+      "protectedConfigurationFiles": 10,
+      "configAndWebInfPreserved": true,
+      "webInf": true,
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "message.clone.allocation.full.linked": true,
+        "message.clone.allocation.raw.stop": true
+      },
+      "linkageErrorsAfterFinalDeployment": 0,
+      "availableRootBytes": 2039545856
+    }
+  },
+  "activeJarHashesMatched": 48,
+  "protectedPerftest": {
+    "vm": "rocky98-perftest",
+    "state": "Running",
+    "host": "10.10.22.3",
+    "pid": "219715",
+    "processStartTicks": "191152358",
+    "allSourceVolumeAndPolicyFieldsPreserved": true,
+    "noMutationRequested": true
+  },
+  "cleanup": {
+    "normalApiDeletedResources": {
+      "vms": 7,
+      "volumes": 17,
+      "templates": 2,
+      "offerings": 5,
+      "diskOfferings": 10
+    },
+    "verification": {
+      "22": {
+        "database": {
+          "activeVMs": 0,
+          "activeVolumes": 0,
+          "activeExportRefs": 0,
+          "activeTemplates": 0,
+          "activeDiskOfferings": 0,
+          "activeServiceOfferings": 0,
+          "activeSnapshots": 0,
+          "activeVmSnapshots": 0
+        },
+        "primaryImages": [],
+        "rbdTrash": [],
+        "secondaryFiles": [],
+        "exportStages": []
+      },
+      "31": {
+        "database": {
+          "activeVMs": 0,
+          "activeVolumes": 0,
+          "activeExportRefs": 0,
+          "activeTemplates": 0,
+          "activeDiskOfferings": 0,
+          "activeServiceOfferings": 0,
+          "activeSnapshots": 0,
+          "activeVmSnapshots": 0
+        },
+        "primaryImages": [],
+        "rbdTrash": [],
+        "secondaryFiles": [],
+        "exportStages": []
+      },
+      "32": {
+        "database": {
+          "activeVMs": 0,
+          "activeVolumes": 0,
+          "activeExportRefs": 0,
+          "activeTemplates": 0,
+          "activeDiskOfferings": 0,
+          "activeServiceOfferings": 0,
+          "activeSnapshots": 0,
+          "activeVmSnapshots": 0
+        },
+        "primaryImages": [],
+        "rbdTrash": [],
+        "secondaryFiles": [],
+        "exportStages": []
+      }
+    },
+    "exportEarlyRetirement": {
+      "22": {
+        "earlyRetiredRefs": 3,
+        "removedFiles": [],
+        "remainingTemplateFiles": [],
+        "remainingExportFiles": []
+      },
+      "31": {
+        "earlyRetiredRefs": 4,
+        "removedFiles": [
+          "volumes/2/1221/6ccd72a0-ff80-48b4-93a5-b9b3411b2dd1.export-v1.qcow2",
+          "volumes/2/1227/153d4131-8f9c-4cdd-8159-e6daf179074a.export-v1.qcow2"
+        ],
+        "remainingTemplateFiles": [],
+        "remainingExportFiles": []
+      },
+      "32": {
+        "earlyRetiredRefs": 5,
+        "removedFiles": [
+          "volumes/2/623/8e117d82-def5-4bf7-a128-5040fe597b80.export-v1.qcow2",
+          "volumes/2/622/6c85d33a-54e8-44dc-8094-e374d3a51c3b.qcow2",
+          "volumes/2/619/9c68eee3-879b-4658-9b93-f958b1cd394a.qcow2",
+          "volumes/2/620/90599724-f0c8-4caf-9f63-9cf584dc5f6e.export-v1.qcow2",
+          "volumes/2/621/aac157dc-45cf-4a06-88e5-c2ad01b3bc52.export-v1.qcow2"
+        ],
+        "remainingTemplateFiles": [],
+        "remainingExportFiles": []
+      }
+    },
+    "ssvmOwnedLinkCleanup": {
+      "22": {
+        "ssvm": "s-2-VM",
+        "removedSymlinks": 3,
+        "remainingOwnedSymlinks": 0
+      },
+      "31": {
+        "ssvm": "s-173-VM",
+        "removedSymlinks": 4,
+        "remainingOwnedSymlinks": 0
+      },
+      "32": {
+        "ssvm": "s-27-VM",
+        "removedSymlinks": 5,
+        "remainingOwnedSymlinks": 0
+      }
+    },
+    "hostAndTemporaryArtifacts": {
+      "22.10": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "22.1": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "22.2": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "22.3": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "31.10": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "31.1": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "31.2": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "31.3": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "32.10": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "32.1": {
+        "removedDeploymentTemporaryFiles": 0,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "32.2": {
+        "removedDeploymentTemporaryFiles": 7,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      },
+      "32.3": {
+        "removedDeploymentTemporaryFiles": 7,
+        "remainingOwnDomains": [],
+        "rbdAuthTempDirectories": 0
+      }
+    },
+    "retiredUrlsHttp404": 20,
+    "original22BaseAndProtectedVolumesRemain": 3,
+    "original22ExportRefsRemain": 0,
+    "method": "Normal API removal, then explicit early retirement of owned Image files/SSVM links/ref tombstones before four-hour retention elapsed. Periodic GC was not accelerated."
+  },
+  "limits": [
+    "No full Cloud or Release CI build requested or run.",
+    "Complete encrypted, FT/protection, Windows/UEFI/TPM live matrix not run; focused guards tested.",
+    "Browser full payload on disk verified; automatic completion event and final filename transition not confirmed.",
+    "Epic PR remains draft/unmerged; CL-02 through CL-06 remain open."
+  ]
+}
