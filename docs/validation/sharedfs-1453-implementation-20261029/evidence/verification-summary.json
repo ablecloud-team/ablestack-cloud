@@ -1,0 +1,36 @@
+{
+  "backend": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "actualDao": true,
+    "actualApiSerialization": true
+  },
+  "ui": {
+    "tests": 58,
+    "suites": 6,
+    "lint": "PASS",
+    "actualApiFixture": "ui/tests/fixtures/storage-1453-inheritance-wire.json"
+  },
+  "guest": {
+    "tests": 38,
+    "failures": 0,
+    "nativePosixTools": true
+  },
+  "moduleBuild": {
+    "management": {
+      "result": "PASS",
+      "modules": 151
+    },
+    "ui": {
+      "result": "PASS"
+    },
+    "systemvm": {
+      "result": "PASS"
+    }
+  },
+  "liveAcceptance": "NOT_STARTED",
+  "issueState": "OPEN",
+  "deployment": "NOT_APPLIED"
+}
