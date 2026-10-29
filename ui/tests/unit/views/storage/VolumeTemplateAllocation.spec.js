@@ -56,9 +56,24 @@ test.each(['pending', 'running'])('active %s flatten still blocks template creat
   }
 })
 
-test('template restoration does not enable the separately unsupported download path', () => {
-  expect(download.disabled(volume(explicit))).toBe(true)
-  expect(download.tooltip(volume(explicit))).toBe('message.allocation.lifecycle.unsupported')
+test.each([undefined, explicit, { ...explicit, requestedpolicy: 'full' }, { ...explicit, requestedformat: 'qcow2', requestedpolicy: 'metadata' }, { ...explicit, requestedformat: 'qcow2', requestedpolicy: 'falloc' }])('download eligibility is independent of allocation %j', allocation => {
+  const record = Object.freeze(volume(allocation && Object.freeze(allocation)))
+  expect(download.show(record)).toBe(true)
+  expect(download.disabled(record)).toBe(false)
+  expect(download.tooltip(record)).toBe('label.action.download.volume')
+  expect(record.allocation).toEqual(allocation)
+  expect(download.mapping.mode.value(record)).toBe('HTTP_DOWNLOAD')
+})
+
+test('download retains running, non-Ready and active flatten guards', () => {
+  expect(download.show({ ...volume(explicit), vmstate: 'Running' })).toBe(false)
+  expect(download.show({ ...volume(explicit), state: 'Copying' })).toBe(false)
+  expect(download.show({ ...volume(explicit), virtualmachineid: undefined, vmstate: undefined, type: 'DATADISK' })).toBe(true)
+  for (const status of ['pending', 'running']) {
+    const record = { ...volume(explicit), details: { 'clone.fast.flatten.status': status } }
+    expect(download.disabled(record)).toBe(true)
+    expect(download.tooltip(record)).toBe('message.sharedmountpoint.clone.flatten.in.progress')
+  }
 })
 
 function context () {

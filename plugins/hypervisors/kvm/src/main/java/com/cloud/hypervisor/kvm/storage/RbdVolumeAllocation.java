@@ -70,6 +70,34 @@ public class RbdVolumeAllocation {
         this.runner = runner;
     }
 
+    /** Credentials remain in a mode-0600 temporary config, never in the export receipt. */
+    VolumeObjectTO exportVolume(VolumeObjectTO source, KVMStoragePool pool, Path directory, long timeout) throws IOException {
+        if (pool.getType() != Storage.StoragePoolType.RBD || source.getFormat() != Storage.ImageFormat.RAW ||
+                source.getPath() == null || !source.getPath().matches("[A-Za-z0-9_.-]+")) {
+            throw new CloudRuntimeException("VOLUME_EXPORT_RBD_SOURCE_INVALID");
+        }
+        VolumeObjectTO result = null;
+        try (Context context = new Context(pool, timeout)) {
+            String image = pool.getSourceDir() + "/" + source.getPath();
+            JsonObject before = exportIdentity(context.rbd("info", image, "--format", "json"));
+            result = new VerifiedVolumeExport((command, remaining) -> context.run(command.toArray(new String[0])))
+                    .export(source, pool.getUuid(), context.uri(image), directory, timeout);
+            if (!before.equals(exportIdentity(context.rbd("info", image, "--format", "json")))) {
+                throw new CloudRuntimeException("VOLUME_EXPORT_RBD_SOURCE_CHANGED");
+            }
+            return result;
+        } catch (RuntimeException | IOException failure) {
+            if (result != null) { Files.deleteIfExists(directory.resolve(result.getPath())); }
+            throw failure;
+        }
+    }
+
+    private static JsonObject exportIdentity(String value) {
+        JsonObject info = json(value);
+        info.remove("access_timestamp"); // Read access is expected and does not modify image contents.
+        return info;
+    }
+
     /** Read-only offline inspection using the pool's credentials, never a fabricated local RBD path. */
     public com.google.gson.JsonElement inspectOfflineRawImage(VolumeObjectTO volume, KVMStoragePool pool) {
         if (pool.getType() != Storage.StoragePoolType.RBD || volume.getFormat() != Storage.ImageFormat.RAW ||

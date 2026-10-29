@@ -726,7 +726,6 @@ public class KVMStorageProcessor implements StorageProcessor {
         final VolumeObjectTO srcVol = (VolumeObjectTO)srcData;
         final VolumeObjectTO destVol = (VolumeObjectTO)destData;
         final ImageFormat srcFormat = srcVol.getFormat();
-        final ImageFormat destFormat = destVol.getFormat();
         final DataStoreTO srcStore = srcData.getDataStore();
         final DataStoreTO destStore = destData.getDataStore();
         final PrimaryDataStoreTO primaryStore = (PrimaryDataStoreTO)srcStore;
@@ -750,12 +749,53 @@ public class KVMStorageProcessor implements StorageProcessor {
             secondaryStoragePool.createFolder(destVolumePath);
             storagePoolMgr.deleteStoragePool(secondaryStoragePool.getType(), secondaryStoragePool.getUuid());
             secondaryStoragePool = storagePoolMgr.getStoragePoolByURI(secondaryStorageUrl + File.separator + destVolumePath);
+            if (!srcVol.getAllocation().isEmpty()) {
+                com.cloud.storage.VolumeAllocationLifecycle.intent(srcVol.getAllocation());
+                if (srcVol.requiresEncryption() || destVol.requiresEncryption() || !destVol.getAllocation().isEmpty()) {
+                    throw new CloudRuntimeException("VOLUME_EXPORT_UNSUPPORTED: independent unencrypted Image artifact required");
+                }
+                KVMStoragePool primaryPool = storagePoolMgr.getStoragePool(primaryStore.getPoolType(), primaryStore.getUuid());
+                java.nio.file.Path directory = java.nio.file.Path.of(secondaryStoragePool.getLocalPath()).toRealPath();
+                VolumeObjectTO exported = null;
+                java.nio.file.Path ownedExport = null;
+                boolean verified = false;
+                try {
+                    if (primaryStore.getPoolType() == StoragePoolType.RBD) {
+                        exported = new RbdVolumeAllocation(Gfs2AllocationCommandRunner::run)
+                                .exportVolume(srcVol, primaryPool, directory, cmd.getWaitInMillSeconds());
+                    } else if (primaryStore.getPoolType() == StoragePoolType.SharedMountPoint) {
+                        java.nio.file.Path root = java.nio.file.Path.of(primaryPool.getLocalPath()).toRealPath();
+                        java.nio.file.Path input = java.nio.file.Path.of(volume.getPath()).toRealPath();
+                        if (!input.startsWith(root) || !java.nio.file.Files.isRegularFile(input)) {
+                            throw new CloudRuntimeException("VOLUME_EXPORT_SOURCE_IDENTITY_INVALID");
+                        }
+                        java.nio.file.attribute.BasicFileAttributes before = java.nio.file.Files.readAttributes(input, java.nio.file.attribute.BasicFileAttributes.class);
+                        exported = new VerifiedVolumeExport(Gfs2AllocationCommandRunner::run)
+                                .export(srcVol, primaryStore.getUuid(), input.toString(), directory, cmd.getWaitInMillSeconds());
+                        ownedExport = directory.resolve(exported.getPath());
+                        java.nio.file.attribute.BasicFileAttributes after = java.nio.file.Files.readAttributes(input, java.nio.file.attribute.BasicFileAttributes.class);
+                        if (!java.util.Objects.equals(before.fileKey(), after.fileKey()) || before.size() != after.size() || !before.lastModifiedTime().equals(after.lastModifiedTime())) {
+                            java.nio.file.Files.deleteIfExists(directory.resolve(exported.getPath()));
+                            throw new CloudRuntimeException("VOLUME_EXPORT_SOURCE_CHANGED");
+                        }
+                    } else {
+                        throw new CloudRuntimeException("VOLUME_EXPORT_BACKEND_UNSUPPORTED");
+                    }
+                    ownedExport = directory.resolve(exported.getPath());
+                    exported.setPath(destVolumePath + File.separator + exported.getPath());
+                    org.apache.cloudstack.storage.to.VolumeExport.validate(srcVol, exported);
+                    verified = true;
+                    return new CopyCmdAnswer(exported);
+                } finally {
+                    if (!verified && ownedExport != null) { java.nio.file.Files.deleteIfExists(ownedExport); }
+                }
+            }
             storagePoolMgr.copyPhysicalDisk(volume, destVolumeName, secondaryStoragePool, cmd.getWaitInMillSeconds());
             final VolumeObjectTO newVol = new VolumeObjectTO();
             newVol.setPath(destVolumePath + File.separator + destVolumeName);
-            newVol.setFormat(destFormat);
+            newVol.setFormat(ImageFormat.QCOW2);
             return new CopyCmdAnswer(newVol);
-        } catch (final CloudRuntimeException e) {
+        } catch (final CloudRuntimeException | java.io.IOException e) {
             logger.debug("Failed to copyVolumeFromPrimaryToSecondary: ", e);
             return new CopyCmdAnswer(e.toString());
         } finally {

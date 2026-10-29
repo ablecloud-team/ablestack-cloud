@@ -2099,24 +2099,56 @@ public class VolumeServiceImpl implements VolumeService {
         VolumeInfo srcVolume = context.srcVolume;
         VolumeInfo destVolume = context.destVolume;
         CopyCommandResult result = callback.getResult();
-        AsyncCallFuture<VolumeApiResult> future = context.future;
         VolumeApiResult res = new VolumeApiResult(destVolume);
+        boolean unlocked = false;
         try {
-            if (result.isFailed()) {
-                srcVolume.processEvent(Event.OperationFailed); // back to Ready state in Volume table
-                destVolume.processEventOnly(Event.OperationFailed);
-                res.setResult(result.getResult());
-                future.complete(res);
-            } else {
-                srcVolume.processEvent(Event.OperationSucceeded); // back to Ready state in Volume table
-                destVolume.processEventOnly(Event.OperationSucceeded, result.getAnswer());
-                future.complete(res);
+            if (result.isFailed()) { throw new CloudRuntimeException(result.getResult()); }
+            if (!com.cloud.storage.VolumeAllocationLifecycle.intent(_volumeDetailsDao.listDetailsKeyPairs(srcVolume.getId())).isEmpty()) {
+                if (!(result.getAnswer() instanceof CopyCmdAnswer) || !(((CopyCmdAnswer) result.getAnswer()).getNewData() instanceof VolumeObjectTO)) {
+                    throw new CloudRuntimeException("VOLUME_EXPORT_UNVERIFIED: missing Agent verification");
+                }
+                VolumeObjectTO exported = (VolumeObjectTO) ((CopyCmdAnswer) result.getAnswer()).getNewData();
+                org.apache.cloudstack.storage.to.VolumeExport.validate((VolumeObjectTO) srcVolume.getTO(), exported);
+                if (!exported.getPath().startsWith(destVolume.getPath() + "/")) {
+                    throw new CloudRuntimeException("VOLUME_EXPORT_UNVERIFIED: wrong Image directory");
+                }
             }
+            srcVolume.processEvent(Event.OperationSucceeded);
+            unlocked = true;
+            destVolume.processEventOnly(Event.OperationSucceeded, result.getAnswer());
         } catch (Exception e) {
             res.setResult(e.toString());
-            future.complete(res);
+            try { destVolume.processEventOnly(Event.OperationFailed); destVolume.getDataStore().delete(destVolume); }
+            catch (Exception cleanup) { logger.warn("Failed export Image cleanup; source retained", cleanup); }
+        } finally {
+            if (!unlocked) { srcVolume.processEvent(Event.OperationFailed); }
+            context.future.complete(res);
         }
         return null;
+    }
+
+    @Override
+    public AsyncCallFuture<VolumeApiResult> exportVolume(VolumeInfo srcVolume, DataStore destStore) {
+        if (srcVolume == null || srcVolume.getDataStore() == null || srcVolume.getDataStore().getRole() != DataStoreRole.Primary ||
+                destStore == null || destStore.getRole() != DataStoreRole.Image || srcVolume.getState() != Volume.State.Ready) {
+            throw new InvalidParameterValueException("VOLUME_EXPORT_INVALID: Ready Primary volume and Image destination required");
+        }
+        VolumeVO source = volDao.findById(srcVolume.getId());
+        if (source == null || source.getPassphraseId() != null || source.getKmsKeyId() != null ||
+                (source.getInstanceId() != null && (vmDao.findById(source.getInstanceId()) == null ||
+                vmDao.findById(source.getInstanceId()).getState() != com.cloud.vm.VirtualMachine.State.Stopped)) ||
+                !snapshotMgr.canOperateOnVolume(srcVolume)) {
+            throw new InvalidParameterValueException("VOLUME_EXPORT_BLOCKED: encryption, VM state or active snapshot operation");
+        }
+        Map<String, String> details = _volumeDetailsDao.listDetailsKeyPairs(source.getId());
+        Map<String, String> intent = com.cloud.storage.VolumeAllocationLifecycle.intent(details);
+        if (!intent.isEmpty() && (!(srcVolume.getDataStore() instanceof PrimaryDataStore) ||
+                !List.of(StoragePoolType.RBD, StoragePoolType.SharedMountPoint).contains(((PrimaryDataStore) srcVolume.getDataStore()).getPoolType()) ||
+                srcVolume.getHypervisorType() != HypervisorType.KVM ||
+                !"verified".equals(com.cloud.storage.VolumeAllocationPolicy.describe(details, null, source.getFormat().toString()).get("evidence")))) {
+            throw new InvalidParameterValueException("VOLUME_EXPORT_UNQUALIFIED: verified unencrypted GFS2/RBD KVM source required");
+        }
+        return copyVolumeFromPrimaryToImage(srcVolume, destStore);
     }
 
     @Override

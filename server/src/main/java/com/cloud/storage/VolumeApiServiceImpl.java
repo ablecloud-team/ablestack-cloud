@@ -5114,15 +5114,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             throw new InvalidParameterValueException("Please specify a valid extract Mode ");
         }
 
-        // Check if the url already exists
-        SearchCriteria<VolumeDataStoreVO> sc = _volumeStoreDao.createSearchCriteria();
-
-        Optional<String> extractUrl = setExtractVolumeSearchCriteria(sc, volume);
-        if (extractUrl.isPresent()) {
-            String url = extractUrl.get();
-            CallContext.current().setEventDetails(String.format("Download URL: %s, Volume ID: %s", url, volume.getUuid()));
-            return url;
-        }
+        validateExtractVolumeState(volume);
 
         VMInstanceVO vm = null;
         if (volume.getInstanceId() != null) {
@@ -5328,7 +5320,19 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         if (volumeStoreRefs != null && !volumeStoreRefs.isEmpty()) {
             volumeStoreRef = volumeStoreRefs.get(0);
         }
+        if (volumeStoreRef != null && !com.cloud.storage.VolumeAllocationLifecycle.intent(_volsDetailsDao.listDetailsKeyPairs(volumeId)).isEmpty() &&
+                (volumeStoreRef.getInstallPath() == null || !volumeStoreRef.getInstallPath().endsWith(org.apache.cloudstack.storage.to.VolumeExport.SUFFIX))) {
+            return Optional.empty(); // Older Agents did not qualify explicit-policy exports.
+        }
         if (volumeStoreRef != null && volumeStoreRef.getExtractUrl() != null) {
+            long expiry = NumbersUtil.parseInt(_configDao.getValue("extract.url.expiration.interval"), 14400);
+            if (volumeStoreRef.getExtractUrlCreated() == null ||
+                    DateUtil.getTimeDifference(DateUtil.now(), volumeStoreRef.getExtractUrlCreated()) >= expiry) {
+                ImageStoreEntity store = (ImageStoreEntity) dataStoreMgr.getDataStore(volumeStoreRef.getDataStoreId(), DataStoreRole.Image);
+                store.deleteExtractUrl(volumeStoreRef.getInstallPath(), volumeStoreRef.getExtractUrl(), Upload.Type.VOLUME);
+                _volumeStoreDao.expunge(volumeStoreRef.getId());
+                return Optional.empty();
+            }
             return Optional.ofNullable(volumeStoreRef.getExtractUrl());
         } else if (volumeStoreRef != null) {
             logger.debug("volume {} is already installed on secondary storage, install path is {}", volume, volumeStoreRef.getInstallPath());
@@ -5337,7 +5341,7 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 throw new CloudRuntimeException("Failed to find the volume on a secondary store");
             }
             ImageStoreEntity secStore = (ImageStoreEntity) dataStoreMgr.getDataStore(volumeStoreRef.getDataStoreId(), DataStoreRole.Image);
-            String extractUrl = secStore.createEntityExtractUrl(volumeStoreRef.getInstallPath(), volume.getFormat(), destVol);
+            String extractUrl = secStore.createEntityExtractUrl(volumeStoreRef.getInstallPath(), destVol.getFormat(), destVol);
             volumeStoreRef = _volumeStoreDao.findByVolume(volumeId);
             volumeStoreRef.setExtractUrl(extractUrl);
             volumeStoreRef.setExtractUrlCreated(DateUtil.now());
@@ -5349,11 +5353,48 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     }
 
     private String orchestrateExtractVolume(long volumeId, long zoneId) {
+        com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("volume-export-" + volumeId);
+        if (!lock.lock(10)) {
+            lock.releaseRef();
+            throw new CloudRuntimeException("VOLUME_EXPORT_BUSY: another export is active; retry after it completes");
+        }
+        try { return orchestrateLockedExtractVolume(volumeId, zoneId); }
+        finally { lock.unlock(); lock.releaseRef(); }
+    }
+
+    protected void validateExtractVolumeState(VolumeVO volume) {
+        if (volume == null || volume.getState() != Volume.State.Ready || volume.getPoolId() == null) {
+            throw new InvalidParameterValueException("VOLUME_EXPORT_BLOCKED: volume must be Ready on primary storage");
+        }
+        if (volume.getPassphraseId() != null || volume.getKmsKeyId() != null) {
+            throw new InvalidParameterValueException("Extraction of encrypted volumes is unsupported");
+        }
+        Map<String, String> details = _volsDetailsDao.listDetailsKeyPairs(volume.getId());
+        com.cloud.storage.VolumeAllocationLifecycle.intent(details);
+        if (details != null && List.of("pending", "running").contains(details.getOrDefault("clone.fast.flatten.status", "").toLowerCase(java.util.Locale.ROOT))) {
+            throw new InvalidParameterValueException("VOLUME_EXPORT_BLOCKED: active clone flatten task");
+        }
+        if (volume.getInstanceId() != null) {
+            VMInstanceVO vm = _vmInstanceDao.findById(volume.getInstanceId());
+            if (vm == null || vm.getState() != State.Stopped) {
+                throw new PermissionDeniedException("VOLUME_EXPORT_BLOCKED: attached VM must remain Stopped");
+            }
+            Map<String, String> vmDetails = vmInstanceDetailsDao.listDetailsKeyPairs(vm.getId());
+            if (vmDetails != null && vmDetails.keySet().stream().anyMatch(k -> k.startsWith("ftctl."))) {
+                throw new InvalidParameterValueException("VOLUME_EXPORT_BLOCKED: fault protection metadata is present");
+            }
+        }
+    }
+
+    private String orchestrateLockedExtractVolume(long volumeId, long zoneId) {
         // get latest volume state to make sure that it is not updated by other parallel operations
         VolumeVO volume = _volsDao.findById(volumeId);
         if (volume == null || volume.getState() != Volume.State.Ready) {
             throw new InvalidParameterValueException("Volume to be extracted has been removed or not in right state!");
         }
+        validateExtractVolumeState(volume);
+        Optional<String> existing = setExtractVolumeSearchCriteria(_volumeStoreDao.createSearchCriteria(), volume);
+        if (existing.isPresent()) { return existing.get(); }
         // perform extraction
         ImageStoreEntity secStore = (ImageStoreEntity)dataStoreMgr.getImageStoreWithFreeCapacity(zoneId);
         if (secStore == null) {
@@ -5365,13 +5406,24 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         // Copy volume from primary to secondary storage
         VolumeInfo srcVol = volFactory.getVolume(volumeId);
         VolumeInfo destVol = volFactory.getVolume(volumeId, DataStoreRole.Image);
+        if (destVol != null) {
+            // No valid cache matched the current source. Delete only this Image copy, never the Primary volume.
+            try {
+                VolumeApiResult deleted = volService.expungeVolumeAsync(destVol).get();
+                if (deleted == null || deleted.isFailed()) { throw new CloudRuntimeException("Stale export cleanup failed"); }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt(); throw new CloudRuntimeException("Export cleanup interrupted", interrupted);
+            } catch (ExecutionException failed) { throw new CloudRuntimeException("Export cleanup failed", failed); }
+            destVol = null;
+        }
         VolumeApiResult cvResult = null;
         if (destVol == null) {
-            AsyncCallFuture<VolumeApiResult> cvAnswer = volService.copyVolume(srcVol, secStore);
+            AsyncCallFuture<VolumeApiResult> cvAnswer = volService.exportVolume(srcVol, secStore);
             // Check if you got a valid answer.
             try {
                 cvResult = cvAnswer.get();
             } catch (InterruptedException e1) {
+                Thread.currentThread().interrupt();
                 logger.debug("failed copy volume", e1);
                 throw new CloudRuntimeException("Failed to copy volume", e1);
             } catch (ExecutionException e1) {
