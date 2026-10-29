@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "58c615491bae98ae65cc559c422e2cd03b7282a6",
+  "upstreamBase": "31c147ca747f7a4ffc0380818bcd44887558a0c7",
+  "schema": {
+    "migrationRequired": false,
+    "reason": "#1453 uses existing config_json and mode"
+  },
+  "managementSha256": "2e970d3de397c36be7d06340264de10d972df2b5441a99cd30a5f63456d9cd31",
+  "uiIndexSha256": "383a47880fd06b7bb4e0325adb04d8e914705cb0fece8178f38e84a3600ca531",
+  "uiFilesChanged": 9,
+  "configPreserved": true,
+  "systemVmArtifactsPreserved": true,
+  "rollbackRoot": "/var/tmp/epic1438-1453-fix-58c615491bae-r2"
+}

@@ -1,0 +1,21 @@
+{
+  "preflightstorageserviceconfigurationresponse": {
+    "configurationpreflight": {
+      "status": "UNKNOWN",
+      "revision": 8,
+      "observedat": "2026-10-30T00:22:44+0900",
+      "expiresat": "2026-10-30T00:22:44+0900",
+      "fingerprint": "",
+      "checks": [
+        {
+          "code": "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED",
+          "blocking": true,
+          "severity": "ERROR"
+        }
+      ],
+      "impact": {},
+      "profile": {},
+      "cancellationsupported": false
+    }
+  }
+}

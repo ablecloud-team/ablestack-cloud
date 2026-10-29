@@ -1,0 +1,17 @@
+{
+  "acl": {
+    "rc": 0,
+    "out": "# file: /export/common1453r2\n# owner: 65534\n# group: 65534\nuser::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n",
+    "err": ""
+  },
+  "inherit": {
+    "rc": 0,
+    "out": "no\n",
+    "err": "Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\n"
+  },
+  "createMask": {
+    "rc": 0,
+    "out": "0660\n",
+    "err": "Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\n"
+  }
+}

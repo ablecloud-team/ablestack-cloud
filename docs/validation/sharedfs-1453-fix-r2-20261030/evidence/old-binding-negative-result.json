@@ -1,0 +1,10 @@
+{
+  "oldSource": "1dbce2559969",
+  "subcases": 3,
+  "errors": [
+    "AttributeError",
+    "AttributeError",
+    "AttributeError"
+  ],
+  "regressionCatchesOriginalFailure": true
+}

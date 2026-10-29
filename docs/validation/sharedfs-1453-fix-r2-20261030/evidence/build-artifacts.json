@@ -1,0 +1,37 @@
+{
+  "sourceCommit": "58c615491bae98ae65cc559c422e2cd03b7282a6",
+  "base": "31c147ca747f7a4ffc0380818bcd44887558a0c7",
+  "management": {
+    "path": "/root/work/ablestack-cloud/client/target/cloud-client-ui-4.23.0.0.jar",
+    "bytes": 152415036,
+    "sha256": "2e970d3de397c36be7d06340264de10d972df2b5441a99cd30a5f63456d9cd31"
+  },
+  "ui": {
+    "path": "/root/work/epic1438-preparation/20261029/issue1453-fix-r2/ui-module.tar.gz",
+    "bytes": 16215898,
+    "sha256": "5947122ae557060cc0ec40f34d64440a12cc7f5e2a8cb4f059a20f5cf3bb0e5d"
+  },
+  "uiIndexSha256": "383a47880fd06b7bb4e0325adb04d8e914705cb0fece8178f38e84a3600ca531",
+  "guest": {
+    "sourceCommit": "58c615491bae98ae65cc559c422e2cd03b7282a6",
+    "baseCompressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+    "image": "/root/work/epic1438-preparation/20261029/issue1453-fix-r2/systemvm-epic1453-inherit-58c615491bae-r2.qcow2",
+    "compressed": "/root/work/epic1438-preparation/20261029/issue1453-fix-r2/systemvm-epic1453-inherit-58c615491bae-r2.qcow2.bz2",
+    "compressedBytes": 498355048,
+    "compressedSha256": "cd0a46bff895470af2982fef56f52be4135db51d192c56695ea76df6aa7cee0c",
+    "changedGuestPaths": [
+      "etc/ablestack-storage/runtime-default/manifest.json",
+      "etc/ablestack-storage/runtime-default/manifest.sig",
+      "usr/local/bin/ablestack-storagectl",
+      "usr/local/lib/ablestack-storage/configuration_preflight.py",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py",
+      "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+      "usr/local/lib/ablestack-storage/runtime_updater.py",
+      "usr/local/lib/ablestack-storage/shared_directory_policy.py"
+    ],
+    "unchangedGuestPathsVerified": 33929,
+    "hostAccountFilesUnchanged": true,
+    "qemuImageCheck": "No errors were found on the image.\n27444/80000 = 34.30% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1799487488",
+    "managedFileCount": 10
+  }
+}
