@@ -279,7 +279,7 @@ export default {
       this.loading = true
       this.batchError = ''
       try {
-        await getAPI('cloneVirtualMachine', cloneAttemptParams(this.batchRequest))
+        await getAPI('cloneVirtualMachine', cloneAttemptParams(this.batchRequest), { preserveOnFailure: true })
         await this.refreshBatch()
       } catch (error) {
         this.$notifyError(error)
@@ -298,7 +298,7 @@ export default {
       this.queryingBatch = true
       const requestId = this.batchRequest.id
       try {
-        const json = await getAPI('queryVMCloneBatch', { requestid: requestId })
+        const json = await getAPI('queryVMCloneBatch', { requestid: requestId }, { preserveOnFailure: true })
         const result = json.queryvmclonebatchresponse?.clonebatch
         if (!result) throw new Error('Clone batch result unavailable')
         if (this.batchDisposed || this.batchRequest?.id !== requestId) return

@@ -67,3 +67,25 @@ test('new request waits for the current lookup to settle', () => {
   expect(vm.batchRequest).toBe(request)
   expect(vm.initForm).not.toHaveBeenCalled()
 })
+
+test('transport failure preserves displayed targets and lets the view own recovery', async () => {
+  getAPI.mockRejectedValue(new Error('connection closed'))
+  const result = { status: 'PARTIAL', targets: [{ id: 'preserved-vm' }] }
+  const vm = { batchRequest: newCloneRequest(params), batchResult: result, queryingBatch: false, batchDisposed: false, $t: key => key }
+  await Clone.methods.refreshBatch.call(vm)
+  expect(getAPI).toHaveBeenCalledWith('queryVMCloneBatch', { requestid: vm.batchRequest.id }, { preserveOnFailure: true })
+  expect(vm.batchResult).toBe(result)
+  expect(vm.batchError).toBe('message.clone.batch.query.failed')
+  expect(vm.queryingBatch).toBe(false)
+})
+
+test('lost submission response keeps its receipt and queries the accepted batch', async () => {
+  getAPI.mockRejectedValue(new Error('connection closed'))
+  const request = newCloneRequest(params)
+  const vm = { batchRequest: request, loading: false, $notifyError: jest.fn(), refreshBatch: jest.fn().mockResolvedValue({ status: 'RUNNING' }), batchUnconfirmed: false }
+  await Clone.methods.submitBatch.call(vm)
+  expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', cloneAttemptParams(request), { preserveOnFailure: true })
+  expect(vm.batchRequest).toBe(request)
+  expect(vm.refreshBatch).toHaveBeenCalledTimes(1)
+  expect(vm.loading).toBe(false)
+})
