@@ -543,7 +543,7 @@ public class VmCloneBatchManager implements PluggableService {
         if (volume.getRemoved() == null || !List.of(Volume.State.Destroy, Volume.State.Expunging, Volume.State.Expunged).contains(volume.getState()))
             throw new CloudRuntimeException("Disk is not a removed failed allocation; use its normal volume deletion action first");
         if (volumeStores.findByVolume(volume.getId()) != null) throw new CloudRuntimeException("Storage references remain");
-        com.cloud.storage.StoragePoolVO pool = pools.findById(volume.getPoolId());
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = pools.findById(volume.getPoolId());
         if (pool == null || pool.isManaged() || !List.of(com.cloud.storage.Storage.StoragePoolType.RBD, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint).contains(pool.getPoolType()))
             throw new CloudRuntimeException("The original qualified storage pool is unavailable");
         verifyAbsent(volume, pool);
@@ -560,7 +560,7 @@ public class VmCloneBatchManager implements PluggableService {
         return recorded && target != null && target.getRemoved() != null && target.getAccountId() == row.getAccountId();
     }
 
-    protected void finishVerifiedVolume(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Disk disk, VolumeVO volume, com.cloud.storage.StoragePoolVO pool) {
+    protected void finishVerifiedVolume(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Disk disk, VolumeVO volume, org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool) {
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
             VolumeVO current = volumes.findByIdIncludingRemoved(volume.getId());
             if (current == null || current.getRemoved() == null || !cleanupAssociationSafe(row, data, disk, current) || current.getAccountId() != row.getAccountId()
@@ -576,7 +576,7 @@ public class VmCloneBatchManager implements PluggableService {
         });
     }
 
-    protected void verifyAbsent(VolumeVO volume, com.cloud.storage.StoragePoolVO pool) throws Exception {
+    protected void verifyAbsent(VolumeVO volume, org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool) throws Exception {
         com.cloud.agent.api.CheckCloneVolumeAbsentCommand command = new com.cloud.agent.api.CheckCloneVolumeAbsentCommand(new com.cloud.agent.api.to.StorageFilerTO(pool), volume.getUuid());
         com.cloud.agent.api.Answer answer = storageManager.sendToPool(pool, command);
         if (!(answer instanceof com.cloud.agent.api.CheckCloneVolumeAbsentAnswer) || !answer.getResult()

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.*;
 import org.junit.*;
 import java.util.*;
 import com.cloud.storage.*;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import com.cloud.storage.dao.*;
 import com.cloud.vm.dao.*;
 import com.cloud.user.*;
