@@ -38,7 +38,7 @@ public class VmCloneFailureCleanupTest {
         row=new VmCloneBatchVO("11111111-1111-4111-8111-111111111111",10,2,1,"fingerprint","{}");
         data=new VmCloneBatchData();VmCloneBatchData.SourceDisk source=new VmCloneBatchData.SourceDisk();source.id=20;source.uuid="source";source.pool=30L;data.sourceDisks.add(source);
         disk=new VmCloneBatchData.Disk();disk.uuid="22222222-2222-4222-8222-222222222222";disk.sourceId=20;
-        volume=mock(VolumeVO.class);when(volume.getId()).thenReturn(50L);when(volume.getUuid()).thenReturn(disk.uuid);when(volume.getAccountId()).thenReturn(2L);when(volume.getPoolId()).thenReturn(30L);when(volume.getRemoved()).thenReturn(new Date());when(volume.getState()).thenReturn(Volume.State.Expunging);
+        volume=mock(VolumeVO.class);when(volume.getId()).thenReturn(50L);when(volume.getUuid()).thenReturn(disk.uuid);when(volume.getAccountId()).thenReturn(2L);when(volume.getPoolId()).thenReturn(30L);when(volume.getRemoved()).thenReturn(new Date());when(volume.getState()).thenReturn(Volume.State.Expunging);when(volume.getInstanceId()).thenReturn(null);
         when(manager.volumes.findByUuidIncludingRemoved(disk.uuid)).thenReturn(volume);when(manager.volumeDetails.listDetailsKeyPairs(50)).thenReturn(Map.of(VolumeAllocationClone.SOURCE,"20"));
         StoragePoolVO pool=mock(StoragePoolVO.class);when(pool.getId()).thenReturn(30L);when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);when(manager.pools.findById(30L)).thenReturn(pool);
     }
