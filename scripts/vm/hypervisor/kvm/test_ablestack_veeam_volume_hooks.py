@@ -201,6 +201,7 @@ mold_backup_pre_notify host-test parent-policy default
 mold_backup_load_config() { :; }
 mold_backup_notify_log() { echo "$*" >&2; }
 mold_backup_api_external_candidates() { echo VALIDATED_CONFIG >&2; return 1; }
+mold_backup_prepare_parent_staging() { :; }
 VEEAM_AGENT_PAYLOAD_MODE=COMMON
 VEEAM_HOST_BACKUP_PATH="$TEST_ROOT/stage/ablestack-veeam"
 VEEAM_AGENT_PAYLOAD_PATH="$VEEAM_HOST_BACKUP_PATH/bootstrap/host-test/___Job"

@@ -18,8 +18,11 @@
 
 """Reject shared RAW before source mutation; retain the RBD and QCOW2 paths."""
 import json
+import errno
+import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -29,6 +32,49 @@ import thirdparty_volume_backup as backup
 
 
 class SourceSupportTest(unittest.TestCase):
+    def test_source_health_cli_preserves_paths_with_commas_and_the_legacy_rbd_mode(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "disk with,comma.raw"
+            source.write_bytes(b"existing source")
+            findmnt = root / "findmnt"
+            findmnt.write_text("#!/bin/sh\nprintf 'gfs2\\n'\n")
+            findmnt.chmod(0o755)
+            environment = dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"])
+            for arguments in (["--health-paths", str(source)], ["--disk-paths", "rbd:pool/image"]):
+                result = subprocess.run([sys.executable, support.__file__, *arguments],
+                                        env=environment, text=True, capture_output=True, timeout=10)
+                self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(b"existing source", source.read_bytes())
+
+    def test_admission_probe_reads_raw_without_changing_it_or_requesting_a_checkpoint(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source disk,raw"
+            source.write_bytes(b"raw-source-data")
+            with patch.object(support, "inspect", return_value="gfs2\n") as inspect:
+                support.require_accessible_sources([str(source)])
+            self.assertEqual(b"raw-source-data", source.read_bytes())
+            inspect.assert_called_once_with(["findmnt", "--noheadings", "--output", "FSTYPE", "--target", str(source)])
+
+    def test_admission_probe_rejects_withdrawn_source_metadata(self):
+        with patch.object(support, "inspect", return_value="gfs2\n"), \
+                patch.object(support.os, "stat", side_effect=OSError(errno.EIO, "Input/output error")):
+            with self.assertRaisesRegex(RuntimeError, "BACKUP_SOURCE_UNAVAILABLE.*Input/output error"):
+                support.require_accessible_sources(["/gfs/source"])
+
+    def test_admission_probe_rejects_missing_empty_and_directory_sources(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(support, "inspect", return_value="nfs4\n"):
+            empty = Path(directory) / "empty"
+            empty.touch()
+            for path in (Path(directory) / "missing", empty, Path(directory)):
+                with self.subTest(path=path), self.assertRaisesRegex(RuntimeError, "BACKUP_SOURCE_UNAVAILABLE"):
+                    support.require_accessible_sources([str(path)])
+
+    def test_admission_probe_does_not_ignore_an_unknown_mount(self):
+        with patch.object(support, "inspect", side_effect=RuntimeError("findmnt source inspection failed")):
+            with self.assertRaisesRegex(RuntimeError, "findmnt source inspection failed"):
+                support.require_accessible_sources(["/gfs/source"])
+
     def test_actual_raw_format_is_blocked_even_with_qcow2_extension(self):
         with patch.object(support, "inspect", side_effect=["gfs2\n", '{"format":"raw"}']):
             with self.assertRaisesRegex(RuntimeError, "GFS2_RAW_OFFLINE_FULL_REQUIRED"):

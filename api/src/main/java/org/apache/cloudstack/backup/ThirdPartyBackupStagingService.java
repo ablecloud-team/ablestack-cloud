@@ -17,9 +17,11 @@
 
 package org.apache.cloudstack.backup;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.cloud.host.Host;
+import com.cloud.storage.Storage.StoragePoolType;
 
 /** Shared staging lifecycle for the three ABLESTACK third-party backup providers. */
 public interface ThirdPartyBackupStagingService {
@@ -56,6 +58,12 @@ public interface ThirdPartyBackupStagingService {
 
     /** Ensure the configured mount and verify the actual filesystem before querying space. */
     long getAvailableBytes(Host host, String path);
+
+    /** Short, failure-paced admission probe before registering a new backup point. */
+    long prepareBackupStart(Host host, String path);
+
+    /** Read-only file source inspection before registration; RBD uses the Ceph engine. */
+    void validateBackupSources(Host host, List<String> paths, List<StoragePoolType> poolTypes);
 
     /** Existing jobs may clean up after staging is disabled; still verify the configured filesystem. */
     default void prepareCleanup(Host host, String path) { getAvailableBytes(host, path); }

@@ -114,7 +114,6 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     private static final Logger LOG = LogManager.getLogger(AblestackNetBackupProvider.class);
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
-
     private static final String BACKUP_TYPE_FULL = "FULL";
     private static final String BACKUP_TYPE_INCREMENTAL = "INCREMENTAL";
     private static final String BACKUP_ENGINE_QCOW2 = "QCOW2";
@@ -327,6 +326,8 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                 : areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
         validateBackupStageCapacity(vmHost, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
+        thirdPartyBackupStagingService.validateBackupSources(vmHost, volumePoolsAndPaths.second(),
+                volumePoolsAndPaths.first().stream().map(pool -> pool == null ? null : pool.getPoolType()).collect(Collectors.toList()));
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
         final Map<String, String> backupDetails = getBackupDetails(vm, backupPath, checkpointName, backupEngine, latestBackup,
                 incrementalBackup, policyName);
@@ -711,7 +712,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
         final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
         final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
-        final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
+        final long availableBytes = thirdPartyBackupStagingService.prepareBackupStart(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
                 requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);

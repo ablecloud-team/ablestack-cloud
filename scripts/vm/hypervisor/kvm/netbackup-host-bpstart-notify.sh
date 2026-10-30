@@ -69,6 +69,10 @@ mark_context_in_progress
 trap cleanup_failed_pre_run EXIT
 initialize_runtime_cache
 init_runtime_state
+if ! prepare_parent_policy_staging; then
+  update_runtime_status "MOLD_BACKUP_DEFERRED_STORAGE"
+  exit 1
+fi
 cache_mold_virtual_machines
 
 write_state_file "${CONTEXT_FILE}" \
@@ -107,6 +111,8 @@ done < <(list_target_vms)
 if [[ ${vm_count} -eq 0 ]]; then
   update_runtime_status "MOLD_BACKUP_SKIPPED_NO_TARGET"
   log -ne "No target running VMs found on host for NetBackup staging; skipping successfully"
+  trap - EXIT
+  clear_context_in_progress
   exit 0
 fi
 

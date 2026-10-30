@@ -341,6 +341,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
                 : areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
         validateBackupStageCapacity(vmHost, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
+        thirdPartyBackupStagingService.validateBackupSources(vmHost, volumePoolsAndPaths.second(),
+                volumePoolsAndPaths.first().stream().map(pool -> pool == null ? null : pool.getPoolType()).collect(Collectors.toList()));
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
         final Map<String, String> backupDetails = getBackupDetails(vm, backupPath, checkpointName, backupEngine, latestBackup,
                 incrementalBackup, policyName);
@@ -749,7 +751,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         final long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
         final long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
         final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
-        final long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
+        final long availableBytes = thirdPartyBackupStagingService.prepareBackupStart(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
                 requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);

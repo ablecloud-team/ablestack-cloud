@@ -48,6 +48,7 @@ import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.resource.ResourceState;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.GlobalLock;
@@ -56,16 +57,18 @@ import com.google.gson.Gson;
 
 /** Activation and runtime validation share the same host-side staging preparation command. */
 public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements ThirdPartyBackupStagingService {
-    private static final int CLEANUP_VALIDATION_TIMEOUT_SECONDS = 15;
-    private static final long CLEANUP_VALIDATION_RETRY_DELAY_MS = 30_000L;
-    private final Map<String, CleanupValidationFailure> cleanupValidationFailures = new ConcurrentHashMap<>();
-    private Clock cleanupValidationClock = Clock.systemUTC();
+    private static final int VALIDATION_TIMEOUT_SECONDS = 15;
+    private static final long VALIDATION_RETRY_DELAY_MS = 30_000L;
+    private final Map<String, ValidationFailure> cleanupValidationFailures = new ConcurrentHashMap<>();
+    private final Map<String, ValidationFailure> backupStartFailures = new ConcurrentHashMap<>();
+    private final Map<String, ValidationFailure> sourceCheckFailures = new ConcurrentHashMap<>();
+    private Clock validationClock = Clock.systemUTC();
 
-    private static class CleanupValidationFailure {
+    private static class ValidationFailure {
         final long retryAt;
         final String reason;
 
-        CleanupValidationFailure(long retryAt, String reason) {
+        ValidationFailure(long retryAt, String reason) {
             this.retryAt = retryAt;
             this.reason = reason;
         }
@@ -193,6 +196,67 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
     }
 
     @Override
+    public long prepareBackupStart(Host host, String path) {
+        requireEnabled();
+        Snapshot configuration = loadConfiguration();
+        Path requested = absolutePath("staging backup path", path);
+        if (!requested.startsWith(Path.of(configuration.rootPath))) {
+            throw new CloudRuntimeException("Backup path differs from the active staging configuration");
+        }
+        String key = (host == null ? "missing" : host.getId()) + ":" + new Gson().toJson(configuration) + ":" + requested;
+        long now = validationClock.millis();
+        backupStartFailures.entrySet().removeIf(entry -> entry.getValue().retryAt <= now);
+        ValidationFailure previous = backupStartFailures.get(key);
+        if (previous != null) {
+            throw new CloudRuntimeException("BACKUP_START_DEFERRED: Staging remains unavailable; retry after 30 seconds. " + previous.reason);
+        }
+        try {
+            return prepareHost(host, configuration, requested.toString(), 0,
+                    Math.min(configuration.timeoutSeconds, VALIDATION_TIMEOUT_SECONDS));
+        } catch (RuntimeException e) {
+            backupStartFailures.put(key, new ValidationFailure(
+                    validationClock.millis() + VALIDATION_RETRY_DELAY_MS, e.getMessage()));
+            throw new CloudRuntimeException("BACKUP_START_DEFERRED: Staging is unavailable; no backup point was created. " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void validateBackupSources(Host host, List<String> paths, List<StoragePoolType> poolTypes) {
+        if (host == null || paths == null || paths.isEmpty() || poolTypes == null || paths.size() != poolTypes.size()
+                || paths.stream().anyMatch(StringUtils::isBlank) || poolTypes.stream().anyMatch(type -> type == null)) {
+            throw new CloudRuntimeException("BACKUP_START_DEFERRED: Source storage information is unavailable; no backup point was created.");
+        }
+        List<String> filePaths = new ArrayList<>();
+        for (int index = 0; index < paths.size(); index++) {
+            if (poolTypes.get(index) != StoragePoolType.RBD) {
+                filePaths.add(paths.get(index));
+            }
+        }
+        if (filePaths.isEmpty()) {
+            return;
+        }
+        // Avoid libvirt storage refresh: its native I/O can stall on withdrawn GFS2.
+        String key = host.getId() + ":" + new Gson().toJson(filePaths);
+        long now = validationClock.millis();
+        sourceCheckFailures.entrySet().removeIf(entry -> entry.getValue().retryAt <= now);
+        ValidationFailure previous = sourceCheckFailures.get(key);
+        if (previous != null) {
+            throw new CloudRuntimeException("BACKUP_START_DEFERRED: Source storage will be checked again after 30 seconds. " + previous.reason);
+        }
+        AblestackBackupSourceCheckCommand command = new AblestackBackupSourceCheckCommand(filePaths, VALIDATION_TIMEOUT_SECONDS);
+        try {
+            Answer answer = agentManager.send(host.getId(), command);
+            if (answer == null || !answer.getResult()) {
+                throw new CloudRuntimeException(answer == null ? "No source storage check answer received."
+                        : StringUtils.defaultIfBlank(answer.getDetails(), "Source storage check failed."));
+            }
+        } catch (AgentUnavailableException | OperationTimedoutException | CloudRuntimeException e) {
+            sourceCheckFailures.put(key, new ValidationFailure(validationClock.millis() + VALIDATION_RETRY_DELAY_MS, e.getMessage()));
+            throw new CloudRuntimeException("BACKUP_START_DEFERRED: Source storage is unavailable; no backup point was created. " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void prepareCleanup(Host host, String path) {
         prepareCleanup(host, path, loadConfiguration());
     }
@@ -207,18 +271,18 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
         // A missing shared mount affects every retained point on this worker. Do not
         // repeat a full mount timeout for each deletion while holding its VM lock.
         String key = (host == null ? "missing" : host.getId()) + ":" + new Gson().toJson(configuration) + ":" + requested;
-        long now = cleanupValidationClock.millis();
+        long now = validationClock.millis();
         cleanupValidationFailures.entrySet().removeIf(entry -> entry.getValue().retryAt <= now);
-        CleanupValidationFailure previous = cleanupValidationFailures.get(key);
+        ValidationFailure previous = cleanupValidationFailures.get(key);
         if (previous != null) {
             throw new CloudRuntimeException("Staging cleanup validation will retry shortly: " + previous.reason);
         }
         try {
             prepareHost(host, configuration, requested.toString(), 0,
-                    Math.min(configuration.timeoutSeconds, CLEANUP_VALIDATION_TIMEOUT_SECONDS));
+                    Math.min(configuration.timeoutSeconds, VALIDATION_TIMEOUT_SECONDS));
         } catch (RuntimeException e) {
-            cleanupValidationFailures.put(key, new CleanupValidationFailure(
-                    cleanupValidationClock.millis() + CLEANUP_VALIDATION_RETRY_DELAY_MS, e.getMessage()));
+            cleanupValidationFailures.put(key, new ValidationFailure(
+                    validationClock.millis() + VALIDATION_RETRY_DELAY_MS, e.getMessage()));
             throw e;
         }
     }

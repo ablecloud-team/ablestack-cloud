@@ -20,6 +20,7 @@
 import argparse
 import json
 import os
+import stat
 import subprocess
 import sys
 
@@ -66,15 +67,43 @@ def require_supported_sources(paths):
             raise RuntimeError("BACKUP_SOURCE_UNKNOWN: Unsupported GFS2 source image format")
 
 
+def require_accessible_sources(paths):
+    """Probe existing sources without snapshots, image writer locks or mutations.
+
+    The caller bounds the whole probe with timeout, including kernel I/O waits.
+    RAW sources are allowed here: offline Full protection is enforced at dispatch.
+    """
+    for path in paths:
+        if not os.path.isabs(path):
+            raise RuntimeError("BACKUP_SOURCE_UNAVAILABLE: File source must be an absolute path")
+        try:
+            filesystem = inspect(["findmnt", "--noheadings", "--output", "FSTYPE", "--target", path]).strip()
+            if not filesystem or len(filesystem.splitlines()) != 1:
+                raise RuntimeError("BACKUP_SOURCE_UNAVAILABLE: Cannot determine the source filesystem")
+            mode = os.stat(path).st_mode
+            if not (stat.S_ISREG(mode) or stat.S_ISBLK(mode)):
+                raise RuntimeError("BACKUP_SOURCE_UNAVAILABLE: Source is not a disk file or block device")
+            with open(path, "rb", buffering=0) as disk:
+                if not disk.read(1):
+                    raise RuntimeError("BACKUP_SOURCE_UNAVAILABLE: Source disk is empty")
+        except OSError as error:
+            raise RuntimeError("BACKUP_SOURCE_UNAVAILABLE: %s: %s" % (path, error.strerror)) from None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--disk-paths", required=True, help="Comma-separated source paths")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--disk-paths", help="Comma-separated source paths")
+    mode.add_argument("--health-paths", nargs="+", help="Read-only accessibility check before backup registration")
     args = parser.parse_args()
-    paths = [path for path in args.disk_paths.split(",") if path]
+    paths = args.health_paths or [path for path in args.disk_paths.split(",") if path]
     if not paths:
         parser.error("At least one source disk is required")
     try:
-        require_supported_sources(paths)
+        if args.health_paths:
+            require_accessible_sources(paths)
+        else:
+            require_supported_sources(paths)
     except RuntimeError as error:
         print(str(error), file=sys.stderr)
         return 1

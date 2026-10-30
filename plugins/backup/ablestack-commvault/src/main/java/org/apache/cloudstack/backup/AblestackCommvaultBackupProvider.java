@@ -753,6 +753,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 : areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
         validateBackupStageCapacity(vmHostVO, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
+        thirdPartyBackupStagingService.validateBackupSources(vmHost, volumePoolsAndPaths.second(),
+                volumePoolsAndPaths.first().stream().map(pool -> pool == null ? null : pool.getPoolType()).collect(Collectors.toList()));
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
         final Map<String, String> backupDetails = getBackupDetails(vm, backupPath, checkpointName, backupEngine, latestBackup,
                 BACKUP_TYPE_INCREMENTAL.equalsIgnoreCase(requestedBackupType), vmHost.getName());
@@ -2009,7 +2011,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         long requiredBytes = estimateRequiredStageBytesForBackup(vmVolumes);
         long bufferBytes = thirdPartyBackupStagingService.getCapacityBufferBytes(requiredBytes);
         long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
-        long availableBytes = getAvailableBytesOnHostPath(stageHost, stageRootPath);
+        long availableBytes = thirdPartyBackupStagingService.prepareBackupStart(stageHost, stageRootPath);
         LOG.info("{} phase=[STAGE_SPACE_CHECK], vm=[{}], host=[{}], backupType=[{}], backupEngine=[{}], stageRoot=[{}], requiredBytes=[{}], bufferBytes=[{}], minimumAvailableBytes=[{}], availableBytes=[{}]",
                 BACKUP_TRACE, vmName, stageHost != null ? stageHost.getName() : null, backupType, backupEngine, stageRootPath,
                 requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);

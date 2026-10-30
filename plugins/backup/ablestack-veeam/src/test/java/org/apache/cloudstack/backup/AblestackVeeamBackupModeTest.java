@@ -40,6 +40,7 @@ import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.Pair;
+import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine;
 import org.junit.After;
@@ -51,12 +52,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doThrow;
 
 public class AblestackVeeamBackupModeTest {
     private final AblestackVeeamBackupProvider provider = new AblestackVeeamBackupProvider();
@@ -123,6 +127,7 @@ public class AblestackVeeamBackupModeTest {
         when(host.getName()).thenReturn("host-test");
         when(staging.getStageRootPath("ablestack-veeam")).thenReturn("/mnt/staging/ablestack-veeam");
         when(staging.getAvailableBytes(eq(host), any())).thenReturn(Long.MAX_VALUE);
+        when(staging.prepareBackupStart(eq(host), any())).thenReturn(Long.MAX_VALUE);
         when(manager.getBackupNameFromVM(vm)).thenReturn("backup-test");
         when(backups.persist(any(BackupVO.class))).thenAnswer(call -> call.getArgument(0));
         when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Cluster, 40L)).thenReturn("false");
@@ -130,6 +135,47 @@ public class AblestackVeeamBackupModeTest {
     }
 
     @After public void restoreConfigurationDepot() { ConfigKey.init(originalDepot); }
+
+    @Test public void sourceOutageRejectsBeforeRegistrationReleasesTheLeaseAndAllowsRecovery() {
+        ThirdPartyBackupVolumeService.Lease lease = mock(ThirdPartyBackupVolumeService.Lease.class);
+        when(jobs.acquireLifecycle(10L)).thenReturn(lease);
+        CloudRuntimeException unavailable = new CloudRuntimeException("BACKUP_START_DEFERRED: Source I/O error");
+        doThrow(unavailable).doThrow(unavailable).doThrow(unavailable).doNothing().when(staging)
+                .validateBackupSources(eq(host), any(), any());
+        for (int attempt = 0; attempt < 3; attempt++) {
+            assertTrue(assertThrows(CloudRuntimeException.class, () -> provider.takeBackup(vm, false, null, "source-policy"))
+                    .getMessage().contains("BACKUP_START_DEFERRED"));
+        }
+        verify(backups, never()).persist(any(BackupVO.class));
+        verify(jobs, never()).persistBackupPlan(any());
+        verify(lease, times(3)).close();
+        assertTrue(provider.takeBackup(vm, false, null, "source-policy").first());
+        verify(backups).persist(any(BackupVO.class));
+        verify(lease, times(4)).close();
+    }
+
+    @Test public void missingNfsRejectsBeforeAnyPointOrSourceProbeIsCreated() {
+        when(staging.prepareBackupStart(eq(host), any())).thenThrow(new CloudRuntimeException("NFS unavailable"));
+        for (int attempt = 0; attempt < 3; attempt++) {
+            assertThrows(CloudRuntimeException.class, () -> provider.takeBackup(vm, false, null, "source-policy"));
+        }
+        verify(backups, never()).persist(any(BackupVO.class));
+        verify(staging, never()).validateBackupSources(eq(host), any(), any());
+    }
+
+    @Test public void disconnectedHostRejectsBeforeRegistration() {
+        when(host.getStatus()).thenReturn(Status.Disconnected);
+        assertThrows(CloudRuntimeException.class, () -> provider.takeBackup(vm, false, null, "source-policy"));
+        verify(backups, never()).persist(any(BackupVO.class));
+    }
+
+    @Test public void dispatchUncertaintyRetainsTheRegisteredAttempt() {
+        doThrow(new CloudRuntimeException("Agent response timed out")).when(jobs).dispatchBackup(any(BackupVO.class), eq(host), any(), any());
+        assertTrue(provider.takeBackup(vm, false, null, "source-policy").first());
+        verify(backups).persist(any(BackupVO.class));
+        verify(jobs).recordBackupStartUnconfirmed(any(BackupVO.class), eq("Agent response timed out"));
+        verify(backups, never()).remove(any(Long.class));
+    }
 
     @Test public void disabledIncrementalDispatchesStandaloneQcow2FullWithoutReadingHistory() {
         AblestackVeeamTakeBackupCommand command = start(false);

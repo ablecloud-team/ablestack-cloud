@@ -62,6 +62,7 @@ import com.cloud.host.Status;
 import com.cloud.host.dao.HostDao;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
 import com.cloud.resource.ResourceState;
+import com.cloud.storage.Storage.StoragePoolType;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -265,6 +266,95 @@ public class ThirdPartyBackupStagingServiceImplTest {
     }
 
     @Test
+    public void backupStartRejectsRepeatedMountFailuresThenRecoversWithoutCachingSuccess() throws Exception {
+        settings.put(BackupManager.ThirdPartyStagingEnable.key(), "true");
+        AtomicLong now = new AtomicLong(1_000);
+        Clock clock = mock(Clock.class);
+        when(clock.millis()).thenAnswer(call -> now.get());
+        ReflectionTestUtils.setField(service, "validationClock", clock);
+        HostVO worker = host(1L, "cube1");
+        String path = "/mnt/staging/jobs/ablestack-netbackup";
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, false, "NFS server unavailable"), new Answer(null, true, "123"));
+        for (int attempt = 0; attempt < 3; attempt++) {
+            assertTrue(assertThrows(CloudRuntimeException.class, () -> service.prepareBackupStart(worker, path))
+                    .getMessage().contains("BACKUP_START_DEFERRED"));
+        }
+        ArgumentCaptor<AblestackThirdPartyStagingCommand> command = ArgumentCaptor.forClass(AblestackThirdPartyStagingCommand.class);
+        verify(agentManager).send(eq(1L), command.capture());
+        assertEquals(15, command.getValue().getTimeoutSeconds());
+        assertEquals(45, command.getValue().getWait());
+        now.addAndGet(30_001);
+        assertEquals(123, service.prepareBackupStart(worker, path));
+        assertEquals(123, service.prepareBackupStart(worker, path));
+        verify(agentManager, times(3)).send(eq(1L), any(AblestackThirdPartyStagingCommand.class));
+    }
+
+    @Test
+    public void backupStartFailureIsIsolatedByHostAndConfiguration() throws Exception {
+        settings.put(BackupManager.ThirdPartyStagingEnable.key(), "true");
+        String path = "/mnt/staging/jobs/ablestack-netbackup";
+        HostVO first = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, false, "Mount unavailable"), new Answer(null, true, "100"));
+        when(agentManager.send(eq(2L), any(AblestackThirdPartyStagingCommand.class))).thenReturn(new Answer(null, true, "200"));
+        assertThrows(CloudRuntimeException.class, () -> service.prepareBackupStart(first, path));
+        assertEquals(200, service.prepareBackupStart(host(2L, "cube2"), path));
+        settings.put(BackupManager.ThirdPartyStagingNfsSource.key(), "new-server:/backup");
+        assertEquals(100, service.prepareBackupStart(first, path));
+    }
+
+    @Test
+    public void sharedSourceProbePacesFailuresThenRechecksRecoveryWithoutCachingSuccess() throws Exception {
+        AtomicLong now = new AtomicLong(1_000);
+        Clock clock = mock(Clock.class);
+        when(clock.millis()).thenAnswer(call -> now.get());
+        ReflectionTestUtils.setField(service, "validationClock", clock);
+        HostVO worker = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackBackupSourceCheckCommand.class)))
+                .thenReturn(new Answer(null, false, "Input/output error"), new Answer(null, true, "accessible"));
+        for (int request = 0; request < 3; request++) {
+            assertTrue(assertThrows(CloudRuntimeException.class, () -> service.validateBackupSources(worker,
+                    List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint))).getMessage().contains("BACKUP_START_DEFERRED"));
+        }
+        ArgumentCaptor<AblestackBackupSourceCheckCommand> command = ArgumentCaptor.forClass(AblestackBackupSourceCheckCommand.class);
+        verify(agentManager).send(eq(1L), command.capture());
+        assertEquals(15, command.getValue().getTimeoutSeconds());
+        assertEquals(45, command.getValue().getWait());
+        now.addAndGet(30_001);
+        service.validateBackupSources(worker, List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint));
+        service.validateBackupSources(worker, List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint));
+        verify(agentManager, times(3)).send(eq(1L), any(AblestackBackupSourceCheckCommand.class));
+    }
+
+    @Test
+    public void sourceFailureDoesNotBlockAnotherHostOrSourcePath() throws Exception {
+        HostVO first = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackBackupSourceCheckCommand.class)))
+                .thenReturn(new Answer(null, false, "I/O error"), new Answer(null, true, "accessible"));
+        when(agentManager.send(eq(2L), any(AblestackBackupSourceCheckCommand.class))).thenReturn(new Answer(null, true, "accessible"));
+        assertThrows(CloudRuntimeException.class, () -> service.validateBackupSources(first, List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint)));
+        service.validateBackupSources(host(2L, "cube2"), List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint));
+        service.validateBackupSources(first, List.of("/other/disk"), List.of(StoragePoolType.SharedMountPoint));
+        verify(agentManager, times(2)).send(eq(1L), any(AblestackBackupSourceCheckCommand.class));
+    }
+
+    @Test
+    public void missingSourceAnswersAndStorageMetadataRejectBeforeDispatch() throws Exception {
+        HostVO worker = host(1L, "cube1");
+        assertThrows(CloudRuntimeException.class, () -> service.validateBackupSources(worker, List.of("/gfs/disk"), List.of(StoragePoolType.SharedMountPoint)));
+        assertThrows(CloudRuntimeException.class, () -> service.validateBackupSources(worker, List.of("/gfs/disk"), List.of()));
+        assertThrows(CloudRuntimeException.class, () -> service.validateBackupSources(worker, List.of(), List.of()));
+        verify(agentManager).send(eq(1L), any(AblestackBackupSourceCheckCommand.class));
+    }
+
+    @Test
+    public void rbdSourcesContinueThroughTheCephEngineWithoutFileInspection() throws Exception {
+        service.validateBackupSources(host(1L, "cube1"), List.of("rbd/image"), List.of(StoragePoolType.RBD));
+        verify(agentManager, never()).send(anyLong(), any(AblestackBackupSourceCheckCommand.class));
+    }
+
+    @Test
     public void recordedCleanupUsesOriginalMountAfterActiveRootMoves() throws Exception {
         ThirdPartyBackupStagingService.Snapshot original = service.captureConfiguration();
         settings.put(BackupManager.ThirdPartyStagingRootPath.key(), "/mnt/new/jobs");
@@ -285,7 +375,7 @@ public class ThirdPartyBackupStagingServiceImplTest {
         AtomicLong now = new AtomicLong(1000);
         Clock clock = mock(Clock.class);
         when(clock.millis()).thenAnswer(invocation -> now.get());
-        ReflectionTestUtils.setField(service, "cleanupValidationClock", clock);
+        ReflectionTestUtils.setField(service, "validationClock", clock);
         HostVO worker = host(1L, "cube1");
         Snapshot original = service.captureConfiguration();
         String path = "/mnt/staging/jobs/ablestack-netbackup";

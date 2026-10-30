@@ -666,7 +666,9 @@ mold_backup_load_common_staging() {
     mold_backup_notify_log err "backup.thirdparty.staging.root.path must specify an absolute staging directory."
     return 1
   fi
-  root="$(realpath -m -- "$root")" || return 1
+  # Keep stale NFS lookups inside the bounded mount validator.
+  root="$(python3 -c 'import posixpath, sys; print("/" + posixpath.normpath(sys.argv[1]).lstrip("/"))' "$root")" || return 1
+  [[ "$root" != / ]] || return 1
   VEEAM_HOST_BACKUP_PATH="${root%/}/ablestack-veeam"
   STAGING_PATH="$VEEAM_HOST_BACKUP_PATH"
   export VEEAM_HOST_BACKUP_PATH STAGING_PATH
@@ -3045,6 +3047,33 @@ mold_backup_bootstrap_helper() {
   printf '%s' "$directory/../thirdparty_bootstrap.py"
 }
 
+mold_backup_prepare_parent_staging() {
+  local storage_type root mount_path nfs_source mount_options timeout_seconds details operation_path
+  storage_type="$(mold_backup_api_list_config_value backup.thirdparty.staging.storage.type)" || return 1
+  storage_type="$(python3 -c 'import sys; print(sys.argv[1].strip().upper())' "$storage_type")" || return 1
+  root="${VEEAM_HOST_BACKUP_PATH%/ablestack-veeam}"
+  operation_path="$VEEAM_HOST_BACKUP_PATH"
+  if [[ "${VEEAM_AGENT_PAYLOAD_MODE:-COMMON}" == COMMON ]]; then
+    operation_path="$VEEAM_AGENT_PAYLOAD_PATH"
+  fi
+  mount_path="$(mold_backup_api_list_config_value backup.thirdparty.staging.mount.path)" || return 1
+  nfs_source="$(mold_backup_api_list_config_value backup.thirdparty.staging.nfs.source)" || return 1
+  mount_options="$(mold_backup_api_list_config_value backup.thirdparty.staging.mount.options)" || return 1
+  timeout_seconds="$(mold_backup_api_list_config_value backup.thirdparty.staging.mount.timeout)" || return 1
+  [[ "$timeout_seconds" =~ ^[1-9][0-9]*$ ]] || return 1
+  timeout_seconds="$(python3 -c 'import sys; print(min(15, int(sys.argv[1])))' "$timeout_seconds")" || return 1
+  local validator="${BASH_SOURCE[0]%/*}/../thirdparty_staging.sh"
+  if [[ ! -f "$validator" ]] || ! command -v timeout >/dev/null 2>&1; then
+    mold_backup_notify_log err "Staging validator or timeout is missing; rerun veeam-host-config.py to install the host scripts."
+    return 1
+  fi
+  if ! details="$(timeout -k 5 "$timeout_seconds" /bin/bash "$validator" "$storage_type" "$root" "$mount_path" \
+      "$nfs_source" "$mount_options" "$operation_path" "$timeout_seconds" 0 2>&1)"; then
+    mold_backup_notify_log err "BACKUP_START_DEFERRED: Parent staging is unavailable; no Mold backup was requested. $details"
+    return 1
+  fi
+}
+
 mold_backup_pre_notify() {
   local client="${1:-$(hostname -s)}" job schedule="${3:-${VEEAM_SCHEDULE_NAME:-default}}"
   local single_vm="${4:-}" saved_include=""
@@ -3075,6 +3104,7 @@ mold_backup_pre_notify() {
       return 1
     fi
   fi
+  mold_backup_prepare_parent_staging || return 1
   local MOLD_EXTERNAL_BACKUP_CANDIDATES external_selection_mode
   MOLD_EXTERNAL_BACKUP_CANDIDATES="$(mold_backup_api_external_candidates)" || return 1
   external_selection_mode="$(mold_backup_external_candidate_field "" selectionmode)" || return 1

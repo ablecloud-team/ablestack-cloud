@@ -59,7 +59,7 @@ RUNTIME_FILES = (
     "ablestack_veeam_restore_notify.sh", "ablestack_veeam_restore_event.sh",
     "mold-veeam-restore-agent.sh",
 )
-COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py", "veeam_runtime_config.py",
+COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py", "thirdparty_staging.sh", "veeam_runtime_config.py",
                 "veeam_script_deploy.py", "veeam-host-config.py")
 UNIT_FILES = ("mold-veeam-restore-agent.service", "mold-veeam-restore-agent.timer")
 

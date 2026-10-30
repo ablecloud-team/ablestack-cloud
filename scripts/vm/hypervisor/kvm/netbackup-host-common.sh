@@ -585,9 +585,48 @@ load_backup_staging_root_from_mold() {
     fail "Invalid ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}=${configured_root}. It must be an absolute path."
   fi
 
-  configured_root="$(realpath -m -- "${configured_root}")" || fail "Unable to resolve the common staging root."
+  # Normalize lexically here: realpath can wait on a stale hard NFS mount before
+  # the bounded validator runs. Symlink/mount checks belong inside that validator.
+  configured_root="$(python3 -c 'import posixpath, sys; print("/" + posixpath.normpath(sys.argv[1]).lstrip("/"))' "${configured_root}")" || \
+    fail "Unable to normalize the common staging root."
+  [[ "${configured_root}" != / ]] || fail "The staging root must not be the local filesystem root."
   BACKUP_STAGING_ROOT="${configured_root%/}/ablestack-netbackup"
   log -ne "Loaded ${NETBACKUP_STAGE_ROOT_CONFIG_NAME}=${BACKUP_STAGING_ROOT}"
+}
+
+read_mold_staging_setting() {
+  local response
+  response="$(invoke_mold_api "${MOLD_LIST_VMS_API_METHOD}" "${MOLD_LIST_VMS_API_URL}" \
+    "listConfigurations" "name" "backup.thirdparty.staging.$1")" || \
+    fail "Failed to query common staging setting $1."
+  extract_json_value_by_key "${response}" "value" || true
+}
+
+prepare_parent_policy_staging() {
+  local expected_payload="${BACKUP_STAGING_ROOT}/bootstrap/${POLICY_SAFE}"
+  [[ "${NETBACKUP_PARENT_PAYLOAD_PATH:-}" == "${expected_payload}" ]] || \
+    fail "Parent policy Backup Selections differ from the active staging root; rerun host configuration before retrying."
+  local storage_type mount_path nfs_source mount_options timeout_seconds
+  storage_type="$(read_mold_staging_setting storage.type)" || return 1
+  storage_type="$(python3 -c 'import sys; print(sys.argv[1].strip().upper())' "${storage_type}")" || return 1
+  mount_path="$(read_mold_staging_setting mount.path)" || return 1
+  nfs_source="$(read_mold_staging_setting nfs.source)" || return 1
+  mount_options="$(read_mold_staging_setting mount.options)" || return 1
+  timeout_seconds="$(read_mold_staging_setting mount.timeout)" || return 1
+  [[ "${timeout_seconds}" =~ ^[1-9][0-9]*$ ]] || fail "Invalid staging mount timeout."
+  # A parent policy must not spend the full data-operation timeout on missing storage.
+  timeout_seconds="$(python3 -c 'import sys; print(min(15, int(sys.argv[1])))' "${timeout_seconds}")" || return 1
+  local validator="${SCRIPT_DIR}/thirdparty_staging.sh"
+  [[ -f "${validator}" ]] || fail "Staging validator is missing; update the NetBackup host scripts."
+  command -v timeout >/dev/null 2>&1 || fail "timeout command not found"
+  local details
+  if ! details="$(timeout -k 5 "${timeout_seconds}" /bin/bash "${validator}" \
+      "${storage_type}" "${BACKUP_STAGING_ROOT%/ablestack-netbackup}" "${mount_path}" \
+      "${nfs_source}" "${mount_options}" "${expected_payload}" "${timeout_seconds}" 0 2>&1)"; then
+    log -ne "BACKUP_START_DEFERRED: Parent policy staging is unavailable; no Mold backup was requested. ${details}"
+    return 1
+  fi
+  log -ne "Parent policy staging verified policy=${POLICY_NAME} path=${expected_payload}"
 }
 
 load_staging_timeout_from_data_operation_config() {

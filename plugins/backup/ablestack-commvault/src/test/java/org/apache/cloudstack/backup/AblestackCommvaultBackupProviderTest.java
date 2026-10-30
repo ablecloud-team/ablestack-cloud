@@ -228,6 +228,10 @@ public class AblestackCommvaultBackupProviderTest {
         Map<String, String> details = new HashMap<>();
         details.put("commvault.backup.engine", "QCOW2");
         details.put("commvault.checkpoint.path", "/staging/checkpoints/current.xml");
+        Backup.VolumeInfo disk = new Backup.VolumeInfo("root-volume", "root.qcow2", com.cloud.storage.Volume.Type.ROOT,
+                1024L, 0L, null, null, null);
+        details.put(ThirdPartyBackupManifest.DETAIL_KEY, ThirdPartyBackupManifest.create("ablestack-commvault", "backup-test",
+                "i-2-1-VM", "current", "FULL", "host-test", "/staging/current", "QCOW2", List.of(disk), null, null).toJson());
         when(backup.getDetails()).thenReturn(details);
         when(backup.getDetail(any())).thenAnswer(invocation -> details.get(invocation.getArgument(0)));
         String xml = "<domaincheckpoint><name>current</name></domaincheckpoint>";

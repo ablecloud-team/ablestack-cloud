@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import com.cloud.utils.exception.CloudRuntimeException;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
@@ -57,12 +58,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doThrow;
 
 public class AblestackNetBackupBackupModeTest {
     private final AblestackNetBackupProvider provider = new AblestackNetBackupProvider();
@@ -83,7 +87,7 @@ public class AblestackNetBackupBackupModeTest {
     private final BackupVolumeAllocationService allocation = mock(BackupVolumeAllocationService.class);
     private ConfigDepotImpl originalDepot;
 
-    @Before public void setup() {
+    @Before public void setup() throws Exception {
         originalDepot = (ConfigDepotImpl) ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "s_depot");
         ConfigKey.init(depot);
         ReflectionTestUtils.setField(provider, "backupDao", backups);
@@ -129,6 +133,7 @@ public class AblestackNetBackupBackupModeTest {
         when(host.getName()).thenReturn("host-test");
         when(staging.getStageRootPath("ablestack-netbackup")).thenReturn("/mnt/staging/ablestack-netbackup");
         when(staging.getAvailableBytes(eq(host), any())).thenReturn(Long.MAX_VALUE);
+        when(staging.prepareBackupStart(eq(host), any())).thenReturn(Long.MAX_VALUE);
         when(manager.getBackupNameFromVM(vm)).thenReturn("backup-test");
         when(backups.persist(any(BackupVO.class))).thenAnswer(call -> call.getArgument(0));
         when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Cluster, 40L)).thenReturn("false");
@@ -136,6 +141,58 @@ public class AblestackNetBackupBackupModeTest {
     }
 
     @After public void restoreConfigurationDepot() { ConfigKey.init(originalDepot); }
+
+    @Test public void repeatedSourceOutageDoesNotCreateFailedPointsAndRecoveryStartsANewBackup() throws Exception {
+        ThirdPartyBackupVolumeService.Lease lease = mock(ThirdPartyBackupVolumeService.Lease.class);
+        when(jobs.acquireLifecycle(10L)).thenReturn(lease);
+        CloudRuntimeException unavailable = new CloudRuntimeException("BACKUP_START_DEFERRED: findmnt source inspection failed: Input/output error");
+        doThrow(unavailable).doThrow(unavailable).doThrow(unavailable).doNothing().when(staging)
+                .validateBackupSources(eq(host), any(), any());
+        for (int attempt = 0; attempt < 3; attempt++) {
+            CloudRuntimeException error = assertThrows(CloudRuntimeException.class, () -> provider.takeNetBackup(vm, "source-policy"));
+            assertTrue(error.getMessage().contains("BACKUP_START_DEFERRED"));
+        }
+        verify(staging, times(3)).validateBackupSources(eq(host), any(), any());
+        verify(backups, never()).persist(any(BackupVO.class));
+        verify(jobs, never()).persistBackupPlan(any());
+        verify(lease, times(3)).close();
+        start(false);
+        verify(backups).persist(any(BackupVO.class));
+        verify(staging, times(4)).validateBackupSources(eq(host), any(), any());
+        verify(lease, times(4)).close();
+    }
+
+    @Test public void missingNfsBeforeAdmissionDoesNotCreateAnyBackupPoints() {
+        when(staging.prepareBackupStart(eq(host), any())).thenThrow(new CloudRuntimeException("Unable to mount NFS export"));
+        for (int attempt = 0; attempt < 3; attempt++) {
+            assertThrows(CloudRuntimeException.class, () -> provider.takeNetBackup(vm, "source-policy"));
+        }
+        verify(backups, never()).persist(any(BackupVO.class));
+        verify(jobs, never()).persistBackupPlan(any());
+    }
+
+    @Test public void disconnectedHostDoesNotCreateAnyBackupPoints() {
+        when(host.getStatus()).thenReturn(Status.Disconnected);
+        assertThrows(CloudRuntimeException.class, () -> provider.takeNetBackup(vm, "source-policy"));
+        verify(backups, never()).persist(any(BackupVO.class));
+    }
+
+    @Test public void missingSourceCheckAnswerRejectsBeforeRegistration() throws Exception {
+        doThrow(new CloudRuntimeException("BACKUP_START_DEFERRED: No source storage check answer received."))
+                .when(staging).validateBackupSources(eq(host), any(), any());
+        assertThrows(CloudRuntimeException.class, () -> provider.takeNetBackup(vm, "source-policy"));
+        verify(backups, never()).persist(any(BackupVO.class));
+    }
+
+    @Test public void dispatchUncertaintyKeepsTheAlreadyRegisteredAttempt() {
+        doThrow(new CloudRuntimeException("Agent response timed out"))
+                .when(jobs).dispatchBackup(any(BackupVO.class), eq(host), any(), any());
+        Pair<Boolean, Backup> result = provider.takeNetBackup(vm, "source-policy");
+        assertTrue(result.first());
+        verify(backups).persist(any(BackupVO.class));
+        verify(jobs).recordBackupStartUnconfirmed(any(BackupVO.class), eq("Agent response timed out"));
+        verify(backups, never()).remove(any(Long.class));
+    }
 
     @Test public void disabledIncrementalDispatchesStandaloneQcow2FullWithoutReadingHistory() {
         AblestackNetBackupTakeBackupCommand command = start(false);
