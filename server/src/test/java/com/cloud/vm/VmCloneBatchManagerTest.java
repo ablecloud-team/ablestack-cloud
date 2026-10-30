@@ -126,7 +126,8 @@ public class VmCloneBatchManagerTest {
         target = mock(UserVmVO.class);
         when(target.getId()).thenReturn(40L);
         when(target.getUuid()).thenReturn("target");
-        when(target.getName()).thenReturn("copy-2");
+        when(target.getName()).thenReturn("i-2-40-VM");
+        when(target.getHostName()).thenReturn("copy-2");
         when(target.getAccountId()).thenReturn(2L);
         when(target.getState()).thenReturn(VirtualMachine.State.Stopped);
         when(manager.vms.findByIdIncludingRemoved(40L)).thenReturn(target);

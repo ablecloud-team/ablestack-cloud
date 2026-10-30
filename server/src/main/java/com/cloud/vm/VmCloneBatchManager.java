@@ -697,7 +697,7 @@ public class VmCloneBatchManager implements PluggableService {
         if (disks.stream().anyMatch(v -> !removed(v) && v.getAccountId() != row.getAccountId()))
             return "NONE";
         if (vm != null && vm.getRemoved() == null) {
-            if (vm.getAccountId() != row.getAccountId() || !item.name.equals(vm.getName()))
+            if (vm.getAccountId() != row.getAccountId() || !item.name.equals(vm.getHostName()))
                 return "NONE";
             if (fullDisks(data, item, vm))
                 return data.start && vm.getState() == VirtualMachine.State.Stopped
@@ -764,7 +764,7 @@ public class VmCloneBatchManager implements PluggableService {
                                             && target != null
                                             && target.getRemoved() == null
                                             && target.getAccountId() == latest.getAccountId()
-                                            && item.name.equals(target.getName())
+                                            && item.name.equals(target.getHostName())
                                             && fullDisks(current, item, target)) {
                                         item.created = true;
                                         item.vmId = target.getId();
