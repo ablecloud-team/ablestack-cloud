@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"sourceCommit\": \"3f4547264620f7a2ed72c82885f8078d3685ca72\", \"upstreamBase\": \"31c147ca747f7a4ffc0380818bcd44887558a0c7\", \"schema\": {\"migrationRequired\": false, \"reason\": \"#1453 uses existing config_json and mode\"}, \"managementSha256\": \"460ad6bf8e4540f842946be91490d130888bae41c03c27233451f0228f826ff7\", \"uiIndexSha256\": \"c37069d7fdd460ae2719ec49a549a35094f20fcc6f618eaf2f9120b25a176a48\", \"uiFilesChanged\": 9, \"configPreserved\": true, \"systemVmArtifactsPreserved\": true, \"rollbackRoot\": \"/var/tmp/epic1438-1453-ad-3f4547264620-r4\"}\n",
+  "stderr": ""
+}
