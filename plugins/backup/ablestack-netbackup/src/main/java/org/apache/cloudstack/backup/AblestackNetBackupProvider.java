@@ -268,12 +268,17 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
 
     @Override
     public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
+        return takeNetBackup(vm, policyName, backupScheduleId, null);
+    }
+
+    @Override
+    public Pair<Boolean, Backup> takeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId, final Boolean quiesceVM) {
         try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(vm.getId())) {
-            return takeVolumeNetBackup(vm, policyName, backupScheduleId);
+            return takeVolumeNetBackup(vm, policyName, backupScheduleId, quiesceVM);
         }
     }
 
-    private Pair<Boolean, Backup> takeVolumeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId) {
+    private Pair<Boolean, Backup> takeVolumeNetBackup(final VirtualMachine vm, final String policyName, final Long backupScheduleId, final Boolean quiesceVM) {
         thirdPartyBackupStagingService.requireEnabled();
         final Host host = getVMHypervisorHostForBackup(vm);
         validateVmSnapshotCoexistenceForBackup(vm);
@@ -288,7 +293,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         final boolean incrementalBackup = !backupVolumeAllocationService.requiresOfflineFull(vmVolumes) && shouldUseIncrementalBackupForNetBackup(vm, latestBackup)
                 && ThirdPartyBackupManifest.canContinue(latestBackup, getName(), vm.getInstanceName(),
                         areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2, vmVolumes);
-        BackupExecutionResult result = executeBackup(vm, null, host, vmVolumes, volumePoolsAndPaths, incrementalBackup ? latestBackup : null,
+        BackupExecutionResult result = executeBackup(vm, quiesceVM, host, vmVolumes, volumePoolsAndPaths, incrementalBackup ? latestBackup : null,
                 incrementalBackup, policyName);
         Backup failedIncrementalBackup = null;
         if (!result.success && incrementalBackup) {
@@ -300,7 +305,7 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
                     BACKUP_TRACE, vm.getId(), vm.getInstanceName(), failedIncrementalBackup != null ? failedIncrementalBackup.getUuid() : null,
                     fallbackReason);
             LOG.warn("Incremental NetBackup backup failed for VM [{}] due to [{}]. Retrying as full backup.", vm.getInstanceName(), fallbackReason);
-            result = executeBackup(vm, null, host, vmVolumes, volumePoolsAndPaths, null, false,
+            result = executeBackup(vm, quiesceVM, host, vmVolumes, volumePoolsAndPaths, null, false,
                     policyName);
             recordIncrementalFallback(result.backup, failedIncrementalBackup, fallbackReason);
             if (cleanupSuccessful && failedIncrementalBackup != null) {
@@ -2603,12 +2608,12 @@ public class AblestackNetBackupProvider extends AdapterBase implements BackupPro
         }
         try {
             final String policyName = getBackupDetail(failedBackup, DETAIL_POLICY_NAME);
+            final boolean quiesce = Boolean.parseBoolean(
+                    getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL));
             final Pair<Boolean, Backup> result;
             if (StringUtils.isNotBlank(policyName)) {
-                result = takeNetBackup(vm, policyName, failedBackup.getBackupScheduleId());
+                result = takeNetBackup(vm, policyName, failedBackup.getBackupScheduleId(), quiesce);
             } else {
-                final boolean quiesce = Boolean.parseBoolean(
-                        getBackupDetail(failedBackup, AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL));
                 result = takeBackup(vm, quiesce, false, failedBackup.getBackupScheduleId());
             }
             final Backup fullBackup = result.second();

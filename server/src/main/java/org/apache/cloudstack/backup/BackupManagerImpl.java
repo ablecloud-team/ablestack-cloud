@@ -1128,10 +1128,11 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             if (!BackupProviderNameUtils.isNasFamily(offering.getProvider()) &&
                     !BackupProviderNameUtils.isCommvaultFamily(offering.getProvider()) &&
+                    !BackupProviderNameUtils.isNetBackupFamily(offering.getProvider()) &&
                     !BackupProviderNameUtils.isVeeamFamily(offering.getProvider()) &&
                     !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider()) &&
                     cmd.getQuiesceVM() != null) {
-                throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, Ablestack Veeam, and KBOSS backup providers");
+                throw new InvalidParameterValueException("Quiesce VM option is supported only for NAS, Commvault, NetBackup, Ablestack Veeam, and KBOSS backup providers");
             }
 
             final String timezoneId = timeZone.getID();
@@ -1780,7 +1781,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             final Long backupSize = calculateBackupSize(vm.getId());
 
             validateNetBackupScheduleForVm(backupScheduleId, vm.getId());
-            createCheckedBackup(cmd, owner, backupScheduleId != null, backupSize, vm, vm.getId(), backupProvider, backupScheduleId);
+            createCheckedBackup(cmd, owner, backupScheduleId != null, backupSize, vm, vm.getId(), backupProvider, backupScheduleId,
+                    schedule != null ? schedule.getQuiesceVM() : cmd.getQuiesceVM());
             finishExternalBackupSchedule(schedule);
             return true;
         }
@@ -2631,7 +2633,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void createCheckedBackup(CreateNetBackupCmd cmd, Account owner, boolean isScheduledBackup, Long backupSize,
-                VMInstanceVO vm, Long vmId, BackupProvider backupProvider, Long backupScheduleId)
+                VMInstanceVO vm, Long vmId, BackupProvider backupProvider, Long backupScheduleId, Boolean quiesceVM)
             throws ResourceAllocationException {
         checkAblestackBackupRecoveryBeforeStart(vm, backupProvider);
         try (CheckedReservation backupReservation = new CheckedReservation(owner, Resource.ResourceType.backup,
@@ -2644,7 +2646,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     vmId, ApiCommandResourceType.VirtualMachine.toString(),
                     true, 0);
 
-            Pair<Boolean, Backup> result = backupProvider.takeNetBackup(vm, cmd.getPolicyId(), backupScheduleId);
+            Pair<Boolean, Backup> result = backupProvider.takeNetBackup(vm, cmd.getPolicyId(), backupScheduleId, quiesceVM);
             if (!result.first()) {
                 throw new CloudRuntimeException("Failed to create VM backup for NetBackup");
             }

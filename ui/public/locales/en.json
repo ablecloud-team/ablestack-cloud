@@ -2183,6 +2183,8 @@
   "label.qostype": "QoS type",
   "label.quickview": "Quick view",
   "label.quiescevm": "Quiesce Instance",
+  "message.backup.volume.quiesce": "Temporarily freezes guest filesystems through QEMU Guest Agent while establishing recovery points for all volumes, then thaws them before volume export and transfer. Backup continues if freezing is unsupported or fails; this does not guarantee application consistency.",
+  "message.backup.schedule.quiesce.host.mode": "This schedule setting applies when the Host uses VM_SCHEDULE_BACKUP=true. With false, per-VM schedules and this option are not used.",
   "label.quiettime": "Quiet time (in sec)",
   "label.quota": "Quota",
   "label.quotausage": "Quota Usage",

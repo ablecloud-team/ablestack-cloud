@@ -78,9 +78,9 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
     @Parameter(name = ApiConstants.QUIESCE_VM,
             type = CommandType.BOOLEAN,
             required = false,
-            description = "Quiesce the instance before checkpointing the disks for backup. Applicable only to NAS backup provider. " +
-                    "The filesystem is frozen before the backup starts and thawed immediately after. " +
-                    "Requires the instance to have the QEMU Guest Agent installed and running.",
+            description = "Attempt to freeze guest filesystems through QEMU Guest Agent while establishing source recovery points, then thaw before volume export and transfer. " +
+                    "In SCHEDULE mode, the stored backup schedule setting takes precedence over this parameter. " +
+                    "Backup continues if freezing is unsupported or fails; application consistency is not guaranteed.",
             since = "4.21.0")
     private Boolean quiesceVM;
 

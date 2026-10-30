@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.cloudstack.backup.dao.BackupDao;
+import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
@@ -86,6 +87,7 @@ public class AblestackNetBackupBackupModeTest {
         originalDepot = (ConfigDepotImpl) ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "s_depot");
         ConfigKey.init(depot);
         ReflectionTestUtils.setField(provider, "backupDao", backups);
+        ReflectionTestUtils.setField(provider, "backupDetailsDao", mock(BackupDetailsDao.class));
         ReflectionTestUtils.setField(provider, "backupVolumeAllocationService", allocation);
         ReflectionTestUtils.setField(provider, "volumeDao", volumes);
         ReflectionTestUtils.setField(provider, "primaryDataStoreDao", pools);
@@ -244,6 +246,52 @@ public class AblestackNetBackupBackupModeTest {
 
     private void enabled() {
         when(depot.getConfigStringValue("kvm.incremental.backup", ConfigKey.Scope.Cluster, 40L)).thenReturn("true");
+    }
+
+    @Test public void hostPolicyBackupPassesQuiesceToTheVolumeCommandAndRetryDetails() {
+        assertPolicyQuiesce(true);
+    }
+
+    @Test public void hostPolicyBackupCanDisableQuiesce() {
+        assertPolicyQuiesce(false);
+    }
+
+    @Test public void asynchronousFullRetryPreservesEnabledQuiesce() {
+        assertFullRetryQuiesce(true);
+    }
+
+    @Test public void asynchronousFullRetryPreservesDisabledQuiesce() {
+        assertFullRetryQuiesce(false);
+    }
+
+    private void assertFullRetryQuiesce(boolean quiesce) {
+        BackupVO failed = parent();
+        failed.setType("INCREMENTAL");
+        failed.setStatus(Backup.Status.Failed);
+        failed.setBackupScheduleId(5L);
+        failed.getDetails().put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
+        failed.getDetails().put(AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL, String.valueOf(quiesce));
+        when(jobs.getWorkerHost(failed, "BACKUP")).thenReturn(host);
+
+        assertTrue(provider.retryFailedBackupAsFull(vm, failed, "source recovery point unavailable"));
+
+        ArgumentCaptor<AblestackNetBackupTakeBackupCommand> command = ArgumentCaptor.forClass(AblestackNetBackupTakeBackupCommand.class);
+        ArgumentCaptor<BackupVO> replacement = ArgumentCaptor.forClass(BackupVO.class);
+        verify(jobs).dispatchBackup(replacement.capture(), eq(host), command.capture(), any());
+        assertFull(command.getValue(), ".qcow2");
+        assertEquals(quiesce, command.getValue().getQuiesce());
+        assertEquals("source-policy", command.getValue().getPolicyId());
+        assertEquals(String.valueOf(quiesce), replacement.getValue().getDetail(AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL));
+    }
+
+    private void assertPolicyQuiesce(boolean quiesce) {
+        Pair<Boolean, Backup> result = provider.takeNetBackup(vm, "source-policy", 5L, quiesce);
+        assertTrue(result.first());
+        assertEquals(String.valueOf(quiesce), result.second().getDetail(AblestackBackupFrameworkUtils.BACKUP_QUIESCE_DETAIL));
+        ArgumentCaptor<AblestackNetBackupTakeBackupCommand> command = ArgumentCaptor.forClass(AblestackNetBackupTakeBackupCommand.class);
+        verify(jobs).dispatchBackup(any(BackupVO.class), eq(host), command.capture(), any());
+        assertEquals(quiesce, command.getValue().getQuiesce());
+        assertEquals("source-policy", command.getValue().getPolicyId());
     }
 
     private AblestackNetBackupTakeBackupCommand start(boolean mold) {

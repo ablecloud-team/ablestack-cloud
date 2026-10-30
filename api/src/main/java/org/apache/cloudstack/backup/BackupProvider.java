@@ -120,6 +120,10 @@ public interface BackupProvider {
         return takeNetBackup(vm, policyName);
     }
 
+    default Pair<Boolean, Backup> takeNetBackup(VirtualMachine vm, String policyName, Long backupScheduleId, Boolean quiesceVM) {
+        return takeNetBackup(vm, policyName, backupScheduleId);
+    }
+
     default boolean cancelBackup(VirtualMachine vm, Backup backup) {
         throw new UnsupportedOperationException("Backup cancellation is not supported by provider " + getName());
     }

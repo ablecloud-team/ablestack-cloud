@@ -547,10 +547,10 @@ export const extensionsUtilPlugin = {
 export const backupUtilPlugin = {
   install (app) {
     app.config.globalProperties.$isBackupProviderSupportsQuiesceVm = function (provider) {
-      if (!provider && typeof provider !== 'string') {
+      if (typeof provider !== 'string') {
         return false
       }
-      return ['ablestack-nas', 'ablestack-commvault'].includes(provider.toLowerCase())
+      return ['ablestack-nas', 'ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'].includes(provider.toLowerCase())
     }
   }
 }

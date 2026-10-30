@@ -44,6 +44,7 @@ import java.util.Map;
 import org.apache.cloudstack.api.command.user.backup.ListExternalBackupCandidatesCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateAblestackVeeamBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateNetBackupCmd;
+import org.apache.cloudstack.api.command.user.backup.CreateBackupScheduleCmd;
 import org.apache.cloudstack.api.response.ExternalBackupCandidatesResponse;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
@@ -367,12 +368,42 @@ public class ExternalBackupScheduleTest {
         }
     }
 
-    private void executeScheduledBackup(final boolean accepted) throws Exception {
+    @Test
+    public void schedulesAcceptAndPersistQuiesceEnabledAndDisabled() {
+        ReflectionTestUtils.setField(manager, "backupVolumeGuard", mock(BackupVolumeGuard.class));
+        ReflectionTestUtils.setField(manager, "backupSnapshotGuard", mock(BackupSnapshotGuard.class));
+        ReflectionTestUtils.setField(manager, "accountManager", mock(AccountManager.class));
+        when(schedules.persist(any(BackupScheduleVO.class))).thenAnswer(call -> call.getArgument(0));
+        CallContext.register(mock(User.class), mock(Account.class));
+        try {
+            for (boolean quiesce : new boolean[] {true, false}) {
+                final CreateBackupScheduleCmd request = mock(CreateBackupScheduleCmd.class);
+                when(request.getVmId()).thenReturn(1L);
+                when(request.getIntervalType()).thenReturn(DateUtil.IntervalType.DAILY);
+                when(request.getSchedule()).thenReturn("00:01");
+                when(request.getTimezone()).thenReturn("UTC");
+                when(request.getMaxBackups()).thenReturn(null);
+                when(request.getQuiesceVM()).thenReturn(quiesce);
+                final BackupSchedule saved = manager.configureBackupSchedule(request);
+                assertNotNull(saved);
+                assertEquals(Boolean.valueOf(quiesce), saved.getQuiesceVM());
+            }
+        } finally {
+            CallContext.unregister();
+        }
+    }
+
+    private BackupProvider executeScheduledBackup(final boolean accepted) throws Exception {
+        return executeScheduledBackup(accepted, null, null);
+    }
+
+    private BackupProvider executeScheduledBackup(final boolean accepted, final Boolean scheduleQuiesce, final Boolean requestQuiesce) throws Exception {
         final BackupScheduleVO schedule = schedule(5L, 1L);
+        schedule.setQuiesceVM(scheduleQuiesce);
         when(schedules.findById(5L)).thenReturn(schedule);
         final BackupProvider backupProvider = mock(BackupProvider.class);
         when(backupProvider.getName()).thenReturn(provider);
-        when(backupProvider.takeNetBackup(vm, "parent-policy", 5L)).thenReturn(new Pair<>(accepted, null));
+        when(backupProvider.takeNetBackup(eq(vm), eq("parent-policy"), eq(5L), any())).thenReturn(new Pair<>(accepted, null));
         when(backupProvider.takeBackup(eq(vm), any(), eq(5L), eq("parent-policy"))).thenReturn(new Pair<>(accepted, null));
         final Map<String, BackupProvider> providers = new HashMap<>();
         providers.put(provider, backupProvider);
@@ -402,6 +433,7 @@ public class ExternalBackupScheduleTest {
                 ReflectionTestUtils.setField(request, "selectionMode", "SCHEDULE");
                 ReflectionTestUtils.setField(request, "vmScheduleBackup", true);
                 ReflectionTestUtils.setField(request, "policyId", "parent-policy");
+                ReflectionTestUtils.setField(request, "quiesceVM", requestQuiesce);
                 manager.createNetBackup(request);
             } else {
                 final CreateAblestackVeeamBackupCmd request = new CreateAblestackVeeamBackupCmd();
@@ -412,10 +444,32 @@ public class ExternalBackupScheduleTest {
                 ReflectionTestUtils.setField(request, "selectionMode", "SCHEDULE");
                 ReflectionTestUtils.setField(request, "vmScheduleBackup", true);
                 ReflectionTestUtils.setField(request, "veeamJobName", "parent-policy");
+                ReflectionTestUtils.setField(request, "quiesceVM", requestQuiesce);
                 manager.createAblestackVeeamBackup(request, null);
             }
+            return backupProvider;
         } finally {
             CallContext.unregister();
+        }
+    }
+
+    @Test
+    public void scheduledQuiesceTakesPrecedenceOverADisabledRequest() throws Exception {
+        final BackupProvider backupProvider = executeScheduledBackup(true, true, false);
+        if (provider.endsWith("netbackup")) {
+            verify(backupProvider).takeNetBackup(vm, "parent-policy", 5L, true);
+        } else {
+            verify(backupProvider).takeBackup(vm, true, 5L, "parent-policy");
+        }
+    }
+
+    @Test
+    public void scheduleCanDisableQuiesceEvenWhenTheRequestEnablesIt() throws Exception {
+        final BackupProvider backupProvider = executeScheduledBackup(true, false, true);
+        if (provider.endsWith("netbackup")) {
+            verify(backupProvider).takeNetBackup(vm, "parent-policy", 5L, false);
+        } else {
+            verify(backupProvider).takeBackup(vm, false, 5L, "parent-policy");
         }
     }
 

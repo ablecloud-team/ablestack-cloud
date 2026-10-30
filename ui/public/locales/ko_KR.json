@@ -2145,6 +2145,8 @@
   "label.qostype": "QoS 유형",
   "label.quickview": "빠른 보기",
   "label.quiescevm": "VM 일시정지",
+  "message.backup.volume.quiesce": "전체 볼륨의 복원 시점을 확보하는 동안 QEMU Guest Agent로 파일시스템을 잠시 동결한 뒤 해제합니다. 볼륨 추출·전송 중에는 유지하지 않습니다. 동결을 지원하지 않거나 실패하면 백업을 계속하므로 애플리케이션 정합성을 보장하지는 않습니다.",
+  "message.backup.schedule.quiesce.host.mode": "Host의 VM_SCHEDULE_BACKUP=true일 때 이 스케줄의 설정이 적용됩니다. false이면 VM별 스케줄과 이 옵션을 사용하지 않습니다.",
   "label.quiettime": "Quiet 시간(초)",
   "label.quota": "할당",
   "label.quotausage": "할당 사용량",

@@ -144,10 +144,10 @@
               </a-form-item>
             </a-col>
             <a-col :md="24" :lg="12">
-              <a-form-item v-if="isQuiesceVmSupported" name="quiescevm" ref="quiescevm">
+              <a-form-item v-if="isQuiesceVmSupported" name="quiescevm" ref="quiescevm" :help="quiesceVmHelp">
                 <a-switch v-model:checked="form.quiescevm"/>
                 <template #label>
-                  <tooltip-label :title="$t('label.quiescevm')" :tooltip="apiParams.quiescevm.description"/>
+                  <tooltip-label :title="$t('label.quiescevm')" :tooltip="quiesceVmTooltip"/>
                 </template>
               </a-form-item>
               <a-form-item name="isolated" ref="isolated">
@@ -280,6 +280,16 @@ export default {
   computed: {
     isQuiesceVmSupported () {
       return this.$isBackupProviderSupportsQuiesceVm(this.backupProvider)
+    },
+    quiesceVmTooltip () {
+      return ['ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'].includes(this.backupProvider)
+        ? this.$t('message.backup.volume.quiesce')
+        : this.apiParams.quiescevm.description
+    },
+    quiesceVmHelp () {
+      return ['ablestack-netbackup', 'ablestack-veeam'].includes(this.backupProvider)
+        ? this.$t('message.backup.schedule.quiesce.host.mode')
+        : null
     },
     backupChainRetentionMessage () {
       const maxBackups = Number(this.form.maxbackups)
@@ -469,8 +479,8 @@ export default {
         params.intervaltype = values.intervaltype.toUpperCase()
         params.maxbackups = values.maxbackups
         params.timezone = values.timezone
-        if (values.quiescevm) {
-          params.quiescevm = values.quiescevm
+        if (this.isQuiesceVmSupported) {
+          params.quiescevm = !!values.quiescevm
         }
         params.isolated = values.isolated
         switch (values.intervaltype) {
