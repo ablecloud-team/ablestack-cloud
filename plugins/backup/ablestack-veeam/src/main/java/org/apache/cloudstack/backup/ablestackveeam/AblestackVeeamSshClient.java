@@ -290,6 +290,8 @@ public class AblestackVeeamSshClient {
             commands.add("  Copy-VBRComputerBackupJob -Job $template -Name $name -Description " + ps("Mold logical backup " + artifact.backupUuid) + " | Out-Null");
             commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
             commands.add("  Set-VBRComputerBackupJob -Job $job -BackupObject $computer -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false -UseSnapshotlessFileLevelBackup | Out-Null");
+            commands.add("  $job=Get-VBRComputerBackupJob -Name $name");
+            commands.add("  if (@($job).Count -ne 1) { throw 'Updated artifact Job configuration is unconfirmed' }");
             commands.add("}");
             commands.add("$sessions=" + volumeJobSessions("$job"));
             commands.add("if ($sessions.Count -eq 0) { $submissionAttempted=$true; $sessions=@(Start-VBRComputerBackupJob -Job $job -FullBackup -RunAsync) }");
@@ -582,9 +584,13 @@ public class AblestackVeeamSshClient {
                 // Veeam resolves the backup's original Agent Host; the copy target remains the selected restore Worker.
                 "    $flr=Start-VBRLinuxFileRestore -RestorePoint $points[0] -MountToOriginalHost",
                 "    $callbackIds=@(@($flr.Id,$flr.SessionId,$flr.Session.Id,$flr.RestoreSession.Id) | Where-Object { $_ } | ForEach-Object { $parsed=[guid]::Empty; if ([guid]::TryParse([string]$_,[ref]$parsed)) { $parsed.ToString() } } | Select-Object -Unique)",
-                "    $items=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent)
-                        + " | Where-Object { $_.Name -eq " + ps(name) + " })",
-                "    if ($items.Count -ne 1) { throw 'Exact artifact file or metadata directory is missing or ambiguous' }",
+                "    $parentItems=@(Get-VBRLinuxGuestItem -LinuxFlrObject $flr -Path " + ps(parent) + ")",
+                "    $items=@($parentItems | Where-Object { $_.Name -eq " + ps(name) + " })",
+                "    if ($items.Count -ne 1) { $names=(@($parentItems | Select-Object -First 10 | ForEach-Object { [string]$_.Name }) -join ','); "
+                        + "if ($names.Length -gt 512) { $names=$names.Substring(0,512) }; "
+                        + "throw ('Exact artifact file or metadata directory is missing or ambiguous; expected=' + " + ps(request.artifact.path)
+                        + " + '; restorePoint=' + " + ps(request.artifact.externalId)
+                        + " + '; matches=' + $items.Count + '; parentItems=' + $parentItems.Count + '; names=['+$names+']') }",
                 // Record callback ownership before copying: the Host watcher can
                 // observe a completed copy while this SSH call is still running.
                 "    Save-Receipt @{binding=$binding;jobId=$null;callbackJobIds=@($callbackIds);completed=$false;terminal=$false;failure=$null}",

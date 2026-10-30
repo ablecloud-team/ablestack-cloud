@@ -61,7 +61,11 @@ public class VeeamHostJobTransferTest {
             super("test", "test", "test");
             JSONObject template = new JSONObject().put("Name", TEMPLATE).put("Id", "11111111-1111-4111-8111-111111111111")
                     .put("Description", "original schedule").put("RetentionType", "RestoreDays").put("EnableSchedule", true)
-                    .put("ScriptOptions", "original-hooks").put("SelectedFiles", "bootstrap");
+                    .put("ScheduleEnabled", true).put("UseSnapshotlessFileLevelBackup", true).put("BackupType", "SelectedFiles")
+                    .put("ScriptOptions", "original-hooks").put("SelectedFiles", "bootstrap")
+                    .put("SelectedFilesOptions", new JSONObject().put("BackupSelectedFiles", true).put("BackupOS", false)
+                            .put("BackupPersonalFiles", false).put("SelectedFiles", new JSONArray().put("bootstrap"))
+                            .put("IncludeMask", new JSONArray()).put("ExcludeMask", new JSONArray()));
             writeState(new JSONObject().put("jobs", new JSONArray().put(template)).put("sessions", new JSONArray())
                     .put("backups", new JSONArray()).put("starts", 0).put("copies", 0).put("detaches", 0));
         }
@@ -76,7 +80,8 @@ public class VeeamHostJobTransferTest {
                         + "$statePath='" + statePath.toString().replace("'", "''") + "'\n"
                         + "$state=Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json -AsHashtable\n"
                         + "function Save-State { $state | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $statePath }\n"
-                        + "function Get-VBRComputerBackupJob { [CmdletBinding()] param() $state.jobs }\n"
+                        + "function Get-VBRComputerBackupJob { [CmdletBinding()] param() "
+                        + "if($state.snapshotJobs){foreach($j in @($state.jobs)){ $j | ConvertTo-Json -Depth 30 | ConvertFrom-Json -AsHashtable }}else{$state.jobs} }\n"
                         + "function Get-VBRComputerBackupJobSession { [CmdletBinding()] param()\n"
                         + "  foreach($s in $state.sessions) { $s.CreationTime=[DateTime]::Parse([string]$s.CreationTime); $s } }\n"
                         + "function Get-VBRBackup { [CmdletBinding()] param() if($state.failQuery){throw 'catalog unavailable'}; $state.backups }\n"
@@ -85,16 +90,24 @@ public class VeeamHostJobTransferTest {
                         + "function Get-VBRDiscoveredComputer { [CmdletBinding()] param()\n"
                         + "  @{ObjectID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';IPAddress='192.0.2.1'} }\n"
                         + "function New-VBRSelectedFilesBackupOptions { [CmdletBinding()] param($OSPlatform,[switch]$BackupSelectedFiles,$SelectedFiles,$IncludeMask)\n"
-                        + "  @{files=$SelectedFiles;mask=$IncludeMask} }\n"
+                        + "  @{BackupSelectedFiles=[bool]$BackupSelectedFiles;BackupOS=$false;BackupPersonalFiles=$false;SelectedFiles=@($SelectedFiles);IncludeMask=@($IncludeMask | Where-Object {$null -ne $_});ExcludeMask=@()} }\n"
                         + "function New-VBRJobScriptOptions { @{} }\n"
                         + "function Copy-VBRComputerBackupJob { [CmdletBinding()] param($Job,$Name,$Description)\n"
                         + "  $copy=@{};foreach($key in $Job.Keys){$copy[$key]=$Job[$key]};$copy.Name=$Name;$copy.Description=$Description\n"
                         + "  $copy.Id='" + HOST_JOB_ID + "';$state.jobs+=@($copy);$state.copies++;Save-State }\n"
                         + "function Set-VBRComputerBackupJob { [CmdletBinding()] param($Job,$Name,$BackupObject,$BackupType,$SelectedFilesOptions,$ScriptOptions,[switch]$EnableSchedule,[switch]$UseSnapshotlessFileLevelBackup)\n"
+                        + "  if($state.snapshotJobs){$Job=$Job | ConvertTo-Json -Depth 30 | ConvertFrom-Json -AsHashtable}\n"
                         + "  if($PSBoundParameters.ContainsKey('Name')){if($Name -like 'ABLESTACK-H-*' -and $state.failReset){throw 'name reset rejected'};$Job.Name=$Name}\n"
-                        + "  if($PSBoundParameters.ContainsKey('EnableSchedule')){$Job.EnableSchedule=[bool]$EnableSchedule}\n"
+                        + "  if($PSBoundParameters.ContainsKey('EnableSchedule')){$Job.EnableSchedule=[bool]$EnableSchedule;$Job.ScheduleEnabled=[bool]$EnableSchedule}\n"
                         + "  if($PSBoundParameters.ContainsKey('ScriptOptions')){$Job.ScriptOptions=$ScriptOptions}\n"
-                        + "  if($SelectedFilesOptions){$Job.SelectedFiles=$SelectedFilesOptions};Save-State\n"
+                        + "  if($PSBoundParameters.ContainsKey('BackupType')){$Job.BackupType=$BackupType}\n"
+                        + "  if($PSBoundParameters.ContainsKey('UseSnapshotlessFileLevelBackup')){$Job.UseSnapshotlessFileLevelBackup=[bool]$UseSnapshotlessFileLevelBackup}\n"
+                        + "  if($SelectedFilesOptions -and !$state.noopScope){$Job.SelectedFiles=$SelectedFilesOptions;$Job.SelectedFilesOptions=$SelectedFilesOptions}\n"
+                        + "  if($SelectedFilesOptions -and $state.extraScope){$Job.SelectedFilesOptions.SelectedFiles+=@('/unexpected/bootstrap')}\n"
+                        + "  if($SelectedFilesOptions -and $state.wrongMask){$Job.SelectedFilesOptions.IncludeMask=@('*')}\n"
+                        + "  if($SelectedFilesOptions -and $state.excludePayload){$Job.SelectedFilesOptions.ExcludeMask=@('*.raw')}\n"
+                        + "  if($SelectedFilesOptions -and $state.scopeSchedule){$Job.ScheduleEnabled=$true}\n"
+                        + "  if($state.snapshotJobs){for($i=0;$i -lt $state.jobs.Count;$i++){if($state.jobs[$i].Id -eq $Job.Id){$state.jobs[$i]=$Job}}};Save-State\n"
                         + "  if($Name -like 'ABLESTACK-H-*' -and $state.loseResetReply){throw 'lost name reset reply'} }\n"
                         + "function Start-VBRComputerBackupJob { [CmdletBinding()] param($Job,[switch]$FullBackup,[switch]$RunAsync)\n"
                         + "  if($state.rejectStart){throw 'Start acceptance is unconfirmed'}\n"
@@ -102,7 +115,7 @@ public class VeeamHostJobTransferTest {
                         + "  $s=@{Id=[guid]::NewGuid().ToString();JobId=$Job.Id;State='Stopped';Result='Success';CreationTime=[DateTime]::UtcNow}\n"
                         + "  if($state.failBackup){$s.Result='Failed'}\n"
                         + "  $state.sessions+=@($s);$state.starts++\n"
-                        + "  $state.backups+=@(@{Id=[guid]::NewGuid().ToString();Name=$Job.Name;JobId=$Job.Id;pointId=[guid]::NewGuid().ToString();time=[DateTime]::UtcNow.ToString('o')})\n"
+                        + "  $state.backups+=@(@{Id=[guid]::NewGuid().ToString();Name=$Job.Name;JobId=$Job.Id;pointId=[guid]::NewGuid().ToString();time=[DateTime]::UtcNow.ToString('o');scope=$Job.SelectedFilesOptions})\n"
                         + "  Save-State;if($state.loseStartReply){throw 'lost Start reply'};$s }\n"
                         + "function Detach-VBRBackup { [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='High')] param($Backup,[switch]$Force)\n"
                         + "  if(!$Force -and !$PSCmdlet.ShouldContinue('Detach warning','Detach backup')){return}\n"
@@ -212,6 +225,49 @@ public class VeeamHostJobTransferTest {
         assertTrue(client.deleteVolumeArtifact(results.get(0), false));
         assertTrue(client.volumeArtifactExists(results.get(1)));
         assertTrue(client.volumeArtifactExists(results.get(2)));
+    }
+
+    @Test public void refreshedJobSnapshotsBackUpEachPayloadInsteadOfTheParentBootstrap() throws Exception {
+        Client client = new Client();
+        client.flag("snapshotJobs", true);
+        int index = 0;
+        for (String file : List.of("root.raw", "datadisk.a.raw", "metadata")) {
+            boolean metadata = "metadata".equals(file);
+            ThirdPartyBackupManifest.Artifact source = artifact(client, file);
+            ThirdPartyBackupManifest.Artifact result = submit(client, source, metadata);
+            JSONObject saved = client.state().getJSONArray("backups").getJSONObject(index++);
+            JSONObject scope = saved.getJSONObject("scope");
+            assertEquals(metadata ? source.path : Path.of(source.path).getParent().toString(), scope.getJSONArray("SelectedFiles").getString(0));
+            if (!metadata) { assertEquals(file, scope.getJSONArray("IncludeMask").getString(0)); }
+            assertFalse(scope.toString().contains("bootstrap"));
+            client.retireVolumeArtifactJob(result, metadata);
+        }
+        assertEquals("bootstrap", client.state().getJSONArray("jobs").getJSONObject(0).getString("SelectedFiles"));
+    }
+
+    @Test public void staleBootstrapSettingsAreRejectedBeforeAnyBackupStarts() throws Exception {
+        for (boolean metadata : List.of(false, true)) {
+            Client client = new Client();
+            client.flag("snapshotJobs", true);
+            client.flag("noopScope", true);
+            CloudRuntimeException failure = assertThrows(CloudRuntimeException.class,
+                    () -> submit(client, artifact(client, metadata ? "metadata" : "root.raw"), metadata));
+            assertTrue(failure.getMessage(), failure.getMessage().contains("SelectedFiles mismatch"));
+            assertEquals(0, client.state().getInt("starts"));
+            assertEquals(0, client.state().getJSONArray("backups").length());
+            assertFalse(client.state().getJSONArray("jobs").getJSONObject(1).getBoolean("ScheduleEnabled"));
+        }
+    }
+
+    @Test public void extraPathsWrongMasksExclusionsAndSchedulesNeverStartPayloadBackups() throws Exception {
+        for (String flag : List.of("extraScope", "wrongMask", "excludePayload", "scopeSchedule")) {
+            Client client = new Client();
+            client.flag("snapshotJobs", true);
+            client.flag(flag, true);
+            assertThrows(CloudRuntimeException.class, () -> submit(client, artifact(client, "root.raw"), false));
+            assertEquals(flag, 0, client.state().getInt("starts"));
+            assertFalse(flag, client.state().getJSONArray("jobs").getJSONObject(1).getBoolean("ScheduleEnabled"));
+        }
     }
 
     @Test public void renamedJobLookupRejectsChangedIdsAndDuplicateOwnership() throws Exception {

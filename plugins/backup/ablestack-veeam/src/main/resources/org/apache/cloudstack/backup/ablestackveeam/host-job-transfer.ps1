@@ -63,6 +63,33 @@ function Read-Job {
 function Read-Sessions($job) {
     return @(Get-VBRComputerBackupJobSession -ErrorAction Stop | Where-Object { [string]$_.JobId -eq [string]$job.Id })
 }
+function Assert-ArtifactScope($job) {
+    if (-not $job -or [string]$job.BackupType -cne 'SelectedFiles') { throw 'Artifact Job must use SelectedFiles backup type' }
+    $options = $job.SelectedFilesOptions
+    if (-not $options -or -not $options.BackupSelectedFiles -or $options.BackupOS -or $options.BackupPersonalFiles) {
+        throw 'Artifact Job selected-file settings are missing or include another backup scope'
+    }
+    $file = [string]$moldPlan.artifact.path
+    $slash = $file.LastIndexOf('/')
+    if ($slash -lt 1 -or $slash -eq $file.Length-1) { throw 'Invalid Linux artifact path' }
+    $expected = if ($moldPlan.metadata) { $file } else { $file.Substring(0,$slash) }
+    $selected = @($options.SelectedFiles)
+    if ($selected.Count -ne 1 -or ([string]$selected[0]).TrimEnd('/') -cne $expected.TrimEnd('/')) {
+        throw ('Artifact Job SelectedFiles mismatch; expected=['+$expected+']; actual=['+($selected -join ',')+']')
+    }
+    $include = @($options.IncludeMask)
+    if ($moldPlan.metadata) {
+        if ($include.Count -ne 0 -and -not ($include.Count -eq 1 -and [string]$include[0] -ceq '*')) {
+            throw 'Metadata Job must include every metadata file'
+        }
+    } elseif ($include.Count -ne 1 -or [string]$include[0] -cne $file.Substring($slash+1)) {
+        throw 'Artifact Job include mask differs from the exact payload file'
+    }
+    if (@($options.ExcludeMask).Count -ne 0) { throw 'Artifact Job must not exclude payload or metadata files' }
+    if ($job.ScheduleEnabled -ne $false -or $job.UseSnapshotlessFileLevelBackup -ne $true) {
+        throw 'Artifact Job must be unscheduled and use snapshot-less file-level backup'
+    }
+}
 function Assert-Idle($job) {
     if (@(Read-Sessions $job | Where-Object { [string]$_.State -ne 'Stopped' }).Count -ne 0) { throw 'Fixed Host Job is still active' }
 }
@@ -289,15 +316,20 @@ try {
                 $files = New-VBRSelectedFilesBackupOptions -OSPlatform Linux -BackupSelectedFiles -SelectedFiles @($file.Substring(0,$slash)) -IncludeMask @($file.Substring($slash+1))
             }
             $scripts = New-VBRJobScriptOptions
-            Set-VBRComputerBackupJob -Job $job -BackupObject $computers[0] -BackupType SelectedFiles -SelectedFilesOptions $files -ScriptOptions $scripts -EnableSchedule:$false -UseSnapshotlessFileLevelBackup | Out-Null
+            $settings = @{Job=$job;BackupObject=$computers[0];BackupType='SelectedFiles';SelectedFilesOptions=$files;
+                ScriptOptions=$scripts;EnableSchedule=$false;UseSnapshotlessFileLevelBackup=$true}
             if ($receipt.displayName) {
                 if ($receipt.displayName.Length -gt 50 -or $receipt.displayName -cnotmatch '^MOLD-(RESTORE|DATA)-[A-Za-z0-9_-]+-[a-f0-9]{8}$') {
                     throw 'Invalid artifact display name'
                 }
-                Set-VBRComputerBackupJob -Job $job -Name $receipt.displayName | Out-Null
-                $job = Read-Job
-                if (-not $job -or $job.Name -cne $receipt.displayName) { throw 'Artifact Job display name is unconfirmed' }
+                $settings.Name = $receipt.displayName
             }
+            # Apply name and scope together, then reload the persisted definition
+            # before it is used by another settings update or backup start.
+            Set-VBRComputerBackupJob @settings | Out-Null
+            $job = Read-Job
+            if (-not $job -or ($receipt.displayName -and $job.Name -cne $receipt.displayName)) { throw 'Artifact Job configuration is unconfirmed' }
+            Assert-ArtifactScope $job
             $receipt.baseline = @(Read-Sessions $job | Sort-Object CreationTime -Descending | Select-Object -First 16 | ForEach-Object { [string]$_.Id })
         } catch {
             $failure = $_.Exception.Message
@@ -305,12 +337,17 @@ try {
             $job = Read-Job
             if ($job) {
                 Set-VBRComputerBackupJob -Job $job -EnableSchedule:$false -ScriptOptions (New-VBRJobScriptOptions) | Out-Null
+                $job = Read-Job
+                if (-not $job -or $job.ScheduleEnabled -ne $false) { throw 'Failed artifact Job schedule disable is unconfirmed' }
                 Assert-Idle $job
                 if (@(Read-Attached $job).Count -ne 0) { throw 'Preparation failed with an attached backup; preserve owner for reconciliation' }
             }
             $receipt.phase='REJECTED'; $receipt.failure=$failure; Save-Json $receiptPath $receipt
             Release-Owner $job; Return-Receipt; return
         }
+        # Start only the freshly reloaded definition whose persisted scope was checked.
+        $job = Read-Job
+        Assert-ArtifactScope $job
         $receipt.issuedAt = [DateTime]::UtcNow.ToString('o')
         $receipt.phase = 'SUBMITTING'; Save-Json $receiptPath $receipt
         $sessions = @(Start-VBRComputerBackupJob -Job $job -FullBackup -RunAsync)

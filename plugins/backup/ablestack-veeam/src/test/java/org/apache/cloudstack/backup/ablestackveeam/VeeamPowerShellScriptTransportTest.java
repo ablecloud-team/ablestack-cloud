@@ -360,6 +360,24 @@ public class VeeamPowerShellScriptTransportTest {
         };
     }
 
+    @Test
+    public void missingOrAmbiguousArtifactsReportTheExactPathAndPointWithoutCopying() throws Exception {
+        for (boolean duplicate : List.of(false, true)) {
+            LocalTransport transport = new LocalTransport();
+            transport.setup = restoreSetup(transport) + "function Get-VBRLinuxGuestItem { param($LinuxFlrObject,$Path); "
+                    + (duplicate ? "[pscustomobject]@{Name='metadata'}; [pscustomobject]@{Name='metadata'}" : "") + " }\n";
+            ThirdPartyBackupRestore.Request request = restoreRequest();
+            ThirdPartyBackupRestore.Result result = localClient(transport).restoreVolumeArtifact(request, "ablecube1", "192.0.2.1", false);
+            assertTrue(result.externalTerminal);
+            assertFalse(result.completed);
+            assertTrue(result.failure, result.failure.contains("expected=" + request.artifact.path));
+            assertTrue(result.failure, result.failure.contains("restorePoint=" + request.artifact.externalId));
+            assertTrue(result.failure, result.failure.contains("matches=" + (duplicate ? "2" : "0")));
+            assertEquals(List.of("STOP"), Files.readAllLines(transport.effects));
+            transport.assertClean();
+        }
+    }
+
     private ThirdPartyBackupRestore.Request restoreRequest() {
         ThirdPartyBackupRestore.Request request = new ThirdPartyBackupRestore.Request();
         request.jobId = "restore-test";

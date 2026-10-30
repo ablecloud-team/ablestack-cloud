@@ -1382,6 +1382,9 @@ Veeam 비밀번호가 포함된 기존 conf 백업은 `secrets/<conf>.bak.*.enc`
 3. 기준 Job이 종료된 뒤 Mold가 RBD 또는 QCOW2 데이터를 볼륨별 스테이징 파일로 생성한다.
 4. 최초 전송에서 기준 Linux Agent Job을 복제해 고정 Host 전송 Job을 한 번 생성한다.
    전송 Job의 자동 스케줄과 Pre/Post Hook을 해제하고 이번 볼륨 파일만 선택하여 snapshot-less Full 파일 백업을 실행한다.
+   표시 이름과 선택 범위는 한 번의 설정 변경으로 저장하고 Job 정의를 다시 읽는다. 시작 전 `SelectedFilesOptions.SelectedFiles`가
+   이번 작업 디렉터리 한 곳인지, 볼륨은 정확한 파일명 `IncludeMask` 하나만 선택했는지, 메타데이터는 모든 파일을 포함하는지 검증한다.
+   제외 마스크·자동 스케줄이 남거나 snapshot-less 설정을 확인하지 못하면 전송을 시작하지 않는다.
 5. 정확한 실행 Session·Backup·Restore Point ID를 Mold DB에 저장한 뒤 해당 보관본을 `Detach-VBRBackup`으로 분리한다.
    같은 Backup·Restore Point가 보존되고 Job 연결이 해제됐으며 고정 Job ID가 유지되는지 재조회한다.
    분리가 확인된 뒤에만 스테이징 파일을 정리하고, 같은 전송 Job의 선택 경로를 다음 볼륨으로 바꾼다.
@@ -1393,6 +1396,11 @@ Veeam 비밀번호가 포함된 기존 conf 백업은 `secrets/<conf>.bak.*.enc`
 복원은 `Backups`의 정확한 Backup·Restore Point로 선택하며, 같은 표시 이름만으로 구별하지 않는다.
 분리된 백업은 `Orphaned`로 분류될 수 있다.
 Job 수가 줄어도 볼륨·메타데이터 백업 수와 저장소 사용량은 별도로 남는다.
+부모 Job의 `bootstrap/<Host>/<Job>` 경로와 전송 보관본의 실제 내용은 구분한다. `MOLD-DATA`에는 이번 볼륨 파일,
+`MOLD-RESTORE`에는 VM의 timestamp 디렉터리와 메타데이터가 있어야 한다. 전송 보관본까지 빈 bootstrap만 보이면
+Job 표시 이름이나 외부 작업 `Success`만으로 유효한 백업으로 판정하지 않는다.
+전송 보관본에 bootstrap만 저장됐다면 수정 적용 후 새 Full 체인에서 ROOT·DATA·메타데이터의 실제 보관 내용과 복원을 검증한다.
+과거 지점에 저장되지 않은 파일이 소스 수정으로 채워지지는 않는다.
 외부 UI 복원에서 선택해야 하는 마지막 메타데이터 백업과 실제 VM 복원 절차는
 아래의 [외부 UI 복원 안내](#netbackupveeam-외부-ui의-rbdqcow2-복원)를 따른다.
 
