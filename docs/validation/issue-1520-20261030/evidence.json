@@ -1,0 +1,1298 @@
+{
+  "source": {
+    "prImplementation": "667bb2f8d6e",
+    "integration": "5fb8d47571354638f0e4304b65a366a572c965f4",
+    "fullCloudBuildRun": false
+  },
+  "focusedTests": {
+    "standalone": {
+      "api": 4,
+      "server": 23,
+      "ui": 21,
+      "total": 48
+    },
+    "integrationAdditionalApi1519": 6,
+    "integrationTotal": 54,
+    "lint": "PASS",
+    "uiProductionBuild": "PASS"
+  },
+  "deployments": {
+    "22": {
+      "backend": {
+        "cluster": "22",
+        "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610261326.jar",
+        "backup": "/root/issue1520-20261030-150742",
+        "sha256": "335304996c941b596965a40fcdcf039baed2779dee84aeb4981846f4c61beea6",
+        "classes": {
+          "com/cloud/vm/UserVmService.class": "ced853bf4181f78b693687b72274bd6a29aa8b96000f133104f3a9ad3431c014",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse.class": "a4dfaa79b268570b254de718b387ab07a3567bb5bbc4247faf26140d580756e2",
+          "org/apache/cloudstack/api/response/UserVmResponse.class": "732990fa61ebd10d8a61c06fd8aeae931fa2d47deac684f3497578a40e71ccec",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Disk.class": "8733feed59f42fb30c3f74274c1f3b92ac23be69a5c803234d0b3b1ac6a4d8bc",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Target.class": "340fe3f1209457a1924fb4751d3b0db427a88699b441f97075e49a2b6da0daa0",
+          "org/apache/cloudstack/api/command/user/vm/CloneVMCmd.class": "e711ec72b20ee4d2dd779c060b0c0eb3187cdc78f638316c2d2e315a00b22651",
+          "org/apache/cloudstack/api/command/user/vm/QueryVMCloneBatchCmd.class": "b822e510450f9c191db0bede90e9de8c90b999a8bd395a6e3169a152228361e8",
+          "com/cloud/vm/VmCloneBatchData$SourceDisk.class": "030e2f74ae0fc00021cb2dd93afc57e1ccbc32200e463677d74bc614b595e676",
+          "com/cloud/vm/UserVmManagerImpl$6.class": "37ae2febe99881f67811bdc9d42e9d6dfdc17c6cd50484108c365f9ef86f42ac",
+          "com/cloud/vm/UserVmManagerImpl$FlattenTask.class": "5ee0b01b59b0714b1893be0e63cbcea42d24dc85a32a7ad5cba32f7cc5c6fd21",
+          "com/cloud/vm/UserVmManagerImpl$3.class": "f99a1113e064bc32b5dab150ee5da3d7ec623b2532351d2625314871e2b9d780",
+          "com/cloud/vm/UserVmManagerImpl$10.class": "fbee4c6f5f6105ac17630960725c75aca2c1d62afa0afbd3cf0e77ea3393954e",
+          "com/cloud/vm/UserVmManagerImpl$17.class": "42952e4869443748dbb7081f4468936b48d738e14bdb72ba9979c0f313bff76f",
+          "com/cloud/vm/UserVmManagerImpl$VmIpAddrFetchThread.class": "a5fc9e233b240bb6a1834b2bf3b2287469232d6af1325fca6f756f47074cd85e",
+          "com/cloud/vm/UserVmManagerImpl$11.class": "b02416c537b7e8ab1b64b233a235027376c714847491f8522192bff01a84552a",
+          "com/cloud/vm/UserVmManagerImpl$12.class": "d511997a2abeec0730621152c8fe873bb16019203f49139d3fc437d1ff3855f6",
+          "com/cloud/vm/VmCloneBatchManager$Submission.class": "4cebd863d800d99d4810efebbb99d66788dc8fca5c92c69fbc546096bba9ea1d",
+          "com/cloud/vm/UserVmManagerImpl.class": "457c38aaf377dc80669357e672e884f9210fe473e4713627783a55687b10e15c",
+          "com/cloud/vm/UserVmManagerImpl$13.class": "08864087e1413ecbbb9531434699452968b023ed9967703c057a4bb2ce422d8c",
+          "com/cloud/vm/UserVmManagerImpl$8.class": "30d888c41a90cc26a63b9a99900659ea051967930507c9e0021e422a51cb680d",
+          "com/cloud/vm/UserVmManagerImpl$14.class": "2f8b82e0af92315682d959595751a4e99b0112047082dc5847821d6b04a49414",
+          "com/cloud/vm/UserVmManagerImpl$7.class": "293a38ee6ab0fb0d0e522ffce47d860d62a8733d5de5f54106eb18fe5e8a6a91",
+          "com/cloud/vm/UserVmManagerImpl$18.class": "394f3a3abb5ccdfb80a1f19e4c876485b274eb407ef3210b7afcc93e5bb1a6df",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryPaths.class": "f8798e0a8392d3ee898588c20683a1f763f9b7f19c94c35e0717b898482158af",
+          "com/cloud/vm/UserVmManagerImpl$2.class": "6e8df10a1170dd08af74c0c9169aa9e0b05d7881e79ad5750b3cdbb5d72c0b72",
+          "com/cloud/vm/UserVmManagerImpl$15.class": "ae56c37834262ab4318fd4f2984166ea9fcd09654a29c564f19980dd0b33e28d",
+          "com/cloud/vm/UserVmManagerImpl$DeployIsoSelection.class": "498a128258b08199bf6a696b213d19861597af45bf70a4c5f8f4df0c1e55e677",
+          "com/cloud/vm/UserVmManagerImpl$4.class": "1b532b9f742c613c580d6a567c5b41eca2b8ba6ca69e94d1b4bf3370bd7f036e",
+          "com/cloud/vm/UserVmManagerImpl$VmIpFetchTask.class": "2fb7c349ae7a7de05a983a4fedbe9aab6d67407a919018168b6feb3a8a2074a6",
+          "com/cloud/vm/UserVmManagerImpl$9.class": "21b75d7b55612fa3590c61f66d2c755591d3e614f8679607caec995a3a28142f",
+          "com/cloud/vm/UserVmManagerImpl$VmAndCountDetails.class": "40d5a3bed7eb782b7da00dcca773137313d3c5be5f9632cdb44f1bcb60b1d695",
+          "com/cloud/vm/VmCloneBatchData$Item.class": "b9325a8bf25f8bc40a2ed57fbb6383298a7d171a787115ce355e1931c54d92f0",
+          "com/cloud/vm/UserVmManagerImpl$1.class": "9796e42ed2359ef53e4b1c75840c654757ef652b12a51c4c15d55fafdb6cf05e",
+          "com/cloud/vm/UserVmManagerImpl$FlattenProgressTask.class": "fea3a97115ebfa3c06b1d27ea0699e7ab91b028ea1f413a7692cfa573bd5417b",
+          "com/cloud/vm/VmCloneBatchManager.class": "bef7a5a25769b42d607d89ae5997b939f79280e78a8db6e37a01f817b2f673c2",
+          "com/cloud/vm/VmCloneBatchManager$Work.class": "9e956b8a0854a52c31387f2c0f15799269f907330c98cf54e90adae3ebcf29b1",
+          "com/cloud/vm/UserVmManagerImpl$ExpungeTask.class": "dd092049f4eb55c98d34e358da0860ee0badc55da0ed22e87a73ebb3a06e07b0",
+          "com/cloud/vm/VmCloneBatchData$Attempt.class": "5491fd9c090af1584e72bd6409c8ef54c1ad725e93fdf98ee6191b74297b30f2",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryCheck.class": "b38a4a95d4ce03789fe2209071bad7d880a5f6b0323fcc0cf51352ddda3b6602",
+          "com/cloud/vm/UserVmManagerImpl$5.class": "43c76aba18da3ae706b8550f84fe236d01b3a43eea566553768e89ca7ea2f28f",
+          "com/cloud/vm/UserVmManagerImpl$16.class": "11e18342a8754ebedb47ed9e14bc894c70a5c2cf12d26df73b4e08f2f6fdd525",
+          "com/cloud/vm/VmCloneBatchData.class": "e6eb34ca090c4cfe1c68bd2e8d1a1067e168f31e78db628487de731e5f435ce1",
+          "com/cloud/vm/VmCloneBatchData$Disk.class": "b0cf6480ce953f6a7629e97e4527b8f397afd9bd4aeaed7360ae35ad5d8d994a",
+          "com/cloud/api/ApiServer$1.class": "b9058c03aec8393260f6d86a1795aa64b92e9592f7f63ab28e0d517f44dd407b",
+          "com/cloud/api/ApiServer$WorkerTask.class": "789301a9c3177296ce532792848b8628c44db8a8575b33df9bed1fe41710f700",
+          "com/cloud/api/ApiServer$ListenerThread.class": "e5aa7547c8f064261132007ffec9e2a9a4d2560e7903dec77c1bf2dd2fe1b869",
+          "com/cloud/api/ApiServer$2.class": "0d82d2bc65a8c2f87d9b350d8a7df373fce889910005c13fbd03d78fa81b5256",
+          "com/cloud/api/ApiServer.class": "9e66c7f718ab86fab7ea8df88b8406f9810bfc947d73c209dcff32ab38600882",
+          "com/cloud/vm/dao/VmCloneBatchDaoImpl.class": "f60cb215e61e8c1ab591293aeeb27d38476af5f5efa1160a42b13cf1e5db5c47",
+          "com/cloud/vm/dao/VmCloneBatchDao.class": "711e8aadde10f39c6882f7109c817e5f8263dddf91c58b2912ee7052665494b5",
+          "com/cloud/vm/VmCloneBatchVO.class": "e96347245fc8e7b5f128b65a7c8c763710b2bf8d785cb8dd9848d0290bcd1571",
+          "META-INF/db/schema-europa-4.23-vm-clone-batch.sql": "487699b572a054fb5758d5d92f6ef80d92d7d2179903027eca0c9f47ebd72478"
+        },
+        "otherEntriesPreserved": true,
+        "http": 200,
+        "webInf": true,
+        "schemaIdempotent": true,
+        "agentRestarted": false
+      },
+      "ui": {
+        "cluster": "22",
+        "backup": "/root/issue1520-ui-20261030-151656",
+        "files": 931,
+        "hashesMatch": true,
+        "webInf": true,
+        "http": 200,
+        "configPreserved": true,
+        "pidPreserved": true,
+        "sourceArchiveSha256": "7259e9ba41f44f784dc84a3d9dc230c24bccd6317327734eaa3175476f78c8fc"
+      }
+    },
+    "31": {
+      "backend": {
+        "cluster": "31",
+        "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+        "backup": "/root/issue1520-20261030-150742",
+        "sha256": "1baf342bb388e9525d68889491836d8dff76b5f3b8de85f7fc7455b356f39d8e",
+        "classes": {
+          "com/cloud/vm/UserVmService.class": "ced853bf4181f78b693687b72274bd6a29aa8b96000f133104f3a9ad3431c014",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse.class": "a4dfaa79b268570b254de718b387ab07a3567bb5bbc4247faf26140d580756e2",
+          "org/apache/cloudstack/api/response/UserVmResponse.class": "732990fa61ebd10d8a61c06fd8aeae931fa2d47deac684f3497578a40e71ccec",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Disk.class": "8733feed59f42fb30c3f74274c1f3b92ac23be69a5c803234d0b3b1ac6a4d8bc",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Target.class": "340fe3f1209457a1924fb4751d3b0db427a88699b441f97075e49a2b6da0daa0",
+          "org/apache/cloudstack/api/command/user/vm/CloneVMCmd.class": "e711ec72b20ee4d2dd779c060b0c0eb3187cdc78f638316c2d2e315a00b22651",
+          "org/apache/cloudstack/api/command/user/vm/QueryVMCloneBatchCmd.class": "b822e510450f9c191db0bede90e9de8c90b999a8bd395a6e3169a152228361e8",
+          "com/cloud/vm/VmCloneBatchData$SourceDisk.class": "030e2f74ae0fc00021cb2dd93afc57e1ccbc32200e463677d74bc614b595e676",
+          "com/cloud/vm/UserVmManagerImpl$6.class": "37ae2febe99881f67811bdc9d42e9d6dfdc17c6cd50484108c365f9ef86f42ac",
+          "com/cloud/vm/UserVmManagerImpl$FlattenTask.class": "5ee0b01b59b0714b1893be0e63cbcea42d24dc85a32a7ad5cba32f7cc5c6fd21",
+          "com/cloud/vm/UserVmManagerImpl$3.class": "f99a1113e064bc32b5dab150ee5da3d7ec623b2532351d2625314871e2b9d780",
+          "com/cloud/vm/UserVmManagerImpl$10.class": "fbee4c6f5f6105ac17630960725c75aca2c1d62afa0afbd3cf0e77ea3393954e",
+          "com/cloud/vm/UserVmManagerImpl$17.class": "42952e4869443748dbb7081f4468936b48d738e14bdb72ba9979c0f313bff76f",
+          "com/cloud/vm/UserVmManagerImpl$VmIpAddrFetchThread.class": "a5fc9e233b240bb6a1834b2bf3b2287469232d6af1325fca6f756f47074cd85e",
+          "com/cloud/vm/UserVmManagerImpl$11.class": "b02416c537b7e8ab1b64b233a235027376c714847491f8522192bff01a84552a",
+          "com/cloud/vm/UserVmManagerImpl$12.class": "d511997a2abeec0730621152c8fe873bb16019203f49139d3fc437d1ff3855f6",
+          "com/cloud/vm/VmCloneBatchManager$Submission.class": "4cebd863d800d99d4810efebbb99d66788dc8fca5c92c69fbc546096bba9ea1d",
+          "com/cloud/vm/UserVmManagerImpl.class": "457c38aaf377dc80669357e672e884f9210fe473e4713627783a55687b10e15c",
+          "com/cloud/vm/UserVmManagerImpl$13.class": "08864087e1413ecbbb9531434699452968b023ed9967703c057a4bb2ce422d8c",
+          "com/cloud/vm/UserVmManagerImpl$8.class": "30d888c41a90cc26a63b9a99900659ea051967930507c9e0021e422a51cb680d",
+          "com/cloud/vm/UserVmManagerImpl$14.class": "2f8b82e0af92315682d959595751a4e99b0112047082dc5847821d6b04a49414",
+          "com/cloud/vm/UserVmManagerImpl$7.class": "293a38ee6ab0fb0d0e522ffce47d860d62a8733d5de5f54106eb18fe5e8a6a91",
+          "com/cloud/vm/UserVmManagerImpl$18.class": "394f3a3abb5ccdfb80a1f19e4c876485b274eb407ef3210b7afcc93e5bb1a6df",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryPaths.class": "f8798e0a8392d3ee898588c20683a1f763f9b7f19c94c35e0717b898482158af",
+          "com/cloud/vm/UserVmManagerImpl$2.class": "6e8df10a1170dd08af74c0c9169aa9e0b05d7881e79ad5750b3cdbb5d72c0b72",
+          "com/cloud/vm/UserVmManagerImpl$15.class": "ae56c37834262ab4318fd4f2984166ea9fcd09654a29c564f19980dd0b33e28d",
+          "com/cloud/vm/UserVmManagerImpl$DeployIsoSelection.class": "498a128258b08199bf6a696b213d19861597af45bf70a4c5f8f4df0c1e55e677",
+          "com/cloud/vm/UserVmManagerImpl$4.class": "1b532b9f742c613c580d6a567c5b41eca2b8ba6ca69e94d1b4bf3370bd7f036e",
+          "com/cloud/vm/UserVmManagerImpl$VmIpFetchTask.class": "2fb7c349ae7a7de05a983a4fedbe9aab6d67407a919018168b6feb3a8a2074a6",
+          "com/cloud/vm/UserVmManagerImpl$9.class": "21b75d7b55612fa3590c61f66d2c755591d3e614f8679607caec995a3a28142f",
+          "com/cloud/vm/UserVmManagerImpl$VmAndCountDetails.class": "40d5a3bed7eb782b7da00dcca773137313d3c5be5f9632cdb44f1bcb60b1d695",
+          "com/cloud/vm/VmCloneBatchData$Item.class": "b9325a8bf25f8bc40a2ed57fbb6383298a7d171a787115ce355e1931c54d92f0",
+          "com/cloud/vm/UserVmManagerImpl$1.class": "9796e42ed2359ef53e4b1c75840c654757ef652b12a51c4c15d55fafdb6cf05e",
+          "com/cloud/vm/UserVmManagerImpl$FlattenProgressTask.class": "fea3a97115ebfa3c06b1d27ea0699e7ab91b028ea1f413a7692cfa573bd5417b",
+          "com/cloud/vm/VmCloneBatchManager.class": "bef7a5a25769b42d607d89ae5997b939f79280e78a8db6e37a01f817b2f673c2",
+          "com/cloud/vm/VmCloneBatchManager$Work.class": "9e956b8a0854a52c31387f2c0f15799269f907330c98cf54e90adae3ebcf29b1",
+          "com/cloud/vm/UserVmManagerImpl$ExpungeTask.class": "dd092049f4eb55c98d34e358da0860ee0badc55da0ed22e87a73ebb3a06e07b0",
+          "com/cloud/vm/VmCloneBatchData$Attempt.class": "5491fd9c090af1584e72bd6409c8ef54c1ad725e93fdf98ee6191b74297b30f2",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryCheck.class": "b38a4a95d4ce03789fe2209071bad7d880a5f6b0323fcc0cf51352ddda3b6602",
+          "com/cloud/vm/UserVmManagerImpl$5.class": "43c76aba18da3ae706b8550f84fe236d01b3a43eea566553768e89ca7ea2f28f",
+          "com/cloud/vm/UserVmManagerImpl$16.class": "11e18342a8754ebedb47ed9e14bc894c70a5c2cf12d26df73b4e08f2f6fdd525",
+          "com/cloud/vm/VmCloneBatchData.class": "e6eb34ca090c4cfe1c68bd2e8d1a1067e168f31e78db628487de731e5f435ce1",
+          "com/cloud/vm/VmCloneBatchData$Disk.class": "b0cf6480ce953f6a7629e97e4527b8f397afd9bd4aeaed7360ae35ad5d8d994a",
+          "com/cloud/api/ApiServer$1.class": "b9058c03aec8393260f6d86a1795aa64b92e9592f7f63ab28e0d517f44dd407b",
+          "com/cloud/api/ApiServer$WorkerTask.class": "789301a9c3177296ce532792848b8628c44db8a8575b33df9bed1fe41710f700",
+          "com/cloud/api/ApiServer$ListenerThread.class": "e5aa7547c8f064261132007ffec9e2a9a4d2560e7903dec77c1bf2dd2fe1b869",
+          "com/cloud/api/ApiServer$2.class": "0d82d2bc65a8c2f87d9b350d8a7df373fce889910005c13fbd03d78fa81b5256",
+          "com/cloud/api/ApiServer.class": "9e66c7f718ab86fab7ea8df88b8406f9810bfc947d73c209dcff32ab38600882",
+          "com/cloud/vm/dao/VmCloneBatchDaoImpl.class": "f60cb215e61e8c1ab591293aeeb27d38476af5f5efa1160a42b13cf1e5db5c47",
+          "com/cloud/vm/dao/VmCloneBatchDao.class": "711e8aadde10f39c6882f7109c817e5f8263dddf91c58b2912ee7052665494b5",
+          "com/cloud/vm/VmCloneBatchVO.class": "e96347245fc8e7b5f128b65a7c8c763710b2bf8d785cb8dd9848d0290bcd1571",
+          "META-INF/db/schema-europa-4.23-vm-clone-batch.sql": "487699b572a054fb5758d5d92f6ef80d92d7d2179903027eca0c9f47ebd72478"
+        },
+        "otherEntriesPreserved": true,
+        "http": 200,
+        "webInf": true,
+        "schemaIdempotent": true,
+        "agentRestarted": false
+      },
+      "ui": {
+        "cluster": "31",
+        "backup": "/root/issue1520-ui-20261030-151656",
+        "files": 931,
+        "hashesMatch": true,
+        "webInf": true,
+        "http": 200,
+        "configPreserved": true,
+        "pidPreserved": true,
+        "sourceArchiveSha256": "7259e9ba41f44f784dc84a3d9dc230c24bccd6317327734eaa3175476f78c8fc"
+      }
+    },
+    "32": {
+      "backend": {
+        "cluster": "32",
+        "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+        "backup": "/root/issue1520-20261030-150742",
+        "sha256": "c9f192b9df1349546791f02208bb21c1cbb2dfa8893101d6b38268b1ac55267b",
+        "classes": {
+          "com/cloud/vm/UserVmService.class": "ced853bf4181f78b693687b72274bd6a29aa8b96000f133104f3a9ad3431c014",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse.class": "a4dfaa79b268570b254de718b387ab07a3567bb5bbc4247faf26140d580756e2",
+          "org/apache/cloudstack/api/response/UserVmResponse.class": "732990fa61ebd10d8a61c06fd8aeae931fa2d47deac684f3497578a40e71ccec",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Disk.class": "8733feed59f42fb30c3f74274c1f3b92ac23be69a5c803234d0b3b1ac6a4d8bc",
+          "org/apache/cloudstack/api/response/VmCloneBatchResponse$Target.class": "340fe3f1209457a1924fb4751d3b0db427a88699b441f97075e49a2b6da0daa0",
+          "org/apache/cloudstack/api/command/user/vm/CloneVMCmd.class": "e711ec72b20ee4d2dd779c060b0c0eb3187cdc78f638316c2d2e315a00b22651",
+          "org/apache/cloudstack/api/command/user/vm/QueryVMCloneBatchCmd.class": "b822e510450f9c191db0bede90e9de8c90b999a8bd395a6e3169a152228361e8",
+          "com/cloud/vm/VmCloneBatchData$SourceDisk.class": "030e2f74ae0fc00021cb2dd93afc57e1ccbc32200e463677d74bc614b595e676",
+          "com/cloud/vm/UserVmManagerImpl$6.class": "37ae2febe99881f67811bdc9d42e9d6dfdc17c6cd50484108c365f9ef86f42ac",
+          "com/cloud/vm/UserVmManagerImpl$FlattenTask.class": "5ee0b01b59b0714b1893be0e63cbcea42d24dc85a32a7ad5cba32f7cc5c6fd21",
+          "com/cloud/vm/UserVmManagerImpl$3.class": "f99a1113e064bc32b5dab150ee5da3d7ec623b2532351d2625314871e2b9d780",
+          "com/cloud/vm/UserVmManagerImpl$10.class": "fbee4c6f5f6105ac17630960725c75aca2c1d62afa0afbd3cf0e77ea3393954e",
+          "com/cloud/vm/UserVmManagerImpl$17.class": "42952e4869443748dbb7081f4468936b48d738e14bdb72ba9979c0f313bff76f",
+          "com/cloud/vm/UserVmManagerImpl$VmIpAddrFetchThread.class": "a5fc9e233b240bb6a1834b2bf3b2287469232d6af1325fca6f756f47074cd85e",
+          "com/cloud/vm/UserVmManagerImpl$11.class": "b02416c537b7e8ab1b64b233a235027376c714847491f8522192bff01a84552a",
+          "com/cloud/vm/UserVmManagerImpl$12.class": "d511997a2abeec0730621152c8fe873bb16019203f49139d3fc437d1ff3855f6",
+          "com/cloud/vm/VmCloneBatchManager$Submission.class": "4cebd863d800d99d4810efebbb99d66788dc8fca5c92c69fbc546096bba9ea1d",
+          "com/cloud/vm/UserVmManagerImpl.class": "457c38aaf377dc80669357e672e884f9210fe473e4713627783a55687b10e15c",
+          "com/cloud/vm/UserVmManagerImpl$13.class": "08864087e1413ecbbb9531434699452968b023ed9967703c057a4bb2ce422d8c",
+          "com/cloud/vm/UserVmManagerImpl$8.class": "30d888c41a90cc26a63b9a99900659ea051967930507c9e0021e422a51cb680d",
+          "com/cloud/vm/UserVmManagerImpl$14.class": "2f8b82e0af92315682d959595751a4e99b0112047082dc5847821d6b04a49414",
+          "com/cloud/vm/UserVmManagerImpl$7.class": "293a38ee6ab0fb0d0e522ffce47d860d62a8733d5de5f54106eb18fe5e8a6a91",
+          "com/cloud/vm/UserVmManagerImpl$18.class": "394f3a3abb5ccdfb80a1f19e4c876485b274eb407ef3210b7afcc93e5bb1a6df",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryPaths.class": "f8798e0a8392d3ee898588c20683a1f763f9b7f19c94c35e0717b898482158af",
+          "com/cloud/vm/UserVmManagerImpl$2.class": "6e8df10a1170dd08af74c0c9169aa9e0b05d7881e79ad5750b3cdbb5d72c0b72",
+          "com/cloud/vm/UserVmManagerImpl$15.class": "ae56c37834262ab4318fd4f2984166ea9fcd09654a29c564f19980dd0b33e28d",
+          "com/cloud/vm/UserVmManagerImpl$DeployIsoSelection.class": "498a128258b08199bf6a696b213d19861597af45bf70a4c5f8f4df0c1e55e677",
+          "com/cloud/vm/UserVmManagerImpl$4.class": "1b532b9f742c613c580d6a567c5b41eca2b8ba6ca69e94d1b4bf3370bd7f036e",
+          "com/cloud/vm/UserVmManagerImpl$VmIpFetchTask.class": "2fb7c349ae7a7de05a983a4fedbe9aab6d67407a919018168b6feb3a8a2074a6",
+          "com/cloud/vm/UserVmManagerImpl$9.class": "21b75d7b55612fa3590c61f66d2c755591d3e614f8679607caec995a3a28142f",
+          "com/cloud/vm/UserVmManagerImpl$VmAndCountDetails.class": "40d5a3bed7eb782b7da00dcca773137313d3c5be5f9632cdb44f1bcb60b1d695",
+          "com/cloud/vm/VmCloneBatchData$Item.class": "b9325a8bf25f8bc40a2ed57fbb6383298a7d171a787115ce355e1931c54d92f0",
+          "com/cloud/vm/UserVmManagerImpl$1.class": "9796e42ed2359ef53e4b1c75840c654757ef652b12a51c4c15d55fafdb6cf05e",
+          "com/cloud/vm/UserVmManagerImpl$FlattenProgressTask.class": "fea3a97115ebfa3c06b1d27ea0699e7ab91b028ea1f413a7692cfa573bd5417b",
+          "com/cloud/vm/VmCloneBatchManager.class": "bef7a5a25769b42d607d89ae5997b939f79280e78a8db6e37a01f817b2f673c2",
+          "com/cloud/vm/VmCloneBatchManager$Work.class": "9e956b8a0854a52c31387f2c0f15799269f907330c98cf54e90adae3ebcf29b1",
+          "com/cloud/vm/UserVmManagerImpl$ExpungeTask.class": "dd092049f4eb55c98d34e358da0860ee0badc55da0ed22e87a73ebb3a06e07b0",
+          "com/cloud/vm/VmCloneBatchData$Attempt.class": "5491fd9c090af1584e72bd6409c8ef54c1ad725e93fdf98ee6191b74297b30f2",
+          "com/cloud/vm/UserVmManagerImpl$FastCloneRecoveryCheck.class": "b38a4a95d4ce03789fe2209071bad7d880a5f6b0323fcc0cf51352ddda3b6602",
+          "com/cloud/vm/UserVmManagerImpl$5.class": "43c76aba18da3ae706b8550f84fe236d01b3a43eea566553768e89ca7ea2f28f",
+          "com/cloud/vm/UserVmManagerImpl$16.class": "11e18342a8754ebedb47ed9e14bc894c70a5c2cf12d26df73b4e08f2f6fdd525",
+          "com/cloud/vm/VmCloneBatchData.class": "e6eb34ca090c4cfe1c68bd2e8d1a1067e168f31e78db628487de731e5f435ce1",
+          "com/cloud/vm/VmCloneBatchData$Disk.class": "b0cf6480ce953f6a7629e97e4527b8f397afd9bd4aeaed7360ae35ad5d8d994a",
+          "com/cloud/api/ApiServer$1.class": "b9058c03aec8393260f6d86a1795aa64b92e9592f7f63ab28e0d517f44dd407b",
+          "com/cloud/api/ApiServer$WorkerTask.class": "789301a9c3177296ce532792848b8628c44db8a8575b33df9bed1fe41710f700",
+          "com/cloud/api/ApiServer$ListenerThread.class": "e5aa7547c8f064261132007ffec9e2a9a4d2560e7903dec77c1bf2dd2fe1b869",
+          "com/cloud/api/ApiServer$2.class": "0d82d2bc65a8c2f87d9b350d8a7df373fce889910005c13fbd03d78fa81b5256",
+          "com/cloud/api/ApiServer.class": "9e66c7f718ab86fab7ea8df88b8406f9810bfc947d73c209dcff32ab38600882",
+          "com/cloud/vm/dao/VmCloneBatchDaoImpl.class": "f60cb215e61e8c1ab591293aeeb27d38476af5f5efa1160a42b13cf1e5db5c47",
+          "com/cloud/vm/dao/VmCloneBatchDao.class": "711e8aadde10f39c6882f7109c817e5f8263dddf91c58b2912ee7052665494b5",
+          "com/cloud/vm/VmCloneBatchVO.class": "e96347245fc8e7b5f128b65a7c8c763710b2bf8d785cb8dd9848d0290bcd1571",
+          "META-INF/db/schema-europa-4.23-vm-clone-batch.sql": "487699b572a054fb5758d5d92f6ef80d92d7d2179903027eca0c9f47ebd72478"
+        },
+        "otherEntriesPreserved": true,
+        "http": 200,
+        "webInf": true,
+        "schemaIdempotent": true,
+        "agentRestarted": false
+      },
+      "ui": {
+        "cluster": "32",
+        "backup": "/root/issue1520-ui-20261030-151656",
+        "files": 931,
+        "hashesMatch": true,
+        "webInf": true,
+        "http": 200,
+        "configPreserved": true,
+        "pidPreserved": true,
+        "sourceArchiveSha256": "7259e9ba41f44f784dc84a3d9dc230c24bccd6317327734eaa3175476f78c8fc"
+      }
+    }
+  },
+  "health": {
+    "nodes": [
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "actual": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "actual": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "actual": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true
+          }
+        ],
+        "node": "22.1"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "actual": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "actual": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "actual": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true
+          }
+        ],
+        "node": "22.2"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "actual": "ff9d976e97432ae42bca1c397242f458b6dfcffc889befa1f648f9240db4db54",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "actual": "b4cfdf44c5efc483bc4e5ee72efebd8d76b38472aa7941182484270c957b7bba",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "actual": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true
+          }
+        ],
+        "node": "22.3"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "335304996c941b596965a40fcdcf039baed2779dee84aeb4981846f4c61beea6",
+            "actual": "335304996c941b596965a40fcdcf039baed2779dee84aeb4981846f4c61beea6",
+            "match": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "22.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "e409961006d311380016cecb9c818b4cfc8b3cd97af96fdd8395183ab8482192",
+            "actual": "e409961006d311380016cecb9c818b4cfc8b3cd97af96fdd8395183ab8482192",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "actual": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "6fbfb183cb2479160060d0d12ddbfb20466f4b07bbe23e0887a4c84fca646b57",
+            "actual": "6fbfb183cb2479160060d0d12ddbfb20466f4b07bbe23e0887a4c84fca646b57",
+            "match": true
+          }
+        ],
+        "node": "31.1"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "1baf342bb388e9525d68889491836d8dff76b5f3b8de85f7fc7455b356f39d8e",
+            "actual": "1baf342bb388e9525d68889491836d8dff76b5f3b8de85f7fc7455b356f39d8e",
+            "match": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "31.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "38746e300a82bbfd41702e3ff3d69fc83dec5be32154908839c8025a684f81e3",
+            "actual": "38746e300a82bbfd41702e3ff3d69fc83dec5be32154908839c8025a684f81e3",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "actual": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "e25e5e6cb3d696fed62b69923c01a62edb5262bf0a79ece5c76600165537fe3e",
+            "actual": "e25e5e6cb3d696fed62b69923c01a62edb5262bf0a79ece5c76600165537fe3e",
+            "match": true
+          }
+        ],
+        "node": "31.2"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "f031505bba7453e3b49ead590a7dfa70beb87fdd0125e874770facb4869ff174",
+            "actual": "f031505bba7453e3b49ead590a7dfa70beb87fdd0125e874770facb4869ff174",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "actual": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "142507be982b28192458a5ce77b46500963eae909d6c98c65ef0872e6dab64ba",
+            "actual": "142507be982b28192458a5ce77b46500963eae909d6c98c65ef0872e6dab64ba",
+            "match": true
+          }
+        ],
+        "node": "31.3"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+            "sha256": "c9f192b9df1349546791f02208bb21c1cbb2dfa8893101d6b38268b1ac55267b",
+            "actual": "c9f192b9df1349546791f02208bb21c1cbb2dfa8893101d6b38268b1ac55267b",
+            "match": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "32.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "7fad436085c2b6a56c0c7fbc94aa8626f2d5968355dd7cd61de6b996f31b5e3a",
+            "actual": "7fad436085c2b6a56c0c7fbc94aa8626f2d5968355dd7cd61de6b996f31b5e3a",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "e12c2a298bd873a0a591ac64b04b825f568dc1e2934142ad893ca004d94696e2",
+            "actual": "e12c2a298bd873a0a591ac64b04b825f568dc1e2934142ad893ca004d94696e2",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "actual": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true
+          }
+        ],
+        "node": "32.1"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "9902335fe07d31228f3a70a7a5373532db3c89e87cf9c926ec7096b478621f16",
+            "actual": "9902335fe07d31228f3a70a7a5373532db3c89e87cf9c926ec7096b478621f16",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "actual": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "0f00302e1ddcade0a0a6b3c4b07ebec4e5b1e54fd382d6a26e90c15417837457",
+            "actual": "0f00302e1ddcade0a0a6b3c4b07ebec4e5b1e54fd382d6a26e90c15417837457",
+            "match": true
+          }
+        ],
+        "node": "32.3"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "e394bea829b4dbe28f7500ec99a72bd08ce9570988a2f3296fb710148e6fce10",
+            "actual": "e394bea829b4dbe28f7500ec99a72bd08ce9570988a2f3296fb710148e6fce10",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "actual": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "a63aa3f972a57bd704d30ab86a1fe4b517ca25ade69cb7669e6ead8fd8f1d051",
+            "actual": "a63aa3f972a57bd704d30ab86a1fe4b517ca25ade69cb7669e6ead8fd8f1d051",
+            "match": true
+          }
+        ],
+        "node": "32.2"
+      }
+    ]
+  },
+  "cleanup": {
+    "22": {
+      "storage": {
+        "cluster": "22",
+        "active": {
+          "vms": [],
+          "volumes": [],
+          "vmSnapshots": [],
+          "snapshots": [],
+          "storeRefs": []
+        },
+        "physical": {
+          "images": [
+            {
+              "path": "rbd/020b2b60-0f41-4db6-800e-6f4c7790941c",
+              "exists": false
+            },
+            {
+              "path": "rbd/0b8f3bbc-553a-4052-a51a-56c0b04cb7b0",
+              "exists": false
+            },
+            {
+              "path": "rbd/424044f9-2cb5-4176-b879-93f6bec1b4cf",
+              "exists": false
+            },
+            {
+              "path": "rbd/d1a0d0cf-6e5e-4d63-b1b8-14afa1736bf2",
+              "exists": false
+            },
+            {
+              "path": "rbd/e219e4aa-2676-4f3d-a245-b48131d4ab2c",
+              "exists": false
+            },
+            {
+              "path": "rbd/e2b08eed-2376-4c67-9c14-878da47988a7",
+              "exists": false
+            }
+          ],
+          "blockers": [],
+          "qaMatchingImages": [],
+          "qaMatchingTrash": []
+        },
+        "historicalRows": {
+          "vms": 3,
+          "volumes": 6,
+          "details": 77,
+          "vmSnapshots": 2,
+          "vmSnapshotDetails": 22,
+          "snapshots": 4,
+          "snapshotRefs": 4
+        }
+      },
+      "resources": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    },
+    "31": {
+      "storage": {
+        "cluster": "31",
+        "active": {
+          "vms": [],
+          "volumes": [],
+          "vmSnapshots": [],
+          "snapshots": [],
+          "storeRefs": []
+        },
+        "physical": {
+          "images": [
+            {
+              "path": "/mnt/glue-gfs/1038db38-bbf0-4339-b4e1-1b343d141e84",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/3391acc7-7508-4ffd-83cb-0c6a380ef834",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/4d607b24-200d-48ea-9147-9546dc1c80fc",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/6a95435d-e4a9-4277-8340-284e147b2506",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/7056b8d8-2a2c-4d61-96c1-ba6f880458d5",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/80656635-f11e-4066-aa0c-807ac5f9b1a1",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/a566f416-82c6-4fbd-a7a4-2d9282ce71c3",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/c5b65e24-f961-43fd-a4b1-adfae0faf0b3",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/d1ed4fa3-1966-45bd-a54b-7b720b0d07b3",
+              "exists": false
+            },
+            {
+              "path": "/mnt/glue-gfs/f6751012-392d-404a-8ee5-e1f18d0552cb",
+              "exists": false
+            }
+          ],
+          "blockers": [],
+          "qaMatchingFiles": []
+        },
+        "historicalRows": {
+          "vms": 5,
+          "volumes": 10,
+          "details": 9,
+          "vmSnapshots": 0,
+          "vmSnapshotDetails": 0,
+          "snapshots": 0,
+          "snapshotRefs": 0
+        }
+      },
+      "resources": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    },
+    "32": {
+      "storage": {
+        "cluster": "32",
+        "active": {
+          "vms": [],
+          "volumes": [],
+          "vmSnapshots": [],
+          "snapshots": [],
+          "storeRefs": []
+        },
+        "physical": {
+          "images": [
+            {
+              "path": "rbd/0676b90a-3cb6-48c9-822f-92f46f1fab86",
+              "exists": false
+            },
+            {
+              "path": "rbd/0bd9baf1-913f-4e5f-a09a-2eba6d0294d6",
+              "exists": false
+            },
+            {
+              "path": "rbd/11c8ab5b-9d27-4e6a-9411-30755cf6f909",
+              "exists": false
+            },
+            {
+              "path": "rbd/189b3932-cc11-4355-b100-b8297b6dc845",
+              "exists": false
+            },
+            {
+              "path": "rbd/26b18ac5-91d6-4f6b-b8f5-2e436eabf95c",
+              "exists": false
+            },
+            {
+              "path": "rbd/39065737-4538-49ef-9b62-618e0219a6ec",
+              "exists": false
+            },
+            {
+              "path": "rbd/55e760fb-36d4-40b9-a540-e2e0e3712f26",
+              "exists": false
+            },
+            {
+              "path": "rbd/5efb52d2-5a5f-484d-800a-7b90f47d0a78",
+              "exists": false
+            },
+            {
+              "path": "rbd/64b6f99f-f04e-43e8-996c-7379305e8994",
+              "exists": false
+            },
+            {
+              "path": "rbd/71f1fd1b-a43f-414f-bb1c-a7cdf43c332a",
+              "exists": false
+            },
+            {
+              "path": "rbd/7305ca81-eb0d-479c-941f-a2258a697db7",
+              "exists": false
+            },
+            {
+              "path": "rbd/789a0f27-be02-42fd-8bb9-c3765d3792bb",
+              "exists": false
+            },
+            {
+              "path": "rbd/7e276780-a1e8-4751-b6c5-7f4a067a10a7",
+              "exists": false
+            },
+            {
+              "path": "rbd/8102a513-8b57-46e5-822f-63ff8986a9e1",
+              "exists": false
+            },
+            {
+              "path": "rbd/8193ad4c-9ff0-4506-be4e-c550bcf538d7",
+              "exists": false
+            },
+            {
+              "path": "rbd/bbd62e8a-b17d-4ab9-b4e6-157bcaacdce3",
+              "exists": false
+            },
+            {
+              "path": "rbd/c3d312cd-483f-4548-a504-deca58456380",
+              "exists": false
+            },
+            {
+              "path": "rbd/c6f1e46f-bf1f-4dde-ac20-c27be27b494b",
+              "exists": false
+            },
+            {
+              "path": "rbd/d6ffc0a3-3e77-4955-9977-608a491e796d",
+              "exists": false
+            },
+            {
+              "path": "rbd/d790a163-454f-4444-a924-ad9c6bac7cbb",
+              "exists": false
+            },
+            {
+              "path": "rbd/df5addd9-fc6e-4c16-aafd-d6ade21119ce",
+              "exists": false
+            },
+            {
+              "path": "rbd/e1b25e46-04e2-4c2e-9af3-a5451ca51ac9",
+              "exists": false
+            },
+            {
+              "path": "rbd/e235f079-ffcd-4efe-885a-16ef6cf4c2b5",
+              "exists": false
+            },
+            {
+              "path": "rbd/e61eceba-d5ef-4ced-9444-cd116e9697f4",
+              "exists": false
+            }
+          ],
+          "blockers": [],
+          "qaMatchingImages": [],
+          "qaMatchingTrash": []
+        },
+        "historicalRows": {
+          "vms": 12,
+          "volumes": 24,
+          "details": 55,
+          "vmSnapshots": 7,
+          "vmSnapshotDetails": 39,
+          "snapshots": 14,
+          "snapshotRefs": 14
+        }
+      },
+      "resources": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    }
+  },
+  "runtimeCleanup": [
+    {
+      "node": "22.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "22.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "22.3",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.3",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.3",
+      "domains": [],
+      "mappedVolumes": []
+    }
+  ],
+  "protected22": {
+    "pid": 1516803,
+    "startTicks": 201077163
+  },
+  "guestData": {
+    "22": [
+      {
+        "id": "505578dd-d504-47cf-9a2d-5291dc9f1f29",
+        "name": "qa1520-22-ui-retry-start",
+        "checks": [
+          {
+            "id": "e219e4aa-2676-4f3d-a245-b48131d4ab2c",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (41.382 MiB/sec and 662.1157 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (46.419 MiB/sec and 742.7004 ops/sec)\n"
+          }
+        ]
+      }
+    ],
+    "31": [
+      {
+        "id": "60d3f085-4b0c-442a-94d4-f69ebde2124d",
+        "name": "qa1520-31-ui-batch-1",
+        "checks": [
+          {
+            "id": "d1ed4fa3-1966-45bd-a54b-7b720b0d07b3",
+            "noBackingAfterFlatten": true,
+            "format": "qcow2"
+          },
+          {
+            "id": "80656635-f11e-4066-aa0c-807ac5f9b1a1",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (245.636 MiB/sec and 3930.1688 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (820.059 MiB/sec and 13120.9489 ops/sec)\n"
+          },
+          {
+            "id": "80656635-f11e-4066-aa0c-807ac5f9b1a1",
+            "noBackingAfterFlatten": true,
+            "format": "qcow2"
+          }
+        ]
+      },
+      {
+        "id": "c46bafc0-3c27-433b-bd22-2f3a60dc83d1",
+        "name": "qa1520-31-ui-batch-2",
+        "checks": [
+          {
+            "id": "3391acc7-7508-4ffd-83cb-0c6a380ef834",
+            "noBackingAfterFlatten": true,
+            "format": "qcow2"
+          },
+          {
+            "id": "4d607b24-200d-48ea-9147-9546dc1c80fc",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (246.844 MiB/sec and 3949.5095 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (785.314 MiB/sec and 12565.0240 ops/sec)\n"
+          },
+          {
+            "id": "4d607b24-200d-48ea-9147-9546dc1c80fc",
+            "noBackingAfterFlatten": true,
+            "format": "qcow2"
+          }
+        ]
+      }
+    ],
+    "32Full": [
+      {
+        "id": "e86b565f-746f-45c1-a961-ca1ab0cf046c",
+        "name": "qa1520-32-ui-start-1",
+        "checks": [
+          {
+            "id": "df5addd9-fc6e-4c16-aafd-d6ade21119ce",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (81.159 MiB/sec and 1298.5461 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (88.778 MiB/sec and 1420.4424 ops/sec)\n"
+          }
+        ]
+      },
+      {
+        "id": "22a07254-74fb-43d8-9cc4-0b839440a35b",
+        "name": "qa1520-32-ui-start-2",
+        "checks": [
+          {
+            "id": "789a0f27-be02-42fd-8bb9-c3765d3792bb",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (82.504 MiB/sec and 1320.0658 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (46.469 MiB/sec and 743.4983 ops/sec)\n"
+          }
+        ]
+      }
+    ],
+    "32Linked": [
+      {
+        "id": "2a7a34ed-e278-4788-be85-4e4b89537c89",
+        "name": "qa1520-32-ui-linked-net-2",
+        "checks": [
+          {
+            "id": "64b6f99f-f04e-43e8-996c-7379305e8994",
+            "patternsVerified": true,
+            "output": "read 65536/65536 bytes at offset 1048576\n64 KiB, 1 ops; 00.00 sec (70.280 MiB/sec and 1124.4761 ops/sec)\nread 65536/65536 bytes at offset 536870912\n64 KiB, 1 ops; 00.00 sec (39.842 MiB/sec and 637.4742 ops/sec)\n"
+          }
+        ]
+      }
+    ]
+  },
+  "linkedParents": {
+    "deletedChildren": [
+      "55e760fb-36d4-40b9-a540-e2e0e3712f26",
+      "71f1fd1b-a43f-414f-bb1c-a7cdf43c332a"
+    ],
+    "preservedChildren": [
+      "64b6f99f-f04e-43e8-996c-7379305e8994",
+      "d790a163-454f-4444-a924-ad9c6bac7cbb"
+    ],
+    "parents": [
+      {
+        "volume": "d790a163-454f-4444-a924-ad9c6bac7cbb",
+        "parent": {
+          "pool": "rbd",
+          "pool_namespace": "",
+          "image": "7305ca81-eb0d-479c-941f-a2258a697db7",
+          "id": "22b70471a3d903",
+          "snapshot": "i-137-282-VM_VS_20261030061812",
+          "trash": false,
+          "overlap": 107374182400
+        },
+        "children": [
+          {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "d790a163-454f-4444-a924-ad9c6bac7cbb"
+          }
+        ],
+        "protected": true
+      },
+      {
+        "volume": "64b6f99f-f04e-43e8-996c-7379305e8994",
+        "parent": {
+          "pool": "rbd",
+          "pool_namespace": "",
+          "image": "8193ad4c-9ff0-4506-be4e-c550bcf538d7",
+          "id": "2b64e63193b9aa",
+          "snapshot": "i-137-282-VM_VS_20261030061812",
+          "trash": false,
+          "overlap": 1073741824
+        },
+        "children": [
+          {
+            "pool": "rbd",
+            "pool_namespace": "",
+            "image": "64b6f99f-f04e-43e8-996c-7379305e8994"
+          }
+        ],
+        "protected": true
+      }
+    ],
+    "preservedAfterFirstDeletion": true
+  },
+  "manualQaReconciliation": {
+    "volume": {
+      "time": "2026-10-30T14:50:45.750681",
+      "physical": {
+        "uuid": "0676b90a-3cb6-48c9-822f-92f46f1fab86",
+        "imageExists": false,
+        "matchingImages": [],
+        "rbdInfoExit": 2
+      },
+      "before": {
+        "id": 677,
+        "name": "qa1520-32-ui-data-fail-2-qa1520-32-data",
+        "path": null,
+        "uuid": "0676b90a-3cb6-48c9-822f-92f46f1fab86",
+        "state": "Expunging",
+        "account": 137,
+        "removed": "2026-10-30 05:42:26.000000",
+        "instance": null
+      },
+      "after": {
+        "id": 677,
+        "name": "qa1520-32-ui-data-fail-2-qa1520-32-data",
+        "path": null,
+        "uuid": "0676b90a-3cb6-48c9-822f-92f46f1fab86",
+        "state": "Expunged",
+        "account": 137,
+        "removed": "2026-10-30 05:42:26.000000",
+        "instance": null
+      },
+      "volumeStoreRefs": 0,
+      "resourceCountsUnchanged": true,
+      "manualFixtureReconciliation": true,
+      "followup": 1524
+    },
+    "staleSnapshotReference": {
+      "physical": {
+        "uuid": "0676b90a-3cb6-48c9-822f-92f46f1fab86",
+        "imageAbsent": true,
+        "temporaryImagesAbsent": true
+      },
+      "removedTestVolume": 677,
+      "snapshot": 317,
+      "beforeDetails": "1816\tclone.vm.source.volume.id\t661\n1817\tclone.vm.type\tfull\n1818\tSNAPSHOT_ID\t317",
+      "afterDetails": "1816\tclone.vm.source.volume.id\t661\n1817\tclone.vm.type\tfull",
+      "resourceCountsUnchanged": true,
+      "manualFixtureReconciliation": true,
+      "followup": 1524
+    },
+    "followupIssue": 1524,
+    "automaticCleanupPass": false
+  },
+  "broaderVmTestsBaseline": {
+    "sameFailures": true,
+    "count": 10,
+    "failedTests": [
+      [
+        "createVirtualMachineWithExistingSnapshot",
+        "java.lang.NullPointerException"
+      ],
+      [
+        "createVirtualMachineWithExistingVolume",
+        "java.lang.NullPointerException"
+      ],
+      [
+        "createVirtualMachineWithSnapshotFromExpungedLocalStorageVolumeSucceeds",
+        "java.lang.NullPointerException"
+      ],
+      [
+        "createVirtualMachineWithSnapshotFromVolumeWithNullDataStoreSucceeds",
+        "java.lang.NullPointerException"
+      ],
+      [
+        "createVirtualMachineWithVolumeFromNonZoneScopedStorageFails",
+        "java.lang.AssertionError"
+      ],
+      [
+        "createVirtualMachineWithVolumeWithNullDataStoreFails",
+        "java.lang.AssertionError"
+      ],
+      [
+        "testResetVMUserDataDontAcceptBothUserdataAndUserdataId",
+        "java.lang.Exception"
+      ],
+      [
+        "testResetVMUserDataSuccessResetWithUserdata",
+        "com.cloud.utils.exception.CloudRuntimeException"
+      ],
+      [
+        "testResetVMUserDataSuccessResetWithUserdataId",
+        "com.cloud.utils.exception.CloudRuntimeException"
+      ],
+      [
+        "testResetVMUserDataVMStateNotStopped",
+        "java.lang.Exception"
+      ]
+    ],
+    "baseline": "df695fc02df",
+    "baselineCompatibilityShim": "queryVMCloneBatch returns null solely to compile the additive API interface; existing paths unchanged"
+  },
+  "networkReplay": {
+    "original": {
+      "clonevirtualmachineresponse": {
+        "id": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+        "jobid": "68421733-a669-465b-963c-409e7549892f"
+      }
+    },
+    "replay": {
+      "clonevirtualmachineresponse": {
+        "id": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+        "jobid": "68421733-a669-465b-963c-409e7549892f"
+      }
+    },
+    "replayedCustomjobid": "68421733-a669-465b-963c-409e7549892f"
+  },
+  "protectedAndBaseInvariants": {
+    "vms": [
+      {
+        "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+        "name": "rocky98-base",
+        "state": "Stopped",
+        "serviceofferingid": "350a2fb1-167b-4329-bc0c-3e124c050e45",
+        "templateid": "639623e0-29fb-4c97-b1b1-34c41b6bfdec"
+      },
+      {
+        "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+        "name": "rocky98-perftest",
+        "state": "Running",
+        "serviceofferingid": "350a2fb1-167b-4329-bc0c-3e124c050e45",
+        "hostid": "e9fdf05f-02fc-410a-a8a5-1701111a9434",
+        "templateid": "639623e0-29fb-4c97-b1b1-34c41b6bfdec"
+      }
+    ],
+    "disksUnchanged": 3,
+    "allUnchanged": true
+  },
+  "duplicateReplay": {
+    "jobid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+    "receipts": [
+      {
+        "id": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+        "jobid": "17b7210d-9ae8-498c-8435-f6744cdff20f"
+      },
+      {
+        "id": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+        "jobid": "17b7210d-9ae8-498c-8435-f6744cdff20f"
+      }
+    ],
+    "vmId": "d5c4ddd6-904b-4d25-915d-5942449323e8",
+    "beforeCount": 1,
+    "afterCount": 1,
+    "batch": {
+      "requestid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "attemptid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "sourceid": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+      "status": "SUCCEEDED",
+      "requestedcount": 1,
+      "startvm": false,
+      "clonetype": "full",
+      "targets": [
+        {
+          "index": 1,
+          "name": "qa1520-32-api-single",
+          "id": "d5c4ddd6-904b-4d25-915d-5942449323e8",
+          "created": true,
+          "state": "Stopped",
+          "phase": "SUCCEEDED",
+          "cleanup": "preserved",
+          "retryaction": "NONE",
+          "volumes": [
+            {
+              "id": "39065737-4538-49ef-9b62-618e0219a6ec",
+              "type": "ROOT",
+              "state": "Ready",
+              "cleanup": "retained"
+            },
+            {
+              "id": "11c8ab5b-9d27-4e6a-9411-30755cf6f909",
+              "type": "DATADISK",
+              "state": "Ready",
+              "cleanup": "retained"
+            }
+          ]
+        }
+      ],
+      "jobid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "jobstatus": 1
+    }
+  },
+  "startRetry": {
+    "before": {
+      "requestid": "9b271355-f723-476e-b085-cd30a07a80c0",
+      "attemptid": "9b271355-f723-476e-b085-cd30a07a80c0",
+      "sourceid": "920d606b-5e3e-4985-a460-77c4e8df6ea8",
+      "status": "PARTIAL",
+      "requestedcount": 1,
+      "startvm": true,
+      "clonetype": "full",
+      "error": "Unable to orchestrate the start of VM instance {\"instanceName\":\"i-2-15-VM\",\"uuid\":\"505578dd-d504-47cf-9a2d-5291dc9f1f29\"}.",
+      "targets": [
+        {
+          "index": 1,
+          "name": "qa1520-22-ui-retry-start",
+          "id": "505578dd-d504-47cf-9a2d-5291dc9f1f29",
+          "created": true,
+          "state": "Stopped",
+          "phase": "START_FAILED",
+          "error": "Unable to orchestrate the start of VM instance {\"instanceName\":\"i-2-15-VM\",\"uuid\":\"505578dd-d504-47cf-9a2d-5291dc9f1f29\"}.",
+          "cleanup": "preserved",
+          "retryaction": "START",
+          "volumes": [
+            {
+              "id": "d1a0d0cf-6e5e-4d63-b1b8-14afa1736bf2",
+              "type": "ROOT",
+              "state": "Ready",
+              "cleanup": "retained"
+            },
+            {
+              "id": "e219e4aa-2676-4f3d-a245-b48131d4ab2c",
+              "type": "DATADISK",
+              "state": "Ready",
+              "cleanup": "retained"
+            }
+          ]
+        }
+      ],
+      "jobid": "9b271355-f723-476e-b085-cd30a07a80c0",
+      "jobstatus": 2
+    },
+    "after": {
+      "requestid": "9b271355-f723-476e-b085-cd30a07a80c0",
+      "attemptid": "6b194f96-16b5-41ac-86a1-07fadcd97c47",
+      "sourceid": "920d606b-5e3e-4985-a460-77c4e8df6ea8",
+      "status": "SUCCEEDED",
+      "requestedcount": 1,
+      "startvm": true,
+      "clonetype": "full",
+      "targets": [
+        {
+          "index": 1,
+          "name": "qa1520-22-ui-retry-start",
+          "id": "505578dd-d504-47cf-9a2d-5291dc9f1f29",
+          "created": true,
+          "state": "Running",
+          "phase": "SUCCEEDED",
+          "cleanup": "preserved",
+          "retryaction": "NONE",
+          "volumes": [
+            {
+              "id": "d1a0d0cf-6e5e-4d63-b1b8-14afa1736bf2",
+              "type": "ROOT",
+              "state": "Ready",
+              "cleanup": "retained"
+            },
+            {
+              "id": "e219e4aa-2676-4f3d-a245-b48131d4ab2c",
+              "type": "DATADISK",
+              "state": "Ready",
+              "cleanup": "retained"
+            }
+          ]
+        }
+      ],
+      "jobid": "6b194f96-16b5-41ac-86a1-07fadcd97c47",
+      "jobstatus": 1
+    }
+  },
+  "acl": {
+    "ownerAllowed": true,
+    "foreign": {
+      "requestid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "status": "NOTFOUND",
+      "targets": []
+    },
+    "restricted": {
+      "requestid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "attemptid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "sourceid": "8673988b-9a9b-4c36-83e0-6f12b565ca74",
+      "status": "SUCCEEDED",
+      "requestedcount": 1,
+      "startvm": false,
+      "clonetype": "full",
+      "targets": [
+        {
+          "index": 1,
+          "name": "qa1520-32-api-single",
+          "created": false,
+          "phase": "ACCESS_RESTRICTED",
+          "error": "Target access changed; inspect through an authorized account",
+          "cleanup": "unconfirmed",
+          "retryaction": "NONE",
+          "volumes": []
+        }
+      ],
+      "jobid": "17b7210d-9ae8-498c-8435-f6744cdff20f",
+      "jobstatus": 1
+    }
+  }
+}
