@@ -63,9 +63,9 @@
       <p v-if="!batchBusy && !retryTargets.length && batchResult?.status !== 'SUCCEEDED'">{{ $t('message.clone.batch.inspect') }}</p>
       <div class="batch-actions">
         <a-button :loading="queryingBatch" @click="refreshBatch">{{ $t('label.refresh') }}</a-button>
-        <a-button v-if="batchUnconfirmed" :loading="loading" @click="submitBatch">{{ $t('label.clone.batch.resend') }}</a-button>
-        <a-button v-if="retryTargets.length" type="primary" :disabled="batchBusy || loading" @click="retryBatch">{{ $t('label.clone.batch.retry') }} ({{ retryTargets.map(t => t.index).join(', ') }})</a-button>
-        <a-button :disabled="batchBusy || batchUnconfirmed || loading" @click="newBatch">{{ $t('label.clone.batch.new') }}</a-button>
+        <a-button v-if="batchUnconfirmed" :loading="loading" :disabled="queryingBatch" @click="submitBatch">{{ $t('label.clone.batch.resend') }}</a-button>
+        <a-button v-if="retryTargets.length" type="primary" :disabled="batchBusy || loading || queryingBatch" @click="retryBatch">{{ $t('label.clone.batch.retry') }} ({{ retryTargets.map(t => t.index).join(', ') }})</a-button>
+        <a-button :disabled="batchBusy || batchUnconfirmed || loading || queryingBatch" @click="newBatch">{{ $t('label.clone.batch.new') }}</a-button>
         <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
       </div>
     </section>
@@ -257,6 +257,7 @@ export default {
           params.clonetype = null
         }
         this.batchRequest = newCloneRequest(params)
+        this.batchResult = null
         this.persistBatch()
         this.submitBatch()
       }).catch(error => {
@@ -295,11 +296,12 @@ export default {
       if (!this.batchRequest || this.queryingBatch || this.batchDisposed) return
       clearTimeout(this.batchTimer)
       this.queryingBatch = true
+      const requestId = this.batchRequest.id
       try {
-        const json = await getAPI('queryVMCloneBatch', { requestid: this.batchRequest.id })
+        const json = await getAPI('queryVMCloneBatch', { requestid: requestId })
         const result = json.queryvmclonebatchresponse?.clonebatch
         if (!result) throw new Error('Clone batch result unavailable')
-        if (this.batchDisposed) return
+        if (this.batchDisposed || this.batchRequest?.id !== requestId) return
         this.batchResult = result
         this.batchError = ''
         if (cloneBatchBusy(result)) this.batchTimer = setTimeout(() => this.refreshBatch(), 2000)
@@ -309,13 +311,13 @@ export default {
       } finally { this.queryingBatch = false }
     },
     retryBatch () {
-      if (this.batchBusy || this.loading || !this.retryTargets.length) return
+      if (this.batchBusy || this.loading || this.queryingBatch || !this.retryTargets.length) return
       this.batchRequest = retryCloneRequest(this.batchRequest, this.batchResult)
       this.persistBatch()
       this.submitBatch()
     },
     newBatch () {
-      if (this.batchBusy || this.batchUnconfirmed || this.loading) return
+      if (this.batchBusy || this.batchUnconfirmed || this.loading || this.queryingBatch) return
       clearTimeout(this.batchTimer)
       try { window.localStorage.removeItem(this.storageKey()) } catch (error) { this.batchError = this.$t('message.clone.batch.storage'); return }
       this.batchRequest = null

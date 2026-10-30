@@ -47,3 +47,23 @@ test('duplicate submit while API pending is suppressed', async () => {
   await Clone.methods.submitBatch.call(vm)
   expect(getAPI).not.toHaveBeenCalled()
 })
+
+test('late lookup cannot populate another request with the previous targets', async () => {
+  let finish
+  getAPI.mockReturnValue(new Promise(resolve => { finish = resolve }))
+  const vm = { batchRequest: newCloneRequest(params), batchResult: null, queryingBatch: false, batchDisposed: false }
+  const pending = Clone.methods.refreshBatch.call(vm)
+  vm.batchRequest = newCloneRequest(params)
+  finish({ queryvmclonebatchresponse: { clonebatch: { status: 'SUCCEEDED', targets: [{ id: 'previous-vm' }] } } })
+  await pending
+  expect(vm.batchResult).toBeNull()
+  expect(vm.queryingBatch).toBe(false)
+})
+
+test('new request waits for the current lookup to settle', () => {
+  const request = newCloneRequest(params)
+  const vm = { batchRequest: request, batchBusy: false, batchUnconfirmed: false, queryingBatch: true, loading: false, initForm: jest.fn() }
+  Clone.methods.newBatch.call(vm)
+  expect(vm.batchRequest).toBe(request)
+  expect(vm.initForm).not.toHaveBeenCalled()
+})
