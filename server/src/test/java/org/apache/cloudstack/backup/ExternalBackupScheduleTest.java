@@ -373,6 +373,7 @@ public class ExternalBackupScheduleTest {
         ReflectionTestUtils.setField(manager, "backupVolumeGuard", mock(BackupVolumeGuard.class));
         ReflectionTestUtils.setField(manager, "backupSnapshotGuard", mock(BackupSnapshotGuard.class));
         ReflectionTestUtils.setField(manager, "accountManager", mock(AccountManager.class));
+        ReflectionTestUtils.setField(manager, "ablestackBackupOperationGuard", mock(AblestackBackupOperationGuard.class));
         when(schedules.persist(any(BackupScheduleVO.class))).thenAnswer(call -> call.getArgument(0));
         CallContext.register(mock(User.class), mock(Account.class));
         try {

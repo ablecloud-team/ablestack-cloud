@@ -1120,6 +1120,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
 
             backupSnapshotGuard.checkBackupSource(vmId, offering.getProvider());
 
+            if (isAblestackHostSideRestoreProvider(offering)) {
+                ablestackBackupOperationGuard.checkDependencies(vmId, offering.getProvider());
+            }
             final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
 
             if (isolated && !KBOSS_BACKUP_PROVIDER.equals(offering.getProvider())) {

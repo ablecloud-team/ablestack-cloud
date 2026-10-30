@@ -756,6 +756,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @Inject
     private org.apache.cloudstack.backup.AblestackRestoreInstanceCleanup ablestackRestoreInstanceCleanup;
     @Inject
+    private org.apache.cloudstack.backup.AblestackBackupOperationGuard ablestackBackupOperationGuard;
+    @Inject
     private ManagementServer _managementServer;
     @Inject
     private SnapshotApiService _snapshotService;
@@ -11627,6 +11629,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     protected void checkNoActiveBackupForClone(long vmId) {
+        ablestackBackupOperationGuard.checkClone(vmId);
         List<Backup> backups = backupDao.listByVmId(null, vmId);
         if (CollectionUtils.isEmpty(backups)) {
             return;

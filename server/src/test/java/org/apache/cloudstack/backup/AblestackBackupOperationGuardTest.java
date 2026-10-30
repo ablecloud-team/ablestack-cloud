@@ -25,14 +25,22 @@ import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import com.cloud.storage.Snapshot;
 import com.cloud.storage.SnapshotVO;
+import com.cloud.storage.Storage;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.SnapshotDao;
+import com.cloud.storage.dao.SnapshotDetailsDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
 import com.cloud.vm.VirtualMachine.State;
 import com.cloud.vm.dao.VMInstanceDao;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
+import com.cloud.vm.snapshot.VMSnapshotVO;
+import com.cloud.vm.snapshot.dao.VMSnapshotDao;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +59,11 @@ public class AblestackBackupOperationGuardTest {
     @Mock private BackupDetailsDao backupDetailsDao;
     @Mock private BackupOfferingDao offeringDao;
     @Mock private BackupVolumeGuard backupVolumeGuard;
+    @Mock private VMInstanceDetailsDao vmInstanceDetailsDao;
+    @Mock private VolumeDetailsDao volumeDetailsDao;
+    @Mock private VMSnapshotDao vmSnapshotDao;
+    @Mock private PrimaryDataStoreDao poolDao;
+    @Mock private SnapshotDetailsDao snapshotDetailsDao;
     @InjectMocks private AblestackBackupOperationGuard guard;
     private VMInstanceVO vm;
     private VolumeVO root;
@@ -66,6 +79,10 @@ public class AblestackBackupOperationGuardTest {
         lenient().when(root.getInstanceId()).thenReturn(1L);
         lenient().when(root.getUuid()).thenReturn("root-1");
         lenient().when(root.getState()).thenReturn(Volume.State.Ready);
+        lenient().when(root.getPoolId()).thenReturn(20L);
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        lenient().when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.SharedMountPoint);
+        lenient().when(poolDao.findById(20L)).thenReturn(pool);
     }
 
     @Test public void allProvidersAllowReadyVolumesForOnlineAndOfflineBackups() {
@@ -160,6 +177,7 @@ public class AblestackBackupOperationGuardTest {
             backup(provider, 1L, Backup.Status.BackingUp, false);
             assertThrows(CloudRuntimeException.class, () -> guard.checkBackup(1L, provider));
             assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkClone(1L));
             for (String operation : List.of("create", "delete", "revert", "archive", "force delete")) {
                 assertThrows(CloudRuntimeException.class, () -> guard.checkSnapshotOperation(root, operation));
             }
@@ -173,6 +191,7 @@ public class AblestackBackupOperationGuardTest {
         details.put(AblestackBackupFrameworkUtils.RESTORE_TARGET_VM_ID_DETAIL, "1");
         details.put(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "RUNNING");
         assertThrows(CloudRuntimeException.class, () -> guard.checkBackup(1L, "ablestack-nas"));
+        assertThrows(CloudRuntimeException.class, () -> guard.checkClone(1L));
         assertThrows(CloudRuntimeException.class, () -> guard.checkSnapshotOperation(root, "delete"));
         details.put(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, "FAILED");
         details.put(ThirdPartyBackupRestore.CLEANUP_STATE_KEY, "WAITING");
@@ -214,6 +233,7 @@ public class AblestackBackupOperationGuardTest {
         for (String provider : PROVIDERS) {
             when(offering.getProvider()).thenReturn(provider);
             assertThrows(CloudRuntimeException.class, () -> guard.checkSnapshotOperation(root, "delete"));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkClone(1L));
         }
     }
 
@@ -223,13 +243,105 @@ public class AblestackBackupOperationGuardTest {
         assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, "ablestack-veeam", false));
     }
 
-    @Test public void legacyProvidersDoNotUseTheAblestackAdmissionRules() {
-        for (String provider : CLOUDSTACK_PROVIDERS) {
+    private void rejectsDependenciesForEveryOperation() {
+        for (String provider : PROVIDERS) {
+            assertThrows(CloudRuntimeException.class, () -> guard.checkDependencies(1L, provider));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkBackup(1L, provider));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, true));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false, 7L));
+        }
+    }
+
+    @Test public void vmSnapshotsBlockConfigurationAndEveryRestoreEntryWithoutDeletingThem() {
+        when(vmSnapshotDao.findByVm(1L)).thenReturn(List.of(mock(VMSnapshotVO.class)));
+        rejectsDependenciesForEveryOperation();
+        verify(vmSnapshotDao, org.mockito.Mockito.never()).remove(org.mockito.ArgumentMatchers.anyLong());
+    }
+
+    @Test public void sourceCommitAndClonePhasesRemainBlockedEvenAfterFlattenReportsDone() {
+        for (String phase : List.of("preparing", "prepared", "ready", "committing", "failed", "unknown", "")) {
+            when(vmInstanceDetailsDao.listDetailsKeyPairs(1L)).thenReturn(Map.of("clone.fast.source.phase", phase,
+                    "clone.fast.status", "done"));
+            rejectsDependenciesForEveryOperation();
+            when(vmInstanceDetailsDao.listDetailsKeyPairs(1L)).thenReturn(Map.of("clone.fast.clone.phase", phase));
+            rejectsDependenciesForEveryOperation();
+        }
+    }
+
+    @Test public void unresolvedDependenciesOnAnyDataDiskBlockTheWholeVm() {
+        VolumeVO data = mock(VolumeVO.class);
+        when(data.getId()).thenReturn(11L);
+        when(volumeDao.findByInstance(1L)).thenReturn(List.of(root, data));
+        for (Map<String, String> marker : List.of(Map.of("clone.fast.flatten.status", "done"),
+                Map.of("clone.fast.flatten.status", "paused"), Map.of("clone.fast.role", "source"),
+                Map.of("linked.clone.backing.snapshot.id", "123"), Map.of("linked.clone.backing.path", "rbd:pool/parent@snapshot"),
+                Map.of("clone.vm.type", "linked"), Map.of("clone.vm.type", "unknown"), Map.of("clone.vm.source.volume.id", "10"))) {
+            when(volumeDetailsDao.listDetailsKeyPairs(11L)).thenReturn(marker);
+            rejectsDependenciesForEveryOperation();
+        }
+        verify(volumeDetailsDao, org.mockito.Mockito.never()).removeDetails(org.mockito.ArgumentMatchers.anyLong());
+    }
+
+    @Test public void independentFullCloneProvenanceDoesNotBlockBackupOrRestore() {
+        when(volumeDetailsDao.listDetailsKeyPairs(10L)).thenReturn(Map.of("clone.vm.type", "full", "clone.vm.source.volume.id", "99"));
+        for (String provider : PROVIDERS) {
+            guard.checkDependencies(1L, provider);
             guard.checkBackup(1L, provider);
             guard.checkRestore(1L, provider, false);
             guard.checkRestore(1L, provider, true);
         }
-        verifyNoInteractions(vmDao, volumeDao, snapshotDao, backupDao, backupDetailsDao, offeringDao, backupVolumeGuard);
+    }
+
+    @Test public void unknownDependencyQueriesNeverBecomeAnEmptyInventory() {
+        when(vmSnapshotDao.findByVm(1L)).thenReturn(null);
+        rejectsDependenciesForEveryOperation();
+        when(vmSnapshotDao.findByVm(1L)).thenReturn(List.of());
+        when(vmInstanceDetailsDao.listDetailsKeyPairs(1L)).thenReturn(null);
+        rejectsDependenciesForEveryOperation();
+        when(vmInstanceDetailsDao.listDetailsKeyPairs(1L)).thenReturn(Map.of());
+        when(volumeDetailsDao.listDetailsKeyPairs(10L)).thenReturn(null);
+        rejectsDependenciesForEveryOperation();
+    }
+
+    @Test public void nativeRbdSnapshotsBlockReplacementButPermitBackupAndNewVolumeAttach() {
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);
+        when(poolDao.findById(20L)).thenReturn(pool);
+        SnapshotVO snapshot = mock(SnapshotVO.class);
+        when(snapshot.getState()).thenReturn(Snapshot.State.BackedUp);
+        when(snapshotDao.listByVolumeIdIncludingRemoved(10L)).thenReturn(List.of(snapshot));
+        for (String provider : PROVIDERS) {
+            guard.checkBackup(1L, provider);
+            guard.checkRestore(1L, provider, true);
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false));
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false, 7L));
+        }
+    }
+
+    @Test public void missingRestoreStorageOrSnapshotInventoryFailsBeforeReplacement() {
+        when(poolDao.findById(20L)).thenReturn(null);
+        for (String provider : PROVIDERS) {
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false));
+        }
+        StoragePoolVO pool = mock(StoragePoolVO.class);
+        when(pool.getPoolType()).thenReturn(Storage.StoragePoolType.RBD);
+        when(poolDao.findById(20L)).thenReturn(pool);
+        when(snapshotDao.listByVolumeIdIncludingRemoved(10L)).thenReturn(null);
+        for (String provider : PROVIDERS) {
+            assertThrows(CloudRuntimeException.class, () -> guard.checkRestore(1L, provider, false));
+        }
+    }
+
+    @Test public void legacyProvidersDoNotUseTheAblestackAdmissionRules() {
+        for (String provider : CLOUDSTACK_PROVIDERS) {
+            guard.checkDependencies(1L, provider);
+            guard.checkBackup(1L, provider);
+            guard.checkRestore(1L, provider, false);
+            guard.checkRestore(1L, provider, true);
+        }
+        verifyNoInteractions(vmDao, volumeDao, snapshotDao, backupDao, backupDetailsDao, offeringDao, backupVolumeGuard,
+                vmInstanceDetailsDao, volumeDetailsDao, vmSnapshotDao, poolDao, snapshotDetailsDao);
     }
 
     @Test public void cloudStackProvidersDoNotLockOrRejectVolumeChangesDuringTheirBackupsOrRestores() {

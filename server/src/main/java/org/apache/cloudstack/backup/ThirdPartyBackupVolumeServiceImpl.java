@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
+import com.cloud.agent.manager.Commands;
 import com.cloud.host.Host;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.GlobalLock;
@@ -44,6 +45,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements ThirdPartyBackupVolumeService {
     // Match the external providers' catalog grace period, measured from confirmed absence rather than backup start.
     private static final long EXPIRATION_CONFIRMATION_MS = TimeUnit.MINUTES.toMillis(10);
+    // This is the start acknowledgment budget, independent of the engine's backup IO timeout.
+    private static final int BACKUP_START_RESPONSE_WAIT_SECONDS = 15;
     @Inject private AgentManager agentManager;
     @Inject private BackupDao backupDao;
     @Inject private BackupDetailsDao backupDetailsDao;
@@ -204,7 +207,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     private ThirdPartyBackupStart.Receipt backupStartControl(Host host, ThirdPartyBackupStart.Plan plan, String action)
             throws com.cloud.exception.AgentUnavailableException, com.cloud.exception.OperationTimedoutException {
         if (host == null || host.getId() != plan.hostId) { throw new CloudRuntimeException("Backup start Worker Host differs from the recorded attempt"); }
-        Answer answer = agentManager.send(host.getId(), new AblestackVolumeStagingCommand(plan.jobId, action, -1, new Gson().toJson(plan)));
+        AblestackVolumeStagingCommand command = new AblestackVolumeStagingCommand(plan.jobId, action, -1, new Gson().toJson(plan));
+        command.setWait(BACKUP_START_RESPONSE_WAIT_SECONDS);
+        Answer answer = agentManager.send(host.getId(), command);
         if (answer == null || !answer.getResult() || StringUtils.isBlank(answer.getDetails())) {
             throw new CloudRuntimeException(answer == null ? "Host did not confirm backup start control" : answer.getDetails());
         }
@@ -221,6 +226,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     public void dispatchBackup(Backup backup, Host host, com.cloud.agent.api.Command command, Transfer transfer) {
         GlobalLock lock = GlobalLock.getInternLock("backup.volume." + backup.getUuid());
         boolean acquired = false;
+        boolean prepared = false;
         try {
             acquired = lock.lock(5);
             if (!acquired) { throw new CloudRuntimeException("Backup dispatch is being reconciled; no new command was sent"); }
@@ -264,10 +270,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             start.reason = null;
             // Persist the intent before sending anything that can initialize the Host engine.
             saveBackupStart(backup.getId(), start);
-            Answer answer = agentManager.send(host.getId(), command);
-            if (answer == null || !answer.getResult()) {
-                saveBackupStartReason(backup.getId(), answer == null ? "Host start response was not received" : answer.getDetails());
-            }
+            prepared = true;
         } catch (Exception e) {
             if (acquired) {
                 try { saveBackupStartReason(backup.getId(), e.getMessage()); }
@@ -280,6 +283,21 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         }
         try { track(backup, host, transfer); }
         catch (RuntimeException e) { logger.warn("Backup start tracking will resume during provider reconciliation [{}]", backup.getUuid(), e); }
+        if (prepared) {
+            // A Host may be stuck in storage IO. Leave the coordinator lock available to
+            // cancellation/reconciliation; its durable Host fence rejects a delayed start.
+            try {
+                Answer[] answers = agentManager.send(host.getId(), new Commands(command), BACKUP_START_RESPONSE_WAIT_SECONDS);
+                Answer answer = answers == null || answers.length == 0 ? null : answers[0];
+                if (answer == null || !answer.getResult()) {
+                    recordBackupStartUnconfirmed(backup, answer == null ? "Host start response was not received" : answer.getDetails());
+                }
+            } catch (Exception e) {
+                try { recordBackupStartUnconfirmed(backup, e.getMessage()); }
+                catch (RuntimeException saveFailure) { logger.warn("Unable to persist backup start confirmation reason [{}]", backup.getUuid(), saveFailure); }
+                logger.warn("Backup start is unconfirmed [{}]; the same attempt will be reconciled: {}", backup.getUuid(), e.getMessage());
+            }
+        }
     }
 
     @Override

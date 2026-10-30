@@ -67,9 +67,26 @@ class SourceSupportTest(unittest.TestCase):
                     support.require_supported_sources(["/gfs/disk"])
 
     def test_tool_failure_is_not_treated_as_supported(self):
-        with patch.object(support.subprocess, "run", return_value=Mock(returncode=1)):
+        with patch.object(support.subprocess, "run", return_value=Mock(returncode=1, stderr="")):
             with self.assertRaisesRegex(RuntimeError, "BACKUP_SOURCE_UNKNOWN"):
                 support.require_supported_sources(["/gfs/disk"])
+
+    def test_mount_failure_reports_exit_code_and_diagnostic_without_continuing(self):
+        result = subprocess.CompletedProcess([], 1, "", "findmnt: /gfs/disk: No such file or directory\n")
+        with patch.object(support.subprocess, "run", return_value=result) as run:
+            with self.assertRaisesRegex(RuntimeError, "findmnt source inspection failed \\(exit=1\\): findmnt: /gfs/disk: No such file"):
+                support.require_supported_sources(["/gfs/disk"])
+            self.assertEqual(1, run.call_count)
+
+    def test_source_error_diagnostics_are_bounded_and_single_line(self):
+        result = subprocess.CompletedProcess([], 2, "", "line one\n" + "x" * 1000)
+        with patch.object(support.subprocess, "run", return_value=result):
+            with self.assertRaises(RuntimeError) as failure:
+                support.require_supported_sources(["/gfs/disk"])
+        message = str(failure.exception)
+        self.assertNotIn("\n", message)
+        self.assertIn("exit=2", message)
+        self.assertLess(len(message), 600)
 
     def test_shared_image_probe_uses_read_only_force_share(self):
         with patch.object(support, "inspect", side_effect=["gfs2", '{"format":"qcow2"}']) as inspect:

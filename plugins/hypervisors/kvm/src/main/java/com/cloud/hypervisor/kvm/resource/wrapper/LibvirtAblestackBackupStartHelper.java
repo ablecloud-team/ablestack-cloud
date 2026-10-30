@@ -24,12 +24,15 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import com.cloud.agent.api.Command;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.common.collect.MapMaker;
 import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.BackupAnswer;
 import org.apache.cloudstack.backup.ThirdPartyBackupStart;
@@ -38,13 +41,14 @@ import org.apache.logging.log4j.Logger;
 /** Stable start receipts survive deletion of the removable Host job directory. */
 final class LibvirtAblestackBackupStartHelper {
     private static final Path ROOT = Path.of(AblestackBackupFrameworkUtils.BACKUP_START_ROOT);
-    private static final Object[] LOCAL_LOCKS = java.util.stream.IntStream.range(0, 256)
-            .mapToObj(index -> new Object()).toArray();
+    // Each operation holds a strong reference until unlock. Weak values let idle job
+    // locks retire without sharing a stripe with an unrelated, potentially stuck job.
+    private static final ConcurrentMap<String, ReentrantLock> LOCAL_LOCKS = new MapMaker().weakValues().makeMap();
 
     private LibvirtAblestackBackupStartHelper() { }
 
-    private static Object localLock(String jobId) {
-        return LOCAL_LOCKS[Math.floorMod(jobId.hashCode(), LOCAL_LOCKS.length)];
+    private static ReentrantLock localLock(String jobId) {
+        return LOCAL_LOCKS.computeIfAbsent(jobId, key -> new ReentrantLock());
     }
 
     private static void validate(ThirdPartyBackupStart.Plan plan) {
@@ -128,7 +132,9 @@ final class LibvirtAblestackBackupStartHelper {
         }
         // Serialize local threads before opening the lock file. POSIX record locks
         // can be released by closing another descriptor for this file in the same process.
-        synchronized (localLock(plan.jobId)) {
+        ReentrantLock local = localLock(plan.jobId);
+        if (!local.tryLock()) { throw new CloudRuntimeException("Backup launch is being reconciled; retry shortly"); }
+        try {
             Files.createDirectories(ROOT);
             // FileLock and Python lockf use the same POSIX record lock, unlike Python flock.
             try (FileChannel channel = FileChannel.open(ROOT.resolve(plan.jobId + ".lock"),
@@ -173,7 +179,7 @@ final class LibvirtAblestackBackupStartHelper {
                 }
                 return receipt;
             }
-        }
+        } finally { local.unlock(); }
     }
 
     static BackupAnswer launch(Command command, Logger logger, String trace, String provider, String jobId, String vmName,
@@ -187,7 +193,9 @@ final class LibvirtAblestackBackupStartHelper {
                 throw new CloudRuntimeException("Backup command differs from its prepared start plan");
             }
             if (LibvirtAblestackJobHistory.closed(jobId)) { return new BackupAnswer(command, false, "Backup attempt is already retired"); }
-            synchronized (localLock(plan.jobId)) {
+            ReentrantLock local = localLock(plan.jobId);
+            if (!local.tryLock()) { throw new CloudRuntimeException("Backup start control is busy; dispatch is unconfirmed"); }
+            try {
                 Files.createDirectories(ROOT);
                 try (FileChannel channel = FileChannel.open(ROOT.resolve(jobId + ".lock"),
                         StandardOpenOption.CREATE, StandardOpenOption.WRITE); FileLock lock = channel.tryLock()) {
@@ -213,7 +221,7 @@ final class LibvirtAblestackBackupStartHelper {
                     return LibvirtAblestackAsyncBackupRunner.startDetached(command, logger, trace, provider, jobId,
                             vmName, backupPath, backupType, scriptCommand, false);
                 }
-            }
+            } finally { local.unlock(); }
         } catch (IOException | RuntimeException e) {
             logger.warn("Volume backup start is unconfirmed for job [{}]: {}", jobId, e.getMessage(), e);
             return new BackupAnswer(command, false, e.getMessage());

@@ -36,7 +36,9 @@ def inspect(args):
     except (OSError, subprocess.TimeoutExpired) as error:
         raise RuntimeError("BACKUP_SOURCE_UNKNOWN: Source inspection failed (%s)" % type(error).__name__) from None
     if result.returncode:
-        raise RuntimeError("BACKUP_SOURCE_UNKNOWN: %s source inspection failed" % args[0])
+        detail = " ".join(result.stderr.split())[:512]
+        raise RuntimeError("BACKUP_SOURCE_UNKNOWN: %s source inspection failed (exit=%s)%s" %
+                           (args[0], result.returncode, ": " + detail if detail else ""))
     return result.stdout
 
 
