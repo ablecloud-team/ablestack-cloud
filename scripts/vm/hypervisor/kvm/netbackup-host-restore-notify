@@ -135,24 +135,12 @@ load_secret() {
 }
 
 urlencode_plus() {
-  local value="$1"
-  local encoded="" char i code
-  for ((i = 0; i < ${#value}; i++)); do
-    char="${value:i:1}"
-    case "${char}" in
-      [a-zA-Z0-9.~_-])
-        encoded+="${char}"
-        ;;
-      ' ')
-        encoded+="+"
-        ;;
-      *)
-        printf -v code '%%%02X' "'${char}"
-        encoded+="${code}"
-        ;;
-    esac
-  done
-  printf '%s' "${encoded}"
+  python3 - "$1" <<'PY'
+import sys
+from urllib.parse import quote_plus
+
+print(quote_plus(sys.argv[1]), end="")
+PY
 }
 
 build_api_params() {
@@ -164,29 +152,24 @@ build_api_params() {
 
 build_signed_url() {
   local api_params="$1"
-  local sorted_url signature
-  sorted_url="$(
-    {
-      printf 'apikey=%s\n' "$(printf '%s' "${ADMIN_APIKEY}" | tr '[:upper:]' '[:lower:]')"
-      IFS='&' read -r -a tokens <<< "${api_params}"
-      for token in "${tokens[@]}"; do
-        local key value
-        key="${token%%=*}"
-        value="${token#*=}"
-        printf '%s=%s\n' "$(printf '%s' "${key}" | tr '[:upper:]' '[:lower:]')" "$(printf '%s' "${value}" | tr '[:upper:]' '[:lower:]')"
-      done
-    } | sort | paste -sd '&' -
-  )"
-  signature="$(
-    printf '%s' "${sorted_url}" \
-      | openssl dgst -sha256 -hmac "${ADMIN_SECRETKEY}" -binary \
-      | openssl base64 -A
-  )"
-  printf '%s?%s&apiKey=%s&signature=%s' \
-    "${MOLD_RESTORE_API_URL}" \
-    "${api_params}" \
-    "$(urlencode_plus "${ADMIN_APIKEY}")" \
-    "$(urlencode_plus "${signature}")"
+  python3 - "$MOLD_RESTORE_API_URL" "$api_params" "$ADMIN_APIKEY" "$ADMIN_SECRETKEY" <<'PY'
+import base64
+import hashlib
+import hmac
+import sys
+from urllib.parse import parse_qsl, quote_plus
+
+base_url, api_params, api_key, secret_key = sys.argv[1:]
+params = [("apikey", api_key)] + parse_qsl(api_params, keep_blank_values=True)
+
+def encode(value):
+    # ApiServer.verifyRequest uses Java URLEncoder, then replaces spaces with %20.
+    return quote_plus(value, safe="*").replace("~", "%7E").replace("+", "%20")
+
+canonical = "&".join(f"{key}={encode(value)}" for key, value in sorted(params)).lower()
+signature = base64.b64encode(hmac.new(secret_key.encode(), canonical.encode(), hashlib.sha256).digest()).decode()
+print(f"{base_url}?{api_params}&apiKey={quote_plus(api_key)}&signature={quote_plus(signature)}", end="")
+PY
 }
 
 invoke_mold_api() {
@@ -195,6 +178,7 @@ invoke_mold_api() {
   local request_key="$3"
   local external_id="$4"
   local netbackup_job_id="${5:-}"
+  local extra_params="${6:-}"
   local api_params signed_url response http_body http_code curl_exit
 
   log_line "RESTORE api-call command=${command_name} method=${method} externalid=${external_id} netbackup_jobid=${netbackup_job_id:-}"
@@ -202,6 +186,7 @@ invoke_mold_api() {
   if [[ -n "${netbackup_job_id}" ]]; then
     api_params="${api_params}&jobid=$(urlencode_plus "${netbackup_job_id}")"
   fi
+  [[ -z "${extra_params}" ]] || api_params="${api_params}&${extra_params}"
   api_params="$(build_api_params "${command_name}" "${api_params}")"
   signed_url="$(build_signed_url "${api_params}")"
   response="$(curl -sS -X "${method}" \
@@ -305,6 +290,17 @@ wait_for_mold_async_job() {
   done
 }
 
+submit_volume_restore() {
+  local external_id="$1" netbackup_job_id="$2" restore_params="provider=ablestack-netbackup"
+  if [[ "${3:-false}" == true ]]; then
+    restore_params+="&cleanupmetadataonly=true"
+  fi
+  if [[ -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]]; then
+    restore_params+="&proof=$(urlencode_plus "${MOLD_EXTERNAL_RESTORE_PROOF}")"
+  fi
+  invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "restoreBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "${restore_params}"
+}
+
 main() {
   if [[ $# -lt 2 ]]; then
     fail "usage: netbackup-host-restore-notify <program_name> <external_id> [operation] [netbackup_job_id]"
@@ -318,7 +314,7 @@ main() {
   local response
 
   log_line "START script=netbackup-host-restore-notify args=$*"
-  require_commands openssl base64 od sed tr curl date mkdir sleep
+  require_commands python3 openssl base64 od sed tr curl date mkdir sleep
   load_config
   load_secret
   log_line "RESTORE config-loaded program=${program_name} externalid=${external_id} operation=${operation} mold_url=${MOLD_RESTORE_API_URL} log_file=${LOG_FILE}"
@@ -333,10 +329,59 @@ main() {
     return 0
   fi
 
-  if [[ -n "${operation}" && "${operation,,}" != "restore" ]]; then
+  if [[ -n "${operation}" && "${operation,,}" != "restore" && "${operation,,}" != "resolve" && "${operation,,}" != "cleanup" ]]; then
     log_line "RESTORE skip externalid=${external_id} operation=${operation} reason=unsupported-operation"
     return 0
   fi
+
+  # Resolve volume-pipeline child artifacts by their catalog ID or original selection.
+  # A metadata UI restore only triggers Mold; Mold reserves capacity and restores
+  # every volume itself. Its own restore jobs must never re-enter this post hook.
+  response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "resolveBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "provider=ablestack-netbackup")" || return 1
+  if [[ "${operation,,}" == "resolve" ]]; then
+    printf '%s\n' "${response}"
+    return 0
+  fi
+  if [[ "${operation,,}" == "cleanup" ]]; then
+    [[ -n "${netbackup_job_id}" && -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]] || fail "Metadata cleanup requires the original external Job completion proof"
+    response="$(submit_volume_restore "${external_id}" "${netbackup_job_id}" true)" || return 1
+    local cleanup_job_id
+    cleanup_job_id="$(extract_json_value_by_key "${response}" "jobid" 2>/dev/null || true)"
+    [[ -n "${cleanup_job_id}" ]] || fail "Mold metadata cleanup reconciliation returned no async jobid: ${response}"
+    printf 'SUBMITTED metadata cleanup jobid=%s\n' "${cleanup_job_id}"
+    return 0
+  fi
+  local matched tracked allowed reason artifact_type rejected_success
+  matched="$(extract_json_value_by_key "${response}" "matched" 2>/dev/null || true)"
+  [[ -n "${matched}" ]] || fail "Mold resolveBackupArtifact returned no resolution: ${response}"
+  if [[ "${matched,,}" == "true" ]]; then
+    tracked="$(extract_json_value_by_key "${response}" "tracked" 2>/dev/null || true)"
+    allowed="$(extract_json_value_by_key "${response}" "restoreallowed" 2>/dev/null || true)"
+    reason="$(extract_json_value_by_key "${response}" "reason" 2>/dev/null || true)"
+    if [[ "${tracked,,}" == "true" || "${allowed,,}" != "true" ]]; then
+      artifact_type="$(extract_json_value_by_key "${response}" "artifacttype" 2>/dev/null || true)"
+      if [[ "${tracked,,}" != "true" && "${artifact_type}" == "METADATA" ]]; then
+        [[ -n "${netbackup_job_id}" && -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]] || fail "Rejected metadata requires an exact external Job completion proof; watcher will retry"
+        response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "rejectBackupArtifactRestore" "externalid" "${external_id}" "${netbackup_job_id}" \
+          "provider=ablestack-netbackup&reason=$(urlencode_plus "${reason:-Metadata restore precheck declined}")&proof=$(urlencode_plus "${MOLD_EXTERNAL_RESTORE_PROOF}")")" || return 1
+        rejected_success="$(extract_json_value_by_key "${response}" "success" 2>/dev/null || true)"
+        [[ "${rejected_success,,}" == "true" ]] || fail "Mold did not confirm rejected metadata history and cleanup tracking"
+      fi
+      log_line "RESTORE volume-pipeline-skip externalid=${external_id} jobid=${netbackup_job_id} reason=${reason}"
+      printf 'SKIPPED restoreBackupArtifact reason=%s\n' "${reason}"
+      return 0
+    fi
+    [[ -n "${netbackup_job_id}" ]] || fail "Volume pipeline callback requires the exact NetBackup restore Job ID"
+    response="$(submit_volume_restore "${external_id}" "${netbackup_job_id}")" || return 1
+    local pipeline_job_id
+    pipeline_job_id="$(extract_json_value_by_key "${response}" "jobid" 2>/dev/null || true)"
+    [[ -n "${pipeline_job_id}" ]] || fail "Mold restoreBackupArtifact returned no async jobid: ${response}"
+    log_line "RESTORE volume-pipeline-submitted externalid=${external_id} netbackup_jobid=${netbackup_job_id} mold_jobid=${pipeline_job_id}"
+    printf 'SUBMITTED restoreBackupArtifact jobid=%s\n' "${pipeline_job_id}"
+    return 0
+  fi
+
+  # Legacy VM-directory backups keep their existing restore coordinator.
 
   if looks_like_backup_id "${external_id}"; then
     request_key="backupid"

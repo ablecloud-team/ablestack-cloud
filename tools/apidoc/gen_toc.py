@@ -227,6 +227,7 @@ known_categories = {
     'Diagnostics': 'Diagnostics',
     'Management': 'Management',
     'Backup' : 'Backup and Recovery',
+    'getVeeamRuntimeConfig' : 'Backup and Recovery',
     'Restore' : 'Backup and Recovery',
     'startBackup' : 'Backup and Recovery',
     'finalizeBackup' : 'Backup and Recovery',

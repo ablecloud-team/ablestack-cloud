@@ -1397,6 +1397,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
         final Account owner = _entityMgr.findById(Account.class, vm.getAccountId());
         final ServiceOfferingVO offering = _offeringDao.findById(vm.getId(), vm.getServiceOfferingId());
         final VirtualMachineTemplate template = _entityMgr.findByIdIncludingRemoved(VirtualMachineTemplate.class, vm.getTemplateId());
+        preserveKvmPcieTopology(vm);
         final Ternary<VMInstanceVO, ReservationContext, ItWorkVO> start = changeToStartState(vmGuru, vm, caller, account, owner, offering, template);
         if (start == null) {
             return;
@@ -1610,6 +1611,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
 
                     startAnswer = cmds.getAnswer(StartAnswer.class);
                     if (startAnswer != null && startAnswer.getResult()) {
+                        saveKvmPcieTopology(vm, startAnswer);
                         handlePath(vmTO.getDisks(), startAnswer.getIqnToData());
 
                         final String host_guid = startAnswer.getHost_guid();
@@ -2054,6 +2056,40 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void preserveKvmPcieTopology(final VirtualMachine vm) {
+        if (vm.getType() != VirtualMachine.Type.User || vm.getHypervisorType() != HypervisorType.KVM
+                || vmInstanceDetailsDao.findDetail(vm.getId(), VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY) != null) {
+            return;
+        }
+        Long hostId = vm.getState() == State.Running && vm.getHostId() != null ? vm.getHostId()
+                : vm.getLastHostId() != null ? vm.getLastHostId() : vm.getHostId();
+        if (hostId == null) { return; }
+        try {
+            var command = new com.cloud.agent.api.CheckVmPcieTopologyCommand(vm.getInstanceName(), vm.getUuid());
+            Answer answer = _agentMgr.send(hostId, command);
+            if (answer != null && answer.getResult() && answer.getDetails() != null) {
+                String policy = KvmQ35PcieTopology.resolve(Collections.singletonMap(VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY, answer.getDetails())).value();
+                vmInstanceDetailsDao.addDetail(vm.getId(), VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY, policy, false);
+                logger.info("Preserved Q35 PCIe policy [{}] for VM [{}] from its last Host [{}]", policy, vm.getInstanceName(), hostId);
+            }
+        } catch (AgentUnavailableException | OperationTimedoutException e) {
+            logger.warn("Previous PCIe configuration is unavailable on Host [{}] for VM [{}]; its policy remains unrecorded", hostId, vm.getInstanceName());
+        }
+    }
+
+    protected void saveKvmPcieTopology(final VirtualMachine vm, final StartAnswer answer) {
+        if (vm.getType() != VirtualMachine.Type.User || vm.getHypervisorType() != HypervisorType.KVM
+                || answer == null || !answer.getResult() || answer.getVirtualMachine() == null) { return; }
+        VirtualMachineTO reported = answer.getVirtualMachine();
+        if (!vm.getUuid().equals(reported.getUuid()) || reported.getDetails() == null
+                || !reported.getDetails().containsKey(VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY)) { return; }
+        if (vmInstanceDetailsDao.findDetail(vm.getId(), VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY) == null) {
+            vmInstanceDetailsDao.addDetail(vm.getId(), VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY,
+                    KvmQ35PcieTopology.resolve(reported.getDetails()).value(), false);
         }
     }
 
@@ -2533,6 +2569,7 @@ public class VirtualMachineManagerImpl extends ManagerBase implements VirtualMac
             return;
         }
 
+        preserveKvmPcieTopology(vm);
         final ItWorkVO work = _workDao.findByOutstandingWork(vm.getId(), vm.getState());
         if (work != null) {
             logger.debug("Found an outstanding work item for this vm {} with state: {}, work id: {}", vm, vm.getState(), work.getId());

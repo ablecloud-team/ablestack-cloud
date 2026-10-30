@@ -28,6 +28,9 @@ import org.apache.cloudstack.api.BaseAsyncCreateCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.SuccessResponse;
+import org.apache.cloudstack.api.response.BackupOfferingResponse;
+import org.apache.cloudstack.api.response.HostResponse;
+import org.apache.cloudstack.api.response.BackupScheduleResponse;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.backup.BackupManager;
 import org.apache.cloudstack.context.CallContext;
@@ -86,6 +89,33 @@ public class CreateAblestackVeeamBackupCmd extends BaseAsyncCreateCmd {
                     + "When that job is deleted on the Veeam server, Mold removes matching backup rows.",
             since = "4.22.0.0")
     private String veeamJobName;
+
+    @Parameter(name = "selectionmode", type = CommandType.STRING,
+            description = "Host target selection mode: SCHEDULE or CONFIG")
+    private String selectionMode;
+
+    @Parameter(name = ApiConstants.HOST_ID, type = CommandType.UUID, entityType = HostResponse.class,
+            description = "Host that selected this VM; execution stops if the VM has moved")
+    private Long hostId;
+
+    @Parameter(name = ApiConstants.BACKUP_OFFERING_ID, type = CommandType.UUID, entityType = BackupOfferingResponse.class,
+            description = "Offering observed during target selection; execution stops if it changed")
+    private Long backupOfferingId;
+
+    @Parameter(name = "vmschedulebackup", type = CommandType.BOOLEAN,
+            description = "Host configuration VM_SCHEDULE_BACKUP: true uses only Mold VM schedules; false uses host include/exclude filters. Omitted preserves automatic selection.")
+    private Boolean vmScheduleBackup;
+
+    public Boolean getVmScheduleBackup() { return vmScheduleBackup; }
+    public String getSelectionMode() { return selectionMode; }
+    public Long getHostId() { return hostId; }
+    public Long getBackupOfferingId() { return backupOfferingId; }
+
+    @Parameter(name = ApiConstants.SCHEDULE_ID, type = CommandType.UUID, entityType = BackupScheduleResponse.class,
+            description = "Mold VM backup schedule selected by the host job")
+    private Long scheduleId;
+
+    public Long getScheduleId() { return scheduleId; }
 
     public Long getVmId() {
         return vmId;

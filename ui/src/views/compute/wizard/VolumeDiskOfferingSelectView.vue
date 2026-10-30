@@ -52,6 +52,8 @@
             <a-input-number
               :defaultValue="record.size"
               :min="items[record.id].size"
+              :max="fixedCapacity ? items[record.id].size : undefined"
+              :disabled="fixedCapacity ? true : undefined"
               @change="updateCustomDiskSize($event, record.id)"
             />
           </span>
@@ -94,6 +96,10 @@ export default {
     zoneId: {
       type: String,
       default: () => ''
+    },
+    fixedCapacity: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -200,7 +206,8 @@ export default {
         this.customIops[x.id] = this.diskOfferings.find(offering => offering.id === x.diskofferingid)?.iscustomizediops || false
       })
       for (const item of this.items) {
-        this.validOfferings[item.id] = this.diskOfferings.filter(x => x.disksize >= item.size || (x.iscustomized))
+        this.validOfferings[item.id] = this.diskOfferings.filter(x => x.iscustomized ||
+          (this.fixedCapacity ? x.disksize === item.size : x.disksize >= item.size))
       }
       this.setDefaultValues()
       this.loading = false
@@ -265,7 +272,9 @@ export default {
     sendValues () {
       const data = {}
       for (var x in this.values) {
-        data[x] = this.values[x]
+        data[x] = this.fixedCapacity
+          ? { ...this.values[x], provisioningtype: this.diskOfferings.find(offering => offering.id === this.values[x].offering)?.provisioningtype }
+          : this.values[x]
       }
       this.$emit('select-volumes-disk-offering', data)
     }

@@ -22,13 +22,11 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 import com.amazonaws.util.CollectionUtils;
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.script.Script;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackNasTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.security.ParserUtils;
@@ -61,15 +59,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.BACKUP_COMPLETE_MARKER;
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.BACKUP_IN_PROGRESS_MARKER;
+
 class LibvirtAblestackNasBackupHelper {
     protected Logger LOGGER = LogManager.getLogger(LibvirtAblestackNasBackupHelper.class);
     static final Integer EXIT_CLEANUP_FAILED = 20;
     private static final int BACKUP_JOB_POLL_INTERVAL_MS = 10000;
     private static final int UNMOUNT_TIMEOUT_SECONDS = 60;
     private static final DateTimeFormatter SCRIPT_LOG_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss>");
-    private static final String IN_PROGRESS_MARKER = ".backup.inprogress";
-    private static final String COMPLETE_MARKER = ".backup.complete";
-    private static final String BACKUP_TRACE = "[ABLESTACK_NAS_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("ablestack-nas", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     enum BackupExecutionMode {
         RUNNING("backup-running"),
@@ -97,6 +96,7 @@ class LibvirtAblestackNasBackupHelper {
         LOGGER.info("LibvirtNasBackupHelper executeBackup entered for vm=[{}], backupPath=[{}], backupType=[{}]",
                 command.getVmName(), command.getBackupPath(), command.getBackupType());
         List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        if (command.getOfflineGuard() != null) return executeOfflineRawBackup(command, diskPaths);
         BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
         LOGGER.debug("NAS backup execution mode=[{}], vm=[{}], backupType=[{}], diskPaths=[{}]",
                 executionMode, command.getVmName(), command.getBackupType(), diskPaths);
@@ -125,26 +125,19 @@ class LibvirtAblestackNasBackupHelper {
         return result;
     }
 
+    String[] buildDetachedBackupScriptCommand(AblestackNasTakeBackupCommand command) {
+        if (command.getOfflineGuard() != null) return null;
+        List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
+        if (BackupExecutionMode.STOPPED.equals(executionMode)) {
+            LOGGER.info("NAS detached backup is skipped for stopped VM [{}]. Java helper execution is required.", command.getVmName());
+            return null;
+        }
+        return buildBackupScriptCommand(command, diskPaths, executionMode);
+    }
+
     List<String> resolveDiskPaths(List<PrimaryDataStoreTO> volumePools, List<String> volumePaths) {
-        List<String> diskPaths = new ArrayList<>();
-        if (Objects.isNull(volumePaths)) {
-            return diskPaths;
-        }
-
-        KVMStoragePoolManager storagePoolMgr = resource.getStoragePoolMgr();
-        for (int idx = 0; idx < volumePaths.size(); idx++) {
-            PrimaryDataStoreTO volumePool = volumePools.get(idx);
-            String volumePath = volumePaths.get(idx);
-            if (volumePool.getPoolType() != Storage.StoragePoolType.RBD) {
-                diskPaths.add(volumePath);
-                continue;
-            }
-
-            KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            diskPaths.add(KVMPhysicalDisk.RBDStringBuilder(volumeStoragePool, volumePath));
-        }
-
-        return diskPaths;
+        return LibvirtAblestackTakeBackupCommandHelper.resolveDiskPaths(resource, volumePools, volumePaths);
     }
 
     long parseBackupSize(String output, List<String> diskPaths) {
@@ -192,6 +185,7 @@ class LibvirtAblestackNasBackupHelper {
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-f", CollectionUtils.isNullOrEmpty(command.getBackupFiles()) ? "" : String.join(",", command.getBackupFiles()),
                 "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--data-operation-timeout-seconds", String.valueOf(command.getWait()),
                 "--bandwidth-limit-mbps", String.valueOf(command.getBandwidthLimitMbps())
         };
     }
@@ -316,6 +310,46 @@ class LibvirtAblestackNasBackupHelper {
         }
     }
 
+    private Pair<Integer, String> executeOfflineRawBackup(AblestackNasTakeBackupCommand command, List<String> sources) {
+        Path mount = null;
+        Path destination = null;
+        Path payloadFile = null;
+        try {
+            var plan = command.getOfflineGuard();
+            if (!"FULL".equalsIgnoreCase(command.getBackupType()) || command.getParentBackupPath() != null
+                    || !command.getBackupJobId().equals(plan.jobId)
+                    || !LibvirtAblestackSharedRawGuard.paths(resource, plan).equals(sources))
+                throw new IOException("Offline RAW requires the exact protected FULL source plan");
+            mount = mountRepository(command);
+            destination = mount.resolve(command.getBackupPath()).normalize();
+            if (!destination.startsWith(mount) || destination.equals(mount)) throw new IOException("Invalid NAS backup destination");
+            Files.createDirectories(destination.getParent());
+            Files.createDirectory(destination);
+            markBackupInProgress(destination, command);
+            java.util.Map<String, Object> payload = new java.util.LinkedHashMap<>();
+            payload.put("plan", plan); payload.put("paths", sources);
+            payload.put("destination", destination.toString()); payload.put("files", command.getBackupFiles());
+            payload.put("timeout", command.getWait() > 0 ? command.getWait() : 43200);
+            payload.put("bandwidth", command.getBandwidthLimitMbps() == null ? 0 : command.getBandwidthLimitMbps());
+            payloadFile = Files.createTempFile("ablestack-offline-raw-", ".json");
+            Files.writeString(payloadFile, new com.google.gson.Gson().toJson(payload));
+            Path helper = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("ablestack_shared_raw.py");
+            var result = Script.executePipedCommands(List.<String[]>of(new String[] {"python3", helper.toString(),
+                    "--action", "EXPORT_NAS", "--plan-file", payloadFile.toString()}),
+                    TimeUnit.SECONDS.toMillis(command.getWait() > 0 ? command.getWait() + 60L : 43260L));
+            if (result.first() != 0) throw new IOException("Offline RAW export failed: " + result.second());
+            markBackupComplete(destination, command);
+            return result;
+        } catch (Exception failure) {
+            LOGGER.warn("Offline RAW NAS backup failed for [{}]: {}", command.getVmName(), failure.getMessage(), failure);
+            // Keep partial files until source termination and normal failed-backup cleanup are confirmed.
+            return new Pair<>(EXIT_CLEANUP_FAILED, failure.getMessage());
+        } finally {
+            if (payloadFile != null) try { Files.deleteIfExists(payloadFile); } catch (IOException ignored) { }
+            unmountRepository(command, mount);
+        }
+    }
+
     private Path mountRepository(AblestackNasTakeBackupCommand command) throws IOException {
         Path mountPoint = Files.createTempDirectory("csbackup.");
         final String mount;
@@ -365,20 +399,20 @@ class LibvirtAblestackNasBackupHelper {
     }
 
     private void markBackupInProgress(Path dest, AblestackNasTakeBackupCommand command) throws IOException {
-        Files.deleteIfExists(dest.resolve(COMPLETE_MARKER));
-        Files.writeString(dest.resolve(IN_PROGRESS_MARKER),
+        Files.deleteIfExists(dest.resolve(BACKUP_COMPLETE_MARKER));
+        Files.writeString(dest.resolve(BACKUP_IN_PROGRESS_MARKER),
                 String.format("vm=%s%ncheckpoint=%s%n", command.getVmName(), command.getCheckpointName()),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     private void markBackupComplete(Path dest, AblestackNasTakeBackupCommand command) throws IOException {
-        Path completeMarker = dest.resolve(COMPLETE_MARKER);
-        Path tmpMarker = dest.resolve(COMPLETE_MARKER + ".tmp");
+        Path completeMarker = dest.resolve(BACKUP_COMPLETE_MARKER);
+        Path tmpMarker = dest.resolve(BACKUP_COMPLETE_MARKER + ".tmp");
         Files.writeString(tmpMarker,
                 String.format("vm=%s%ncheckpoint=%s%n", command.getVmName(), command.getCheckpointName()),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         Files.move(tmpMarker, completeMarker, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        Files.deleteIfExists(dest.resolve(IN_PROGRESS_MARKER));
+        Files.deleteIfExists(dest.resolve(BACKUP_IN_PROGRESS_MARKER));
     }
 
     private boolean unmountRepository(AblestackNasTakeBackupCommand command, Path mountPoint) {
@@ -434,22 +468,7 @@ class LibvirtAblestackNasBackupHelper {
     }
 
     private Pair<Integer, String> runCommandWithOutput(String command) {
-        String wrappedCommand = String.format("set +e; %s 2>&1; rc=$?; echo __CMD_EXIT__=$rc", command);
-        String output = Script.runSimpleBashScriptWithFullResult(wrappedCommand, resource.getCmdsTimeout());
-        if (output == null) {
-            return new Pair<>(-1, "");
-        }
-
-        List<String> lines = new ArrayList<>(Arrays.asList(output.split("\n")));
-        int exitCode = -1;
-        if (!lines.isEmpty()) {
-            String lastLine = lines.get(lines.size() - 1).trim();
-            if (lastLine.startsWith("__CMD_EXIT__=")) {
-                exitCode = Integer.parseInt(lastLine.substring("__CMD_EXIT__=".length()));
-                lines.remove(lines.size() - 1);
-            }
-        }
-        return new Pair<>(exitCode, String.join("\n", lines).trim());
+        return LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "bash", "-c", command);
     }
 
     private String sanitizeCommandOutput(String output) {
@@ -578,8 +597,9 @@ class LibvirtAblestackNasBackupHelper {
     }
 
     private void waitForBackup(AblestackNasTakeBackupCommand command, String vmName, long timeoutMillis, long startedAt) throws IOException {
+        final long deadline = System.currentTimeMillis() + timeoutMillis;
         long remainingMillis = timeoutMillis;
-        while (remainingMillis > 0) {
+        while ((remainingMillis = deadline - System.currentTimeMillis()) > 0) {
             String result = checkBackupJob(vmName);
             if (result != null && result.contains("Completed") && result.contains("Backup")) {
                 return;
@@ -594,14 +614,13 @@ class LibvirtAblestackNasBackupHelper {
                 Thread.currentThread().interrupt();
                 throw new IOException(e);
             }
-            remainingMillis -= sleepMillis;
         }
         throw new IOException("Timed out waiting for backup job of dummy VM " + vmName + " after " + timeoutMillis + " milliseconds"
         );
     }
 
     private void cancelBackupJob(String vmName) {
-        Script.runSimpleBashScriptForExitValue(String.format("virsh -c qemu:///system domjobabort --domain %s > /dev/null 2>&1", shellQuote(vmName)));
+        LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
     }
 
     private String checkBackupJob(String vmName) {

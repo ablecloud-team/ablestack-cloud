@@ -5532,6 +5532,7 @@ public class LibvirtComputingResourceTest {
         when(vmSpec.getType()).thenReturn(VirtualMachine.Type.User);
         when(vmSpec.getName()).thenReturn(vmName);
         when(vmSpec.getDisks()).thenReturn(new DiskTO[]{diskToMock});
+        when(vmDef.getDevices()).thenReturn(new LibvirtVMDef.DevicesDef());
         when(diskToMock.getData()).thenReturn(new VolumeObjectTO());
         when(libvirtComputingResourceMock.createVMFromSpec(vmSpec)).thenReturn(vmDef);
 

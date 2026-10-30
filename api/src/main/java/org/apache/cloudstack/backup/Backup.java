@@ -40,7 +40,7 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
     Long getHostId();
 
     enum Status {
-        Allocated, Queued, BackingUp, ReadyForImageTransfer, FinalizingImageTransfer, BackedUp, Error, Failed, Restoring, Removed, Expunged,
+        Allocated, Queued, BackingUp, ReadyForImageTransfer, FinalizingImageTransfer, BackedUp, Error, Failed, Canceled, Restoring, Removed, Expunged,
         // Hidden: a chain backup kept as a tombstone after the user deleted it while it still has
         // live descendants (incremental chains). Excluded from listBackups and from all backup
         // operations (which require BackedUp); swept from the DB once its last descendant is gone.
@@ -159,6 +159,9 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
     }
 
     class VolumeInfo implements Serializable {
+        private BackupVolumeAllocation allocation;
+        public BackupVolumeAllocation getAllocation() { return allocation; }
+        public void setAllocation(BackupVolumeAllocation value) { allocation = value; }
         private String uuid;
         private Volume.Type type;
         private Long size;

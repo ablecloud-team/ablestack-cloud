@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
@@ -57,6 +60,28 @@ public class KVMStoragePoolManager {
     private KVMHAMonitor _haMonitor;
     private final Map<String, StoragePoolInformation> _storagePools = new ConcurrentHashMap<String, StoragePoolInformation>();
     private final Map<String, StorageAdaptor> _storageMapper = new HashMap<String, StorageAdaptor>();
+    // Keep the lock identity across unregister/re-register. Removing a lock while a caller
+    // still holds it would let two operations mutate the same pool concurrently.
+    private final Map<String, ReentrantLock> storagePoolLocks = new ConcurrentHashMap<>();
+
+    private <T> T withStoragePoolLock(String uuid, Supplier<T> operation) {
+        if (uuid == null) { throw new CloudRuntimeException("Storage pool UUID is required"); }
+        ReentrantLock lock = storagePoolLocks.computeIfAbsent(uuid, key -> new ReentrantLock());
+        try {
+            if (!lock.tryLock(5, TimeUnit.SECONDS)) {
+                throw new CloudRuntimeException("STORAGE_POOL_BUSY: Another operation is still running for storage pool "
+                        + uuid + "; retry after checking its storage IO.");
+            }
+            try {
+                return operation.get();
+            } finally {
+                lock.unlock();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CloudRuntimeException("STORAGE_POOL_INTERRUPTED: Interrupted while waiting for storage pool " + uuid, e);
+        }
+    }
 
     private StorageAdaptor getStorageAdaptor(StoragePoolType type) {
         // type can be null: LibVirtComputingResource:3238
@@ -288,8 +313,11 @@ public class KVMStoragePoolManager {
         return this.getStoragePool(type, uuid, false, true);
     }
 
-    public synchronized KVMStoragePool getStoragePool(StoragePoolType type, String uuid, boolean refreshInfo, boolean addDetails) {
+    public KVMStoragePool getStoragePool(StoragePoolType type, String uuid, boolean refreshInfo, boolean addDetails) {
+        return withStoragePoolLock(uuid, () -> getStoragePoolLocked(type, uuid, refreshInfo, addDetails));
+    }
 
+    private KVMStoragePool getStoragePoolLocked(StoragePoolType type, String uuid, boolean refreshInfo, boolean addDetails) {
         StorageAdaptor adaptor = getStorageAdaptor(type);
         KVMStoragePool pool = null;
         try {
@@ -428,8 +456,13 @@ public class KVMStoragePoolManager {
         return createStoragePool(name, host, port, path, userInfo, type, details, true);
     }
 
-    //Note: due to bug CLOUDSTACK-4459, createStoragepool can be called in parallel, so need to be synced.
-    private synchronized KVMStoragePool createStoragePool(String name, String host, int port, String path, String userInfo, StoragePoolType type, Map<String, String> details, boolean primaryStorage) {
+    // CLOUDSTACK-4459: creation must remain serialized with get/delete for the same pool.
+    private KVMStoragePool createStoragePool(String name, String host, int port, String path, String userInfo, StoragePoolType type, Map<String, String> details, boolean primaryStorage) {
+        return withStoragePoolLock(name, () -> createStoragePoolLocked(name, host, port, path, userInfo, type, details, primaryStorage));
+    }
+
+    private KVMStoragePool createStoragePoolLocked(String name, String host, int port, String path, String userInfo, StoragePoolType type,
+            Map<String, String> details, boolean primaryStorage) {
         StorageAdaptor adaptor = getStorageAdaptor(type);
         KVMStoragePool pool = adaptor.createStoragePool(name, host, port, path, userInfo, type, details, primaryStorage);
         if (pool instanceof LibvirtStoragePool) {
@@ -479,28 +512,32 @@ public class KVMStoragePoolManager {
         return adaptor.disconnectPhysicalDisk(volPath, pool);
     }
 
-    public synchronized boolean deleteStoragePool(StoragePoolType type, String uuid) {
-        StorageAdaptor adaptor = getStorageAdaptor(type);
-        if (type == StoragePoolType.NetworkFilesystem) {
-            _haMonitor.removeStoragePool(uuid);
-        }
-        boolean deleteStatus = adaptor.deleteStoragePool(uuid);;
-        synchronized (_storagePools) {
-            _storagePools.remove(uuid);
-        }
-        return deleteStatus;
+    public boolean deleteStoragePool(StoragePoolType type, String uuid) {
+        return withStoragePoolLock(uuid, () -> {
+            StorageAdaptor adaptor = getStorageAdaptor(type);
+            if (type == StoragePoolType.NetworkFilesystem) {
+                _haMonitor.removeStoragePool(uuid);
+            }
+            boolean deleteStatus = adaptor.deleteStoragePool(uuid);
+            synchronized (_storagePools) {
+                _storagePools.remove(uuid);
+            }
+            return deleteStatus;
+        });
     }
 
     public boolean deleteStoragePool(StoragePoolType type, String uuid, Map<String, String> details) {
-        StorageAdaptor adaptor = getStorageAdaptor(type);
-        if (type == StoragePoolType.NetworkFilesystem) {
-            _haMonitor.removeStoragePool(uuid);
-        }
-        boolean deleteStatus = adaptor.deleteStoragePool(uuid, details);
-        synchronized (_storagePools) {
-            _storagePools.remove(uuid);
-        }
-        return deleteStatus;
+        return withStoragePoolLock(uuid, () -> {
+            StorageAdaptor adaptor = getStorageAdaptor(type);
+            if (type == StoragePoolType.NetworkFilesystem) {
+                _haMonitor.removeStoragePool(uuid);
+            }
+            boolean deleteStatus = adaptor.deleteStoragePool(uuid, details);
+            synchronized (_storagePools) {
+                _storagePools.remove(uuid);
+            }
+            return deleteStatus;
+        });
     }
 
     public KVMPhysicalDisk createDiskFromTemplate(KVMPhysicalDisk template, String name, Storage.ProvisioningType provisioningType,

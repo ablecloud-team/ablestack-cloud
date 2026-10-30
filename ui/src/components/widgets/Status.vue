@@ -17,7 +17,7 @@
 
 <template>
   <div style="display: inline-flex;">
-    <a-tooltip placement="bottom" :trigger="showTooltip ? 'hover' : []">
+    <a-tooltip placement="bottom" :trigger="showTooltip ? 'hover' : []" :color="tooltipColor" :overlay-class-name="tooltipOverlayClassName">
       <template v-if="showTooltip" #title>
         <slot name="tooltip">
           {{ getTooltip(text) }}
@@ -53,6 +53,14 @@ export default {
     showTooltip: {
       type: Boolean,
       default: true
+    },
+    tooltipColor: {
+      type: String,
+      default: ''
+    },
+    tooltipOverlayClassName: {
+      type: String,
+      default: ''
     },
     styles: {
       type: Object,
@@ -115,6 +123,9 @@ export default {
             break
           case 'failed':
             state = this.$t('state.failed')
+            break
+          case 'canceled':
+            state = this.$t('state.canceled')
             break
           case 'readonly':
             state = this.$t('state.readonly')
@@ -302,6 +313,7 @@ export default {
         case 'poweroff':
         case 'stopped':
         case 'failed':
+        case 'canceled':
         case 'unmanaged':
         case 'no':
         case 'critical':

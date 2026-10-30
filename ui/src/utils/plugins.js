@@ -17,10 +17,12 @@
 
 import { clearStorageSnapshotOperations, pauseSnapshotOperations, snapshotSecurityReplaced } from '@/utils/storageSnapshotOperations'
 import { clearIsoOperations } from '@/utils/vmIsoActions'
+import { clearBackupInstanceCreations } from '@/utils/backupInstanceCreation'
 import { clearNicOperations } from '@/utils/vmNicActions'
 import { clearVolumeOperations } from '@/utils/vmVolumeActions'
 import { trackSnapshotJob, finishSnapshotJob, clearSnapshotJobs } from '@/utils/vmSnapshotActions'
 import _ from 'lodash'
+import axios from 'axios'
 import { i18n } from '@/locales'
 import { getAPI } from '@/api'
 import { message, notification, Modal } from 'ant-design-vue'
@@ -30,7 +32,11 @@ import { autoScaleLifecycleErrorKey } from '@/utils/autoScaleLifecycle'
 import { createJobTracker } from '@/utils/jobTracker'
 import { toLocalDate, toLocaleDate } from '@/utils/date'
 
-function autoScaleErrorDescription (description) {
+function errorDescription (description) {
+  if (typeof description === 'string') {
+    if (description.startsWith('BACKUP_VM_NOT_STOPPED:')) return i18n.global.t('message.backup.vm.must.be.stopped')
+    if (description.startsWith('RESTORE_VM_NOT_STOPPED:')) return i18n.global.t('message.backup.restore.vm.must.be.stopped')
+  }
   const key = autoScaleLifecycleErrorKey(description)
   return key ? i18n.global.t(key) : description
 }
@@ -58,7 +64,7 @@ export const pollJobPlugin = {
         top: '65px',
         duration: 0,
         ...config,
-        description: autoScaleErrorDescription(config.description),
+        description: errorDescription(config.description),
         onClose: () => store.commit('SET_COUNT_NOTIFY', Math.max(0, store.getters.countNotify - 1))
       })
     }
@@ -84,9 +90,14 @@ export const pollJobPlugin = {
           return
         }
         const status = result.jobstatus === 1 ? 'done' : result.jobstatus === 2 ? 'failed' : interrupted ? 'unknown' : 'progress'
-        safe(() => store.dispatch('AddHeaderNotice', {
-          key: jobId, title, description, path, status, timestamp: new Date()
-        }))
+        const suppressFailedNotice = result.jobstatus === 2 && action?.suppressErrorNotification
+        if (suppressFailedNotice) {
+          safe(() => store.commit('SET_HEADER_NOTICES', store.getters.headerNotices.filter(notice => notice.key !== jobId)))
+        } else {
+          safe(() => store.dispatch('AddHeaderNotice', {
+            key: jobId, title, description, path, status, timestamp: new Date()
+          }))
+        }
         if (result.jobstatus === 0) {
           if (showLoading) message.loading({ content: loadingMessage, key: jobId, duration: 0 })
           return
@@ -109,8 +120,10 @@ export const pollJobPlugin = {
         if (result.jobstatus === 1) {
           if (showSuccessMessage || options.retry) message.success({ content: name ? `${successMessage} - ${name}` : successMessage, key: jobId, duration: 2 })
         } else if (result.jobstatus === 2) {
-          if (!bulkAction) message.error({ content: errorMessage, key: jobId, duration: 1 })
-          safe(() => notifyError({ key: jobId, message: action?.label ? i18n.global.t(action.label) : errorMessage, description: result.jobresult?.errortext }))
+          if (!action?.suppressErrorNotification) {
+            if (!bulkAction) message.error({ content: errorMessage, key: jobId, duration: 1 })
+            safe(() => notifyError({ key: jobId, message: action?.label ? i18n.global.t(action.label) : errorMessage, description: result.jobresult?.errortext }))
+          }
         }
         safe(() => eventBus.emit('update-job-details', { jobId, resourceId: options.resourceId }))
         const samePage = normalizePath(router.currentRoute.value.path) === originalPage
@@ -121,7 +134,7 @@ export const pollJobPlugin = {
     })
     // A route change may cancel one query; retry it. A security scope change must stop tracking.
     store.watch(() => JSON.stringify([store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id]), (next, before) => {
-      tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations()
+      tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations(); clearBackupInstanceCreations()
       if (snapshotSecurityReplaced(next, before)) clearStorageSnapshotOperations()
       else pauseSnapshotOperations()
     })
@@ -145,6 +158,7 @@ export const pollJobPlugin = {
 export const notifierPlugin = {
   install (app) {
     app.config.globalProperties.$notifyError = function (error) {
+      if (axios.isCancel(error)) return
       console.log(error)
       var msg = i18n.global.t('message.request.failed')
       var desc = ''
@@ -172,7 +186,7 @@ export const notifierPlugin = {
       notification.error({
         top: '65px',
         message: msg,
-        description: autoScaleErrorDescription(desc),
+        description: errorDescription(desc),
         duration: 0,
         onClose: () => {
           let c = store.getters.countNotify
@@ -533,10 +547,10 @@ export const extensionsUtilPlugin = {
 export const backupUtilPlugin = {
   install (app) {
     app.config.globalProperties.$isBackupProviderSupportsQuiesceVm = function (provider) {
-      if (!provider && typeof provider !== 'string') {
+      if (typeof provider !== 'string') {
         return false
       }
-      return ['nas', 'commvault', 'ablestack-nas', 'ablestack-commvault'].includes(provider.toLowerCase())
+      return ['ablestack-nas', 'ablestack-commvault', 'ablestack-netbackup', 'ablestack-veeam'].includes(provider.toLowerCase())
     }
   }
 }

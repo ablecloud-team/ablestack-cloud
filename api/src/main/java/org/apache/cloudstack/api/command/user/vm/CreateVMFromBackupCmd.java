@@ -16,6 +16,9 @@
 // under the License.
 package org.apache.cloudstack.api.command.user.vm;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.ACL;
 import org.apache.cloudstack.api.APICommand;
@@ -36,6 +39,7 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.uservm.UserVm;
 import com.cloud.vm.VirtualMachine;
+import com.cloud.vm.VmDetailConstants;
 import org.apache.commons.lang3.ObjectUtils;
 
 @APICommand(name = "createVMFromBackup",
@@ -75,6 +79,8 @@ public class CreateVMFromBackupCmd extends BaseDeployVMCmd {
             "Currently this parameter is only supported by the KBOSS provider.", since = "4.23.0")
     private Boolean quickRestore;
 
+    private Map<String, String> backupRootDiskDetails = new HashMap<>();
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -97,6 +103,23 @@ public class CreateVMFromBackupCmd extends BaseDeployVMCmd {
 
     public Boolean getQuickRestore() {
         return ObjectUtils.defaultIfNull(this.quickRestore, false);
+    }
+
+    public void setBackupRootDiskDetails(Map<String, String> details) {
+        backupRootDiskDetails = new HashMap<>(details);
+    }
+
+    @Override
+    public Map<String, String> getDetails() {
+        Map<String, String> result = new HashMap<>(backupRootDiskDetails);
+        result.putAll(super.getDetails());
+        if (getIothreadsEnabled() != null) {
+            result.put(VmDetailConstants.IOTHREADS, getIothreadsEnabled().toString());
+        }
+        if (getNicPackedVirtQueues() != null) {
+            result.put(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED, getNicPackedVirtQueues().toString());
+        }
+        return result;
     }
 
     @Override

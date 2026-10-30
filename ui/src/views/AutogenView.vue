@@ -185,7 +185,7 @@
         @refresh-data="refreshActionData"
         @close-action="closeAction"
       />
-      <keep-alive :max="(isStorageUi || isPolicyUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
+      <keep-alive :max="(isStorageUi || isPolicyUi) ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || ['destroyVirtualMachine', 'deleteBackup'].includes(currentAction.api))">
         <component
           :is="standardActionDialog ? 'MoldDialog' : 'a-modal'"
           :size="currentAction.standardDialogSize || (isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
@@ -230,6 +230,7 @@
               v-bind="{currentAction}"
               @refresh-data="fetchData"
               @poll-action="pollActionCompletion"
+              @restore-started="markBackupRestoreStarted"
               @close-action="closeAction"
               @cancel-bulk-action="handleCancel"
             />
@@ -861,6 +862,7 @@
           :tabs="$route.meta.tabs"
           :actions="(isSshKeyPairDetail && !sshKeyPairDetailActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           @exec-action="handleDataViewAction"
+          @backup-controls-change="Object.assign(resource, $event)"
           @change-resource="resource = $event" />
       </div>
       <div
@@ -1106,6 +1108,12 @@ export default {
         this.fetchData()
       }
     })
+    this.onListEvent('backup-restore-updated', () => {
+      if (this.$route.path === '/vm' || this.$route.path.startsWith('/vm/') ||
+          this.$route.path === '/backup' || this.$route.path.startsWith('/backup/')) {
+        this.fetchData()
+      }
+    })
     this.onListEvent('desktop-refresh-data', () => {
       if (this.$route.path === '/desktopcluster' || this.$route.path.includes('/desktopcluster/')) {
         this.fetchData()
@@ -1255,9 +1263,8 @@ export default {
         if ((storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot') && this.showAction) this.closeAction()
         this.resetSelection()
         const page = Number(to.query.page)
-        const pageSize = Number(to.query.pagesize)
         this.page = Number.isInteger(page) && page > 0 ? page : 1
-        if (Number.isInteger(pageSize) && pageSize > 0) this.pageSize = pageSize
+        if ('pagesize' in to.query) this.pageSize = this.getValidPageSize(to.query.pagesize)
         this.itemCount = 0
         this.clearAutoRefresh()
         this.fetchData()
@@ -1522,6 +1529,14 @@ export default {
     resetSelection () {
       this.selectedRowKeys = []
       this.selectedItems = []
+    },
+    getValidPageSize (value) {
+      const pageSize = Number(value)
+      if (Number.isInteger(pageSize) && pageSize > 0) {
+        return pageSize
+      }
+      const defaultPageSize = Number(this.$store.getters.defaultListViewPageSize)
+      return Number.isInteger(defaultPageSize) && defaultPageSize > 0 ? defaultPageSize : 20
     },
     onListEvent (name, handler) {
       this.listEventHandlers.push([name, handler])
@@ -1808,11 +1823,11 @@ export default {
       }
       if (Object.keys(this.$route.query).length > 0) {
         if ('page' in this.$route.query) {
-          this.page = Number(this.$route.query.page)
+          const page = Number(this.$route.query.page)
+          this.page = Number.isInteger(page) && page > 0 ? page : 1
         }
         if ('pagesize' in this.$route.query) {
-          const pageSize = Number(this.$route.query.pagesize)
-          if (Number.isInteger(pageSize) && pageSize > 0) this.pageSize = pageSize
+          this.pageSize = this.getValidPageSize(this.$route.query.pagesize)
         }
         Object.assign(params, this.$route.query)
       }
@@ -2068,8 +2083,8 @@ export default {
       if (snapshotListRoute(this.$route) && params.projectid === '0') { delete params.projectid; params.ignoreproject = true }
       if (snapshotPolicyListRoute(this.$route)) params = policySearchParams(params)
 
-      params.page = this.page
-      params.pagesize = this.pageSize
+      params.page = Number.isFinite(Number(this.page)) && Number(this.page) > 0 ? Number(this.page) : 1
+      params.pagesize = this.getValidPageSize(this.pageSize)
 
       if (this.$showIcon()) {
         params.showIcon = true
@@ -2788,6 +2803,7 @@ export default {
       })
     },
     pollActionCompletion (jobId, action, resourceName, resource, showLoading = true, selectedItems = this.selectedItems) {
+      const commvaultRestore = action?.api === 'restoreBackup' && String(this.resource?.provider || '').toLowerCase() === 'ablestack-commvault'
       if (this.shouldNavigateBack(action)) {
         action.isFetchData = false
       }
@@ -2796,7 +2812,7 @@ export default {
           jobId,
           title: this.$t(action.label),
           description: resourceName,
-          name: resourceName,
+          name: action.api === 'restoreBackup' ? '' : resourceName,
           successMethod: result => {
             if (selectedItems === this.selectedItems && selectedItems.length > 0) {
               eventBus.emit('update-resource-state', { selectedItems, resource, state: 'success' })
@@ -2834,18 +2850,35 @@ export default {
             if (['createProject', 'updateProject', 'deleteProject'].includes(action.api)) {
               eventBus.emit('projects-updated', { action: action.api, project: this.resource })
             }
+            if (action.api === 'restoreBackup') {
+              const restoringBackup = this.resource
+              this.markBackupRestoreStarted(restoringBackup)
+              Promise.resolve(this.fetchData({ irefresh: true })).finally(() => {
+                this.markBackupRestoreStarted(restoringBackup)
+              })
+            }
             resolve(true)
           },
           errorMethod: () => {
             if (selectedItems === this.selectedItems && selectedItems.length > 0) {
               eventBus.emit('update-resource-state', { selectedItems, resource, state: 'failed' })
             }
+            if (action.api === 'restoreBackup') {
+              this.fetchData({ irefresh: true })
+            }
             resolve(true)
           },
           loadingMessage: `${this.$t(action.label)} - ${resourceName}`,
-          showLoading: showLoading,
+          successMessage: ['restoreBackup', 'cancelBackup'].includes(action.api) ? this.$t(action.successMessage) : undefined,
+          showLoading: showLoading && !commvaultRestore,
+          showSuccessMessage: !commvaultRestore,
           catchMessage: this.$t('error.fetching.async.job.result'),
-          catchMethod: () => resolve(false),
+          catchMethod: () => {
+            if (action.api === 'restoreBackup') {
+              this.fetchData({ irefresh: true })
+            }
+            resolve(false)
+          },
           action,
           bulkAction: `${selectedItems.length > 0}` && this.showGroupActionModal,
           resourceId: resource
@@ -3009,6 +3042,12 @@ export default {
           this.$store.dispatch('UpdateConfiguration')
         }
         if (jobId) {
+          if (action.api === 'restoreBackup') {
+            this.markBackupRestoreStarted(this.resource)
+            if (String(this.resource?.provider || '').toLowerCase() === 'ablestack-commvault') {
+              this.$message.info({ content: this.$t('label.backup.restore.requested'), duration: 2 })
+            }
+          }
           if (selectedItems === this.selectedItems) {
             eventBus.emit('update-resource-state', { selectedItems, resource, state: 'InProgress', jobid: jobId })
           }
@@ -3016,6 +3055,15 @@ export default {
         }
         resolve(false)
       })
+    },
+    markBackupRestoreStarted (backup) {
+      if (!backup?.id) {
+        return
+      }
+      const trackedBackup = this.items.find(item => item.id === backup.id) || backup
+      trackedBackup.restoreoperationpending = true
+      trackedBackup.restorejobstate = 'STARTING'
+      trackedBackup.restorejobstep = 'REQUESTED'
     },
     async postSnapshotAwareAction (action, params) {
       if (action.api !== 'createVMSnapshot') return postAPI(action.api, params)

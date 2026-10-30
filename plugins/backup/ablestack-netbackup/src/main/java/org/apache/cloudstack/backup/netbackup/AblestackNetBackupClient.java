@@ -19,6 +19,10 @@ package org.apache.cloudstack.backup.netbackup;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.utils.nio.TrustAllManager;
 import org.apache.cloudstack.backup.Backup;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException;
+import org.apache.cloudstack.backup.ThirdPartyBackupVolumeService;
 import org.apache.cloudstack.utils.security.SSLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -62,6 +66,12 @@ public class AblestackNetBackupClient {
     private static final String NETBACKUP_EXPIRE_IMAGES_PATH = "/catalog/expire-images";
     private static final String NETBACKUP_CATALOG_IMAGES_PATH = "/catalog/images";
     private static final String NETBACKUP_JOBS_PATH = "/admin/jobs/";
+    // NetBackup 10.5 rejects catalog page limits of 100 or greater.
+    private static final int NETBACKUP_CATALOG_PAGE_LIMIT = 99;
+    private static final int NETBACKUP_JOBS_PAGE_LIMIT = 1000;
+    public static final String USER_BACKUP_SCHEDULE = "mold-transfer";
+    // Keep the existing v12 contract. NetBackup 11.1 publishes v14; if its testing exposes a media-version
+    // incompatibility, review Accept, the outer multipart Content-Type and every part together.
     private static final String NETBACKUP_PART_CONTENT_TYPE = "multipart/vnd.netbackup+form-data;version=12.0";
     private static final String NETBACKUP_RECOVER_CONTENT_TYPE = "multipart/vnd.netbackup+form-data;version=12.0";
     private static final String NETBACKUP_EXPIRE_PART_CONTENT_TYPE = "application/vnd.netbackup+json;version=12.0";
@@ -120,6 +130,574 @@ public class AblestackNetBackupClient {
                 .setDefaultRequestConfig(config)
                 .setSSLSocketFactory(factory)
                 .build();
+    }
+
+    public boolean volumeSourceReady(final String templateName) {
+        final JSONObject response = artifactGet(NETBACKUP_JOBS_PATH, "policyName eq '" + filterValue(templateName) + "'");
+        if (response == null) {
+            return false;
+        }
+        for (Object value : response.getJSONArray("data")) {
+            final JSONObject job = new JSONObject().put("data", value);
+            final String state = normalizeJobState(extractJobState(job));
+            if (!Set.of("DONE", "COMPLETED", "FAILED", "CANCELLED", "ABORTED").contains(StringUtils.defaultString(state))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** New transfers share the parent policy; only its bootstrap jobs gate source preparation. */
+    public boolean userBackupSourceReady(String policy) {
+        return userBackupSourceWaitReason(policy) == null;
+    }
+
+    public String userBackupSourceWaitReason(String policy) {
+        for (Object value : userBackupJobs(policy, " and state ne 'DONE'")) {
+            JSONObject job = (JSONObject) value;
+            JSONObject attributes = job.getJSONObject("attributes");
+            String state = normalizeJobState(attributes.optString("state"));
+            // Delayed retries have no active backup attempt. They must not keep
+            // an admitted VM holding the Host staging slot until the next retry.
+            if (USER_BACKUP_SCHEDULE.equals(attributes.optString("scheduleName"))
+                    || terminalJob(attributes) || "WAITING_FOR_RETRY".equals(state)) { continue; }
+            return "Waiting for NetBackup bootstrap Job " + job.optString("id", "unknown") + " ("
+                    + StringUtils.defaultIfBlank(state, "UNKNOWN") + "), policy=" + policy
+                    + ", schedule=" + attributes.optString("scheduleName", "unknown");
+        }
+        return null;
+    }
+
+    public void validateUserBackupPolicy(String name, String hostName, String hostIp) {
+        JSONObject response = artifactGetStrict("/config/policies/" + uriSegment(filterValue(name)), null);
+        if (response == null) { throw new CloudRuntimeException("NetBackup Host policy is unavailable: " + name); }
+        JSONObject policy = response.getJSONObject("data").getJSONObject("attributes").getJSONObject("policy");
+        JSONArray clients = policy.getJSONArray("clients");
+        boolean scheduleFound = false;
+        for (Object value : policy.getJSONArray("schedules")) {
+            JSONObject schedule = (JSONObject) value;
+            if (USER_BACKUP_SCHEDULE.equals(schedule.optString("scheduleName"))
+                    && "User Backup".equalsIgnoreCase(schedule.optString("backupType"))
+                    && schedule.optJSONArray("startWindow") != null && !schedule.getJSONArray("startWindow").isEmpty()) { scheduleFound = true; }
+        }
+        if (!"Standard".equalsIgnoreCase(policy.optString("policyType")) || clients.length() != 1
+                || !matchesClient(clients.getJSONObject(0).optString("hostName"), hostName, hostIp)
+                || !scheduleFound || !policy.getJSONObject("policyAttributes").optBoolean("active", false)) {
+            throw new CloudRuntimeException("NetBackup requires an active Standard Host policy with one matching Client, "
+                    + "and a mold-transfer User Backup schedule with an open start window");
+        }
+    }
+
+    public static String userBackupRequestId(ThirdPartyBackupManifest.Artifact artifact) {
+        return "userbackup:" + artifact.backupUuid + ":" + UUID.nameUUIDFromBytes(
+                artifact.path.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    /** Save the existing job boundary before submission, without relying on clocks or the latest completed image. */
+    public String lastJobId() {
+        JSONObject response = artifactGetStrict(NETBACKUP_JOBS_PATH + "?page%5Blimit%5D=1&sort=-jobId", null);
+        if (response == null) { throw new CloudRuntimeException("NetBackup submission job boundary is unavailable"); }
+        JSONArray jobs = response.getJSONArray("data");
+        if (jobs.length() == 0) { return "0"; }
+        if (jobs.length() != 1 || !jobs.getJSONObject(0).getString("id").matches("[0-9]+")) {
+            throw new CloudRuntimeException("NetBackup submission job boundary is invalid");
+        }
+        return jobs.getJSONObject(0).getString("id");
+    }
+
+    /** Match the submitted file list, never the newest job/image of the shared policy. */
+    public ThirdPartyBackupManifest.Artifact pollUserBackupArtifact(String policy, String hostName, String hostIp,
+            ThirdPartyBackupManifest.Artifact artifact) {
+        String prefix = userBackupRequestId(artifact) + ":";
+        if (StringUtils.startsWith(artifact.jobId, prefix)) {
+            String baseline = artifact.jobId.substring(prefix.length());
+            if (!baseline.matches("[0-9]+")) { throw new CloudRuntimeException("Invalid NetBackup submission job boundary"); }
+            JSONObject match = null;
+            for (Object value : userBackupJobs(policy, " and jobId gt " + baseline)) {
+                JSONObject candidate = (JSONObject) value;
+                if (new java.math.BigInteger(candidate.getString("id")).compareTo(new java.math.BigInteger(baseline)) <= 0) { continue; }
+                if (!userBackupJobMatches(candidate.getJSONObject("attributes"), policy, hostName, hostIp)) { continue; }
+                Set<String> paths = getRestoreJobFileList(candidate.getString("id"));
+                if (paths == null) { throw new CloudRuntimeException("NetBackup backup file list is unconfirmed"); }
+                if (!paths.equals(Set.of(ensureTrailingSlash(artifact.path)))) { continue; }
+                if (match != null) { throw new CloudRuntimeException("Multiple NetBackup jobs select the exact same artifact; reconciliation is required"); }
+                match = candidate;
+            }
+            if (match == null) { return artifact; }
+            artifact.jobId = match.getString("id");
+            artifact.sourceHost = match.getJSONObject("attributes").getString("clientName");
+        }
+        if (artifact.jobId == null || !artifact.jobId.matches("[0-9]+")) { throw new CloudRuntimeException("Invalid NetBackup User Backup request reference"); }
+        JSONObject response = artifactGet(NETBACKUP_JOBS_PATH + artifact.jobId, null);
+        if (response == null) { return artifact; }
+        JSONObject job = response.getJSONObject("data").getJSONObject("attributes");
+        if (!userBackupJobMatches(job, policy, hostName, hostIp)
+                || !Set.of(ensureTrailingSlash(artifact.path)).equals(getRestoreJobFileList(artifact.jobId))) {
+            throw new CloudRuntimeException("NetBackup Job ID does not select this exact artifact on its Host policy");
+        }
+        artifact.sourceHost = job.getString("clientName");
+        String state = normalizeJobState(extractJobState(response));
+        Integer status = extractJobStatusCode(response);
+        if (isJobFailure(state, status)) {
+            artifact.externalTerminal = true;
+            artifact.externalFailure = "NetBackup artifact job failed: " + artifact.jobId + " (status=" + status + ")";
+        } else if (isJobSuccess(state, status) && Integer.valueOf(0).equals(status)) {
+            String id = job.optString("backupId");
+            if (StringUtils.isBlank(id)) { throw new CloudRuntimeException("Successful NetBackup job has no exact Backup ID"); }
+            JSONObject image = artifactGetStrict(NETBACKUP_CATALOG_IMAGES_PATH + "/" + uriSegment(id), null);
+            if (image == null) { return artifact; }
+            validateUserBackupImage(image, id, policy, artifact.sourceHost);
+            artifact.externalId = id;
+            artifact.backupTime = image.getJSONObject("data").getJSONObject("attributes").optString("backupTime", null);
+            artifact.completed = true;
+            artifact.externalTerminal = true;
+        }
+        return artifact;
+    }
+
+    private static boolean matchesClient(String client, String host, String ip) {
+        return StringUtils.isNotBlank(client) && (client.equalsIgnoreCase(host) || client.equals(ip));
+    }
+
+    private static boolean userBackupJobMatches(JSONObject attributes, String policy, String host, String ip) {
+        return policy.equals(attributes.optString("policyName")) && USER_BACKUP_SCHEDULE.equals(attributes.optString("scheduleName"))
+                && "BACKUP".equalsIgnoreCase(attributes.optString("jobType"))
+                && matchesClient(attributes.optString("clientName"), host, ip);
+    }
+
+    private boolean terminalJob(JSONObject attributes) {
+        return Set.of("DONE", "COMPLETED", "FAILED", "CANCELLED", "ABORTED").contains(
+                StringUtils.defaultString(normalizeJobState(attributes.optString("state"))));
+    }
+
+    /** Cursor pagination is necessary now that one policy owns the complete Host history. */
+    private JSONArray userBackupJobs(String policy, String predicate) {
+        JSONArray jobs = new JSONArray();
+        Set<String> cursors = new LinkedHashSet<>();
+        String cursor = null;
+        do {
+            String path = NETBACKUP_JOBS_PATH + "?page%5Blimit%5D=" + NETBACKUP_JOBS_PAGE_LIMIT
+                    + "&filter=" + uriSegment("policyName eq '" + filterValue(policy) + "'" + predicate)
+                    + (cursor == null ? "" : "&page%5Bafter%5D=" + uriSegment(cursor));
+            JSONObject page = artifactGetStrict(path, null);
+            if (page == null) { throw new CloudRuntimeException("NetBackup Host job history is unavailable"); }
+            for (Object value : page.getJSONArray("data")) { jobs.put(value); }
+            JSONObject meta = page.optJSONObject("meta");
+            JSONObject pagination = meta == null ? null : meta.optJSONObject("pagination");
+            cursor = pagination == null ? null : pagination.optString("next", null);
+            JSONObject links = page.optJSONObject("links");
+            if (StringUtils.isBlank(cursor)) {
+                if (page.getJSONArray("data").length() >= NETBACKUP_JOBS_PAGE_LIMIT
+                        || (links != null && !links.isNull("next") && links.has("next"))) {
+                    throw new CloudRuntimeException("NetBackup Host job page is incomplete and has no continuation cursor");
+                }
+                return jobs;
+            }
+            if (!cursors.add(cursor) || cursors.size() > 10000) { throw new CloudRuntimeException("Invalid NetBackup job continuation cursor"); }
+        } while (true);
+    }
+
+    private static void validateUserBackupImage(JSONObject image, String id, String policy, String client) {
+        JSONObject data = image.getJSONObject("data");
+        JSONObject attributes = data.getJSONObject("attributes");
+        if (!id.equals(data.optString("id")) || !policy.equals(attributes.optString("policyName"))
+                || !client.equalsIgnoreCase(attributes.optString("clientName"))) {
+            throw new CloudRuntimeException("NetBackup image differs from the saved artifact job, policy or Client");
+        }
+    }
+
+    /** Shared Host policies are operator-owned: expire only this artifact's saved image. */
+    public ThirdPartyBackupVolumeService.DeleteResult deleteUserBackupArtifact(String policy, ThirdPartyBackupManifest.Artifact artifact,
+            String pendingTicket, boolean policyExpiration) {
+        if (!artifact.externalTerminal && !artifact.completed) { throw new CloudRuntimeException("NetBackup artifact termination is unconfirmed"); }
+        if (StringUtils.isBlank(artifact.externalId) && StringUtils.isNotBlank(artifact.externalFailure)
+                && (StringUtils.isBlank(artifact.jobId) || artifact.jobId.equals("not-submitted:" + userBackupRequestId(artifact)))) {
+            return new ThirdPartyBackupVolumeService.DeleteResult(true, null);
+        }
+        JSONObject savedJob = null;
+        if (StringUtils.isNotBlank(artifact.jobId) && artifact.jobId.matches("[0-9]+")) {
+            savedJob = artifactGetStrict(NETBACKUP_JOBS_PATH + artifact.jobId, null);
+            if (savedJob != null) {
+                JSONObject attributes = savedJob.getJSONObject("data").getJSONObject("attributes");
+                if (!userBackupJobMatches(attributes, policy, artifact.sourceHost, null) || !terminalJob(attributes)
+                        || (StringUtils.isNotBlank(artifact.externalId) && !artifact.externalId.equals(attributes.optString("backupId")))) {
+                    throw new CloudRuntimeException("NetBackup artifact job is active or differs from its saved reference");
+                }
+            }
+        } else { throw new CloudRuntimeException("NetBackup artifact Job ID is unconfirmed"); }
+        if (StringUtils.isBlank(artifact.externalId)) {
+            if (savedJob == null) { throw new CloudRuntimeException("NetBackup failed job cannot be confirmed"); }
+            JSONObject job = savedJob.getJSONObject("data").getJSONObject("attributes");
+            if (!userBackupJobMatches(job, policy, artifact.sourceHost, null) || !terminalJob(job)
+                    || !Set.of(ensureTrailingSlash(artifact.path)).equals(getRestoreJobFileList(artifact.jobId))) {
+                throw new CloudRuntimeException("NetBackup failed job does not identify this artifact");
+            }
+            String id = job.optString("backupId", null);
+            if (StringUtils.isBlank(id)) { return new ThirdPartyBackupVolumeService.DeleteResult(true, null); }
+            artifact.externalId = id;
+        }
+        String id = artifact.externalId;
+        JSONObject image = artifactGetStrict(NETBACKUP_CATALOG_IMAGES_PATH + "/" + uriSegment(id), null);
+        if (image == null) { return new ThirdPartyBackupVolumeService.DeleteResult(true, null); }
+        validateUserBackupImage(image, id, policy, artifact.sourceHost);
+        if (policyExpiration) { throw new CloudRuntimeException("Artifact is still retained by NetBackup"); }
+        if (StringUtils.isNotBlank(pendingTicket)) { return new ThirdPartyBackupVolumeService.DeleteResult(false, pendingTicket); }
+        Set<Integer> copies = artifactImageCopies(image.getJSONObject("data").getJSONObject("attributes"));
+        ExpireImageResult expired = expireBackupImageCopies(id, copies);
+        if (!expired.isCompleted()) {
+            return new ThirdPartyBackupVolumeService.DeleteResult(false,
+                    StringUtils.defaultIfBlank(expired.getMpaTicket(), "MPA_TICKET_UNAVAILABLE"));
+        }
+        return new ThirdPartyBackupVolumeService.DeleteResult(!backupImageExists(id), null);
+    }
+
+    private static Set<Integer> artifactImageCopies(JSONObject attributes) {
+        Set<Integer> copies = new LinkedHashSet<>();
+        JSONArray fragments = attributes.optJSONArray("fragments");
+        if (fragments != null) {
+            for (Object value : fragments) {
+                int number = ((JSONObject) value).getInt("copyNumber");
+                if (number <= 0) { throw new CloudRuntimeException("Invalid artifact copy number"); }
+                copies.add(number);
+            }
+        }
+        if (copies.isEmpty() && attributes.optInt("numCopies", 0) == 1 && attributes.optInt("primaryCopy", 0) > 0) {
+            copies.add(attributes.getInt("primaryCopy"));
+        }
+        if (copies.isEmpty() || (attributes.has("numCopies") && copies.size() != attributes.getInt("numCopies"))) {
+            throw new CloudRuntimeException("Cannot determine every artifact image copy before expiration");
+        }
+        return copies;
+    }
+
+    /** Clone a Standard policy so concurrent VM jobs never modify the operator's policy selections. */
+    public ThirdPartyBackupManifest.Artifact backupVolumeArtifact(final String templateName, final String hostName,
+            final String hostIp, final ThirdPartyBackupManifest.Artifact artifact, final boolean metadata) {
+        return backupVolumeArtifact(templateName, hostName, hostIp, artifact, metadata, true);
+    }
+
+    public ThirdPartyBackupManifest.Artifact linkVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata, String jobId,
+            String hostName, String hostIp) {
+        if (!jobId.matches("[0-9]+")) { throw new CloudRuntimeException("NetBackup requires a numeric external Job ID"); }
+        String name = volumePolicyName(artifact, metadata);
+        JSONObject policyResponse = artifactGetStrict("/config/policies/" + uriSegment(name), null);
+        JSONObject jobResponse = artifactGetStrict(NETBACKUP_JOBS_PATH + uriSegment(jobId), null);
+        if (policyResponse == null || jobResponse == null) { throw new CloudRuntimeException("NetBackup artifact policy or job is unavailable"); }
+        JSONObject policy = policyResponse.getJSONObject("data").getJSONObject("attributes").getJSONObject("policy");
+        JSONArray selections = policy.getJSONObject("backupSelections").getJSONArray("selections");
+        JSONArray clients = policy.getJSONArray("clients");
+        JSONObject job = jobResponse.getJSONObject("data").getJSONObject("attributes");
+        if (selections.length() != 1 || !artifact.path.equals(selections.getString(0)) || clients.length() != 1
+                || (!hostName.equalsIgnoreCase(clients.getJSONObject(0).getString("hostName"))
+                        && !hostIp.equals(clients.getJSONObject(0).getString("hostName")))
+                || !name.equals(job.optString("policyName")) || !"BACKUP".equalsIgnoreCase(job.optString("jobType"))) {
+            throw new CloudRuntimeException("NetBackup Job ID does not match the exact VM, volume, timestamp and backup operation");
+        }
+        artifact.sourceHost = clients.getJSONObject(0).getString("hostName");
+        artifact.jobId = jobId;
+        return recoverVolumeArtifact(artifact, metadata);
+    }
+
+    public ThirdPartyBackupManifest.Artifact recoverVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return backupVolumeArtifact(null, null, null, artifact, metadata, false);
+    }
+
+    private ThirdPartyBackupManifest.Artifact backupVolumeArtifact(final String templateName, final String hostName,
+            final String hostIp, final ThirdPartyBackupManifest.Artifact artifact, final boolean metadata, boolean submit) {
+        final String name = volumePolicyName(artifact, metadata);
+        if (!submit && StringUtils.isBlank(artifact.jobId)) {
+            JSONObject policy = artifactGetStrict("/config/policies/" + uriSegment(name), null);
+            if (policy == null) { return null; }
+            JSONObject savedPolicy = policy.getJSONObject("data").getJSONObject("attributes").getJSONObject("policy");
+            JSONArray selections = savedPolicy.getJSONObject("backupSelections").getJSONArray("selections");
+            if (selections.length() != 1 || !artifact.path.equals(selections.getString(0))) {
+                throw new CloudRuntimeException("NetBackup recovery policy no longer selects this artifact");
+            }
+            JSONArray clients = savedPolicy.getJSONArray("clients");
+            if (clients.length() != 1) { throw new CloudRuntimeException("NetBackup recovery client is ambiguous"); }
+            artifact.sourceHost = clients.getJSONObject(0).getString("hostName");
+            artifact.jobId = "policy:" + name;
+        }
+        if (StringUtils.isBlank(artifact.jobId)) {
+            final JSONObject request;
+            final String scheduleName;
+            final String selectedClient;
+            try {
+                final JSONObject template = artifactGet("/config/policies/" + uriSegment(templateName), null);
+                if (template == null) {
+                    throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException("NetBackup staging template policy is unavailable: " + templateName);
+                }
+                final JSONObject policy = new JSONObject(template.getJSONObject("data").getJSONObject("attributes").getJSONObject("policy").toString());
+                if (!"Standard".equalsIgnoreCase(policy.optString("policyType"))) {
+                    throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException("Volume staging requires a NetBackup Standard policy");
+                }
+                final JSONArray clients = new JSONArray();
+                for (Object value : policy.getJSONArray("clients")) {
+                    final JSONObject client = (JSONObject) value;
+                    if (hostName.equalsIgnoreCase(client.optString("hostName")) || hostIp.equals(client.optString("hostName"))) {
+                        clients.put(client);
+                    }
+                }
+                if (clients.length() != 1) {
+                    throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException("Staging Host must match exactly one client in the NetBackup template policy");
+                }
+                JSONObject schedule = null;
+                for (Object value : policy.getJSONArray("schedules")) {
+                    if ("Full Backup".equalsIgnoreCase(((JSONObject) value).optString("backupType"))) {
+                        schedule = (JSONObject) value;
+                        break;
+                    }
+                }
+                if (schedule == null) {
+                    throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException("NetBackup staging template needs a Full Backup schedule");
+                }
+                schedule.put("startWindow", new JSONArray());
+                schedule.remove("includeDates");
+                schedule.put("syntheticBackup", false);
+                schedule.put("snapshotOnly", false);
+                policy.put("policyName", name);
+                policy.put("clients", clients);
+                policy.put("schedules", new JSONArray().put(schedule));
+                policy.put("backupSelections", new JSONObject().put("selections", new JSONArray().put(artifact.path)));
+                policy.getJSONObject("policyAttributes").put("active", true).put("jobLimit", 1);
+                artifact.sourceHost = clients.getJSONObject(0).getString("hostName");
+                request = new JSONObject().put("data", new JSONObject().put("type", "policy").put("id", name)
+                        .put("attributes", new JSONObject().put("policy", policy)));
+                scheduleName = schedule.getString("scheduleName");
+                selectedClient = clients.getJSONObject(0).getString("hostName");
+            } catch (RuntimeException e) {
+                throw new org.apache.cloudstack.backup.ThirdPartyBackupSubmissionException("NetBackup artifact preflight failed: " + e.getMessage(), e);
+            }
+            artifactPost("/config/policies", request, Set.of(201, 204));
+            artifactPost("/admin/manual-backup", new JSONObject().put("data", new JSONObject().put("type", "backupRequest")
+                    .put("attributes", new JSONObject().put("policyName", name)
+                            .put("scheduleName", scheduleName).put("clientName", selectedClient))), Set.of(202));
+            // The manual-backup response can precede publication of the numeric Job ID. This accepted
+            // policy reference is only used to discover that job, never to submit another request.
+            artifact.jobId = "policy:" + name;
+            return artifact;
+        }
+        if (artifact.jobId.startsWith("policy:")) {
+            if (!artifact.jobId.equals("policy:" + name)) {
+                throw new CloudRuntimeException("NetBackup accepted policy does not match the artifact");
+            }
+            final JSONObject response = artifactGetStrict(NETBACKUP_JOBS_PATH, "policyName eq '" + name + "'");
+            if (response == null || response.getJSONArray("data").length() == 0) {
+                return artifact;
+            }
+            final JSONArray jobs = response.getJSONArray("data");
+            if (jobs.length() != 1) {
+                throw new CloudRuntimeException("NetBackup artifact must resolve to one backup job; multiple streams are unsupported");
+            }
+            artifact.jobId = jobs.getJSONObject(0).getString("id");
+            return artifact;
+        }
+        final JSONObject job = artifactGet(NETBACKUP_JOBS_PATH + uriSegment(artifact.jobId), null);
+        if (job == null) {
+            return artifact;
+        }
+        if (!name.equals(job.getJSONObject("data").getJSONObject("attributes").optString("policyName"))) {
+            throw new CloudRuntimeException("NetBackup job belongs to another artifact policy");
+        }
+        final String state = normalizeJobState(extractJobState(job));
+        final Integer status = extractJobStatusCode(job);
+        if (isJobFailure(state, status)) {
+            artifact.externalTerminal = true;
+            artifact.externalFailure = "NetBackup artifact job failed: " + artifact.jobId;
+            return artifact;
+        }
+        if (isJobSuccess(state, status) && Integer.valueOf(0).equals(status)) {
+            artifact.externalTerminal = true;
+            final JSONObject catalog = artifactGet(NETBACKUP_CATALOG_IMAGES_PATH, "policyName eq '" + name + "'");
+            if (catalog == null || catalog.getJSONArray("data").length() == 0) {
+                return artifact;
+            }
+            final JSONArray images = catalog.getJSONArray("data");
+            if (images.length() != 1) {
+                throw new CloudRuntimeException("NetBackup artifact catalog reference is ambiguous");
+            }
+            artifact.externalId = images.getJSONObject(0).getString("id");
+            artifact.backupTime = images.getJSONObject(0).getJSONObject("attributes").optString("backupTime", null);
+            artifact.completed = true;
+            artifact.externalTerminal = true;
+        }
+        return artifact;
+    }
+
+    private static String volumePolicyName(ThirdPartyBackupManifest.Artifact artifact, boolean metadata) {
+        return "ABLESTACK-" + artifact.backupUuid + "-" + (metadata ? "metadata" :
+                UUID.nameUUIDFromBytes(artifact.path.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
+
+    public ThirdPartyBackupVolumeService.DeleteResult deleteVolumeArtifact(ThirdPartyBackupManifest.Artifact artifact,
+            boolean metadata, String pendingTicket, boolean policyExpiration) {
+        String name = filterValue(volumePolicyName(artifact, metadata));
+        JSONObject jobs = artifactGetStrict(NETBACKUP_JOBS_PATH, "policyName eq '" + name + "'");
+        if (jobs == null) { throw new CloudRuntimeException("Artifact jobs cannot be queried before deletion"); }
+        for (Object value : jobs.getJSONArray("data")) {
+            String state = normalizeJobState(extractJobState(new JSONObject().put("data", value)));
+            if (!Set.of("DONE", "COMPLETED", "FAILED", "CANCELLED", "ABORTED").contains(StringUtils.defaultString(state))) {
+                throw new CloudRuntimeException("NetBackup artifact job is still active or unconfirmed");
+            }
+        }
+        JSONObject images = artifactGetStrict(NETBACKUP_CATALOG_IMAGES_PATH, "policyName eq '" + name + "'");
+        if (images == null) { throw new CloudRuntimeException("Artifact catalog cannot be queried before deletion"); }
+        JSONArray list = images.getJSONArray("data");
+        if (list.length() > 1) { throw new CloudRuntimeException("Refusing to expire an ambiguous artifact policy catalog"); }
+        if (list.length() == 1) {
+            if (policyExpiration) {
+                throw new CloudRuntimeException("Artifact is still retained by NetBackup; expiration cleanup must not expire it");
+            }
+            String id = list.getJSONObject(0).getString("id");
+            if (StringUtils.isNotBlank(artifact.externalId) && !id.equals(artifact.externalId)) {
+                throw new CloudRuntimeException("Artifact catalog image differs from its saved reference");
+            }
+            if (StringUtils.isNotBlank(pendingTicket)) { return new ThirdPartyBackupVolumeService.DeleteResult(false, pendingTicket); }
+            JSONObject image = artifactGetStrict(NETBACKUP_CATALOG_IMAGES_PATH + "/" + uriSegment(id), null);
+            if (image != null) {
+                JSONObject attributes = image.getJSONObject("data").getJSONObject("attributes");
+                Set<Integer> copies = new java.util.LinkedHashSet<>();
+                JSONArray fragments = attributes.optJSONArray("fragments");
+                if (fragments != null) {
+                    for (Object fragment : fragments) {
+                        int copy = ((JSONObject) fragment).getInt("copyNumber");
+                        if (copy <= 0) { throw new CloudRuntimeException("Invalid artifact copy number"); }
+                        copies.add(copy);
+                    }
+                }
+                if (copies.isEmpty() && attributes.optInt("numCopies", 0) == 1 && attributes.optInt("primaryCopy", 0) > 0) {
+                    copies.add(attributes.getInt("primaryCopy"));
+                }
+                if (copies.isEmpty() || (attributes.has("numCopies") && copies.size() != attributes.getInt("numCopies"))) {
+                    throw new CloudRuntimeException("Cannot determine every artifact image copy before expiration");
+                }
+                ExpireImageResult expired = expireBackupImageCopies(id, copies);
+                if (!expired.isCompleted()) {
+                    return new ThirdPartyBackupVolumeService.DeleteResult(false,
+                            StringUtils.defaultIfBlank(expired.getMpaTicket(), "MPA_TICKET_UNAVAILABLE"));
+                }
+                if (backupImageExists(id)) { return new ThirdPartyBackupVolumeService.DeleteResult(false, null); }
+            }
+        } else if (StringUtils.isNotBlank(artifact.externalId) && backupImageExists(artifact.externalId)) {
+            throw new CloudRuntimeException("Artifact catalog listing is incomplete; its saved image still exists");
+        }
+        JSONObject policy = artifactGetStrict("/config/policies/" + uriSegment(name), null);
+        if (policy != null) {
+            JSONArray selections = policy.getJSONObject("data").getJSONObject("attributes").getJSONObject("policy")
+                    .getJSONObject("backupSelections").getJSONArray("selections");
+            if (selections.length() != 1 || !artifact.path.equals(selections.getString(0))) {
+                throw new CloudRuntimeException("Refusing to remove a policy that no longer selects this artifact");
+            }
+            org.apache.http.client.methods.HttpDelete request = new org.apache.http.client.methods.HttpDelete(
+                    resolvePath("/config/policies/" + uriSegment(name)));
+            applyAuthenticationHeaders(request);
+            request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+            try {
+                HttpResponse response = httpClient.execute(request);
+                EntityUtils.consume(response.getEntity());
+                if (!Set.of(200, 204, 404).contains(response.getStatusLine().getStatusCode())) {
+                    throw new CloudRuntimeException("NetBackup artifact policy deletion failed: " + response.getStatusLine().getStatusCode());
+                }
+            } catch (IOException e) { throw new CloudRuntimeException("NetBackup artifact policy deletion could not be confirmed", e); }
+        }
+        return new ThirdPartyBackupVolumeService.DeleteResult(true, null);
+    }
+
+    /** Only an explicit 404 confirms absence; never turn empty, truncated, or failed responses into deletion. */
+    private JSONObject artifactGetStrict(String path, String filter) {
+        int pageLimit = artifactPageLimit(path);
+        HttpGet request = new HttpGet(resolvePath(path + (filter == null ? "" : "?page%5Blimit%5D=" + pageLimit + "&filter=" + uriSegment(filter))));
+        request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        applyAuthenticationHeaders(request);
+        try {
+            HttpResponse response = httpClient.execute(request);
+            int status = response.getStatusLine().getStatusCode();
+            String body = response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (status == 404 && filter == null) { return null; }
+            if (status != 200 || StringUtils.isBlank(body)) {
+                throw new CloudRuntimeException("NetBackup artifact catalog query is unconfirmed: HTTP " + status + artifactQueryContext(path, body));
+            }
+            JSONObject result = new JSONObject(body);
+            if (filter != null) { validateArtifactPage(result, pageLimit); }
+            return result;
+        } catch (IOException e) { throw new CloudRuntimeException("NetBackup artifact catalog query failed", e); }
+    }
+
+    private static int artifactPageLimit(String path) {
+        return NETBACKUP_CATALOG_IMAGES_PATH.equals(path) ? NETBACKUP_CATALOG_PAGE_LIMIT : NETBACKUP_JOBS_PAGE_LIMIT;
+    }
+
+    private static void validateArtifactPage(JSONObject result, int pageLimit) {
+        JSONObject links = result.optJSONObject("links");
+        Object next = links == null ? null : links.opt("next");
+        if (result.getJSONArray("data").length() >= pageLimit || (next != null && next != JSONObject.NULL)) {
+            throw new CloudRuntimeException("NetBackup artifact query exceeds its page limit");
+        }
+    }
+
+    private static String artifactQueryContext(String path, String body) {
+        JSONObject details = new JSONObject();
+        try {
+            JSONObject response = new JSONObject(body);
+            for (String field : new String[]{"errorCode", "errorMessage", "errorDetails"}) {
+                if (response.has(field)) { details.put(field, response.get(field)); }
+            }
+        } catch (org.json.JSONException e) {
+            // An empty or non-JSON error response must not obscure the HTTP status.
+        }
+        return " (path=" + path + (details.length() == 0 ? "" : ", response=" + StringUtils.abbreviate(details.toString(), 2048)) + ")";
+    }
+
+    private static String filterValue(final String value) {
+        if (StringUtils.isBlank(value) || value.contains("'") || value.contains("\n") || value.contains("\r")) {
+            throw new CloudRuntimeException("Invalid NetBackup artifact policy name");
+        }
+        return value;
+    }
+
+    private static String uriSegment(final String value) {
+        return java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    private JSONObject artifactGet(final String path, final String filter) {
+        final int pageLimit = artifactPageLimit(path);
+        final HttpGet request = new HttpGet(resolvePath(path + (filter == null ? "" : "?page%5Blimit%5D=" + pageLimit + "&filter=" + uriSegment(filter))));
+        request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        applyAuthenticationHeaders(request);
+        try {
+            final HttpResponse response = httpClient.execute(request);
+            final int status = response.getStatusLine().getStatusCode();
+            final String body = response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (status == 404 || status == 429 || status >= 500) {
+                return null;
+            }
+            if (status != 200) {
+                throw new CloudRuntimeException("NetBackup artifact query failed with status " + status + artifactQueryContext(path, body));
+            }
+            final JSONObject result = new JSONObject(body);
+            if (filter != null) { validateArtifactPage(result, pageLimit); }
+            return result;
+        } catch (IOException e) {
+            LOG.warn("NetBackup artifact status is temporarily unavailable");
+            return null;
+        }
+    }
+
+    private void artifactPost(final String path, final JSONObject body, final Set<Integer> acceptedStatuses) {
+        final HttpPost request = new HttpPost(resolvePath(path));
+        request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        request.setHeader(HttpHeaders.CONTENT_TYPE, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        applyAuthenticationHeaders(request);
+        request.setEntity(new StringEntity(body.toString(), ContentType.APPLICATION_JSON));
+        try {
+            final HttpResponse response = httpClient.execute(request);
+            EntityUtils.consume(response.getEntity());
+            if (!acceptedStatuses.contains(response.getStatusLine().getStatusCode())) {
+                throw new CloudRuntimeException("NetBackup artifact submission failed with status " + response.getStatusLine().getStatusCode());
+            }
+        } catch (IOException e) {
+            throw new CloudRuntimeException("NetBackup artifact submission outcome is unknown", e);
+        }
     }
 
     public String restoreBackupChain(final String recoveryClient, final String destinationClient, final List<Backup> restoreChain) {
@@ -194,16 +772,114 @@ public class AblestackNetBackupClient {
         return normalizeJobState(extractJobState(response));
     }
 
+    public String getPrimaryServerName() { return apiUri.getHost(); }
+
+    /** Submit one exact artifact without waiting for data transfer; the coordinator persists and polls its Job ID. */
+    public ThirdPartyBackupRestore.Result submitVolumeRestore(ThirdPartyBackupRestore.Request selection, String destinationClient) {
+        final String boundary = "----AbleStackNetBackup" + UUID.randomUUID().toString().replace("-", "");
+        final String body;
+        try {
+            body = buildVolumeRestoreBody(boundary, selection, destinationClient);
+        } catch (RuntimeException e) {
+            throw new ThirdPartyBackupSubmissionException("NetBackup REST restore request was not submitted: " + e.getMessage());
+        }
+        final HttpPost request = new HttpPost(resolvePath(NETBACKUP_RECOVER_PATH));
+        request.setHeader(HttpHeaders.ACCEPT, NETBACKUP_JSON_V12_CONTENT_TYPE);
+        // Keep the same API media version as the existing REST restore path tested on 10.5 and 11.1.
+        request.setHeader(HttpHeaders.CONTENT_TYPE, NETBACKUP_RECOVER_CONTENT_TYPE + "; boundary=" + boundary);
+        applyAuthenticationHeaders(request);
+        request.setEntity(new StringEntity(body, ContentType.create("multipart/vnd.netbackup+form-data", "UTF-8")));
+        try {
+            final HttpResponse response = httpClient.execute(request);
+            final int status = response.getStatusLine().getStatusCode();
+            final String responseBody = response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity(), "UTF-8");
+            if (Set.of(400, 401, 403, 404, 405, 406, 413, 415, 422).contains(status)) {
+                throw new ThirdPartyBackupSubmissionException("NetBackup REST restore request was rejected with status " + status
+                        + artifactQueryContext(NETBACKUP_RECOVER_PATH, responseBody));
+            }
+            if (!Set.of(200, 201, 202).contains(status)) {
+                throw new CloudRuntimeException("NetBackup REST restore submission is unconfirmed: HTTP " + status
+                        + "; the request will not be resubmitted");
+            }
+            final String jobId = extractRecoveryJobId(responseBody, response);
+            if (jobId == null || !jobId.matches("[0-9]+")) {
+                throw new CloudRuntimeException("NetBackup REST restore accepted the request without a confirmed Job ID; the request will not be resubmitted");
+            }
+            LOG.info("NetBackup artifact restore accepted. jobId=[{}], stagingJobId=[{}], sequence=[{}], sourceClient=[{}], destinationClient=[{}], destination=[{}]",
+                    jobId, selection.jobId, selection.sequence, selection.artifact.sourceHost, destinationClient, selection.destination);
+            return new ThirdPartyBackupRestore.Result(jobId, false);
+        } catch (IOException | org.json.JSONException e) {
+            throw new CloudRuntimeException("NetBackup REST restore submission outcome is unknown; the request will not be resubmitted", e);
+        }
+    }
+
+    private String buildVolumeRestoreBody(String boundary, ThirdPartyBackupRestore.Request selection, String destinationClient) {
+        if (selection == null || selection.artifact == null || StringUtils.isBlank(selection.jobId) || selection.sequence < 0
+                || StringUtils.isBlank(destinationClient) || StringUtils.isBlank(selection.artifact.sourceHost)) {
+            throw new IllegalArgumentException("Missing restore request, source Client or destination Worker Client");
+        }
+        final ThirdPartyBackupManifest.Artifact artifact = selection.artifact;
+        final java.nio.file.Path source = restoreArtifactPath(artifact.path);
+        final java.nio.file.Path destination = restoreArtifactPath(selection.destination);
+        if (!source.getFileName().equals(destination.getFileName()) || source.equals(destination)) {
+            throw new IllegalArgumentException("Restore destination must preserve the artifact basename in its operation directory");
+        }
+        final String backupTime = StringUtils.isNotBlank(artifact.backupTime)
+                ? java.time.Instant.parse(artifact.backupTime).toString()
+                : java.time.Instant.ofEpochSecond(Long.parseLong(StringUtils.substringAfterLast(artifact.externalId, "_"))).toString();
+        final JSONObject recoveryPoint = new JSONObject().put("client", artifact.sourceHost).put("policyType", NETBACKUP_POLICY_TYPE_STANDARD)
+                .put("startDate", backupTime).put("endDate", backupTime);
+        final JSONObject recoveryOptions = new JSONObject().put("server", apiUri.getHost()).put("destinationClient", destinationClient)
+                .put("overwriteExistingFiles", false).put("restrictMountPoints", false).put("renameHardLinks", true)
+                .put("renameSoftLinks", true).put("accessControlAttributes", false).put("jobPriorityOverride", 90000);
+        final JSONObject payload = new JSONObject().put("data", new JSONObject().put("type", "physicalFilesFoldersRecoveryRequest")
+                .put("attributes", new JSONObject().put("recoveryPoint", recoveryPoint).put("recoveryOptions", recoveryOptions)));
+        final JSONArray selections = new JSONArray().put(new JSONObject()
+                .put("path", selection.metadata ? ensureTrailingSlash(source.toString()) : source.toString()).put("backupTime", backupTime));
+        final JSONArray rename = new JSONArray().put(new JSONObject()
+                .put("from", ensureTrailingSlash(source.getParent().toString()))
+                .put("to", ensureTrailingSlash(destination.getParent().toString())));
+        final StringBuilder builder = new StringBuilder();
+        appendFormPart(builder, boundary, "recoveryRequest", payload.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        appendFormPart(builder, boundary, "selectionsFile", selections.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        appendFormPart(builder, boundary, "renameFile", rename.toString(), NETBACKUP_PART_CONTENT_TYPE);
+        return builder.append("--").append(boundary).append("--\r\n").toString();
+    }
+
+    private java.nio.file.Path restoreArtifactPath(String value) {
+        if (StringUtils.isBlank(value) || value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0 || value.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("Invalid restore artifact path");
+        }
+        java.nio.file.Path path = java.nio.file.Path.of(value);
+        if (!path.isAbsolute() || path.getParent() == null || !path.normalize().equals(path)) {
+            throw new IllegalArgumentException("Restore artifact paths must be normalized absolute paths");
+        }
+        return path;
+    }
+
+    public org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result pollVolumeRestore(String jobId) {
+        JSONObject response = getRecoveryJob(jobId);
+        String state = normalizeJobState(extractJobState(response));
+        Integer status = extractJobStatusCode(response);
+        if (isJobFailure(state, status)) {
+            return org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result.failed(jobId,
+                    "NetBackup volume restore failed: " + jobId + " (" + state + ", " + status + ")");
+        }
+        return new org.apache.cloudstack.backup.ThirdPartyBackupRestore.Result(jobId, isJobSuccess(state, status) && Integer.valueOf(0).equals(status));
+    }
+
     public ExpireImageResult expireBackupImage(final String backupId, final int copyNumber) {
+        return expireBackupImageCopies(backupId, Set.of(copyNumber));
+    }
+
+    private ExpireImageResult expireBackupImageCopies(final String backupId, final Set<Integer> copyNumbers) {
         if (StringUtils.isBlank(backupId)) {
             throw new CloudRuntimeException("NetBackup backup ID cannot be empty when expiring images");
         }
 
         final String boundary = "----AbleStackNetBackup" + UUID.randomUUID().toString().replace("-", "");
-        final JSONArray selections = new JSONArray()
-                .put(new JSONObject()
-                        .put("backupId", backupId)
-                        .put("copyNumber", copyNumber));
+        final JSONArray selections = new JSONArray();
+        copyNumbers.forEach(copy -> selections.put(new JSONObject().put("backupId", backupId).put("copyNumber", copy)));
         final StringBuilder builder = new StringBuilder();
         appendFormPart(builder, boundary, "selectionsFile", selections.toString(), NETBACKUP_EXPIRE_PART_CONTENT_TYPE);
         builder.append("--").append(boundary).append("--").append("\r\n");
@@ -220,15 +896,15 @@ public class AblestackNetBackupClient {
             final int statusCode = response.getStatusLine().getStatusCode();
             final String responseBody = response.getEntity() != null ? EntityUtils.toString(response.getEntity(), "UTF-8") : "";
             if (statusCode == HttpStatus.SC_NO_CONTENT) {
-                LOG.info("NetBackup expire image request completed for backup ID [{}], copy number [{}].", backupId, copyNumber);
+                LOG.info("NetBackup expire image request completed for backup ID [{}], copy numbers [{}].", backupId, copyNumbers);
                 return new ExpireImageResult(true, null);
             }
             if (statusCode == HttpStatus.SC_ACCEPTED) {
                 final String ticketHeader = response.getFirstHeader("X-NetBackup-MPA-Ticket") != null
                         ? response.getFirstHeader("X-NetBackup-MPA-Ticket").getValue()
                         : null;
-                LOG.info("NetBackup expire image request for backup ID [{}], copy number [{}] is awaiting MPA approval. Ticket: [{}].",
-                        backupId, copyNumber, ticketHeader);
+                LOG.info("NetBackup expire image request for backup ID [{}], copy numbers [{}] is awaiting MPA approval. Ticket: [{}].",
+                        backupId, copyNumbers, ticketHeader);
                 return new ExpireImageResult(false, ticketHeader);
             }
             if (statusCode != HttpStatus.SC_OK) {
@@ -236,7 +912,7 @@ public class AblestackNetBackupClient {
                 throw new CloudRuntimeException(String.format(
                         "NetBackup expire image REST API failed with status [%s]: %s", statusCode, responseBody));
             }
-            LOG.info("NetBackup expire image request completed for backup ID [{}], copy number [{}].", backupId, copyNumber);
+            LOG.info("NetBackup expire image request completed for backup ID [{}], copy numbers [{}].", backupId, copyNumbers);
             return new ExpireImageResult(true, null);
         } catch (IOException e) {
             throw new CloudRuntimeException("Failed to request NetBackup expire image API: " + e.getMessage(), e);
@@ -265,15 +941,16 @@ public class AblestackNetBackupClient {
                         "Failed to query NetBackup catalog image [%s]. status [%s], response [%s]",
                         backupId, statusCode, responseBody));
             }
-            if (StringUtils.isBlank(responseBody)) {
-                return false;
-            }
+            if (StringUtils.isBlank(responseBody)) { throw new CloudRuntimeException("NetBackup catalog response is empty"); }
             final JSONObject responseJson = new JSONObject(responseBody);
             final JSONObject image = responseJson.optJSONObject("data");
             if (image != null) {
-                return StringUtils.equals(backupId, image.optString("id", null));
+                if (!StringUtils.equals(backupId, image.optString("id", null))) {
+                    throw new CloudRuntimeException("NetBackup catalog response does not identify the requested image");
+                }
+                return true;
             }
-            return false;
+            throw new CloudRuntimeException("NetBackup catalog response does not include the requested image");
         } catch (IOException e) {
             throw new CloudRuntimeException("Failed to query NetBackup catalog image API: " + e.getMessage(), e);
         }
@@ -578,8 +1255,8 @@ public class AblestackNetBackupClient {
     }
 
     private void applyAuthenticationHeaders(final HttpRequestBase request) {
-        request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey);
-        request.setHeader("X-API-Key", apiKey);
+        // NetBackup API keys are the Authorization value itself, without a Bearer prefix.
+        request.setHeader(HttpHeaders.AUTHORIZATION, apiKey);
     }
 
     private String extractJobState(final JSONObject response) {
@@ -655,6 +1332,7 @@ public class AblestackNetBackupClient {
         return "FAILED".equals(jobState)
                 || "FAILURE".equals(jobState)
                 || "ERROR".equals(jobState)
+                || "CANCELED".equals(jobState)
                 || "CANCELLED".equals(jobState)
                 || "ABORTED".equals(jobState);
     }

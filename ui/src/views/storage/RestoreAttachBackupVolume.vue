@@ -69,13 +69,13 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="quickRestore" ref="quickRestore" >
+      <a-form-item v-if="supportsQuickRestore && apiParams.quickrestore" name="quickRestore" ref="quickRestore" >
         <template #label>
           <tooltip-label :title="$t('label.quickrestore')" :tooltip="apiParams.quickrestore?.description"/>
         </template>
         <a-switch v-model:checked="form.quickRestore" />
       </a-form-item>
-      <a-form-item name="hostId" ref="hostId" v-if="isAdmin()">
+      <a-form-item name="hostId" ref="hostId" v-if="supportsQuickRestore && isAdmin() && apiParams.hostid">
         <template #label>
           <tooltip-label :title="$t('label.hostid')" :tooltip="apiParams.hostid?.description"/>
         </template>
@@ -109,6 +109,7 @@ import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel.vue'
 import { isAdmin } from '@/role'
+import { isKbossBackupProvider } from '@/utils/ablestackBackupPolicy'
 
 export default {
   name: 'RestoreAttachBackupVolume',
@@ -139,6 +140,9 @@ export default {
       },
       actionLoading: false
     }
+  },
+  computed: {
+    supportsQuickRestore () { return isKbossBackupProvider(this.resource) }
   },
   beforeCreate () {
     this.apiParams = this.$getApiParams('restoreVolumeFromBackupAndAttachToVM')
@@ -193,6 +197,7 @@ export default {
       this.volumeOptions.loading = false
     },
     async fetchHosts () {
+      if (!this.supportsQuickRestore || !this.isAdmin() || !this.apiParams.hostid) return
       this.hostOptions.loading = true
       const args = {
         zoneid: this.resource.zoneid,
@@ -219,18 +224,24 @@ export default {
         params.backupid = this.resource.id
         params.volumeid = values.volumeid
         params.virtualmachineid = this.virtualMachineOptions.opts.filter(opt => opt.name === values.virtualmachineid)[0].id || null
-        params.quickrestore = values.quickRestore
-        params.hostid = values.hostId
+        if (this.supportsQuickRestore && this.apiParams.quickrestore) {
+          params.quickrestore = values.quickRestore
+        }
+        if (this.supportsQuickRestore && this.isAdmin() && this.apiParams.hostid && values.hostId) {
+          params.hostid = values.hostId
+        }
 
         this.actionLoading = true
         const title = this.$t('label.restore.volume.attach')
         postAPI('restoreVolumeFromBackupAndAttachToVM', params).then(json => {
           const jobId = json.restorevolumefrombackupandattachtovmresponse.jobid || null
           if (jobId) {
+            this.$emit('restore-started', this.resource)
             this.$pollJob({
               jobId,
               title,
               description: values.volumeid,
+              successMessage: this.$t('label.backup.attach.restore.requested'),
               loadingMessage: `${title} ${this.$t('label.in.progress.for')} ${this.resource.id}`,
               catchMessage: this.$t('error.fetching.async.job.result')
             })

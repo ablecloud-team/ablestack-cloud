@@ -330,7 +330,7 @@
       </a-list-item>
       <div v-else-if="item === 'backupofferingdetails'">
         <a-list-item
-          v-for="(value, key) in dataResource[item]"
+          v-for="(value, key) in visibleBackupOfferingDetails"
           :key="key">
           <div>
             <strong>{{ $t('label.' + String(key).toLowerCase()) }}</strong>
@@ -350,6 +350,7 @@
 
 <script>
 import { creationVmDetails } from '@/utils/creationVmPresentation'
+import { getAblestackBackupOfferingVisibleDetails } from '@/utils/ablestackBackupPolicy'
 import AffinityGroupPolicy from '@/views/compute/AffinityGroupPolicy'
 import LinkedDiskOffering from '@/components/offering/LinkedDiskOffering'
 import DedicateData from './DedicateData'
@@ -418,6 +419,9 @@ export default {
     this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
   },
   computed: {
+    visibleBackupOfferingDetails () {
+      return getAblestackBackupOfferingVisibleDetails(this.dataResource)
+    },
     allocationDetails () {
       const name = this.$route.meta.name
       if (!['volume', 'diskoffering', 'computeoffering', 'systemoffering'].includes(name)) return {}

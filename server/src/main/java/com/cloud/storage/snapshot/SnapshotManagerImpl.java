@@ -79,11 +79,6 @@ import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.jobs.AsyncJob;
 import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
 import org.apache.cloudstack.managed.context.ManagedContextRunnable;
-import org.apache.cloudstack.backup.Backup;
-import org.apache.cloudstack.backup.BackupOfferingVO;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
-import org.apache.cloudstack.backup.dao.BackupDao;
-import org.apache.cloudstack.backup.dao.BackupOfferingDao;
 import org.apache.cloudstack.reservation.dao.ReservationDao;
 import org.apache.cloudstack.resourcedetail.SnapshotPolicyDetailVO;
 import org.apache.cloudstack.resourcedetail.dao.SnapshotPolicyDetailsDao;
@@ -273,9 +268,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     @Inject
     private AnnotationDao annotationDao;
     @Inject
-    private BackupDao backupDao;
-    @Inject
-    private BackupOfferingDao backupOfferingDao;
+    private org.apache.cloudstack.backup.AblestackBackupOperationGuard ablestackBackupOperationGuard;
 
     @Inject
     protected SnapshotHelper snapshotHelper;
@@ -1791,35 +1784,11 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
 
     private void validateNoBackupActivityOrHistoryForVolumeSnapshot(Long volumeId, String operation) {
         VolumeVO volume = _volsDao.findById(volumeId);
-        if (volume == null || volume.getInstanceId() == null) {
-            return;
-        }
-
-        Long vmId = volume.getInstanceId();
-        boolean hasRestoreInProgress = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.Restoring.equals(backup.getStatus()) && isNetBackup(backup));
-        if (hasRestoreInProgress) {
-            throw new CloudRuntimeException(String.format("Unable to %s volume snapshot while a backup restore is currently in progress for VM [%s].",
-                    operation, vmId));
-        }
-
-        boolean hasBackupInProgress = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.BackingUp.equals(backup.getStatus()) && isNetBackup(backup));
-        if (hasBackupInProgress) {
-            logger.debug("Allowing volume snapshot {} while a backup is currently in progress for VM [{}].", operation, vmId);
-        }
-
-        boolean hasExistingBackup = backupDao.listByVmId(null, vmId).stream()
-                .anyMatch(backup -> Backup.Status.BackedUp.equals(backup.getStatus()));
-        if (hasExistingBackup) {
-            logger.debug("Allowing volume snapshot {} for VM [{}] with existing backups.", operation, vmId);
+        if (volume != null && volume.getInstanceId() != null) {
+            ablestackBackupOperationGuard.checkSnapshotOperation(volume, operation);
         }
     }
 
-    private boolean isNetBackup(Backup backup) {
-        BackupOfferingVO offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
-        return offering != null && BackupProviderNameUtils.isNetBackupFamily(offering.getProvider());
-    }
 
     @Override
     @DB
@@ -1935,6 +1904,11 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     }
 
     protected SnapshotPolicyVO persistSnapshotPolicy(VolumeVO volume, String schedule, String timezone, IntervalType intervalType, int maxSnaps, boolean display, boolean active, Map<String, String> tags, List<Long> zoneIds, List<Long> poolIds, Long expectedPolicyId, boolean preserveExistingDisplay) {
+        return persistSnapshotPolicy(volume, schedule, timezone, intervalType, maxSnaps, display, active, tags, zoneIds, poolIds,
+                expectedPolicyId, preserveExistingDisplay, false);
+    }
+
+    private SnapshotPolicyVO persistSnapshotPolicy(VolumeVO volume, String schedule, String timezone, IntervalType intervalType, int maxSnaps, boolean display, boolean active, Map<String, String> tags, List<Long> zoneIds, List<Long> poolIds, Long expectedPolicyId, boolean preserveExistingDisplay, boolean migrationCopy) {
         long volumeId = volume.getId();
 
         GlobalLock createSnapshotPolicyLock = GlobalLock.getInternLock("createSnapshotPolicy_" + volumeId);
@@ -1952,7 +1926,7 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
                     // Non-root API callers cannot set fordisplay. Its create default must
                     // not resume an administrator-paused policy when they edit it.
                     boolean effectiveDisplay = policy != null && preserveExistingDisplay ? policy.isDisplay() : display;
-                    validatePolicyVolumeState(_volsDao.findById(volumeId), policy != null, effectiveDisplay);
+                    validatePolicyVolumeState(_volsDao.findById(volumeId), policy != null, effectiveDisplay, migrationCopy);
                     if (policy == null) {
                         policy = createSnapshotPolicy(volumeId, schedule, timezone, intervalType, maxSnaps, effectiveDisplay, zoneIds, poolIds);
                         // The constructor defaults to active; honour an explicitly inactive create/copy.
@@ -1975,11 +1949,16 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
     }
 
     protected void validatePolicyVolumeState(VolumeVO volume, boolean existingPolicy, boolean display) {
+        validatePolicyVolumeState(volume, existingPolicy, display, false);
+    }
+
+    protected void validatePolicyVolumeState(VolumeVO volume, boolean existingPolicy, boolean display, boolean migrationCopy) {
         if (volume == null) {
             throw new InvalidParameterValueException("Snapshot policy volume does not exist");
         }
         if (display && volume.getState() != Volume.State.Ready
-                && !(existingPolicy && volume.getState() == Volume.State.Snapshotting)) {
+                && !(existingPolicy && volume.getState() == Volume.State.Snapshotting)
+                && !(migrationCopy && volume.getState() == Volume.State.Creating)) {
             throw new InvalidParameterValueException(String.format("Volume: %s is not in %s state but %s. Cannot create snapshot policy.",
                     volume, Volume.State.Ready, volume.getState()));
         }
@@ -2069,7 +2048,8 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
             List<SnapshotPolicyDetailVO> poolDetails = snapshotPolicyDetailsDao.findDetails(policy.getId(), ApiConstants.STORAGE_ID);
             List<Long> poolIds = poolDetails.stream().map(d -> Long.valueOf(d.getValue())).collect(Collectors.toList());
             persistSnapshotPolicy(destVolume, policy.getSchedule(), policy.getTimezone(), intervalTypes[policy.getInterval()], policy.getMaxSnaps(),
-                    policy.isDisplay(), policy.isActive(), taggedResourceService.getTagsFromResource(ResourceObjectType.SnapshotPolicy, policy.getId()), zoneIds, poolIds);
+                    policy.isDisplay(), policy.isActive(), taggedResourceService.getTagsFromResource(ResourceObjectType.SnapshotPolicy, policy.getId()),
+                    zoneIds, poolIds, null, false, true);
         }
     }
 

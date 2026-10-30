@@ -78,6 +78,7 @@ public class VmCreationSourceValidatorTest {
         validator.templates = mock(VMTemplateDao.class); validator.pools = mock(PrimaryDataStoreDao.class);
         validator.zones = mock(DataCenterDao.class); validator.guestOs = mock(GuestOSDao.class);
         validator.vms = mock(VMInstanceDao.class); validator.vmDetails = mock(VMInstanceDetailsDao.class);
+        validator.virtualMachineManager = mock(VirtualMachineManager.class);
         validator.hosts = mock(HostDao.class); validator.clusters = mock(com.cloud.dc.dao.ClusterDao.class);
         validator.agents = mock(com.cloud.agent.AgentManager.class); validator.accounts = mock(AccountManager.class);
         validator.snapshotFactory = mock(SnapshotDataFactory.class); validator.snapshotHelper = mock(SnapshotHelper.class);
@@ -207,6 +208,16 @@ public class VmCreationSourceValidatorTest {
         verify(validator.snapshotDetails).addDetail(601L, VmCreationSourceService.PREFIX + "volumetype", "ROOT", false);
         verify(validator.snapshotDetails).addDetail(601L, VmCreationSourceService.PREFIX + "sizebytes", String.valueOf(64L << 30), false);
         verify(validator.snapshotDetails).addDetail(601L, VmCreationSourceService.PREFIX + "boottype", "BIOS", false);
+    }
+    @Test public void snapshotCaptureDiscoversAndPreservesTheSourcePciePolicy() {
+        VMInstanceVO vm = mock(VMInstanceVO.class);
+        when(vm.getId()).thenReturn(77L); when(vm.getHypervisorType()).thenReturn(HypervisorType.KVM);
+        when(volume.getInstanceId()).thenReturn(77L);
+        when(validator.vms.findByIdIncludingRemoved(77L)).thenReturn(vm);
+        when(validator.vmDetails.listDetailsKeyPairs(77L)).thenReturn(Collections.singletonMap(VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY, "reserved32"));
+        validator.captureSnapshot(snapshot, volume);
+        verify(validator.virtualMachineManager).preserveKvmPcieTopology(vm);
+        verify(validator.snapshotDetails).addDetail(601L, VmCreationSourceService.PREFIX + VmDetailConstants.KVM_Q35_PCIE_TOPOLOGY, "reserved32", false);
     }
     @Test public void activeHostConsumerBlocksAdoption() {
         com.cloud.host.HostVO host = mock(com.cloud.host.HostVO.class);

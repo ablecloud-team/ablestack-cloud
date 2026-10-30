@@ -10,13 +10,21 @@
 // License for the specific language governing permissions and limitations.
 package com.cloud.hypervisor.kvm.storage;
 
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.cloudstack.storage.command.PrepareSharedMountPointCloneCommand;
 import org.apache.cloudstack.storage.command.PrepareSharedMountPointCloneCommand.VolumeCloneSpec;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AllocatedCloneRollbackTest {
     @Test public void uncertainLiveOverlayAndForeignTargetArePreserved() throws Exception {

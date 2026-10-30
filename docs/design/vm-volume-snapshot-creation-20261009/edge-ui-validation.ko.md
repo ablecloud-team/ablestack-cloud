@@ -76,5 +76,3 @@ under the License.
 ## 남은 완료 조건
 
 진행 중 Agent/management 재시작, 생성 응답 유실·중복 재제출 방지·재진입, IOPS·스토리지 불가, 안전한 재시도와 더 넓은 template 회귀를 계속한다. 완료 조건과 최종 PR 체크를 확인하기 전 Epic 완료·전체 CI 성공으로 보고하지 않는다. PR은 Draft이며 기존 9개 이슈는 Open이다.
-
-

@@ -26,8 +26,15 @@ import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.Storage;
 import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.DiskOfferingDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.GlobalLock;
@@ -46,6 +53,31 @@ public class BackupSnapshotGuard extends ManagerBase {
     @Inject private VMInstanceDao vmDao;
     @Inject private VolumeDao volumeDao;
     @Inject private VolumeDataFactory volumeDataFactory;
+    @Inject private PrimaryDataStoreDao poolDao;
+    @Inject private AblestackSharedRawBackupService sharedRaw;
+    @Inject private ServiceOfferingDao serviceOfferingDao;
+    @Inject private DiskOfferingDao diskOfferingDao;
+
+    /** Shared RAW needs a storage-wide recovery point covering every VM writer. */
+    public void checkBackupSource(long vmId, String provider) {
+        if (!BackupProviderNameUtils.isNasFamily(provider) && !BackupProviderNameUtils.isCommvaultFamily(provider)
+                && !BackupProviderNameUtils.isNetBackupFamily(provider) && !BackupProviderNameUtils.isVeeamFamily(provider)) {
+            return;
+        }
+        VMInstanceVO vm = vmDao.findById(vmId);
+        if (vm == null || vm.getHypervisorType() != HypervisorType.KVM) return;
+        for (VolumeVO volume : volumeDao.findByInstance(vmId)) {
+            if (volume.getFormat() != Storage.ImageFormat.RAW) continue;
+            StoragePoolVO pool = volume.getPoolId() == null ? null : poolDao.findById(volume.getPoolId());
+            if (pool == null) {
+                throw new CloudRuntimeException("BACKUP_SOURCE_UNKNOWN: Cannot determine the primary storage for RAW volume " + volume.getUuid());
+            }
+            if (pool.getPoolType() == Storage.StoragePoolType.SharedMountPoint) {
+                sharedRaw.checkSources(vmId);
+                return;
+            }
+        }
+    }
 
     public String snapshotReason(long vmId) {
         VMInstanceVO vm = vmDao.findById(vmId);
@@ -112,6 +144,39 @@ public class BackupSnapshotGuard extends ManagerBase {
     public void checkBackup(long vmId) {
         if (backupReason(vmId) != null) {
             throw new CloudRuntimeException("VM_SNAPSHOT_EXISTS: Backup creation, scheduling and offering assignment are unavailable while VM snapshots exist.");
+        }
+        checkSharedVolumeOfferings(vmId);
+    }
+
+    /** Sharing is an offering property, independent of image format, storage backend, or VM power state. */
+    private void checkSharedVolumeOfferings(long vmId) {
+        VMInstanceVO vm = vmDao.findById(vmId);
+        if (vm == null) return;
+        if (vm.getServiceOfferingId() > 0) {
+            ServiceOfferingVO compute = serviceOfferingDao.findByIdIncludingRemoved(vm.getServiceOfferingId());
+            if (compute == null) {
+                throw new CloudRuntimeException("BACKUP_SOURCE_UNKNOWN: Cannot determine the compute offering for VM " + vmId);
+            }
+            // Compute offerings store their root-disk sharing option in the associated disk offering.
+            checkSharedDiskOffering(compute.getDiskOfferingId(), "compute offering");
+        }
+        List<VolumeVO> volumes = volumeDao.findByInstance(vmId);
+        if (volumes == null) {
+            throw new CloudRuntimeException("BACKUP_SOURCE_UNKNOWN: Cannot determine the volumes for VM " + vmId);
+        }
+        for (VolumeVO volume : volumes) {
+            checkSharedDiskOffering(volume.getDiskOfferingId(), "disk offering for volume " + volume.getUuid());
+        }
+    }
+
+    private void checkSharedDiskOffering(Long offeringId, String source) {
+        if (offeringId == null || offeringId <= 0) return;
+        DiskOfferingVO offering = diskOfferingDao.findByIdIncludingRemoved(offeringId);
+        if (offering == null) {
+            throw new CloudRuntimeException("BACKUP_SOURCE_UNKNOWN: Cannot determine the " + source);
+        }
+        if (offering.getShareable()) {
+            throw new CloudRuntimeException("BACKUP_SHARED_VOLUME_UNSUPPORTED: VM backups are unavailable while shared volumes are enabled in the " + source);
         }
     }
 
