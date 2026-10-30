@@ -277,4 +277,22 @@ public class VmCloneBatchManagerTest {
         assertTrue(response.targets.get(1).created);
         assertEquals("NONE", response.targets.get(1).retryAction);
     }
+
+    @Test
+    public void xmlIncludesNestedTargetsAndVolumes() {
+        var response = new VmCloneBatchResponse();
+        response.setResponseName("queryvmclonebatchresponse");
+        var target = new VmCloneBatchResponse.Target();
+        target.name = "copy-2";
+        var disk = new VmCloneBatchResponse.Disk();
+        disk.id = "copy-root";
+        target.volumes.add(disk);
+        response.targets.add(target);
+        StringBuilder body = new StringBuilder();
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(com.cloud.api.response.ApiResponseSerializer.class, "serializeResponseObjXML", body, new StringBuilder(), response);
+        String xml = body.toString();
+        assertTrue(xml, xml.contains("<targets>"));
+        assertTrue(xml, xml.contains("<name>copy-2</name>"));
+        assertTrue(xml, xml.contains("<volumes><id>copy-root</id>"));
+    }
 }

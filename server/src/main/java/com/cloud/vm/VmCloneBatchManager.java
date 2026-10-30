@@ -524,7 +524,7 @@ public class VmCloneBatchManager implements PluggableService {
                 d -> {
                     VmCloneBatchData.Item i = d.items.get(cmd.getBatchItemIndex() - 1);
                     i.error = error(failure);
-                    i.phase = i.created ? "START_FAILED" : "CREATE_FAILED";
+                    i.phase = "STARTING".equals(i.phase) ? "START_FAILED" : i.created ? "FINALIZE_FAILED" : "CREATE_FAILED";
                 });
     }
 

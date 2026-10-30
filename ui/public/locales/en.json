@@ -9867,5 +9867,11 @@
   "message.clone.batch.pending": "Submission is unconfirmed. Query or resend the same request ID; do not create a new request.",
   "message.clone.batch.query.failed": "Result lookup failed. The request ID is preserved for safe recovery.",
   "message.clone.batch.inspect": "Inspect retained resources before retrying blocked targets. Successful targets are never recreated.",
-  "message.clone.batch.storage": "Browser storage is unavailable. Keep the request ID before leaving this page."
+  "message.clone.batch.storage": "Browser storage is unavailable. Keep the request ID before leaving this page.",
+  "label.clone.batch.restricted": "Access restricted",
+  "label.clone.batch.action.CREATE": "Recreate target",
+  "label.clone.batch.action.RESUME": "Continue with prepared disks",
+  "label.clone.batch.action.START": "Start existing VM",
+  "label.clone.batch.action.NONE": "None",
+  "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM."
 }

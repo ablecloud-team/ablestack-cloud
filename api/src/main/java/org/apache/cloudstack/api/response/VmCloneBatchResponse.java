@@ -66,7 +66,8 @@ public class VmCloneBatchResponse extends BaseResponse {
     @Param(description = "All planned targets")
     public List<Target> targets = new ArrayList<>();
 
-    public static class Target {
+    public static class Target extends BaseResponse {
+        public Target() { super("targets"); }
         @SerializedName("index")
         @Param(description = "Original 1-based target index")
         public int index;
@@ -81,7 +82,7 @@ public class VmCloneBatchResponse extends BaseResponse {
 
         @SerializedName("created")
         @Param(description = "Whether this target was created")
-        public boolean created;
+        public Boolean created;
 
         @SerializedName("state")
         @Param(description = "Current VM state")
@@ -100,7 +101,7 @@ public class VmCloneBatchResponse extends BaseResponse {
         public String cleanup;
 
         @SerializedName("retryaction")
-        @Param(description = "CREATE, RESUME, START or NONE")
+        @Param(description = "CREATE recaptures the current source, RESUME reuses prepared disks, START starts the existing VM, NONE blocks retry")
         public String retryAction;
 
         @SerializedName("volumes")
@@ -108,7 +109,8 @@ public class VmCloneBatchResponse extends BaseResponse {
         public List<Disk> volumes = new ArrayList<>();
     }
 
-    public static class Disk {
+    public static class Disk extends BaseResponse {
+        public Disk() { super("volumes"); }
         @SerializedName("id")
         @Param(description = "Volume UUID")
         public String id;

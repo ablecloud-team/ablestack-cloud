@@ -37,7 +37,9 @@
         </template>
       </a-alert>
       <a-alert v-if="batchError" type="error" show-icon :message="batchError" style="margin-bottom: 12px" />
+      <a-alert v-if="batchStorageError" type="warning" show-icon :message="batchStorageError" style="margin-bottom: 12px" />
       <a-alert v-if="batchResult?.error" type="warning" show-icon :message="batchResult.error" style="margin-bottom: 12px" />
+      <a-alert v-if="retryTargets.some(t => t.retryaction === 'CREATE')" type="info" show-icon :message="$t('message.clone.batch.recapture')" style="margin-bottom: 12px" />
       <a-table :columns="batchColumns" :data-source="batchResult?.targets || []" row-key="index" :pagination="false" size="small" :scroll="{ x: 820 }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'target'">
@@ -45,8 +47,8 @@
             <div v-if="record.id" class="batch-uuid">{{ record.id }}</div>
           </template>
           <template v-else-if="column.key === 'outcome'">
-            <div>{{ record.created ? $t('label.clone.batch.created') : $t('label.clone.batch.notcreated') }} · {{ record.state }}</div>
-            <div>{{ record.phase }} · {{ record.retryaction }}</div>
+            <div>{{ record.phase === 'ACCESS_RESTRICTED' ? $t('label.clone.batch.restricted') : record.created ? $t('label.clone.batch.created') : $t('label.clone.batch.notcreated') }} · {{ record.state }}</div>
+            <div>{{ record.phase }} · {{ $t('label.clone.batch.action.' + record.retryaction) }}</div>
             <div v-if="record.error" class="batch-error">{{ record.error }}</div>
           </template>
           <template v-else-if="column.key === 'cleanup'">
@@ -137,6 +139,7 @@ export default {
       batchRequest: null,
       batchResult: null,
       batchError: '',
+      batchStorageError: '',
       queryingBatch: false,
       batchDisposed: false,
       batchTimer: null,
@@ -148,7 +151,7 @@ export default {
   computed: {
     batchBusy () { return cloneBatchBusy(this.batchResult) },
     batchUnconfirmed () { return !this.batchResult || this.batchResult.status === 'NOTFOUND' || (this.batchResult.status === 'QUEUED' && !this.batchResult.jobid) || this.batchResult.attemptid !== (this.batchRequest?.attempt?.id || this.batchRequest?.id) },
-    retryTargets () { return this.batchBusy ? [] : retryableTargets(this.batchResult) },
+    retryTargets () { return this.batchBusy || this.batchUnconfirmed ? [] : retryableTargets(this.batchResult) },
     batchColumns () {
       return [
         { title: '#', dataIndex: 'index', key: 'index', width: 45 },
@@ -264,10 +267,10 @@ export default {
       return batchStorageKey(this.$store?.getters?.userInfo?.id || 'current', this.resource.id)
     },
     persistBatch () {
-      try { window.localStorage.setItem(this.storageKey(), JSON.stringify(this.batchRequest)) } catch (error) { this.batchError = this.$t('message.clone.batch.storage') }
+      try { window.localStorage.setItem(this.storageKey(), JSON.stringify(this.batchRequest)); this.batchStorageError = '' } catch (error) { this.batchStorageError = this.$t('message.clone.batch.storage') }
     },
     restoreBatch () {
-      try { this.batchRequest = readCloneRequest(window.localStorage, this.storageKey(), this.resource.id) } catch (error) { this.batchError = this.$t('message.clone.batch.storage') }
+      try { this.batchRequest = readCloneRequest(window.localStorage, this.storageKey(), this.resource.id) } catch (error) { this.batchStorageError = this.$t('message.clone.batch.storage') }
       if (this.batchRequest) this.refreshBatch()
     },
     async submitBatch () {
@@ -331,7 +334,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .clone-batch-result { width: min(1100px, 82vw); }
+  .clone-batch-result { width: 82vw; max-width: 1100px; }
   .batch-uuid { overflow-wrap: anywhere; font-size: 12px; margin-top: 4px; }
   .batch-error { color: #c9190b; overflow-wrap: anywhere; }
   .batch-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
