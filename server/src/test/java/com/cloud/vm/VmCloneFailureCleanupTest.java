@@ -59,4 +59,19 @@ public class VmCloneFailureCleanupTest {
         manager.reconcileDisk(row,data,disk);assertTrue(manager.committed);assertEquals(1,manager.probes);
     }
     @Test public void pendingPhysicalProofBlocksRecreationEvenForExpungedRows(){VmCloneBatchData.Item item=new VmCloneBatchData.Item();item.cleanupRequired=true;assertEquals("NONE",manager.action(row,data,item));}
+    @Test public void frameworkPseudoJobDoesNotBlockCleanupRecovery(){
+        manager.jobs=mock(org.apache.cloudstack.framework.jobs.dao.AsyncJobDao.class);
+        org.apache.cloudstack.framework.jobs.impl.AsyncJobVO pseudo=mock(org.apache.cloudstack.framework.jobs.impl.AsyncJobVO.class);
+        data.cleanupJobId=90L;when(manager.jobs.findByIdIncludingRemoved(90L)).thenReturn(pseudo);
+        when(pseudo.getStatus()).thenReturn(org.apache.cloudstack.jobs.JobInfo.Status.IN_PROGRESS);
+        assertFalse(manager.busy(data));
+    }
+    @Test public void realCleanupJobPreventsConcurrentCloneRetry(){
+        manager.jobs=mock(org.apache.cloudstack.framework.jobs.dao.AsyncJobDao.class);
+        org.apache.cloudstack.framework.jobs.impl.AsyncJobVO cleanup=mock(org.apache.cloudstack.framework.jobs.impl.AsyncJobVO.class);
+        data.cleanupJobId=90L;when(manager.jobs.findByIdIncludingRemoved(90L)).thenReturn(cleanup);
+        when(cleanup.getCmd()).thenReturn(org.apache.cloudstack.api.command.user.vm.CleanupVMCloneBatchCmd.class.getName());
+        when(cleanup.getStatus()).thenReturn(org.apache.cloudstack.jobs.JobInfo.Status.IN_PROGRESS);assertTrue(manager.busy(data));
+        when(cleanup.getStatus()).thenReturn(org.apache.cloudstack.jobs.JobInfo.Status.SUCCEEDED);assertFalse(manager.busy(data));
+    }
 }

@@ -98,7 +98,7 @@ public class VmCloneBatchManager implements PluggableService {
             }
         } catch (Exception unavailable) {
             org.apache.logging.log4j.LogManager.getLogger(getClass()).warn("Clone failure cleanup scan could not complete", unavailable);
-        } finally { CallContext.unregister(); }
+        } finally { AsyncJobExecutionContext.unregister(); CallContext.unregister(); }
     }
 
     @FunctionalInterface
@@ -511,8 +511,10 @@ public class VmCloneBatchManager implements PluggableService {
             VmCloneBatchVO row = batches.findByUuid(id);
             VmCloneBatchData data = decode(row);
             if (busy(data)) throw new CloudRuntimeException("A clone or cleanup attempt is still active");
-            AsyncJobExecutionContext context = AsyncJobExecutionContext.getCurrentExecutionContext();
-            if (context != null && context.getJob() != null) data.cleanupJobId = context.getJob().getId();
+            AsyncJobExecutionContext context = AsyncJobExecutionContext.getCurrent();
+            if (!automatic && context != null && context.getJob() != null &&
+                    org.apache.cloudstack.api.command.user.vm.CleanupVMCloneBatchCmd.class.getName().equals(context.getJob().getCmd()))
+                data.cleanupJobId = context.getJob().getId();
             locked("receipt-" + id, () -> { save(row, data); return null; });
             for (VmCloneBatchData.Item item : data.items) {
                 if (!cleanupCandidate(row, data, item) || (automatic && (item.cleanupAttempts >= 3 || item.cleanupNext > System.currentTimeMillis()))) continue;
@@ -714,7 +716,7 @@ public class VmCloneBatchManager implements PluggableService {
     boolean busy(VmCloneBatchData data) {
         if (data.cleanupJobId != null) {
             AsyncJobVO cleanup = jobs.findByIdIncludingRemoved(data.cleanupJobId);
-            if (cleanup != null && cleanup.getStatus().ordinal() == 0) return true;
+            if (isCleanupJob(cleanup) && cleanup.getStatus().ordinal() == 0) return true;
         }
         VmCloneBatchData.Attempt a = data.attempts.get(data.currentAttempt);
         if (a == null) return false;
@@ -724,6 +726,10 @@ public class VmCloneBatchManager implements PluggableService {
         }
         AsyncJobVO job = jobs.findByIdIncludingRemoved(a.jobId);
         return job == null ? !a.finished : job.getStatus().ordinal() == 0;
+    }
+
+    private boolean isCleanupJob(AsyncJobVO job) {
+        return job != null && org.apache.cloudstack.api.command.user.vm.CleanupVMCloneBatchCmd.class.getName().equals(job.getCmd());
     }
 
     List<VolumeVO> disks(VmCloneBatchData.Item item) {
@@ -953,7 +959,7 @@ public class VmCloneBatchManager implements PluggableService {
         response.snapshotCleanupError = data.snapshotCleanupError;
         if (data.cleanupJobId != null) {
             AsyncJobVO cleanup = jobs.findByIdIncludingRemoved(data.cleanupJobId);
-            if (cleanup != null) { response.cleanupJobId = cleanup.getUuid(); response.cleanupJobStatus = cleanup.getStatus().ordinal(); }
+            if (isCleanupJob(cleanup)) { response.cleanupJobId = cleanup.getUuid(); response.cleanupJobStatus = cleanup.getStatus().ordinal(); }
         }
         if (!busy && data.snapshotCleanupError != null) response.cleanupAvailable = true;
         response.status = data.status;
