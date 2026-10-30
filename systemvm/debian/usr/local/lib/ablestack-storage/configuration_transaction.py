@@ -12,6 +12,7 @@
 """Durable, per-instance configuration transaction boundary. Never formats DATA."""
 import contextlib
 import fcntl
+import re
 import hashlib
 import json
 import os
@@ -1801,6 +1802,160 @@ class RuntimeAdapter:
                     raise Rejected("METADATA_RESTORE_MISMATCH")
 
 
+AD_DOMAIN_ROOT = Path("/var/lib/ablestack-storage/ad-domain-operations")
+AD_DOMAIN_TERMINAL = {"COMMITTED", "ROLLED_BACK", "MEMBERSHIP_FAILED"}
+
+
+def ad_domain_status(instance, root=AD_DOMAIN_ROOT):
+    path = Path(root) / token(instance) / "status.json"
+    if not path.exists():
+        return {}
+    info = path.lstat()
+    if path.is_symlink() or info.st_uid != os.geteuid() or info.st_mode & 0o077 or info.st_size > 16384:
+        raise Rejected("AD_DOMAIN_STATUS_UNSAFE")
+    try:
+        value = load(path)
+    except (OSError, ValueError) as error:
+        raise Rejected("AD_DOMAIN_STATUS_UNSAFE") from error
+    if not isinstance(value, dict) or value.get("state") not in AD_DOMAIN_TERMINAL | {"RUNNING", "RECOVERY_REQUIRED"}:
+        raise Rejected("AD_DOMAIN_STATUS_UNSAFE")
+    token(value.get("operationid"))
+    return {key: value[key] for key in ("operationid", "jobid", "phase", "state", "membership", "serviceApply",
+            "rollback", "failureCode", "updatedAt") if key in value}
+
+
+class AdDomainJoin:
+    """One guest lease; membership credentials never enter the durable snapshot."""
+    def __init__(self, root=AD_DOMAIN_ROOT, adapter_factory=None, configuration_root=ROOT,
+                 desired=Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"),
+                 client_paths=(Path("/etc/resolv.conf"), Path("/etc/krb5.conf"))):
+        self.root = Path(root)
+        self.configuration_root, self.desired = Path(configuration_root), Path(desired)
+        self.client_paths = tuple(map(Path, client_paths))
+        self.adapter_factory = adapter_factory or RuntimeAdapter
+
+    def member(self, value):
+        descriptor = os.memfd_create("storage-ad-membership", 0)
+        try:
+            os.write(descriptor, json.dumps(value).encode())
+            os.lseek(descriptor, 0, os.SEEK_SET)
+            result = subprocess.run(["/usr/local/bin/ablestack-storagectl", "smb", "domain", "join",
+                "/proc/self/fd/" + str(descriptor)], pass_fds=(descriptor,), capture_output=True,
+                env={**os.environ, "ABLESTACK_STORAGE_AD_MEMBERSHIP_ONLY": "1"})
+            if result.returncode:
+                phase = load(Path("/etc/ablestack-storage/smb-domain-error.json"), {}).get("phase", "")
+                if phase in {"validate", "testparm", "kinit", "join", "testjoin", "wbinfo"}:
+                    raise Rejected("AD_MEMBERSHIP_" + phase.upper() + "_FAILED")
+                raise Rejected("AD_MEMBERSHIP_FAILED")
+            try:
+                return json.loads(result.stdout)
+            except (ValueError, TypeError):
+                return {}
+        finally:
+            os.close(descriptor)
+
+    def run(self, value):
+        from shared_directory_policy import inheritance_protection_version
+        if inheritance_protection_version(minimum=6) != 1:
+            raise Rejected("AD_DOMAIN_BASELINE_REQUIRED")
+        instance = token(value.get("instanceUuid"))
+        operation = token(value.get("operationid"))
+        candidate = value.get("smbDesiredState")
+        if not isinstance(candidate, dict) or candidate.get("instanceUuid") != instance:
+            raise Rejected("INSTANCE_IDENTITY_MISMATCH")
+        lock_dir = self.configuration_root / instance
+        lock_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+        with (lock_dir / "lock").open("a") as stream:
+            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            previous = ad_domain_status(instance, self.root)
+            if previous and previous.get("state") not in AD_DOMAIN_TERMINAL:
+                raise Rejected("AD_DOMAIN_RECOVERY_REQUIRED")
+            profiles = SmbListenerProfiles()
+            if profiles.manifest.exists():
+                topology = load(profiles.manifest)
+                if topology.get("instanceUuid") != instance or topology.get("pending"):
+                    raise Rejected("SMB_PROFILE_RECOVERY_REQUIRED")
+                for row in topology.get("profiles", {}).values():
+                    if not profiles.ready(row, topology["profiles"]):
+                        overlap = any(port == row["port"] and (ip == row["listenIp"] or ip == "0.0.0.0" or row["listenIp"] == "0.0.0.0")
+                                      for ip, port in profiles.sockets())
+                        raise Rejected("SMB_ENDPOINT_IN_USE" if overlap else "SMB_PROFILE_RECOVERY_REQUIRED")
+            directory = self.root / instance
+            private = directory / operation
+            if private.exists():
+                raise Rejected("AD_DOMAIN_DUPLICATE_ATTEMPT")
+            private.mkdir(parents=True, mode=0o700)
+            status_path = directory / "status.json"
+            status = {"operationid": operation, "phase": "JOINING", "state": "RUNNING",
+                      "membership": "JOINING", "serviceApply": "WAITING", "rollback": "NOT_NEEDED"}
+            if value.get("jobid"): status["jobid"] = token(value["jobid"])
+            def record(**patch):
+                status.update(patch)
+                status["updatedAt"] = time.time()
+                atomic_json(status_path, status)
+            before = load(self.desired, value.get("smbBeforeState"))
+            if not isinstance(before, dict) or before.get("instanceUuid") != instance:
+                raise Rejected("AD_SMB_BEFORE_IMAGE_UNAVAILABLE")
+            from configuration_preflight import inspect
+            report = inspect({"instanceUuid": instance, "protocol": "SMB", "revision": 0,
+                              "ports": [v["port"] for v in candidate.get("listeners", [])],
+                              "drainrequired": True, "resourcecount": len(candidate.get("shares", []))})
+            if report["status"] != "READY":
+                raise Rejected(next((v["code"] for v in report["checks"] if v["blocking"]), "AD_ADMISSION_UNAVAILABLE"))
+            identity_before = {}
+            for path in self.client_paths:
+                if not path.is_file() or path.is_symlink():
+                    raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
+                identity_before[path] = (path.read_bytes(), path.stat().st_mode & 0o777)
+            record()
+            joined = False
+            adapter = self.adapter_factory(private)
+            try:
+                member = self.member(value)
+                joined = True
+                record(phase="APPLYING_SMB", membership="JOINED", serviceApply="APPLYING", reusedMembership=bool(member and member.get("alreadyJoined")))
+                payload = {"instanceUuid": instance, "operationid": operation,
+                           "before": {"smb share apply": before},
+                           "candidate": {"smb share apply": candidate}}
+                adapter.preflight(payload)
+                adapter.snapshot(payload)
+                adapter.apply(payload["candidate"])
+                adapter.verify(payload["candidate"])
+                checked(["net", "ads", "testjoin"])
+                checked(["wbinfo", "-t"])
+                record(phase="COMPLETED", state="COMMITTED", serviceApply="VERIFIED")
+                return dict(status, success=True)
+            except Exception as error:
+                code = getattr(error, "code", "AD_SMB_APPLY_FAILED")
+                if joined:
+                    result = load(private / "runner-result.json", {}).get("result", {})
+                    detail = result.get("code", "") if isinstance(result, dict) else ""
+                    if isinstance(detail, str) and re.fullmatch(r"[A-Z][A-Z0-9_]{0,79}", detail):
+                        code = detail
+                    record(phase="ROLLING_BACK_SMB", serviceApply="FAILED", failureCode=code)
+                    try:
+                        if adapter.snapshot_path.exists():
+                            adapter.restore()
+                            adapter.verify_restored()
+                            rollback = "SUCCEEDED"
+                        else:
+                            rollback = "NOT_NEEDED"
+                        record(phase="COMPLETED", state="ROLLED_BACK", rollback=rollback)
+                    except Exception:
+                        record(phase="RECOVERY_REQUIRED", state="RECOVERY_REQUIRED", rollback="FAILED")
+                else:
+                    if code in {"AD_MEMBERSHIP_JOIN_FAILED", "AD_MEMBERSHIP_TESTJOIN_FAILED", "AD_MEMBERSHIP_WBINFO_FAILED"}:
+                        record(phase="RECOVERY_REQUIRED", state="RECOVERY_REQUIRED", membership="UNKNOWN",
+                               serviceApply="NOT_APPLIED", failureCode=code)
+                    else:
+                        for path, (content, mode) in identity_before.items():
+                            path.write_bytes(content)
+                            path.chmod(mode)
+                        record(phase="COMPLETED", state="MEMBERSHIP_FAILED", membership="FAILED",
+                               serviceApply="NOT_APPLIED", failureCode=code)
+                return dict(status, success=False)
+
+
 def run_child(private, operation, descriptor):
     private = Path(private)
     if operation not in OPERATIONS:
@@ -1880,16 +2035,34 @@ def main(argv):
             profiles.boot(value)
         print(json.dumps({"success": True, "runtimeReady": True}))
         return 0
+    if len(argv) == 3 and argv[:2] == ["ad-domain", "show"]:
+        request = load(Path(argv[2]))
+        print(json.dumps(ad_domain_status(request.get("instanceUuid"))))
+        return 0
+    if len(argv) == 3 and argv[:2] == ["ad-domain", "join"]:
+        try:
+            result = AdDomainJoin().run(load(Path(argv[2])))
+        except (Rejected, BlockingIOError) as error:
+            result = {"success": False, "membership": "UNCHANGED", "serviceApply": "NOT_APPLIED",
+                      "phase": "VALIDATING", "state": "REJECTED", "rollback": "NOT_NEEDED",
+                      "failureCode": getattr(error, "code", "CONFIGURATION_BUSY")}
+        print(json.dumps(result))
+        if not result["success"]:
+            print(result.get("failureCode", "AD_SMB_APPLY_FAILED"), file=sys.stderr)
+        return 0 if result["success"] else 1
     if argv[:2] == ["capability", "show"]:
         try:
             from shared_directory_policy import SMB_PARENT_INHERITANCE_VERSION, inheritance_protection_version
             inheritance_version=SMB_PARENT_INHERITANCE_VERSION
             inheritance_protection=inheritance_protection_version()
+            ad_domain_protection=inheritance_protection_version(minimum=6)
         except ImportError:
-            inheritance_version=inheritance_protection=0
+            inheritance_version=inheritance_protection=ad_domain_protection=0
+        except TypeError:
+            ad_domain_protection=0
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "sharedDirectoryPolicyVersion": 1, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect

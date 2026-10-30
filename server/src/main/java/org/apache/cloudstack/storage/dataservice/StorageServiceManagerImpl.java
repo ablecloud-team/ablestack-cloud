@@ -307,7 +307,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     private StorageServiceConfigurationCoordinator configurationCoordinator() {
         return new StorageServiceConfigurationCoordinator(storageServiceInstanceDao, configurationOperationDao,
-                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher, configurationPreflight(), configurationUpgradeDao).withDirectoryPolicies(directoryPolicyDao);
+                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher, configurationPreflight(), configurationUpgradeDao).withDirectoryPolicies(directoryPolicyDao).withAdDomains(storageIdentityDomainDao);
     }
     private <T> T runConfiguration(final org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd cmd,
             final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocol, final Class<T> type,
@@ -1517,35 +1517,111 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Override
     public StorageIdentityDomainResponse joinStorageServiceToAdDomain(final JoinStorageServiceToAdDomainCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (instance.getActiveConfigurationOperationId() != null) {
+            throw new CloudRuntimeException("CONFIGURATION_RECOVERY_REQUIRED");
+        }
+        if (instance.getVmId() != null) {
+            StorageServiceGuestCommandResult capability = dispatchStorageGuest(new StorageServiceGuestCommand(
+                    instance.getVmId(), "configuration capability show", "{}", 20, Collections.emptySet()));
+            JsonObject caps = StorageServiceConfigurationCoordinator.parsed(capability.getResultJson());
+            if (!capability.isSuccess() || !caps.has("adDomainTransactionVersion")
+                    || caps.get("adDomainTransactionVersion").getAsInt() != 1) {
+                throw new CloudRuntimeException("AD_DOMAIN_BASELINE_REQUIRED");
+            }
+        }
         ensureSmbProtocol(instance);
-        StorageIdentityDomainVO domain = storageIdentityDomainDao.findByInstanceId(instance.getId());
-        if (domain == null) {
-            domain = new StorageIdentityDomainVO(instance.getId(), cmd.getDomainName(), cmd.getOrganizationalUnit(), cmd.getDnsServers(),
-                    StorageServiceInstance.DomainJoinState.JOINING, "UNKNOWN", buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
-            domain = storageIdentityDomainDao.persist(domain);
-        } else {
-            domain.setDomainName(cmd.getDomainName());
-            domain.setOrganizationalUnit(cmd.getOrganizationalUnit());
-            domain.setDnsServers(cmd.getDnsServers());
-            domain.setJoinState(StorageServiceInstance.DomainJoinState.JOINING);
-            domain.setHealthState("UNKNOWN");
-            domain.setConfigJson(buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
+        final JsonObject before = buildSmbDesiredStatePayload(instance, Collections.emptyMap());
+        final String operation = java.util.UUID.randomUUID().toString();
+        final Object[] reservation = com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Object[]>) tx -> {
+            StorageServiceInstanceVO locked = storageServiceInstanceDao.lockRow(instance.getId(), true);
+            if (locked.getActiveConfigurationOperationId() != null) throw new CloudRuntimeException("CONFIGURATION_RECOVERY_REQUIRED");
+            StorageIdentityDomainVO domain = storageIdentityDomainDao.findByInstanceId(instance.getId());
+            final StorageServiceInstance.DomainJoinState previousState = domain == null
+                    ? StorageServiceInstance.DomainJoinState.NOT_JOINED : domain.getJoinState();
+            final String previousHealth = domain == null ? "UNKNOWN" : domain.getHealthState();
+            JsonObject lease = domain == null ? new JsonObject() : parseJsonObject(domain.getConfigJson());
+            if (lease.has("adJoin") && lease.get("adJoin").isJsonObject()) {
+                JsonObject ad = lease.getAsJsonObject("adJoin");
+                if (ad.has("state") && java.util.Arrays.asList("RUNNING", "RECOVERY_REQUIRED").contains(ad.get("state").getAsString()))
+                    throw new CloudRuntimeException("AD_DOMAIN_RECOVERY_REQUIRED");
+            }
+            if (domain != null && domain.getJoinState() == StorageServiceInstance.DomainJoinState.JOINED
+                    && !domain.getDomainName().equalsIgnoreCase(cmd.getDomainName()))
+                throw new CloudRuntimeException("AD_DOMAIN_CHANGE_REQUIRES_LEAVE");
+            if (domain == null) {
+                domain = new StorageIdentityDomainVO(instance.getId(), cmd.getDomainName(), cmd.getOrganizationalUnit(),
+                        cmd.getDnsServers(), StorageServiceInstance.DomainJoinState.JOINING, "UNKNOWN",
+                        buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
+                domain = storageIdentityDomainDao.persist(domain);
+            } else {
+                domain.setDomainName(cmd.getDomainName());
+                domain.setOrganizationalUnit(cmd.getOrganizationalUnit());
+                domain.setDnsServers(cmd.getDnsServers());
+                domain.setJoinState(StorageServiceInstance.DomainJoinState.JOINING);
+                domain.setHealthState("UNKNOWN");
+                domain.setConfigJson(buildIdentityDomainConfigJson(cmd.getDomainName(), cmd.getWorkgroup()));
+            }
+            JsonObject pending = new JsonObject();
+            pending.addProperty("operationid", operation);
+            if (cmd.getJob() instanceof org.apache.cloudstack.api.Identity)
+                pending.addProperty("jobid", ((org.apache.cloudstack.api.Identity) cmd.getJob()).getUuid());
+            pending.addProperty("membership", "JOINING");
+            pending.addProperty("serviceApply", "WAITING");
+            pending.addProperty("phase", "JOINING");
+            pending.addProperty("state", "RUNNING");
+            domain.setConfigJson(adDomainConfig(domain, pending));
             storageIdentityDomainDao.update(domain.getId(), domain);
-        }
-
+            return new Object[] {domain, previousState, previousHealth};
+        });
+        StorageIdentityDomainVO domain = (StorageIdentityDomainVO) reservation[0];
+        StorageServiceInstance.DomainJoinState previousState = (StorageServiceInstance.DomainJoinState) reservation[1];
+        String previousHealth = (String) reservation[2];
+        JsonObject pending = parseJsonObject(domain.getConfigJson()).getAsJsonObject("adJoin").deepCopy();
+        JsonObject observed;
         try {
-            applyAdJoin(instance, domain, cmd.getUsername(), cmd.getPassword());
-        } catch (final RuntimeException e) {
-            domain.setJoinState(StorageServiceInstance.DomainJoinState.ERROR);
-            domain.setHealthState("ERROR");
+            observed = applyAdJoin(instance, domain, cmd.getUsername(), cmd.getPassword(), operation, before);
+        } catch (RuntimeException unconfirmed) {
+            pending.addProperty("phase", "OBSERVATION_UNAVAILABLE");
+            pending.addProperty("state", "RECOVERY_REQUIRED");
+            pending.addProperty("membership", "UNKNOWN");
+            pending.addProperty("serviceApply", "UNKNOWN");
+            domain.setConfigJson(adDomainConfig(domain, pending));
             storageIdentityDomainDao.update(domain.getId(), domain);
-            throw e;
+            throw unconfirmed;
         }
-        domain.setJoinState(StorageServiceInstance.DomainJoinState.JOINED);
-        domain.setHealthState("OK");
+        final boolean unchanged = observed.has("membership") && "UNCHANGED".equals(observed.get("membership").getAsString());
+        final boolean joined = observed.has("membership") && "JOINED".equals(observed.get("membership").getAsString());
+        domain.setJoinState(unchanged ? previousState : joined
+                ? StorageServiceInstance.DomainJoinState.JOINED : StorageServiceInstance.DomainJoinState.ERROR);
+        domain.setHealthState(unchanged ? previousHealth : joined ? "OK" : "ERROR");
+        if (unchanged && before.has("identityDomain")) {
+            JsonObject original = before.getAsJsonObject("identityDomain");
+            domain.setDomainName(original.has("domainName") && !original.get("domainName").isJsonNull() ? original.get("domainName").getAsString() : domain.getDomainName());
+            domain.setOrganizationalUnit(original.has("organizationalUnit") && !original.get("organizationalUnit").isJsonNull() ? original.get("organizationalUnit").getAsString() : null);
+            domain.setDnsServers(original.has("dnsServers") && !original.get("dnsServers").isJsonNull() ? original.get("dnsServers").getAsString() : null);
+            if (original.has("config")) domain.setConfigJson(original.get("config").toString());
+        }
+        domain.setConfigJson(adDomainConfig(domain, observed));
         storageIdentityDomainDao.update(domain.getId(), domain);
-        applySmbDesiredState(instance);
+        if (!observed.has("success") || !observed.get("success").getAsBoolean()
+                || !observed.has("serviceApply") || !"VERIFIED".equals(observed.get("serviceApply").getAsString())) {
+            String code = observed.has("failureCode") ? observed.get("failureCode").getAsString() : "AD_SMB_APPLY_FAILED";
+            if (!code.matches("[A-Z][A-Z0-9_]{0,79}")) code = "AD_SMB_APPLY_FAILED";
+            throw new CloudRuntimeException(code + "; membership=" + (joined ? "JOINED" : unchanged ? "UNCHANGED" : "FAILED")
+                    + "; rollback=" + (observed.has("rollback") ? observed.get("rollback").getAsString() : "UNKNOWN"));
+        }
         return createIdentityDomainResponse(domain);
+    }
+
+    private String adDomainConfig(final StorageIdentityDomainVO domain, final JsonObject status) {
+        JsonObject config = parseJsonObject(domain.getConfigJson());
+        JsonObject safe = config.has("adJoin") && config.get("adJoin").isJsonObject() ? config.getAsJsonObject("adJoin").deepCopy() : new JsonObject();
+        for (String key : java.util.Arrays.asList("operationid", "jobid", "phase", "state", "membership", "serviceApply", "rollback", "failureCode", "updatedAt")) {
+            JsonElement value = status.get(key);
+            if (value != null && value.isJsonPrimitive() && value.getAsString().length() <= 160) safe.add(key, value);
+        }
+        config.add("adJoin", safe);
+        return config.toString();
     }
 
     @Override
@@ -1590,7 +1666,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         final List<StorageIdentityDomainResponse> responses = new ArrayList<>();
         for (StorageIdentityDomainVO domain : domains) {
-            responses.add(createIdentityDomainResponse(domain));
+            StorageIdentityDomainResponse item = createIdentityDomainResponse(domain);
+            StorageServiceInstanceVO owner = storageServiceInstanceDao.findById(domain.getInstanceId());
+            if (owner != null && owner.getVmId() != null && parseJsonObject(domain.getConfigJson()).has("adJoin")) {
+                JsonObject query = new JsonObject(); query.addProperty("instanceUuid", owner.getUuid());
+                try {
+                    StorageServiceGuestCommandResult wire = dispatchStorageGuest(new StorageServiceGuestCommand(owner.getVmId(),
+                            "configuration ad-domain show", query.toString(), 20, Collections.emptySet()));
+                    JsonObject status = StorageServiceConfigurationCoordinator.parsed(wire.getResultJson());
+                    JsonObject accepted = parseJsonObject(domain.getConfigJson()).getAsJsonObject("adJoin");
+                    if (wire.isSuccess() && status.has("membership") && status.has("operationid")
+                            && accepted.has("operationid") && accepted.get("operationid").equals(status.get("operationid")))
+                        item.setConfig(adDomainConfig(domain, status));
+                } catch (RuntimeException unavailable) { /* Preserve the persisted stage; a read never resumes a writer. */ }
+            }
+            responses.add(item);
         }
         final ListResponse<StorageIdentityDomainResponse> response = new ListResponse<>();
         response.setResponses(responses, responses.size());
@@ -2782,6 +2872,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
 
+        final JsonObject payload = buildSmbDesiredStatePayload(instance, rulePasswords);
+        final StorageServiceGuestCommandResult result = dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(),
+                "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
+        if (!result.isSuccess()) {
+            throw new CloudRuntimeException("Failed to apply SMB desired state on Storage Service System VM: " + result.getDetails());
+        }
+    }
+
+    protected JsonObject buildSmbDesiredStatePayload(final StorageServiceInstanceVO instance, final Map<Long, String> rulePasswords) {
         final JsonObject payload = new JsonObject();
         payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("instanceId", instance.getId());
@@ -2871,11 +2970,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         payload.add("shares", shares);
 
-        final StorageServiceGuestCommandResult result = dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(),
-                "smb share apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply SMB desired state on Storage Service System VM: " + result.getDetails());
-        }
+        return payload;
     }
 
     protected String resolveSmbRuntimeBackingPath(final StorageServiceInstanceVO instance, final StorageFileShareVO share) {
@@ -2898,14 +2993,30 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return share.getPath();
     }
 
-    protected void applyAdJoin(final StorageServiceInstanceVO instance, final StorageIdentityDomainVO domain,
-            final String username, final String password) {
+    protected JsonObject applyAdJoin(final StorageServiceInstanceVO instance, final StorageIdentityDomainVO domain,
+            final String username, final String password, final String operation, final JsonObject before) {
         if (instance.getVmId() == null) {
             logger.debug("Storage Service instance [{}] has no System VM yet; AD join state is stored but not applied", instance.getUuid());
-            return;
+            JsonObject stored = new JsonObject(); stored.addProperty("success", false); stored.addProperty("membership", "UNCHANGED"); stored.addProperty("serviceApply", "NOT_APPLIED"); stored.addProperty("failureCode", "SYSTEM_VM_UNAVAILABLE"); stored.addProperty("state", "REJECTED"); stored.addProperty("phase", "VALIDATING"); return stored;
         }
         final JsonObject payload = new JsonObject();
         payload.addProperty("instanceUuid", instance.getUuid());
+        payload.addProperty("operationid", operation);
+        JsonObject accepted = parseJsonObject(domain.getConfigJson()).getAsJsonObject("adJoin");
+        if (accepted != null && accepted.has("jobid")) payload.add("jobid", accepted.get("jobid"));
+        payload.add("smbBeforeState", before);
+        JsonObject previousIdentity = before.has("identityDomain") ? before.getAsJsonObject("identityDomain") : new JsonObject();
+        JsonObject previousConfig = previousIdentity.has("config") && previousIdentity.get("config").isJsonObject()
+                ? previousIdentity.getAsJsonObject("config") : new JsonObject();
+        boolean reuse = previousIdentity.has("joinState") && "JOINED".equals(previousIdentity.get("joinState").getAsString())
+                && previousIdentity.has("domainName") && domain.getDomainName().equalsIgnoreCase(previousIdentity.get("domainName").getAsString())
+                && (!previousConfig.has("adJoin") || !previousConfig.get("adJoin").isJsonObject()
+                    || !previousConfig.getAsJsonObject("adJoin").has("serviceApply")
+                    || !"VERIFIED".equals(previousConfig.getAsJsonObject("adJoin").get("serviceApply").getAsString()));
+        payload.addProperty("reuseExistingMembership", reuse);
+        JsonObject desired = buildSmbDesiredStatePayload(instance, Collections.emptyMap());
+        desired.getAsJsonObject("identityDomain").addProperty("joinState", "JOINED");
+        payload.add("smbDesiredState", desired);
         payload.addProperty("netbiosName", buildSmbNetbiosName(instance));
         payload.addProperty("domainName", domain.getDomainName());
         payload.addProperty("username", username);
@@ -2915,9 +3026,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.add("config", parseJsonObject(domain.getConfigJson()));
         final StorageServiceGuestCommandResult result = dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(),
                 "smb domain join", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.singleton("password")));
-        if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to join SMB AD domain on Storage Service System VM: " + result.getDetails());
+        JsonObject observed = StorageServiceConfigurationCoordinator.parsed(result.getResultJson());
+        if (!observed.has("membership") || !observed.has("serviceApply")
+                || observed.has("operationid") && !operation.equals(observed.get("operationid").getAsString())) {
+            throw new CloudRuntimeException("AD_DOMAIN_RESPONSE_UNCONFIRMED");
         }
+        observed.addProperty("operationid", operation);
+        if (accepted != null && accepted.has("jobid")) {
+            if (observed.has("jobid") && !accepted.get("jobid").equals(observed.get("jobid")))
+                throw new CloudRuntimeException("AD_DOMAIN_RESPONSE_UNCONFIRMED");
+            observed.add("jobid", accepted.get("jobid"));
+        }
+        return observed;
     }
 
     protected void applyAdLeave(final StorageServiceInstanceVO instance, final String username, final String password) {

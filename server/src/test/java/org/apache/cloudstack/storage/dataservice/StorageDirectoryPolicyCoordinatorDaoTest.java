@@ -202,5 +202,27 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
                 ()->{throw new AssertionError("duplicate request reapplied");},plan::set,()->{},null));
         }
     }
+    @Test public void adSqlLeaseBlocksNewReservationButNotCompletedReplay() throws Exception {
+        var domains=mock(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao.class);
+        var domain=new StorageIdentityDomainVO(instance.getId(),"ablestack.local",null,null,
+                StorageServiceInstance.DomainJoinState.JOINING,"UNKNOWN","{\"adJoin\":{\"state\":\"RUNNING\"}}");
+        org.mockito.Mockito.when(domains.findByInstanceId(instance.getId())).thenReturn(domain);
+        coordinator.withAdDomains(domains);
+        CreateStorageDirectoryPolicyCmd cmd=new CreateStorageDirectoryPolicyCmd();
+        field(cmd,cmd.getClass(),"instanceId",instance.getId());field(cmd,cmd.getClass(),"volumeId",77L);
+        field(cmd,cmd.getClass(),"path","/export/ad-lease");field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        try {
+            coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,String.class,
+                    ()->{throw new AssertionError("candidate must not run during AD apply");},plan::set,()->{},null);
+            fail("AD lease accepted a second writer");
+        } catch(CloudRuntimeException expected) { assertEquals("AD_DOMAIN_RECOVERY_REQUIRED",expected.getMessage()); }
+        assertNull(operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()));
+        assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        domain.setConfigJson("{\"adJoin\":{\"state\":\"COMMITTED\"}}");
+        assertEquals("saved",coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,String.class,()->"saved",plan::set,()->{},null));
+        domain.setConfigJson("{\"adJoin\":{\"state\":\"RUNNING\"}}");
+        assertEquals("saved",coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.NFS,String.class,
+                ()->{throw new AssertionError("completed replay must not execute");},plan::set,()->{},null));
+    }
 
 }

@@ -72,6 +72,11 @@ final class StorageServiceConfigurationCoordinator {
             org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao dao) {
         directoryPolicies=dao; return this;
     }
+    private org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao adDomains;
+    StorageServiceConfigurationCoordinator withAdDomains(org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDao dao) {
+        adDomains = dao; return this;
+    }
+
     <T> T execute(final BaseStorageServiceConfigurationCmd cmd, final StorageServiceInstanceVO instance,
             final StorageServiceInstance.Protocol protocol, final Class<T> responseType, final Supplier<T> candidate,
             final Consumer<StorageServiceConfigurationPlan> context, final Runnable baselineBuilder, final String vmUuid) {
@@ -83,6 +88,15 @@ final class StorageServiceConfigurationCoordinator {
             if (existing != null) {
                 if (!hash.equals(existing.getRequestHash())) throw new CloudRuntimeException("requestid conflicts with the accepted public configuration");
                 return existing;
+            }
+            if (adDomains != null) {
+                StorageIdentityDomainVO domain = adDomains.findByInstanceId(instance.getId());
+                JsonObject config = parsed(domain == null ? null : domain.getConfigJson());
+                if (config.has("adJoin") && config.get("adJoin").isJsonObject()) {
+                    JsonObject ad = config.getAsJsonObject("adJoin");
+                    if (ad.has("state") && Arrays.asList("RUNNING", "RECOVERY_REQUIRED").contains(ad.get("state").getAsString()))
+                        throw new CloudRuntimeException("AD_DOMAIN_RECOVERY_REQUIRED");
+                }
             }
             if (StorageServiceConfigurationPreflight.runtimeWriting(upgrades.findActiveByInstanceId(instance.getId())))
                 throw new CloudRuntimeException("RUNTIME_WRITER_ACTIVE");

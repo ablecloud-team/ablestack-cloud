@@ -43,7 +43,7 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 5
+UPDATER_VERSION = 6
 MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
 DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
 def complete_managed_names(names):
@@ -148,6 +148,20 @@ def require_sha256(value, field):
     if not SHA256_RE.fullmatch(value):
         raise RuntimeUpgradeError("INVALID_REQUEST", f"invalid {field}")
     return value
+
+
+def require_ad_domain_idle(root=Path("/var/lib/ablestack-storage/ad-domain-operations")):
+    for marker in Path(root).glob("*/status.json"):
+        info = marker.lstat()
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & 0o077 or info.st_size > 16384):
+            raise RuntimeUpgradeError("CONFIGURATION_RECOVERY_REQUIRED", "unsafe AD operation state")
+        try:
+            state = json.loads(marker.read_text())
+        except (OSError, ValueError) as error:
+            raise RuntimeUpgradeError("CONFIGURATION_RECOVERY_REQUIRED", "AD operation status is unavailable") from error
+        if not isinstance(state, dict) or state.get("state") not in {"COMMITTED", "ROLLED_BACK", "MEMBERSHIP_FAILED"}:
+            raise RuntimeUpgradeError("CONFIGURATION_RECOVERY_REQUIRED", "AD service apply recovery is pending")
 
 
 class RuntimeUpdater:
@@ -914,6 +928,7 @@ class RuntimeUpdater:
                 raise RuntimeUpgradeError("UPGRADE_LOCKED", "another runtime upgrade operation is active") from error
             with contextlib.ExitStack() as locks:
                 if operation in {"activate", "rollback"} and self.runtime_root == Path("/opt/ablestack/storage-runtime"):
+                    require_ad_domain_idle()
                     paths = [Path("/run/lock/ablestack-storage-boot-reconcile.lock")]
                     if request.get("instanceUuid"):
                         instance = require_identifier(request["instanceUuid"], "instanceUuid")

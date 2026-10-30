@@ -10127,5 +10127,20 @@
   "label.storage.inheritance.parent.uid": "부모 UID 상속",
   "label.storage.inheritance.new.objects": "새 객체의 소유권",
   "label.storage.inheritance.group.settings": "부모 GID 상속 설정",
-  "message.storage.inheritance.setgid.only": "부모 mode의 setgid 비트만 변경합니다. UID/GID·inode·기본 rwx·그 외 특수 비트는 유지하고 하위 항목에 재귀 적용하지 않습니다."
+  "message.storage.inheritance.setgid.only": "부모 mode의 setgid 비트만 변경합니다. UID/GID·inode·기본 rwx·그 외 특수 비트는 유지하고 하위 항목에 재귀 적용하지 않습니다.",
+  "label.storage.ad.membership.stage": "도메인 가입",
+  "label.storage.ad.service.stage": "SMB 서비스 적용",
+  "label.storage.ad.stage.WAITING": "대기",
+  "label.storage.ad.stage.JOINING": "도메인 가입 중",
+  "label.storage.ad.stage.JOINED": "가입 완료",
+  "label.storage.ad.stage.UNCHANGED": "변경 없음",
+  "label.storage.ad.stage.FAILED": "실패",
+  "label.storage.ad.stage.APPLYING": "적용·검증 중",
+  "label.storage.ad.stage.VERIFIED": "적용·검증 완료",
+  "label.storage.ad.stage.NOT_APPLIED": "미적용",
+  "label.storage.ad.stage.UNKNOWN": "관측 불가",
+  "label.storage.ad.stage.NOT_NEEDED": "불필요",
+  "label.storage.ad.stage.SUCCEEDED": "성공",
+  "message.storage.ad.wait.both.stages": "도메인 가입과 SMB 엔드포인트·공유 검증을 기다립니다. 화면 닫기는 서버 요청 취소가 아닙니다.",
+  "label.storage.ad.retry.service": "SMB 서비스 재적용"
 }

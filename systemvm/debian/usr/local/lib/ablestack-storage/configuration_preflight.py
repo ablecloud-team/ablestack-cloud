@@ -89,6 +89,10 @@ def sample(intent):
             # A queued or interrupted worker is not proof of completed preparation.
             busy.append(value.get("volumeUuid"))
     runtime_busy = False
+    if intent.get("instanceUuid"):
+        from configuration_transaction import ad_domain_status, AD_DOMAIN_TERMINAL
+        ad = ad_domain_status(intent["instanceUuid"])
+        runtime_busy = bool(ad and ad.get("state") not in AD_DOMAIN_TERMINAL)
     for path in Path("/var/lib/ablestack-storage/runtime-updates").glob("*/state.json"):
         state = _read_json(path)
         if state.get("phase") in ("ACTIVATING", "ROLLING_BACK"):

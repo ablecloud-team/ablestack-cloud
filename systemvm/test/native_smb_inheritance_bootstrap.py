@@ -50,6 +50,7 @@ def verify(image, runtime, env, share_name):
         capability = command([str(ctl), "configuration", "capability", "show"])
         assert capability["smbParentInheritanceVersion"] == 1
         assert capability["smbParentInheritanceProtectionVersion"] == 1
+        assert capability["adDomainTransactionVersion"] == 1
         report = command([str(ctl), "configuration", "preflight", "show", str(payload)])
         assert report["status"] == "READY", report
         assert report["inheritancepreview"]["inheritowner"] is True
@@ -62,7 +63,7 @@ def verify(image, runtime, env, share_name):
         pointer = os.readlink(runtime / "current")
         integrity = (runtime / "current/integrity.json").read_bytes()
         results.append({"bootstrap": attempt + 1, "version": version,
-                        "activatedCli": str(ctl.resolve()), "protection": 1,
+                        "activatedCli": str(ctl.resolve()), "protection": 1, "adDomainTransactionVersion": 1,
                         "inheritOwnerTruePreflight": report["status"]})
     return {"success": True, "firstAndRepeatedBootstrapActiveCli": results,
             "releaseContainsUpdater": False, "configurationApplied": False}

@@ -49,6 +49,15 @@ class ParentInheritanceTest(unittest.TestCase):
             alias = root / "symlink"; alias.symlink_to(path)
             self.assertEqual(0, h.inheritance_protection_version(alias))
 
+    def test_ad_baseline_requires_six_without_disabling_parent_inheritance_on_five(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "updater.py"
+            for version, ad in ((5, 0), (6, 1)):
+                path.write_text("UPDATER_VERSION = %d\n" % version)
+                path.chmod(0o644)
+                self.assertEqual(1, h.inheritance_protection_version(path))
+                self.assertEqual(ad, h.inheritance_protection_version(path, minimum=6))
+
     def test_parent_observation_and_explicit_disable_preserve_identity(self):
         parent = {"status": "OBSERVED", "owneruid": 100001, "ownergid": 200001, "mode": "2770",
                   "inode": 42, "filesystemuuid": "fs", "volumeuuid": "volume",

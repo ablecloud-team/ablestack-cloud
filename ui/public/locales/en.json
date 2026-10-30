@@ -10162,5 +10162,20 @@
   "label.storage.inheritance.creator.uid": "Keep creator UID",
   "label.storage.inheritance.parent.uid": "Inherit parent UID",
   "message.storage.inheritance.protection": "The SystemVM baseline lacks inheritance compatibility protection. A normal bundle update cannot fix this. A supported baseline is required; existing shares are preserved.",
-  "label.storage.inheritance.group": "Inherit parent GID (setgid)"
+  "label.storage.inheritance.group": "Inherit parent GID (setgid)",
+  "label.storage.ad.stage.NOT_NEEDED": "Not needed",
+  "label.storage.ad.retry.service": "Reapply SMB service",
+  "label.storage.ad.membership.stage": "Domain membership",
+  "label.storage.ad.stage.VERIFIED": "Verified",
+  "label.storage.ad.stage.UNCHANGED": "Unchanged",
+  "label.storage.ad.stage.JOINED": "Joined",
+  "label.storage.ad.stage.NOT_APPLIED": "Not applied",
+  "label.storage.ad.stage.FAILED": "Failed",
+  "label.storage.ad.stage.WAITING": "Waiting",
+  "label.storage.ad.stage.APPLYING": "Applying and verifying",
+  "message.storage.ad.wait.both.stages": "Wait for domain membership and SMB endpoint/share verification. Closing is not cancellation.",
+  "label.storage.ad.stage.SUCCEEDED": "Succeeded",
+  "label.storage.ad.stage.UNKNOWN": "Unknown",
+  "label.storage.ad.stage.JOINING": "Joining domain",
+  "label.storage.ad.service.stage": "SMB service apply"
 }
