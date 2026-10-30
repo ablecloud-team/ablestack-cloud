@@ -733,6 +733,14 @@ public class VmCloneBatchManager implements PluggableService {
         return vm(row, decode(row).items.get(index - 1));
     }
 
+    String cleanupState(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Item item, UserVmVO vm, List<VolumeVO> allocated) {
+        if (allocated.isEmpty()) return item.created ? "unconfirmed" : "not-created";
+        if (allocated.stream().allMatch(this::removed)) return "removed-in-cloud";
+        if (allocated.stream().anyMatch(v -> v.getState() == Volume.State.Destroy || v.getState() == Volume.State.Expunging)) return "pending";
+        if (vm != null && vm.getRemoved() == null && fullDisks(data, item, vm)) return "preserved";
+        return prepared(row, data, item, vm) ? "prepared" : "unconfirmed";
+    }
+
     public VmCloneBatchResponse query(String requestId) {
         String id = uuid(requestId);
         VmCloneBatchResponse response = new VmCloneBatchResponse();
@@ -817,30 +825,7 @@ public class VmCloneBatchManager implements PluggableService {
                 target.id = vm.getUuid();
             }
             if (!busy) target.retryAction = action(row, data, item);
-            target.cleanup =
-                    allocated.isEmpty()
-                            ? "not-created"
-                            : allocated.stream().allMatch(this::removed)
-                                    ? "removed-in-cloud"
-                                    : target.created
-                                            ? "preserved"
-                                            : prepared(row, data, item, vm)
-                                                    ? "prepared"
-                                                    : allocated.stream()
-                                                                    .anyMatch(
-                                                                            v ->
-                                                                                    List.of(
-                                                                                                    Volume
-                                                                                                            .State
-                                                                                                            .Destroy,
-                                                                                                    Volume
-                                                                                                            .State
-                                                                                                            .Expunging)
-                                                                                            .contains(
-                                                                                                    v
-                                                                                                            .getState()))
-                                                            ? "pending"
-                                                            : "unconfirmed";
+            target.cleanup = cleanupState(row, data, item, vm, allocated);
             for (VmCloneBatchData.Disk plan : item.disks) {
                 VmCloneBatchResponse.Disk disk = new VmCloneBatchResponse.Disk();
                 VolumeVO current = volumes.findByUuidIncludingRemoved(plan.uuid);

@@ -11586,7 +11586,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 last=target;
                 if(cmd.getStartVm()) {
                     cloneBatches.phase(cmd,"STARTING");
-                    last=startVirtualMachine(target.getId(),source.getPodIdToDeployIn(),null,getFastCloneHostId(source),new HashMap<>(),getCloneVmAdditionalParams(source),null);
+                    last=startCreatedClone(source,target);
                 }
                 cloneBatches.success(cmd,last);
             } catch(ResourceAllocationException|ResourceUnavailableException|InsufficientCapacityException|RuntimeException e) {cloneBatches.failure(cmd,e);throw e;}
@@ -11595,6 +11595,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if(create.isEmpty())return Optional.ofNullable(last);
         validateCloneAllocation(cmd,source);
         return performCloneVirtualMachine(cmd);
+    }
+
+    /** Disks are already created and attached; deploy rollback must never destroy them on start failure. */
+    protected UserVm startCreatedClone(UserVmVO source, UserVm target)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
+        return startVirtualMachine(target.getId(), source.getPodIdToDeployIn(), null, getFastCloneHostId(source),
+                getCloneVmAdditionalParams(source), null, true, false).first();
     }
 
     protected String getCloneFailureMessage(Throwable failure) {
@@ -11689,8 +11696,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 }
                 if (cmd.getStartVm()) {
                     if (cloneBatches != null) { cloneBatches.phase(cmd, "STARTING"); }
-                    lastCloneVm = startVirtualMachine(lastCloneVm.getId(), curVm.getPodIdToDeployIn(), null, getFastCloneHostId(curVm),
-                            new HashMap<>(), getCloneVmAdditionalParams(curVm), null);
+                    lastCloneVm = startCreatedClone(curVm, lastCloneVm);
                 }
                 if (cloneBatches != null) { cloneBatches.success(cmd, lastCloneVm); }
             }
@@ -12018,13 +12024,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 cloneVolumesToCleanup.removeAll(cloneVolumes);
                 if (cloneBatches != null) { cloneBatches.created(cmd, cloneVM); }
 
-                Long podId = curVm.getPodIdToDeployIn();
-                Long clusterId = null;
-                Map<VirtualMachineProfile.Param, Object> additonalParams = getCloneVmAdditionalParams(curVm);
-                Map<Long, DiskOffering> diskOfferingMap = new HashMap<>();
                 stage = "start or retrieve clone VM " + cloneVM.getUuid();
                 if (cloneBatches != null && cmd.getStartVm()) { cloneBatches.phase(cmd, "STARTING"); }
-                lastCloneVm = cmd.getStartVm() ? startVirtualMachine(cmd.getEntityId(), podId, clusterId, hostId, diskOfferingMap, additonalParams, null) : getUserVm(cmd.getEntityId());
+                lastCloneVm = cmd.getStartVm() ? startCreatedClone(curVm, cloneVM) : getUserVm(cmd.getEntityId());
                 if (cloneBatches != null) { cloneBatches.success(cmd, lastCloneVm); }
             }
             stage = "complete source preparation";

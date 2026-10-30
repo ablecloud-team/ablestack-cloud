@@ -295,4 +295,12 @@ public class VmCloneBatchManagerTest {
         assertTrue(xml, xml.contains("<name>copy-2</name>"));
         assertTrue(xml, xml.contains("<volumes><id>copy-root</id>"));
     }
+
+    @Test
+    public void createdVmDoesNotHidePendingVolumeDestruction() {
+        var item = allocated();
+        item.created = true;
+        when(copy.getState()).thenReturn(Volume.State.Destroy);
+        assertEquals("pending", manager.query(batch).targets.get(1).cleanup);
+    }
 }
