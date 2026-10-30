@@ -105,6 +105,14 @@ public class VmCloneBatchVO {
         return state;
     }
 
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
+    }
+
     public String getData() {
         return data;
     }

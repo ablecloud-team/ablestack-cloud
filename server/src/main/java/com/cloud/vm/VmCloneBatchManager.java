@@ -207,6 +207,10 @@ public class VmCloneBatchManager implements PluggableService {
         if (text.length() > 8000000)
             throw new CloudRuntimeException("Clone batch receipt is too large");
         row.setData(text, data.status);
+        // GenericDao tracks the field named by each setter, not other fields
+        // changed inside setData. Persist both indexed checkpoint fields too.
+        row.setState(data.status);
+        row.setUpdated(new Date());
         if (!batches.update(row.getId(), row))
             throw new CloudRuntimeException("Cannot persist clone batch checkpoint");
     }

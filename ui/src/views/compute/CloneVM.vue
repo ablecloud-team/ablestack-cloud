@@ -68,7 +68,7 @@
         <a-button :loading="queryingBatch" @click="refreshBatch">{{ $t('label.refresh') }}</a-button>
         <a-button v-if="batchUnconfirmed" :loading="loading" :disabled="queryingBatch" @click="submitBatch">{{ $t('label.clone.batch.resend') }}</a-button>
         <a-button v-if="retryTargets.length" type="primary" :disabled="batchBusy || loading || queryingBatch" @click="retryBatch">{{ $t('label.clone.batch.retry') }} ({{ retryTargets.map(t => t.index).join(', ') }})</a-button>
-        <a-button v-if="batchResult?.cleanupavailable" :disabled="batchBusy || loading || queryingBatch" @click="cleanupBatch">{{ $t('label.clone.batch.cleanup') }}</a-button>
+        <a-button v-if="batchResult?.cleanupavailable" :disabled="batchBusy || loading || queryingBatch" @click="cleanupBatch">{{ $t('label.clone.batch.cleanup.retry') }}</a-button>
         <a-button :disabled="batchBusy || batchUnconfirmed || loading || queryingBatch" @click="newBatch">{{ $t('label.clone.batch.new') }}</a-button>
         <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
       </div>
