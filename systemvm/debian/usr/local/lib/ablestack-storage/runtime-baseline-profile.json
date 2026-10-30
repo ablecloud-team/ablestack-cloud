@@ -1,5 +1,5 @@
 {
-  "sourcePayloadSha256": "e2343902148b8eff31f88a5700413eedf778f657b141740e5cfae7891bdf8b01",
+  "sourcePayloadSha256": "576128350f3dca53f97a94de8f650b1bd3a58a18bf44d50a232181225e9dfff6",
   "files": [
     {
       "path": "ablestack-storage-boot-reconcile",
@@ -23,7 +23,7 @@
     },
     {
       "path": "lib/ablestack-storage/configuration_transaction.py",
-      "sha256": "b909eb44036032959e24827a4e5cbc0eb825db005472db80e88531f837f2ad8e",
+      "sha256": "00362bf65e31ebc3beb171cbfc075add109f1eeabadd8884207f37281c97ea16",
       "mode": 420
     },
     {

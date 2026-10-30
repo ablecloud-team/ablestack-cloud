@@ -10,6 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 """Durable, per-instance configuration transaction boundary. Never formats DATA."""
+import base64
 import contextlib
 import fcntl
 import re
@@ -1824,14 +1825,119 @@ def ad_domain_status(instance, root=AD_DOMAIN_ROOT):
             "rollback", "failureCode", "updatedAt") if key in value}
 
 
+class AdClientConfiguration:
+    """Bounded before-images, including absence, inside the AD operation's lease."""
+    def __init__(self, paths, optional=(Path("/etc/krb5.conf"),)):
+        self.paths = tuple(map(Path, paths))
+        self.optional = set(map(Path, optional))
+
+    @staticmethod
+    def directory(path):
+        try:
+            descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        except OSError as error:
+            raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE") from error
+        info = os.fstat(descriptor)
+        if info.st_uid != os.geteuid() or info.st_mode & 0o022:
+            os.close(descriptor)
+            raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
+        return descriptor
+
+    @staticmethod
+    def validate(descriptor):
+        import stat
+        info = os.fstat(descriptor)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & 0o7022 or info.st_nlink != 1 or info.st_size > 1048576):
+            raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
+        return info
+
+    @staticmethod
+    def identity(parent, path, info):
+        current = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+        if (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino):
+            raise Rejected("AD_CLIENT_CONFIGURATION_CHANGED")
+
+    def snapshot(self, destination):
+        images = {}
+        for path in self.paths:
+            parent = self.directory(path)
+            try:
+                try:
+                    descriptor = os.open(path.name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW, dir_fd=parent)
+                except FileNotFoundError:
+                    if path not in self.optional:
+                        raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
+                    images[str(path)] = {"exists": False}
+                    continue
+                except OSError as error:
+                    raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE") from error
+                with os.fdopen(descriptor, "rb") as stream:
+                    info = self.validate(stream.fileno())
+                    content = stream.read(1048577)
+                    self.identity(parent, path, info)
+                    if len(content) > 1048576:
+                        raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
+                    images[str(path)] = {"exists": True, "content": base64.b64encode(content).decode(),
+                                         "mode": info.st_mode & 0o777, "uid": info.st_uid, "gid": info.st_gid}
+            finally:
+                os.close(parent)
+        atomic_json(destination, images)
+
+    def restore(self, source):
+        images = load(source)
+        if not isinstance(images, dict) or set(images) != set(map(str, self.paths)):
+            raise Rejected("AD_CLIENT_SNAPSHOT_INVALID")
+        for path in self.paths:
+            image = images[str(path)]
+            if not isinstance(image, dict) or type(image.get("exists")) is not bool:
+                raise Rejected("AD_CLIENT_SNAPSHOT_INVALID")
+            parent = self.directory(path)
+            try:
+                if not image["exists"]:
+                    if path not in self.optional:
+                        raise Rejected("AD_CLIENT_SNAPSHOT_INVALID")
+                    try:
+                        descriptor = os.open(path.name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW, dir_fd=parent)
+                    except FileNotFoundError:
+                        continue
+                    with os.fdopen(descriptor, "rb") as stream:
+                        info = self.validate(stream.fileno())
+                        self.identity(parent, path, info)
+                        os.unlink(path.name, dir_fd=parent)
+                else:
+                    content = base64.b64decode(image["content"], validate=True)
+                    if (len(content) > 1048576 or type(image.get("mode")) is not int
+                            or image["mode"] & ~0o755 or image.get("uid") != os.geteuid()
+                            or type(image.get("gid")) is not int):
+                        raise Rejected("AD_CLIENT_SNAPSHOT_INVALID")
+                    flags = os.O_RDWR | os.O_NONBLOCK | os.O_NOFOLLOW
+                    try:
+                        descriptor = os.open(path.name, flags, dir_fd=parent)
+                    except FileNotFoundError:
+                        descriptor = os.open(path.name, flags | os.O_CREAT | os.O_EXCL, 0o600, dir_fd=parent)
+                    with os.fdopen(descriptor, "r+b") as stream:
+                        info = self.validate(stream.fileno())
+                        self.identity(parent, path, info)
+                        if stream.read() != content:
+                            stream.seek(0); stream.write(content); stream.truncate()
+                        os.fchown(stream.fileno(), image["uid"], image["gid"])
+                        os.fchmod(stream.fileno(), image["mode"])
+                        stream.flush(); os.fsync(stream.fileno())
+                os.fsync(parent)
+            finally:
+                os.close(parent)
+
+
 class AdDomainJoin:
     """One guest lease; membership credentials never enter the durable snapshot."""
     def __init__(self, root=AD_DOMAIN_ROOT, adapter_factory=None, configuration_root=ROOT,
                  desired=Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"),
-                 client_paths=(Path("/etc/resolv.conf"), Path("/etc/krb5.conf"))):
+                 client_paths=(Path("/etc/resolv.conf"), Path("/etc/krb5.conf")),
+                 optional_client_paths=(Path("/etc/krb5.conf"),)):
         self.root = Path(root)
         self.configuration_root, self.desired = Path(configuration_root), Path(desired)
-        self.client_paths = tuple(map(Path, client_paths))
+        self.client_files = AdClientConfiguration(client_paths, optional_client_paths)
         self.adapter_factory = adapter_factory or RuntimeAdapter
 
     def member(self, value):
@@ -1902,11 +2008,8 @@ class AdDomainJoin:
                               "drainrequired": True, "resourcecount": len(candidate.get("shares", []))})
             if report["status"] != "READY":
                 raise Rejected(next((v["code"] for v in report["checks"] if v["blocking"]), "AD_ADMISSION_UNAVAILABLE"))
-            identity_before = {}
-            for path in self.client_paths:
-                if not path.is_file() or path.is_symlink():
-                    raise Rejected("AD_CLIENT_CONFIGURATION_UNSAFE")
-                identity_before[path] = (path.read_bytes(), path.stat().st_mode & 0o777)
+            client_snapshot = private / "client-before.json"
+            self.client_files.snapshot(client_snapshot)
             record()
             joined = False
             adapter = self.adapter_factory(private)
@@ -1948,11 +2051,13 @@ class AdDomainJoin:
                         record(phase="RECOVERY_REQUIRED", state="RECOVERY_REQUIRED", membership="UNKNOWN",
                                serviceApply="NOT_APPLIED", failureCode=code)
                     else:
-                        for path, (content, mode) in identity_before.items():
-                            path.write_bytes(content)
-                            path.chmod(mode)
-                        record(phase="COMPLETED", state="MEMBERSHIP_FAILED", membership="FAILED",
-                               serviceApply="NOT_APPLIED", failureCode=code)
+                        try:
+                            self.client_files.restore(client_snapshot)
+                            record(phase="COMPLETED", state="MEMBERSHIP_FAILED", membership="FAILED",
+                                   serviceApply="NOT_APPLIED", rollback="SUCCEEDED", failureCode=code)
+                        except Exception:
+                            record(phase="RECOVERY_REQUIRED", state="RECOVERY_REQUIRED", membership="FAILED",
+                                   serviceApply="NOT_APPLIED", rollback="FAILED", failureCode=code)
                 return dict(status, success=False)
 
 

@@ -29,7 +29,7 @@ class AdDomainTransactionTest(unittest.TestCase):
         self.adapter.snapshot_path = self.root / "before.json"
         self.adapter.snapshot.side_effect = lambda value: self.adapter.snapshot_path.write_text("{}")
         self.join = tx.AdDomainJoin(self.root / "ad", lambda private: self.adapter,
-            self.root / "configuration", self.desired, self.clients)
+            self.root / "configuration", self.desired, self.clients, [self.clients[1]])
         self.value = {"instanceUuid": self.instance, "operationid": self.op, "password": "never-persist",
                       "smbDesiredState": {"instanceUuid": self.instance, "shares": [], "listeners": []}}
         self.member = patch.object(self.join, "member")
@@ -91,7 +91,7 @@ class AdDomainTransactionTest(unittest.TestCase):
     def test_same_guest_lease_rejects_second_writer_before_membership(self):
         def member(value):
             other = tx.AdDomainJoin(self.root / "ad", lambda p: self.adapter,
-                self.root / "configuration", self.desired, self.clients)
+                self.root / "configuration", self.desired, self.clients, [self.clients[1]])
             with self.assertRaises(BlockingIOError):
                 other.run({**value, "operationid": str(uuid.uuid4())})
         self.member_mock.side_effect = member
@@ -129,6 +129,85 @@ class AdDomainTransactionTest(unittest.TestCase):
         path.chmod(0o644)
         with self.assertRaisesRegex(tx.Rejected, "AD_DOMAIN_STATUS_UNSAFE"):
             tx.ad_domain_status(self.instance, self.root / "ad")
+
+    def test_missing_kerberos_is_durable_before_image_and_member_can_create_it(self):
+        self.clients[1].unlink()
+        def member(value):
+            self.clients[1].write_text("generated realm")
+            return {}
+        self.member_mock.side_effect = member
+        result = self.join.run(self.value)
+        self.assertTrue(result["success"])
+        image = self.root / "ad" / self.instance / self.op / "client-before.json"
+        self.assertEqual({"exists": False}, json.loads(image.read_text())[str(self.clients[1])])
+        self.assertEqual(0o600, image.stat().st_mode & 0o777)
+        self.assertEqual("generated realm", self.clients[1].read_text())
+
+    def test_failure_restores_absence_and_existing_file_bytes_mode_and_inode(self):
+        self.clients[1].unlink()
+        self.clients[0].chmod(0o640)
+        inode = self.clients[0].stat().st_ino
+        def failed(value):
+            for path in self.clients: path.write_text("generated")
+            raise tx.Rejected("AD_MEMBERSHIP_KINIT_FAILED")
+        self.member_mock.side_effect = failed
+        result = self.join.run(self.value)
+        self.assertEqual(("MEMBERSHIP_FAILED", "SUCCEEDED"), (result["state"], result["rollback"]))
+        self.assertFalse(self.clients[1].exists())
+        self.assertEqual(("original", 0o640, inode),
+                         (self.clients[0].read_text(), self.clients[0].stat().st_mode & 0o777, self.clients[0].stat().st_ino))
+        self.adapter.apply.assert_not_called()
+
+    def test_before_image_can_be_reloaded_without_in_memory_state(self):
+        self.clients[1].unlink()
+        image = self.root / "private" / "before.json"
+        self.join.client_files.snapshot(image)
+        for path in self.clients: path.write_text("generated")
+        tx.AdClientConfiguration(self.clients, [self.clients[1]]).restore(image)
+        self.assertEqual("original", self.clients[0].read_text())
+        self.assertFalse(self.clients[1].exists())
+
+    def test_missing_required_dns_and_unsafe_entries_are_rejected_before_member(self):
+        self.clients[0].unlink()
+        with self.assertRaisesRegex(tx.Rejected, "AD_CLIENT_CONFIGURATION_UNSAFE"): self.join.run(self.value)
+        self.clients[0].write_text("original")
+        self.clients[1].unlink()
+        victim = self.root / "victim"; victim.write_text("unchanged")
+        for kind in ["symlink", "hardlink", "world_writable", "fifo"]:
+            if self.clients[1].exists() or self.clients[1].is_symlink(): self.clients[1].unlink()
+            if kind == "symlink": self.clients[1].symlink_to(victim)
+            elif kind == "hardlink": __import__("os").link(victim, self.clients[1])
+            elif kind == "fifo": __import__("os").mkfifo(self.clients[1])
+            else:
+                self.clients[1].write_text("unsafe"); self.clients[1].chmod(0o666)
+            with self.assertRaisesRegex(tx.Rejected, "AD_CLIENT_CONFIGURATION_UNSAFE"):
+                self.join.run({**self.value, "operationid": str(uuid.uuid4())})
+        self.assertEqual("unchanged", victim.read_text())
+        self.member_mock.assert_not_called()
+
+    def test_uncertain_join_retains_created_configuration_and_recovery_guard(self):
+        self.clients[1].unlink()
+        def uncertain(value):
+            self.clients[1].write_text("membership may be established")
+            raise tx.Rejected("AD_MEMBERSHIP_JOIN_FAILED")
+        self.member_mock.side_effect = uncertain
+        result = self.join.run(self.value)
+        self.assertEqual(("RECOVERY_REQUIRED", "UNKNOWN"), (result["state"], result["membership"]))
+        self.assertTrue(self.clients[1].is_file())
+        with self.assertRaisesRegex(tx.Rejected, "AD_DOMAIN_RECOVERY_REQUIRED"):
+            self.join.run({**self.value, "operationid": str(uuid.uuid4())})
+
+    def test_unsafe_new_entry_is_not_unlinked_and_failed_restore_stays_blocked(self):
+        self.clients[1].unlink()
+        victim = self.root / "victim"; victim.write_text("unchanged")
+        def failed(value):
+            self.clients[1].symlink_to(victim)
+            raise tx.Rejected("AD_MEMBERSHIP_KINIT_FAILED")
+        self.member_mock.side_effect = failed
+        result = self.join.run(self.value)
+        self.assertEqual(("RECOVERY_REQUIRED", "FAILED"), (result["state"], result["rollback"]))
+        self.assertTrue(self.clients[1].is_symlink())
+        self.assertEqual("unchanged", victim.read_text())
 
 
 if __name__ == "__main__":
