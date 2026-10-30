@@ -14,7 +14,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class VolumeAllocationCloneTest {
     private static final long SIZE = 1048576;
