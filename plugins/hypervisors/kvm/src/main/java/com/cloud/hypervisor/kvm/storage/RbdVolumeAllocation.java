@@ -70,6 +70,25 @@ public class RbdVolumeAllocation {
         this.runner = runner;
     }
 
+    void requireCloneVolumeAbsent(String uuid, KVMStoragePool pool) throws IOException {
+        try (Context context = new Context(pool, 60_000)) {
+            List<String> images = new com.google.gson.Gson().fromJson(context.rbd("ls", "--pool", pool.getSourceDir(), "--format", "json"),
+                    new com.google.gson.reflect.TypeToken<List<String>>() { }.getType());
+            if (images == null || images.stream().anyMatch(name -> name.contains(uuid)))
+                throw new CloudRuntimeException("Clone image or temporary RBD image remains");
+            com.google.gson.JsonArray trash = new JsonParser().parse(context.rbd("trash", "ls", pool.getSourceDir(), "--format", "json")).getAsJsonArray();
+            for (com.google.gson.JsonElement entry : trash) {
+                if (entry.getAsJsonObject().get("name").getAsString().contains(uuid))
+                    throw new CloudRuntimeException("Clone image remains in RBD trash");
+            }
+            com.google.gson.JsonArray maps = new JsonParser().parse(context.rbd("device", "list", "--format", "json")).getAsJsonArray();
+            for (com.google.gson.JsonElement entry : maps) {
+                if (uuid.equals(entry.getAsJsonObject().get("name").getAsString()))
+                    throw new CloudRuntimeException("Clone RBD device is still mapped");
+            }
+        }
+    }
+
     /** Credentials remain in a mode-0600 temporary config, never in the export receipt. */
     VolumeObjectTO exportVolume(VolumeObjectTO source, KVMStoragePool pool, Path directory, long timeout) throws IOException {
         if (pool.getType() != Storage.StoragePoolType.RBD || source.getFormat() != Storage.ImageFormat.RAW ||

@@ -39,6 +39,8 @@
       <a-alert v-if="batchError" type="error" show-icon :message="batchError" style="margin-bottom: 12px" />
       <a-alert v-if="batchStorageError" type="warning" show-icon :message="batchStorageError" style="margin-bottom: 12px" />
       <a-alert v-if="batchResult?.error" type="warning" show-icon :message="batchResult.error" style="margin-bottom: 12px" />
+      <a-alert v-if="batchResult?.snapshotcleanuperror" type="warning" show-icon :message="batchResult.snapshotcleanuperror" style="margin-bottom: 12px" />
+      <a-alert v-if="batchResult?.cleanupavailable" type="info" show-icon :message="$t('message.clone.batch.cleanup')" style="margin-bottom: 12px" />
       <a-alert v-if="retryTargets.some(t => t.retryaction === 'CREATE')" type="info" show-icon :message="$t('message.clone.batch.recapture')" style="margin-bottom: 12px" />
       <a-table :columns="batchColumns" :data-source="batchResult?.targets || []" row-key="index" :pagination="false" size="small" :scroll="{ x: 820 }">
         <template #bodyCell="{ column, record }">
@@ -53,6 +55,7 @@
           </template>
           <template v-else-if="column.key === 'cleanup'">
             <div>{{ record.cleanup }}</div>
+            <div v-if="record.cleanuperror" class="batch-error">{{ record.cleanuperror }}</div>
             <div v-for="disk in record.volumes" :key="disk.id" class="batch-uuid">
               {{ disk.type }} · {{ disk.state }} · {{ disk.cleanup }}
               <router-link v-if="!['NOT_CREATED', 'Expunged'].includes(disk.state)" :to="'/volume/' + disk.id" @click="closeAction">{{ disk.id }}</router-link><span v-else>{{ disk.id }}</span>
@@ -65,6 +68,7 @@
         <a-button :loading="queryingBatch" @click="refreshBatch">{{ $t('label.refresh') }}</a-button>
         <a-button v-if="batchUnconfirmed" :loading="loading" :disabled="queryingBatch" @click="submitBatch">{{ $t('label.clone.batch.resend') }}</a-button>
         <a-button v-if="retryTargets.length" type="primary" :disabled="batchBusy || loading || queryingBatch" @click="retryBatch">{{ $t('label.clone.batch.retry') }} ({{ retryTargets.map(t => t.index).join(', ') }})</a-button>
+        <a-button v-if="batchResult?.cleanupavailable" :disabled="batchBusy || loading || queryingBatch" @click="cleanupBatch">{{ $t('label.clone.batch.cleanup') }}</a-button>
         <a-button :disabled="batchBusy || batchUnconfirmed || loading || queryingBatch" @click="newBatch">{{ $t('label.clone.batch.new') }}</a-button>
         <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
       </div>
@@ -117,7 +121,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI } from '@/api'
+import { getAPI, postAPI } from '@/api'
 import { batchStorageKey, newCloneRequest, cloneAttemptParams, retryableTargets, cloneBatchBusy, retryCloneRequest, readCloneRequest } from '@/utils/cloneBatch'
 import { hasExtraConfigDisk } from '@/utils/vmClone'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -143,13 +147,14 @@ export default {
       queryingBatch: false,
       batchDisposed: false,
       batchTimer: null,
+      cleanupJob: null,
       sourceVolumes: [],
       allocationLookupLoading: false,
       allocationLookupError: ''
     }
   },
   computed: {
-    batchBusy () { return cloneBatchBusy(this.batchResult) },
+    batchBusy () { return Boolean(this.cleanupJob) || cloneBatchBusy(this.batchResult) },
     batchUnconfirmed () { return !this.batchResult || this.batchResult.status === 'NOTFOUND' || (this.batchResult.status === 'QUEUED' && !this.batchResult.jobid) || this.batchResult.attemptid !== (this.batchRequest?.attempt?.id || this.batchRequest?.id) },
     retryTargets () { return this.batchBusy || this.batchUnconfirmed ? [] : retryableTargets(this.batchResult) },
     batchColumns () {
@@ -298,13 +303,17 @@ export default {
       this.queryingBatch = true
       const requestId = this.batchRequest.id
       try {
+        if (this.cleanupJob) {
+          const job = (await getAPI('queryAsyncJobResult', { jobid: this.cleanupJob }, { preserveOnFailure: true })).queryasyncjobresultresponse
+          if (job.jobstatus !== 0) this.cleanupJob = null
+        }
         const json = await getAPI('queryVMCloneBatch', { requestid: requestId }, { preserveOnFailure: true })
         const result = json.queryvmclonebatchresponse?.clonebatch
         if (!result) throw new Error('Clone batch result unavailable')
         if (this.batchDisposed || this.batchRequest?.id !== requestId) return
         this.batchResult = result
         this.batchError = ''
-        if (cloneBatchBusy(result)) this.batchTimer = setTimeout(() => this.refreshBatch(), 2000)
+        if (cloneBatchBusy(result) || this.cleanupJob) this.batchTimer = setTimeout(() => this.refreshBatch(), 2000)
         return result
       } catch (error) {
         if (!this.batchDisposed) this.batchError = this.$t('message.clone.batch.query.failed')
@@ -315,6 +324,15 @@ export default {
       this.batchRequest = retryCloneRequest(this.batchRequest, this.batchResult)
       this.persistBatch()
       this.submitBatch()
+    },
+    async cleanupBatch () {
+      if (this.batchBusy || this.loading || this.queryingBatch || !this.batchResult?.cleanupavailable) return
+      this.loading = true
+      try {
+        const json = await postAPI('cleanupVMCloneBatch', { requestid: this.batchRequest.id }, { preserveOnFailure: true })
+        this.cleanupJob = json.cleanupvmclonebatchresponse.jobid
+      } catch (error) { this.$notifyError(error) } finally { this.loading = false }
+      await this.refreshBatch()
     },
     newBatch () {
       if (this.batchBusy || this.batchUnconfirmed || this.loading || this.queryingBatch) return

@@ -744,6 +744,9 @@ public class VolumeObject implements VolumeInfo {
     }
 
     protected void handleProcessEventAnswer(CopyCmdAnswer copyAnswer, boolean validateVolumeSize, boolean setFormat) {
+        if (!copyAnswer.getResult() || !(copyAnswer.getNewData() instanceof VolumeObjectTO)) {
+            throw new CloudRuntimeException(StringUtils.defaultIfBlank(copyAnswer.getDetails(), "Storage copy did not return a successful volume receipt"));
+        }
         VolumeObjectTO newVolume = (VolumeObjectTO)copyAnswer.getNewData();
 
         if (this.isPrimaryDataStore()) {

@@ -21,7 +21,7 @@ export const batchStorageKey = (actor, source) => 'vm-clone-batch:' + actor + ':
 export const newCloneRequest = params => ({ id: uuid(), attempt: null, params: { ...params } })
 export const cloneAttemptParams = request => ({ ...request.params, customjobid: request.attempt?.id || request.id, ...(request.attempt ? { batchid: request.id, retryindices: request.attempt.indices.join(',') } : {}) })
 export const retryableTargets = result => (result?.targets || []).filter(t => ['CREATE', 'RESUME', 'START'].includes(t.retryaction))
-export const cloneBatchBusy = result => ['QUEUED', 'RUNNING'].includes(result?.status) || result?.jobstatus === 0
+export const cloneBatchBusy = result => ['QUEUED', 'RUNNING'].includes(result?.status) || result?.jobstatus === 0 || result?.cleanupjobstatus === 0
 export const retryCloneRequest = (request, result) => ({ ...request, attempt: { id: uuid(), indices: retryableTargets(result).map(t => t.index) } })
 export function readCloneRequest (storage, key, source) {
   try {

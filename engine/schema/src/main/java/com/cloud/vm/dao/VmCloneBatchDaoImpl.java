@@ -20,4 +20,17 @@ import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.vm.VmCloneBatchVO;
 
 public class VmCloneBatchDaoImpl extends GenericDaoBase<VmCloneBatchVO, Long>
-        implements VmCloneBatchDao {}
+        implements VmCloneBatchDao {
+    @Override public java.util.List<VmCloneBatchVO> listCleanupRequired() {
+        com.cloud.utils.db.SearchCriteria<VmCloneBatchVO> criteria = createSearchCriteria();
+        criteria.addAnd("state", com.cloud.utils.db.SearchCriteria.Op.IN, "FAILED", "PARTIAL", "INTERRUPTED");
+        criteria.addAnd("data", com.cloud.utils.db.SearchCriteria.Op.LIKE, "%\"cleanupRequired\":true%");
+        java.util.Map<Long, VmCloneBatchVO> result = new java.util.LinkedHashMap<>();
+        for (VmCloneBatchVO row : listBy(criteria)) result.put(row.getId(), row);
+        criteria = createSearchCriteria();
+        criteria.addAnd("state", com.cloud.utils.db.SearchCriteria.Op.IN, "FAILED", "PARTIAL", "INTERRUPTED");
+        criteria.addAnd("data", com.cloud.utils.db.SearchCriteria.Op.LIKE, "%\"snapshotCleanupError\":%");
+        for (VmCloneBatchVO row : listBy(criteria)) result.put(row.getId(), row);
+        return new java.util.ArrayList<>(result.values());
+    }
+}

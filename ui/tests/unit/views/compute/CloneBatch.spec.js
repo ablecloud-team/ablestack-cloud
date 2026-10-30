@@ -10,10 +10,10 @@
 // License for the specific language governing permissions and limitations.
 import Clone from '@/views/compute/CloneVM'
 import { cloneAttemptParams, cloneBatchBusy, newCloneRequest, retryCloneRequest, readCloneRequest, batchStorageKey } from '@/utils/cloneBatch'
-import { getAPI } from '@/api'
-jest.mock('@/api', () => ({ getAPI: jest.fn() }))
+import { getAPI, postAPI } from '@/api'
+jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const params = { virtualmachineid: 'source', name: 'batch', count: 2, startvm: false, clonetype: 'full' }
-beforeEach(() => { getAPI.mockReset(); window.localStorage.clear() })
+beforeEach(() => { getAPI.mockReset(); postAPI.mockReset(); window.localStorage.clear() })
 test('response loss resubmits exactly the persisted identifier and original inputs', () => {
   const request = newCloneRequest(params)
   const storage = window.localStorage
@@ -87,5 +87,34 @@ test('lost submission response keeps its receipt and queries the accepted batch'
   expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', cloneAttemptParams(request), { preserveOnFailure: true })
   expect(vm.batchRequest).toBe(request)
   expect(vm.refreshBatch).toHaveBeenCalledTimes(1)
+  expect(vm.loading).toBe(false)
+})
+
+test('an active cleanup job blocks clone retry after the original job failed', () => {
+  expect(cloneBatchBusy({ status: 'PARTIAL', jobstatus: 2, cleanupjobstatus: 0 })).toBe(true)
+  expect(cloneBatchBusy({ status: 'PARTIAL', jobstatus: 2, cleanupjobstatus: 1 })).toBe(false)
+})
+
+test('cleanup submits only the existing batch identifier and never creates another clone', async () => {
+  postAPI.mockResolvedValue({ cleanupvmclonebatchresponse: { jobid: 'cleanup-job' } })
+  const request = newCloneRequest(params)
+  const vm = { batchRequest: request, batchResult: { cleanupavailable: true }, loading: false, queryingBatch: false, batchBusy: false, refreshBatch: jest.fn(), $notifyError: jest.fn() }
+  await Clone.methods.cleanupBatch.call(vm)
+  expect(postAPI).toHaveBeenCalledWith('cleanupVMCloneBatch', { requestid: request.id }, { preserveOnFailure: true })
+  expect(getAPI).not.toHaveBeenCalled()
+  expect(vm.batchRequest).toBe(request)
+  expect(vm.cleanupJob).toBe('cleanup-job')
+  expect(vm.refreshBatch).toHaveBeenCalledTimes(1)
+})
+
+test('cleanup transport failure retains targets and their original request', async () => {
+  postAPI.mockRejectedValue(new Error('connection closed'))
+  const request = newCloneRequest(params)
+  const result = { cleanupavailable: true, targets: [{ id: 'first-success' }] }
+  const vm = { batchRequest: request, batchResult: result, loading: false, queryingBatch: false, batchBusy: false, refreshBatch: jest.fn(), $notifyError: jest.fn() }
+  await Clone.methods.cleanupBatch.call(vm)
+  expect(vm.batchRequest).toBe(request)
+  expect(vm.batchResult).toBe(result)
+  expect(vm.$notifyError).toHaveBeenCalledTimes(1)
   expect(vm.loading).toBe(false)
 })

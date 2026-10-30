@@ -1871,27 +1871,41 @@ public class VolumeServiceImpl implements VolumeService {
         return future;
     }
 
+    static String snapshotCopyFailure(CopyCommandResult result) {
+        if (result == null) return "Storage copy returned no result";
+        boolean valid = !result.isFailed() && result.getAnswer() instanceof org.apache.cloudstack.storage.command.CopyCmdAnswer
+                && result.getAnswer().getResult()
+                && ((org.apache.cloudstack.storage.command.CopyCmdAnswer) result.getAnswer()).getNewData() instanceof org.apache.cloudstack.storage.to.VolumeObjectTO;
+        if (valid) return null;
+        String reason = result.getResult();
+        if (StringUtils.isBlank(reason) && result.getAnswer() != null) reason = result.getAnswer().getDetails();
+        return StringUtils.defaultIfBlank(reason, "Storage copy did not return a successful volume receipt");
+    }
+
     protected Void createVolumeFromSnapshotCallback(AsyncCallbackDispatcher<VolumeServiceImpl, CopyCommandResult> callback, CreateVolumeFromBaseImageContext<VolumeApiResult> context) {
         CopyCommandResult result = callback.getResult();
         VolumeInfo volume = (VolumeInfo)context.templateOnStore;
         SnapshotInfo snapshot = context.snapshot;
         VolumeApiResult apiResult = new VolumeApiResult(volume);
         Event event = null;
-        if (result.isFailed()) {
-            apiResult.setResult(result.getResult());
+        String failure = snapshotCopyFailure(result);
+        boolean failed = failure != null;
+        if (failed) {
+            apiResult.setResult(failure);
             event = Event.OperationFailed;
         } else {
             event = Event.OperationSucceeded;
         }
 
         try {
-            if (result.isSuccess()) {
+            if (!failed) {
                 volume.processEvent(event, result.getAnswer());
                 persistLinkedCloneDetailsIfNeeded(volume, snapshot, context.linkedCloneBackingPath);
             } else {
                 volume.processEvent(event);
             }
-            _volumeDetailsDao.removeDetail(volume.getId(), SNAPSHOT_ID);
+            // Failed copies retain their dependency until physical absence is verified.
+            if (!failed) _volumeDetailsDao.removeDetail(volume.getId(), SNAPSHOT_ID);
 
         } catch (Exception e) {
             logger.debug("create volume from snapshot failed", e);

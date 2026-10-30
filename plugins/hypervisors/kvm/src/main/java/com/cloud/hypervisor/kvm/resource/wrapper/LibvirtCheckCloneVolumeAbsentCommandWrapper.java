@@ -1,0 +1,37 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+package com.cloud.hypervisor.kvm.resource.wrapper;
+import com.cloud.agent.api.*;
+import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.hypervisor.kvm.storage.*;
+import com.cloud.resource.*;
+@ResourceWrapper(handles=CheckCloneVolumeAbsentCommand.class)
+public class LibvirtCheckCloneVolumeAbsentCommandWrapper extends CommandWrapper<CheckCloneVolumeAbsentCommand,Answer,LibvirtComputingResource> {
+    @Override public Answer execute(CheckCloneVolumeAbsentCommand cmd,LibvirtComputingResource resource) {
+        try {
+            KVMStoragePool pool=resource.getStoragePoolMgr().getStoragePool(cmd.getStorage().getType(),cmd.getStorage().getUuid());
+            if(!cmd.getStorage().getUuid().equals(pool.getUuid())) throw new IllegalArgumentException("Storage identity changed");
+            new CloneVolumeAbsence().verify(pool,cmd.getVolumeUuid());
+            return new CheckCloneVolumeAbsentAnswer(cmd,true,"Clone image, temporary artifacts and active writer are absent");
+        } catch(Exception failure) {
+            return new CheckCloneVolumeAbsentAnswer(cmd,false,"Physical cleanup is unconfirmed: "+failure.getMessage());
+        }
+    }
+}

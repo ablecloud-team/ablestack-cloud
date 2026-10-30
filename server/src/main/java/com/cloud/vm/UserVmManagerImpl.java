@@ -11547,6 +11547,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         return cloneBatches.query(requestId);
     }
 
+    @Override
+    public org.apache.cloudstack.api.response.VmCloneBatchResponse cleanupVMCloneBatch(String requestId) {
+        return cloneBatches.cleanup(requestId);
+    }
+
     protected Optional<UserVm> performTrackedCloneBatch(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
         UserVmVO source=_vmDao.findById(cmd.getId());
         List<Integer> create=new ArrayList<>();UserVm last=null;
@@ -11675,6 +11680,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 throw new CloudRuntimeException("Failed to create VM snapshot for cloning VM " + curVm.getId());
             }
             vmSnapshot = createdSnapshot;
+            if (cloneBatches != null && cmd.getBatchId() != null) cloneBatches.snapshot(cmd, vmSnapshot.getId());
 
             // Validate every disk before creating the first clone. VM snapshot details also
             // contain CPU, memory and firmware settings, which are not snapshot IDs.
@@ -11900,8 +11906,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 }
                 // Expunge deletes ROOT volumes but only detaches DATA volumes.
                 // Delete only volumes allocated by this failed clone and now unattached.
-                if (volume != null && volume.getState() != Volume.State.Destroy
-                        && volume.getState() != Volume.State.Expunging && volume.getState() != Volume.State.Expunged) {
+                if (volume != null && volume.getState() != Volume.State.Expunged) {
                     if (_volumeService.destroyVolume(volume.getId(), caller, true, false) == null) {
                         logger.warn("Unable to remove incomplete clone volume [{}]. Manual cleanup may be required.", volume.getId());
                     }

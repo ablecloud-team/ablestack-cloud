@@ -9856,6 +9856,8 @@
   "message.clone.allocation.full.linked": "A volume requests Full allocation. Select Full clone to preserve each volume policy. A Linked COW image cannot guarantee per-image Full allocation.",
   "message.clone.allocation.raw.stop": "Stop the source VM before making a verified independent copy of GFS2 RAW volumes. Source format and policies are preserved.",
   "label.clone.batch.title": "Clone batch results",
+  "label.clone.batch.cleanup": "Retry failed resource cleanup",
+  "message.clone.batch.cleanup": "Reconcile failed targets. Remaining images or active work keep retry blocked. Successful VMs and prepared disks are preserved.",
   "label.clone.batch.request": "Request ID",
   "label.clone.batch.created": "Created",
   "label.clone.batch.notcreated": "Not created",

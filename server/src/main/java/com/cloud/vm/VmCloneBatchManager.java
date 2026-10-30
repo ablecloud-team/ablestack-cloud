@@ -58,11 +58,47 @@ public class VmCloneBatchManager implements PluggableService {
     @Inject VolumeDetailsDao volumeDetails;
     @Inject VMInstanceDetailsDao vmDetails;
     @Inject AccountManager accounts;
+    @Inject com.cloud.storage.StorageManager storageManager;
+    @Inject org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao pools;
+    @Inject org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao volumeStores;
+    @Inject com.cloud.vm.snapshot.VMSnapshotManager snapshotManager;
+    @Inject com.cloud.vm.snapshot.dao.VMSnapshotDao snapshots;
+    @Inject com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao snapshotDetails;
+    private java.util.concurrent.ScheduledExecutorService cleanupExecutor;
     private final Gson gson = new Gson();
 
     @Override
     public List<Class<?>> getCommands() {
-        return Collections.singletonList(QueryVMCloneBatchCmd.class);
+        return List.of(QueryVMCloneBatchCmd.class, org.apache.cloudstack.api.command.user.vm.CleanupVMCloneBatchCmd.class);
+    }
+
+    @javax.annotation.PostConstruct
+    public void startCleanup() {
+        cleanupExecutor = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(new com.cloud.utils.concurrency.NamedThreadFactory("VMCloneFailureCleanup"));
+        cleanupExecutor.scheduleWithFixedDelay(this::reconcileFailures, 30, 30, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    @javax.annotation.PreDestroy
+    public void stopCleanup() { if (cleanupExecutor != null) cleanupExecutor.shutdownNow(); }
+
+    public void snapshot(CloneVMCmd cmd, long snapshotId) {
+        change(cmd, d -> { if (!d.temporarySnapshots.contains(snapshotId)) d.temporarySnapshots.add(snapshotId); });
+    }
+
+    void reconcileFailures() {
+        CallContext.register(com.cloud.user.User.UID_SYSTEM, Account.ACCOUNT_ID_SYSTEM);
+        try {
+            for (VmCloneBatchVO row : batches.listCleanupRequired()) {
+                VmCloneBatchData data = decode(row);
+                boolean disksDue = data.items.stream().anyMatch(i -> i.cleanupRequired && i.cleanupAttempts < 3 && i.cleanupNext <= System.currentTimeMillis());
+                boolean snapshotsDue = data.snapshotCleanupError != null && data.snapshotCleanupAttempts < 3 && data.snapshotCleanupNext <= System.currentTimeMillis();
+                if (!busy(data) && (disksDue || snapshotsDue)) {
+                    try { cleanup(row.getUuid(), true); } catch (RuntimeException retryLater) { /* Caller can retry from the authorized batch UI. */ }
+                }
+            }
+        } catch (Exception unavailable) {
+            org.apache.logging.log4j.LogManager.getLogger(getClass()).warn("Clone failure cleanup scan could not complete", unavailable);
+        } finally { CallContext.unregister(); }
     }
 
     @FunctionalInterface
@@ -431,6 +467,10 @@ public class VmCloneBatchManager implements PluggableService {
                         VmCloneBatchData.Attempt a = d.attempts.get(cmd.getInjectedJobId());
                         if (a != null) a.finished = true;
                         d.error = error(e);
+                        for (VmCloneBatchData.Item item : d.items) {
+                            if (!item.created && !item.disks.isEmpty() && !prepared(rowFor(cmd), d, item, vm(rowFor(cmd), item)))
+                                item.cleanupRequired = true;
+                        }
                         d.status = d.items.stream().anyMatch(i -> i.created) ? "PARTIAL" : "FAILED";
                     });
             throw e;
@@ -447,6 +487,116 @@ public class VmCloneBatchManager implements PluggableService {
         VmCloneBatchVO row = batches.findByUuid(cmd.getBatchId());
         if (row == null) throw new CloudRuntimeException("Clone batch receipt missing");
         return decode(row);
+    }
+
+    VmCloneBatchVO rowFor(CloneVMCmd cmd) { return batches.findByUuid(cmd.getBatchId()); }
+
+    boolean cleanupCandidate(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Item item) {
+        if (item.created || "SUCCEEDED".equals(item.phase) || item.disks.isEmpty() || prepared(row, data, item, vm(row, item))) return false;
+        return item.cleanupRequired || disks(item).stream().anyMatch(v -> !removed(v) || volumeDetails.findDetail(v.getId(), "SNAPSHOT_ID") != null);
+    }
+
+    public VmCloneBatchResponse cleanup(String requestId) { return cleanup(requestId, false); }
+
+    VmCloneBatchResponse cleanup(String requestId, boolean automatic) {
+        String id = uuid(requestId);
+        VmCloneBatchVO found = batches.findByUuid(id);
+        if (found == null || !permitted(found, vms.findByIdIncludingRemoved(found.getSourceVmId())))
+            throw new PermissionDeniedException("Clone batch is unavailable");
+        return locked("work-" + id, () -> locked("source-" + found.getSourceVmId(), () -> {
+            VmCloneBatchVO row = batches.findByUuid(id);
+            VmCloneBatchData data = decode(row);
+            if (busy(data)) throw new CloudRuntimeException("A clone or cleanup attempt is still active");
+            AsyncJobExecutionContext context = AsyncJobExecutionContext.getCurrentExecutionContext();
+            if (context != null && context.getJob() != null) data.cleanupJobId = context.getJob().getId();
+            locked("receipt-" + id, () -> { save(row, data); return null; });
+            for (VmCloneBatchData.Item item : data.items) {
+                if (!cleanupCandidate(row, data, item) || (automatic && (item.cleanupAttempts >= 3 || item.cleanupNext > System.currentTimeMillis()))) continue;
+                item.cleanupRequired = true;
+                item.cleanupAttempts++;
+                item.cleanupNext = System.currentTimeMillis() + 30_000L * item.cleanupAttempts;
+                try {
+                    UserVmVO target = vm(row, item);
+                    if (target != null && target.getRemoved() == null) throw new CloudRuntimeException("Incomplete VM remains; inspect and delete it through its normal VM action first");
+                    for (VmCloneBatchData.Disk disk : item.disks) reconcileDisk(row, data, disk);
+                    item.cleanupRequired = false;
+                    item.cleanupError = null;
+                } catch (Exception pending) { item.cleanupError = error(pending); }
+            }
+            if (data.items.stream().noneMatch(i -> i.cleanupRequired) && (!automatic || data.snapshotCleanupAttempts < 3 && data.snapshotCleanupNext <= System.currentTimeMillis()))
+                cleanupSnapshots(row, data);
+            locked("receipt-" + id, () -> { save(row, data); return null; });
+            return query(id);
+        }));
+    }
+
+    void reconcileDisk(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Disk disk) throws Exception {
+        VolumeVO volume = volumes.findByUuidIncludingRemoved(disk.uuid);
+        VmCloneBatchData.SourceDisk source = data.sourceDisks.stream().filter(s -> s.id == disk.sourceId).findFirst()
+                .orElseThrow(() -> new CloudRuntimeException("Source disk checkpoint is missing"));
+        if (volume == null || volume.getAccountId() != row.getAccountId() || volume.getInstanceId() != null || volume.isDeleteProtection()
+                || data.sourceDisks.stream().anyMatch(s -> s.id == volume.getId() || s.uuid.equals(volume.getUuid()))
+                || !Objects.equals(source.pool, volume.getPoolId()) || volume.getPoolId() == null
+                || !Objects.equals(String.valueOf(source.id), volumeDetails.listDetailsKeyPairs(volume.getId()).get(com.cloud.storage.VolumeAllocationClone.SOURCE)))
+            throw new CloudRuntimeException("Failed disk identity, owner, pool, attachment or protection cannot be confirmed");
+        accounts.checkAccess(CallContext.current().getCallingAccount(), null, true, volume);
+        if (volume.getRemoved() == null || !List.of(Volume.State.Destroy, Volume.State.Expunging, Volume.State.Expunged).contains(volume.getState()))
+            throw new CloudRuntimeException("Disk is not a removed failed allocation; use its normal volume deletion action first");
+        if (volumeStores.findByVolume(volume.getId()) != null) throw new CloudRuntimeException("Storage references remain");
+        com.cloud.storage.StoragePoolVO pool = pools.findById(volume.getPoolId());
+        if (pool == null || pool.isManaged() || !List.of(com.cloud.storage.Storage.StoragePoolType.RBD, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint).contains(pool.getPoolType()))
+            throw new CloudRuntimeException("The original qualified storage pool is unavailable");
+        verifyAbsent(volume, pool);
+        finishVerifiedVolume(row, disk, volume, pool);
+    }
+
+    protected void finishVerifiedVolume(VmCloneBatchVO row, VmCloneBatchData.Disk disk, VolumeVO volume, com.cloud.storage.StoragePoolVO pool) {
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
+            VolumeVO current = volumes.findByIdIncludingRemoved(volume.getId());
+            if (current == null || current.getRemoved() == null || current.getInstanceId() != null || current.getAccountId() != row.getAccountId()
+                    || !current.getUuid().equals(disk.uuid) || !Objects.equals(current.getPoolId(), pool.getId())
+                    || !List.of(Volume.State.Destroy, Volume.State.Expunging, Volume.State.Expunged).contains(current.getState()))
+                throw new CloudRuntimeException("Volume changed during physical verification");
+            current.setState(Volume.State.Expunged);
+            if (!volumes.update(current.getId(), current)) throw new CloudRuntimeException("Volume cleanup checkpoint could not be saved");
+            volumeDetails.removeDetail(current.getId(), "SNAPSHOT_ID");
+            volumeDetails.addDetail(current.getId(), "clone.vm.cleanup.verified", pool.getUuid() + "/" + disk.uuid, false);
+            // Removal already charged resource counters; reconciliation never charges them again.
+            return null;
+        });
+    }
+
+    protected void verifyAbsent(VolumeVO volume, com.cloud.storage.StoragePoolVO pool) throws Exception {
+        com.cloud.agent.api.CheckCloneVolumeAbsentCommand command = new com.cloud.agent.api.CheckCloneVolumeAbsentCommand(new com.cloud.agent.api.to.StorageFilerTO(pool), volume.getUuid());
+        com.cloud.agent.api.Answer answer = storageManager.sendToPool(pool, command);
+        if (!(answer instanceof com.cloud.agent.api.CheckCloneVolumeAbsentAnswer) || !answer.getResult()
+                || !volume.getUuid().equals(((com.cloud.agent.api.CheckCloneVolumeAbsentAnswer) answer).getVolumeUuid())
+                || !pool.getUuid().equals(((com.cloud.agent.api.CheckCloneVolumeAbsentAnswer) answer).getPoolUuid()))
+            throw new CloudRuntimeException(answer == null ? "Physical verification did not return a receipt" : String.valueOf(answer.getDetails()));
+    }
+
+    void cleanupSnapshots(VmCloneBatchVO row, VmCloneBatchData data) {
+        data.snapshotCleanupError = null;
+        data.snapshotCleanupAttempts++;
+        data.snapshotCleanupNext = System.currentTimeMillis() + 30_000L * data.snapshotCleanupAttempts;
+        for (Long id : data.temporarySnapshots) {
+            com.cloud.vm.snapshot.VMSnapshotVO snapshot = snapshots.findById(id);
+            if (snapshot == null) continue;
+            if (snapshot.getVmId() != row.getSourceVmId() || snapshot.getAccountId() != row.getAccountId()) {
+                data.snapshotCleanupError = "Temporary snapshot ownership changed"; continue;
+            }
+            boolean linked = false;
+            for (com.cloud.vm.snapshot.VMSnapshotDetailsVO mapping : snapshotDetails.findDetails(id, "kvmStorageSnapshot")) {
+                for (com.cloud.storage.VolumeDetailVO reference : volumeDetails.findDetails("linked.clone.backing.snapshot.id", mapping.getValue(), null)) {
+                    VolumeVO child = volumes.findByIdIncludingRemoved(reference.getResourceId());
+                    if (child == null || !removed(child)) linked = true;
+                }
+            }
+            if (linked) continue;
+            try {
+                if (!snapshotManager.deleteVMSnapshot(id)) data.snapshotCleanupError = "Temporary snapshot cleanup is pending; dependency guards are preserved";
+            } catch (Exception pending) { data.snapshotCleanupError = error(pending); }
+        }
     }
 
     public List<Integer> selected(CloneVMCmd cmd) {
@@ -548,6 +698,10 @@ public class VmCloneBatchManager implements PluggableService {
     }
 
     boolean busy(VmCloneBatchData data) {
+        if (data.cleanupJobId != null) {
+            AsyncJobVO cleanup = jobs.findByIdIncludingRemoved(data.cleanupJobId);
+            if (cleanup != null && cleanup.getStatus().ordinal() == 0) return true;
+        }
         VmCloneBatchData.Attempt a = data.attempts.get(data.currentAttempt);
         if (a == null) return false;
         if (a.jobId == null) {
@@ -691,6 +845,7 @@ public class VmCloneBatchManager implements PluggableService {
     }
 
     String action(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Item item) {
+        if (item.cleanupRequired) return "NONE";
         if ("SUCCEEDED".equals(item.phase)) return "NONE";
         UserVmVO vm = vm(row, item);
         List<VolumeVO> disks = disks(item);
@@ -734,6 +889,7 @@ public class VmCloneBatchManager implements PluggableService {
     }
 
     String cleanupState(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Item item, UserVmVO vm, List<VolumeVO> allocated) {
+        if (item.cleanupRequired) return "pending";
         if (allocated.isEmpty()) return item.created ? "unconfirmed" : "not-created";
         if (allocated.stream().allMatch(this::removed)) return "removed-in-cloud";
         if (allocated.stream().anyMatch(v -> v.getState() == Volume.State.Destroy || v.getState() == Volume.State.Expunging)) return "pending";
@@ -780,6 +936,12 @@ public class VmCloneBatchManager implements PluggableService {
         response.requestedCount = data.count;
         response.startVm = data.start;
         response.cloneType = data.type;
+        response.snapshotCleanupError = data.snapshotCleanupError;
+        if (data.cleanupJobId != null) {
+            AsyncJobVO cleanup = jobs.findByIdIncludingRemoved(data.cleanupJobId);
+            if (cleanup != null) { response.cleanupJobId = cleanup.getUuid(); response.cleanupJobStatus = cleanup.getStatus().ordinal(); }
+        }
+        if (!busy && data.snapshotCleanupError != null) response.cleanupAvailable = true;
         response.status = data.status;
         if (!busy && List.of("RUNNING", "QUEUED").contains(data.status))
             response.status = "INTERRUPTED";
@@ -826,6 +988,8 @@ public class VmCloneBatchManager implements PluggableService {
             }
             if (!busy) target.retryAction = action(row, data, item);
             target.cleanup = cleanupState(row, data, item, vm, allocated);
+            target.cleanupError = item.cleanupError;
+            if (!busy && cleanupCandidate(row, data, item)) response.cleanupAvailable = true;
             for (VmCloneBatchData.Disk plan : item.disks) {
                 VmCloneBatchResponse.Disk disk = new VmCloneBatchResponse.Disk();
                 VolumeVO current = volumes.findByUuidIncludingRemoved(plan.uuid);
@@ -846,6 +1010,7 @@ public class VmCloneBatchManager implements PluggableService {
             response.targets.add(target);
         }
         response.error = restricted ? null : data.error;
+        if (restricted) { response.snapshotCleanupError = null; response.cleanupAvailable = false; response.cleanupJobId = null; response.cleanupJobStatus = null; }
         return response;
     }
 }
