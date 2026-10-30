@@ -1,5 +1,5 @@
 {
-  "sourcePayloadSha256": "35692dce40c081efab453ac8945aa021e1e61e3943b89d90d69b84cab7b932b0",
+  "sourcePayloadSha256": "e2343902148b8eff31f88a5700413eedf778f657b141740e5cfae7891bdf8b01",
   "files": [
     {
       "path": "ablestack-storage-boot-reconcile",
@@ -13,17 +13,17 @@
     },
     {
       "path": "ablestack-storagectl",
-      "sha256": "67b098d48c045b78f5ad777142d9e598e3aac187b0a8af8b672c14c254130cc5",
+      "sha256": "c8fac3b874ca23543425af37b472772ed5ad3c83a39a78079c69f5c2ed69c7fe",
       "mode": 493
     },
     {
       "path": "lib/ablestack-storage/configuration_preflight.py",
-      "sha256": "4a1ea783e379aa0a1d3fe602b50874c974829e98bc967c35a6df1b2e8dbb4f1c",
+      "sha256": "ffc0337f772b0a1dc087127f49bf4666ef3625945df7cf370816de7357599258",
       "mode": 420
     },
     {
       "path": "lib/ablestack-storage/configuration_transaction.py",
-      "sha256": "4cd90d0ab6a407775f81d5ae4be1c4f55dd10cf02c4b90289028f3a8f4532c9b",
+      "sha256": "b909eb44036032959e24827a4e5cbc0eb825db005472db80e88531f837f2ad8e",
       "mode": 420
     },
     {
@@ -38,7 +38,7 @@
     },
     {
       "path": "lib/ablestack-storage/shared_directory_policy.py",
-      "sha256": "9f98efc81bbf9943b12b87624fbfdc99744de3906de3c29729282e82966520d2",
+      "sha256": "15548f80409dc9373fad5e701c23b81b9ff86b9d4a607a432af18316998126ea",
       "mode": 420
     },
     {

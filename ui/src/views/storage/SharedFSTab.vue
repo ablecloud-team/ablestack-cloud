@@ -361,7 +361,7 @@
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.smb.share') }}
               </a-button>
-              <a-button v-if="!isSmbAdConfigured" @click="openActionModal('adJoin')">
+              <a-button v-if="!isSmbAdConfigured" :disabled="adOperationBusy" @click="openActionModal('adJoin')">
                 <template #icon><LinkOutlined /></template>
                 {{ $t('label.storage.service.join.ad.domain') }}
               </a-button>
@@ -380,6 +380,7 @@
             </a-space>
           </div>
           <template v-if="storageService.instance">
+            <AdDomainProgressPanel v-if="Object.keys(adApplyStatus).length" :status="adApplyStatus" :busy="adProgress.busy" :error="adProgress.error" />
             <a-alert
               v-if="storageIdentityDrift"
               class="storage-service__alert"
@@ -573,7 +574,7 @@
                   <p>{{ $t('message.storage.service.smb.identity.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions" wrap>
-                  <a-button v-if="!isSmbAdConfigured" size="small" @click="openActionModal('adJoin')">
+                  <a-button v-if="!isSmbAdConfigured" size="small" :disabled="adOperationBusy" @click="openActionModal('adJoin')">
                     <template #icon><LinkOutlined /></template>
                     {{ $t('label.storage.service.join.ad.domain') }}
                   </a-button>
@@ -581,11 +582,11 @@
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.check.ad.domain.status') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" @click="openActionModal('adRejoin')">
+                  <a-button v-if="isSmbAdConfigured" size="small" :disabled="adOperationBusy" @click="openActionModal('adRejoin')">
                     <template #icon><ReloadOutlined /></template>
-                    {{ $t('label.storage.service.rejoin.ad.domain') }}
+                    {{ $t(adApplyStatus.membership === 'JOINED' && adApplyStatus.serviceApply && adApplyStatus.serviceApply !== 'VERIFIED' ? 'label.storage.ad.retry.service' : 'label.storage.service.rejoin.ad.domain') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" danger @click="openActionModal('adLeave')">
+                  <a-button v-if="isSmbAdConfigured" size="small" danger :disabled="adOperationBusy" @click="openActionModal('adLeave')">
                     <template #icon><DisconnectOutlined /></template>
                     {{ $t('label.storage.service.leave.ad.domain') }}
                   </a-button>
@@ -1953,6 +1954,7 @@ class="storage-service-inline-alert"
           </a-row>
         </div>
         <div v-if="actionModal.type === 'adJoin' || actionModal.type === 'adRejoin'" class="storage-action-form storage-action-form--vertical">
+          <AdDomainProgressPanel :status="adApplyStatus" :busy="adProgress.busy" :error="adProgress.error" />
           <a-alert
             class="storage-service__alert"
             type="info"
@@ -2321,7 +2323,7 @@ class="storage-service-inline-alert"
         </div>
       </a-form></div>
       </fieldset>
-      <MoldDialogActions :busy="actionModal.loading && !configurationOperation?.requestid">
+      <MoldDialogActions :busy="adProgress.busy || (actionModal.loading && !configurationOperation?.requestid)">
         <a-button @click="closeActionModal">{{ $t(configurationProtected ? 'label.close' : 'label.cancel') }}</a-button>
         <a-button type="primary" :loading="actionModal.loading" v-bind="actionModalOkButtonProps" @click="submitActionModal">{{ actionModalOkText }}</a-button>
       </MoldDialogActions>
@@ -2374,6 +2376,8 @@ import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeU
 import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
 import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
 import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanceFields'
+import AdDomainProgressPanel from '@/components/storage/AdDomainProgressPanel'
+import { adDomainProgress, adDomainApplied, adDomainBusy } from '@/utils/adDomainProgress'
 import { inheritOwnerParameters, setgidEnabled } from '@/utils/smbParentInheritance'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
@@ -2404,6 +2408,7 @@ const ProtocolHeader = {
     }
   },
   computed: {
+
     protocolLabel () {
       return this.protocol === 'NVME_OF' ? 'NVMe-oF' : this.protocol
     }
@@ -2593,6 +2598,7 @@ export default {
     StorageNfsIdentityPanel,
     StorageDirectoryPolicyPanel,
     SmbParentInheritanceFields,
+    AdDomainProgressPanel,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
     StorageConfigurationPreflightPanel,
@@ -2693,6 +2699,7 @@ export default {
       configurationPreflightLoading: false,
       configurationPreflightRead: 0,
       configurationImpactAcknowledged: false,
+      adProgress: { busy: false, error: '', jobid: null, latest: null },
       configurationPreflightTimer: null,
       preparedConfigurationVolumes: {},
       preparedConfigurationKeys: [],
@@ -2926,6 +2933,13 @@ export default {
     }
   },
   computed: {
+    adApplyStatus () {
+      const observed = adDomainProgress(this.storageService.domains?.[0])
+      if (this.adProgress.busy || (['adJoin', 'adRejoin'].includes(this.actionModal.type) && this.adProgress.error)) return this.adProgress.latest || observed
+      return observed.membership ? observed : this.adProgress.latest || {}
+    },
+    adOperationBusy () { return this.adProgress.busy || adDomainBusy(adDomainProgress(this.storageService.domains?.[0])) || adDomainBusy(this.adApplyStatus) },
+
     storageReadScope () {
       return JSON.stringify([this.resource.id, this.resource.virtualmachineid, this.resource.zoneid,
         this.$store.getters.project?.id, this.$store.getters.userInfo?.id])
@@ -4664,6 +4678,7 @@ export default {
       return operation
     },
     actionModalOkButtonProps () {
+      if (['adJoin', 'adRejoin'].includes(this.actionModal.type) && (this.adProgress.busy || adDomainBusy(this.adApplyStatus))) return { disabled: true }
       const deleteEndpointBlocked = this.actionModal.type === 'deleteEndpoint' && !this.deleteEndpointConfirmationMatched
       const resizeVolumeSize = Number(this.forms.resizeBackingVolume.size)
       const resizeVolumeMinSize = Number(this.forms.resizeBackingVolume.minSizeGiB)
@@ -5811,6 +5826,7 @@ export default {
       this.preparedConfigurationKeys = []
     },
     resetConfigurationProtection () {
+      this.adProgress = { busy: false, error: '', jobid: null, latest: null }
       this.invalidateConfigurationPreflight()
       this.configurationPreflightRead++
       this.configurationPreflightLoading = false
@@ -7764,6 +7780,8 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (['adJoin', 'adRejoin', 'adLeave'].includes(type) && this.adOperationBusy) return
+      if (['adJoin', 'adRejoin'].includes(type)) this.adProgress = { busy: false, error: '', jobid: null, latest: null }
       if (['nfsExport', 'editNfsExport', 'smbShare', 'editSmbShare'].includes(type)) this.fetchDirectoryPolicies()
       if (type === 'nfsIdentity') this.forms.nfsIdentity.idmappingmode = this.nfsIdentity.report?.mode || 'NAME_DOMAIN'
       this.actionModal.type = type
@@ -7974,6 +7992,7 @@ export default {
       this.openDeleteModal(resourceType, record)
     },
     closeActionModal () {
+      if (this.adProgress?.busy) return
       if (this.actionModal.loading && !this.configurationOperation?.requestid) return
       if (!this.configurationProtected) this.configurationGeneration++
       this.actionModal.visible = false
@@ -8033,7 +8052,8 @@ export default {
       this.configurationResult = null
       const generation = this.configurationGeneration
       try {
-        await action.call(this)
+        const completed = await action.call(this)
+        if (['adJoin', 'adRejoin'].includes(this.actionModal.type) && completed !== true) return
         if (generation !== this.configurationGeneration) return
         // Local validation/no POST and any non-committed configuration keep the form open.
         const configurationTypes = ['nfsIdentity', 'enableProtocol', 'nfsExport', 'editNfsExport', 'nfsAcl', 'editNfsAcl',
@@ -8352,14 +8372,59 @@ export default {
       this.forms.smbAcl.password = ''
       return result
     },
-    joinAdDomain () {
+    async joinAdDomain () {
+      const instanceid = this.storageService.instance?.id
       const key = this.actionModal.type === 'adRejoin' ? 'adRejoin' : 'adJoin'
-      const result = this.runStorageAction(key, 'joinStorageServiceToAdDomain', {
-        instanceid: this.storageService.instance.id,
-        ...this.forms.adJoin
-      }, this.$t(key === 'adRejoin' ? 'label.storage.service.rejoin.ad.domain' : 'label.storage.service.join.ad.domain'))
-      this.forms.adJoin.password = ''
-      return result
+      if (!instanceid || this.actionLoading[key] || this.adProgress.busy || adDomainBusy(this.adApplyStatus)) return false
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope && instanceid === this.storageService.instance?.id
+      this.actionLoading[key] = true
+      this.adProgress = { busy: true, error: '', jobid: null, latest: { membership: 'JOINING', serviceApply: 'WAITING' } }
+      try {
+        const params = this.cleanParams({ instanceid, ...this.forms.adJoin })
+        this.forms.adJoin.password = ''
+        const response = await postAPI('joinStorageServiceToAdDomain', params)
+        if (!current()) return false
+        const jobid = response.joinstorageservicetoaddomainresponse?.jobid
+        if (!jobid) throw new Error('AD_DOMAIN_RESPONSE_UNCONFIRMED')
+        this.adProgress.jobid = jobid
+        for (let attempt = 0; attempt < 300; attempt++) {
+          const wire = await getAPI('queryAsyncJobResult', { jobid })
+          if (!current()) return false
+          const job = wire.queryasyncjobresultresponse || {}
+          try {
+            const statusWire = await getAPI('listStorageServiceDomainStatus', { instanceid })
+            if (!current()) return false
+            const domains = statusWire.liststorageservicedomainstatusresponse?.storageidentitydomain
+            if (Array.isArray(domains)) {
+              this.storageService.domains = domains
+              const observed = adDomainProgress(domains[0])
+              if (observed.membership && observed.jobid === jobid) this.adProgress.latest = observed
+            }
+          } catch { /* A read never retries the accepted join request. */ }
+          if (Number(job.jobstatus) === 2) throw new Error(job.jobresult?.errortext || 'AD_SMB_APPLY_FAILED')
+          if (Number(job.jobstatus) === 1) {
+            const result = job.jobresult?.storageidentitydomain || job.jobresult
+            const final = adDomainProgress(result)
+            if (final.membership) this.adProgress.latest = final
+            if (!adDomainApplied(this.adProgress.latest)) throw new Error('AD_SERVICE_VERIFICATION_UNCONFIRMED')
+            try { await this.refreshAfterStorageAction(key, this.currentTab, this.protocolWideLayout) } catch (unavailable) { this.$notifyError(unavailable) }
+            return true
+          }
+          await this.delay(2000)
+        }
+        throw new Error('AD_DOMAIN_OBSERVATION_PENDING')
+      } catch (error) {
+        if (current()) {
+          const apiText = error?.response?.data?.errorresponse?.errortext
+          this.adProgress.error = String(apiText || error.message || error).slice(0, 1200)
+          if (!this.adProgress.jobid || this.adProgress.latest?.jobid !== this.adProgress.jobid) this.adProgress.latest = { membership: 'UNCHANGED', serviceApply: 'NOT_APPLIED', state: 'REJECTED' }
+        }
+        return false
+      } finally {
+        if (current()) { this.forms.adJoin.password = ''; this.adProgress.busy = false; this.actionLoading[key] = false }
+      }
     },
     leaveAdDomain () {
       if (!this.adLeaveConfirmationMatched) {

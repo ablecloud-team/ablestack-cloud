@@ -655,7 +655,7 @@ def inheritance_conflict(config, mode):
         raise PolicyError("SMB_PARENT_IDENTITY_CONFLICT")
 
 
-def inheritance_protection_version(updater=None):
+def inheritance_protection_version(updater=None, minimum=5):
     """Inspect the trusted baseline, not executable candidate code."""
     import ast
     # The updater belongs to the protected SystemVM baseline, outside signed releases.
@@ -667,7 +667,7 @@ def inheritance_protection_version(updater=None):
         tree = ast.parse(path.read_text())
         value = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                      and any(isinstance(t, ast.Name) and t.id == "UPDATER_VERSION" for t in n.targets))
-        return 1 if isinstance(value, int) and value >= 5 else 0
+        return 1 if isinstance(value, int) and value >= minimum else 0
     except (OSError, ValueError, SyntaxError, StopIteration):
         return 0
 

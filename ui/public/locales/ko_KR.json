@@ -10435,5 +10435,20 @@
   "label.storage.inheritance.group.settings": "부모 GID 상속 설정",
   "message.storage.inheritance.owner": "새 SMB 파일·디렉터리의 UNIX UID와 Windows owner가 바로 위 부모를 따릅니다. 로그인·공유 ACL과 기존 파일 소유자는 바꾸지 않습니다.",
   "label.storage.inheritance.owner": "부모 UID 상속 (inherit owner)",
-  "label.storage.inheritance.disabled": "미사용"
+  "label.storage.inheritance.disabled": "미사용",
+  "label.storage.ad.stage.WAITING": "대기",
+  "message.storage.ad.wait.both.stages": "도메인 가입과 SMB 엔드포인트·공유 검증을 기다립니다. 화면 닫기는 서버 요청 취소가 아닙니다.",
+  "label.storage.ad.stage.JOINED": "가입 완료",
+  "label.storage.ad.stage.JOINING": "도메인 가입 중",
+  "label.storage.ad.retry.service": "SMB 서비스 재적용",
+  "label.storage.ad.membership.stage": "도메인 가입",
+  "label.storage.ad.stage.UNKNOWN": "관측 불가",
+  "label.storage.ad.stage.SUCCEEDED": "성공",
+  "label.storage.ad.stage.VERIFIED": "적용·검증 완료",
+  "label.storage.ad.stage.NOT_APPLIED": "미적용",
+  "label.storage.ad.stage.NOT_NEEDED": "불필요",
+  "label.storage.ad.stage.APPLYING": "적용·검증 중",
+  "label.storage.ad.stage.UNCHANGED": "변경 없음",
+  "label.storage.ad.service.stage": "SMB 서비스 적용",
+  "label.storage.ad.stage.FAILED": "실패"
 }

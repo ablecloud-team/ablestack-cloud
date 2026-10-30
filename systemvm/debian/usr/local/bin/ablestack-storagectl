@@ -5130,6 +5130,10 @@ PY
 smb_domain_join() {
   local payload_file="$1"
 
+  if [[ "${ABLESTACK_STORAGE_AD_MEMBERSHIP_ONLY:-0}" != "1" ]] && python3 -c 'import json,sys;sys.exit(0 if "smbDesiredState" in json.load(open(sys.argv[1])) else 1)' "$payload_file"; then
+    python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" ad-domain join "$payload_file"
+    return $?
+  fi
   python3 - "$payload_file" <<'PY'
 import json
 import os
@@ -5137,6 +5141,8 @@ import re
 import subprocess
 import sys
 import time
+import tempfile, atexit, shutil
+from pathlib import Path
 
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
@@ -5145,6 +5151,13 @@ with open(payload_path, "r", encoding="utf-8") as payload_fp:
 state_dir = "/etc/ablestack-storage"
 os.makedirs(state_dir, exist_ok=True)
 state_path = os.path.join(state_dir, "smb-domain.json")
+private_join = os.environ.get("ABLESTACK_STORAGE_AD_MEMBERSHIP_ONLY") == "1" or Path(state_dir, "smb-listeners.json").is_file()
+join_dir = Path(tempfile.mkdtemp(prefix="ablestack-ad-member-", dir="/run")) if private_join else None
+if join_dir:
+    join_dir.chmod(0o700)
+    atexit.register(shutil.rmtree, join_dir)
+join_conf = str(join_dir / "smb.conf") if join_dir else "/etc/samba/smb.conf"
+
 error_path = os.path.join(state_dir, "smb-domain-error.json")
 
 def write_join_error(phase, message):
@@ -5220,7 +5233,7 @@ def write_smb_conf(workgroup_name):
         "   disable spoolss = yes",
         "   map to guest = Bad User",
     ]
-    with open("/etc/samba/smb.conf", "w", encoding="utf-8") as smb_fp:
+    with open(join_conf, "w", encoding="utf-8") as smb_fp:
         smb_fp.write("\n".join(lines) + "\n")
 
 domain = payload.get("domainName")
@@ -5261,8 +5274,8 @@ with open("/etc/krb5.conf", "w", encoding="utf-8") as krb_fp:
     krb_fp.write(" dns_lookup_realm = false\n dns_lookup_kdc = true\n rdns = false\n")
 
 write_smb_conf(workgroup)
-run_checked("testparm", ["testparm", "-s"])
-lookup = subprocess.run(["net", "ads", "lookup", "-S", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+run_checked("testparm", ["testparm", "-s", join_conf])
+lookup = subprocess.run(["net", "--configfile="+join_conf, "ads", "lookup", "-S", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 if lookup.returncode == 0:
     for line in lookup.stdout.splitlines():
         if "Pre-Win2k Domain:" in line:
@@ -5272,16 +5285,30 @@ if lookup.returncode == 0:
                 write_smb_conf(workgroup)
             break
 
-kinit_principal = kerberos_principal(username, realm)
-run_checked("kinit", ["kinit", kinit_principal], input_text=f"{password}\n")
+previous = {}
+if os.path.isfile(state_path):
+    with open(state_path, encoding="utf-8") as handle:
+        previous = json.load(handle)
+same_identity = (private_join and payload.get("reuseExistingMembership") is True
+                 and previous.get("domainName", "").lower() == str(domain).lower()
+                 and previous.get("netbiosName") == netbios_name
+                 and (previous.get("organizationalUnit") or "") == (ou or ""))
+already_joined = same_identity and subprocess.run(
+    ["net", "--configfile="+join_conf, "ads", "testjoin"],
+    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+if not already_joined:
+    kinit_principal = kerberos_principal(username, realm)
+    run_checked("kinit", ["kinit", kinit_principal], input_text=f"{password}\n")
+    cmd = ["net", "--configfile="+join_conf, "ads", "join", "-k"]
+    if ou:
+        cmd.append(f"createcomputer={ou}")
+    try:
+        run_checked("join", cmd)
+    finally:
+        subprocess.run(["kdestroy"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-cmd = ["net", "ads", "join", "-k"]
-if ou:
-    cmd.append(f"createcomputer={ou}")
-try:
-    run_checked("join", cmd)
-finally:
-    subprocess.run(["kdestroy"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+if private_join:
+    run_checked("testjoin", ["net", "--configfile="+join_conf, "ads", "testjoin"])
 
 with open(state_path, "w", encoding="utf-8") as state_fp:
     json.dump({
@@ -5292,13 +5319,16 @@ with open(state_path, "w", encoding="utf-8") as state_fp:
         "realm": realm,
         "netbiosName": netbios_name,
         "state": "JOINED",
-        "trustVerified": False,
+        "membershipOnly": private_join,
+        "trustVerified": private_join,
     }, state_fp, sort_keys=True, indent=2)
 
-print(json.dumps({"success": True, "domainName": domain}))
+print(json.dumps({"success": True, "domainName": domain, "alreadyJoined": already_joined}))
 PY
 
-  if command -v systemctl >/dev/null 2>&1; then
+  if [[ "${ABLESTACK_STORAGE_AD_MEMBERSHIP_ONLY:-0}" == "1" || -f /etc/ablestack-storage/smb-listeners.json ]]; then return 0; fi
+
+  if [[ "${ABLESTACK_STORAGE_AD_MEMBERSHIP_ONLY:-0}" != "1" && ! -f /etc/ablestack-storage/smb-listeners.json ]] && command -v systemctl >/dev/null 2>&1; then
     systemctl enable --now smbd >/dev/null 2>&1 || true
     systemctl enable --now nmbd >/dev/null 2>&1 || true
     systemctl enable --now winbind >/dev/null 2>&1 || true
@@ -6784,6 +6814,9 @@ case "$command" in
     exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/shared_directory_policy.py" "$action" "$payload"
     ;;
   configuration)
+    if [[ "$subcommand" == "ad-domain" && "$action" == "show" ]]; then
+      exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" ad-domain show "$payload"
+    fi
     if [[ "$subcommand" == "preflight" && "$action" == "show" && -r "$payload" ]]; then
       exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" preflight show "$payload"
     fi
