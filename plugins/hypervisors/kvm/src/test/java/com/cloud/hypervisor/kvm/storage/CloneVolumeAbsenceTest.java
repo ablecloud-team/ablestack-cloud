@@ -40,8 +40,8 @@ public class CloneVolumeAbsenceTest {
         catch(com.cloud.utils.exception.CloudRuntimeException expected){assertEquals("pool unavailable",expected.getMessage());}
     }
     @Test public void gfsTemporaryFileBlocks() throws Exception {
-        Path root=Files.createTempDirectory("clone-absence-test");Path file=root.resolve(ID+".allocation-stage");
+        Path root=Files.createTempDirectory("clone-absence-test");Path directory=Files.createDirectories(root.resolve("a/b/c/d/e"));Path file=directory.resolve(ID+".allocation-stage");
         try {Files.writeString(file,"owned fixture");try{CloneVolumeAbsence.requireNoFiles(root,ID);fail();}catch(java.io.IOException expected){}Files.delete(file);CloneVolumeAbsence.requireNoFiles(root,ID);}
-        finally {Files.deleteIfExists(file);Files.delete(root);}
+        finally {try(java.util.stream.Stream<Path> paths=Files.walk(root)){for(Path p:paths.sorted(Comparator.reverseOrder()).toArray(Path[]::new))Files.deleteIfExists(p);}}
     }
 }

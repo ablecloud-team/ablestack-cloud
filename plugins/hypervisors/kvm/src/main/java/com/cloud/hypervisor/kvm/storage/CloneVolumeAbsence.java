@@ -40,7 +40,7 @@ public class CloneVolumeAbsence {
         }
     }
     static void requireNoFiles(Path root,String uuid) throws IOException {
-        try (java.util.stream.Stream<Path> files=Files.walk(root,4)) {
+        try (java.util.stream.Stream<Path> files=Files.walk(root)) {
             if(files.anyMatch(p->p.getFileName().toString().contains(uuid))) throw new IOException("Clone image or temporary file remains");
         }
     }
