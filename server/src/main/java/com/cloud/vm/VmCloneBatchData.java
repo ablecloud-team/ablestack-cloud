@@ -28,16 +28,33 @@ class VmCloneBatchData {
     long sourceOfferingId;
     Long sourceTemplateId;
     boolean start, prepared;
-    String status="QUEUED";
-    List<SourceDisk> sourceDisks=new ArrayList<>();
-    List<Item> items=new ArrayList<>();
-    Map<String,Attempt> attempts=new LinkedHashMap<>();
-    static class SourceDisk { long id; String uuid, type, format, policy; Long device, pool, size; }
-    static class Attempt { List<Integer> indices=new ArrayList<>(); Long jobId; boolean started, finished; }
-    static class Item {
-        int index; String name, phase="PLANNED", error; Long vmId; boolean vmRecorded, created;
-        List<Disk> disks=new ArrayList<>();
-    }
-    static class Disk { String uuid, type, attempt; long sourceId; }
-}
+    String status = "QUEUED";
+    List<SourceDisk> sourceDisks = new ArrayList<>();
+    List<Item> items = new ArrayList<>();
+    Map<String, Attempt> attempts = new LinkedHashMap<>();
 
+    static class SourceDisk {
+        long id;
+        String uuid, type, format, policy;
+        Long device, pool, size;
+    }
+
+    static class Attempt {
+        List<Integer> indices = new ArrayList<>();
+        Long jobId;
+        boolean started, finished;
+    }
+
+    static class Item {
+        int index;
+        String name, phase = "PLANNED", error;
+        Long vmId;
+        boolean vmRecorded, created;
+        List<Disk> disks = new ArrayList<>();
+    }
+
+    static class Disk {
+        String uuid, type, attempt;
+        long sourceId;
+    }
+}

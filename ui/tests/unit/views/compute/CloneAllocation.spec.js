@@ -76,7 +76,7 @@ test('two submissions sharing asynchronous form validation create only one API r
 })
 test('backend rejection retains inputs and permits retry without changing allocation', async () => {
   const error = Object.assign(new Error('name conflict'), { response: { data: { clonevirtualmachineresponse: { errorcode: 530 } } } })
-  getAPI.mockRejectedValueOnce(error).mockResolvedValueOnce({ queryvmclonebatchresponse: { status: 'NOTFOUND' } }).mockResolvedValueOnce({ clonevirtualmachineresponse: { jobid: 'retry' } })
+  getAPI.mockRejectedValueOnce(error).mockResolvedValueOnce({ queryvmclonebatchresponse: { clonebatch: { status: 'NOTFOUND' } } }).mockResolvedValueOnce({ clonevirtualmachineresponse: { jobid: 'retry' } })
   const vm = context(); vm.handleSubmit(); await flushPromises()
   expect(vm.$notifyError).toHaveBeenCalledWith(error); expect(vm.$emit).not.toHaveBeenCalled()
   expect(vm.loading).toBe(false); expect(vm.form.name).toBe('new-clone')

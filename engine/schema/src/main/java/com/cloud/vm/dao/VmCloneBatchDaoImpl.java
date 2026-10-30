@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.vm.dao;
+
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.vm.VmCloneBatchVO;
-public class VmCloneBatchDaoImpl extends GenericDaoBase<VmCloneBatchVO,Long> implements VmCloneBatchDao { }
 
+public class VmCloneBatchDaoImpl extends GenericDaoBase<VmCloneBatchVO, Long>
+        implements VmCloneBatchDao {}

@@ -22,17 +22,35 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.response.VmCloneBatchResponse;
 
-@APICommand(name="queryVMCloneBatch", description="Returns the durable, authorized result of a VM clone batch",
-    responseObject=VmCloneBatchResponse.class, authorized={RoleType.Admin,RoleType.ResourceAdmin,RoleType.DomainAdmin,RoleType.User},
-    requestHasSensitiveInfo=false, responseHasSensitiveInfo=true)
+@APICommand(
+        name = "queryVMCloneBatch",
+        description = "Returns the durable, authorized result of a VM clone batch",
+        responseObject = VmCloneBatchResponse.class,
+        authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User},
+        requestHasSensitiveInfo = false,
+        responseHasSensitiveInfo = true)
 public class QueryVMCloneBatchCmd extends BaseCmd {
-    @Parameter(name="requestid",type=CommandType.STRING,required=true,description="Initial clone customjobid / batch identifier")
+    @Parameter(
+            name = "requestid",
+            type = CommandType.STRING,
+            required = true,
+            description = "Initial clone customjobid / batch identifier")
     private String requestId;
-    @Override public void execute() {
-        VmCloneBatchResponse response = _userVmService.queryVMCloneBatch(requestId);
-        response.setResponseName(getCommandName()); setResponseObject(response);
-    }
-    @Override public String getCommandName() { return "queryvmclonebatchresponse"; }
-    @Override public long getEntityOwnerId() { return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId(); }
-}
 
+    @Override
+    public void execute() {
+        VmCloneBatchResponse response = _userVmService.queryVMCloneBatch(requestId);
+        response.setResponseName(getCommandName());
+        setResponseObject(response);
+    }
+
+    @Override
+    public String getCommandName() {
+        return "queryvmclonebatchresponse";
+    }
+
+    @Override
+    public long getEntityOwnerId() {
+        return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId();
+    }
+}

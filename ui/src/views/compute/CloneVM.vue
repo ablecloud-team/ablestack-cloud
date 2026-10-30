@@ -67,7 +67,8 @@
         <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
       </div>
     </section>
-    <a-form v-else
+    <a-form
+      v-else
       class="form-layout"
       layout="vertical"
       :ref="formRef"
@@ -146,14 +147,16 @@ export default {
   },
   computed: {
     batchBusy () { return cloneBatchBusy(this.batchResult) },
-    batchUnconfirmed () { return !this.batchResult || this.batchResult.status === 'NOTFOUND' || this.batchResult.attemptid !== (this.batchRequest?.attempt?.id || this.batchRequest?.id) },
+    batchUnconfirmed () { return !this.batchResult || this.batchResult.status === 'NOTFOUND' || (this.batchResult.status === 'QUEUED' && !this.batchResult.jobid) || this.batchResult.attemptid !== (this.batchRequest?.attempt?.id || this.batchRequest?.id) },
     retryTargets () { return this.batchBusy ? [] : retryableTargets(this.batchResult) },
-    batchColumns () { return [
-      { title: '#', dataIndex: 'index', key: 'index', width: 45 },
-      { title: this.$t('label.name'), key: 'target', width: 210 },
-      { title: this.$t('label.clone.batch.outcome'), key: 'outcome', width: 240 },
-      { title: this.$t('label.clone.batch.cleanup'), key: 'cleanup', width: 320 }
-    ] },
+    batchColumns () {
+      return [
+        { title: '#', dataIndex: 'index', key: 'index', width: 45 },
+        { title: this.$t('label.name'), key: 'target', width: 210 },
+        { title: this.$t('label.clone.batch.outcome'), key: 'outcome', width: 240 },
+        { title: this.$t('label.clone.batch.cleanup'), key: 'cleanup', width: 320 }
+      ]
+    },
     extraConfigDiskAttached () {
       return hasExtraConfigDisk(this.resource)
     },
@@ -291,7 +294,7 @@ export default {
       this.queryingBatch = true
       try {
         const json = await getAPI('queryVMCloneBatch', { requestid: this.batchRequest.id })
-        const result = json.queryvmclonebatchresponse
+        const result = json.queryvmclonebatchresponse?.clonebatch
         if (!result) throw new Error('Clone batch result unavailable')
         if (this.batchDisposed) return
         this.batchResult = result

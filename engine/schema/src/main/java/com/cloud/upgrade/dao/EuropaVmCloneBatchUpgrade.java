@@ -16,23 +16,26 @@
 // under the License.
 package com.cloud.upgrade.dao;
 
+import com.cloud.utils.db.ScriptRunner;
+import com.cloud.utils.exception.CloudRuntimeException;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import com.cloud.utils.db.ScriptRunner;
-import com.cloud.utils.exception.CloudRuntimeException;
 
 public final class EuropaVmCloneBatchUpgrade {
-    private EuropaVmCloneBatchUpgrade() { }
+    private EuropaVmCloneBatchUpgrade() {}
 
     public static void migrate(Connection conn) {
         final String path = "META-INF/db/schema-europa-4.23-vm-clone-batch.sql";
-        try (InputStream input = EuropaVmCloneBatchUpgrade.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream input =
+                EuropaVmCloneBatchUpgrade.class.getClassLoader().getResourceAsStream(path)) {
             if (input == null) {
                 throw new CloudRuntimeException("Missing Europa VM clone batch migration");
             }
-            new ScriptRunner(conn, false, true).runScript(new InputStreamReader(input, StandardCharsets.UTF_8));
+            new ScriptRunner(conn, false, true)
+                    .runScript(new InputStreamReader(input, StandardCharsets.UTF_8));
         } catch (Exception e) {
             throw new CloudRuntimeException("Unable to apply Europa VM clone batch migration", e);
         }

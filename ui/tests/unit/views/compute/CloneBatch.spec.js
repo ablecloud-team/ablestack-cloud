@@ -16,7 +16,8 @@ const params = { virtualmachineid: 'source', name: 'batch', count: 2, startvm: f
 beforeEach(() => { getAPI.mockReset(); window.localStorage.clear() })
 test('response loss resubmits exactly the persisted identifier and original inputs', () => {
   const request = newCloneRequest(params)
-  const storage = window.localStorage, key = batchStorageKey('user', 'source')
+  const storage = window.localStorage
+  const key = batchStorageKey('user', 'source')
   storage.setItem(key, JSON.stringify(request))
   expect(cloneAttemptParams(readCloneRequest(storage, key, 'source'))).toEqual(cloneAttemptParams(request))
   expect(readCloneRequest(storage, key, 'another-source')).toBeNull()
