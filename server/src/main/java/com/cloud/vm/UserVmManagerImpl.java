@@ -469,6 +469,7 @@ import com.google.gson.reflect.TypeToken;
 
 
 public class UserVmManagerImpl extends ManagerBase implements UserVmManager, VirtualMachineGuru, Configurable, VmWorkJobHandler {
+    @Inject private VmCloneBatchManager cloneBatches;
     @Inject private com.cloud.storage.VolumeAllocationService allocationService;
 
     public static final String VM_WORK_JOB_HANDLER = UserVmManagerImpl.class.getSimpleName();
@@ -11412,6 +11413,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (curVm == null) {
             throw new CloudRuntimeException("the VM doesn't exist or not registered in management server!");
         }
+        if (cloneBatches != null && cloneBatches.preflight(cmd, curVm)) {
+            cmd.setEntityId(curVm.getId());cmd.setEntityUuid(curVm.getUuid());return;
+        }
         validateCloneAllocation(cmd, curVm);
         validateCloneNames(cmd, curVm.getDataCenterId());
         checkNoActiveBackupForClone(curVm.getId());
@@ -11480,6 +11484,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         cmd.setEntityUuid(curVm.getUuid());
         cmd.setEntityId(curVm.getId());
         _resourceLimitMgr.checkResourceLimit(activeOwner, ResourceType.primary_storage, totalSize);
+        if (cloneBatches != null) { cloneBatches.prepare(cmd, curVm); }
     }
 
     protected void validateCloneNames(CloneVMCmd cmd, long zoneId) {
@@ -11494,8 +11499,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         checkNameForRFCCompliance(name);
         // Check the longest generated name before looking up any clone names.
         checkNameForRFCCompliance(name + (count > 1 ? "-" + count : ""));
-        for (int index = 0; index < count; index++) {
-            String cloneName = name + (count > 1 ? "-" + (index + 1) : "");
+        for (int index : cmd.getCloneIndices()) {
+            String cloneName = name + (count > 1 ? "-" + index : "");
             VMInstanceVO existingVm = _vmInstanceDao.findVMByHostNameInZone(cloneName, zoneId);
             if (existingVm != null && existingVm.getState() != State.Expunging) {
                 throw new InvalidParameterValueException("There already exists a VM by the name: " + cloneName + ".");
@@ -11519,6 +11524,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @ActionEvent(eventType = EventTypes.EVENT_VM_CLONE, eventDescription = "VM CLONE", async = true)
     public Optional<UserVm> cloneVirtualMachine(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
         try {
+            if (cloneBatches != null && cmd.getBatchId() != null) {
+                return cloneBatches.execute(cmd, () -> performTrackedCloneBatch(cmd));
+            }
             validateCloneAllocation(cmd, cmd.getTargetVM());
             return performCloneVirtualMachine(cmd);
         } catch (ResourceAllocationException | ResourceUnavailableException | InsufficientCapacityException | RuntimeException e) {
@@ -11531,6 +11539,61 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             context.setEventDetails("Failure: " + getCloneFailureMessage(e));
             throw e;
         }
+    }
+
+
+    @Override
+    public org.apache.cloudstack.api.response.VmCloneBatchResponse queryVMCloneBatch(String requestId) {
+        return cloneBatches.query(requestId);
+    }
+
+    protected Optional<UserVm> performTrackedCloneBatch(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
+        UserVmVO source=_vmDao.findById(cmd.getId());
+        List<Integer> create=new ArrayList<>();UserVm last=null;
+        for(int index:cloneBatches.selected(cmd)) {
+            String action=cloneBatches.retryAction(cmd,index);
+            if("CREATE".equals(action)){create.add(index);continue;}
+            if(!List.of("START","RESUME").contains(action))throw new InvalidParameterValueException("Target is not safe to retry: "+index);
+            cmd.setBatchItemIndex(index);cmd.setName(cloneBatches.data(cmd).items.get(index-1).name);
+            try {
+                UserVmVO target=cloneBatches.target(cmd,index);
+                if("RESUME".equals(action)) {
+                    List<VolumeVO> disks=cloneBatches.preparedVolumes(cmd,index);
+                    if(disks.size()!=cloneBatches.data(cmd).sourceDisks.size())throw new CloudRuntimeException("Prepared clone disks require reconciliation");
+                    if(target==null) {
+                        VMInstanceVO conflict=_vmInstanceDao.findVMByHostNameInZone(cmd.getName(),source.getDataCenterId());
+                        if(conflict!=null&&conflict.getRemoved()==null)throw new InvalidParameterValueException("A different VM already uses the target name");
+                        target=(UserVmVO)createCloneVM(cmd,disks.get(0).getId());
+                        if(target==null)throw new CloudRuntimeException("Prepared clone VM could not be created");
+                        cloneBatches.vm(cmd,target);
+                        if(!isStoppedAllocatedGfsClone(source)) {
+                            markFastCloneVmStatus(target.getId(),FAST_CLONE_FLATTEN_PENDING,cloneBatches.data(cmd).operationId);
+                            setFastCloneClonePhase(target.getId(),VmDetailConstants.FAST_CLONE_CLONE_PREPARING);
+                            vmInstanceDetailsDao.addDetail(target.getId(),FAST_CLONE_SOURCE_VM_ID,String.valueOf(source.getId()),false);
+                        }
+                        VolumeVO root=_volsDao.findById(disks.get(0).getId());root.setTemplateId(target.getTemplateId());_volsDao.update(root.getId(),root);
+                        VMInstanceVO instance=_vmInstanceDao.findById(target.getId());instance.setGuestOSId(source.getGuestOSId());_vmInstanceDao.update(instance.getId(),instance);
+                    }
+                    cmd.setEntityId(target.getId());cmd.setEntityUuid(target.getUuid());
+                    for(VolumeVO disk:disks)if(disk.getVolumeType()!=Volume.Type.ROOT&&disk.getInstanceId()==null) {
+                        Volume attached=_volumeService.attachVolumeToVM(target.getId(),disk.getId(),disk.getDeviceId(),false);
+                        if(attached==null||!Objects.equals(attached.getInstanceId(),target.getId()))throw new CloudRuntimeException("Prepared DATA attach failed");
+                    }
+                    if(!isStoppedAllocatedGfsClone(source))setFastCloneClonePhase(target.getId(),VmDetailConstants.FAST_CLONE_CLONE_READY);
+                    cloneBatches.created(cmd,target);
+                }
+                last=target;
+                if(cmd.getStartVm()) {
+                    cloneBatches.phase(cmd,"STARTING");
+                    last=startVirtualMachine(target.getId(),source.getPodIdToDeployIn(),null,getFastCloneHostId(source),new HashMap<>(),getCloneVmAdditionalParams(source),null);
+                }
+                cloneBatches.success(cmd,last);
+            } catch(ResourceAllocationException|ResourceUnavailableException|InsufficientCapacityException|RuntimeException e) {cloneBatches.failure(cmd,e);throw e;}
+        }
+        cmd.setName(cloneBatches.data(cmd).name);cmd.setCloneIndices(create);
+        if(create.isEmpty())return Optional.ofNullable(last);
+        validateCloneAllocation(cmd,source);
+        return performCloneVirtualMachine(cmd);
     }
 
     protected String getCloneFailureMessage(Throwable failure) {
@@ -11609,24 +11672,30 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             // contain CPU, memory and firmware settings, which are not snapshot IDs.
             Map<VolumeVO, SnapshotVO> volumeSnapshots = getCloneVolumeSnapshots(curVm.getId(), vmSnapshot.getId());
             int count = cmd.getCount();
-            for (int index = 1; index <= count; index++) {
+            List<Integer> cloneIndices = cmd.getCloneIndices();
+            for (int index : cloneIndices) {
+                cmd.setBatchItemIndex(index);
                 cmd.setName(orgName + (count > 1 ? "-" + index : ""));
                 cloningStarted = true;
                 lastCloneVm = cloneVmFromVolumeSnapshots(cmd, curVm, curVmAccount, zoneId, volumeSnapshots);
+                if (cloneBatches != null) { cloneBatches.created(cmd, lastCloneVm); }
 
-                if (index == count) {
+                if (index == cloneIndices.get(cloneIndices.size()-1)) {
                     // Preserve the existing RBD snapshot/flatten lifecycle after all copies.
                     if (!"linked".equals(cmd.getType())) {
                         cleanupCloneVMSnapshot(vmSnapshot.getId());
                     }
                 }
                 if (cmd.getStartVm()) {
+                    if (cloneBatches != null) { cloneBatches.phase(cmd, "STARTING"); }
                     lastCloneVm = startVirtualMachine(lastCloneVm.getId(), curVm.getPodIdToDeployIn(), null, getFastCloneHostId(curVm),
                             new HashMap<>(), getCloneVmAdditionalParams(curVm), null);
                 }
+                if (cloneBatches != null) { cloneBatches.success(cmd, lastCloneVm); }
             }
             return Optional.ofNullable(lastCloneVm);
         } catch (ResourceAllocationException | ResourceUnavailableException | InsufficientCapacityException | RuntimeException e) {
+            if (cloneBatches != null && cmd.getBatchItemIndex() > 0) { cloneBatches.failure(cmd, e); }
             if (vmSnapshot != null) {
                 if (!cloningStarted) {
                     cleanupCloneVMSnapshot(vmSnapshot.getId());
@@ -11698,9 +11767,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (diskOffering == null) {
             throw new CloudRuntimeException("Unable to find disk offering " + snapshot.getDiskOfferingId() + " for snapshot " + snapshot.getId());
         }
+        String batchVolumeUuid = _uuidMgr.generateUuid(Volume.class, null);
+        if (cloneBatches != null) { cloneBatches.volume(cmd, sourceVolume, batchVolumeUuid); }
         VolumeVO clone = cloneVolumeFromSnapToDB(owner, true, zoneId, snapshot.getDiskOfferingId(), diskOffering.getProvisioningType(), snapshot.getSize(),
                 snapshot.getMinIops(), snapshot.getMaxIops(), sourceVolume, cmd.getName() + "-" + sourceVolume.getName(),
-                _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(), sourceVolume.getVolumeType(),
+                batchVolumeUuid, new HashMap<>(), sourceVolume.getVolumeType(),
                 sourceVolume.getVolumeType() == Volume.Type.ROOT ? 0L : sourceVolume.getDeviceId());
         volumeDetailsDao.addDetail(clone.getId(), com.cloud.storage.VolumeAllocationClone.TYPE, StringUtils.defaultIfBlank(cmd.getType(), "full"), false);
         return clone;
@@ -11734,6 +11805,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                         throw new CloudRuntimeException("Unable to create a new VM for the cloned ROOT volume");
                     }
                     cloneVmId = cloneVm.getId();
+                    if (cloneBatches != null) { cloneBatches.vm(cmd, cloneVm); }
                     cmd.setEntityUuid(cloneVm.getUuid());
                     cmd.setEntityId(cloneVmId);
                     VolumeVO rootVolume = _volsDao.findById(clonedVolume.getId());
@@ -11862,6 +11934,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
         UserVm lastCloneVm = null;
         String operationId = UUID.randomUUID().toString();
+        if (cloneBatches != null) { cloneBatches.preparation(cmd, operationId, false); }
         beginFastCloneSourceOperation(curVm.getId(), operationId);
 
         List<List<VolumeVO>> cloneVolumesByVm = new ArrayList<>();
@@ -11874,7 +11947,9 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         String stage = "allocate clone volumes";
 
         try {
-            for (int cnt = 1; cnt <= countOfCloneVM; cnt++) {
+            List<Integer> batchIndices = cmd.getCloneIndices();
+            for (int cnt : batchIndices) {
+                cmd.setBatchItemIndex(cnt);
                 String cloneVmName = orgName + (countOfCloneVM > 1 ? "-" + cnt : "");
                 cmd.setName(cloneVmName);
                 cloneVmNames.add(cloneVmName);
@@ -11900,9 +11975,11 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             stage = "prepare source disks";
             prepareFastCloneThroughVmJobQueue(curVm.getId(), storagePool.getId(), operationId, volumeCloneSpecs);
             preparationCompleted = true;
+            if (cloneBatches != null) { cloneBatches.preparation(cmd, operationId, true); }
             hostId = getFastCloneHostId(_vmDao.findById(curVm.getId()));
 
             for (int index = 0; index < cloneVolumesByVm.size(); index++) {
+                cmd.setBatchItemIndex(batchIndices.get(index));
                 cmd.setName(cloneVmNames.get(index));
                 List<VolumeVO> cloneVolumes = cloneVolumesByVm.get(index);
                 VolumeVO rootVolume = cloneRootVolumes.get(index);
@@ -11915,6 +11992,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 if (cloneVM == null) {
                     throw new CloudRuntimeException("Unable to record the VM to DB!");
                 }
+                if (cloneBatches != null) { cloneBatches.vm(cmd, cloneVM); }
                 cmd.setEntityUuid(cloneVM.getUuid());
                 cmd.setEntityId(cloneVM.getId());
                 if (!materializedCopy) {
@@ -11936,14 +12014,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 stage = "attach clone disks to VM " + cloneVM.getUuid();
                 attachFastCloneDataVolumes(cmd, cloneVolumes);
                 if (!materializedCopy) { setFastCloneClonePhase(cloneVM.getId(), VmDetailConstants.FAST_CLONE_CLONE_READY); }
+                cloneVolumesToCleanup.removeAll(cloneVolumes);
+                if (cloneBatches != null) { cloneBatches.created(cmd, cloneVM); }
 
                 Long podId = curVm.getPodIdToDeployIn();
                 Long clusterId = null;
                 Map<VirtualMachineProfile.Param, Object> additonalParams = getCloneVmAdditionalParams(curVm);
                 Map<Long, DiskOffering> diskOfferingMap = new HashMap<>();
                 stage = "start or retrieve clone VM " + cloneVM.getUuid();
+                if (cloneBatches != null && cmd.getStartVm()) { cloneBatches.phase(cmd, "STARTING"); }
                 lastCloneVm = cmd.getStartVm() ? startVirtualMachine(cmd.getEntityId(), podId, clusterId, hostId, diskOfferingMap, additonalParams, null) : getUserVm(cmd.getEntityId());
-                cloneVolumesToCleanup.removeAll(cloneVolumes);
+                if (cloneBatches != null) { cloneBatches.success(cmd, lastCloneVm); }
             }
             stage = "complete source preparation";
             if (!FAST_CLONE_SOURCE_PREPARED.equals(getFastCloneSourcePhase(curVm.getId()))) {
@@ -11952,9 +12033,13 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             if (materializedCopy) { clearFastCloneVmStatus(curVm.getId()); }
             else { setFastCloneSourcePhase(curVm.getId(), VmDetailConstants.FAST_CLONE_SOURCE_PHASE_READY); }
         } catch (Exception e) {
+            if (cloneBatches != null && cmd.getBatchItemIndex() > 0) { cloneBatches.failure(cmd, e); }
             if (!preparationSubmitted || (materializedCopy && preparationCompleted)) {
                 cleanupFailedFastCloneVolumes(cloneVolumesToCleanup);
                 clearFastCloneVmStatus(curVm.getId());
+            } else if (preparationCompleted) {
+                // Known prepared dependencies remain available for a targeted resume.
+                setFastCloneSourcePhase(curVm.getId(), VmDetailConstants.FAST_CLONE_SOURCE_PHASE_READY);
             } else {
                 // A lost answer may leave live overlays or an unfinished preparation job.
                 // Keep all dependencies and block power operations until reconciled.
@@ -12164,8 +12249,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new CloudRuntimeException("Unable to find disk offering " + sourceVolume.getDiskOfferingId());
         }
         String volumeName = cmd.getName() + "-" + sourceVolume.getName();
+        String batchVolumeUuid = _uuidMgr.generateUuid(Volume.class, null);
+        if (cloneBatches != null) { cloneBatches.volume(cmd, sourceVolume, batchVolumeUuid); }
         return cloneVolumeFromSnapToDB(owner, true, zoneId, sourceVolume.getDiskOfferingId(), diskOffering.getProvisioningType(), sourceVolume.getSize(),
-                sourceVolume.getMinIops(), sourceVolume.getMaxIops(), sourceVolume, volumeName, _uuidMgr.generateUuid(Volume.class, null), new HashMap<>(),
+                sourceVolume.getMinIops(), sourceVolume.getMaxIops(), sourceVolume, volumeName, batchVolumeUuid, new HashMap<>(),
                 sourceVolume.getVolumeType(), sourceVolume.getDeviceId());
     }
 

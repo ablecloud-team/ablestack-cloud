@@ -233,6 +233,7 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
     private APIAuthenticationManager authManager;
     @Inject
     private com.cloud.network.as.AutoScaleCreationRequestManager autoScaleCreationRequests;
+    @Inject private com.cloud.vm.VmCloneBatchManager vmCloneBatches;
     @Inject
     private ApiDispatcher dispatcher;
     @Inject
@@ -860,6 +861,9 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
 
     @Override
     public AsyncCmdResult processAsyncCmd(BaseAsyncCmd asyncCmd, Map<String, String> params, CallContext ctx, Long callerUserId, Account caller) throws Exception {
+        if (asyncCmd instanceof org.apache.cloudstack.api.command.user.vm.CloneVMCmd) {
+            return vmCloneBatches.submit(asyncCmd, params, () -> processAsyncCmdInternal(asyncCmd, params, ctx, callerUserId, caller));
+        }
         if (com.cloud.storage.snapshot.StorageSnapshotRequestManager.supports(asyncCmd, params) && params.get(ApiConstants.CUSTOM_JOB_ID) != null) {
             return new com.cloud.storage.snapshot.StorageSnapshotRequestManager(storageSnapshotJobDao).submit(asyncCmd, params, callerUserId, caller.getId(), () -> processAsyncCmdInternal(asyncCmd, params, ctx, callerUserId, caller));
         }
@@ -887,6 +891,10 @@ public class ApiServer extends ManagerBase implements HttpRequestHandler, ApiSer
                 if (existing != null) {
                     return new AsyncCmdResult(objectId, objectUuid, asyncCmd, existing.getId());
                 }
+            }
+            if (asyncCmd instanceof org.apache.cloudstack.api.command.user.vm.CloneVMCmd) {
+                org.apache.cloudstack.framework.jobs.impl.AsyncJobVO existing = vmCloneBatches.submitted((org.apache.cloudstack.api.command.user.vm.CloneVMCmd)asyncCmd, callerUserId, caller.getId());
+                if (existing != null) { return new AsyncCmdResult(objectId, objectUuid, asyncCmd, existing.getId()); }
             }
             params.put("id", objectId.toString());
             Class entityClass = EventTypes.getEntityClassForEvent(createCmd.getEventType());

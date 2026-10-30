@@ -48,6 +48,7 @@
   <bean id="consoleSessionDaoImpl" class="com.cloud.vm.dao.ConsoleSessionDaoImpl" />
   <bean id="asyncJobJoinDaoImpl" class="com.cloud.api.query.dao.AsyncJobJoinDaoImpl" />
   <bean id="autoScalePolicyConditionMapDaoImpl" class="com.cloud.network.as.dao.AutoScalePolicyConditionMapDaoImpl" />
+  <bean id="vmCloneBatchDaoImpl" class="com.cloud.vm.dao.VmCloneBatchDaoImpl" />
   <bean id="autoScaleCreationRequestDaoImpl" class="com.cloud.network.as.dao.AutoScaleCreationRequestDaoImpl" />
   <bean id="autoScalePolicyDaoImpl" class="com.cloud.network.as.dao.AutoScalePolicyDaoImpl" />
   <bean id="autoScaleVmGroupDaoImpl" class="com.cloud.network.as.dao.AutoScaleVmGroupDaoImpl" />
