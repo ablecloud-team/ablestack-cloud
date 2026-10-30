@@ -161,7 +161,8 @@ export default {
       return engine === 'QCOW2' ? 'label.backup.qcow2.source.cleanup.state' : 'label.backup.source.cleanup.generic.state'
     },
     canManage () { return 'reconcileBackupStagingJob' in this.$store.getters.apis },
-    canMutate () { return this.canManage && typeof this.info?.stagingjobid === 'string' && !!this.info.stagingjobid.trim() && !this.info.historical },
+    deletionPending () { return this.resource.deletionpending === true || this.info?.deletionpending === true },
+    canMutate () { return this.canManage && !this.deletionPending && typeof this.info?.stagingjobid === 'string' && !!this.info.stagingjobid.trim() && !this.info.historical },
     unresolvedArtifacts () {
       return (this.info?.artifact || []).filter(row => row.index != null && !row.completed && !row.terminal &&
         (row.submissionpending || row.externaljobid) && (this.operation !== 'BACKUP' || row.owned) &&
@@ -185,7 +186,9 @@ export default {
     situation () {
       let key = 'inspect'
       let type = 'info'
-      if (this.info?.historical) {
+      if (this.deletionPending) {
+        key = 'delete.pending'; type = 'warning'
+      } else if (this.info?.historical) {
         key = 'history'
       } else if (this.diagnosticErrors || this.availabilityErrors.length) {
         key = 'query.failed'; type = 'warning'

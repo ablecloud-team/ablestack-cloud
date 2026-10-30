@@ -492,6 +492,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             manifest = plan.manifest;
         }
         info.id = backup.getUuid();
+        info.deletionpending = ThirdPartyBackupVolumeService.isDeletionPending(backup);
         info.operation = operation;
         info.stagingjobid = plan == null ? backup.getUuid() : plan.jobId;
         info.provider = manifest.getProvider();
@@ -754,7 +755,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                         : "COMPLETED".equals(current.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY)))) {
                     return inspectLocked(current, operation);
                 }
-                if (StringUtils.isNotBlank(current.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))) {
+                if (ThirdPartyBackupVolumeService.isDeletionPending(current)) {
                     throw new CloudRuntimeException("This backup is being deleted; resume its existing deletion instead");
                 }
                 Host host = getWorkerHost(current, operation);

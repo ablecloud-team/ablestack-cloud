@@ -142,14 +142,23 @@ public class BackupStagingManagementVisibilityTest {
     }
 
     @Test
-    public void ordinaryProvidersAndDeletionResumeDoNotUseStagingManagement() {
+    public void ordinaryProvidersDoNotUseStagingManagement() {
         details.put(ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "WAITING");
         details.remove(ThirdPartyBackupManifest.MODE_KEY);
         assertFalse(ThirdPartyBackupVolumeService.needsStagingManagement(backup, null));
+    }
 
-        details.put(ThirdPartyBackupManifest.MODE_KEY, ThirdPartyBackupManifest.VOLUME_MODE);
-        details.put(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY, "{\"complete\":false}");
-        assertFalse(ThirdPartyBackupVolumeService.needsStagingManagement(backup, null));
+    @Test
+    public void pendingDeletionRemainsInspectableThroughoutItsCleanup() {
+        when(backup.getStatus()).thenReturn(Backup.Status.Failed);
+        details.put(ThirdPartyBackupManifest.CLEANUP_STATE_KEY, "COMPLETED");
+        for (String key : java.util.List.of(BackupDeletionService.REQUEST_KEY, BackupDeletionService.OWNER_KEY,
+                ThirdPartyBackupManifest.DELETE_PROGRESS_KEY)) {
+            details.put(key, "{\"state\":\"WAITING\"}");
+            assertTrue(ThirdPartyBackupVolumeService.isDeletionPending(backup));
+            assertTrue(ThirdPartyBackupVolumeService.needsStagingManagement(backup, null));
+            details.remove(key);
+        }
     }
 
     @Test

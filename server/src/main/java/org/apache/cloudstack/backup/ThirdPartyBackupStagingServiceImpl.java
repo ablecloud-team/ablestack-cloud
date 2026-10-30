@@ -20,10 +20,13 @@ package org.apache.cloudstack.backup;
 import java.math.BigInteger;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -53,6 +56,21 @@ import com.google.gson.Gson;
 
 /** Activation and runtime validation share the same host-side staging preparation command. */
 public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements ThirdPartyBackupStagingService {
+    private static final int CLEANUP_VALIDATION_TIMEOUT_SECONDS = 15;
+    private static final long CLEANUP_VALIDATION_RETRY_DELAY_MS = 30_000L;
+    private final Map<String, CleanupValidationFailure> cleanupValidationFailures = new ConcurrentHashMap<>();
+    private Clock cleanupValidationClock = Clock.systemUTC();
+
+    private static class CleanupValidationFailure {
+        final long retryAt;
+        final String reason;
+
+        CleanupValidationFailure(long retryAt, String reason) {
+            this.retryAt = retryAt;
+            this.reason = reason;
+        }
+    }
+
     @Inject
     private ConfigurationDao configurationDao;
     @Inject
@@ -176,7 +194,7 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
 
     @Override
     public void prepareCleanup(Host host, String path) {
-        preparePath(host, path);
+        prepareCleanup(host, path, loadConfiguration());
     }
 
     @Override
@@ -186,7 +204,23 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
         if (!requested.startsWith(Path.of(configuration.rootPath))) {
             throw new CloudRuntimeException("Cleanup path differs from the recorded staging configuration");
         }
-        prepareHost(host, configuration, requested.toString(), 0);
+        // A missing shared mount affects every retained point on this worker. Do not
+        // repeat a full mount timeout for each deletion while holding its VM lock.
+        String key = (host == null ? "missing" : host.getId()) + ":" + new Gson().toJson(configuration) + ":" + requested;
+        long now = cleanupValidationClock.millis();
+        cleanupValidationFailures.entrySet().removeIf(entry -> entry.getValue().retryAt <= now);
+        CleanupValidationFailure previous = cleanupValidationFailures.get(key);
+        if (previous != null) {
+            throw new CloudRuntimeException("Staging cleanup validation will retry shortly: " + previous.reason);
+        }
+        try {
+            prepareHost(host, configuration, requested.toString(), 0,
+                    Math.min(configuration.timeoutSeconds, CLEANUP_VALIDATION_TIMEOUT_SECONDS));
+        } catch (RuntimeException e) {
+            cleanupValidationFailures.put(key, new CleanupValidationFailure(
+                    cleanupValidationClock.millis() + CLEANUP_VALIDATION_RETRY_DELAY_MS, e.getMessage()));
+            throw e;
+        }
     }
 
     private long preparePath(Host host, String path) {
@@ -218,13 +252,17 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
     }
 
     private long prepareHost(Host host, Snapshot configuration, String path, long requiredBytes) {
+        return prepareHost(host, configuration, path, requiredBytes, configuration.timeoutSeconds);
+    }
+
+    private long prepareHost(Host host, Snapshot configuration, String path, long requiredBytes, int timeoutSeconds) {
         if (host == null || host.getStatus() != Status.Up || host.getHypervisorType() != HypervisorType.KVM
                 || host.getResourceState() != ResourceState.Enabled) {
             throw new CloudRuntimeException("The staging host must be an enabled, connected KVM host.");
         }
         AblestackThirdPartyStagingCommand command = new AblestackThirdPartyStagingCommand(
                 configuration.type, configuration.rootPath, configuration.mountPath,
-                configuration.nfsSource, configuration.mountOptions, path, configuration.timeoutSeconds, requiredBytes);
+                configuration.nfsSource, configuration.mountOptions, path, timeoutSeconds, requiredBytes);
         try {
             Answer answer = agentManager.send(host.getId(), command);
             if (answer == null || !answer.getResult()) {

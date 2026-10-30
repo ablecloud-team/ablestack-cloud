@@ -34,6 +34,7 @@ public class BackupStagingInfoResponse extends BaseResponse {
     @SerializedName("targetvmname") @Param(description = "Actual restore target VM; unknown for legacy attempts") public String targetvmname;
     @SerializedName("timestamp") @Param(description = "Logical backup timestamp") public String timestamp;
     @SerializedName("hostname") @Param(description = "Worker Host name") public String hostname;
+    @SerializedName("deletionpending") @Param(description = "Deletion is pending; staging permits inspection only") public boolean deletionpending;
     @SerializedName("destination") @Param(description = "Staging destination") public String destination;
     @SerializedName("hoststate") @Param(description = "Host engine state; UNKNOWN when unconfirmed") public String hoststate;
     @SerializedName("step") @Param(description = "Current Host engine step") public String step;

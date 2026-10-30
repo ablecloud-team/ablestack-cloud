@@ -89,6 +89,23 @@ test('historical restore inspection never submits a management action', async ()
   wrapper.unmount()
 })
 
+test.each([
+  [{ deletionpending: true }, {}],
+  [{}, { deletionpending: true }]
+])('pending deletion keeps diagnostics readable and blocks staging changes', async (info, resource) => {
+  const wrapper = await mount({ hostname: 'ablecube3', hoststate: 'FAILED', cleanupstate: 'WAITING', ...info }, 'BACKUP', resource)
+  expect(wrapper.vm.situation.title).toBe('message.backup.staging.delete.pending.title')
+  expect(wrapper.text()).toContain('ablecube3')
+  expect(wrapper.vm.canMutate).toBe(false)
+  expect(wrapper.vm.canCleanup).toBe(false)
+  for (const action of ['RECHECK', 'RETRY_CLEANUP', 'LINK_JOB']) await wrapper.vm.run(action)
+  expect(postAPI).not.toHaveBeenCalled()
+  await wrapper.vm.load()
+  expect(getAPI).toHaveBeenCalledTimes(2)
+  expect(wrapper.vm.info.hostname).toBe('ablecube3')
+  wrapper.unmount()
+})
+
 test('completed staging and record cleanup with a released reservation cannot be retried', async () => {
   const wrapper = await mount({ hoststate: 'FAILED', cleanupstate: 'COMPLETED', jobcleanupstate: 'COMPLETED', stagingqueue: { state: 'RELEASED' } })
   expect(wrapper.vm.canCleanup).toBe(false)

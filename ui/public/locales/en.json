@@ -8685,6 +8685,8 @@
   "label.backup.staging.wait.reason": "Waiting reason",
   "label.backup.staging.queue.deadline": "Queue deadline",
   "label.backup.staging.management": "Staging management",
+  "message.backup.staging.delete.pending.title": "Backup deletion is pending",
+  "message.backup.staging.delete.pending": "Inspect the worker host and remaining cleanup here. Use the backup deletion action to retry the existing deletion request.",
   "message.backup.staging.management": "Use this screen when a backup or restore needs administrator attention. Check why it is waiting, confirm external job status, or retry temporary file cleanup.",
   "label.step": "Step",
   "label.backup.staging.worker.host": "Worker host",

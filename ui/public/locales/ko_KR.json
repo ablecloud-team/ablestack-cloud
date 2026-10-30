@@ -8700,6 +8700,8 @@
   "label.backup.staging.wait.reason": "대기 사유",
   "label.backup.staging.queue.deadline": "대기 만료 시간",
   "label.backup.staging.management": "스테이징 관리",
+  "message.backup.staging.delete.pending.title": "백업 삭제를 기다리고 있습니다",
+  "message.backup.staging.delete.pending": "작업 호스트와 남은 정리 항목을 조회할 수 있습니다. 삭제를 재시도하려면 백업의 삭제 메뉴를 사용하세요.",
   "message.backup.staging.management": "백업·복원에 관리자 확인이 필요할 때 사용하는 화면입니다. 대기 사유와 외부 작업 상태를 확인하거나 남은 임시 파일 정리를 재시도할 수 있습니다.",
   "label.backup.staging.worker.host": "작업 호스트",
   "label.backup.staging.current.attempt": "현재 복원",

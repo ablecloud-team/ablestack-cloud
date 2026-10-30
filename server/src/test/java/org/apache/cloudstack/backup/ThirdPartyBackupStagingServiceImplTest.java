@@ -30,14 +30,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
 import org.apache.cloudstack.framework.config.impl.ConfigDepotImpl;
+import org.apache.cloudstack.backup.ThirdPartyBackupStagingService.Snapshot;
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupDetailsDao;
 import org.junit.After;
@@ -272,7 +275,63 @@ public class ThirdPartyBackupStagingServiceImplTest {
         verify(agentManager).send(eq(1L), command.capture());
         assertEquals("/mnt/staging", command.getValue().getMountPath());
         assertEquals("/mnt/staging/jobs/ablestack-veeam", command.getValue().getPath());
+        assertEquals(15, command.getValue().getTimeoutSeconds());
+        assertEquals(45, command.getValue().getWait());
         assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(host(1L, "cube1"), "/mnt/new/jobs", original));
+    }
+
+    @Test
+    public void cleanupMountFailureBacksOffAcrossPointsAndRetriesAfterRecovery() throws Exception {
+        AtomicLong now = new AtomicLong(1000);
+        Clock clock = mock(Clock.class);
+        when(clock.millis()).thenAnswer(invocation -> now.get());
+        ReflectionTestUtils.setField(service, "cleanupValidationClock", clock);
+        HostVO worker = host(1L, "cube1");
+        Snapshot original = service.captureConfiguration();
+        String path = "/mnt/staging/jobs/ablestack-netbackup";
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, false, "Unable to mount the configured NFS export."), new Answer(null, true, "100"));
+
+        assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(worker, path, original));
+        CloudRuntimeException delayed = assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(worker, path, original));
+        assertTrue(delayed.getMessage().contains("Unable to mount the configured NFS export"));
+        verify(agentManager).send(eq(1L), any(AblestackThirdPartyStagingCommand.class));
+
+        now.addAndGet(30_001);
+        service.prepareCleanup(worker, path, original);
+        service.prepareCleanup(worker, path, original);
+        verify(agentManager, times(3)).send(eq(1L), any(AblestackThirdPartyStagingCommand.class));
+    }
+
+    @Test
+    public void failedCleanupValidationDoesNotBlockAnotherWorkerOrNormalPreparation() throws Exception {
+        settings.put(BackupManager.ThirdPartyStagingEnable.key(), "true");
+        Snapshot configuration = service.captureConfiguration();
+        String path = "/mnt/staging/jobs/ablestack-netbackup";
+        HostVO first = host(1L, "cube1");
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, false, "Mount is unavailable"), new Answer(null, true, "100"));
+        when(agentManager.send(eq(2L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, true, "100"));
+        assertThrows(CloudRuntimeException.class, () -> service.prepareCleanup(first, path, configuration));
+        service.prepareCleanup(host(2L, "cube2"), path, configuration);
+        assertEquals(100, service.getAvailableBytes(first, path));
+
+        ArgumentCaptor<AblestackThirdPartyStagingCommand> commands = ArgumentCaptor.forClass(AblestackThirdPartyStagingCommand.class);
+        verify(agentManager, times(2)).send(eq(1L), commands.capture());
+        assertEquals(15, commands.getAllValues().get(0).getTimeoutSeconds());
+        assertEquals(configuration.timeoutSeconds, commands.getAllValues().get(1).getTimeoutSeconds());
+    }
+
+    @Test
+    public void cleanupValidationHonorsAnEarlierConfiguredDeadline() throws Exception {
+        settings.put(BackupManager.ThirdPartyStagingMountTimeout.key(), "5");
+        when(agentManager.send(eq(1L), any(AblestackThirdPartyStagingCommand.class)))
+                .thenReturn(new Answer(null, true, "100"));
+        service.prepareCleanup(host(1L, "cube1"), "/mnt/staging/jobs/ablestack-netbackup");
+        ArgumentCaptor<AblestackThirdPartyStagingCommand> command = ArgumentCaptor.forClass(AblestackThirdPartyStagingCommand.class);
+        verify(agentManager).send(eq(1L), command.capture());
+        assertEquals(5, command.getValue().getTimeoutSeconds());
     }
 
     @Test

@@ -57,12 +57,17 @@ public interface ThirdPartyBackupVolumeService {
         }
     }
 
-    /** Menu visibility uses persisted recovery evidence, never ordinary execution or queue states. */
+    static boolean isDeletionPending(Backup backup) {
+        return BackupDeletionService.isPending(backup)
+                || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY));
+    }
+
+    /** Deletion remains inspectable; only its existing coordinator may change cleanup state. */
     static boolean needsStagingManagement(Backup backup, BackupStagingInfoResponse.VmRestoreInfo restore) {
-        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))
-                || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))) {
+        if (!ThirdPartyBackupManifest.VOLUME_MODE.equals(backup.getDetail(ThirdPartyBackupManifest.MODE_KEY))) {
             return false;
         }
+        if (isDeletionPending(backup)) { return true; }
         // Older successful backups retained staging metadata. Keep their recheck
         // action available until complete directory removal has been confirmed.
         if (Backup.Status.BackedUp.equals(backup.getStatus()) && ThirdPartyBackupManifest.hasCompletedTransfers(backup)

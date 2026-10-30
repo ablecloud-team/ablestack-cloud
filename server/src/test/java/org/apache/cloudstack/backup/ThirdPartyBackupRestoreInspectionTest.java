@@ -177,6 +177,16 @@ public class ThirdPartyBackupRestoreInspectionTest {
     }
 
     @Test
+    public void deletionRemainsInspectableAndReportsThatManagementIsReadOnly() {
+        details.put(BackupDeletionService.REQUEST_KEY, "{\"state\":\"WAITING\"}");
+        BackupStagingInfoResponse info = inspect();
+        assertTrue(info.deletionpending);
+        assertEquals(plan.hostName, info.hostname);
+        assertEquals("COMPLETED", info.hoststate);
+        verifyNoInteractions(agent, hosts);
+    }
+
+    @Test
     public void externalCallbackFailureHistoryDoesNotBecomeAnInvalidVmRestorePlan() {
         ThirdPartyExternalRestore.Attempt rejected = new ThirdPartyExternalRestore.Attempt();
         rejected.provider = "ablestack-netbackup";
