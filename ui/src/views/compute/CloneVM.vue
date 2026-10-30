@@ -43,7 +43,7 @@
       <a-table :columns="batchColumns" :data-source="batchResult?.targets || []" row-key="index" :pagination="false" size="small" :scroll="{ x: 820 }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'target'">
-            <router-link v-if="record.id" :to="'/vm/' + record.id">{{ record.name }}</router-link><span v-else>{{ record.name }}</span>
+            <router-link v-if="record.id && record.state !== 'REMOVED'" :to="'/vm/' + record.id" @click="closeAction">{{ record.name }}</router-link><span v-else>{{ record.name }}</span>
             <div v-if="record.id" class="batch-uuid">{{ record.id }}</div>
           </template>
           <template v-else-if="column.key === 'outcome'">
@@ -55,7 +55,7 @@
             <div>{{ record.cleanup }}</div>
             <div v-for="disk in record.volumes" :key="disk.id" class="batch-uuid">
               {{ disk.type }} · {{ disk.state }} · {{ disk.cleanup }}
-              <router-link v-if="!['NOT_CREATED', 'Expunged'].includes(disk.state)" :to="'/volume/' + disk.id">{{ disk.id }}</router-link><span v-else>{{ disk.id }}</span>
+              <router-link v-if="!['NOT_CREATED', 'Expunged'].includes(disk.state)" :to="'/volume/' + disk.id" @click="closeAction">{{ disk.id }}</router-link><span v-else>{{ disk.id }}</span>
             </div>
           </template>
         </template>
