@@ -24,16 +24,16 @@ function context (pooltype = 'RBD', state = 'Stopped', volumes = [volume()]) {
   vm.formRef = { value: { validate: jest.fn().mockResolvedValue(), scrollToField: jest.fn() } }
   return vm
 }
-beforeEach(() => getAPI.mockReset())
+beforeEach(() => { getAPI.mockReset(); window.localStorage.clear() })
 
 test.each(['full', 'linked'])('RBD off permits %s and forwards explicit false start without modifying source policies', async type => {
   getAPI.mockResolvedValue({ clonevirtualmachineresponse: { jobid: 'job' } })
   const vm = context()
   vm.form.clonetype = type
   vm.handleSubmit(); await flushPromises()
-  expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', { virtualmachineid: 'source', name: 'new-clone', count: 1, clonetype: type, startvm: false })
+  expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', expect.objectContaining({ virtualmachineid: 'source', name: 'new-clone', count: 1, clonetype: type, startvm: false }))
   expect(vm.sourceVolumes[0].allocation.requestedpolicy).toBe('off')
-  expect(vm.$pollJob.mock.calls[0][0].jobId).toBe('job')
+  expect(vm.batchRequest.id).toMatch(/^[0-9a-f-]{36}$/); expect(vm.$emit).not.toHaveBeenCalled()
 })
 test('any Full RBD disk blocks only the conflicting Linked choice and permits Full', async () => {
   getAPI.mockResolvedValue({ clonevirtualmachineresponse: { jobid: 'full' } })
@@ -41,7 +41,7 @@ test('any Full RBD disk blocks only the conflicting Linked choice and permits Fu
   vm.form.clonetype = 'linked'; vm.handleSubmit(); await flushPromises()
   expect(vm.cloneBlocked).toBe(true); expect(getAPI).not.toHaveBeenCalled()
   vm.form.clonetype = 'full'; vm.form.count = 2; vm.handleSubmit(); await flushPromises()
-  expect(getAPI).toHaveBeenCalledTimes(1)
+  expect(getAPI.mock.calls.filter(c => c[0] === 'cloneVirtualMachine')).toHaveLength(1)
   expect(getAPI.mock.calls[0][1]).toMatchObject({ clonetype: 'full', count: 2 })
 })
 test.each(['metadata', 'falloc', 'full'])('GFS2 %s QCOW2 does not receive an RBD clone type', async policy => {
@@ -72,14 +72,14 @@ test('an empty source lookup fails closed', async () => {
 test('two submissions sharing asynchronous form validation create only one API request', async () => {
   getAPI.mockResolvedValue({ clonevirtualmachineresponse: { jobid: 'single' } })
   const vm = context(); vm.handleSubmit(); vm.handleSubmit(); await flushPromises()
-  expect(getAPI).toHaveBeenCalledTimes(1); expect(vm.$emit).toHaveBeenCalledTimes(1)
+  expect(getAPI.mock.calls.filter(c => c[0] === 'cloneVirtualMachine')).toHaveLength(1); expect(vm.$emit).not.toHaveBeenCalled()
 })
 test('backend rejection retains inputs and permits retry without changing allocation', async () => {
-  const error = new Error('name conflict')
-  getAPI.mockRejectedValueOnce(error).mockResolvedValueOnce({ clonevirtualmachineresponse: { jobid: 'retry' } })
+  const error = Object.assign(new Error('name conflict'), { response: { data: { clonevirtualmachineresponse: { errorcode: 530 } } } })
+  getAPI.mockRejectedValueOnce(error).mockResolvedValueOnce({ queryvmclonebatchresponse: { status: 'NOTFOUND' } }).mockResolvedValueOnce({ clonevirtualmachineresponse: { jobid: 'retry' } })
   const vm = context(); vm.handleSubmit(); await flushPromises()
   expect(vm.$notifyError).toHaveBeenCalledWith(error); expect(vm.$emit).not.toHaveBeenCalled()
   expect(vm.loading).toBe(false); expect(vm.form.name).toBe('new-clone')
   vm.handleSubmit(); await flushPromises()
-  expect(getAPI).toHaveBeenCalledTimes(2); expect(vm.sourceVolumes[0]).toEqual(volume())
+  expect(getAPI.mock.calls.filter(c => c[0] === 'cloneVirtualMachine')).toHaveLength(2); expect(vm.sourceVolumes[0]).toEqual(volume())
 })

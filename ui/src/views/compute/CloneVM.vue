@@ -28,7 +28,46 @@
       show-icon
       :message="$t('message.clone.extraconfig.disk.blocked')"
       style="margin-bottom: 16px" />
-    <a-form
+    <section v-if="batchRequest" class="clone-batch-result" :aria-label="$t('label.clone.batch.title')">
+      <a-alert :type="batchResult?.status === 'SUCCEEDED' ? 'success' : batchBusy ? 'info' : 'warning'" show-icon :message="$t('label.clone.batch.title')" style="margin-bottom: 12px">
+        <template #description>
+          <div>{{ batchRequest.params.name }} · {{ $t('label.deploy.vm.number') }}: {{ batchRequest.params.count }} · {{ batchResult?.status || 'UNKNOWN' }}</div>
+          <div>{{ $t('label.clone.batch.request') }}: <code>{{ batchRequest.id }}</code></div>
+          <div v-if="batchResult?.jobid">Job: <code>{{ batchResult.jobid }}</code></div>
+        </template>
+      </a-alert>
+      <a-alert v-if="batchError" type="error" show-icon :message="batchError" style="margin-bottom: 12px" />
+      <a-alert v-if="batchResult?.error" type="warning" show-icon :message="batchResult.error" style="margin-bottom: 12px" />
+      <a-table :columns="batchColumns" :data-source="batchResult?.targets || []" row-key="index" :pagination="false" size="small" :scroll="{ x: 820 }">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'target'">
+            <router-link v-if="record.id" :to="'/vm/' + record.id">{{ record.name }}</router-link><span v-else>{{ record.name }}</span>
+            <div v-if="record.id" class="batch-uuid">{{ record.id }}</div>
+          </template>
+          <template v-else-if="column.key === 'outcome'">
+            <div>{{ record.created ? $t('label.clone.batch.created') : $t('label.clone.batch.notcreated') }} · {{ record.state }}</div>
+            <div>{{ record.phase }} · {{ record.retryaction }}</div>
+            <div v-if="record.error" class="batch-error">{{ record.error }}</div>
+          </template>
+          <template v-else-if="column.key === 'cleanup'">
+            <div>{{ record.cleanup }}</div>
+            <div v-for="disk in record.volumes" :key="disk.id" class="batch-uuid">
+              {{ disk.type }} · {{ disk.state }} · {{ disk.cleanup }}
+              <router-link v-if="!['NOT_CREATED', 'Expunged'].includes(disk.state)" :to="'/volume/' + disk.id">{{ disk.id }}</router-link><span v-else>{{ disk.id }}</span>
+            </div>
+          </template>
+        </template>
+      </a-table>
+      <p v-if="!batchBusy && !retryTargets.length && batchResult?.status !== 'SUCCEEDED'">{{ $t('message.clone.batch.inspect') }}</p>
+      <div class="batch-actions">
+        <a-button :loading="queryingBatch" @click="refreshBatch">{{ $t('label.refresh') }}</a-button>
+        <a-button v-if="batchUnconfirmed" :loading="loading" @click="submitBatch">{{ $t('label.clone.batch.resend') }}</a-button>
+        <a-button v-if="retryTargets.length" type="primary" :disabled="batchBusy || loading" @click="retryBatch">{{ $t('label.clone.batch.retry') }} ({{ retryTargets.map(t => t.index).join(', ') }})</a-button>
+        <a-button :disabled="batchBusy || batchUnconfirmed || loading" @click="newBatch">{{ $t('label.clone.batch.new') }}</a-button>
+        <a-button @click="closeAction">{{ $t('label.close') }}</a-button>
+      </div>
+    </section>
+    <a-form v-else
       class="form-layout"
       layout="vertical"
       :ref="formRef"
@@ -76,6 +115,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI } from '@/api'
+import { batchStorageKey, newCloneRequest, cloneAttemptParams, retryableTargets, cloneBatchBusy, retryCloneRequest, readCloneRequest } from '@/utils/cloneBatch'
 import { hasExtraConfigDisk } from '@/utils/vmClone'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
@@ -93,12 +133,27 @@ export default {
   data () {
     return {
       loading: false,
+      batchRequest: null,
+      batchResult: null,
+      batchError: '',
+      queryingBatch: false,
+      batchDisposed: false,
+      batchTimer: null,
       sourceVolumes: [],
       allocationLookupLoading: false,
       allocationLookupError: ''
     }
   },
   computed: {
+    batchBusy () { return cloneBatchBusy(this.batchResult) },
+    batchUnconfirmed () { return !this.batchResult || this.batchResult.status === 'NOTFOUND' || this.batchResult.attemptid !== (this.batchRequest?.attempt?.id || this.batchRequest?.id) },
+    retryTargets () { return this.batchBusy ? [] : retryableTargets(this.batchResult) },
+    batchColumns () { return [
+      { title: '#', dataIndex: 'index', key: 'index', width: 45 },
+      { title: this.$t('label.name'), key: 'target', width: 210 },
+      { title: this.$t('label.clone.batch.outcome'), key: 'outcome', width: 240 },
+      { title: this.$t('label.clone.batch.cleanup'), key: 'cleanup', width: 320 }
+    ] },
     extraConfigDiskAttached () {
       return hasExtraConfigDisk(this.resource)
     },
@@ -129,6 +184,11 @@ export default {
   created () {
     this.initForm()
     this.fetchSourceVolumes()
+    this.restoreBatch()
+  },
+  beforeUnmount () {
+    this.batchDisposed = true
+    clearTimeout(this.batchTimer)
   },
   methods: {
     async fetchSourceVolumes () {
@@ -178,7 +238,6 @@ export default {
         if (this.loading || this.cloneBlocked) return
         const values = toRaw(this.form)
 
-        this.loading = true
         const params = {
           virtualmachineid: this.resource.id
         }
@@ -191,26 +250,72 @@ export default {
         if (this.resource.pooltype !== 'RBD') {
           params.clonetype = null
         }
-        // console.log(params)
-        getAPI('cloneVirtualMachine', params).then(json => {
-          const jobId = json.clonevirtualmachineresponse.jobid
-          this.$pollJob({
-            jobId,
-            title: this.$t('label.action.clone.vm'),
-            description: this.resource.name,
-            loadingMessage: `${this.$t('label.action.clone.vm')} ${this.resource.name}`,
-            catchMessage: this.$t('error.fetching.async.job.result'),
-            successMessage: `${this.$t('label.action.clone.vm')} ${this.resource.name}`
-          })
-          this.closeAction()
-        }).catch(error => {
-          this.$notifyError(error)
-        }).finally(() => {
-          this.loading = false
-        })
+        this.batchRequest = newCloneRequest(params)
+        this.persistBatch()
+        this.submitBatch()
       }).catch(error => {
         this.formRef.value.scrollToField(error.errorFields[0].name)
       })
+    },
+    storageKey () {
+      return batchStorageKey(this.$store?.getters?.userInfo?.id || 'current', this.resource.id)
+    },
+    persistBatch () {
+      try { window.localStorage.setItem(this.storageKey(), JSON.stringify(this.batchRequest)) } catch (error) { this.batchError = this.$t('message.clone.batch.storage') }
+    },
+    restoreBatch () {
+      try { this.batchRequest = readCloneRequest(window.localStorage, this.storageKey(), this.resource.id) } catch (error) { this.batchError = this.$t('message.clone.batch.storage') }
+      if (this.batchRequest) this.refreshBatch()
+    },
+    async submitBatch () {
+      if (!this.batchRequest || this.loading) return
+      this.loading = true
+      this.batchError = ''
+      try {
+        await getAPI('cloneVirtualMachine', cloneAttemptParams(this.batchRequest))
+        await this.refreshBatch()
+      } catch (error) {
+        this.$notifyError(error)
+        const result = await this.refreshBatch()
+        if (result?.status === 'NOTFOUND' && error.response?.data?.clonevirtualmachineresponse?.errorcode) {
+          this.batchRequest = null
+          window.localStorage.removeItem(this.storageKey())
+        } else if (!result || this.batchUnconfirmed) {
+          this.batchError = this.$t('message.clone.batch.pending')
+        }
+      } finally { this.loading = false }
+    },
+    async refreshBatch () {
+      if (!this.batchRequest || this.queryingBatch || this.batchDisposed) return
+      clearTimeout(this.batchTimer)
+      this.queryingBatch = true
+      try {
+        const json = await getAPI('queryVMCloneBatch', { requestid: this.batchRequest.id })
+        const result = json.queryvmclonebatchresponse
+        if (!result) throw new Error('Clone batch result unavailable')
+        if (this.batchDisposed) return
+        this.batchResult = result
+        this.batchError = ''
+        if (cloneBatchBusy(result)) this.batchTimer = setTimeout(() => this.refreshBatch(), 2000)
+        return result
+      } catch (error) {
+        if (!this.batchDisposed) this.batchError = this.$t('message.clone.batch.query.failed')
+      } finally { this.queryingBatch = false }
+    },
+    retryBatch () {
+      if (this.batchBusy || this.loading || !this.retryTargets.length) return
+      this.batchRequest = retryCloneRequest(this.batchRequest, this.batchResult)
+      this.persistBatch()
+      this.submitBatch()
+    },
+    newBatch () {
+      if (this.batchBusy || this.batchUnconfirmed || this.loading) return
+      clearTimeout(this.batchTimer)
+      try { window.localStorage.removeItem(this.storageKey()) } catch (error) { this.batchError = this.$t('message.clone.batch.storage'); return }
+      this.batchRequest = null
+      this.batchResult = null
+      this.batchError = ''
+      this.initForm()
     },
     closeAction () {
       this.$emit('close-action')
@@ -223,6 +328,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+  .clone-batch-result { width: min(1100px, 82vw); }
+  .batch-uuid { overflow-wrap: anywhere; font-size: 12px; margin-top: 4px; }
+  .batch-error { color: #c9190b; overflow-wrap: anywhere; }
+  .batch-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .form-layout {
     width: 80vw;
     @media (min-width: 800px) {

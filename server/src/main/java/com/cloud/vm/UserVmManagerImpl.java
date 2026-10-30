@@ -11563,7 +11563,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                     if(target==null) {
                         VMInstanceVO conflict=_vmInstanceDao.findVMByHostNameInZone(cmd.getName(),source.getDataCenterId());
                         if(conflict!=null&&conflict.getRemoved()==null)throw new InvalidParameterValueException("A different VM already uses the target name");
-                        target=(UserVmVO)createCloneVM(cmd,disks.get(0).getId());
+                        UserVm created=createCloneVM(cmd,disks.get(0).getId());
+                        target=created==null?null:_vmDao.findById(created.getId());
                         if(target==null)throw new CloudRuntimeException("Prepared clone VM could not be created");
                         cloneBatches.vm(cmd,target);
                         if(!isStoppedAllocatedGfsClone(source)) {

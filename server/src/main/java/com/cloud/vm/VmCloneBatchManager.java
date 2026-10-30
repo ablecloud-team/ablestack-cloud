@@ -121,6 +121,7 @@ public class VmCloneBatchManager implements PluggableService {
         VmCloneBatchData.Attempt previous=data.attempts.get(cmd.getInjectedJobId());
         List<Integer> requested=indices(cmd,data.count);
         if(previous!=null){if(!previous.indices.equals(requested))throw new InvalidParameterValueException("Retry identifier cannot change its targets");return true;}
+        if(jobs.findByUuidIncludingRemoved(cmd.getInjectedJobId())!=null)throw new InvalidParameterValueException("Retry identifier is already used by another job");
         if(cmd.getRetryIndices()==null)throw new InvalidParameterValueException("Use retryindices and a new customjobid for failed targets");
         if(data.attempts.size()>=50)throw new InvalidParameterValueException("Clone batch retry limit reached");
         if(busy(data))throw new InvalidParameterValueException("Previous clone attempt is still active or unconfirmed; query the same batch");
@@ -252,13 +253,13 @@ public class VmCloneBatchManager implements PluggableService {
         boolean restricted=false;
         for(VmCloneBatchData.Item item:data.items){VmCloneBatchResponse.Target target=new VmCloneBatchResponse.Target();target.index=item.index;target.name=item.name;target.phase=item.phase;target.retryAction="NONE";
             UserVmVO vm=vm(row,item);List<VolumeVO> allocated=disks(item);boolean allowed=true;
-            try {if(vm!=null&&vm.getRemoved()==null)accounts.checkAccess(CallContext.current().getCallingAccount(),null,true,vm);for(VolumeVO disk:allocated)if(!removed(disk))accounts.checkAccess(CallContext.current().getCallingAccount(),null,true,disk);}
+            try {if(vm!=null)accounts.checkAccess(CallContext.current().getCallingAccount(),null,true,vm);for(VolumeVO disk:allocated)accounts.checkAccess(CallContext.current().getCallingAccount(),null,true,disk);}
             catch(PermissionDeniedException e){allowed=false;}
             if(!allowed){restricted=true;target.phase="ACCESS_RESTRICTED";target.cleanup="unconfirmed";target.error="Target access changed; inspect through an authorized account";response.targets.add(target);continue;}
             target.created=item.created||(vm!=null&&fullDisks(data,item,vm));target.error=item.error;target.state=vm==null?"NOT_CREATED":vm.getRemoved()!=null?"REMOVED":vm.getState().name();
             if(vm!=null){target.id=vm.getUuid();}
             if(!busy)target.retryAction=action(row,data,item);
-            target.cleanup=allocated.stream().allMatch(this::removed)?"removed-in-cloud":target.created?"preserved":"unconfirmed";
+            target.cleanup=allocated.isEmpty()?"not-created":allocated.stream().allMatch(this::removed)?"removed-in-cloud":target.created?"preserved":prepared(row,data,item,vm)?"prepared":allocated.stream().anyMatch(v->List.of(Volume.State.Destroy,Volume.State.Expunging).contains(v.getState()))?"pending":"unconfirmed";
             for(VmCloneBatchData.Disk plan:item.disks){VmCloneBatchResponse.Disk disk=new VmCloneBatchResponse.Disk();VolumeVO current=volumes.findByUuidIncludingRemoved(plan.uuid);disk.id=plan.uuid;disk.type=plan.type;disk.state=current==null?"NOT_CREATED":current.getState().name();disk.cleanup=current==null?"not-created":removed(current)?"removed-in-cloud":List.of(Volume.State.Destroy,Volume.State.Expunging).contains(current.getState())?"pending":"retained";target.volumes.add(disk);}
             response.targets.add(target);
         }
