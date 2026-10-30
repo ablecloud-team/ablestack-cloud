@@ -31,7 +31,7 @@ test.each(['full', 'linked'])('RBD off permits %s and forwards explicit false st
   const vm = context()
   vm.form.clonetype = type
   vm.handleSubmit(); await flushPromises()
-  expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', expect.objectContaining({ virtualmachineid: 'source', name: 'new-clone', count: 1, clonetype: type, startvm: false }))
+  expect(getAPI).toHaveBeenCalledWith('cloneVirtualMachine', expect.objectContaining({ virtualmachineid: 'source', name: 'new-clone', count: 1, clonetype: type, startvm: false }), { preserveOnFailure: true })
   expect(vm.sourceVolumes[0].allocation.requestedpolicy).toBe('off')
   expect(vm.batchRequest.id).toMatch(/^[0-9a-f-]{36}$/); expect(vm.$emit).not.toHaveBeenCalled()
 })
