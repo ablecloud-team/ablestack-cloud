@@ -1,0 +1,701 @@
+{
+  "issue": 1524,
+  "epic": 1510,
+  "date": "2026-10-30T16:48:51.726791+09:00",
+  "codeHead": "8d980e4be59",
+  "baseHead": "a83fad0c6837674e1ce87ef3fa155dfa4b115308",
+  "operatorSqlMutations": 0,
+  "checks": {
+    "standaloneBackend": {
+      "org.apache.cloudstack.api.command.user.vm.VmCloneBatchResponseTest": 4,
+      "com.cloud.vm.VmCloneFailureCleanupTest": 13,
+      "com.cloud.vm.VmCloneBatchManagerTest": 14,
+      "org.apache.cloudstack.storage.volume.CloneCopyFailureTest": 5,
+      "com.cloud.hypervisor.kvm.storage.CloneVolumeAbsenceTest": 9,
+      "com.cloud.vm.VmCloneStartTest": 2,
+      "com.cloud.vm.AllocatedVmCloneTest": 7
+    },
+    "standaloneBackendTotal": 54,
+    "uiTests": 24,
+    "combinedFocusedTotal": 78,
+    "integrationBackendTotal": 60,
+    "integrationWithUi": 84,
+    "uiProductionBuild": true,
+    "focusedLint": true,
+    "fullCloudBuildOrActionsTriggered": false
+  },
+  "logSha256": {
+    "standalone-qualified-build.log": "886ea7697d0dfa6edecf28172f0789e6ce12c6187bdcbdfd208da1581b8578be",
+    "standalone-module-build-retry.log": "b6decc618b1ae43897be366ea6c1292c5d73c93fb0b5717a7c9b24d0b497acc5",
+    "standalone-read-only-build.log": "6b83873ee037017f215f290e68360cecea8e81c218f910c76947595de676ded7",
+    "ui-checkpoint-tests-final.log": "b37a5f40ca14f62582c79f686c38b18a4448bf0fb00fa71f90a587554dcabd33",
+    "ui-final-lint.log": "b9f62e3fd708c762e568614dd147dc1757ee8988f7d7e64c02707b9442054e80",
+    "ui-checkpoint-build.log": "d54730eea1b185f82d990effac6d8512cdbf17fe35d6e99111419baa3c7d0783"
+  },
+  "autoCleanup": {
+    "22": {
+      "automaticCleanup": true,
+      "firstVmAndDiskLedgerUnchanged": true,
+      "failedVolumesExpunged": 2,
+      "staleSnapshotId": 0,
+      "failedStoreRefs": 0,
+      "temporarySnapshotsRemoved": true,
+      "resourceCountersUnchanged": true
+    },
+    "32": {
+      "automaticCleanup": true,
+      "firstVmAndDiskLedgerUnchanged": true,
+      "failedVolumesExpunged": 2,
+      "staleSnapshotId": 0,
+      "failedStoreRefs": 0,
+      "temporarySnapshotsRemoved": true,
+      "resourceCountersUnchanged": true
+    }
+  },
+  "uiPhysicalPending": {
+    "requestId": "2a87f67c-acba-43c0-b003-79a65bb2b555",
+    "pendingReason": "Physical cleanup is unconfirmed: Clone image or temporary RBD image remains",
+    "cleanupAttempts": 4,
+    "firstTargetPreserved": true,
+    "countersUnchanged": true,
+    "faultRestoration": {
+      "injectedMarkerOnly": "rbd/281ad43d-616f-43ea-b9c6-875f359f4590.qa1524-blocker",
+      "bytes": 1048576,
+      "faultRestored": true
+    },
+    "temporarySnapshotRemoved": true
+  },
+  "readOnlyAgentLiveProof": {
+    "requestId": "c811c71e-d31d-4915-97c8-a9aa69ef6975",
+    "firstTargetPreserved": true,
+    "failedDisksVerified": 2,
+    "temporarySnapshotRemoved": true,
+    "automaticAttempts": 1
+  },
+  "linkedPreservation": {
+    "linkedVmAndDisksPreserved": true,
+    "linkedParentsPreserved": 2,
+    "temporarySnapshotRetained": true,
+    "resourceCountersUnchanged": true,
+    "retainedDuringOtherBatchFailure": true
+  },
+  "uiCloneRetries": [
+    {
+      "cluster": "22",
+      "name": "qa1524-22-ui-data-auto",
+      "firstVmId": 17,
+      "secondVmId": 19,
+      "status": "SUCCEEDED",
+      "retriedIndices": [
+        2
+      ],
+      "attempts": 2
+    },
+    {
+      "cluster": "31",
+      "name": "qa1524-31-ui-quota",
+      "firstVmId": 809,
+      "secondVmId": 810,
+      "status": "SUCCEEDED",
+      "retriedIndices": [
+        2
+      ],
+      "attempts": 2
+    },
+    {
+      "cluster": "32",
+      "name": "qa1524-32-ui-data-ready",
+      "firstVmId": 294,
+      "secondVmId": 296,
+      "status": "SUCCEEDED",
+      "retriedIndices": [
+        2
+      ],
+      "attempts": 2
+    },
+    {
+      "cluster": "32",
+      "name": "qa1524-32-ui-data-pending",
+      "firstVmId": 297,
+      "secondVmId": 299,
+      "status": "SUCCEEDED",
+      "retriedIndices": [
+        2
+      ],
+      "attempts": 2
+    },
+    {
+      "cluster": "32",
+      "name": "qa1524-32-ui-readonly",
+      "firstVmId": 301,
+      "secondVmId": 303,
+      "status": "SUCCEEDED",
+      "retriedIndices": [
+        2
+      ],
+      "attempts": 2
+    }
+  ],
+  "guestProof": {
+    "22": {
+      "vms": 2,
+      "qgaAndBootPassed": true,
+      "dataPatternsPassed": 2,
+      "gfsNoBackingAfterFlatten": false
+    },
+    "31": {
+      "vms": 2,
+      "qgaAndBootPassed": true,
+      "dataPatternsPassed": 2,
+      "gfsNoBackingAfterFlatten": true
+    },
+    "32": {
+      "vms": 2,
+      "qgaAndBootPassed": true,
+      "dataPatternsPassed": 2,
+      "gfsNoBackingAfterFlatten": false
+    }
+  },
+  "cleanup": {
+    "22": {
+      "activeResiduals": 0,
+      "physicalUuidChecks": 8,
+      "physicalResiduals": 0,
+      "resourceResiduals": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    },
+    "31": {
+      "activeResiduals": 0,
+      "physicalUuidChecks": 6,
+      "physicalResiduals": 0,
+      "resourceResiduals": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    },
+    "32": {
+      "activeResiduals": 0,
+      "physicalUuidChecks": 22,
+      "physicalResiduals": 0,
+      "resourceResiduals": {
+        "accounts": 0,
+        "networks": 0,
+        "diskOfferings": 0,
+        "computeOfferings": 0,
+        "nics": 0,
+        "volumeStoreRefs": 0,
+        "nonExpungedVolumes": 0
+      }
+    }
+  },
+  "runtimeCleanup": [
+    {
+      "node": "22.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "22.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "22.3",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "31.3",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.1",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.2",
+      "domains": [],
+      "mappedVolumes": []
+    },
+    {
+      "node": "32.3",
+      "domains": [],
+      "mappedVolumes": []
+    }
+  ],
+  "protectedVm": {
+    "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+    "name": "rocky98-perftest",
+    "before": {
+      "pid": 1516803,
+      "startTicks": 201077163
+    },
+    "after": {
+      "pid": 1516803,
+      "startTicks": 201077163
+    },
+    "powerDiskQgaMigrationCommands": 0,
+    "apiMetadata": {
+      "vms": [
+        {
+          "id": "4e84a39c-fb18-417f-b58e-0f5a03bc912e",
+          "name": "rocky98-base",
+          "state": "Stopped",
+          "serviceofferingid": "350a2fb1-167b-4329-bc0c-3e124c050e45",
+          "templateid": "639623e0-29fb-4c97-b1b1-34c41b6bfdec"
+        },
+        {
+          "id": "f7c3f67d-12c8-4b58-87c6-10f0a927db3f",
+          "name": "rocky98-perftest",
+          "state": "Running",
+          "serviceofferingid": "350a2fb1-167b-4329-bc0c-3e124c050e45",
+          "hostid": "e9fdf05f-02fc-410a-a8a5-1701111a9434",
+          "templateid": "639623e0-29fb-4c97-b1b1-34c41b6bfdec"
+        }
+      ],
+      "disksUnchanged": 3,
+      "allUnchanged": true
+    }
+  },
+  "deployment": {
+    "nodes": [
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "a666adfd2975dc745688c796259455abcbccfbb6738c377ecffc2d849c903816",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "9a90b8cb170741e18767f893a44ce687fa7a460494b427e28b400266aa9e6cfe",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          }
+        ],
+        "node": "22.1"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "f02d0e58f9eb7250b4630c94d12c12055ec82a6d84d8fd03696d8bb9fe43c10a",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "45618707b6f621ca647016ebb42ba52ff02e19e174b3d5f585d58f6854d1d7c6",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          }
+        ],
+        "node": "22.2"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "784db186f00d119b0ac5bb58c74a964dfd65ba1f3494fe8f374747ceb9016679",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "51e7745aad2e55de3ce2eab8a0b9db28a32bd26a704df9a33cbdf9daa3526f80",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "1d1a3d6e1894b1333e41ae0d3b440bf6a3c341b57750ffea9ac911dfafea34b2",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          }
+        ],
+        "node": "22.3"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610261326.jar",
+            "sha256": "16f633276fbe5637889aee991f4f77eca55f544172e05bb45a3460553e04d5f2",
+            "match": true,
+            "classCount": 68,
+            "classesMatch": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "22.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "cd33f550a0ea4311b4f56fa372fad02ac7d411e9a59c8437b20322041dfc6ed8",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "1217b17ff46e2b70284d4128938ec29cf49e74e1c73e22f46522092b6da3aa93",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          }
+        ],
+        "node": "31.1"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "69c9b9aaeb84b5a638e8cf7683af3dd8276eacae0d69257d1508ecc0619d2d08",
+            "match": true,
+            "classCount": 68,
+            "classesMatch": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "31.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "b461341b42283ecc21287c55c58bff2e7400ee5b6b82c40cfa2c73302d4d8c7c",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "73220cbffb2cfb0a143dec2aa8b869aea5a9875db53a61b94f399fc353efc216",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          }
+        ],
+        "node": "31.2"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "5a68a37750ebd4216a8b362a6c366f6befa56b21aee699965ae78f3d0e7bf268",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "772b30cf87219a11627172f651dbf00997ab25d56c118dc8e76eed4ee728e792",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-ABLESTACK.Mold.jar",
+            "sha256": "bdb47d161eda5fddad5dff4445ef5eee5ef5b02bf9b852cf5b63c562a4d7179d",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          }
+        ],
+        "node": "31.3"
+      },
+      {
+        "service": "mold",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+            "sha256": "45489bb42da00047e627e2ed68280434cae0380705da55f46499e064409cafdc",
+            "match": true,
+            "classCount": 68,
+            "classesMatch": true
+          }
+        ],
+        "http": "200",
+        "webInf": true,
+        "node": "32.10"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "c06472069adf781e2843ced82698e8426d5d13cc74344ef4ddd8d76ed376d6c1",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "996c448a1ad10674468efe61c75725acdbcc28a8e64c1bc5c5fd9b26c06f1d00",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          }
+        ],
+        "node": "32.1"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "fc24d8d11b69aa7b0be653274fd1635027adcf93a1471e24365954a89de5ce01",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "2a1e9045e850482ab36dcfa104c12a4db97ee35d07f8730af170372c7b97816e",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          }
+        ],
+        "node": "32.3"
+      },
+      {
+        "service": "mold-agent",
+        "active": "active",
+        "jars": [
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-core-4.23.0.0.jar",
+            "sha256": "8233c2cdd3625737b088b0e36305ed0a714c7a3ff1af72e8fe09194408fc6a38",
+            "match": true,
+            "classCount": 2,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-server-4.23.0.0.jar",
+            "sha256": "a90ccd5486f1f9aaebb5df8c75dd9b1639130db91943a75fe85e88d87f7936e7",
+            "match": true,
+            "classCount": 0,
+            "classesMatch": true
+          },
+          {
+            "path": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+            "sha256": "458b83bee9ee0b0bef047e5dc5c103184f499405f24b86854b7ec2c1bd8978f4",
+            "match": true,
+            "classCount": 9,
+            "classesMatch": true
+          }
+        ],
+        "node": "32.2"
+      }
+    ]
+  },
+  "uiDeployment": {
+    "22": {
+      "cluster": "22",
+      "backup": "/root/issue1524-ui-20261030-162833",
+      "files": 931,
+      "hashesMatch": true,
+      "webInf": true,
+      "http": 200,
+      "configPreserved": true,
+      "pidPreserved": true,
+      "sourceArchiveSha256": "30b2e439b6d3ea9fcc9cf4a34826898bf2714420937d312d8f4ab63721ca6166"
+    },
+    "31": {
+      "cluster": "31",
+      "backup": "/root/issue1524-ui-20261030-162833",
+      "files": 931,
+      "hashesMatch": true,
+      "webInf": true,
+      "http": 200,
+      "configPreserved": true,
+      "pidPreserved": true,
+      "sourceArchiveSha256": "30b2e439b6d3ea9fcc9cf4a34826898bf2714420937d312d8f4ab63721ca6166"
+    },
+    "32": {
+      "cluster": "32",
+      "backup": "/root/issue1524-ui-20261030-162833",
+      "files": 931,
+      "hashesMatch": true,
+      "webInf": true,
+      "http": 200,
+      "configPreserved": true,
+      "pidPreserved": true,
+      "sourceArchiveSha256": "30b2e439b6d3ea9fcc9cf4a34826898bf2714420937d312d8f4ab63721ca6166"
+    }
+  },
+  "rollbackArchive": [
+    {
+      "archived": "/root/issue1524-20261030-155949/cloudstack-4.23.0.0.jar",
+      "sha256": "c9f192b9df1349546791f02208bb21c1cbb2dfa8893101d6b38268b1ac55267b",
+      "bytes": 276990340,
+      "freeAfter": 496877568,
+      "latestRollbackKept": "/root/issue1524-20261030-162303",
+      "local": "/home/ablecloud/work/issue-1524/rollback-archive/32/issue1524-20261030-155949/cloudstack-4.23.0.0.jar"
+    },
+    {
+      "archived": "/root/issue1524-20261030-161836/cloudstack-4.23.0.0.jar",
+      "sha256": "d38d100b7a2542928acf4740bf54a5ea783cda68746b3f11bb86d55dcb2a579d",
+      "bytes": 277003746,
+      "freeAfter": 773881856,
+      "latestRollbackKept": "/root/issue1524-20261030-162303",
+      "local": "/home/ablecloud/work/issue-1524/rollback-archive/32/issue1524-20261030-161836/cloudstack-4.23.0.0.jar"
+    }
+  ],
+  "gfsPreparedResume": {
+    "preparedDisksUnchanged": true,
+    "resumedVm": "637a798f-5f15-4fb9-808b-eb3ed61dd7df",
+    "firstVmPreserved": true,
+    "retryAction": "RESUME",
+    "preparedDisks": [
+      "bd088ef2-de6a-4e58-ac5f-59f4883fd168",
+      "ed3f895b-64e8-46e5-a6d4-bd241fdb81eb"
+    ]
+  },
+  "cleanupAcl": {
+    "foreignDenied": true,
+    "ownerCleanupSucceeded": true,
+    "repeatedCleanupSucceeded": true,
+    "countersUnchangedBeforeAfterRepeatedCleanup": true
+  },
+  "screenshots": [
+    {
+      "format": "JPEG",
+      "name": "22-retry-success.jpg",
+      "sha256": "b96a7f28ff7991ad45e01dcb49f97fcb5e03168411066e17bf81c76140dd32fa",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "format": "JPEG",
+      "name": "31-prepared-preserved.jpg",
+      "sha256": "b88cff60ee182ffeb1c763ae6e4a92103b3fd0dbb171375539dff24ac4116364",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "format": "JPEG",
+      "name": "31-resume-success.jpg",
+      "sha256": "c7d34c57de02e4eddeffaba402c0cb733faaff140976ee2af55e0ea305e2921a",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "format": "JPEG",
+      "name": "32-pending-blocker.jpg",
+      "sha256": "fe6421ffbfabf28a424eb649088798bac6f139c12f653f20e025e875a003d233",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "format": "JPEG",
+      "name": "32-readonly-final-success.jpg",
+      "sha256": "5bf7a4c62150d0d3e83c12a25790de40f4fd75e7cb5998c6e0385e9c9712c2b5",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "format": "JPEG",
+      "name": "32-ui-retry-success.jpg",
+      "sha256": "59cb1bfeffad618a2c4344308ffd6c25c8a80e52d97964eaf2d45784e5a252ba",
+      "width": 1280,
+      "height": 720
+    }
+  ]
+}
