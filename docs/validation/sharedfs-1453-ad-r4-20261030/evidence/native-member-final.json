@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"actualFullCliMemberEntrypoint\": true, \"actualAdTrustVerified\": true, \"rejoined\": false, \"globalSmbConfUnchanged\": true, \"servicePidsUnchanged\": true, \"privateState\": {\"dnsServers\": \"10.10.13.247\", \"domainName\": \"ablestack.local\", \"membershipOnly\": true, \"netbiosName\": \"STORDECE7B8EE5\", \"organizationalUnit\": null, \"realm\": \"ABLESTACK.LOCAL\", \"state\": \"JOINED\", \"trustVerified\": true, \"workgroup\": \"ABLESTACK\"}, \"configurationApplied\": false, \"productionConfigurationUnchanged\": true, \"temporaryResourcesRemoved\": true}\n",
+  "stderr": ""
+}
