@@ -26,9 +26,7 @@ import com.cloud.resource.*;
 public class LibvirtCheckCloneVolumeAbsentCommandWrapper extends CommandWrapper<CheckCloneVolumeAbsentCommand,Answer,LibvirtComputingResource> {
     @Override public Answer execute(CheckCloneVolumeAbsentCommand cmd,LibvirtComputingResource resource) {
         try {
-            KVMStoragePool pool=resource.getStoragePoolMgr().getStoragePool(cmd.getStorage().getType(),cmd.getStorage().getUuid());
-            if(!cmd.getStorage().getUuid().equals(pool.getUuid())) throw new IllegalArgumentException("Storage identity changed");
-            new CloneVolumeAbsence().verify(pool,cmd.getVolumeUuid());
+            new CloneVolumeAbsence().verifyExistingPool(cmd.getStorage(),cmd.getVolumeUuid());
             return new CheckCloneVolumeAbsentAnswer(cmd,true,"Clone image, temporary artifacts and active writer are absent");
         } catch(Exception failure) {
             return new CheckCloneVolumeAbsentAnswer(cmd,false,"Physical cleanup is unconfirmed: "+failure.getMessage());

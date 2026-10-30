@@ -25,6 +25,32 @@ import com.cloud.storage.Storage;
 import com.cloud.utils.exception.CloudRuntimeException;
 /** An unavailable pool, process table, listing or mount can never prove absence. */
 public class CloneVolumeAbsence {
+    public void verifyExistingPool(com.cloud.agent.api.to.StorageFilerTO expected,String uuid) throws Exception {
+        verify(readExistingPool(com.cloud.hypervisor.kvm.resource.LibvirtConnection.getConnection(),expected),uuid);
+    }
+    KVMStoragePool readExistingPool(org.libvirt.Connect connection,com.cloud.agent.api.to.StorageFilerTO expected) throws Exception {
+        org.libvirt.StoragePool storage=connection.storagePoolLookupByUUIDString(expected.getUuid());
+        try {
+            if (!expected.getUuid().equals(storage.getUUIDString()) || storage.getInfo().state!=org.libvirt.StoragePoolInfo.StoragePoolState.VIR_STORAGE_POOL_RUNNING)
+                throw new IOException("The original storage pool is not active");
+            com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef definition=new com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolXMLParser().parseStoragePoolXML(storage.getXMLDesc(0));
+            if(definition==null || !(expected.getType()==Storage.StoragePoolType.RBD && definition.getPoolType()==com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef.PoolType.RBD
+                    || expected.getType()==Storage.StoragePoolType.SharedMountPoint && definition.getPoolType()==com.cloud.hypervisor.kvm.resource.LibvirtStoragePoolDef.PoolType.DIR))
+                throw new IOException("Storage pool type cannot be confirmed");
+            String path=expected.getType()==Storage.StoragePoolType.RBD ? definition.getSourceDir() : definition.getTargetPath();
+            if(!Objects.equals(expected.getPath(),path)) throw new IOException("Storage pool path changed");
+            // Do not use getStoragePool: its fallback can activate or recreate a
+            // missing pool. This descriptor has no adaptor or mutable pool handle.
+            LibvirtStoragePool pool=new LibvirtStoragePool(expected.getUuid(),storage.getName(),expected.getType(),null,null);
+            pool.setLocalPath(definition.getTargetPath());pool.setSourceHost(definition.getSourceHost());pool.setSourcePort(definition.getSourcePort());pool.setSourceDir(definition.getSourceDir());
+            if(expected.getType()==Storage.StoragePoolType.RBD && definition.getAuthUserName()!=null) {
+                org.libvirt.Secret secret=connection.secretLookupByUUIDString(definition.getSecretUUID());
+                try {pool.setAuthUsername(definition.getAuthUserName());pool.setAuthSecret(java.util.Base64.getEncoder().encodeToString(secret.getByteValue()));}
+                finally {secret.free();}
+            }
+            return pool;
+        } finally {storage.free();}
+    }
     public void verify(KVMStoragePool pool,String uuid) throws IOException {
         if (!UUID.fromString(uuid).toString().equals(uuid)) throw new IllegalArgumentException("Invalid clone volume UUID");
         synchronized ((pool.getUuid()+"/"+uuid).intern()) {

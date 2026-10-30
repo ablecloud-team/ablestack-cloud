@@ -39,6 +39,20 @@ public class CloneVolumeAbsenceTest {
         try {new RbdVolumeAllocation((args,timeout)->{throw new com.cloud.utils.exception.CloudRuntimeException("pool unavailable");}).requireCloneVolumeAbsent(ID,pool());fail();}
         catch(com.cloud.utils.exception.CloudRuntimeException expected){assertEquals("pool unavailable",expected.getMessage());}
     }
+    @Test public void inactivePoolIsNeverStartedToProveAbsence() throws Exception {
+        org.libvirt.Connect connection=mock(org.libvirt.Connect.class);org.libvirt.StoragePool storage=mock(org.libvirt.StoragePool.class);
+        com.cloud.agent.api.to.StorageFilerTO expected=mock(com.cloud.agent.api.to.StorageFilerTO.class);when(expected.getUuid()).thenReturn(ID);
+        when(connection.storagePoolLookupByUUIDString(ID)).thenReturn(storage);when(storage.getUUIDString()).thenReturn(ID);
+        org.libvirt.StoragePoolInfo info=mock(org.libvirt.StoragePoolInfo.class);info.state=org.libvirt.StoragePoolInfo.StoragePoolState.VIR_STORAGE_POOL_INACTIVE;when(storage.getInfo()).thenReturn(info);
+        try{new CloneVolumeAbsence().readExistingPool(connection,expected);fail();}catch(java.io.IOException failure){assertTrue(failure.getMessage().contains("not active"));}
+        verify(storage,never()).create(anyInt());verify(storage,never()).getXMLDesc(anyInt());verify(storage).free();
+    }
+    @Test public void missingPoolIsNeverCreatedToProveAbsence() throws Exception {
+        org.libvirt.Connect connection=mock(org.libvirt.Connect.class);com.cloud.agent.api.to.StorageFilerTO expected=mock(com.cloud.agent.api.to.StorageFilerTO.class);when(expected.getUuid()).thenReturn(ID);
+        when(connection.storagePoolLookupByUUIDString(ID)).thenThrow(new RuntimeException("pool unavailable"));
+        try{new CloneVolumeAbsence().readExistingPool(connection,expected);fail();}catch(RuntimeException failure){assertEquals("pool unavailable",failure.getMessage());}
+        verify(connection).storagePoolLookupByUUIDString(ID);verifyNoMoreInteractions(connection);
+    }
     @Test public void gfsTemporaryFileBlocks() throws Exception {
         Path root=Files.createTempDirectory("clone-absence-test");Path directory=Files.createDirectories(root.resolve("a/b/c/d/e"));Path file=directory.resolve(ID+".allocation-stage");
         try {Files.writeString(file,"owned fixture");try{CloneVolumeAbsence.requireNoFiles(root,ID);fail();}catch(java.io.IOException expected){}Files.delete(file);CloneVolumeAbsence.requireNoFiles(root,ID);}
