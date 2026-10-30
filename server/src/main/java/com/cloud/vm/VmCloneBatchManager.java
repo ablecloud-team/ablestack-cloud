@@ -534,7 +534,7 @@ public class VmCloneBatchManager implements PluggableService {
         VolumeVO volume = volumes.findByUuidIncludingRemoved(disk.uuid);
         VmCloneBatchData.SourceDisk source = data.sourceDisks.stream().filter(s -> s.id == disk.sourceId).findFirst()
                 .orElseThrow(() -> new CloudRuntimeException("Source disk checkpoint is missing"));
-        if (volume == null || volume.getAccountId() != row.getAccountId() || volume.getInstanceId() != null || volume.isDeleteProtection()
+        if (volume == null || volume.getAccountId() != row.getAccountId() || !cleanupAssociationSafe(row, data, disk, volume) || volume.isDeleteProtection()
                 || data.sourceDisks.stream().anyMatch(s -> s.id == volume.getId() || s.uuid.equals(volume.getUuid()))
                 || !Objects.equals(source.pool, volume.getPoolId()) || volume.getPoolId() == null
                 || !Objects.equals(String.valueOf(source.id), volumeDetails.listDetailsKeyPairs(volume.getId()).get(com.cloud.storage.VolumeAllocationClone.SOURCE)))
@@ -547,13 +547,23 @@ public class VmCloneBatchManager implements PluggableService {
         if (pool == null || pool.isManaged() || !List.of(com.cloud.storage.Storage.StoragePoolType.RBD, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint).contains(pool.getPoolType()))
             throw new CloudRuntimeException("The original qualified storage pool is unavailable");
         verifyAbsent(volume, pool);
-        finishVerifiedVolume(row, disk, volume, pool);
+        finishVerifiedVolume(row, data, disk, volume, pool);
     }
 
-    protected void finishVerifiedVolume(VmCloneBatchVO row, VmCloneBatchData.Disk disk, VolumeVO volume, com.cloud.storage.StoragePoolVO pool) {
+    boolean cleanupAssociationSafe(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Disk disk, VolumeVO volume) {
+        if (volume.getInstanceId() == null) return true;
+        // Expunged ROOT rows keep their removed VM association as history.
+        if (volume.getRemoved() == null || volume.getInstanceId() == row.getSourceVmId()) return false;
+        boolean recorded = data.items.stream().anyMatch(i -> !i.created && Objects.equals(i.vmId, volume.getInstanceId())
+                && i.disks.stream().anyMatch(d -> d.uuid.equals(disk.uuid)));
+        UserVmVO target = vms.findByIdIncludingRemoved(volume.getInstanceId());
+        return recorded && target != null && target.getRemoved() != null && target.getAccountId() == row.getAccountId();
+    }
+
+    protected void finishVerifiedVolume(VmCloneBatchVO row, VmCloneBatchData data, VmCloneBatchData.Disk disk, VolumeVO volume, com.cloud.storage.StoragePoolVO pool) {
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
             VolumeVO current = volumes.findByIdIncludingRemoved(volume.getId());
-            if (current == null || current.getRemoved() == null || current.getInstanceId() != null || current.getAccountId() != row.getAccountId()
+            if (current == null || current.getRemoved() == null || !cleanupAssociationSafe(row, data, disk, current) || current.getAccountId() != row.getAccountId()
                     || !current.getUuid().equals(disk.uuid) || !Objects.equals(current.getPoolId(), pool.getId())
                     || !List.of(Volume.State.Destroy, Volume.State.Expunging, Volume.State.Expunged).contains(current.getState()))
                 throw new CloudRuntimeException("Volume changed during physical verification");

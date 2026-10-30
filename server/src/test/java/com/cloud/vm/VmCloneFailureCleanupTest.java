@@ -28,7 +28,7 @@ public class VmCloneFailureCleanupTest {
     static class Manager extends VmCloneBatchManager {
         boolean unavailable, committed;int probes;
         @Override protected void verifyAbsent(VolumeVO volume,StoragePoolVO pool){probes++;if(unavailable)throw new com.cloud.utils.exception.CloudRuntimeException("image or active work remains");}
-        @Override protected void finishVerifiedVolume(VmCloneBatchVO row,VmCloneBatchData.Disk disk,VolumeVO volume,StoragePoolVO pool){committed=true;}
+        @Override protected void finishVerifiedVolume(VmCloneBatchVO row,VmCloneBatchData data,VmCloneBatchData.Disk disk,VolumeVO volume,StoragePoolVO pool){committed=true;}
     }
     Manager manager;VmCloneBatchData data;VmCloneBatchVO row;VmCloneBatchData.Disk disk;VolumeVO volume;
     @Before public void setup(){
@@ -52,5 +52,10 @@ public class VmCloneFailureCleanupTest {
     @Test public void liveAllocationCannotBeReconciledAsRemoved() throws Exception {when(volume.getRemoved()).thenReturn(null);blocked();}
     @Test public void storageReferenceBlocksReconciliation() throws Exception {when(manager.volumeStores.findByVolume(50)).thenReturn(mock(VolumeDataStoreVO.class));blocked();}
     @Test public void existingSuccessNeverBecomesCleanupCandidate(){VmCloneBatchData.Item item=new VmCloneBatchData.Item();item.created=true;item.disks.add(disk);assertFalse(manager.cleanupCandidate(row,data,item));}
+    @Test public void removedVmRootAssociationIsHistoryOnlyAfterPhysicalProof() throws Exception {
+        when(volume.getInstanceId()).thenReturn(40L);UserVmVO target=mock(UserVmVO.class);when(target.getRemoved()).thenReturn(new Date());when(target.getAccountId()).thenReturn(2L);when(manager.vms.findByIdIncludingRemoved(40L)).thenReturn(target);
+        VmCloneBatchData.Item item=new VmCloneBatchData.Item();item.vmId=40L;item.disks.add(disk);data.items.add(item);
+        manager.reconcileDisk(row,data,disk);assertTrue(manager.committed);assertEquals(1,manager.probes);
+    }
     @Test public void pendingPhysicalProofBlocksRecreationEvenForExpungedRows(){VmCloneBatchData.Item item=new VmCloneBatchData.Item();item.cleanupRequired=true;assertEquals("NONE",manager.action(row,data,item));}
 }
