@@ -9898,5 +9898,8 @@
   "label.clone.batch.action.RESUME": "Continue with prepared disks",
   "label.clone.batch.action.START": "Start existing VM",
   "label.clone.batch.action.NONE": "None",
-  "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM."
+  "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM.",
+  "message.objectstore.upload.more.files": "{files} and {count} more",
+  "message.objectstore.upload.failed.summary": "Uploaded {complete} of {total} files; {failed} failed. Failed files: {files}",
+  "message.objectstore.upload.success.summary": "{total} files uploaded."
 }

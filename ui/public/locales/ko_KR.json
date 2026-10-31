@@ -9863,5 +9863,8 @@
   "label.clone.batch.action.RESUME": "준비된 디스크에서 계속",
   "label.clone.batch.action.START": "기존 VM 시작",
   "label.clone.batch.action.NONE": "해당 없음",
-  "message.clone.batch.recapture": "다시 생성하는 대상은 재시도 시점의 원본으로 복제합니다. 준비된 대상은 기존 디스크를 계속 사용하며, 시작 재시도는 같은 VM을 사용합니다."
+  "message.clone.batch.recapture": "다시 생성하는 대상은 재시도 시점의 원본으로 복제합니다. 준비된 대상은 기존 디스크를 계속 사용하며, 시작 재시도는 같은 VM을 사용합니다.",
+  "message.objectstore.upload.more.files": "{files} 외 {count}개",
+  "message.objectstore.upload.failed.summary": "전체 {total}개 중 성공 {complete}개, 실패 {failed}개. 실패 파일: {files}",
+  "message.objectstore.upload.success.summary": "전체 {total}개 파일 업로드 완료"
 }

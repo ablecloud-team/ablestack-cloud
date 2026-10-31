@@ -338,23 +338,6 @@ export default {
     }
   },
   data () {
-    var columns = [
-      {
-        key: 'name',
-        title: this.$t('label.name'),
-        sorter: (a, b) => genericCompare(a?.name || '', b?.name || '')
-      },
-      {
-        key: 'size',
-        title: this.$t('label.size'),
-        sorter: (a, b) => genericCompare(a?.size || '', b?.size || '')
-      },
-      {
-        key: 'lastModified',
-        title: this.$t('label.last.updated'),
-        sorter: (a, b) => genericCompare(a?.lastModified || '', b?.lastModified || '')
-      }
-    ]
     return {
       client: null,
       loading: false,
@@ -364,7 +347,6 @@ export default {
       page: 1,
       pageStartAfterMap: { 1: '' },
       total: 0,
-      columns: columns,
       selectedRows: [],
       searchInput: '',
       searchPrefix: '',
@@ -393,6 +375,25 @@ export default {
     }
   },
   computed: {
+    columns () {
+      return [
+        {
+          key: 'name',
+          title: this.$t('label.name'),
+          sorter: (a, b) => genericCompare(a?.name || '', b?.name || '')
+        },
+        {
+          key: 'size',
+          title: this.$t('label.size'),
+          sorter: (a, b) => genericCompare(a?.size || '', b?.size || '')
+        },
+        {
+          key: 'lastModified',
+          title: this.$t('label.last.updated'),
+          sorter: (a, b) => genericCompare(a?.lastModified || '', b?.lastModified || '')
+        }
+      ]
+    },
     objectStoreContextKey () {
       return JSON.stringify([this.$route?.path, this.$store?.getters.project?.id,
         this.$store?.getters.userInfo?.id, this.$store?.state?.user?.token])
@@ -856,10 +857,10 @@ export default {
         if (this.uploadFailedCount > 0) {
           const failedNames = this.uploadFailedFiles.slice(0, 3).map(file => file.name).join(', ')
           const extraFailedCount = Math.max(this.uploadFailedFiles.length - 3, 0)
-          const failedDescription = extraFailedCount > 0 ? `${failedNames} 외 ${extraFailedCount}개` : failedNames
+          const failedDescription = extraFailedCount > 0 ? this.$t('message.objectstore.upload.more.files', { files: failedNames, count: extraFailedCount }) : failedNames
           this.$notification.error({
             message: this.$t('message.upload.failed'),
-            description: `전체 ${files.length}개 중 성공 ${this.uploadCompletedCount}개, 실패 ${this.uploadFailedCount}개. 실패 파일: ${failedDescription}`
+            description: this.$t('message.objectstore.upload.failed.summary', { total: files.length, complete: this.uploadCompletedCount, failed: this.uploadFailedCount, files: failedDescription })
           })
           if (this.uploadCompletedCount > 0) {
             await this.syncBucketUsage()
@@ -869,7 +870,7 @@ export default {
         }
         this.$notification.success({
           message: this.$t('message.success.upload'),
-          description: `전체 ${files.length}개 파일 업로드 완료`
+          description: this.$t('message.objectstore.upload.success.summary', { total: files.length })
         })
         this.showUploadModal = false
         this.resetUploadForm()

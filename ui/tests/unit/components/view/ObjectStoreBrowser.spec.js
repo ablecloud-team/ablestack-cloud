@@ -41,14 +41,14 @@ class Stream extends EventEmitter {
 
 describe('bucket browser request lifecycle', () => {
   let wrapper, streams, route, store, router
-  const open = async (query = { tab: 'browser' }, component = Harness) => {
+  const open = async (query = { tab: 'browser' }, component = Harness, translate = key => key) => {
     streams = []
     Minio.Client.mockReset()
     Minio.Client.mockImplementation(() => ({ extensions: { listObjectsV2WithMetadata: jest.fn(() => { const stream = new Stream(); streams.push(stream); return stream }) } }))
     route = reactive({ path: '/buckets/A', params: { id: 'A' }, query, fullPath: '/buckets/A?' + new URLSearchParams(query) })
     store = reactive({ getters: { userInfo: { id: 'user' }, project: { id: 'project' } }, state: { user: { token: 'session' } } })
     router = { replace: jest.fn(({ query }) => Promise.resolve().then(() => { route.query = query; route.fullPath = route.path + '?' + new URLSearchParams(query) })) }
-    wrapper = mount(component, { props: { resource: resource(), resourceType: 'Bucket' }, global: { mocks: { $route: route, $router: router, $store: store, $t: key => key, $toLocaleDate: value => String(value), $notifyError: jest.fn(), $notification: { error: jest.fn() } } } })
+    wrapper = mount(component, { props: { resource: resource(), resourceType: 'Bucket' }, global: { mocks: { $route: route, $router: router, $store: store, $t: translate, $toLocaleDate: value => String(value), $notifyError: jest.fn(), $notification: { error: jest.fn() } } } })
     await flushPromises()
   }
   const complete = async (stream, rows) => { rows.forEach(row => stream.emit('data', row)); stream.emit('end'); await flushPromises() }
@@ -253,5 +253,16 @@ describe('bucket browser request lifecycle', () => {
     expect(wrapper.findAll('input[type="checkbox"]')[1].element.checked).toBe(true)
     wrapper.vm.listObjects(); await complete(streams[2], [])
     expect(wrapper.vm.selectedRows).toEqual([])
+  })
+  it('updates rendered table headers on locale change without another listing', async () => {
+    const locale = reactive({ value: 'ko' })
+    await open({ tab: 'browser' }, Browser, key => `${locale.value}:${key}`)
+    await complete(streams[0], [{ name: 'file.txt', size: 1 }])
+    expect(wrapper.find('thead').text()).toContain('ko:label.name')
+    locale.value = 'en'; await flushPromises()
+    expect(wrapper.find('thead').text()).toContain('en:label.name')
+    expect(wrapper.find('thead').text()).not.toContain('ko:label.name')
+    expect(streams).toHaveLength(1)
+    expect(wrapper.vm.records[0].name).toBe('file.txt')
   })
 })
