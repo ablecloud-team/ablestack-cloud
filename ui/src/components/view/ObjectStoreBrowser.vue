@@ -226,10 +226,10 @@
           <a-input-search
             allowClear
             size="medium"
-            v-model:value="searchPrefix"
+            v-model:value="searchInput"
             :placeholder="$t('label.objectstore.search')"
             :loading="loading"
-            @search="listObjects()"
+            @search="searchObjects()"
             :enter-button="$t('label.search')"/>
         </a-col>
         <a-col flex="none">
@@ -242,6 +242,9 @@
             <reload-outlined />
             {{ $t('label.refresh') }}
           </a-button>
+        </a-col>
+        <a-col v-if="fetching" flex="none">
+          <a-button @click="cancelObjectListing">{{ $t('label.cancel') }}</a-button>
         </a-col>
         <a-col flex="none">
           <a-button
@@ -285,6 +288,16 @@
     </a-card>
 
     <div>
+      <a-alert
+        v-if="objectListError"
+        type="error"
+        show-icon
+        :message="$t('message.objectstore.list.failed')"
+        :description="objectListError">
+        <template #action>
+          <a-button :disabled="objectListScopeChanged" @click="fetchData">{{ $t('label.retry') }}</a-button>
+        </template>
+      </a-alert>
       <a-table
         :columns="columns"
         :row-key="record => record"
@@ -324,6 +337,7 @@
 
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { readObjectStoreListing } from '@/utils/objectStoreListing'
 import * as Minio from 'minio'
 import { getAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
@@ -344,7 +358,12 @@ const pageSize = 20
 const deleteBatchSize = 1000
 
 export default {
-  mixins: [listRefreshMixin(['listObjects'], { interval: 60000, active: vm => !!vm.client })],
+  mixins: [listRefreshMixin(['listObjects'], {
+    interval: 60000,
+    active: vm => !!vm.client && !vm.objectListScopeChanged,
+    // Only actual S3 query/identity inputs belong here, not tab URL formatting or UI pagination.
+    scopeKey: vm => [vm.objectStoreContextKey, vm.objectStoreConnectionKey, vm.browserPath, vm.searchPrefix]
+  })],
   name: 'ObjectStoreBrowser',
   components: {
     InfoCard,
@@ -392,7 +411,10 @@ export default {
       total: 0,
       columns: columns,
       selectedRows: [],
+      searchInput: '',
       searchPrefix: '',
+      objectListError: '',
+      objectListScopeChanged: false,
       showUploadModal: false,
       uploadFileList: [],
       uploadDirectory: normalizeObjectStorePath(this.$route.query.browserPath),
@@ -416,6 +438,14 @@ export default {
     }
   },
   computed: {
+    objectStoreContextKey () {
+      return JSON.stringify([this.$route?.path, this.$store?.getters.project?.id,
+        this.$store?.getters.userInfo?.id, this.$store?.state?.user?.token])
+    },
+    objectStoreConnectionKey () {
+      return JSON.stringify([this.resource.id, this.resource.name, this.resource.url,
+        this.resource.accesskey, this.resource.usersecretkey])
+    },
     uploadPendingCount () {
       const uploadingCount = this.uploadLoading && this.uploadCurrentFileName ? 1 : 0
       return Math.max(this.uploadTotalCount - this.uploadCompletedCount - this.uploadFailedCount - uploadingCount, 0)
@@ -424,10 +454,40 @@ export default {
   watch: {
     'resource.size' (size) {
       this.bucketUsageSize = size
+    },
+    objectStoreContextKey () {
+      // Never reuse the previous identity's S3 client while the parent is authorizing new props.
+      this.objectListScopeChanged = true
+      this.resetObjectStoreClient(false)
+    },
+    objectStoreConnectionKey () {
+      this.objectListScopeChanged = false
+      this.resetObjectStoreClient()
+    },
+    resource (value, previous) {
+      if (this.objectListScopeChanged && value !== previous && value.id) {
+        this.objectListScopeChanged = false
+        this.resetObjectStoreClient()
+      }
+    },
+    '$route.query' () {
+      if (this.$route.query.tab !== 'browser' || this.objectListScopeChanged) return
+      const path = normalizeObjectStorePath(this.$route.query.browserPath)
+      if (path === this.browserPath) return
+      this.browserPath = path
+      this.uploadDirectory = path
+      this.page = 1
+      this.fetchData()
     }
   },
   created () {
+    this.objectListing = null
+    this.objectStoreFetchGeneration = 0
     this.fetchData()
+  },
+  beforeUnmount () {
+    this.cancelObjectListing()
+    this.objectListing = null
   },
   methods: {
     openCreateFolderModal () {
@@ -511,20 +571,56 @@ export default {
         this.page = pagination.current
       }
     },
-    fetchData () {
-      this.$router.replace(
-        {
-          query: {
-            ...this.$route.query,
-            browserPath: this.browserPath
-          }
+    async fetchData () {
+      if (this.objectListScopeChanged || !this.resource.id) return
+      const generation = ++this.objectStoreFetchGeneration
+      const path = this.browserPath
+      const context = this.objectStoreContextKey
+      try {
+        if (this.$route.query.browserPath !== path) {
+          await this.$router.replace({ query: { ...this.$route.query, browserPath: path } })
         }
-      )
-      if (!this.client) {
-        this.initMinioClient()
-      } else {
-        this.listObjects()
+        if (generation !== this.objectStoreFetchGeneration || this.listRefreshDisposed || this.objectListScopeChanged ||
+            context !== this.objectStoreContextKey || path !== this.browserPath) return
+        if (!this.client) {
+          this.initMinioClient()
+        } else {
+          return this.listObjects()
+        }
+      } catch (error) {
+        if (generation !== this.objectStoreFetchGeneration || this.listRefreshDisposed) return
+        this.loading = false
+        this.fetching = false
+        this.objectListError = error.message || this.$t('message.objectstore.list.failed')
       }
+    },
+    resetObjectStoreClient (reload = true) {
+      ++this.objectStoreFetchGeneration
+      this.cancelObjectListing()
+      this.objectListing = null
+      this.client = null
+      this.records = []
+      this.selectedRows = []
+      this.total = 0
+      this.page = 1
+      this.loading = false
+      this.fetching = false
+      this.showObjectDetails = false
+      this.record = {}
+      this.searchInput = ''
+      this.searchPrefix = ''
+      this.browserPath = normalizeObjectStorePath(this.$route.query.browserPath)
+      this.uploadDirectory = this.browserPath
+      this.objectListError = reload ? '' : this.$t('message.objectstore.list.context.changed')
+      if (reload && !this.listRefreshDisposed) this.fetchData()
+    },
+    cancelObjectListing () {
+      if (this.objectListing) this.objectListing.cancel()
+    },
+    searchObjects () {
+      this.searchPrefix = this.searchInput
+      this.page = 1
+      return this.listObjects()
     },
     getObjectStorePathRoutes () {
       let path = ''
@@ -562,36 +658,37 @@ export default {
       this.fetchData()
     },
     listObjects () {
-      if (!this.client) return
+      if (!this.client || this.objectListScopeChanged) return
       const request = this.listRequestToken('listObjects')
+      this.cancelObjectListing()
       this.loading = !request.loaded
       this.fetching = true
+      this.objectListError = ''
+      if (!request.loaded) {
+        this.records = []
+        this.selectedRows = []
+        this.total = 0
+      }
       const currentPath = normalizeObjectStorePath(this.browserPath)
-      const records = []
-      return new Promise(resolve => {
-        const stream = this.client.extensions.listObjectsV2WithMetadata(this.resource.name, currentPath + this.searchPrefix, false, '')
-        stream.on('data', obj => {
-          if (!this.isCurrentDirectoryMarker(obj, currentPath)) records.push(obj)
-        })
-        stream.on('end', () => {
-          if (this.isListRequestCurrent('listObjects', request)) {
-            this.records = records
-            this.total = records.length
-            this.loading = false
-            this.fetching = false
-          }
-          resolve()
-        })
-        stream.on('error', error => {
-          if (this.isListRequestCurrent('listObjects', request)) {
-            request.failed = true
-            this.listRefreshFailed = true
-            this.loading = false
-            this.fetching = false
-            if (!request.loaded) this.$notifyError(error)
-          }
-          resolve()
-        })
+      const operation = readObjectStoreListing(() =>
+        this.client.extensions.listObjectsV2WithMetadata(this.resource.name, currentPath + this.searchPrefix, false, ''))
+      this.objectListing = operation
+      return operation.promise.then(result => {
+        if (this.objectListing !== operation) return
+        this.objectListing = null
+        // Release this operation's spinner even if its scope was invalidated without a replacement.
+        this.loading = false
+        this.fetching = false
+        if (!this.isListRequestCurrent('listObjects', request) || this.objectListScopeChanged) return
+        if (result.status === 'success') {
+          this.records = result.records.filter(obj => !this.isCurrentDirectoryMarker(obj, currentPath))
+          this.total = this.records.length
+          this.listRefreshFailed = false
+        } else {
+          request.failed = true
+          this.listRefreshFailed = true
+          this.objectListError = result.error?.message || this.$t(`message.objectstore.list.${result.status}`)
+        }
       })
     },
     isCurrentDirectoryMarker (obj, currentPath) {

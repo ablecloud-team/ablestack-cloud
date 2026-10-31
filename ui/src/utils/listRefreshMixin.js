@@ -24,7 +24,8 @@ export function detailTabRouteKey (route) {
   return JSON.stringify([route?.path, query])
 }
 
-function scope (vm, routeKey) {
+function scope (vm, routeKey, scopeKey) {
+  if (scopeKey) return JSON.stringify(scopeKey(vm))
   return JSON.stringify([routeKey(vm), vm.$store?.getters.project?.id,
     vm.$store?.getters.userInfo?.id, vm.resource?.id, vm.record?.id, vm.record?.uid, vm.detailId, vm.activeTab, vm.currentTab, vm.sorter, vm.sortOrder, vm.planId, vm.zoneId,
     vm.page, vm.pageSize, vm.pagesize, vm.pagination?.current, vm.pagination?.pageSize, vm.filter, Array.isArray(vm.filters) ? null : vm.filters,
@@ -33,7 +34,7 @@ function scope (vm, routeKey) {
 }
 
 // Explicit adapters only: never discover/invoke APIs from a table or API metadata.
-export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => vm.$route?.fullPath } = {}) {
+export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => vm.$route?.fullPath, scopeKey = null } = {}) {
   return {
     data: () => ({ listRefreshing: 0, listRefreshFailed: false, listLastUpdated: null }),
     created () {
@@ -42,7 +43,7 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
       methods.forEach(name => {
         const original = this[name]
         this[name] = (...args) => {
-          const key = scope(this, routeKey)
+          const key = scope(this, routeKey, scopeKey)
           const previous = this.listRefreshRequests.get(name)
           if (previous?.pending && previous.key === key) return previous.promise
           const request = { key, args, pending: true, loaded: previous?.loaded && previous.key === key }
@@ -54,7 +55,7 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
             if (this.isListRequestCurrent(name, request) && !request.failed && result?.then) {
               request.loaded = true
               this.listLastUpdated = Date.now()
-              this.listRefreshFailed = Array.from(this.listRefreshRequests.values()).some(item => item.failed && item.key === scope(this, routeKey))
+              this.listRefreshFailed = Array.from(this.listRefreshRequests.values()).some(item => item.failed && item.key === scope(this, routeKey, scopeKey))
             }
             return value
           }).finally(() => {
@@ -81,14 +82,14 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
     },
     methods: {
       listRowKey,
-      listRefreshScope () { return scope(this, routeKey) },
+      listRefreshScope () { return scope(this, routeKey, scopeKey) },
       listRequestToken (name) {
         const request = this.listRefreshRequests.get(name)
-        request.key = scope(this, routeKey)
+        request.key = scope(this, routeKey, scopeKey)
         return request
       },
       isListRequestCurrent (name, token) {
-        return !this.listRefreshDisposed && token === this.listRefreshRequests.get(name) && token.key === scope(this, routeKey)
+        return !this.listRefreshDisposed && token === this.listRefreshRequests.get(name) && token.key === scope(this, routeKey, scopeKey)
       }
     }
   }

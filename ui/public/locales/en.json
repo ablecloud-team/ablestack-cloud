@@ -1,4 +1,11 @@
 {
+  "label.retry": "Retry",
+  "message.objectstore.list.failed": "Unable to load the object list.",
+  "message.objectstore.list.timeout": "Loading the object list timed out. Please retry.",
+  "message.objectstore.list.cancelled": "Loading the object list was cancelled.",
+  "message.objectstore.list.aborted": "The object list connection closed before completion. Please retry.",
+  "message.objectstore.list.error": "Unable to load the object list. Please retry.",
+  "message.objectstore.list.context.changed": "The bucket or account scope changed. Select the bucket again.",
   "label.snapshot.detail.backup.size": "Secondary backup size",
   "label.snapshot.detail.copy.zones": "Copy Zones",
   "label.snapshot.detail.type": "Snapshot type",
