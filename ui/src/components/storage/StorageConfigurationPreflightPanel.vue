@@ -24,13 +24,13 @@ show-icon
       <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ afterPosix }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.nfs.permission.scope')">{{ $t(report.posixchanges?.recursivePermission ? 'message.storage.nfs.recursive.scope' : 'message.storage.nfs.root.only') }}</a-descriptions-item>
     </a-descriptions>
-    <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t('message.storage.preflight.interruption')" />
+    <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t(report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.online' : 'message.storage.preflight.interruption')" />
     <a-checkbox
 v-if="report.impact?.ackrequired"
 :checked="acknowledged"
 :disabled="report.status !== 'READY'"
       class="ack"
-@change="$emit('acknowledge', $event.target.checked)">{{ $t('message.storage.preflight.acknowledge') }}</a-checkbox>
+@change="$emit('acknowledge', $event.target.checked)">{{ $t(report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.ack' : 'message.storage.preflight.acknowledge') }}</a-checkbox>
     <p>{{ $t('message.storage.preflight.not.cancel') }}</p>
     <a-button :loading="loading" @click="$emit('refresh')"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.preflight.check') }}</a-button>
   </section>

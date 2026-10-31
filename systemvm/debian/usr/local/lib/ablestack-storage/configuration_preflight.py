@@ -20,6 +20,8 @@ def fingerprint(intent):
         material.update(posixchanges=intent["posixchanges"], posixfingerprint=intent.get("posixfingerprint"))
     if intent.get("smbinheritance"):
         material.update(smbinheritance=intent["smbinheritance"], inheritancefingerprint=intent.get("inheritancefingerprint"))
+    if intent.get("smbcreation"):
+        material.update(smbcreation=intent["smbcreation"], creationfingerprint=intent.get("creationfingerprint"), smboptionsonly=intent.get("smboptionsonly", False))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -162,7 +164,19 @@ def inspect(intent):
             from shared_directory_policy import inheritance_preview
             inheritance = inheritance_preview(intent["inheritancetarget"],intent["inheritancepolicy"],intent["smbinheritance"])
             intent["inheritancefingerprint"] = inheritance["parent"]["fingerprint"]
+        creation = None
+        if intent.get("smbcreationtarget"):
+            from shared_directory_policy import SmbCreationPolicies
+            creation = SmbCreationPolicies().preview(intent["smbcreationtarget"], intent["smbcreation"])
+            intent["creationfingerprint"] = hashlib.sha256(json.dumps(creation, sort_keys=True).encode()).hexdigest()
         report = evaluate(intent, sample(intent))
+        if creation is not None:
+            report["creationpreview"] = creation
+            if intent.get("smboptionsonly"):
+                report["impact"]["class"] = "ONLINE_RELOAD"
+            if creation.get("executablebits"):
+                report["checks"].append({"code":"SMB_FILE_EXECUTABLE_BITS", "severity":"WARNING", "blocking":False})
+
         if inheritance is not None:
             report["inheritancepreview"] = inheritance
 

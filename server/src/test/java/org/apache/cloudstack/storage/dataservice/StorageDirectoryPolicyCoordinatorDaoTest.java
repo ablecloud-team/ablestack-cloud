@@ -225,4 +225,29 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
                 ()->{throw new AssertionError("completed replay must not execute");},plan::set,()->{},null));
     }
 
+
+    @Test public void actualSmbCreationCoordinatorDaoRoundtripPreservesOtherConfigurationAndDuplicateKey() throws Exception {
+        StorageFileShareVO share=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+            "creation-mode","/export/modes",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,
+            "{\"keep\":\"원본\",\"directoryMode\":\"2770\",\"ownerUid\":100001}"));
+        final long id=share.getId();
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd();
+        field(cmd,cmd.getClass(),"id",id);field(cmd,cmd.getClass(),"createMask","0640");
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        java.util.function.Supplier<String> candidate=()->{
+            StorageFileShareVO staged=plan.get().dao(StorageFileShareDao.class).findById(id);
+            staged.setConfigJson(StorageSmbCreationPolicy.merge(staged.getConfigJson(),
+                StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd))));
+            plan.get().dao(StorageFileShareDao.class).update(id,staged);return staged.getUuid();
+        };
+        coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,String.class,candidate,plan::set,()->{},null);
+        JsonObject value=com.google.gson.JsonParser.parseString(shares.findById(id).getConfigJson()).getAsJsonObject();
+        assertEquals("0640",value.get("createMask").getAsString());assertEquals("2770",value.get("directoryMode").getAsString());
+        assertEquals(100001,value.get("ownerUid").getAsInt());assertEquals("원본",value.get("keep").getAsString());
+        org.junit.Assert.assertFalse(value.has("forceCreateMode"));
+        assertEquals("COMMITTED",operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()).getState());
+        coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,String.class,
+            ()->{throw new AssertionError("duplicate mode request reapplied");},plan::set,()->{},null);
+        assertEquals(value.toString(),shares.findById(id).getConfigJson());
+    }
 }

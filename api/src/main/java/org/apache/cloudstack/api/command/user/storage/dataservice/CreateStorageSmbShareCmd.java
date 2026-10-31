@@ -44,6 +44,22 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd
     private Long directoryPolicyId;
     public Long getDirectoryPolicyId() { return directoryPolicyId; }
 
+    @Parameter(name = "createmask", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String createMask;
+    public String getCreateMask() { return createMask; }
+
+    @Parameter(name = "directorymask", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String directoryMask;
+    public String getDirectoryMask() { return directoryMask; }
+
+    @Parameter(name = "forcecreatemode", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String forceCreateMode;
+    public String getForceCreateMode() { return forceCreateMode; }
+
+    @Parameter(name = "forcedirectorymode", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String forceDirectoryMode;
+    public String getForceDirectoryMode() { return forceDirectoryMode; }
+
     @Inject
     StorageService storageService;
 

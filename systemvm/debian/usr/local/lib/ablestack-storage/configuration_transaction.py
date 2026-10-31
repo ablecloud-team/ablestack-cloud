@@ -300,6 +300,9 @@ class Transaction:
                 value["execution"] = progress
                 value["execution"]["overdue"] = time.time() > progress.get("softDeadlineAt", float("inf"))
             value["cancellationSupported"] = False
+        if value.get("state") != "NOT_FOUND":
+            progress = load(status.parent / "smb-options-progress.json")
+            if progress: value["smbOptions"] = progress
         return value
 
     def execute(self, action, payload):
@@ -390,6 +393,8 @@ class Transaction:
                 atomic_json(status_path, current)
                 return current
             except BaseException as error:
+                progress = load(private / "smb-options-progress.json")
+                if progress: current["smbOptions"] = progress
                 if getattr(error, "code", None) in ("APPLY_STILL_RUNNING", "RESULT_OBSERVATION_UNAVAILABLE"):
                     current.update(state="RECOVERY_REQUIRED", phase="OBSERVING", rollback={"state": "UNKNOWN"},
                                    observationCode=getattr(error, "code", "OBSERVATION_UNAVAILABLE"))
@@ -1023,6 +1028,8 @@ class RuntimeAdapter:
         self.child_path = self.private / "runner.json"
 
     def preflight(self, payload):
+        if payload.get("onlineSmbOptions") is True and not self.smb_options_only(payload):
+            raise Rejected("INVALID_SMB_OPTIONS_INTENT")
         if payload.get("vmUuid"):
             observed = Path("/sys/class/dmi/id/product_uuid").read_text().strip().lower()
             if observed != token(payload["vmUuid"]):
@@ -1045,9 +1052,13 @@ class RuntimeAdapter:
         if payload.get("preflight"):
             from configuration_preflight import inspect
             report = inspect(payload["preflight"])
+            if self.smb_options_only(payload) and report.get("fingerprint") != payload["preflight"].get("expectedFingerprint"):
+                raise Rejected("SMB_OPTIONS_STALE_OBSERVATION")
             if report["status"] != "READY":
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
                 raise Rejected(blocked)
+        if self.smb_options_only(payload):
+            self.smb_options_engine().snapshot(payload)
         if self.directory_only(payload):
             from shared_directory_policy import DirectoryPolicies
             DirectoryPolicies().prepare(payload["candidate"]["directory policy apply"])
@@ -1056,6 +1067,19 @@ class RuntimeAdapter:
         self.payload = payload
         atomic_json(self.payload_path, redact(payload))
 
+
+    @staticmethod
+    def smb_options_only(payload):
+        return (payload or {}).get("onlineSmbOptions") is True and set((payload or {}).get("candidate", {})) == {"smb share apply"}
+
+    def smb_options_engine(self):
+        from shared_directory_policy import SmbCreationPolicies
+        engine = SmbCreationPolicies()
+        engine.progress = lambda value: atomic_json(self.private / "smb-options-progress.json", value)
+        return engine
+
+    def smb_options_snapshot(self):
+        return load(self.snapshot_path)["smbOptions"]
 
     @staticmethod
     def nfs_posix_only(payload):
@@ -1193,6 +1217,9 @@ class RuntimeAdapter:
         return set((payload or {}).get("candidate",{})) == {"directory policy apply"}
 
     def snapshot(self, payload):
+        if self.smb_options_only(payload):
+            atomic_json(self.snapshot_path, {"smbOptions": self.smb_options_engine().snapshot(payload)})
+            return
         if self.directory_only(payload):
             from shared_directory_policy import DirectoryPolicies
             before=DirectoryPolicies().snapshot(payload["candidate"]["directory policy apply"])
@@ -1354,6 +1381,15 @@ class RuntimeAdapter:
         return alive(child) or alive(progress.get("child"))
 
     def observe_completed(self):
+        saved = load(self.payload_path, {})
+        if self.smb_options_only(saved):
+            if load(self.private / "candidate-completed.json") != {"requestHash": public_hash(saved["candidate"])}:
+                return "FAILED"
+            try:
+                self.smb_options_engine().verify(self.smb_options_snapshot())
+                return "VERIFIED"
+            except Exception:
+                return "FAILED"
         payload = load(self.payload_path)
         result = load(self.private / "runner-result.json")
         if self.directory_only(payload):
@@ -1392,6 +1428,10 @@ class RuntimeAdapter:
         return "FAILED" if result.get("operation") in operations else "UNKNOWN"
 
     def apply(self, commands):
+        if self.smb_options_only(load(self.payload_path, {})):
+            self.smb_options_engine().apply(self.smb_options_snapshot(), commands["smb share apply"])
+            atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
+            return
         if self.directory_only({"candidate":commands}):
             from shared_directory_policy import DirectoryPolicies
             before=load(self.snapshot_path)["directory"]
@@ -1416,6 +1456,9 @@ class RuntimeAdapter:
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
 
     def verify(self, commands):
+        if self.smb_options_only(load(self.payload_path, {})):
+            self.smb_options_engine().verify(self.smb_options_snapshot())
+            return
         if self.directory_only({"candidate":commands}):
             from shared_directory_policy import DirectoryPolicies
             DirectoryPolicies().verify(commands["directory policy apply"],load(self.snapshot_path)["directory"])
@@ -1517,6 +1560,9 @@ class RuntimeAdapter:
                     os.unlink(temporary)
 
     def restore(self):
+        if self.smb_options_only(load(self.payload_path, {})):
+            self.smb_options_engine().restore(self.smb_options_snapshot())
+            return
         if self.is_running():
             raise Rejected("APPLY_STILL_RUNNING")
         snapshot = load(self.snapshot_path)
@@ -1785,6 +1831,9 @@ class RuntimeAdapter:
             Path(directory).rmdir()
 
     def verify_restored(self):
+        if self.smb_options_only(load(self.payload_path, {})):
+            self.smb_options_engine().verify(self.smb_options_snapshot(), restored=True)
+            return
         payload = load(self.payload_path)
         snapshot = load(self.snapshot_path)
         if self.directory_only(payload):
@@ -2167,7 +2216,7 @@ def main(argv):
             ad_domain_protection=0
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect

@@ -353,13 +353,13 @@
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
             <a-space v-if="storageService.instance" class="protocol-toolbar" wrap>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
-                <template #icon><PlusOutlined /></template>
-                {{ $t('label.storage.service.smb.endpoint.add') }}
-              </a-button>
-              <a-button @click="openActionModal('smbShare')">
+              <a-button type="primary" @click="openActionModal('smbShare')">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.smb.share') }}
+              </a-button>
+              <a-button @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
+                <template #icon><PlusOutlined /></template>
+                {{ $t('label.storage.service.smb.endpoint.add') }}
               </a-button>
               <a-button v-if="!isSmbAdConfigured" :disabled="adOperationBusy" @click="openActionModal('adJoin')">
                 <template #icon><LinkOutlined /></template>
@@ -501,6 +501,10 @@
                         <a-button size="small" @click="openActionModal('editSmbShare', record)">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
+                      </a-button>
+                      <a-button size="small" @click="openSmbCreationPolicy(record)">
+                        <template #icon><SafetyCertificateOutlined /></template>
+                        {{ $t('label.storage.creation.settings') }}
                       </a-button>
                       <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })">
                         <template #icon><ExpandAltOutlined /></template>
@@ -1342,6 +1346,19 @@ key="configurationoperations">
       </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis"><events-tab :resource="resource" resourceType="SharedFS" :loading="loading" /></a-tab-pane>
     </a-tabs>
+
+    <SmbCreationPolicyDialog
+      v-if="smbCreationRow && storageService.instance"
+      :key="smbCreationRow.id"
+      :row="smbCreationRow"
+      :instance="storageService.instance"
+      :guarded="!!configurationProtected"
+      :operation="configurationDisplayOperation"
+      :execute="executeSmbCreationPolicy"
+      @close="smbCreationRow=null"
+      @done="smbCreationRow=null"
+      @refresh="refreshConfigurationOperation"
+      @resume="resumeConfigurationOperation" />
 
     <MoldDialog
 :visible="actionModal.visible"
@@ -2379,6 +2396,8 @@ import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanc
 import AdDomainProgressPanel from '@/components/storage/AdDomainProgressPanel'
 import { adDomainProgress, adDomainApplied, adDomainBusy } from '@/utils/adDomainProgress'
 import { inheritOwnerParameters, setgidEnabled } from '@/utils/smbParentInheritance'
+import SmbCreationPolicyDialog from '@/components/storage/SmbCreationPolicyDialog'
+import { smbCreationModes, smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -2598,6 +2617,7 @@ export default {
     StorageNfsIdentityPanel,
     StorageDirectoryPolicyPanel,
     SmbParentInheritanceFields,
+    SmbCreationPolicyDialog,
     AdDomainProgressPanel,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
@@ -2695,6 +2715,7 @@ export default {
       nfsAnonBaseline: {},
       nfsPosixObserved: { status: 'UNAVAILABLE' },
       nfsAclMappingBaseline: {},
+      smbCreationRow: null,
       configurationPreflight: null,
       configurationPreflightLoading: false,
       configurationPreflightRead: 0,
@@ -3871,6 +3892,7 @@ export default {
     smbShareColumns () {
       return [
         { title: this.$t('label.storage.service.smb.share.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 190, code: true },
+        { title: this.$t('label.storage.creation.summary'), dataIndex: 'creationMasks', key: 'creationMasks', width: 180, code: true },
         { title: this.$t('label.storage.inheritance.new.uid'), dataIndex: 'inheritOwner', key: 'inheritOwner', width: 150 },
         { title: this.$t('label.storage.inheritance.group'), dataIndex: 'inheritGroup', key: 'inheritGroup', width: 160 },
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
@@ -3882,7 +3904,7 @@ export default {
         { title: this.$t('label.storage.service.capacity'), dataIndex: 'capacity', key: 'capacity', width: 150 },
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 110 },
-        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 260, align: 'right', className: 'storage-table-actions-column' }
+        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 420, align: 'right', className: 'storage-table-actions-column' }
       ]
     },
     smbAclColumns () {
@@ -4062,6 +4084,7 @@ export default {
           id: share.id,
           name,
           clientPath: this.smbClientPathForShare(name),
+          creationMasks: this.smbCreationSummary(config),
           inheritOwner: this.$t(config.inheritOwner === true ? 'label.storage.inheritance.parent.uid' : 'label.storage.inheritance.creator.uid'),
           inheritGroup: this.$t(group === null ? 'label.unknown' : group ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled'),
           path: share.path || share.mountpath || share.backingpath || '-',
@@ -4792,6 +4815,7 @@ export default {
     window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+    'resource.id' () { this.smbCreationRow = null },
     forms: {
       deep: true,
       handler () {
@@ -5682,6 +5706,19 @@ export default {
         if (scope === this.storageReadScope && id === this.storageService.instance?.id) this.directoryPolicyRows = wire.liststoragedirectorypoliciesresponse?.directorypolicy || []
       } catch (error) { if (scope === this.storageReadScope) this.$notifyError(error) }
     },
+    smbCreationSummary (config) {
+      try { const m = smbCreationModes(config); return m.createMask + ' / ' + m.directoryMask } catch { return '?' }
+    },
+    async openSmbCreationPolicy (record) {
+      this.smbCreationRow = record.raw || record
+      await this.refreshConfigurationProtection(true)
+    },
+    async executeSmbCreationPolicy (api, params, report) {
+      if (!this.storageService.instance || this.configurationProtected) return
+      if (terminalConfigurationState(this.configurationOperation?.state)) this.configurationRequest = null
+      this.configurationAcceptedPreflight = { ...report, scope: this.storageReadScope, instanceid: this.storageService.instance.id }
+      return this.runConfigurationAction('smbCreation', api, params)
+    },
     async executeDirectoryPolicy (api, params, report) {
       if (!this.storageService.instance || this.configurationProtected) return
       // This panel owns its modal, so starting another completed action needs a fresh logical key.
@@ -6024,7 +6061,7 @@ export default {
           await this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport')
           await this.fetchAccessRules()
           await this.fetchBackingVolumes()
-        } else if (['smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
+        } else if (['smbCreation', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageServiceDomainStatus', 'domains', 'storageidentitydomain'),
             this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare')
@@ -7625,6 +7662,7 @@ export default {
       return `/export/${safeName}`
     },
     resetSmbShareForm () {
+      delete this.forms.smbShare.baseline
       const name = this.nextSmbShareName()
       Object.assign(this.forms.smbShare, {
         directorypolicyid: '',
@@ -7677,6 +7715,8 @@ export default {
         inheritowner: config.inheritOwner === true,
         inheritownerbaseline: config.inheritOwner === true
       })
+      delete this.forms.smbShare.baseline
+      this.forms.smbShare.baseline = JSON.parse(JSON.stringify(this.forms.smbShare))
     },
     resetSmbAclForm () {
       Object.assign(this.forms.smbAcl, {
@@ -8338,6 +8378,8 @@ export default {
     },
     updateSmbShare () {
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
+      const simple = smbSimpleOptionPatch(this.forms.smbShare.baseline, this.forms.smbShare)
+      if (simple) return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', { id: context.id || this.actionModal.context?.id, ...simple }, this.$t('label.storage.service.update.smb.share'))
       return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', {
         id: context.id || this.actionModal.context?.id,
         name: this.forms.smbShare.name,

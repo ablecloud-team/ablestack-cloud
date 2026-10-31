@@ -1259,6 +1259,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(null, cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
+        configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.SMB, cmd.getName(), path,
@@ -1304,6 +1305,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private StorageSmbShareResponse updateStorageSmbShareCandidate(final UpdateStorageSmbShareCmd cmd) {
         final StorageFileShareVO share = requireSmbShare(cmd.getId());
         final StorageServiceInstanceVO instance = requireInstance(share.getInstanceId());
+        if (StorageSmbCreationPolicy.optionsOnly(cmd)) {
+            JsonObject optionsConfig = parseJsonObject(share.getConfigJson());
+            if (cmd.getReadOnly()!=null) optionsConfig.addProperty("readOnly",cmd.getReadOnly());
+            if (cmd.getBrowseable()!=null) optionsConfig.addProperty("browseable",cmd.getBrowseable());
+            String configJson = optionsConfig.toString();
+            configJson = StorageSmbParentInheritance.merge(configJson, cmd.getInheritOwner());
+            configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
+            share.setConfigJson(configJson);
+            StorageSmbParentInheritance.requirePolicy(share);
+            share.setState(StorageServiceInstance.ResourceState.Updating);
+            storageFileShareDaoView().update(share.getId(), share);
+            applySmbDesiredState(instance);
+            share.setState(instance.getVmId() == null ? StorageServiceInstance.ResourceState.Allocated : StorageServiceInstance.ResourceState.Ready);
+            storageFileShareDaoView().update(share.getId(), share);
+            return createSmbShareResponse(share);
+        }
+
         if (cmd.getName() != null) {
             validateSmbShareName(cmd.getName());
             share.setName(cmd.getName());
@@ -1331,6 +1349,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
+        configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         validateJsonObjectConfigOrThrow(configJson, "SMB share " + share.getUuid());
         share.setConfigJson(configJson);

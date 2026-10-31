@@ -43,7 +43,7 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 6
+UPDATER_VERSION = 7
 MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
 DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
 def complete_managed_names(names):
@@ -89,6 +89,36 @@ def require_smb_inheritance_compatibility(release, desired):
         version = 0
     if type(version) is not int or version != 1:
         raise RuntimeUpgradeError("SMB_INHERITANCE_CAPABILITY_REQUIRED", "active SMB parent inheritance requires a compatible target helper")
+
+
+def require_smb_creation_compatibility(release, desired):
+    try:
+        payload = json.loads(desired.read_text()) if desired.exists() else {}
+        custom = False
+        defaults = {"createMask": "0660", "directoryMask": "0770", "forceCreateMode": "0000", "forceDirectoryMode": "0000"}
+        if not isinstance(payload.get("shares", []), list):
+            raise ValueError()
+        for row in payload.get("shares", []):
+            if row.get("state") in ("Disabled", "Destroyed", "Error"):
+                continue
+            config = row.get("config") or {}
+            for key, fallback in defaults.items():
+                value = config.get(key, fallback)
+                if not isinstance(value, str) or not re.fullmatch(r"0?[0-7]{3}", value):
+                    raise ValueError()
+                custom |= int(value, 8) != int(fallback, 8)
+    except (OSError, ValueError, TypeError, AttributeError):
+        raise RuntimeUpgradeError("SMB_CREATION_POLICY_PROTECTED", "SMB creation policy observation is unavailable")
+    if not custom:
+        return
+    try:
+        tree = ast.parse((release / DIRECTORY_HELPER).read_text())
+        version = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+                       and any(isinstance(t, ast.Name) and t.id == "SMB_CREATION_POLICY_VERSION" for t in n.targets))
+    except (OSError, SyntaxError, ValueError, StopIteration):
+        version = 0
+    if type(version) is not int or version != 1:
+        raise RuntimeUpgradeError("SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "active SMB creation policies require a compatible target helper")
 
 
 def sha256_file(path):
@@ -728,6 +758,7 @@ class RuntimeUpdater:
         if enabled and not (release/DIRECTORY_HELPER).is_file():
             raise RuntimeUpgradeError("DIRECTORY_POLICY_CAPABILITY_REQUIRED","common directory policies require their managed runtime helper")
         require_smb_inheritance_compatibility(release, registry.parent / "smb-share-apply.json")
+        require_smb_creation_compatibility(release, registry.parent / "smb-share-apply.json")
 
     def preflight(self, request):
         state = self.read_state(request)

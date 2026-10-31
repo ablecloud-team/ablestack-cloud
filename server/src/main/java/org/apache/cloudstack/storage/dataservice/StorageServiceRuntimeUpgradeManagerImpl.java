@@ -402,6 +402,18 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         });
     }
 
+    void requireAlignedUpdater(JsonObject observed, byte[] module) {
+        java.util.regex.Matcher version = java.util.regex.Pattern.compile("(?m)^UPDATER_VERSION\\s*=\\s*([0-9]+)\\s*$")
+                .matcher(new String(module, java.nio.charset.StandardCharsets.UTF_8));
+        if (!version.find()) throw new CloudRuntimeException("Protected baseline resource version is unavailable");
+        int supported = Integer.parseInt(version.group(1));
+        int current = observed.has("updaterVersion") ? observed.get("updaterVersion").getAsInt() : 0;
+        if (current > supported) throw new CloudRuntimeException("Newer trusted updater requires aligned management support");
+        // Baselines with feature downgrade guards are maintained explicitly, never silently replaced by a bundle.
+        if (current >= 4 && (current != supported || !sha256(module).equals(stringValue(observed,"updaterSha256"))))
+            throw new CloudRuntimeException("PROTECTED_BASELINE_MAINTENANCE_REQUIRED");
+    }
+
     protected void ensureBootstrap(final StorageServiceInstanceVO instance, final StorageServiceRuntimeBundleVO bundle,
             final String transactionId) {
         final StorageServiceRuntimeHostAnswer capability = runtimeDispatcher.dispatch(instance.getVmId(), new StorageServiceRuntimeHostCommand(
@@ -411,8 +423,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         if (!observed.has("hostTransportVersion") || observed.get("hostTransportVersion").getAsInt()<2)
             throw new CloudRuntimeException("Atomic runtime host transport version 2 is required");
         byte[] updaterModule=resource("/storage-runtime/bootstrap/runtime_updater.py");
-        if (observed.has("updaterVersion") && observed.get("updaterVersion").getAsInt()>3)
-            throw new CloudRuntimeException("Newer trusted updater requires aligned management support");
+        requireAlignedUpdater(observed, updaterModule);
         if (!observed.has("updaterVersion") || observed.get("updaterVersion").getAsInt()<3 ||
                 !sha256(updaterModule).equals(stringValue(observed,"updaterSha256"))) {
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_MODULE, null,
