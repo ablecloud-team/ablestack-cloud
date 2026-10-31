@@ -1,0 +1,10 @@
+{
+  "windowsHead": true,
+  "windowsBranch": true,
+  "windowsTrackedStatus": true,
+  "windowsSpecifiedFileHashes": true,
+  "wslHead": true,
+  "wslBranch": true,
+  "wslStatus": true,
+  "wslDiffSHA256": true
+}

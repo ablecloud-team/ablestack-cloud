@@ -1,6 +1,6 @@
 # Epic #1527 하위 이슈 해결 설계 및 등록 결과
 
-[상위 Epic #1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)에 13개 하위 이슈를 실제 연결했다. 등록 당시 P1 6개/P2 7개였다. 이번 Epic 작업 브랜치는 #1528을 우선 구현하고 나머지 12개는 OPEN으로 유지한다. #1528의 배포·검증 결과는 [검증 보고서](../../validation/bucket-1528-20261031/REPORT.ko.md)를 따른다.
+[상위 Epic #1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)에 13개 하위 이슈를 실제 연결했다. 등록 당시 P1 6개/P2 7개였다. 이번 Epic 작업 브랜치는 #1528과 #1540을 구현·검증했으며 나머지 11개는 OPEN으로 유지한다. #1540의 결과는 [UI 표준 개선 보고서](../../validation/bucket-1540-20261031/REPORT.ko.md)를 따른다. #1528의 배포·검증 결과는 [검증 보고서](../../validation/bucket-1528-20261031/REPORT.ko.md)를 따른다.
 
 각 본문에는 문제·재현, 소스 원인, 해결 순서, API/데이터/UI 계약, 실패·복구·호환성, 대상 소스와 검증 기준을 수록했다. 새 API·테이블·필드는 구현 제안임을 구분했다.
 
@@ -22,6 +22,6 @@
 
 브라우저 탭 제보는 #1528로 추가했다. 31/32에서 Glue 목록 HTTP 200과 실제 파일 XML을 확인했지만 첫 진입 UI는 로딩 상태였다. URL 정규화와 fullPath 요청 scope 충돌이 원인이다. 같은 URL 재접속은 양쪽 정상 표시를 확인했다. 상세 증거는 [#1528의 수정 전 재현 기록](https://github.com/ablecloud-team/ablestack-cloud/issues/1528)에 있다. 이 문단은 수정 전 감사 결과이며, 수정 후 결과는 새 검증 보고서에 기록한다.
 
-시험 버킷·저장소·계정·RGW 사용자/키는 정리했으며 Glue HEALTH_OK와 최초 사용자 목록 보존을 확인했다. 기존 FTCTL 변경은 수정하지 않았다. 전체 Cloud 빌드/CI는 실행하지 않았다.
+최초 감사 자원은 정리했다. 이후 #1540 검증에서는 사용자 요청에 따라 32번 확인용 버킷 하나와 그 계정·저장소·RGW 키를 보존했고 나머지만 정리했다. Glue HEALTH_OK와 기존 dashboard 사용자 보존을 확인했다. 기존 FTCTL 변경은 수정하지 않았다. 전체 Cloud 빌드/CI는 실행하지 않았다.
 
-13개 본문과 준비한 Markdown의 일치, native sub-issue ID 연결, OPEN 상태, Epic 본문 및 의존 관계를 API로 확인했다. [등록한 Epic과 하위 이슈](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)을 함께 보존했다.
+등록 당시 13개 본문과 준비한 Markdown의 일치, native sub-issue ID 연결, OPEN 상태, Epic 본문 및 의존 관계를 API로 확인했다. [등록한 Epic과 하위 이슈](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)을 함께 보존했다.

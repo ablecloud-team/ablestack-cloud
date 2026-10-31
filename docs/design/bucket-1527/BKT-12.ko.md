@@ -1,6 +1,6 @@
 # [Europa][BKT-12][P2] 버킷·Object Store 화면의 테마·반응형·용어 일관성 개선
 
-상위 Epic: #1527. 상태: 해결 설계, 미구현. 소스 기준: `1c5b169cd6283da23cc3e155d4b6d14e39e42793`.
+상위 Epic: #1527. 상태: 구현·31/32 UI 검증 완료. 최종 구현 `994319d3f68`, PR #1541 미병합.
 
 ## 문제·원인
 
@@ -20,10 +20,10 @@ ObjectStoreBrowser.vue/style, storage.js, infra/objectStorages.js, 생성/수정
 
 ## 완료 기준
 
-- [ ] 밝음/어두움, 실제 1440·901·390·360px viewport에서 작업 버튼 접근·문구·대비 확인.
-- [ ] DOM 좌표상 필수 작업이 잘리지 않고 검색/모달/상세 drawer가 키보드로 조작됨.
-- [ ] 로딩/오류/빈 결과/긴 이름/큰 용량과 영문·한국어의 배치 검증.
-- [ ] 31/32 동일 실행본에서 실제 기능을 유지하며 화면/DOM/이미지 크기를 함께 기록.
+- [x] 밝음/어두움, 실제 1440·901·390·360px viewport에서 작업 버튼 접근·문구·대비 확인.
+- [x] DOM 좌표상 필수 작업이 잘리지 않고 검색/모달/상세 drawer가 키보드로 조작됨.
+- [x] 로딩/오류/빈 결과/긴 이름/큰 용량과 영문·한국어의 배치 검증.
+- [x] 31/32 동일 실행본에서 실제 기능을 유지하며 화면/DOM/이미지 크기를 함께 기록.
 
 근거: Epic BKT-12와 UI JPEG. 기존 모바일 JPEG는 도구가 축소한 390×377 미리보기이고 DOM은 390×844였으므로, 새 검증도 둘을 혼동하지 않는다. UI 빌드 산출물 반영 시 WEB-INF/META-INF를 보존하고 /client/ HTTP 200을 확인한다.
 
@@ -41,6 +41,6 @@ ObjectStoreBrowser.vue/style, storage.js, infra/objectStorages.js, 생성/수정
 - 인터페이스 조율·통합 검증: [BKT-07 #1535](https://github.com/ablecloud-team/ablestack-cloud/issues/1535), [BKT-08 #1536](https://github.com/ablecloud-team/ablestack-cloud/issues/1536), [BKT-09 #1537](https://github.com/ablecloud-team/ablestack-cloud/issues/1537), [BKT-10 #1538](https://github.com/ablecloud-team/ablestack-cloud/issues/1538), [BKT-11 #1539](https://github.com/ablecloud-team/ablestack-cloud/issues/1539).
 - 상위 Epic: [#1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527). 구현 완료 표시는 해당 이슈의 완료 기준과 실제 검증 후 별도로 갱신한다.
 
-## #1528 작업 중 추가 표준 검토
+## 구현·검증 결과
 
-[다크 모드·VM 표준 비교 보고서](../../validation/bucket-1528-20261031/STYLE-REVIEW.ko.md)를 추가했다. 실제 VM 볼륨 탭과 비교했고 31/32의 밝음·어두움 및 1440/901/390/360px를 측정했다. 검색/주 작업 순서, pill 버튼, 다크 레이블과 객체 상세 값의 검은색 고정, 390/360px 검색 폭 0이 확인되어 본 이슈는 미해결로 유지한다. #1528의 로딩 수정 완료를 전체 UI 표준 준수로 계산하지 않는다.
+[최종 보고서](../../validation/bucket-1540-20261031/REPORT.ko.md)를 따른다. 수정 전 다크 전경·툴바 순서·pill·검색 폭 0 문제를 해소했다. 31/32 동일 실행본에서 32개 레이아웃 조합과 실제 기능·폼·키보드 검증을 완료했다. #1539의 용량 수정 계약 등 별도 하위 이슈는 유지한다. 사용자 확인용 32번 버킷 하나와 필요한 시험 계정/저장소는 의도적으로 보존했다.

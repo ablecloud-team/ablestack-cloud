@@ -1,0 +1,62 @@
+[
+  {
+    "file": "31-light-final.jpg",
+    "source": "994319d3f68",
+    "domViewport": {
+      "height": 720,
+      "width": 1280
+    },
+    "decodedImage": {
+      "width": 1280,
+      "height": 720
+    },
+    "sha256": "f35ceb12ee82d53a1fa2b4189dbe1fd21ce6b2bf98f8e865901be8ad7ccdd11d",
+    "nativeJpeg": true,
+    "note": null
+  },
+  {
+    "file": "32-dark-final.jpg",
+    "source": "994319d3f68",
+    "domViewport": {
+      "height": 720,
+      "width": 1280
+    },
+    "decodedImage": {
+      "width": 1280,
+      "height": 720
+    },
+    "sha256": "0800d0cf56175153a4dd91bfc29c5991ec65ce7209478b27f0a5d58386f03ecc",
+    "nativeJpeg": true,
+    "note": null
+  },
+  {
+    "file": "32-dark-360-preview.jpg",
+    "source": "994319d3f68",
+    "domViewport": {
+      "height": 844,
+      "width": 360
+    },
+    "decodedImage": {
+      "width": 360,
+      "height": 203
+    },
+    "sha256": "cd613abb86ff6ed04a55f62e09e60a919a2420ce5d0c5b27c1db60c9bb92e979",
+    "nativeJpeg": true,
+    "note": "IAB JPEG preview; record decoded dimensions separately"
+  },
+  {
+    "file": "31-light-ko-360.jpg",
+    "source": "4f3d17e4716",
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "decodedImage": {
+      "width": 360,
+      "height": 203
+    },
+    "sha256": "005c6958196fedd94e4a319f209f9192e5d825482fc248e4826ce6fac9a1c30b",
+    "nativeJpeg": true,
+    "note": "interim IAB preview"
+  }
+]

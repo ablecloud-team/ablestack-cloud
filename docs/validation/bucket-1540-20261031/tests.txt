@@ -1,0 +1,7 @@
+npm run test:unit -- --runTestsByPath tests/unit/components/view/ObjectStoreBrowser.spec.js tests/unit/views/AutogenBucketBrowser.spec.js tests/unit/components/view/ResourceView.spec.js tests/unit/components/view/MoldDialog.spec.js tests/unit/utils/objectStoreListing.spec.js tests/unit/utils/listRefreshMixin.spec.js tests/unit/utils/listRefresh.spec.js --runInBand --coverage=false
+
+Test Suites: 7 passed, 7 total
+Tests:       76 passed, 76 total
+Snapshots:   0 total
+Time:        23.655s
+Ran all test suites within paths "tests/unit/components/view/ObjectStoreBrowser.spec.js", "tests/unit/views/AutogenBucketBrowser.spec.js", "tests/unit/components/view/ResourceView.spec.js", "tests/unit/components/view/MoldDialog.spec.js", "tests/unit/utils/objectStoreListing.spec.js", "tests/unit/utils/listRefreshMixin.spec.js", "tests/unit/utils/listRefresh.spec.js".

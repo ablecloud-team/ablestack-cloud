@@ -1,0 +1,1847 @@
+{
+  "implementation": "4f3d17e4716",
+  "cases": [
+    {
+      "cluster": 32,
+      "case": "dark-mobile-folder-modal",
+      "pass": true,
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 360,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 516,
+            "right": 257.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 516,
+            "right": 331,
+            "text": "생성"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": "폴더 이름",
+        "inputs": [
+          {
+            "aria": "폴더 이름",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 533,
+          "height": 222,
+          "left": 12,
+          "right": 348,
+          "top": 311,
+          "width": 336,
+          "x": 12,
+          "y": 311
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "keyboard-folder-create",
+      "pass": true,
+      "tabFromInput": "취소",
+      "folder": "ui-folder-1540/"
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-object-drawer-keyboard",
+      "pass": true,
+      "data": {
+        "rect": {
+          "bottom": 844,
+          "height": 844,
+          "left": 14.010437965393066,
+          "right": 350.01043796539307,
+          "top": 0,
+          "width": 336,
+          "x": 14.010437965393066,
+          "y": 0
+        },
+        "title": "root-file.txt",
+        "values": [
+          {
+            "color": "rgb(240, 243, 246)",
+            "text": "root-file.txt"
+          },
+          {
+            "color": "rgb(240, 243, 246)",
+            "text": "0.03 KB"
+          },
+          {
+            "color": "rgb(240, 243, 246)",
+            "text": "2026. 10. 31. 오후 3:05:25"
+          },
+          {
+            "color": "rgb(240, 243, 246)",
+            "text": "선택한 시간 동안만 공유 URL이 유효합니다.\n시간\n공유 URL 복사"
+          }
+        ]
+      },
+      "restored": "root-file.txt 객체 상세"
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-upload-modal",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 220.359375,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 578.640625,
+            "right": 331,
+            "text": "키 값 쌍 추가"
+          },
+          {
+            "bottom": 655.640625,
+            "right": 244.359375,
+            "text": "취소"
+          },
+          {
+            "bottom": 655.640625,
+            "right": 331,
+            "text": "업로드"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": "업로드 경로",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 672.640625,
+          "height": 501.28125,
+          "left": 12,
+          "right": 348,
+          "top": 171.359375,
+          "width": 336,
+          "x": 12,
+          "y": 171.359375
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "actual-file-upload",
+      "pass": true,
+      "file": "ui-upload-1540.txt"
+    },
+    {
+      "cluster": 32,
+      "case": "keyboard-selection-retained-on-refresh",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-folder-modal",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 360,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 516,
+            "right": 242.953125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 516,
+            "right": 331,
+            "text": "Create"
+          }
+        ],
+        "color": "rgb(31, 41, 55)",
+        "focus": "Folder name",
+        "inputs": [
+          {
+            "aria": "Folder name",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 533,
+          "height": 222,
+          "left": 12,
+          "right": 348,
+          "top": 311,
+          "width": 336,
+          "x": 12,
+          "y": 311
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "keyboard-folder-create",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-object-drawer-keyboard",
+      "pass": true,
+      "data": {
+        "colors": [
+          "rgb(31, 41, 55)",
+          "rgb(31, 41, 55)",
+          "rgb(31, 41, 55)",
+          "rgb(31, 41, 55)"
+        ],
+        "rect": {
+          "bottom": 844,
+          "height": 844,
+          "left": 14.000014305114746,
+          "right": 350.00001430511475,
+          "top": 0,
+          "width": 336,
+          "x": 14.000014305114746,
+          "y": 0
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-upload-modal",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 232.921875,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 566.0625,
+            "right": 331,
+            "text": "Add key value pair"
+          },
+          {
+            "bottom": 643.0625,
+            "right": 238.1875,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 643.0625,
+            "right": 331,
+            "text": "Upload"
+          }
+        ],
+        "color": "rgb(31, 41, 55)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": "Upload path",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 660.0625,
+          "height": 476.140625,
+          "left": 12,
+          "right": 348,
+          "top": 183.921875,
+          "width": 336,
+          "x": 12,
+          "y": 183.921875
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "actual-file-upload",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "keyboard-selection-retained-on-refresh",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-create-bucket-form",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 173,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 449.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 517.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 585.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 711,
+            "right": 247.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 711,
+            "right": 318,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          }
+        ],
+        "rect": {
+          "bottom": 727,
+          "height": 610,
+          "left": 11,
+          "right": 339,
+          "top": 117,
+          "width": 328,
+          "x": 11,
+          "y": 117
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-update-bucket-form",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 275,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 415.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 483.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 609,
+            "right": 247.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 609,
+            "right": 318,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          }
+        ],
+        "rect": {
+          "bottom": 625,
+          "height": 406,
+          "left": 11,
+          "right": 339,
+          "top": 219,
+          "width": 328,
+          "x": 11,
+          "y": 219
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "bucket-state-policy-boolean-labels",
+      "pass": true,
+      "values": [
+        "생성됨",
+        "비활성화",
+        "비공개"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "create-bucket-required-validation",
+      "pass": true,
+      "messages": [
+        "필수 사항",
+        "필수 사항"
+      ],
+      "keyboard": "확인 버튼 Enter; 일반 입력필드 Enter는 제출하지 않음"
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-add-objectstore-form",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 207,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 677,
+            "right": 247.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 677,
+            "right": 318,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          }
+        ],
+        "rect": {
+          "bottom": 693,
+          "height": 542,
+          "left": 11,
+          "right": 339,
+          "top": 151,
+          "width": 328,
+          "x": 11,
+          "y": 151
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "objectstore-large-capacity-display",
+      "pass": true,
+      "values": [
+        "총 크기\n1.00 TiB",
+        "할당된 크기\n2.00 GiB",
+        "사용된 크기\n0 bytes"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-update-objectstore-form",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 306,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 584,
+            "right": 265.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 584,
+            "right": 331,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 331,
+            "width": 312
+          },
+          {
+            "aria": null,
+            "right": 331,
+            "width": 312
+          },
+          {
+            "aria": null,
+            "right": 330,
+            "width": 310
+          }
+        ],
+        "rect": {
+          "bottom": 594,
+          "height": 344,
+          "left": 3,
+          "right": 347,
+          "top": 250,
+          "width": 344,
+          "x": 3,
+          "y": 250
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-create-bucket-form",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 173,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 449.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 517.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 585.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 711,
+            "right": 254.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 711,
+            "right": 318,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          }
+        ],
+        "rect": {
+          "bottom": 727,
+          "height": 610,
+          "left": 11,
+          "right": 339,
+          "top": 117,
+          "width": 328,
+          "x": 11,
+          "y": 117
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-update-bucket-form",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 275,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 415.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 483.75,
+            "right": 71,
+            "text": ""
+          },
+          {
+            "bottom": 609,
+            "right": 254.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 609,
+            "right": 318,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          }
+        ],
+        "rect": {
+          "bottom": 625,
+          "height": 406,
+          "left": 11,
+          "right": 339,
+          "top": 219,
+          "width": 328,
+          "x": 11,
+          "y": 219
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-add-objectstore-form",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 207,
+            "right": 339,
+            "text": ""
+          },
+          {
+            "bottom": 677,
+            "right": 254.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 677,
+            "right": 318,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 297,
+            "width": 258
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          },
+          {
+            "aria": null,
+            "right": 323,
+            "width": 296
+          }
+        ],
+        "rect": {
+          "bottom": 693,
+          "height": 542,
+          "left": 11,
+          "right": 339,
+          "top": 151,
+          "width": 328,
+          "x": 11,
+          "y": 151
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "objectstore-large-capacity-display",
+      "pass": true,
+      "values": [
+        "Total size\n1.00 TiB",
+        "Allocated size\n2.00 GiB",
+        "Used size\n1 bytes"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-update-objectstore-form",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 306,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 584,
+            "right": 272.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 584,
+            "right": 331,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 331,
+            "width": 312
+          },
+          {
+            "aria": null,
+            "right": 331,
+            "width": 312
+          },
+          {
+            "aria": null,
+            "right": 330,
+            "width": 310
+          }
+        ],
+        "rect": {
+          "bottom": 594,
+          "height": 344,
+          "left": 3,
+          "right": 347,
+          "top": 250,
+          "width": 344,
+          "x": 3,
+          "y": 250
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-403-retains-data",
+      "pass": true,
+      "alert": "파일 목록을 불러오지 못했습니다.\n\nQA1540Denied\n\n재시도"
+    },
+    {
+      "cluster": 32,
+      "case": "retry-after-403",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "light-mobile-404-retains-data",
+      "pass": true,
+      "alert": "Unable to load the object list.\n\nQA1540Missing\n\nRetry"
+    },
+    {
+      "cluster": 31,
+      "case": "retry-after-404",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "cancel-listing",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "cancel-listing",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "dark-mobile-loading-controls",
+      "pass": true,
+      "data": {
+        "buttons": [
+          {
+            "disabled": true,
+            "right": 171.359375,
+            "text": "폴더 생성",
+            "x": 62
+          },
+          {
+            "disabled": true,
+            "right": 272,
+            "text": "업로드",
+            "x": 179.359375
+          },
+          {
+            "disabled": false,
+            "right": 119.765625,
+            "text": "취소",
+            "x": 62
+          },
+          {
+            "disabled": false,
+            "right": 233.296875,
+            "text": "업데이트",
+            "x": 127.765625
+          }
+        ],
+        "rows": 9,
+        "spin": true
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "30-second-timeout",
+      "pass": true,
+      "alert": "Unable to load the object list.\n\nLoading the object list timed out. Please retry.\n\nRetry"
+    },
+    {
+      "cluster": 31,
+      "case": "retry-after-timeout",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "30-second-timeout",
+      "pass": true,
+      "alert": "파일 목록을 불러오지 못했습니다.\n\n파일 목록 조회 시간이 초과되었습니다. 다시 시도하세요.\n\n재시도"
+    },
+    {
+      "cluster": 32,
+      "case": "retry-after-timeout",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "keyboard-folder-navigation",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "prefix-search",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "direct-deep-url-and-back-forward",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "bucket-id-change-empty",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "keyboard-folder-navigation",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "prefix-search",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "direct-deep-url-and-back-forward",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "bucket-id-change-empty",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-create-bucket-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 165,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 449.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 517.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 585.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 711,
+            "right": 975.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 711,
+            "right": 1046,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          }
+        ],
+        "rect": {
+          "bottom": 735,
+          "height": 626,
+          "left": 355,
+          "right": 1075,
+          "top": 109,
+          "width": 720,
+          "x": 355,
+          "y": 109
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-update-bucket-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 267,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 415.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 483.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 609,
+            "right": 975.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 609,
+            "right": 1046,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          }
+        ],
+        "rect": {
+          "bottom": 633,
+          "height": 422,
+          "left": 355,
+          "right": 1075,
+          "top": 211,
+          "width": 720,
+          "x": 355,
+          "y": 211
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-add-objectstore-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 199,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 677,
+            "right": 975.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 677,
+            "right": 1046,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          }
+        ],
+        "rect": {
+          "bottom": 701,
+          "height": 558,
+          "left": 355,
+          "right": 1075,
+          "top": 143,
+          "width": 720,
+          "x": 355,
+          "y": 143
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-update-objectstore-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 298,
+            "right": 1095,
+            "text": ""
+          },
+          {
+            "bottom": 592,
+            "right": 1013.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 592,
+            "right": 1079,
+            "text": "확인"
+          }
+        ],
+        "color": "rgb(197, 204, 212)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1071,
+            "width": 712
+          },
+          {
+            "aria": null,
+            "right": 1071,
+            "width": 712
+          },
+          {
+            "aria": null,
+            "right": 1070,
+            "width": 710
+          }
+        ],
+        "rect": {
+          "bottom": 602,
+          "height": 360,
+          "left": 335,
+          "right": 1095,
+          "top": 242,
+          "width": 760,
+          "x": 335,
+          "y": 242
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-create-bucket-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 165,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 449.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 517.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 585.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 711,
+            "right": 982.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 711,
+            "right": 1046,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          }
+        ],
+        "rect": {
+          "bottom": 735,
+          "height": 626,
+          "left": 355,
+          "right": 1075,
+          "top": 109,
+          "width": 720,
+          "x": 355,
+          "y": 109
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-update-bucket-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 267,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 415.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 483.75,
+            "right": 423,
+            "text": ""
+          },
+          {
+            "bottom": 609,
+            "right": 982.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 609,
+            "right": 1046,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          }
+        ],
+        "rect": {
+          "bottom": 633,
+          "height": 422,
+          "left": 355,
+          "right": 1075,
+          "top": 211,
+          "width": 720,
+          "x": 355,
+          "y": 211
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-add-objectstore-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 199,
+            "right": 1075,
+            "text": ""
+          },
+          {
+            "bottom": 677,
+            "right": 982.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 677,
+            "right": 1046,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1025,
+            "width": 634
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          },
+          {
+            "aria": null,
+            "right": 1051,
+            "width": 672
+          }
+        ],
+        "rect": {
+          "bottom": 701,
+          "height": 558,
+          "left": 355,
+          "right": 1075,
+          "top": 143,
+          "width": 720,
+          "x": 355,
+          "y": 143
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-update-objectstore-form",
+      "pass": true,
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 298,
+            "right": 1095,
+            "text": ""
+          },
+          {
+            "bottom": 592,
+            "right": 1020.3125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 592,
+            "right": 1079,
+            "text": "OK"
+          }
+        ],
+        "color": "rgb(75, 85, 99)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": null,
+            "right": 1071,
+            "width": 712
+          },
+          {
+            "aria": null,
+            "right": 1071,
+            "width": 712
+          },
+          {
+            "aria": null,
+            "right": 1070,
+            "width": 710
+          }
+        ],
+        "rect": {
+          "bottom": 602,
+          "height": 360,
+          "left": 335,
+          "right": 1095,
+          "top": 242,
+          "width": 760,
+          "x": 335,
+          "y": 242
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-folder-modal",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 290,
+            "right": 879,
+            "text": ""
+          },
+          {
+            "bottom": 462,
+            "right": 777.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 462,
+            "right": 851,
+            "text": "생성"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": "폴더 이름",
+        "inputs": [
+          {
+            "aria": "폴더 이름",
+            "right": 851,
+            "width": 422
+          }
+        ],
+        "rect": {
+          "bottom": 479,
+          "height": 238,
+          "left": 400,
+          "right": 880,
+          "top": 241,
+          "width": 480,
+          "x": 400,
+          "y": 241
+        },
+        "viewport": {
+          "height": 720,
+          "width": 1280
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "dark-desktop-upload-modal",
+      "data": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 165.921875,
+            "right": 999,
+            "text": ""
+          },
+          {
+            "bottom": 519.5625,
+            "right": 971,
+            "text": "키 값 쌍 추가"
+          },
+          {
+            "bottom": 586.0625,
+            "right": 884.359375,
+            "text": "취소"
+          },
+          {
+            "bottom": 586.0625,
+            "right": 971,
+            "text": "업로드"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": "업로드 경로",
+            "right": 971,
+            "width": 662
+          }
+        ],
+        "rect": {
+          "bottom": 603.0625,
+          "height": 486.140625,
+          "left": 280,
+          "right": 1000,
+          "top": 116.921875,
+          "width": 720,
+          "x": 280,
+          "y": 116.921875
+        },
+        "viewport": {
+          "height": 720,
+          "width": 1280
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-folder-modal",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 352,
+            "right": 959,
+            "text": ""
+          },
+          {
+            "bottom": 524,
+            "right": 842.953125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 524,
+            "right": 931,
+            "text": "Create"
+          }
+        ],
+        "color": "rgb(31, 41, 55)",
+        "focus": "Folder name",
+        "inputs": [
+          {
+            "aria": "Folder name",
+            "right": 931,
+            "width": 422
+          }
+        ],
+        "rect": {
+          "bottom": 541,
+          "height": 238,
+          "left": 480,
+          "right": 960,
+          "top": 303,
+          "width": 480,
+          "x": 480,
+          "y": 303
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "light-desktop-upload-modal",
+      "data": {
+        "background": "rgb(255, 255, 255)",
+        "buttons": [
+          {
+            "bottom": 227.921875,
+            "right": 1079,
+            "text": ""
+          },
+          {
+            "bottom": 581.5625,
+            "right": 1051,
+            "text": "Add key value pair"
+          },
+          {
+            "bottom": 648.0625,
+            "right": 958.1875,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 648.0625,
+            "right": 1051,
+            "text": "Upload"
+          }
+        ],
+        "color": "rgb(31, 41, 55)",
+        "focus": null,
+        "inputs": [
+          {
+            "aria": "Upload path",
+            "right": 1051,
+            "width": 662
+          }
+        ],
+        "rect": {
+          "bottom": 665.0625,
+          "height": 486.140625,
+          "left": 360,
+          "right": 1080,
+          "top": 178.921875,
+          "width": 720,
+          "x": 360,
+          "y": 178.921875
+        },
+        "viewport": {
+          "height": 844,
+          "width": 1440
+        }
+      },
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "long-name-mobile-drawer",
+      "pass": true,
+      "data": {
+        "rect": {
+          "bottom": 844,
+          "height": 844,
+          "left": 14,
+          "right": 350,
+          "top": 0,
+          "width": 336,
+          "x": 14,
+          "y": 0
+        },
+        "title": {
+          "client": 248,
+          "scroll": 248,
+          "text": "long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt"
+        },
+        "values": [
+          {
+            "client": 288,
+            "color": "rgb(240, 243, 246)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(240, 243, 246)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(240, 243, 246)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(240, 243, 246)",
+            "scroll": 288
+          }
+        ]
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "long-name-mobile-drawer",
+      "pass": true,
+      "data": {
+        "rect": {
+          "bottom": 844,
+          "height": 844,
+          "left": 14,
+          "right": 350,
+          "top": 0,
+          "width": 336,
+          "x": 14,
+          "y": 0
+        },
+        "title": {
+          "client": 248,
+          "scroll": 248,
+          "text": "긴이름-오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트.txt"
+        },
+        "values": [
+          {
+            "client": 288,
+            "color": "rgb(31, 41, 55)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(31, 41, 55)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(31, 41, 55)",
+            "scroll": 288
+          },
+          {
+            "client": 288,
+            "color": "rgb(31, 41, 55)",
+            "scroll": 288
+          }
+        ]
+      }
+    }
+  ]
+}
