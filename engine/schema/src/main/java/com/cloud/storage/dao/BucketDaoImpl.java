@@ -16,7 +16,6 @@
 // under the License.
 package com.cloud.storage.dao;
 
-import com.cloud.configuration.Resource;
 import com.cloud.storage.BucketVO;
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.GenericSearchBuilder;

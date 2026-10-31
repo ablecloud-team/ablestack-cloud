@@ -35,18 +35,14 @@ import org.apache.cloudstack.managed.context.ManagedContextRunnable;
 import org.apache.cloudstack.reservation.dao.ReservationDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreDao;
 import org.apache.cloudstack.storage.datastore.db.ObjectStoreVO;
-import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.NotNull;
 
 import com.amazonaws.services.s3.internal.BucketNameUtils;
 import com.amazonaws.services.s3.model.IllegalBucketNameException;
 import com.cloud.agent.api.to.BucketTO;
-import com.cloud.configuration.Resource;
 import com.cloud.event.ActionEvent;
 import com.cloud.event.EventTypes;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.exception.ResourceAllocationException;
-import com.cloud.resourcelimit.CheckedReservation;
 import com.cloud.resourcelimit.ResourceLimitManagerImpl;
 import com.cloud.storage.BucketVO;
 import com.cloud.storage.DataStoreRole;

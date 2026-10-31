@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.resourcelimit;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import com.cloud.configuration.Resource.ResourceType;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.junit.Test;

@@ -21,9 +21,6 @@ package org.apache.cloudstack.storage.datastore.db;
 import com.cloud.utils.db.GenericDaoBase;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
-import com.cloud.utils.db.Transaction;
-import com.cloud.utils.db.TransactionCallback;
-import com.cloud.utils.db.TransactionStatus;
 
 import org.apache.cloudstack.api.response.ObjectStoreResponse;
 import org.apache.cloudstack.framework.config.dao.ConfigurationDao;
