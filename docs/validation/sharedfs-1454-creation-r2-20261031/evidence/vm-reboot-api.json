@@ -1,0 +1,169 @@
+[
+  {
+    "params": {
+      "command": "rebootVirtualMachine",
+      "response": "json",
+      "id": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2"
+    },
+    "response": {
+      "rebootvirtualmachineresponse": {
+        "jobid": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3"
+      }
+    }
+  },
+  {
+    "params": {
+      "jobId": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.RebootVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+        "managementserverid": "93af5ef3-8cbf-4435-8f92-9c208f1d7b0c",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-31T19:38:42+0900",
+        "jobid": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3",
+        "jobstatus": 0
+      }
+    }
+  },
+  {
+    "params": {
+      "jobId": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.RebootVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "virtualmachine": {
+            "id": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+            "name": "sharedfs-d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+            "displayname": "sharedfs-d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+            "account": "admin",
+            "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+            "username": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "created": "2026-10-30T16:14:08+0900",
+            "lastupdated": "2026-10-31T12:14:07+0900",
+            "state": "Running",
+            "haenable": true,
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "hostid": "a43cf305-f6bb-40e3-aeab-9dc5d5102cd4",
+            "hostname": "ablecube13-2",
+            "hostcontrolstate": "Enabled",
+            "templateid": "01ba45ea-5399-43ab-a557-5a6408cfacfd",
+            "templatename": "Europa-SystemVM-1453-AD-20261030-r5",
+            "templatetype": "SYSTEM",
+            "templateformat": "QCOW2",
+            "templatedisplaytext": "Epic1438 issue1453 absent client configuration snapshot R5",
+            "passwordenabled": false,
+            "isos": [],
+            "isomaxcount": 2,
+            "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+            "serviceofferingname": "epic1438-1441-fixed-20261021",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "volumemutationblockedreason": "",
+            "cpunumber": 2,
+            "cpuspeed": 2000,
+            "memory": 4096,
+            "statslastsampled": 1793443075000,
+            "statscollectionstatus": "FRESH",
+            "cpuused": "5.54%",
+            "networkkbsread": 541,
+            "networkkbswrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 1833,
+            "memorykbs": 4194304,
+            "memoryintfreekbs": 3625372,
+            "memorytargetkbs": 4194304,
+            "memoryintusablekbs": 0,
+            "diskioread": 0,
+            "diskiowrite": 194,
+            "guestosid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+            "rootdeviceid": 0,
+            "rootdevicetype": "ROOT",
+            "securitygroup": [],
+            "nic": [
+              {
+                "id": "903d2dd7-4ba7-48a2-b5db-8870b497821b",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.13.220",
+                "isolationuri": "vlan://untagged",
+                "broadcasturi": "vlan://untagged",
+                "traffictype": "Guest",
+                "type": "L2",
+                "isdefault": true,
+                "macaddress": "02:0d:00:cc:00:93",
+                "secondaryip": [],
+                "extradhcpoption": [],
+                "deviceid": "0",
+                "enabled": true
+              }
+            ],
+            "hypervisor": "KVM",
+            "ipaddress": "10.10.13.220",
+            "instancename": "i-2-195-VM",
+            "details": {
+              "Message.ReservedCapacityFreed.Flag": "false",
+              "tpmversion": "NONE",
+              "rootDiskController": "osdefault"
+            },
+            "clonefastsourcepowerallowed": false,
+            "clonefastpowerallowed": false,
+            "affinitygroup": [],
+            "displayvm": true,
+            "isdynamicallyscalable": false,
+            "deleteprotection": false,
+            "ostypeid": "a961b319-71f4-4750-9a28-e3b0b4d04f4f",
+            "osdisplayname": "Debian GNU/Linux 12 (64-bit)",
+            "pooltype": "SharedMountPoint",
+            "receivedbytes": 0,
+            "sentbytes": 0,
+            "vbmcport": "None",
+            "qemuagentversion": "7.2.22",
+            "kvdoenable": false,
+            "kvdoinuse": false,
+            "vmtype": "sharedfsvm",
+            "arch": "x86_64",
+            "vbmcstatus": "Unallocated",
+            "tags": [],
+            "hasannotations": false,
+            "jobid": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3",
+            "jobstatus": 0
+          }
+        },
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+        "created": "2026-10-31T19:38:42+0900",
+        "completed": "2026-10-31T19:38:42+0900",
+        "jobid": "3a5aaf55-1b7e-4ebf-a9d6-a371185489f3",
+        "jobstatus": 1
+      }
+    }
+  }
+]

@@ -1,0 +1,129 @@
+[
+  {
+    "actualApiStoredBaselineSnapshot": "PASS",
+    "applyExecuted": false,
+    "modes": {
+      "createMask": "0640",
+      "directoryMask": "0750",
+      "forceCreateMode": "0000",
+      "forceDirectoryMode": "0000",
+      "readOnly": false,
+      "browseable": true,
+      "inheritOwner": false
+    }
+  },
+  {
+    "kind": "real SystemVM bind/two-port regression; not Mold UI acceptance",
+    "operatorProvisioning": "SPARSE",
+    "checks": [
+      {
+        "name": "candidate module imported",
+        "passed": true,
+        "path": "/var/tmp/epic1454-native-product-sxbm3ju2/shared_directory_policy.py",
+        "transaction": "/var/tmp/epic1454-native-product-sxbm3ju2/configuration_transaction.py"
+      },
+      {
+        "name": "real product RuntimeAdapter transaction apply/verify/commit/duplicate/resume and partial reload rollback",
+        "passed": true,
+        "records": [
+          {
+            "case": "limited",
+            "operation": "1b033ee0-a11c-4aee-b17f-cb3c8afc9904",
+            "state": "COMMITTED",
+            "observed": [
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0640",
+                "inode": 16908424
+              },
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0640",
+                "inode": 16908426
+              }
+            ]
+          },
+          {
+            "case": "execute",
+            "operation": "a4113b76-e059-4251-b6f1-d7d9015b9110",
+            "state": "COMMITTED",
+            "observed": [
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0770",
+                "inode": 16908428
+              },
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0770",
+                "inode": 16908430
+              }
+            ]
+          },
+          {
+            "case": "default",
+            "operation": "83d955c2-8b5b-44d3-8506-d867de3d9198",
+            "state": "COMMITTED",
+            "observed": [
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0660",
+                "inode": 16908432
+              },
+              {
+                "uid": 1001,
+                "gid": 65534,
+                "mode": "0660",
+                "inode": 16908434
+              }
+            ]
+          },
+          {
+            "case": "actual second reload failure",
+            "state": "ROLLED_BACK",
+            "rollback": {
+              "state": "SUCCEEDED"
+            },
+            "originalfailure": {
+              "code": "DIRECTORY_RUNTIME_COMMAND_FAILED",
+              "phase": "APPLYING",
+              "type": "PolicyError"
+            }
+          }
+        ],
+        "stable": {
+          "23045": {
+            "parentPid": 327461,
+            "sessionIds": [
+              "4124457210"
+            ],
+            "treeIds": [
+              "2310092180",
+              "2763338210"
+            ]
+          },
+          "23046": {
+            "parentPid": 327468,
+            "sessionIds": [
+              "2511106170"
+            ],
+            "treeIds": [
+              "1196623392",
+              "1765570449"
+            ]
+          }
+        },
+        "stopOrRestartCalls": 0
+      }
+    ],
+    "success": true,
+    "productionUnchanged": true,
+    "temporaryResourcesRemoved": true,
+    "productionFileCount": 7
+  }
+]

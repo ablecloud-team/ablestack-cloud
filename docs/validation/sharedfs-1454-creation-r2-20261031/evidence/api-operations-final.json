@@ -1,0 +1,409 @@
+[
+  {
+    "id": "14c995dd-c6c9-4792-868b-a90d48f11b6a",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "5f5867ae-de55-437e-bbe4-1a1f9ed3f0d0",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 20,
+    "targetrevision": 21,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 20,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "14c995dd-c6c9-4792-868b-a90d48f11b6a",
+      "phase": "COMMITTING",
+      "requestHash": "7723c92bca6487dc977fda37a886ef2574d9131a08499c8c3e838e9615b38ab7",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 21,
+      "updated": 1793442017.870845
+    },
+    "created": "2026-10-31T19:20:11+0900",
+    "updated": "2026-10-31T19:20:20+0900",
+    "completed": "2026-10-31T19:20:20+0900",
+    "result": {
+      "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:20:12Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0640\",\"directoryMask\":\"0750\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "createmask": "0640",
+      "directorymask": "0750",
+      "expectedrevision": 20,
+      "id": 444,
+      "impactack": "4c2169bd48bf5c26bf4921d33cc092bfde683cd958c2862b71ea472dc9dbc8e6"
+    }
+  },
+  {
+    "id": "2cbe4f3b-991b-4c52-8896-387129ab32e3",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "01bd0b54-2c52-46ca-b582-534a6324cd15",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 21,
+    "targetrevision": 22,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 21,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "2cbe4f3b-991b-4c52-8896-387129ab32e3",
+      "phase": "COMMITTING",
+      "requestHash": "e4e5b3650ab502bdf380cf84b55247cf01f7cdc89e3b5dbb3bdd224b8bdb380d",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 22,
+      "updated": 1793442186.8104236
+    },
+    "created": "2026-10-31T19:23:00+0900",
+    "updated": "2026-10-31T19:23:09+0900",
+    "completed": "2026-10-31T19:23:09+0900",
+    "result": {
+      "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:22:55Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0775\",\"directoryMask\":\"0770\",\"forceCreateMode\":\"0111\",\"forceDirectoryMode\":\"0020\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "createmask": "0775",
+      "directorymask": "0770",
+      "expectedrevision": 21,
+      "forcecreatemode": "0111",
+      "forcedirectorymode": "0020",
+      "id": 444,
+      "impactack": "00fcfb5c868fac5b8d98c3dc5c938db6181f8b8e053e1bfba560cdafd2f41553"
+    }
+  },
+  {
+    "id": "ad732479-f1e1-45ba-b52a-3d47462ceb7b",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "678ebc70-261e-4812-8098-ff3fa7a41123",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+    "baserevision": 22,
+    "targetrevision": 23,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 22,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "ad732479-f1e1-45ba-b52a-3d47462ceb7b",
+      "phase": "COMMITTING",
+      "requestHash": "2dbaa1427aa7cd06facd6db18df04f0d7499dc5700d0a3b22bb690bb06c7022b",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 23,
+      "updated": 1793442290.7327743
+    },
+    "created": "2026-10-31T19:24:44+0900",
+    "updated": "2026-10-31T19:24:53+0900",
+    "completed": "2026-10-31T19:24:53+0900",
+    "result": {
+      "id": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "ad1453r5",
+      "path": "/export/ad1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:24:44Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"a144428b-5327-3d9e-94b6-87e0fbc963d6\",\"inheritOwner\":true,\"createMask\":\"0770\",\"forceCreateMode\":\"0010\",\"forceDirectoryMode\":\"0020\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "createmask": "0770",
+      "expectedrevision": 22,
+      "forcecreatemode": "0010",
+      "forcedirectorymode": "0020",
+      "id": 446,
+      "impactack": "5e7f2f2af40bcfc8c204ce12b3f5f114d53103bc4241444bd07842ef6ed0869b"
+    }
+  },
+  {
+    "id": "dffa2137-aa8d-4183-8681-7813267e4e5f",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "cf1c0b27-0ca4-4457-a90b-ab9a481b7d4f",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 23,
+    "targetrevision": 24,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 23,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "dffa2137-aa8d-4183-8681-7813267e4e5f",
+      "phase": "COMMITTING",
+      "requestHash": "27b75e0c5011d7e3ea78180e6afdf3c697dc999d6c50a56cbdec9a40aa54759f",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 24,
+      "updated": 1793442445.1015797
+    },
+    "created": "2026-10-31T19:27:18+0900",
+    "updated": "2026-10-31T19:27:28+0900",
+    "completed": "2026-10-31T19:27:28+0900",
+    "result": {
+      "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:27:17Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":false,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0775\",\"directoryMask\":\"0770\",\"forceCreateMode\":\"0111\",\"forceDirectoryMode\":\"0020\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "browseable": false,
+      "expectedrevision": 23,
+      "id": 444,
+      "impactack": "5141642de28f7676a0472521576f188dbb638d9233944fd612ee2312900818bb"
+    }
+  },
+  {
+    "id": "47f865b1-90f3-4887-81ec-d7b31b424153",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "50b15fc1-55f1-49c1-b73d-ba889c789c73",
+    "state": "ROLLED_BACK",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 24,
+    "targetrevision": 25,
+    "canresume": false,
+    "originalfailure": {
+      "code": "SMB_OPTIONS_RELOAD_FAILED",
+      "phase": "APPLYING",
+      "type": "PolicyError"
+    },
+    "rollback": {
+      "state": "SUCCEEDED"
+    },
+    "observation": {
+      "baseRevision": 24,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "47f865b1-90f3-4887-81ec-d7b31b424153",
+      "originalfailure": {
+        "code": "SMB_OPTIONS_RELOAD_FAILED",
+        "phase": "APPLYING",
+        "type": "PolicyError"
+      },
+      "phase": "COMPLETED",
+      "requestHash": "7a5c7b9aa5efc7f225627cc8ec6218d21ec4a3753ed11992d7008dfcad88113d",
+      "rollback": {
+        "state": "SUCCEEDED"
+      },
+      "smbOptions": {
+        "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+        "phase": "RELOADING",
+        "pid": 1942,
+        "ports": "445"
+      },
+      "state": "ROLLED_BACK",
+      "targetRevision": 25,
+      "updated": 1793442542.2045043
+    },
+    "created": "2026-10-31T19:28:55+0900",
+    "updated": "2026-10-31T19:29:05+0900",
+    "completed": "2026-10-31T19:29:05+0900",
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "createmask": "0600",
+      "directorymask": "0700",
+      "expectedrevision": 24,
+      "forcecreatemode": "0000",
+      "forcedirectorymode": "0000",
+      "id": 444,
+      "impactack": "6dcd6e5e8af1067079b98ba2f7cba85fb4f09ccf9caeb85a314edeea0df1baf9"
+    }
+  },
+  {
+    "id": "2d28b07d-9e80-4d48-9914-2b8ed6d681ed",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "2cc2d94f-c39d-4836-a9e9-8d4357c2cde1",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 24,
+    "targetrevision": 25,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 24,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "2d28b07d-9e80-4d48-9914-2b8ed6d681ed",
+      "phase": "COMMITTING",
+      "requestHash": "139eb900263da86f4cda4d2c5b40068f70921dfe02b67743fd6cdb95b646eb6c",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 25,
+      "updated": 1793442740.5522022
+    },
+    "created": "2026-10-31T19:32:14+0900",
+    "updated": "2026-10-31T19:32:23+0900",
+    "completed": "2026-10-31T19:32:23+0900",
+    "result": {
+      "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:32:10Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0775\",\"directoryMask\":\"0770\",\"forceCreateMode\":\"0111\",\"forceDirectoryMode\":\"0020\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "browseable": true,
+      "expectedrevision": 24,
+      "id": 444,
+      "impactack": "6c5f73e85202208dad33cd6d62201105452e33285a90dc2a8d7a56d74e0db912"
+    }
+  },
+  {
+    "id": "42e76c1f-c630-4377-ace0-fa9f99107ee8",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "83fdecb3-5f86-4cde-8654-a1e7f1df9a86",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "bab4b234-633d-4389-961e-fa257e9b413c",
+    "baserevision": 25,
+    "targetrevision": 26,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 25,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "42e76c1f-c630-4377-ace0-fa9f99107ee8",
+      "phase": "COMMITTING",
+      "requestHash": "b7c07bf361fc7436c5fe8e4a14e4c707eee5e2b2ac956fa72a52f213fbf8051f",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 26,
+      "updated": 1793442831.2720091
+    },
+    "created": "2026-10-31T19:33:45+0900",
+    "updated": "2026-10-31T19:33:54+0900",
+    "completed": "2026-10-31T19:33:54+0900",
+    "result": {
+      "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sdb",
+      "runtimeobservedat": "2026-10-31T10:33:49Z",
+      "runtimebootid": "f8c8bbab-a021-4be6-90e7-e379875b32f3",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0660\",\"directoryMask\":\"0770\",\"forceCreateMode\":\"0000\",\"forceDirectoryMode\":\"0000\"}"
+    },
+    "candidate": {
+      "api": "UpdateStorageSmbShareCmd",
+      "createmask": "0660",
+      "expectedrevision": 25,
+      "forcecreatemode": "0000",
+      "forcedirectorymode": "0000",
+      "id": 444,
+      "impactack": "7b94a5504dbecfd0b3f7212913edc24aed1316a6244c178964fb040c32a83595"
+    }
+  }
+]

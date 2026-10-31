@@ -1,0 +1,54 @@
+{
+  "light": [
+    {
+      "background": "rgb(247, 249, 252)",
+      "bottom": 88,
+      "color": "rgb(75, 85, 99)",
+      "overflowY": "visible",
+      "selector": ".ant-modal-header",
+      "top": 33
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "bottom": 622,
+      "color": "rgb(31, 41, 55)",
+      "overflowY": "auto",
+      "selector": ".ant-modal-body",
+      "top": 88
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "bottom": 671,
+      "color": "rgb(75, 85, 99)",
+      "overflowY": "visible",
+      "selector": ".mold-dialog-actions",
+      "top": 639
+    }
+  ],
+  "dark": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "bottom": 93.27539825439452,
+      "color": "rgb(197, 204, 212)",
+      "overflowY": "visible",
+      "selector": ".ant-modal-header",
+      "top": 39.1287727355957
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "bottom": 618.9899368286133,
+      "color": "rgb(240, 243, 246)",
+      "overflowY": "auto",
+      "selector": ".ant-modal-body",
+      "top": 93.27539825439452
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "bottom": 667.2296752929688,
+      "color": "rgb(197, 204, 212)",
+      "overflowY": "visible",
+      "selector": ".mold-dialog-actions",
+      "top": 635.7261352539062
+    }
+  ]
+}

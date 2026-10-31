@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "4ab768a3ec7d69a2c34b780ad8cfeba84b6bfa5c",
+  "changedJarEntries": [
+    "storage-runtime/bootstrap/runtime-baseline-profile.json"
+  ],
+  "managementSha256": "ec836625519820bac02eea1aeaf5ea00ffe5baa90e7bd61e265e7d832f06b0fd",
+  "uiUnchanged": true,
+  "hostAgentChanged": false,
+  "schemaMigrationRequired": false,
+  "rollbackRoot": "/var/tmp/epic1438-1454-metadata-r2"
+}
