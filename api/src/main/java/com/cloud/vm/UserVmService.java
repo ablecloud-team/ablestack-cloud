@@ -110,6 +110,7 @@ public interface UserVmService {
     Optional<UserVm> cloneVirtualMachine(CloneVMCmd cmd) throws ResourceUnavailableException, ConcurrentOperationException, InsufficientCapacityException, ResourceAllocationException;
 
     org.apache.cloudstack.api.response.VmCloneBatchResponse queryVMCloneBatch(String requestId);
+    org.apache.cloudstack.api.response.VmCloneBatchResponse cleanupVMCloneBatch(String requestId);
 
     void validateCloneCondition(CloneVMCmd cmd) throws ResourceUnavailableException, ConcurrentOperationException, ResourceAllocationException;
 

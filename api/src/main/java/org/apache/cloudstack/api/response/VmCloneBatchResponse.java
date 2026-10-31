@@ -62,6 +62,22 @@ public class VmCloneBatchResponse extends BaseResponse {
     @Param(description = "Batch failure summary")
     public String error;
 
+    @SerializedName("cleanupavailable")
+    @Param(description = "Failed batch resources can be reconciled without recreating successful targets")
+    public boolean cleanupAvailable;
+
+    @SerializedName("snapshotcleanuperror")
+    @Param(description = "Temporary snapshot cleanup is pending; existing dependency guards remain enforced")
+    public String snapshotCleanupError;
+
+    @SerializedName("cleanupjobid")
+    @Param(description = "Most recent asynchronous cleanup attempt")
+    public String cleanupJobId;
+
+    @SerializedName("cleanupjobstatus")
+    @Param(description = "Cleanup Job status: 0 running, 1 completed, 2 failed")
+    public Integer cleanupJobStatus;
+
     @SerializedName("targets")
     @Param(description = "All planned targets")
     public List<Target> targets = new ArrayList<>();
@@ -99,6 +115,10 @@ public class VmCloneBatchResponse extends BaseResponse {
         @SerializedName("cleanup")
         @Param(description = "Cloud cleanup state, not an independent physical audit")
         public String cleanup;
+
+        @SerializedName("cleanuperror")
+        @Param(description = "Why physical cleanup could not be verified")
+        public String cleanupError;
 
         @SerializedName("retryaction")
         @Param(description = "CREATE recaptures the current source, RESUME reuses prepared disks, START starts the existing VM, NONE blocks retry")

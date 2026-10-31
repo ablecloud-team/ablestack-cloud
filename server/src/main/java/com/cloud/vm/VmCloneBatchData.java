@@ -29,6 +29,11 @@ class VmCloneBatchData {
     Long sourceTemplateId;
     boolean start, prepared;
     String status = "QUEUED";
+    Long cleanupJobId;
+    String snapshotCleanupError;
+    int snapshotCleanupAttempts;
+    long snapshotCleanupNext;
+    List<Long> temporarySnapshots = new ArrayList<>();
     List<SourceDisk> sourceDisks = new ArrayList<>();
     List<Item> items = new ArrayList<>();
     Map<String, Attempt> attempts = new LinkedHashMap<>();
@@ -50,6 +55,10 @@ class VmCloneBatchData {
         String name, phase = "PLANNED", error;
         Long vmId;
         boolean vmRecorded, created;
+        boolean cleanupRequired;
+        String cleanupError;
+        int cleanupAttempts;
+        long cleanupNext;
         List<Disk> disks = new ArrayList<>();
     }
 

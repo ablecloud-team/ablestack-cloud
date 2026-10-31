@@ -19,4 +19,6 @@ package com.cloud.vm.dao;
 import com.cloud.utils.db.GenericDao;
 import com.cloud.vm.VmCloneBatchVO;
 
-public interface VmCloneBatchDao extends GenericDao<VmCloneBatchVO, Long> {}
+public interface VmCloneBatchDao extends GenericDao<VmCloneBatchVO, Long> {
+    java.util.List<VmCloneBatchVO> listCleanupRequired();
+}
