@@ -108,7 +108,7 @@ public class BucketQuotaCoordinatorTest {
             ReservationVO row = i.getArgument(0); ReflectionTestUtils.setField(row, "id", 4L); return row;
         });
         doAnswer(i -> { ledger.addAndGet(i.getArgument(2)); return null; }).when(limits).incrementResourceCount(eq(7L), eq(ResourceType.object_storage), anyLong());
-        doAnswer(i -> { ledger.addAndGet(-((Long)i.getArgument(2))); return null; }).when(limits).decrementResourceCount(eq(7L), eq(ResourceType.object_storage), anyLong());
+        doAnswer(i -> { ledger.addAndGet(-((Long)i.getArgument(2))); return null; }).when(limits).decrementBucketResourceCount(eq(7L), eq(ResourceType.object_storage), anyLong());
         locks = mockStatic(DbUtil.class);
         locks.when(() -> DbUtil.getGlobalLock(anyString(), anyInt())).thenReturn(true);
         locks.when(() -> DbUtil.releaseGlobalLock(anyString())).thenReturn(true);

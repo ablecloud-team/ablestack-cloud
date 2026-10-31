@@ -376,11 +376,11 @@ public class BucketQuotaCoordinator {
         }
         inTransaction(() -> {
             if ("CREATE".equals(op.getOperationType())) {
-                limits.decrementResourceCount(bucket.getAccountId(), ResourceType.bucket);
-                limits.decrementResourceCount(bucket.getAccountId(), ResourceType.object_storage, quotaBytes(op.getRequestedQuota()));
+                limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.bucket, 1L);
+                limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.object_storage, quotaBytes(op.getRequestedQuota()));
                 if (!buckets.remove(bucket.getId())) { throw new CloudRuntimeException("Unable to roll back bucket metadata"); }
             } else if (op.getAccountHoldBytes() > 0) {
-                limits.decrementResourceCount(bucket.getAccountId(), ResourceType.object_storage, op.getAccountHoldBytes());
+                limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.object_storage, op.getAccountHoldBytes());
             }
             finish(op, "Failed");
             return null;
@@ -406,15 +406,15 @@ public class BucketQuotaCoordinator {
                 throw new CloudRuntimeException("Object store allocation changed; reconciliation required");
             }
             if ("DELETE".equals(op.getOperationType())) {
-                limits.decrementResourceCount(bucket.getAccountId(), ResourceType.bucket);
-                if (old > 0) { limits.decrementResourceCount(bucket.getAccountId(), ResourceType.object_storage, old); }
+                limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.bucket, 1L);
+                if (old > 0) { limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.object_storage, old); }
                 if (!buckets.remove(bucket.getId())) { throw new CloudRuntimeException("Unable to remove bucket metadata"); }
             } else {
                 BucketVO update = buckets.createForUpdate(bucket.getId());
                 update.setQuota(op.getRequestedQuota()); update.setState(Bucket.State.Created);
                 if (!buckets.update(bucket.getId(), update)) { throw new CloudRuntimeException("Unable to update bucket quota metadata"); }
                 if ("UPDATE".equals(op.getOperationType()) && next < old) {
-                    limits.decrementResourceCount(bucket.getAccountId(), ResourceType.object_storage, old - next);
+                    limits.decrementBucketResourceCount(bucket.getAccountId(), ResourceType.object_storage, old - next);
                 }
             }
             finish(op, "Succeeded");
