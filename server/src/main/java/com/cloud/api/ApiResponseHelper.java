@@ -217,6 +217,8 @@ import org.apache.cloudstack.direct.download.DirectDownloadManager.HostCertifica
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStore;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreCapabilities;
 import org.apache.cloudstack.engine.subsystem.api.storage.DataStoreManager;
+import org.apache.cloudstack.storage.object.BucketCredentials;
+import org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider;
 import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotDataFactory;
 import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotInfo;
 import org.apache.cloudstack.framework.jobs.AsyncJob;
@@ -5654,16 +5656,32 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         bucketResponse.setEncryption(bucket.isEncryption());
         bucketResponse.setObjectLock(bucket.isObjectLock());
         bucketResponse.setPolicy(bucket.getPolicy());
-        bucketResponse.setBucketURL(bucket.getBucketURL());
-        bucketResponse.setAccessKey(bucket.getAccessKey());
-        bucketResponse.setSecretKey(bucket.getSecretKey());
         ObjectStoreVO objectStoreVO = _objectStoreDao.findById(bucket.getObjectStoreId());
+        bucketResponse.setBucketURL("Glue".equals(objectStoreVO.getProviderName())
+                ? objectStoreVO.getUrl().replaceAll("/+$", "") + "/" + bucket.getName() : bucket.getBucketURL());
+        BucketCredentials credential = resolveBucketCredentials(bucket, objectStoreVO);
+        bucketResponse.setAccessKey(credential.getAccessKey());
+        bucketResponse.setSecretKey(credential.getSecretKey());
+        bucketResponse.setCredentialState(credential.getState());
+        bucketResponse.setCredentialChecked(credential.getChecked());
         bucketResponse.setObjectStoragePoolId(objectStoreVO.getUuid());
         bucketResponse.setObjectStoragePool(objectStoreVO.getName());
         bucketResponse.setObjectName("bucket");
         bucketResponse.setProvider(objectStoreVO.getProviderName());
         populateAccount(bucketResponse, bucket.getAccountId());
         return bucketResponse;
+    }
+
+    protected BucketCredentials resolveBucketCredentials(Bucket bucket, ObjectStoreVO store) {
+        if (!"Glue".equals(store.getProviderName())) {
+            return new BucketCredentials(bucket.getAccessKey(), bucket.getSecretKey(), null, null);
+        }
+        try {
+            return ((ObjectStoreCredentialProvider) _dataStoreMgr.getDataStore(store.getId(), DataStoreRole.Object).getDriver()).getBucketCredentials(bucket);
+        } catch (RuntimeException e) {
+            // No stale snapshot fallback and no provider exception/key values in API diagnostics.
+            return new BucketCredentials(null, null, "NeedsVerification", null);
+        }
     }
 
     @Override

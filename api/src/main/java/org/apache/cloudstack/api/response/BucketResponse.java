@@ -110,6 +110,18 @@ public class BucketResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "Object storage provider")
     private String provider;
 
+    @SerializedName("credentialstate")
+    @Param(description = "Storage-scoped credential verification state")
+    private String credentialState;
+
+    @SerializedName("credentialchecked")
+    @Param(description = "Last credential verification time")
+    private Date credentialChecked;
+
+    public void setCredentialState(String value) { credentialState = value; }
+    public String getCredentialState() { return credentialState; }
+    public void setCredentialChecked(Date value) { credentialChecked = value; }
+
     public BucketResponse() {
         tags = new LinkedHashSet<ResourceTagResponse>();
     }

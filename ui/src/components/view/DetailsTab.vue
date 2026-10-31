@@ -61,6 +61,10 @@
           <a-tooltip v-if="$route.meta.name === 'storagepool' && item === 'disksizeallocated'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined style="margin-left: 8px" /></a-tooltip>
           <br/>
           <div v-if="allocationDetails[item]">{{ allocationDetails[item].value }}</div>
+          <a-tag v-else-if="$route.meta.name === 'buckets' && item === 'credentialstate'" :color="dataResource[item] === 'Verified' ? 'green' : 'orange'">
+            {{ $t(dataResource[item] === 'Verified' ? 'label.objectstore.credential.verified' : 'label.objectstore.credential.unverified') }}
+          </a-tag>
+          <span v-else-if="$route.meta.name === 'buckets' && item === 'credentialchecked'">{{ dataResource[item] ? $toLocaleDate(dataResource[item]) : $t('label.unknown') }}</span>
           <status v-else-if="$route.meta.name === 'buckets' && item === 'state'" :text="String(dataResource[item] || '')" display-text />
           <a-tag v-else-if="$route.meta.name === 'buckets' && ['encryption', 'versioning', 'objectlocking'].includes(item)">{{ $t(dataResource[item] === true || dataResource[item] === 'true' ? 'label.enabled' : dataResource[item] === false || dataResource[item] === 'false' ? 'label.disabled' : 'label.unknown') }}</a-tag>
           <span v-else-if="$route.meta.name === 'buckets' && item === 'policy'">{{ ['Public', 'Private'].includes(dataResource[item]) ? $t('label.bucket.policy.' + dataResource[item].toLowerCase()) : dataResource[item] }}</span>

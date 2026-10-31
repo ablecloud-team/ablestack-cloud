@@ -247,7 +247,7 @@
         :message="$t('message.objectstore.list.failed')">
         <template #description>
           <p>{{ objectListError }}</p>
-          <a-button :disabled="objectListScopeChanged" @click="fetchData">{{ $t('label.retry') }}</a-button>
+          <a-button :disabled="objectListScopeChanged" @click="retryObjectListing">{{ $t('label.retry') }}</a-button>
         </template>
       </a-alert>
       <a-table
@@ -326,7 +326,7 @@ export default {
     TooltipLabel,
     KeyValuePairInput
   },
-  emits: ['change-resource'],
+  emits: ['change-resource', 'refresh'],
   props: {
     resource: {
       type: Object,
@@ -402,7 +402,7 @@ export default {
       return !this.$route.params?.id || String(this.resource.id).toLowerCase() === String(this.$route.params.id).toLowerCase()
     },
     objectStoreConnectionKey () {
-      return JSON.stringify([this.resource.id, this.resource.name, this.resource.url,
+      return JSON.stringify([this.resource.id, this.resource.name, this.resource.url, this.resource.credentialstate,
         this.resource.accesskey, this.resource.usersecretkey])
     },
     uploadPendingCount () {
@@ -534,6 +534,13 @@ export default {
         this.page = pagination.current
       }
     },
+    retryObjectListing () {
+      if (this.resource.credentialstate && this.resource.credentialstate !== 'Verified') {
+        this.$emit('refresh')
+        return
+      }
+      return this.fetchData()
+    },
     async fetchData () {
       if (this.objectListScopeChanged || !this.objectStoreRouteMatchesResource || !this.resource.id) return
       const generation = ++this.objectStoreFetchGeneration
@@ -545,6 +552,9 @@ export default {
         }
         if (generation !== this.objectStoreFetchGeneration || this.listRefreshDisposed || this.objectListScopeChanged ||
             context !== this.objectStoreContextKey || path !== this.browserPath) return
+        if (this.resource.credentialstate && this.resource.credentialstate !== 'Verified') {
+          throw new Error(this.$t('message.objectstore.credential.unverified'))
+        }
         if (!this.client) {
           this.initMinioClient()
         } else {

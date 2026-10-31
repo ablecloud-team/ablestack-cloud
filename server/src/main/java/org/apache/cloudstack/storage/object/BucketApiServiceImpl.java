@@ -141,8 +141,8 @@ public class BucketApiServiceImpl extends ManagerBase implements BucketApiServic
                 return null;
             }
         } catch (CloudRuntimeException e) {
-            logger.error("Error while checking object store user.", e);
-            return null;
+            logger.warn("Unable to verify account credentials for object storage {}", objectStoreVO.getUuid());
+            throw new CloudRuntimeException("Unable to verify credentials for object storage " + objectStoreVO.getUuid());
         }
 
         long size = ObjectUtils.defaultIfNull(cmd.getQuota(), 0) * Resource.ResourceType.bytesToGiB;

@@ -1494,3 +1494,21 @@ CREATE TABLE IF NOT EXISTS `cloud`.`vm_process_profile` (
 -- Kubernetes Service cleanup receipts must distinguish pool IP allocation reuse.
 ALTER TABLE `cloud`.`user_ip_address` ADD COLUMN `allocation_generation` VARCHAR(36) DEFAULT NULL;
 UPDATE `cloud`.`user_ip_address` SET `allocation_generation` = UUID() WHERE `allocated` IS NOT NULL;
+
+-- Scoped Glue credentials; existing account details are preserved.
+CREATE TABLE IF NOT EXISTS `cloud`.`object_store_account_credential` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `account_id` BIGINT UNSIGNED NOT NULL,
+  `object_store_id` BIGINT UNSIGNED NOT NULL,
+  `rgw_user_id` VARCHAR(255) NOT NULL,
+  `access_key` VARCHAR(1024) DEFAULT NULL,
+  `secret_key` VARCHAR(2048) DEFAULT NULL,
+  `state` VARCHAR(32) NOT NULL DEFAULT 'NeedsVerification',
+  `revision` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `checked_at` DATETIME DEFAULT NULL,
+  `provisioning_source` VARCHAR(32) NOT NULL DEFAULT 'Existing',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_object_store_account_credential_pair` (`account_id`,`object_store_id`),
+  CONSTRAINT `fk_object_store_account_credential_account` FOREIGN KEY (`account_id`) REFERENCES `cloud`.`account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_object_store_account_credential_store` FOREIGN KEY (`object_store_id`) REFERENCES `cloud`.`object_store` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

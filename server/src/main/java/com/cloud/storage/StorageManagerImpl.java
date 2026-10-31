@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.storage;
 
+import org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialDao;
 import static com.cloud.configuration.ConfigurationManagerImpl.SystemVMUseLocalStorage;
 import static com.cloud.utils.NumbersUtil.toHumanReadableSize;
 
@@ -286,6 +287,9 @@ import com.google.common.collect.Sets;
 public class StorageManagerImpl extends ManagerBase implements StorageManager, ClusterManagerListener, Configurable {
 
     protected String _name;
+    @Inject
+    private ObjectStoreAccountCredentialDao objectStoreAccountCredentialDao;
+
     @Inject
     protected AgentManager _agentMgr;
     @Inject
@@ -4784,6 +4788,7 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 _objectStoreDetailsDao.deleteDetails(storeId);
+                objectStoreAccountCredentialDao.removeByStore(storeId);
                 _objectStoreDao.remove(storeId);
             }
         });

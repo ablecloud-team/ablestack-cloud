@@ -32,6 +32,7 @@
   <!--
     DAOs with default configuration
   -->
+  <bean id="objectStoreAccountCredentialDaoImpl" class="org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialDaoImpl" />
   <bean id="vlanDaoImpl" class="com.cloud.dc.dao.VlanDaoImpl" />
   <bean id="userDaoImpl" class="com.cloud.user.dao.UserDaoImpl" />
   <bean id="VMTemplateDaoImpl" class="com.cloud.storage.dao.VMTemplateDaoImpl" />

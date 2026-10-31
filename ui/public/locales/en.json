@@ -9901,5 +9901,10 @@
   "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM.",
   "message.objectstore.upload.more.files": "{files} and {count} more",
   "message.objectstore.upload.failed.summary": "Uploaded {complete} of {total} files; {failed} failed. Failed files: {files}",
-  "message.objectstore.upload.success.summary": "{total} files uploaded."
+  "message.objectstore.upload.success.summary": "{total} files uploaded.",
+  "label.credentialstate": "Credential verification",
+  "label.credentialchecked": "Last credential verification",
+  "label.objectstore.credential.verified": "Verified",
+  "label.objectstore.credential.unverified": "Needs verification",
+  "message.objectstore.credential.unverified": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
 }
