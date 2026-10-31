@@ -246,7 +246,7 @@
         show-icon
         :message="$t('message.objectstore.list.failed')">
         <template #description>
-          <p>{{ objectListError }}</p>
+          <p>{{ objectListError === 'message.objectstore.credential.unverified' ? $t(objectListError) : objectListError }}</p>
           <a-button :disabled="objectListScopeChanged" @click="retryObjectListing">{{ $t('label.retry') }}</a-button>
         </template>
       </a-alert>
@@ -553,7 +553,7 @@ export default {
         if (generation !== this.objectStoreFetchGeneration || this.listRefreshDisposed || this.objectListScopeChanged ||
             context !== this.objectStoreContextKey || path !== this.browserPath) return
         if (this.resource.credentialstate && this.resource.credentialstate !== 'Verified') {
-          throw new Error(this.$t('message.objectstore.credential.unverified'))
+          throw new Error('message.objectstore.credential.unverified')
         }
         if (!this.client) {
           this.initMinioClient()
