@@ -1200,6 +1200,347 @@ class SmbCreationPolicies:
         self.verify(snapshot, restored=True)
 
 
+# New-mode paths only. The registry contains owned runtime mounts, never service policy.
+NESTED_FILE_SHARE_PATH_VERSION = 1
+
+def relative_file_share_path(value):
+    if not isinstance(value, str) or not value or len(value) > 255 or value.startswith("/") or "\\" in value:
+        raise PolicyError("DIRECTORY_RELATIVE_PATH_INVALID")
+    parts = value.split("/")
+    if any(p in ("", ".", "..") or len(p.encode("utf-8")) > 255
+           or any(ord(c) < 32 or ord(c) == 127 for c in p) for p in parts):
+        raise PolicyError("DIRECTORY_RELATIVE_PATH_INVALID")
+    return "/".join(parts)
+
+def nested_path_protected():
+    return inheritance_protection_version(minimum=8) == 1
+
+class FileSharePathBindings:
+    def __init__(self, managed=Path("/srv/ablestack-storage/volumes"),
+                 root=Path("/run/ablestack-storage/file-shares"), journal=None, restoring=None):
+        self.managed, self.root = Path(managed), Path(root)
+        self.registry = self.root / "bindings.json"
+        self.journal = Path(journal or os.environ["ABLESTACK_STORAGE_PATH_JOURNAL"]) if journal or os.environ.get("ABLESTACK_STORAGE_PATH_JOURNAL") else None
+        self.restoring = os.environ.get("ABLESTACK_STORAGE_PATH_RESTORE") == "1" if restoring is None else restoring
+
+    @staticmethod
+    def bound(row):
+        return (row.get("config") or {}).get("pathBindingVersion") == 1
+
+    @staticmethod
+    def rows(commands):
+        return [r for op, value in commands.items() if op in ("nfs export apply", "smb share apply")
+                for r in value.get("exports", value.get("shares", []))
+                if FileSharePathBindings.bound(r) and r.get("state") not in ("Disabled", "Destroyed", "Error")]
+
+    @staticmethod
+    def mnt_id(fd):
+        return int(next(line.split(":", 1)[1] for line in Path("/proc/self/fdinfo/" + str(fd)).read_text().splitlines()
+                        if line.startswith("mnt_id:")))
+
+    @staticmethod
+    def read(path, fallback=None):
+        try:
+            raw, _ = SmbCreationPolicies.read_file(Path(path))
+            return json.loads(raw)
+        except FileNotFoundError:
+            return fallback
+        except PolicyError:
+            if not Path(path).exists() and not Path(path).is_symlink(): return fallback
+            raise
+
+    def write(self, path, value):
+        from configuration_transaction import atomic_json
+        path = Path(path)
+        if path != self.registry:
+            atomic_json(path, value)
+            return
+        import tempfile
+        self.root.mkdir(parents=True, exist_ok=True, mode=0o755)
+        if self.root.is_symlink() or self.root.stat().st_uid != 0 or self.root.stat().st_mode & 0o022:
+            raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+        fd, temp = tempfile.mkstemp(prefix=".bindings-", dir=self.root)
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "w") as stream:
+                json.dump(value, stream, sort_keys=True); stream.flush(); os.fsync(stream.fileno())
+            os.replace(temp, path)
+        finally:
+            if os.path.exists(temp): os.unlink(temp)
+
+    def registered(self):
+        return self.read(self.registry, {"version": 1, "records": {}})
+
+    def volume(self, row):
+        import uuid
+        c = row.get("config") or {}
+        relative = relative_file_share_path(c.get("relativeSharePath"))
+        root = Path(c.get("volumeMountPath") or "")
+        if root.parent != self.managed or str(uuid.UUID(root.name)) != root.name.lower():
+            raise PolicyError("DIRECTORY_VOLUME_PATH_INVALID")
+        if c.get("backingPath") != str(root / relative):
+            raise PolicyError("DIRECTORY_POLICY_PATH_MISMATCH")
+        fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            info = json.loads(checked(["findmnt", "-J", "-M", str(root), "-o", "TARGET,UUID,FSTYPE,FSROOT"]).decode())["filesystems"]
+            if len(info) != 1 or not info[0].get("uuid") or info[0].get("fstype") not in ("xfs", "ext4") or info[0].get("fsroot") != "/":
+                raise PolicyError("DIRECTORY_VOLUME_NOT_MOUNTED")
+            identity = c.get("pathIdentity") or {}
+            if identity and (identity.get("filesystemUuid") != info[0]["uuid"]
+                             or identity.get("volumeRootInode") != os.fstat(fd).st_ino):
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+            return root, relative, fd, info[0]["uuid"]
+        except BaseException:
+            os.close(fd); raise
+
+    def inspect(self, row):
+        root, relative, fd, fsuuid = self.volume(row)
+        try:
+            device, mid = os.fstat(fd).st_dev, self.mnt_id(fd)
+            root_inode = os.fstat(fd).st_ino
+            missing, parents = [], []
+            walked = []
+            for part in relative.split("/"):
+                parents.append({"path": "/".join(walked), "inode": os.fstat(fd).st_ino})
+                walked.append(part)
+                if missing:
+                    missing.append("/".join(walked)); continue
+                try: child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                except FileNotFoundError:
+                    missing.append("/".join(walked)); continue
+                except OSError:
+                    raise PolicyError("DIRECTORY_PATH_SYMLINK")
+                os.close(fd); fd = child
+                if os.fstat(fd).st_dev != device or self.mnt_id(fd) != mid:
+                    raise PolicyError("DIRECTORY_MOUNT_BOUNDARY")
+            result = {"relativepath": relative, "physicalpath": str(root / relative), "volumemountpath": str(root),
+                      "volumeuuid": root.name, "filesystemuuid": fsuuid, "rootinode": root_inode,
+                      "mountid": mid, "exists": not missing, "missing": missing, "parents": parents}
+            if not missing:
+                st = os.fstat(fd)
+                identity = (row.get("config") or {}).get("pathIdentity") or {}
+                if identity and identity.get("inode") != st.st_ino:
+                    raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                result.update(inode=st.st_ino, owneruid=st.st_uid, ownergid=st.st_gid,
+                              mode=format(stat.S_IMODE(st.st_mode), "04o"),
+                              acl=checked(["getfacl", "-cpn", "/proc/self/fd/" + str(fd)], pass_fds=(fd,)).decode())
+            return result
+        finally: os.close(fd)
+
+    def journal_value(self):
+        return self.read(self.journal, {}) if self.journal else {}
+
+    def begin(self, payload):
+        plans = {r["uuid"]: self.inspect(r) for r in self.rows(payload["candidate"])}
+        self.write(self.journal, {"version": 1, "instanceUuid": payload["instanceUuid"], "operationid": payload["operationid"],
+                                 "plans": plans, "created": [], "intents": [], "bindings": {},
+                                 "before": self.registered()})
+
+    def anchor(self, resource, identity):
+        import uuid
+        canonical = str(uuid.UUID(resource))
+        token = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:24]
+        return self.root / (canonical + "-" + token)
+
+    def ensure(self, row, protocol):
+        c = row["config"]
+        root, relative, fd, fsuuid = self.volume(row)
+        journal = self.journal_value()
+        plan = journal.get("plans", {}).get(row["uuid"]) if not self.restoring else None
+        root_inode = os.fstat(fd).st_ino
+        device, mid = os.fstat(fd).st_dev, self.mnt_id(fd)
+        created_target = False
+        try:
+            expected = c.get("pathIdentity") or {}
+            if not plan and not expected:
+                raise PolicyError("DIRECTORY_CREATION_REQUIRES_TRANSACTION")
+            walked = []
+            for part in relative.split("/"):
+                walked.append(part); name = "/".join(walked)
+                owned = next((v for v in journal.get("created", []) if v["volume"] == str(root) and v["relative"] == name), None)
+                absent = plan and name in plan["missing"]
+                parent_relative = "/".join(walked[:-1])
+                planned_parent = next((v for v in (plan or {}).get("parents", []) if v["path"] == parent_relative), None)
+                parent_owned = next((v for v in journal.get("created", []) if v["volume"] == str(root) and v["relative"] == parent_relative), None)
+                if planned_parent and not parent_owned and parent_relative not in plan.get("missing", []) and planned_parent["inode"] != os.fstat(fd).st_ino:
+                    raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                try:
+                    child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                    if absent and not owned:
+                        os.close(child)
+                        raise PolicyError("DIRECTORY_CREATION_UNCONFIRMED")
+                except FileNotFoundError:
+                    if not absent or self.restoring or not c.get("createDirectory"):
+                        raise PolicyError("DIRECTORY_CREATION_REQUIRED")
+                    journal["intents"].append({"volume": str(root), "relative": name, "parentinode": os.fstat(fd).st_ino})
+                    self.write(self.journal, journal)
+                    try: os.mkdir(part, 0o755, dir_fd=fd)
+                    except FileExistsError: raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                    child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                    owned = {"volume": str(root), "relative": name, "inode": os.fstat(child).st_ino, "filesystemUuid": fsuuid, "volumeRootInode": root_inode}
+                    journal["created"].append(owned); self.write(self.journal, journal)
+                except OSError: raise PolicyError("DIRECTORY_PATH_SYMLINK")
+                os.close(fd); fd = child
+                if os.fstat(fd).st_dev != device or self.mnt_id(fd) != mid:
+                    raise PolicyError("DIRECTORY_MOUNT_BOUNDARY")
+                if owned and owned["inode"] != os.fstat(fd).st_ino:
+                    raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                created_target = bool(owned and name == relative and not self.restoring)
+            st = os.fstat(fd)
+            if expected and expected.get("inode") != st.st_ino:
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+            if plan and plan["exists"] and plan["inode"] != st.st_ino:
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+            identity = {"filesystemUuid": fsuuid, "volumeRootInode": root_inode, "inode": st.st_ino}
+            target = self.anchor(row["uuid"], identity)
+            if self.root.is_symlink(): raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+            self.root.mkdir(parents=True, exist_ok=True, mode=0o755)
+            root_stat = self.root.stat()
+            if root_stat.st_uid != 0 or root_stat.st_mode & 0o022: raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+            if target.is_symlink(): raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+            target.mkdir(exist_ok=True)
+            self.pin(fd, target, device, st.st_ino)
+            c["pathIdentity"] = identity
+            entry = {"resourceuuid": row["uuid"], "volumeuuid": root.name, "relativepath": relative,
+                     "pathIdentity": identity, "anchor": str(target), "protocol": protocol}
+            registered = self.registered()
+            registered["records"][row["uuid"]] = entry
+            self.write(self.registry, registered)
+            if plan and not self.restoring:
+                journal = self.journal_value()
+                journal["bindings"][row["uuid"]] = {k: v for k, v in entry.items() if k not in ("anchor", "protocol")}
+                self.write(self.journal, journal)
+            return {**entry, "created": created_target}
+        finally: os.close(fd)
+
+    def pin(self, fd, target, device, inode):
+        mounted = subprocess.run(["findmnt", "-n", "-M", str(target)], capture_output=True).returncode == 0
+        if mounted:
+            actual = target.stat()
+            if actual.st_dev != device or actual.st_ino != inode:
+                raise PolicyError("DIRECTORY_BINDING_IDENTITY_CHANGED")
+        else:
+            if list(target.iterdir()): raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+            checked(["mount", "--bind", "/proc/self/fd/" + str(fd), str(target)], pass_fds=(fd,))
+
+    def enrich_desired(self, payload):
+        for row in payload.get("exports", payload.get("shares", [])):
+            if not self.bound(row) or row.get("state") in ("Disabled", "Destroyed", "Error"): continue
+            entry = self.registered()["records"].get(row["uuid"])
+            c = row["config"]
+            if not entry or entry["relativepath"] != c["relativeSharePath"] or str(self.managed / entry["volumeuuid"]) != c["volumeMountPath"]:
+                raise PolicyError("DIRECTORY_BINDING_RECEIPT_MISSING")
+            c["pathIdentity"] = entry["pathIdentity"]
+
+    def prepare(self, rows, protocol):
+        result = {}
+        for row in rows:
+            if self.bound(row) and row.get("state") not in ("Disabled", "Destroyed", "Error"):
+                result[row["uuid"]] = self.ensure(row, protocol)
+        return result
+
+    def observe(self, row):
+        if not self.bound(row): return {"status": "LEGACY"}
+        try:
+            preview = self.inspect(row)
+            identity = (row.get("config") or {}).get("pathIdentity")
+            if not preview["exists"] or not identity:
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+            target = self.anchor(row["uuid"], identity)
+            if target.is_symlink() or subprocess.run(["findmnt", "-n", "-M", str(target)], capture_output=True).returncode:
+                raise PolicyError("DIRECTORY_BINDING_UNAVAILABLE")
+            if target.stat().st_ino != identity["inode"] or target.stat().st_dev != Path(preview["physicalpath"]).stat().st_dev:
+                raise PolicyError("DIRECTORY_BINDING_IDENTITY_CHANGED")
+            return {"status": "VERIFIED", "relativepath": preview["relativepath"], "inode": preview["inode"]}
+        except (PolicyError, OSError, ValueError) as error:
+            return {"status": "UNAVAILABLE", "reason": getattr(error, "code", "DIRECTORY_OBSERVATION_UNAVAILABLE")}
+
+    def verify(self, commands):
+        journal = self.journal_value()
+        for row in self.rows(commands):
+            copy = json.loads(json.dumps(row))
+            receipt = journal.get("bindings", {}).get(row["uuid"])
+            if receipt and not self.restoring: copy["config"]["pathIdentity"] = receipt["pathIdentity"]
+            status = self.observe(copy)
+            if status["status"] != "VERIFIED": raise PolicyError(status["reason"])
+
+    def remove_anchor(self, entry):
+        target = Path(entry["anchor"])
+        if target != self.anchor(entry["resourceuuid"], entry["pathIdentity"]) or target.is_symlink():
+            raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+        if target.exists():
+            if subprocess.run(["findmnt", "-n", "-M", str(target)], capture_output=True).returncode == 0:
+                if target.stat().st_ino != entry["pathIdentity"]["inode"]:
+                    raise PolicyError("DIRECTORY_BINDING_IDENTITY_CHANGED")
+                checked(["umount", str(target)])
+            target.rmdir()
+
+    def rollback(self):
+        journal = self.journal_value()
+        before = journal.get("before", {"version": 1, "records": {}})
+        current = self.registered()
+        old_anchors = {v["anchor"] for v in before["records"].values()}
+        # Source identity checks precede any restoration of physical metadata.
+        for entry in before["records"].values():
+            row = {"uuid": entry["resourceuuid"], "config": {"pathBindingVersion": 1,
+                   "volumeMountPath": str(self.managed / entry["volumeuuid"]), "relativeSharePath": entry["relativepath"],
+                   "backingPath": str(self.managed / entry["volumeuuid"] / entry["relativepath"]), "pathIdentity": entry["pathIdentity"]}}
+            self.inspect(row)
+        for entry in current["records"].values():
+            if entry["anchor"] not in old_anchors: self.remove_anchor(entry)
+        if self.registry.exists() or before["records"]: self.write(self.registry, before)
+        retained = []
+        known = {(x["volume"], x["relative"]) for x in journal.get("created", [])}
+        for intent in journal.get("intents", []):
+            if (intent["volume"], intent["relative"]) not in known and (Path(intent["volume"]) / intent["relative"]).exists():
+                raise PolicyError("DIRECTORY_CREATION_UNCONFIRMED")
+        for entry in reversed(journal.get("created", [])):
+            relative = relative_file_share_path(entry["relative"])
+            root = Path(entry["volume"])
+            if root.parent != self.managed: raise PolicyError("DIRECTORY_BINDING_UNSAFE")
+            probe = {"config": {"relativeSharePath": relative, "volumeMountPath": str(root),
+                                "backingPath": str(root / relative), "pathIdentity": {"filesystemUuid": entry["filesystemUuid"],
+                                "volumeRootInode": entry["volumeRootInode"], "inode": entry["inode"]}}}
+            _, _, observed_fd, _ = self.volume(probe)
+            os.close(observed_fd)
+            target = root / relative
+            if not target.exists(): continue
+            fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                mid, device = self.mnt_id(fd), os.fstat(fd).st_dev
+                for part in relative.split("/")[:-1]:
+                    child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                    os.close(fd); fd = child
+                    if self.mnt_id(fd) != mid or os.fstat(fd).st_dev != device: raise PolicyError("DIRECTORY_MOUNT_BOUNDARY")
+                leaf = relative.split("/")[-1]
+                info = os.stat(leaf, dir_fd=fd, follow_symlinks=False)
+                if not stat.S_ISDIR(info.st_mode) or info.st_ino != entry["inode"]:
+                    raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                try: os.rmdir(leaf, dir_fd=fd)
+                except OSError as error:
+                    import errno
+                    if error.errno not in (errno.ENOTEMPTY, errno.EEXIST): raise
+                    retained.append(str(target))
+            finally: os.close(fd)
+        journal["retained"] = retained; self.write(self.journal, journal)
+        return retained
+
+    def finalize(self, commands):
+        current = self.registered()
+        for op, value in commands.items():
+            if op not in ("nfs export apply", "smb share apply"): continue
+            protocol = "NFS" if op.startswith("nfs") else "SMB"
+            alive = {r["uuid"] for r in value.get("exports", value.get("shares", []))
+                     if self.bound(r) and r.get("state") not in ("Disabled", "Destroyed", "Error")}
+            for key, entry in list(current["records"].items()):
+                if entry["protocol"] == protocol and key not in alive:
+                    self.remove_anchor(entry); del current["records"][key]
+        active = {v["anchor"] for v in current["records"].values()}
+        for entry in self.journal_value().get("before", {}).get("records", {}).values():
+            if entry["anchor"] not in active: self.remove_anchor(entry)
+        if self.registry.exists() or current["records"]: self.write(self.registry, current)
+
+
 if __name__=="__main__":
     import sys
     try: main()

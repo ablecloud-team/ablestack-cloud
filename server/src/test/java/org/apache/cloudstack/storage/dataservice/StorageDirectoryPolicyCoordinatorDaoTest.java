@@ -117,6 +117,7 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         StorageServiceConfigurationPreflight preflight=mock(StorageServiceConfigurationPreflight.class);
         JsonObject report=new JsonObject();report.addProperty("status","READY");report.addProperty("fingerprint","fixture");
         report.add("checks",new com.google.gson.JsonArray());report.add("intent",new JsonObject());
+        JsonObject profile=new JsonObject();profile.addProperty("observationseconds",60);report.add("profile",profile);
         org.mockito.Mockito.when(preflight.observe(any(),any(),any())).thenReturn(report);
         coordinator = new StorageServiceConfigurationCoordinator(instances,operations,
                 mock(StorageServiceProtocolDao.class),shares,mock(StorageBlockTargetDao.class),mock(StorageAccessRuleDao.class),
@@ -250,4 +251,56 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
             ()->{throw new AssertionError("duplicate mode request reapplied");},plan::set,()->{},null);
         assertEquals(value.toString(),shares.findById(id).getConfigJson());
     }
+    @Test public void actualCoordinatorVerifiedPathReceiptCommitsIdentityAndDaoReloadWithoutChangingAlias() throws Exception {
+        instance.setVmId(195L);instances.update(instance.getId(),instance);
+        final String volume="11111111-2222-4333-8444-555555555555";
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd();
+        field(cmd,cmd.getClass(),"instanceId",instance.getId());field(cmd,cmd.getClass(),"relativePath","projects/team");
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(invocation->{
+            StorageServiceGuestCommand request=invocation.getArgument(0);
+            JsonObject result=new JsonObject();
+            if(request.getOperation().equals("configuration capability show")) {
+                for(String key:new String[]{"nfsPosixIntentVersion","configurationPreflightVersion","configurationTransactionVersion",
+                        "nestedFileSharePathVersion","nestedFileSharePathProtectionVersion"}) result.addProperty(key,1);
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                result.add("operationid",input.get("operationid"));result.addProperty("state","VERIFIED");
+                if(request.getOperation().equals("configuration operation apply")) {
+                    JsonObject row=input.getAsJsonObject("candidate").getAsJsonObject("nfs export apply").getAsJsonArray("exports").get(0).getAsJsonObject();
+                    JsonObject binding=new JsonObject();binding.add("resourceuuid",row.get("uuid"));
+                    binding.addProperty("volumeuuid",volume);binding.addProperty("relativepath","projects/team");
+                    JsonObject identity=new JsonObject();identity.addProperty("filesystemUuid","fs-uuid");
+                    identity.addProperty("volumeRootInode",128);identity.addProperty("inode",9001);binding.add("pathIdentity",identity);
+                    JsonObject receipt=new JsonObject();receipt.add("operationid",input.get("operationid"));receipt.add("instanceUuid",input.get("instanceUuid"));
+                    com.google.gson.JsonArray bindings=new com.google.gson.JsonArray();bindings.add(binding);receipt.add("bindings",bindings);
+                    result.add("pathbindings",receipt);
+                }
+            }
+            return new StorageServiceGuestCommandResult(true,"fixture",result.toString());
+        });
+        java.util.function.Supplier<JsonObject> candidate=()->{
+            JsonObject config=new JsonObject();config.addProperty("pathBindingVersion",1);config.addProperty("relativeSharePath","projects/team");
+            config.addProperty("volumeMountPath","/srv/ablestack-storage/volumes/"+volume);
+            config.addProperty("backingPath","/srv/ablestack-storage/volumes/"+volume+"/projects/team");config.addProperty("keep","원본");
+            var row=plan.get().dao(StorageFileShareDao.class).persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.NFS,
+                    "public-alias","/export/public-alias",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,config.toString()));
+            JsonObject command=new JsonObject();com.google.gson.JsonArray rows=new com.google.gson.JsonArray();
+            JsonObject rendered=new JsonObject();rendered.addProperty("uuid",row.getUuid());rendered.addProperty("state","Ready");rendered.add("config",config);
+            rows.add(rendered);command.add("exports",rows);plan.get().commands.put("nfs export apply",command);
+            JsonObject response=new JsonObject();response.addProperty("id",row.getUuid());response.addProperty("config",row.getConfigJson());return response;
+        };
+        JsonObject result=coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,JsonObject.class,candidate,plan::set,()->{},null);
+        var reloaded=shares.findByUuid(result.get("id").getAsString());
+        JsonObject config=com.google.gson.JsonParser.parseString(reloaded.getConfigJson()).getAsJsonObject();
+        assertEquals(9001,config.getAsJsonObject("pathIdentity").get("inode").getAsInt());assertEquals("원본",config.get("keep").getAsString());
+        assertEquals("/export/public-alias",reloaded.getPath());
+        assertEquals(config,com.google.gson.JsonParser.parseString(result.get("config").getAsString()));
+        var op=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("COMMITTED",op.getState());assertTrue(op.getCandidateSnapshot().contains("9001"));
+        assertEquals(result,coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.NFS,JsonObject.class,
+                ()->{throw new AssertionError("duplicate path creation");},plan::set,()->{},null));
+        assertEquals(1,shares.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).size());
+    }
+
 }

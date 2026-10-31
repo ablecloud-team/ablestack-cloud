@@ -288,6 +288,15 @@ class Transaction:
         directory = self.root / instance
         return directory, directory / operation, directory / operation / "status.json"
 
+    @staticmethod
+    def bindings_status(value, private):
+        receipt = load(private / "pathbindings.json", {})
+        if receipt:
+            value["pathbindings"] = {k: receipt[k] for k in ("operationid", "instanceUuid")}
+            value["pathbindings"]["bindings"] = list(receipt.get("bindings", {}).values())
+            if receipt.get("retained"): value["pathbindings"]["retained"] = receipt["retained"]
+        return value
+
     def show(self, payload):
         # No flock, service command, device signature query or mutation on this path.
         _, _, status = self.paths(payload)
@@ -303,7 +312,7 @@ class Transaction:
         if value.get("state") != "NOT_FOUND":
             progress = load(status.parent / "smb-options-progress.json")
             if progress: value["smbOptions"] = progress
-        return value
+        return self.bindings_status(value, status.parent)
 
     def execute(self, action, payload):
         directory, private, status_path = self.paths(payload)
@@ -321,6 +330,7 @@ class Transaction:
                     raise Rejected("REVISION_CONFLICT")
                 if current.get("smbListenerOnly"):
                     self.adapter_factory(private).finalize_smb_listeners(payload)
+                if (private / "pathbindings.json").exists(): self.adapter_factory(private).finalize_paths()
                 atomic_json(directory / "revision.json", {"revision": current["targetRevision"],
                             "operationid": current["operationid"]})
                 current.update(state="COMMITTED", phase="COMPLETED")
@@ -343,6 +353,7 @@ class Transaction:
                     return self.rollback(current, status_path, adapter)
                 outcome = adapter.observe_completed()
                 if outcome == "VERIFIED":
+                    self.bindings_status(current, private)
                     current.update(state="VERIFIED", phase="COMMITTING")
                     atomic_json(status_path, current)
                     return current
@@ -389,6 +400,7 @@ class Transaction:
                 current.update(phase="VERIFYING")
                 atomic_json(status_path, current)
                 adapter.verify(payload["candidate"])
+                self.bindings_status(current, private)
                 current.update(state="VERIFIED", phase="COMMITTING")
                 atomic_json(status_path, current)
                 return current
@@ -1052,8 +1064,8 @@ class RuntimeAdapter:
         if payload.get("preflight"):
             from configuration_preflight import inspect
             report = inspect(payload["preflight"])
-            if self.smb_options_only(payload) and report.get("fingerprint") != payload["preflight"].get("expectedFingerprint"):
-                raise Rejected("SMB_OPTIONS_STALE_OBSERVATION")
+            if (self.smb_options_only(payload) or payload["preflight"].get("pathtarget")) and report.get("fingerprint") != payload["preflight"].get("expectedFingerprint"):
+                raise Rejected("DIRECTORY_PATH_OBSERVATION_CHANGED" if payload["preflight"].get("pathtarget") else "SMB_OPTIONS_STALE_OBSERVATION")
             if report["status"] != "READY":
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
                 raise Rejected(blocked)
@@ -1064,12 +1076,29 @@ class RuntimeAdapter:
             DirectoryPolicies().prepare(payload["candidate"]["directory policy apply"])
         if self.nfs_posix_only(payload):
             self.posix_only_plan(payload["candidate"]["nfs export apply"])
+        if not self.smb_options_only(payload):
+            from shared_directory_policy import FileSharePathBindings, PolicyError
+            engine = self.path_bindings()
+            for row in engine.rows(payload["candidate"]):
+                preview = engine.inspect(row)
+                if not preview["exists"] and not row["config"].get("createDirectory"):
+                    raise PolicyError("DIRECTORY_CREATION_REQUIRED")
         self.payload = payload
         atomic_json(self.payload_path, redact(payload))
 
 
+    def path_bindings(self, restoring=False):
+        from shared_directory_policy import FileSharePathBindings
+        return FileSharePathBindings(journal=self.private / "pathbindings.json", restoring=restoring)
+
+    def finalize_paths(self):
+        payload = load(self.payload_path, {})
+        if (self.private / "pathbindings.json").exists():
+            self.path_bindings().finalize(payload.get("candidate", {}))
+
     @staticmethod
     def smb_options_only(payload):
+
         return (payload or {}).get("onlineSmbOptions") is True and set((payload or {}).get("candidate", {})) == {"smb share apply"}
 
     def smb_options_engine(self):
@@ -1094,14 +1123,23 @@ class RuntimeAdapter:
         row = rows[0]
         if intent.get("targetUuid") != row.get("uuid") or (intent.get("fields") or {}).get("recursivePermission") is True:
             raise Rejected("INVALID_DEFERRED_POSIX_INTENT")
-        if nfs_posix_observe(row)["status"] != "OBSERVED":
+        from shared_directory_policy import FileSharePathBindings
+        if not FileSharePathBindings.bound(row) and nfs_posix_observe(row)["status"] != "OBSERVED":
             raise Rejected("POSIX_OBSERVATION_UNAVAILABLE")
         return row
 
     def posix_only_plan(self, value):
         row = self.posix_only_row(value)
-        allowed = nfs_posix_apply_config(row, value)
         path = Path(row["config"]["backingPath"])
+        from shared_directory_policy import FileSharePathBindings
+        if FileSharePathBindings.bound(row):
+            preview = self.path_bindings().inspect(row)
+            if not preview["exists"]: return
+            receipt = self.path_bindings().journal_value()
+            created = any(v["relative"] == row["config"]["relativeSharePath"] and v["volume"] == row["config"]["volumeMountPath"] for v in receipt.get("created", []))
+            allowed = nfs_posix_apply_config(row, value, created) if created else {}
+        else:
+            allowed = nfs_posix_apply_config(row, value)
         info = path.stat()
         expected = {"path": str(path), "device": info.st_dev, "inode": info.st_ino,
                     "uid": int(allowed.get("ownerUid", info.st_uid)),
@@ -1115,6 +1153,10 @@ class RuntimeAdapter:
         path = row["config"]["backingPath"]
         if not expected or expected["path"] != path:
             raise Rejected("DIRECTORY_IDENTITY_CHANGED")
+        from shared_directory_policy import FileSharePathBindings
+        if FileSharePathBindings.bound(row):
+            binding = self.path_bindings().ensure(row, "NFS")
+            path = binding["anchor"]
         fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         info = os.fstat(fd)
         if (info.st_dev, info.st_ino) != (expected["device"], expected["inode"]):
@@ -1124,7 +1166,13 @@ class RuntimeAdapter:
 
     def apply_posix_only(self, value):
         row = self.posix_only_row(value)
-        allowed = nfs_posix_apply_config(row, value)
+        from shared_directory_policy import FileSharePathBindings
+        if FileSharePathBindings.bound(row):
+            binding = self.path_bindings().ensure(row, "NFS")
+            self.posix_only_plan(value)
+            allowed = nfs_posix_apply_config(row, value, binding["created"]) if binding["created"] else {}
+        else:
+            allowed = nfs_posix_apply_config(row, value)
         fd, expected = self.posix_only_fd(value)
         try:
             if "ownerUid" in allowed or "ownerGid" in allowed:
@@ -1237,6 +1285,16 @@ class RuntimeAdapter:
                     raise Rejected("BEFORE_IMAGE_LIMIT")
                 snapshot["files"][str(path)] = {"content": base64.b64encode(path.read_bytes()).decode(),
                     "mode": stat.st_mode & 0o777, "uid": stat.st_uid, "gid": stat.st_gid}
+        from shared_directory_policy import FileSharePathBindings
+        nested = {}
+        for commands in (payload.get("before", {}), payload["candidate"]):
+            for row in FileSharePathBindings.rows(commands):
+                observed = self.path_bindings().inspect(row)
+                if observed["exists"]:
+                    nested[observed["physicalpath"]] = {"volumeuuid": observed["volumeuuid"],
+                        "canonicalpath": observed["relativepath"], "filesystemuuid": observed["filesystemuuid"],
+                        "inode": observed["inode"]}
+        snapshot["directoryIdentities"] = nested
         for path in paths:
             item = Path(path)
             if item.is_dir():
@@ -1249,7 +1307,6 @@ class RuntimeAdapter:
         if "smb share apply" in payload.get("candidate",{}):
             from shared_directory_policy import DirectoryPolicies
             engine=DirectoryPolicies()
-            snapshot["directoryIdentities"]={}
             for path in paths:
                 policy=engine.policy_for(path)
                 if policy:
@@ -1281,6 +1338,9 @@ class RuntimeAdapter:
         if len(json.dumps(snapshot).encode()) > 8 * 1024 * 1024:
             raise Rejected("BEFORE_IMAGE_LIMIT")
         atomic_json(self.snapshot_path, snapshot)
+        file_commands = any(k in payload["candidate"] for k in ("nfs export apply", "smb share apply"))
+        if file_commands and (FileSharePathBindings.rows(payload["candidate"]) or FileSharePathBindings.rows(payload.get("before", {}))):
+            self.path_bindings().begin(payload)
 
     def lio_snapshot(self, payload):
         if "iscsi target apply" not in payload["candidate"]:
@@ -1464,10 +1524,12 @@ class RuntimeAdapter:
             DirectoryPolicies().verify(commands["directory policy apply"],load(self.snapshot_path)["directory"])
             return
         if self.nfs_posix_only({"candidate": commands}):
+            self.path_bindings().verify(commands)
             self.verify_posix_only(commands["nfs export apply"])
             return
         if not commands:
             return
+        self.path_bindings(restoring=(self.private / "path-restore.json").exists()).verify(commands)
         smb = commands.get("smb share apply", {})
         if smb.get("listenerOnly"):
             SmbListenerProfiles().verify(smb)
@@ -1574,6 +1636,10 @@ class RuntimeAdapter:
             DirectoryPolicies().restore(snapshot["directory"],load(self.private/"directory-progress.json",{}).get("count",0))
             return
         if self.nfs_posix_only(payload):
+            if (self.private / "pathbindings.json").exists():
+                atomic_json(self.private / "path-restore.json", {"restoring": True})
+                self.path_bindings(restoring=True).rollback()
+                if not any(v for v in snapshot["metadata"].values()): return
             self.restore_posix_only(payload, snapshot)
             return
         if self.listener_only(payload):
@@ -1583,6 +1649,9 @@ class RuntimeAdapter:
             return
         if "smb share apply" in payload.get("candidate", {}) and SmbListenerProfiles().manifest.exists():
             SmbListenerProfiles().stop_all()
+        if (self.private / "pathbindings.json").exists():
+            atomic_json(self.private / "path-restore.json", {"restoring": True})
+            self.path_bindings(restoring=True).rollback()
         self.restore_files(snapshot)
         self.restore_accounts(snapshot)
         self.capture_new_ports_for_restore(snapshot, payload)
@@ -1595,6 +1664,10 @@ class RuntimeAdapter:
         self.restore_files(snapshot)
         for name, value in snapshot["metadata"].items():
             if value is None:
+                nested_roots = [Path((row.get("config") or {})["backingPath"])
+                    for row in self.path_bindings().rows(payload["candidate"])]
+                if any(Path(name) == root or Path(name).is_relative_to(root) for root in nested_roots):
+                    continue  # owned inode-checked journal performs empty-only cleanup
                 with contextlib.suppress(FileNotFoundError, OSError):
                     Path(name).rmdir()  # only empty operation-created directories
                 continue
@@ -1836,6 +1909,8 @@ class RuntimeAdapter:
             return
         payload = load(self.payload_path)
         snapshot = load(self.snapshot_path)
+        if self.nfs_posix_only(payload) and (self.private / "pathbindings.json").exists() and not any(v for v in snapshot["metadata"].values()):
+            return
         if self.directory_only(payload):
             from shared_directory_policy import DirectoryPolicies
             DirectoryPolicies().verify_restored(snapshot["directory"])
@@ -2118,7 +2193,9 @@ def run_child(private, operation, descriptor):
     argv = ["/usr/local/bin/ablestack-storagectl"] + operation.split() + [f"/proc/self/fd/{descriptor}"]
     try:
         process = subprocess.Popen(argv, pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   env={**os.environ, "ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION": "1"})
+                                   env={**os.environ, "ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION": "1",
+                                        "ABLESTACK_STORAGE_PATH_JOURNAL": str(private / "pathbindings.json"),
+                                        "ABLESTACK_STORAGE_PATH_RESTORE": "1" if (private / "path-restore.json").exists() else "0"})
         payload = load(private / "request.json", {})
         budget = min(1800, max(300, int((payload.get("executionProfile") or {}).get("softdeadlineseconds", 300))))
         began = time.time()
@@ -2216,7 +2293,7 @@ def main(argv):
             ad_domain_protection=0
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect

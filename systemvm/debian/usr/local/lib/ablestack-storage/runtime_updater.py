@@ -43,7 +43,7 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 7
+UPDATER_VERSION = 8
 MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
 DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
 def complete_managed_names(names):
@@ -119,6 +119,26 @@ def require_smb_creation_compatibility(release, desired):
         version = 0
     if type(version) is not int or version != 1:
         raise RuntimeUpgradeError("SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "active SMB creation policies require a compatible target helper")
+
+
+def require_nested_paths_compatibility(release, registry):
+    try:
+        active = False
+        for name, key in (("nfs-export-apply.json", "exports"), ("smb-share-apply.json", "shares")):
+            desired = registry.parent / name
+            rows = json.loads(desired.read_text()).get(key, []) if desired.exists() else []
+            if not isinstance(rows, list): raise ValueError()
+            active |= any((r.get("config") or {}).get("pathBindingVersion") == 1 for r in rows)
+    except (OSError, ValueError, TypeError, AttributeError):
+        raise RuntimeUpgradeError("DIRECTORY_PATH_PROTECTED", "nested path observation is unavailable")
+    if not active: return
+    try:
+        tree = ast.parse((release / DIRECTORY_HELPER).read_text())
+        version = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+                       and any(isinstance(t, ast.Name) and t.id == "NESTED_FILE_SHARE_PATH_VERSION" for t in n.targets))
+    except (OSError, SyntaxError, ValueError, StopIteration): version = 0
+    if type(version) is not int or version != 1:
+        raise RuntimeUpgradeError("DIRECTORY_PATH_CAPABILITY_REQUIRED", "active nested paths require a compatible target helper")
 
 
 def sha256_file(path):
@@ -759,6 +779,7 @@ class RuntimeUpdater:
             raise RuntimeUpgradeError("DIRECTORY_POLICY_CAPABILITY_REQUIRED","common directory policies require their managed runtime helper")
         require_smb_inheritance_compatibility(release, registry.parent / "smb-share-apply.json")
         require_smb_creation_compatibility(release, registry.parent / "smb-share-apply.json")
+        require_nested_paths_compatibility(release, registry)
 
     def preflight(self, request):
         state = self.read_state(request)

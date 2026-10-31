@@ -69,6 +69,10 @@ with open(sys.argv[1]) as source:
     value = json.load(source)
 value.pop("posixIntent", None)
 value.pop("configurationOperationId", None)
+import os
+sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
+from shared_directory_policy import FileSharePathBindings
+FileSharePathBindings().enrich_desired(value)
 with open(sys.argv[2], "w") as target:
     json.dump(value, target, sort_keys=True)
 PY
@@ -91,6 +95,10 @@ import sys
 source, target = sys.argv[1], sys.argv[2]
 with open(source, "r", encoding="utf-8") as source_fp:
     payload = json.load(source_fp)
+import os
+sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
+from shared_directory_policy import FileSharePathBindings
+FileSharePathBindings().enrich_desired(payload)
 for share in payload.get("shares", []):
     for acl in share.get("acls", []):
         acl.pop("password", None)
@@ -1607,11 +1615,19 @@ nvmeof_ports = desired_nvmeof_ports(nvmeof_subsystems)
 nvmeof_runtime = nvmeof_port_runtime(nvmeof_subsystems)
 file_share_volume_snapshot = file_share_volume_runtime()
 file_share_volumes = file_share_volume_snapshot.get("observations", [])
+from shared_directory_policy import FileSharePathBindings
+binding_engine = FileSharePathBindings()
+file_share_paths = {}
+for path, key in (("/etc/ablestack-storage/desired-state/nfs-export-apply.json", "exports"),
+                  ("/etc/ablestack-storage/desired-state/smb-share-apply.json", "shares")):
+    for row in load_json(path, {}).get(key, []):
+        if binding_engine.bound(row): file_share_paths[row["uuid"]] = binding_engine.observe(row)
 
 print(json.dumps({
     "success": True,
     "status": "ok",
     "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
+    "fileSharePaths": file_share_paths,
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
     "nfsidentitymapping": NfsIdentityMapping().inspect(),
@@ -4436,6 +4452,9 @@ def ensure_export_alias(export):
         raise RuntimeError(f"NFS export {uuid} backing volume is not mounted at {volume_mount_path}")
     if not is_path_on_mount(backing_path, volume_mount_path):
         raise ValueError(f"NFS export {uuid} backingPath {backing_path} is not under mounted volume {volume_mount_path}")
+    nested = path_bindings.get(export["uuid"])
+    if nested:
+        backing_path = nested["anchor"]
     create_directory = truth(export_config, "createDirectory", True)
     if not os.path.exists(backing_path):
         if not create_directory:
@@ -4464,6 +4483,10 @@ def ensure_export_alias(export):
     if not is_mountpoint(exposed_path):
         raise RuntimeError(f"NFS export alias {exposed_path} is not a bind mount after mount operation")
     marker = f"ablestack-storage:{uuid}:alias"
+    if nested:
+        update_fstab(marker, None)
+        daemon_reload()
+        return exposed_path
     options = f"bind,nofail,x-systemd.requires-mounts-for={fstab_escape(backing_path)}"
     entry = f"{fstab_escape(backing_path)} {fstab_escape(exposed_path)} none {options} 0 0 # {marker}"
     update_fstab(marker, entry)
@@ -4502,6 +4525,9 @@ def load_alias_state():
     except Exception:
         return {}
 
+from shared_directory_policy import FileSharePathBindings
+path_engine = FileSharePathBindings()
+path_bindings = path_engine.prepare(payload.get("exports", []), "NFS")
 quota_state = {}
 alias_state = load_alias_state()
 next_alias_state = {}
@@ -4526,7 +4552,8 @@ for export in payload.get("exports", []):
     if enabled and path and state not in ("Disabled", "Destroyed", "Error"):
         export_config = effective_nfs_export_config(export.get("config") or {})
         backing_path = str(export_config.get("backingPath") or "").strip().rstrip("/")
-        directory_created = bool(backing_path) and not os.path.exists(backing_path)
+        nested = path_bindings.get(export["uuid"])
+        directory_created = nested["created"] if nested else bool(backing_path) and not os.path.exists(backing_path)
         exposed_path = ensure_export_alias(export)
         root_name = safe_export_root_name(export.get("exportPath") or export.get("name"), exposed_path)
         next_alias_state[uuid] = {
@@ -4534,7 +4561,9 @@ for export in payload.get("exports", []):
             "backingPath": backing_path,
             "name": export.get("name"),
         }
-        apply_posix_permissions(backing_path, nfs_posix_apply_config(dict(export, config=export_config), payload, directory_created))
+        if not nested or directory_created:
+            apply_posix_permissions(nested["anchor"] if nested else backing_path,
+                                    nfs_posix_apply_config(dict(export, config=export_config), payload, directory_created))
         rendered_acl_keys = set()
         clients = []
         for acl in export.get("acls", []):
@@ -4967,6 +4996,10 @@ else:
         "   security = user",
     ])
 
+# Resolve and pin new-mode roots before any account, ownership or service mutation.
+path_engine = directory_policy_module.FileSharePathBindings()
+path_bindings = path_engine.prepare(payload.get("shares", []), "SMB")
+
 # Validate new ownership policies before any directory/account mutation.
 for candidate_share in payload.get("shares", []):
     if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
@@ -5005,7 +5038,10 @@ for share in payload.get("shares", []):
             raise FileNotFoundError(f"SMB share backing directory does not exist: {path}")
         os.makedirs(path, exist_ok=True)
     common=directory_policies.protected(path,payload)
-    directory_mode = (os.stat(path).st_mode & 0o7777) if common else apply_directory_policy(path, config, cross_protocol)
+    nested = path_bindings.get(share["uuid"])
+    if nested and not nested["created"] and not common and any(a.get("principal") and a.get("state") not in ("Disabled","Destroyed","Error") for a in share.get("acls",[])):
+        raise directory_policy_module.PolicyError("DIRECTORY_POLICY_REQUIRED")
+    directory_mode = (os.stat(path).st_mode & 0o7777) if common or nested and not nested["created"] else apply_directory_policy(path, config, cross_protocol)
     if common and not common.get("legacy"): protected_paths.add(str(__import__("pathlib").Path(path).resolve()))
     valid_users = []
     write_list = []
@@ -5035,7 +5071,7 @@ for share in payload.get("shares", []):
             applied_acl_count += 1
 
     guest_ok = truth(config, 'guestOk', False)
-    if guest_ok and not cross_protocol and not common:
+    if guest_ok and not cross_protocol and not common and (not nested or nested['created']):
         os.chmod(path, 0o777 if not truth(config, 'readOnly', False) else 0o755)
     access_state[str(share.get("uuid") or name)] = {
         "shareName": name,
@@ -5057,10 +5093,12 @@ for share in payload.get("shares", []):
         ],
     }
 
+    if nested and not guest_ok and not valid_users:
+        continue  # new-mode roots are never published before an explicit ACL
     lines.extend([
         "",
         f"[{name}]",
-        f"   path = {path}",
+        f"   path = {nested['anchor'] if nested else path}",
         f"   read only = {'yes' if truth(config, 'readOnly', False) else 'no'}",
         f"   browseable = {'yes' if truth(config, 'browseable', True) else 'no'}",
         f"   guest ok = {'yes' if guest_ok else 'no'}",

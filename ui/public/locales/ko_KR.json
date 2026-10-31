@@ -10167,5 +10167,22 @@
   "message.storage.creation.SMB_CREATION_POLICY_PROTECTION_REQUIRED": "현재 SystemVM은 이 정책의 호환성 보호를 지원하지 않습니다. 지원되는 기준 구성으로 유지보수한 뒤 설정하세요.",
   "message.storage.creation.SMB_CREATION_POLICY_CAPABILITY_REQUIRED": "현재 SystemVM은 공유별 생성 권한 설정을 지원하지 않습니다. 기존 공유는 유지됩니다.",
   "message.storage.creation.SMB_CREATION_POLICY_DRIFT": "저장된 정책과 현재 유효 설정이 다릅니다. 현재 설정을 확인한 뒤 다시 점검하세요.",
-  "label.storage.creation.effective": "현재 유효 설정 (파일/디렉터리 · force)"
+  "label.storage.creation.effective": "현재 유효 설정 (파일/디렉터리 · force)",
+  "label.storage.path.custom": "볼륨 내 공유 경로",
+  "label.storage.path.enable": "상대 경로 지정",
+  "label.storage.path.relative": "볼륨 기준 상대 경로",
+  "label.storage.path.physical": "실제 디렉터리",
+  "label.storage.path.identity": "파일시스템 UUID · inode",
+  "label.storage.path.absent": "없음 — 명시적으로 생성한 경우에만 생성",
+  "label.storage.path.relation": "경로 관계",
+  "label.storage.path.ancestor": "부모 공유",
+  "label.storage.path.descendant": "하위 공유",
+  "label.storage.path.exact_alias": "동일 디렉터리 별칭",
+  "label.storage.path.sibling": "같은 볼륨의 다른 경로",
+  "message.storage.path.relative": "예: projects/team-a. 외부 별칭은 /export/이름으로 유지됩니다.",
+  "message.storage.path.invalid": "상대 경로는 255자 이내여야 하며 빈 항목, 절대 경로, ., .., 역슬래시와 제어 문자는 사용할 수 없습니다.",
+  "message.storage.path.preserve": "기존 디렉터리의 소유자·모드·ACL은 유지합니다. 없는 디렉터리는 아래 생성 옵션을 명시한 경우에만 만듭니다.",
+  "message.storage.path.parent.access": "부모 공유 권한으로 하위 경로에 접근할 수 있습니다. 하위 공유 ACL은 부모를 통한 접근을 격리하지 않습니다.",
+  "message.storage.path.children": "하위 NFS·SMB 공유가 있어 삭제하거나 경로를 변경할 수 없습니다:",
+  "label.storage.path.status": "경로 검증"
 }

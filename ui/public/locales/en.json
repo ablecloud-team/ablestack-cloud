@@ -10202,5 +10202,22 @@
   "message.storage.creation.SMB_CREATION_POLICY_PROTECTION_REQUIRED": "This SystemVM baseline does not protect creation policies. Maintain a supported baseline before changing this policy.",
   "message.storage.creation.SMB_CREATION_POLICY_CAPABILITY_REQUIRED": "This SystemVM does not support share creation permissions. Existing shares are preserved.",
   "message.storage.creation.SMB_CREATION_POLICY_DRIFT": "Stored policy differs from the effective configuration. Review current settings and run preflight again.",
-  "label.storage.creation.effective": "Effective settings (file/directory · force)"
+  "label.storage.creation.effective": "Effective settings (file/directory · force)",
+  "label.storage.path.custom": "Directory within volume",
+  "label.storage.path.enable": "Specify relative path",
+  "label.storage.path.relative": "Volume-relative path",
+  "label.storage.path.physical": "Physical directory",
+  "label.storage.path.identity": "Filesystem UUID · inode",
+  "label.storage.path.absent": "Absent — explicit creation required",
+  "label.storage.path.relation": "Path relationship",
+  "label.storage.path.ancestor": "Parent share",
+  "label.storage.path.descendant": "Child share",
+  "label.storage.path.exact_alias": "Same-directory alias",
+  "label.storage.path.sibling": "Other path in volume",
+  "message.storage.path.relative": "Example: projects/team-a. The public alias remains /export/name.",
+  "message.storage.path.invalid": "Use at most 255 characters without empty components, absolute paths, ., .., backslashes or control characters.",
+  "message.storage.path.preserve": "Existing owner, mode and ACL are preserved. Missing directories require explicit creation below.",
+  "message.storage.path.parent.access": "Parent share access can reach child paths. Child share ACLs do not isolate access through a parent share.",
+  "message.storage.path.children": "Child NFS or SMB shares block deletion or path changes:",
+  "label.storage.path.status": "Path verification"
 }

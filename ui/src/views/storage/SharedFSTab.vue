@@ -1548,6 +1548,11 @@ class="storage-service-inline-alert"
                 </div>
               </div>
             </a-form-item>
+            <FileSharePathFields
+              :form="forms.nfsExport"
+              :root="currentBackingVolumeMountPath(selectedCurrentBackingVolume)"
+              :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading"
+              @change="forms.nfsExport[$event.key] = $event.value" />
             <volume-select
               v-if="forms.nfsExport.volumemode === 'EXISTING'"
               v-model:value="forms.nfsExport.volumeid"
@@ -1884,6 +1889,11 @@ class="storage-service-inline-alert"
                 </div>
               </div>
             </a-form-item>
+            <FileSharePathFields
+              :form="forms.smbShare"
+              :root="currentBackingVolumeMountPath(selectedSmbCurrentBackingVolume)"
+              :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading"
+              @change="forms.smbShare[$event.key] = $event.value" />
             <volume-select
               v-if="forms.smbShare.volumemode === 'EXISTING'"
               v-model:value="forms.smbShare.volumeid"
@@ -2391,6 +2401,8 @@ import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
+import FileSharePathFields from '@/components/storage/FileSharePathFields'
+import { fileSharePathParameters, shareRelativePath, childShares, validRelativePath, relativePath } from '@/utils/fileSharePaths'
 import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
 import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanceFields'
 import AdDomainProgressPanel from '@/components/storage/AdDomainProgressPanel'
@@ -2616,6 +2628,7 @@ export default {
     MoldDialog,
     StorageNfsIdentityPanel,
     StorageDirectoryPolicyPanel,
+    FileSharePathFields,
     SmbParentInheritanceFields,
     SmbCreationPolicyDialog,
     AdDomainProgressPanel,
@@ -2768,6 +2781,9 @@ export default {
           newvolumesize: null,
           filesystem: 'xfs',
           relativepath: '',
+          nestedpath: true,
+          nestedpathbaseline: false,
+          relativepathbaseline: '',
           createdirectory: false,
           quotaamount: null,
           quotaunit: 'GiB',
@@ -3837,6 +3853,9 @@ export default {
         { title: this.$t('label.storage.service.export.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 180, code: true },
         { title: this.$t('label.storage.service.client.mount.root'), dataIndex: 'clientPath', key: 'clientPath', width: 240, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
+        { title: this.$t('label.storage.path.relative'), dataIndex: 'relativePath', key: 'relativePath', width: 220, code: true },
+        { title: this.$t('label.storage.path.physical'), dataIndex: 'physicalPath', key: 'physicalPath', width: 320, code: true },
+        { title: this.$t('label.storage.path.status'), dataIndex: 'pathStatus', key: 'pathStatus', width: 240 },
         { title: this.$t('label.storage.service.nfs.protocol.mode'), dataIndex: 'protocolMode', key: 'protocolMode', width: 150 },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
         { title: this.$t('label.storage.service.permission'), dataIndex: 'permission', key: 'permission', width: 130 },
@@ -3897,6 +3916,9 @@ export default {
         { title: this.$t('label.storage.inheritance.group'), dataIndex: 'inheritGroup', key: 'inheritGroup', width: 160 },
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
+        { title: this.$t('label.storage.path.relative'), dataIndex: 'relativePath', key: 'relativePath', width: 220, code: true },
+        { title: this.$t('label.storage.path.physical'), dataIndex: 'physicalPath', key: 'physicalPath', width: 320, code: true },
+        { title: this.$t('label.storage.path.status'), dataIndex: 'pathStatus', key: 'pathStatus', width: 240 },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
         { title: this.$t('label.storage.service.browseable'), dataIndex: 'browseable', key: 'browseable', width: 120 },
         { title: this.$t('label.storage.service.guest.access'), dataIndex: 'guestOk', key: 'guestOk', width: 130 },
@@ -3960,6 +3982,9 @@ export default {
           name,
           clientPath: this.formatNfsClientMountRoots(share, name),
           path: share.path || share.mountpath || share.backingpath || '-',
+          relativePath: share.relativepath || config.relativeSharePath || '-',
+          physicalPath: config.backingPath || '-',
+          pathStatus: share.pathstatus === 'LEGACY' ? '-' : [share.pathstatus, share.pathreason].filter(Boolean).join(' · ') || '-',
           endpoint: this.formatNfsExportEndpoints(share),
           protocolMode: this.nfsProtocolModeLabel(protocolMode),
           permission: this.permissionLabel(share.permission || (share.readonly || config.readOnly ? 'READ_ONLY' : 'READ_WRITE')),
@@ -4088,6 +4113,9 @@ export default {
           inheritOwner: this.$t(config.inheritOwner === true ? 'label.storage.inheritance.parent.uid' : 'label.storage.inheritance.creator.uid'),
           inheritGroup: this.$t(group === null ? 'label.unknown' : group ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled'),
           path: share.path || share.mountpath || share.backingpath || '-',
+          relativePath: share.relativepath || config.relativeSharePath || '-',
+          physicalPath: config.backingPath || '-',
+          pathStatus: share.pathstatus === 'LEGACY' ? '-' : [share.pathstatus, share.pathreason].filter(Boolean).join(' · ') || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
           guestOk: this.booleanLabel(share.guestok ?? share.guestOk ?? config.guestOk),
@@ -4647,7 +4675,7 @@ export default {
       const f = this.forms.nfsExport
       return nfsPosixRecommendation(this.nfsExportSquashPolicy, f.readonly, f.anonuid, f.anongid)
     },
-    nfsPosixParameters () { if (this.forms.nfsExport.directorypolicyid) return {}; return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
+    nfsPosixParameters () { if (this.forms.nfsExport.directorypolicyid || this.forms.nfsExport.nestedpath && this.configurationPreflight?.pathpreview?.exists) return {}; return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
     nfsAclPolicyParameters () {
       if (this.forms.nfsAcl.squashpolicy === 'INHERIT') return { inheritpolicy: true }
       return { ...nfsSquashFlags(this.forms.nfsAcl.squashpolicy || 'ROOT'), ...nfsMappingDelta(this.nfsAclMappingBaseline, this.forms.nfsAcl) }
@@ -4815,6 +4843,7 @@ export default {
     window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+
     'resource.id' () { this.smbCreationRow = null },
     forms: {
       deep: true,
@@ -4868,12 +4897,14 @@ export default {
       }
     },
     'forms.nfsExport.volumemode': function (mode) {
+      if (this.actionModal.type === 'nfsExport') this.forms.nfsExport.createdirectory = mode !== 'CURRENT'
       if (mode === 'CURRENT' && !this.forms.nfsExport.volumeid) {
         this.forms.nfsExport.volumeid = this.defaultCurrentBackingVolumeId()
       }
       this.syncNfsExportPathToCurrentVolume()
     },
     'forms.smbShare.volumemode': function (mode) {
+      if (this.actionModal.type === 'smbShare') this.forms.smbShare.createdirectory = mode !== 'CURRENT'
       if (mode === 'CURRENT' && !this.forms.smbShare.volumeid) {
         this.forms.smbShare.volumeid = this.defaultCurrentBackingVolumeId()
       }
@@ -5734,12 +5765,17 @@ export default {
       form.filesystem = policy.observation?.filesystem || form.filesystem
       form.volumemode = this.currentBackingVolumes.some(v => v.id === policy.volumeid) ? 'CURRENT' : 'EXISTING'
       form.createdirectory = false
+      form.relativepath = String(policy.path || '').replace(/^\/+/, '')
+      form.nestedpath = form.volumemode === 'CURRENT' && !!form.relativepath
       if (kind === 'nfsExport') {
         this.nfsPosixEdit = false
         Object.assign(form, { owneruid: policy.owneruid, ownergid: policy.ownergid, mode: policy.mode })
         this.nfsPosixObserved = nfsPosixObservation(policy.observation)
       }
       if (kind === 'smbShare') form.crossprotocol = true
+    },
+    nestedChildShares (record) {
+      try { return childShares(record?.raw || record, [...this.storageService.nfsExports, ...this.storageService.smbShares]) } catch (error) { return [] }
     },
     selectedDirectoryPolicy (kind) { return this.directoryPolicyRows.find(row => row.id === this.forms[kind].directorypolicyid) },
     viewDirectoryPolicy () { this.closeActionModal(); this.handleChangeTab('directory') },
@@ -5801,6 +5837,10 @@ export default {
       }
       if (backing?.volumemode === 'NEW' && (!backing.diskofferingid || !backing.storageid)) {
         this.$message.error(this.$t('message.storage.service.new.volume.required'))
+        return
+      }
+      if (backing?.nestedpath && backing.volumemode === 'CURRENT' && !validRelativePath(relativePath(backing))) {
+        this.$message.error(this.$t('message.storage.path.invalid'))
         return
       }
       const intent = JSON.stringify(this.configurationIntent)
@@ -7606,7 +7646,10 @@ export default {
         newvolumesize: null,
         filesystem: backingFilesystem(this.resource, this.currentBackingVolumeFilesystem?.(this.volume)),
         relativepath: '',
-        createdirectory: true,
+        nestedpath: true,
+        nestedpathbaseline: false,
+        relativepathbaseline: '',
+        createdirectory: false,
         quotaamount: null,
         quotaunit: 'GiB',
         protocolmode: this.nfsRuntimeProtocolMode(),
@@ -7680,7 +7723,11 @@ export default {
         readonly: false,
         browseable: true,
         guestok: false,
-        createdirectory: true,
+        relativepath: '',
+        nestedpath: true,
+        nestedpathbaseline: false,
+        relativepathbaseline: '',
+        createdirectory: false,
         crossprotocol: false,
         directorymode: '0770',
         inheritowner: false,
@@ -7695,6 +7742,10 @@ export default {
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       Object.assign(this.forms.smbShare, {
         directorypolicyid: config.directoryPolicyUuid || '',
+        relativepath: shareRelativePath(share),
+        relativepathbaseline: shareRelativePath(share),
+        nestedpath: config.pathBindingVersion === 1,
+        nestedpathbaseline: config.pathBindingVersion === 1,
         name: this.clientVisibleName(share.name || share.sharename, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -7751,6 +7802,10 @@ export default {
       const protocolMode = this.nfsRuntimeProtocolMode()
       Object.assign(this.forms.nfsExport, {
         directorypolicyid: config.directoryPolicyUuid || '',
+        relativepath: shareRelativePath(share),
+        relativepathbaseline: shareRelativePath(share),
+        nestedpath: config.pathBindingVersion === 1,
+        nestedpathbaseline: config.pathBindingVersion === 1,
         name: this.clientVisibleName(share.name || share.exportname, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -7759,7 +7814,6 @@ export default {
         diskofferingid: '',
         newvolumesize: null,
         filesystem: share.filesystem || share.fsType || 'xfs',
-        relativepath: '',
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         quotaamount: quota.amount,
         quotaunit: quota.unit,
@@ -7983,6 +8037,13 @@ export default {
     },
     openDeleteModal (resourceType, record) {
       const raw = record?.raw || record || {}
+      if (['nfsExport', 'smbShare'].includes(resourceType)) {
+        const children = this.nestedChildShares(raw)
+        if (children.length) {
+          this.$message.error(this.$t('message.storage.path.children') + ' ' + children.map(row => row.name).join(', '))
+          return
+        }
+      }
       const names = {
         protocol: record?.name || record?.protocol,
         nfsExport: record?.name || this.clientVisibleName(raw.name || raw.exportname, ''),
@@ -8143,6 +8204,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.path,
         createdirectory: this.forms.nfsExport.createdirectory,
+        ...fileSharePathParameters(this.forms.nfsExport, this.actionModal.type.startsWith('edit')),
         volumeid: volumeId,
         filesystem: this.forms.nfsExport.filesystem,
         protocolmode: this.forms.nfsExport.protocolmode,
@@ -8240,6 +8302,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.path,
         createdirectory: this.forms.nfsExport.createdirectory,
+        ...fileSharePathParameters(this.forms.nfsExport, this.actionModal.type.startsWith('edit')),
         volumeid: this.forms.nfsExport.volumeid,
         filesystem: this.forms.nfsExport.filesystem,
         protocolmode: this.forms.nfsExport.protocolmode,
@@ -8369,6 +8432,7 @@ export default {
         browseable: this.forms.smbShare.browseable,
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
+        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
         crossprotocol: this.forms.smbShare.crossprotocol,
         directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
         ...inheritOwnerParameters(this.forms.smbShare),
@@ -8392,6 +8456,7 @@ export default {
         browseable: this.forms.smbShare.browseable,
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
+        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
         crossprotocol: this.forms.smbShare.crossprotocol,
         directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
         ...inheritOwnerParameters(this.forms.smbShare),

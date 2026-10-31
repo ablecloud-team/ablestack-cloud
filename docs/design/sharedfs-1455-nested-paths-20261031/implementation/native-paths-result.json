@@ -1,0 +1,39 @@
+{
+  "success": true,
+  "kind": "SystemVM injection, not Mold UI acceptance",
+  "provisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "real findmnt UUID, FD walk, mkdir and bind anchor",
+      "passed": true
+    },
+    {
+      "name": "stable identity receipt and verification",
+      "passed": true
+    },
+    {
+      "name": "parent rename/symlink cannot redirect service root",
+      "passed": true
+    },
+    {
+      "name": "bind mount boundary",
+      "passed": true
+    },
+    {
+      "name": "boot rebind preserves inode, data and mode without mkdir",
+      "passed": true
+    },
+    {
+      "name": "rollback retains client data and cleans only owned bind",
+      "passed": true
+    },
+    {
+      "name": "owner and permission preservation",
+      "passed": true
+    },
+    {
+      "name": "real deferred transaction -> verified receipt -> commit without publishing",
+      "passed": true
+    }
+  ]
+}
