@@ -292,9 +292,9 @@
         v-if="objectListError"
         type="error"
         show-icon
-        :message="$t('message.objectstore.list.failed')"
-        :description="objectListError">
-        <template #action>
+        :message="$t('message.objectstore.list.failed')">
+        <template #description>
+          <p>{{ objectListError }}</p>
           <a-button :disabled="objectListScopeChanged" @click="fetchData">{{ $t('label.retry') }}</a-button>
         </template>
       </a-alert>

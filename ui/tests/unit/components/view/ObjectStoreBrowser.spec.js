@@ -41,14 +41,14 @@ class Stream extends EventEmitter {
 
 describe('bucket browser request lifecycle', () => {
   let wrapper, streams, route, store, router
-  const open = async (query = { tab: 'browser' }) => {
+  const open = async (query = { tab: 'browser' }, component = Harness) => {
     streams = []
     Minio.Client.mockClear()
     Minio.Client.mockImplementation(() => ({ extensions: { listObjectsV2WithMetadata: jest.fn(() => { const stream = new Stream(); streams.push(stream); return stream }) } }))
     route = reactive({ path: '/buckets/A', query, fullPath: '/buckets/A?' + new URLSearchParams(query) })
     store = reactive({ getters: { userInfo: { id: 'user' }, project: { id: 'project' } }, state: { user: { token: 'session' } } })
     router = { replace: jest.fn(({ query }) => Promise.resolve().then(() => { route.query = query; route.fullPath = route.path + '?' + new URLSearchParams(query) })) }
-    wrapper = mount(Harness, { props: { resource: resource(), resourceType: 'Bucket' }, global: { mocks: { $route: route, $router: router, $store: store, $t: key => key, $notifyError: jest.fn(), $notification: { error: jest.fn() } } } })
+    wrapper = mount(component, { props: { resource: resource(), resourceType: 'Bucket' }, global: { mocks: { $route: route, $router: router, $store: store, $t: key => key, $toLocaleDate: value => String(value), $notifyError: jest.fn(), $notification: { error: jest.fn() } } } })
     await flushPromises()
   }
   const complete = async (stream, rows) => { rows.forEach(row => stream.emit('data', row)); stream.emit('end'); await flushPromises() }
@@ -216,5 +216,17 @@ describe('bucket browser request lifecycle', () => {
     expect(wrapper.vm.objectListError).toBe('')
     await complete(streams[1], [{ name: 'new/current.txt' }])
     expect(wrapper.vm.records[0].name).toBe('new/current.txt')
+  })
+
+  it('renders the retry button with the installed Ant Alert and recovers through its click', async () => {
+    await open({ tab: 'browser' }, Browser)
+    streams[0].emit('error', new Error('S3 denied')); await flushPromises()
+    const retry = wrapper.findAll('button').find(button => button.text() === 'label.retry')
+    expect(retry).toBeDefined()
+    expect(wrapper.text()).toContain('S3 denied')
+    await retry.trigger('click'); await flushPromises()
+    await complete(streams[1], [{ name: 'retry.txt', size: 1 }])
+    expect(wrapper.text()).toContain('retry.txt')
+    expect(wrapper.text()).not.toContain('S3 denied')
   })
 })
