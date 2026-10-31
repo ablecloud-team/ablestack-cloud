@@ -18,8 +18,10 @@
 import { validBucketQuota, MAX_BUCKET_QUOTA_GIB, pendingBucketQuota, bucketChanges, quotaErrorField } from '@/utils/bucketQuota'
 import { mount, flushPromises } from '@vue/test-utils'
 import Context from '@/components/view/BucketQuotaContext'
-import { getAPI } from '@/api'
-jest.mock('@/api', () => ({ getAPI: jest.fn() }))
+import { getAPI, postAPI } from '@/api'
+import CreateBucket from '@/views/storage/CreateBucket'
+import UpdateBucket from '@/views/storage/UpdateBucket'
+jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('bucket quota boundary and request contracts', () => {
   test.each([-1, 0, '', ' ', '1.5', '1e3', '0x10', 'NaN', null, undefined, '2147483648', '999999999999999999999'])('rejects %p', value => {
@@ -66,5 +68,48 @@ describe('capacity snapshot lifecycle', () => {
   it('shows unknown capacity when lookup fails without claiming availability', async () => {
     getAPI.mockRejectedValue(new Error('offline')); const view = mountContext('A'); await flushPromises()
     expect(view.vm.snapshot).toBeNull(); expect(view.vm.failed).toBe(true); view.unmount()
+  })
+})
+
+describe('server quota rejection uses the supported common form contract', () => {
+  const message = 'Bucket quota exceeds available object store capacity'
+  const failure = api => ({ response: { data: { [api]: { errorcode: 431, errortext: message } } } })
+  it('keeps create open and renders the field help without requiring a nonexistent setFields method', async () => {
+    postAPI.mockRejectedValue(failure('createbucketresponse'))
+    const context = {
+      loading: false,
+      quotaError: '',
+      form: { name: 'bucket', objectstore: 'store', quota: '3' },
+      formRef: { value: { validate: () => Promise.resolve(), scrollToField: jest.fn() } },
+      handleRemoveFields: form => form,
+      closeModal: jest.fn(),
+      $notifyError: jest.fn()
+    }
+    CreateBucket.methods.handleSubmit.call(context)
+    await flushPromises()
+    expect(context.quotaError).toBe(message); expect(context.loading).toBe(false)
+    expect(context.closeModal).not.toHaveBeenCalled(); expect(context.$notifyError).not.toHaveBeenCalled()
+  })
+  it('keeps update open and never reports success for a rejected quota write', async () => {
+    postAPI.mockRejectedValue(failure('updatebucketresponse'))
+    const before = { id: 'bucket', quota: 1, encryption: false, versioning: false, policy: 'Private' }
+    const context = {
+      resource: before,
+      form: { ...before, quota: '3' },
+      loading: false,
+      pending: false,
+      quotaTouched: true,
+      quotaError: '',
+      formRef: { value: { validate: () => Promise.resolve(), scrollToField: jest.fn() } },
+      closeModal: jest.fn(),
+      $emit: jest.fn(),
+      $t: key => key,
+      $notification: { success: jest.fn() }
+    }
+    UpdateBucket.methods.handleSubmit.call(context)
+    await flushPromises()
+    expect(context.quotaError).toBe(message); expect(context.errorText).toBe(message)
+    expect(context.loading).toBe(false); expect(context.closeModal).not.toHaveBeenCalled()
+    expect(context.$notification.success).not.toHaveBeenCalled()
   })
 })

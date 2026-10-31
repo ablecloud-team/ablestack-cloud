@@ -31,7 +31,7 @@
         <a-form-item name="objectstore" ref="objectstore" :label="$t('label.object.storage')">
           <a-select
             v-model:value="form.objectstore"
-            @change="val => { form.objectstore = val }"
+            @change="val => { form.objectstore = val; quotaError = '' }"
             showSearch
             optionFilterProp="value"
             :filterOption="(input, option) => {
@@ -43,9 +43,10 @@
           </a-select>
         </a-form-item>
         <BucketQuotaContext :store-id="form.objectstore || ''" />
-        <a-form-item name="quota" ref="quota" :label="$t('label.quotagib')">
+        <a-form-item name="quota" ref="quota" :label="$t('label.quotagib')" :validate-status="quotaError ? 'error' : undefined" :help="quotaError || undefined">
           <a-input
             v-model:value="form.quota"
+            @input="quotaError = ''"
 inputmode="numeric"
 autocomplete="off"
 :maxlength="10"
@@ -114,7 +115,8 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
-      loading: false
+      loading: false,
+      quotaError: ''
     }
   },
   created () {
@@ -153,6 +155,7 @@ export default {
     handleSubmit (e) {
       if (e?.preventDefault) e.preventDefault()
       if (this.loading) return
+      this.quotaError = ''
       this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -180,7 +183,7 @@ export default {
           this.closeModal()
         }).catch(error => {
           if (quotaErrorField(error)) {
-            this.formRef.value.setFields([{ name: 'quota', errors: [error.response.data.createbucketresponse.errortext] }])
+            this.quotaError = error.response.data.createbucketresponse.errortext
           } else { this.$notifyError(error) }
         }).finally(() => {
           this.loading = false

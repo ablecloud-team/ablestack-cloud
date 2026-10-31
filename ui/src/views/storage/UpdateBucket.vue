@@ -37,13 +37,13 @@
       layout="vertical"
       @finish="handleSubmit"
     >
-      <a-form-item name="quota" ref="quota" :label="$t('label.quotagib')">
+      <a-form-item name="quota" ref="quota" :label="$t('label.quotagib')" :validate-status="quotaError ? 'error' : undefined" :help="quotaError || undefined">
         <a-input
           v-model:value="form.quota"
 inputmode="numeric"
 autocomplete="off"
 :maxlength="10"
-@input="quotaTouched = true"
+@input="quotaTouched = true; quotaError = ''"
           :placeholder="$t('label.quota')"/>
       </a-form-item>
       <a-form-item name="encryption" ref="encryption" :label="$t('label.encryption')">
@@ -98,7 +98,7 @@ export default {
       required: true
     }
   },
-  data () { return { loading: false, quotaTouched: false, errorText: '' } },
+  data () { return { loading: false, quotaTouched: false, errorText: '', quotaError: '' } },
   computed: {
     pending () { return pendingBucketQuota(this.resource) },
     canReconcile () { return !!this.$getApiParams('updateBucket')?.reconcile },
@@ -139,6 +139,7 @@ export default {
     handleSubmit (e) {
       if (e?.preventDefault) e.preventDefault()
       if (this.loading || this.pending) return
+      this.quotaError = ''
       this.formRef.value.validate().then(async () => {
         const changes = bucketChanges(this.form, this.resource, this.quotaTouched)
         if (changes.quota !== undefined && Object.keys(changes).some(key => key !== 'quota')) {
@@ -153,7 +154,7 @@ export default {
           this.closeModal()
         } catch (error) {
           this.errorText = error?.response?.data?.updatebucketresponse?.errortext || this.$t('message.bucket.quota.retry.failed')
-          if (quotaErrorField(error)) this.formRef.value.setFields([{ name: 'quota', errors: [this.errorText] }])
+          if (quotaErrorField(error)) this.quotaError = this.errorText
           this.$emit('refresh-data')
         } finally { this.loading = false }
       }).catch(error => {
