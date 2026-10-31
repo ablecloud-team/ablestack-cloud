@@ -1,0 +1,42 @@
+{
+  "kind": "read-only diagnosis of exact active function; no apply, mount, service, configuration or ACL change",
+  "functionSha256": "510cdf56220ab405e22499ab3abf27f454f962b6b50e27c4e25e6e71a54db263",
+  "commands": [
+    {
+      "command": "ip -4 -o addr show scope global",
+      "output": "2: eth0    inet 10.10.13.220/16 scope global eth0\\       valid_lft forever preferred_lft forever\n"
+    }
+  ],
+  "candidateClients": [
+    "10.10.254.224/32",
+    "10.10.254.223/32"
+  ],
+  "endpointResult": {
+    "listenIp": "0.0.0.0",
+    "port": 2049,
+    "probeSuccess": false,
+    "exportsVisible": false,
+    "probeResults": [
+      {
+        "exportUuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+        "exportName": "p1455-parent",
+        "protocolMode": "V4_ONLY",
+        "targetPath": "/export/p1455-parent",
+        "pseudoPath": "/p1455-parent",
+        "success": false,
+        "probes": [
+          {
+            "mode": "host-selection",
+            "mountType": "nfs",
+            "target": "/p1455-parent",
+            "options": "",
+            "success": false,
+            "error": "no local IPv4 address is allowed by export clients: 10.10.254.224/32, 10.10.254.223/32"
+          }
+        ],
+        "error": "no local IPv4 address is allowed by export clients: 10.10.254.224/32, 10.10.254.223/32"
+      }
+    ]
+  },
+  "mutatingCommandsExecuted": 0
+}

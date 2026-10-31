@@ -1,5 +1,5 @@
 {
-  "phase": "before deployment",
+  "phase": "stopped at first product failure",
   "guestRegression": {
     "tests": 80,
     "passed": 80
@@ -16,7 +16,8 @@
   "uiLint": "PASS",
   "systemVmNativeChecks": 8,
   "moduleBuild": "PASS",
-  "uiBuild": "in progress",
-  "apiUiClientAcceptance": "not started",
-  "issueMayClose": false
+  "uiBuild": "PASS",
+  "apiUiClientAcceptance": "NFS create passed; restrictive ACL failed; remaining acceptance not completed",
+  "issueMayClose": false,
+  "finalReport": "docs/validation/sharedfs-1455-paths-20261031/README.md"
 }
