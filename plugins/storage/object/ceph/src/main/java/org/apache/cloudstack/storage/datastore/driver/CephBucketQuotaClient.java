@@ -82,7 +82,9 @@ public class CephBucketQuotaClient {
             DefaultRequest<Void> request = new DefaultRequest<>("s3");
             request.setEndpoint(endpoint); request.setResourcePath(prefix + "/admin/bucket");
             request.setHttpMethod(content == null ? HttpMethodName.GET : HttpMethodName.PUT);
-            request.addParameter("bucket", bucket); request.addParameter("uid", owner); request.addParameter("format", "json");
+            request.addParameter("bucket", bucket); request.addParameter("format", "json");
+            // RGW treats GET + uid as a user-bucket listing, even when bucket/stats are supplied.
+            if (content != null) { request.addParameter("uid", owner); }
             request.addParameter(content == null ? "stats" : "quota", content == null ? "true" : "");
             byte[] payload = content == null ? new byte[0] : content;
             request.setContent(new ByteArrayInputStream(payload));

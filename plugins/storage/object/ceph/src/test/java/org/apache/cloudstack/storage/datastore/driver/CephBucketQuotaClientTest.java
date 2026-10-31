@@ -67,6 +67,7 @@ public class CephBucketQuotaClientTest {
         com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/admin/bucket", exchange -> {
             digest.set(exchange.getRequestHeaders().getFirst("x-amz-content-sha256"));
+            assertFalse(exchange.getRequestURI().getQuery().contains("uid="));
             exchange.sendResponseHeaders(404, -1); exchange.close();
         });
         server.start();
@@ -80,6 +81,7 @@ public class CephBucketQuotaClientTest {
         java.util.concurrent.atomic.AtomicReference<byte[]> payload = new java.util.concurrent.atomic.AtomicReference<>();
         com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/admin/bucket", exchange -> {
+            assertTrue(exchange.getRequestURI().getQuery().contains("uid=owner"));
             digest.set(exchange.getRequestHeaders().getFirst("x-amz-content-sha256")); payload.set(exchange.getRequestBody().readAllBytes());
             exchange.sendResponseHeaders(200, -1); exchange.close();
         });
