@@ -42,6 +42,11 @@ import com.google.gson.annotations.SerializedName;
 @SuppressWarnings("unused")
 @EntityReference(value = {VirtualMachine.class, UserVm.class, VirtualRouter.class})
 public class UserVmResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse, SetResourceIconResponse {
+    @SerializedName("clonebatch")
+    @Param(description="Complete clone batch result; existing single-VM fields are preserved")
+    private VmCloneBatchResponse cloneBatch;
+    public void setCloneBatch(VmCloneBatchResponse value) { cloneBatch = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "The ID of the Instance")
     private String id;

@@ -88,6 +88,19 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
             since = "4.19.0")
     protected List<Long> zoneIds;
 
+    @Parameter(name="batchid",type=CommandType.STRING,description="Initial customjobid when retrying a clone batch")
+    private String batchId;
+    @Parameter(name="retryindices",type=CommandType.LIST,collectionType=CommandType.INTEGER,description="Only failed 1-based target indices; requires batchid and a new customjobid")
+    private List<Integer> retryIndices;
+    private transient List<Integer> cloneIndices;
+    private transient int batchItemIndex;
+    public String getBatchId() { return batchId == null ? getInjectedJobId() : batchId; }
+    public List<Integer> getRetryIndices() { return retryIndices; }
+    public List<Integer> getCloneIndices() { return cloneIndices == null ? java.util.stream.IntStream.rangeClosed(1,getCount()==null?1:getCount()).boxed().collect(java.util.stream.Collectors.toList()) : cloneIndices; }
+    public void setCloneIndices(List<Integer> value) { cloneIndices=value; }
+    public int getBatchItemIndex() { return batchItemIndex; }
+    public void setBatchItemIndex(int value) { batchItemIndex=value; }
+
     public String getAccountName() {
         return accountName;
     }
@@ -202,6 +215,7 @@ public class CloneVMCmd extends BaseAsyncCreateCmd implements UserCmd {
         }
         result.ifPresentOrElse((userVm)-> {
             UserVmResponse response = _responseGenerator.createUserVmResponse(getResponseView(), "virtualmachine", result.get()).get(0);
+            if (getBatchId() != null) { org.apache.cloudstack.api.response.VmCloneBatchResponse batch = _userVmService.queryVMCloneBatch(getBatchId()); batch.setJobStatus(1); response.setCloneBatch(batch); }
             response.setResponseName(this.getType() + "_clone");
             setResponseObject(response);
         }, ()-> {

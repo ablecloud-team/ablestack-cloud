@@ -145,6 +145,7 @@
 
     <bean id="alertManagerImpl" class="com.cloud.alert.AlertManagerImpl" />
 
+    <bean id="vmCloneBatchManager" class="com.cloud.vm.VmCloneBatchManager" />
     <bean id="autoScaleCreationRequestManager" class="com.cloud.network.as.AutoScaleCreationRequestManager" />
 
     <bean id="autoScaleManagerImpl" class="com.cloud.network.as.AutoScaleManagerImpl" />
