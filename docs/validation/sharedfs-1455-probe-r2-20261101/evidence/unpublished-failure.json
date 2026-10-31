@@ -1,0 +1,73 @@
+{
+  "kind": "read-only diagnosis; no apply, mutation, permission or service command",
+  "version": "1455.paths.2",
+  "code": "DIRECTORY_RUNTIME_COMMAND_FAILED",
+  "commands": [
+    {
+      "args": [
+        "testparm",
+        "-s",
+        "--section-name=s1455-child",
+        "--parameter-name=inherit owner",
+        "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Load smb config files from /etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\nUnknown section s1455-child\n"
+    }
+  ],
+  "share": {
+    "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+    "state": "Updating",
+    "guestOk": false,
+    "activeAclCount": 0,
+    "pathBindingVersion": 1
+  },
+  "policy": [
+    {
+      "canonicalpath": "epic1455/projects/team-a",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "inode": 25165961,
+      "mode": "0770",
+      "operationuuid": "14bdce65-3f73-4005-b46f-71835c60eec8",
+      "ownergid": 0,
+      "owneruid": 0,
+      "revision": 1,
+      "uuid": "ae3942e2-aa6a-3a88-ac1f-878c69d3ea31",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+    }
+  ],
+  "actualDirectory": {
+    "uid": 0,
+    "gid": 0,
+    "mode": "0770",
+    "inode": 25165961,
+    "entries": []
+  },
+  "nfsLocalProbe": {
+    "029d73b4-1baf-4ba9-8829-feb02582c7f2": [
+      {
+        "observedAt": 1793464231.3493893,
+        "port": 2049,
+        "reason": null,
+        "status": "MOUNT_VERIFIED"
+      }
+    ],
+    "490cc35e-07d9-4a02-8e5e-0634f163fbc0": [
+      {
+        "observedAt": 1793464231.3493881,
+        "port": 2049,
+        "reason": null,
+        "status": "MOUNT_VERIFIED"
+      }
+    ],
+    "9cc9628a-8a5a-4172-a92b-46d78f0610cf": [
+      {
+        "observedAt": 1793464231.3493898,
+        "port": 2049,
+        "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL",
+        "status": "EXTERNAL_CLIENT_REQUIRED"
+      }
+    ]
+  }
+}

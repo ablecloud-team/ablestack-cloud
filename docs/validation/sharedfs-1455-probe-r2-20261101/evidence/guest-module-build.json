@@ -1,0 +1,22 @@
+{
+  "sourceCommit": "82d83b6c2c0477b30c6fb5a5865c57f105b2d088",
+  "baseCompressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+  "image": "/root/work/epic1438-preparation/20261101/issue1455-nfs-probe-r2/systemvm-epic1455-paths-r2.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261101/issue1455-nfs-probe-r2/systemvm-epic1455-paths-r2.qcow2.bz2",
+  "compressedBytes": 498418990,
+  "compressedSha256": "97030218251a09f9d8b205cb91d09cdfbbf1ad26b8b5a3cad2e6d2859a66538a",
+  "changedGuestPaths": [
+    "etc/ablestack-storage/runtime-default/manifest.json",
+    "etc/ablestack-storage/runtime-default/manifest.sig",
+    "usr/local/bin/ablestack-storagectl",
+    "usr/local/lib/ablestack-storage/configuration_preflight.py",
+    "usr/local/lib/ablestack-storage/configuration_transaction.py",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+    "usr/local/lib/ablestack-storage/runtime_updater.py",
+    "usr/local/lib/ablestack-storage/shared_directory_policy.py"
+  ],
+  "unchangedGuestPathsVerified": 33929,
+  "hostAccountFilesUnchanged": true,
+  "qemuImageCheck": "No errors were found on the image.\n27445/80000 = 34.31% allocated, 0.02% fragmented, 0.00% compressed clusters\nImage end offset: 1799553024",
+  "managedFileCount": 10
+}
