@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"method\": \"operator module deployment; signature and ten-file integrity verified; existing configuration retained\", \"previousVersion\": \"1453.ad.7970009e5535.r5\", \"currentVersion\": \"1453.ad.winbind.r6\", \"verifiedFiles\": 10, \"manifestSha256\": \"4fff09582baf2fb233244c479ba6c9ba161dc0addae98822c79572b4259d5107\"}\n",
+  "stderr": ""
+}

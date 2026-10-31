@@ -1,0 +1,17 @@
+test_invalid_and_unknown_fields_are_rejected (test_shared_directory_policy.InputContract) ... ok
+test_named_acl_never_expands_common_mask (test_shared_directory_policy.InputContract) ... ok
+test_normalized_octal_and_only_explicit_fields (test_shared_directory_policy.InputContract) ... ok
+test_actual_runtime_adapter_reopen_and_duplicate_use_one_apply (test_shared_directory_policy.PosixTransactions) ... ok
+test_child_metadata_change_invalidates_recursive_tree_confirmation (test_shared_directory_policy.PosixTransactions) ... ok
+test_disabled_smb_reference_does_not_require_a_running_listener (test_shared_directory_policy.PosixTransactions) ... ok
+test_enabling_setgid_checks_effective_smb_identity_before_metadata_change (test_shared_directory_policy.PosixTransactions) ... ok
+test_named_acl_effective_widening_is_in_the_public_preview (test_shared_directory_policy.PosixTransactions) ... ok
+test_nonrecursive_update_and_full_acl_rollback (test_shared_directory_policy.PosixTransactions) ... ok
+test_recursive_is_explicit_bounded_and_verified (test_shared_directory_policy.PosixTransactions) ... ok
+test_repeated_acl_render_is_a_true_noop_and_mode_is_not_expanded (test_shared_directory_policy.PosixTransactions) ... ok
+test_stale_observation_and_replaced_inode_are_not_overwritten (test_shared_directory_policy.PosixTransactions) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.934s
+
+OK

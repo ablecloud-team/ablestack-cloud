@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "[{\"path\": \"ablestack-storage-boot-reconcile\", \"matches\": true}, {\"path\": \"ablestack-storage-monitor\", \"matches\": true}, {\"path\": \"ablestack-storagectl\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/configuration_preflight.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/configuration_transaction.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/nvmeof_identity.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/session_auth.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/shared_directory_policy.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/volume_identity.py\", \"matches\": true}, {\"path\": \"lib/ablestack-storage/volume_preparation.py\", \"matches\": true}]\n",
+  "stderr": ""
+}

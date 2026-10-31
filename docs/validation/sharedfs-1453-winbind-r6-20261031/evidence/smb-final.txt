@@ -1,0 +1,624 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - list:
+      - menuitem "hdd 볼륨":
+        - link "hdd 볼륨":
+          - /url: "#/volume"
+          - img "hdd":
+          - text: 볼륨
+      - menuitem "build 스냅샷":
+        - link "build 스냅샷":
+          - /url: "#/snapshot"
+          - img "build":
+          - text: 스냅샷
+      - menuitem "build 스냅샷 정책":
+        - link "build 스냅샷 정책":
+          - /url: "#/snapshotpolicy"
+          - img "build":
+          - text: 스냅샷 정책
+      - menuitem "cloud-upload 백업":
+        - link "cloud-upload 백업":
+          - /url: "#/backup"
+          - img "cloud-upload":
+          - text: 백업
+      - menuitem "build 백업 일정":
+        - link "build 백업 일정":
+          - /url: "#/backupschedule"
+          - img "build":
+          - text: 백업 일정
+      - menuitem "funnel-plot 버킷":
+        - link "funnel-plot 버킷":
+          - /url: "#/buckets"
+          - img "funnel-plot":
+          - text: 버킷
+      - menuitem "file-text 공유 파일 시스템":
+        - link "file-text 공유 파일 시스템":
+          - /url: "#/sharedfs"
+          - img "file-text":
+          - text: 공유 파일 시스템
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "공유 파일 시스템":
+    - /url: "#/sharedfs"
+  - text: /
+  - generic: epic1438-1453-ad-20261030-r5
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "file-text":
+  - heading "epic1438-1453-ad-20261030-r5" [level=4]
+  - separator
+  - generic: 상태
+  - generic: 사용 가능
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "3f0056db-4dfe-4f13-908d-b809dd565d34":
+    - /url: javascript:;
+  - generic: IP
+  - img "environment":
+  - link "10.10.13.220":
+    - /url: javascript:;
+  - generic: 클라우드 · 주 IP
+  - generic: 디스크 크기(GB 단위)
+  - img "hdd":
+  - generic: 10.00 GiB
+  - generic: 읽기 23.43 MB
+  - generic: 쓰기 69.65 MB
+  - generic: 읽기(IO) 1271
+  - generic: 쓰기(IO) 249
+  - generic: 네트워크
+  - img "wifi":
+  - generic: 1 NIC(s)
+  - strong: eth0
+  - link "10.10.13.220":
+    - /url: javascript:;
+  - img "apartment":
+  - link "L2-Network":
+    - /url: "#/guestnetwork/4d9047dc-c8b7-4c80-83bf-2c075adc2995"
+  - generic: VM 이름
+  - img "desktop":
+  - link "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2":
+    - /url: "#/vm/d9c423e9-ce89-3ba9-9cd8-f48cdb791da2"
+  - generic: 볼륨
+  - img "hdd":
+  - generic: sharedfs-DATA-195
+  - generic: 컴퓨트 오퍼링
+  - img "cloud":
+  - link "epic1438-1441-fixed-20261021":
+    - /url: "#/computeoffering/de15d05b-32fb-48de-8aeb-b01b55e1594f"
+  - generic: 스토리지 풀
+  - img "database":
+  - link "Primary Storage":
+    - /url: "#/storagepool/90b0c4e3-7078-4372-8da0-9625bc0e806a"
+  - generic: Zone
+  - img "global":
+  - link "13-Zone":
+    - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+  - generic: 계정
+  - img "user":
+  - link "admin":
+    - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363"
+  - generic: 도메인
+  - img "block":
+  - link "ROOT":
+    - /url: "#/domain/47178e2f-bd56-11f1-b573-002481560363?tab=details"
+  - tablist:
+    - tab "상세"
+    - tab "공유 디렉터리"
+    - tab "NFS"
+    - tab "SMB" [active] [selected]
+    - tab "iSCSI"
+    - tab "NVMe-oF"
+    - tab "런타임"
+    - tab "네트워크"
+    - tab "메트릭"
+    - tab "작업 내역"
+    - tab "이벤트"
+  - tabpanel "SMB":
+    - button "plus 엔드포인트 추가":
+      - img "plus":
+      - generic: 엔드포인트 추가
+    - button "plus SMB 공유 생성":
+      - img "plus":
+      - generic: SMB 공유 생성
+    - button "safety-certificate AD 상태 확인":
+      - img "safety-certificate":
+      - generic: AD 상태 확인
+    - button "reload 업데이트":
+      - img "reload":
+      - generic: 업데이트
+    - button "fullscreen 넓게 보기":
+      - img "fullscreen":
+      - generic: 넓게 보기
+    - table:
+      - rowgroup:
+        - row "도메인 가입 가입 완료":
+          - rowheader "도메인 가입"
+          - cell "가입 완료":
+            - generic: 가입 완료
+        - row "SMB 서비스 적용 적용·검증 완료":
+          - rowheader "SMB 서비스 적용"
+          - cell "적용·검증 완료":
+            - generic: 적용·검증 완료
+        - row "원복 결과 불필요":
+          - rowheader "원복 결과"
+          - cell "불필요":
+            - generic: 불필요
+        - row "요청 식별자 9f58f9e1-06f1-4db1-8a97-479bcfe069e3":
+          - rowheader "요청 식별자"
+          - cell "9f58f9e1-06f1-4db1-8a97-479bcfe069e3":
+            - code: 9f58f9e1-06f1-4db1-8a97-479bcfe069e3
+    - generic: 접속 정보
+    - paragraph: 서비스 IP와 SMB 공유 이름을 함께 사용합니다. 각 공유 이름은 클라이언트에 노출되는 루트입니다.
+    - generic: \\10.10.13.220\<공유-이름>
+    - generic: net use * \\10.10.13.220\<공유-이름> /user:<사용자 이름>
+    - generic: smbclient //10.10.13.220/<공유-이름> -U <사용자 이름>
+    - generic: 상태 요약
+    - term: 엔드포인트
+    - definition:
+      - generic "\\\\10.10.13.220\\<공유-이름>"
+    - term: 인증 방식
+    - definition:
+      - generic "Active Directory 도메인"
+    - term: 도메인 가입 상태
+    - definition:
+      - generic "JOINED"
+    - term: 도메인 상태
+    - definition:
+      - generic "OK"
+    - term: Trust 검증
+    - definition:
+      - generic "검증됨"
+    - term: 데몬 상태
+    - definition:
+      - generic "smbd:active, nmbd:active, winbind:active"
+    - term: 모니터링 캐시
+    - definition:
+      - generic: ok
+    - term: 마지막 갱신
+    - definition:
+      - generic "2026-10-31T03:23:05Z"
+    - heading "수신 포트 그룹" [level=4]
+    - paragraph: SMB 서비스에 등록된 수신 IP와 포트, 실제 접속 가능한 엔드포인트입니다.
+    - table:
+      - rowgroup:
+        - row "수신 IP 포트 리스너 유형 접근 가능 엔드포인트 연결 리소스 상태 작업":
+          - columnheader "수신 IP"
+          - columnheader "포트"
+          - columnheader "리스너 유형"
+          - columnheader "접근 가능 엔드포인트"
+          - columnheader "연결 리소스"
+          - columnheader "상태"
+          - columnheader "작업"
+      - rowgroup:
+        - row "10.10.13.220 445 개별 IP 10.10.13.220:445 2 READY edit 편집 delete 삭제":
+          - cell "10.10.13.220":
+            - generic "10.10.13.220"
+          - cell "445":
+            - generic "445"
+          - cell "개별 IP":
+            - generic "개별 IP"
+          - cell "10.10.13.220:445":
+            - generic "10.10.13.220:445"
+          - cell "2":
+            - generic "2"
+          - cell "READY":
+            - generic: READY
+          - cell "edit 편집 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "delete 삭제" [disabled]:
+              - img "delete":
+              - generic: 삭제
+    - heading "SMB 공유 목록" [level=4]
+    - paragraph: SMB 공유 이름은 클라이언트에 노출되는 UNC 루트입니다. 내부 경로는 운영과 문제 분석을 위해서만 표시합니다. 게스트 접근을 명시적으로 켜지 않은 공유는 ACL을 생성해야 클라이언트가 접근할 수 있습니다.
+    - table:
+      - rowgroup:
+        - row "SMB 공유 이름 새 객체 UID 부모 GID 상속 (setgid) 클라이언트 UNC 루트 내부 백킹 경로 IP / 포트 탐색 허용 게스트 접근 권한 용량 백킹 볼륨 상태 작업":
+          - columnheader "SMB 공유 이름"
+          - columnheader "새 객체 UID"
+          - columnheader "부모 GID 상속 (setgid)"
+          - columnheader "클라이언트 UNC 루트"
+          - columnheader "내부 백킹 경로"
+          - columnheader "IP / 포트"
+          - columnheader "탐색 허용"
+          - columnheader "게스트 접근"
+          - columnheader "권한"
+          - columnheader "용량"
+          - columnheader "백킹 볼륨"
+          - columnheader "상태"
+          - columnheader "작업"
+      - rowgroup:
+        - row "common1453r5 생성자 UID 유지 알 수 없음 \\\\10.10.13.220\\common1453r5 /export/common1453r5 10.10.13.220:445 예 아니오 읽기/쓰기 - sharedfs-DATA-195 Ready edit 편집 expand-alt 파일 공유 용량 확장 delete 삭제":
+          - cell "common1453r5":
+            - generic "common1453r5"
+          - cell "생성자 UID 유지":
+            - generic "생성자 UID 유지"
+          - cell "알 수 없음":
+            - generic "알 수 없음"
+          - cell "\\\\10.10.13.220\\common1453r5":
+            - generic "\\\\10.10.13.220\\common1453r5"
+          - cell "/export/common1453r5":
+            - generic "/export/common1453r5"
+          - cell "10.10.13.220:445":
+            - generic "10.10.13.220:445"
+          - cell "예":
+            - generic "예"
+          - cell "아니오":
+            - generic "아니오"
+          - cell "읽기/쓰기":
+            - generic "읽기/쓰기"
+          - cell "-":
+            - generic "-"
+          - cell "sharedfs-DATA-195":
+            - generic "sharedfs-DATA-195"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 expand-alt 파일 공유 용량 확장 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "expand-alt 파일 공유 용량 확장":
+              - img "expand-alt":
+              - generic: 파일 공유 용량 확장
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+        - row "ad1453r5 부모 UID 상속 활성 \\\\10.10.13.220\\ad1453r5 /export/ad1453r5 10.10.13.220:445 예 아니오 읽기/쓰기 - sharedfs-DATA-195 Ready edit 편집 expand-alt 파일 공유 용량 확장 delete 삭제":
+          - cell "ad1453r5":
+            - generic "ad1453r5"
+          - cell "부모 UID 상속":
+            - generic "부모 UID 상속"
+          - cell "활성":
+            - generic "활성"
+          - cell "\\\\10.10.13.220\\ad1453r5":
+            - generic "\\\\10.10.13.220\\ad1453r5"
+          - cell "/export/ad1453r5":
+            - generic "/export/ad1453r5"
+          - cell "10.10.13.220:445":
+            - generic "10.10.13.220:445"
+          - cell "예":
+            - generic "예"
+          - cell "아니오":
+            - generic "아니오"
+          - cell "읽기/쓰기":
+            - generic "읽기/쓰기"
+          - cell "-":
+            - generic "-"
+          - cell "sharedfs-DATA-195":
+            - generic "sharedfs-DATA-195"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 expand-alt 파일 공유 용량 확장 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "expand-alt 파일 공유 용량 확장":
+              - img "expand-alt":
+              - generic: 파일 공유 용량 확장
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+    - heading "SMB 접근 및 계정" [level=4]
+    - paragraph: SMB 공유 접근이 허용된 로컬 또는 AD 주체입니다.
+    - button "safety-certificate SMB ACL 생성":
+      - img "safety-certificate":
+      - generic: SMB ACL 생성
+    - table:
+      - rowgroup:
+        - row "SMB 공유 이름 대상 주체 유형 대상 주체 권한 인증 방식 상태 작업":
+          - columnheader "SMB 공유 이름"
+          - columnheader "대상 주체 유형"
+          - columnheader "대상 주체"
+          - columnheader "권한"
+          - columnheader "인증 방식"
+          - columnheader "상태"
+          - columnheader "작업"
+      - rowgroup:
+        - row "common1453r5 로컬 사용자 epic1453rw 읽기/쓰기 로컬 계정 Ready edit 편집 delete 삭제":
+          - cell "common1453r5":
+            - generic "common1453r5"
+          - cell "로컬 사용자":
+            - generic "로컬 사용자"
+          - cell "epic1453rw":
+            - generic "epic1453rw"
+          - cell "읽기/쓰기":
+            - generic "읽기/쓰기"
+          - cell "로컬 계정":
+            - generic "로컬 계정"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+        - row "common1453r5 로컬 사용자 epic1453ro 읽기 전용 로컬 계정 Ready edit 편집 delete 삭제":
+          - cell "common1453r5":
+            - generic "common1453r5"
+          - cell "로컬 사용자":
+            - generic "로컬 사용자"
+          - cell "epic1453ro":
+            - generic "epic1453ro"
+          - cell "읽기 전용":
+            - generic "읽기 전용"
+          - cell "로컬 계정":
+            - generic "로컬 계정"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+        - row "ad1453r5 AD 사용자 ABLESTACK\\epic1453ad 읽기/쓰기 Active Directory 도메인 Ready edit 편집 delete 삭제":
+          - cell "ad1453r5":
+            - generic "ad1453r5"
+          - cell "AD 사용자":
+            - generic "AD 사용자"
+          - cell "ABLESTACK\\epic1453ad":
+            - generic "ABLESTACK\\epic1453ad"
+          - cell "읽기/쓰기":
+            - generic "읽기/쓰기"
+          - cell "Active Directory 도메인":
+            - generic "Active Directory 도메인"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+        - row "ad1453r5 AD 사용자 ABLESTACK\\epic1453adro 읽기 전용 Active Directory 도메인 Ready edit 편집 delete 삭제":
+          - cell "ad1453r5":
+            - generic "ad1453r5"
+          - cell "AD 사용자":
+            - generic "AD 사용자"
+          - cell "ABLESTACK\\epic1453adro":
+            - generic "ABLESTACK\\epic1453adro"
+          - cell "읽기 전용":
+            - generic "읽기 전용"
+          - cell "Active Directory 도메인":
+            - generic "Active Directory 도메인"
+          - cell "Ready":
+            - generic: Ready
+          - cell "edit 편집 delete 삭제":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "delete 삭제":
+              - img "delete":
+              - generic: 삭제
+    - heading "SMB 인증" [level=4]
+    - paragraph: 이 SMB 서비스의 인증 방식, AD 도메인, 작업 그룹, 도메인 가입 상태입니다.
+    - button "safety-certificate AD 상태 확인":
+      - img "safety-certificate":
+      - generic: AD 상태 확인
+    - button "reload AD 도메인 재가입":
+      - img "reload":
+      - generic: AD 도메인 재가입
+    - button "disconnect AD 도메인 탈퇴":
+      - img "disconnect":
+      - generic: AD 도메인 탈퇴
+    - term: 인증 방식
+    - definition:
+      - generic "Active Directory 도메인"
+    - term: AD 도메인
+    - definition:
+      - generic "ablestack.local"
+    - term: 작업 그룹
+    - definition:
+      - generic "ABLESTACK"
+    - term: 도메인 가입 상태
+    - definition:
+      - generic "JOINED"
+    - term: 도메인 상태
+    - definition:
+      - generic "OK"
+    - term: Trust 검증
+    - definition:
+      - generic "검증됨"
+    - term: DNS 서버
+    - definition:
+      - generic "10.10.13.247"
+    - term: Realm
+    - definition:
+      - generic "ABLESTACK.LOCAL"
+    - term: NetBIOS 이름
+    - definition:
+      - generic "STORC1ECA707A5"
+    - term: 조직 구성 단위
+    - definition:
+      - generic "-"
+    - heading "백킹 볼륨" [level=4]
+    - paragraph: SMB 공유가 사용하는 백킹 볼륨과 ABLESTACK 볼륨 정보입니다.
+    - table:
+      - rowgroup:
+        - row "볼륨 이름 볼륨 크기 사용 용량 디스크 오퍼링 스토리지 풀 파일 시스템 현재 SystemVM 장치 볼륨 매핑 상태 연결된 공유 상태 작업":
+          - columnheader "볼륨 이름"
+          - columnheader "볼륨"
+          - columnheader "크기"
+          - columnheader "사용 용량"
+          - columnheader "디스크 오퍼링"
+          - columnheader "스토리지 풀"
+          - columnheader "파일 시스템"
+          - columnheader "현재 SystemVM 장치"
+          - columnheader "볼륨 매핑 상태"
+          - columnheader "연결된 공유"
+          - columnheader "상태"
+          - columnheader "작업"
+      - rowgroup:
+        - row "sharedfs-DATA-195 e070a0aa-dbf5-48c0-83e0-09f874446277 10.0 GiB 310.2 MiB 사용자 정의 디스크 오퍼링 Primary Storage xfs /dev/sdb 정확 common1453r5 Ready expand-alt 볼륨 확장":
+          - cell "sharedfs-DATA-195":
+            - generic "sharedfs-DATA-195"
+          - cell "e070a0aa-dbf5-48c0-83e0-09f874446277":
+            - generic "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          - cell "10.0 GiB":
+            - generic "10.0 GiB"
+          - cell "310.2 MiB":
+            - generic "310.2 MiB"
+          - cell "사용자 정의 디스크 오퍼링":
+            - generic "사용자 정의 디스크 오퍼링"
+          - cell "Primary Storage":
+            - generic "Primary Storage"
+          - cell "xfs":
+            - generic "xfs"
+          - cell "/dev/sdb":
+            - generic "/dev/sdb"
+          - cell "정확":
+            - generic "정확"
+          - cell "common1453r5":
+            - generic "common1453r5"
+          - cell "Ready":
+            - generic: Ready
+          - cell "expand-alt 볼륨 확장":
+            - button "expand-alt 볼륨 확장":
+              - img "expand-alt":
+              - generic: 볼륨 확장
+    - heading "세션" [level=4]
+    - paragraph: 활성 또는 마지막으로 확인된 SMB 클라이언트 세션입니다. 지원되는 경우 세션을 종료할 수 있습니다.
+    - table:
+      - rowgroup:
+        - row "클라이언트 사용자 이름 SMB 공유 이름 SMB 버전 상태 연결 시간 서비스 엔드포인트 트리/세션 ID 작업":
+          - columnheader "클라이언트"
+          - columnheader "사용자 이름"
+          - columnheader "SMB 공유 이름"
+          - columnheader "SMB 버전"
+          - columnheader "상태"
+          - columnheader "연결 시간"
+          - columnheader "서비스 엔드포인트"
+          - columnheader "트리/세션 ID"
+          - columnheader "작업"
+      - rowgroup:
+        - row "현재 연결된 세션이 없습니다.":
+          - cell "현재 연결된 세션이 없습니다.":
+            - paragraph: 현재 연결된 세션이 없습니다.
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (2건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":
