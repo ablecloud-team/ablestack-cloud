@@ -11403,24 +11403,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @Override
     public void validateCloneCondition(CloneVMCmd cmd) throws InvalidParameterValueException, ResourceUnavailableException, CloudRuntimeException, ResourceAllocationException {
 
-        if (cmd.getAccountName() != null && cmd.getDomainId() == null) {
-            throw new InvalidParameterValueException("You must input the domainId together with the account name");
-        }
-
-        final DomainVO domain = cmd.getDomainId() == null ? null : _domainDao.findById(cmd.getDomainId());
-        final Account account = cmd.getAccountName() == null ? null : _accountService.getActiveAccountByName(cmd.getAccountName(), cmd.getDomainId());
-        if (domain  != null && account != null) {
-            if (account.getType() == Account.Type.PROJECT) {
-                throw new InvalidParameterValueException("Invalid user type: project to clone the VM");
-            }
-            if (account.getState() != Account.State.ENABLED) {
-                throw new InvalidParameterValueException("User is not enabled to clone this VM");
-            }
-        }
         UserVm curVm = cmd.getTargetVM();
-        if (curVm == null) {
-            throw new CloudRuntimeException("the VM doesn't exist or not registered in management server!");
-        }
+        validateCloneRequestScope(cmd, curVm);
         validateCloneAllocation(cmd, curVm);
         validateCloneNames(cmd, curVm.getDataCenterId());
         checkNoActiveBackupForClone(curVm.getId());
@@ -11493,8 +11477,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     protected void validateCloneNames(CloneVMCmd cmd, long zoneId) {
         Integer count = cmd.getCount();
-        if (count == null || count < 1) {
-            throw new InvalidParameterValueException("The number of VM clones must be at least one");
+        if (count == null || count < 1 || count > CloneVMCmd.MAX_CLONE_COUNT) {
+            throw new InvalidParameterValueException("count must be an integer from 1 to " + CloneVMCmd.MAX_CLONE_COUNT);
         }
         String name = cmd.getName();
         if (StringUtils.isBlank(name)) {
@@ -11508,6 +11492,44 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             VMInstanceVO existingVm = _vmInstanceDao.findVMByHostNameInZone(cloneName, zoneId);
             if (existingVm != null && existingVm.getState() != State.Expunging) {
                 throw new InvalidParameterValueException("There already exists a VM by the name: " + cloneName + ".");
+            }
+        }
+    }
+
+    protected void validateCloneRequestScope(CloneVMCmd cmd, UserVm source) {
+        if (source == null) {
+            throw new InvalidParameterValueException("Source VM does not exist");
+        }
+        if (!List.of("full", "linked").contains(cmd.getType())) {
+            throw new InvalidParameterValueException("clonetype must be full or linked");
+        }
+        if (cmd.getDomainId() != null && !Objects.equals(cmd.getDomainId(), source.getDomainId())) {
+            throw new InvalidParameterValueException("Changing the source VM domain is not supported");
+        }
+        if (cmd.getAccountName() != null) {
+            if (cmd.getDomainId() == null) {
+                throw new InvalidParameterValueException("account requires the source VM domainid");
+            }
+            Account requested = _accountService.getActiveAccountByName(cmd.getAccountName(), cmd.getDomainId());
+            if (requested == null || requested.getId() != source.getAccountId()
+                    || requested.getType() == Account.Type.PROJECT || requested.getState() != Account.State.ENABLED) {
+                throw new InvalidParameterValueException("Only the enabled source VM account is supported; changing ownership is not supported");
+            }
+        }
+        if (cmd.getZoneIds() != null && (cmd.getZoneIds().size() != 1
+                || !Objects.equals(cmd.getZoneIds().get(0), source.getDataCenterId()))) {
+            throw new InvalidParameterValueException("zoneids must contain only the source VM zone; cross-zone cloning is not supported");
+        }
+        if ("linked".equals(cmd.getType())) {
+            List<VolumeVO> volumes = _volsDao.findByInstance(source.getId());
+            if (volumes.isEmpty()) {
+                throw new InvalidParameterValueException("Linked cloning requires source disks on RBD");
+            }
+            for (VolumeVO volume : volumes) {
+                StoragePoolVO pool = volume.getPoolId() == null ? null : _storagePoolDao.findById(volume.getPoolId());
+                if (pool == null || pool.getPoolType() != StoragePoolType.RBD) {
+                    throw new InvalidParameterValueException("Linked cloning requires all source disks on RBD; GFS2 supports only full");
+                }
             }
         }
     }
@@ -11578,6 +11600,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     protected Optional<UserVm> performCloneVirtualMachine(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
         UserVmVO curVm = _vmDao.findById(cmd.getId());
         // Recheck when the async job runs, before snapshots, volumes or source state are changed.
+        validateCloneRequestScope(cmd, curVm);
         validateCloneNames(cmd, curVm.getDataCenterId());
         checkNoActiveBackupForClone(curVm.getId());
         Account curVmAccount = _accountDao.findById(curVm.getAccountId());
