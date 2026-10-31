@@ -1012,13 +1012,13 @@ export default {
 
 .object-store-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; min-width: 0; }
 .object-store-actions { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
-.object-store-toolbar .object-store-search { width: 280px; max-width: 100%; min-width: 0; margin-left: auto; }
+.object-store-toolbar .object-store-search { flex: 1 1 200px; max-width: 280px; min-width: 0; margin-left: auto; }
 .object-store-link { border: 0; background: transparent; color: var(--ui-link); padding: 0; font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
 .object-store-link:hover { text-decoration: underline; }
 .object-store-link:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; border-radius: 2px; }
 .breadcrumb-card :deep(.ant-card-body) { min-width: 0; }
 .breadcrumb-card :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
-@media (max-width: 768px) { .object-store-toolbar .object-store-search { width: 100%; flex-basis: 100%; } }
+@media (max-width: 768px) { .object-store-toolbar .object-store-search { width: 100%; max-width: 100%; flex-basis: 100%; } }
 
 :deep(.ant-upload-list-picture .ant-upload-list-item-done) {
   border-color: var(--ui-link);
