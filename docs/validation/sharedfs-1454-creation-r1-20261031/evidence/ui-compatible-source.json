@@ -1,0 +1,15 @@
+{
+  "deployedUiSource": "3ba82f71101627515c1dea4aa6469a661261af8a",
+  "featureSource": "c1ec5f343b908546f9aa79178b4571378028d643",
+  "sourceTree": "canonical /root/work/ablestack-cloud unchanged",
+  "kind": "temporary export for deployed-runtime UI compatibility, no second Git checkout",
+  "overlaidFiles": [
+    "src/views/storage/SharedFSTab.vue",
+    "src/utils/storageConfigPreflight.js",
+    "src/components/storage/StorageConfigurationPreflightPanel.vue",
+    "src/utils/smbCreationPolicy.js",
+    "src/components/storage/SmbCreationPolicyDialog.vue"
+  ],
+  "localePatch": "only #1454 keys vs feature parent",
+  "operatorConfigDeployment": "excluded"
+}

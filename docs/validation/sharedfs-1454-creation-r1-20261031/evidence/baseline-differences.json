@@ -1,0 +1,31 @@
+{
+  "differences": [
+    {
+      "path": "/shares/0/acls/0/config/passwordSupplied",
+      "guest": "<absent>",
+      "server": false
+    },
+    {
+      "path": "/shares/0/acls/1/config/passwordSupplied",
+      "guest": "<absent>",
+      "server": false
+    },
+    {
+      "path": "/shares/1/acls/0/config/passwordSupplied",
+      "guest": "<absent>",
+      "server": true
+    },
+    {
+      "path": "/shares/1/acls/1/config/passwordSupplied",
+      "guest": "<absent>",
+      "server": true
+    }
+  ],
+  "readOnlyReplay": [
+    {
+      "iteration": 1,
+      "code": "SMB_OPTIONS_BASELINE_CHANGED",
+      "message": "SMB_OPTIONS_BASELINE_CHANGED"
+    }
+  ]
+}
