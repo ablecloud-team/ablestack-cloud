@@ -1,0 +1,10 @@
+{
+  "windows": {
+    "headBranchTrackedStatusAndThreeFileHashesUnchanged": true,
+    "trackedDirtyFilesPreserved": 3
+  },
+  "wsl": {
+    "headBranchTrackedStatusAndDiffSHA256Unchanged": true,
+    "trackedDirtyFilesPreserved": 11
+  }
+}

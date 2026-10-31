@@ -1,6 +1,6 @@
 # [Europa][BKT-04][P1] Glue 계정 키 저장 시 기존 상세 보존과 저장소별 자격 증명 분리
 
-상위 Epic: #1527. 상태: 해결 설계, 미구현. 우선 선행 작업. 소스 기준: `1c5b169cd6283da23cc3e155d4b6d14e39e42793`.
+상위 Epic: #1527. 상태: 구현·31/32 반영·UI 검증 완료. 수정 전 재현과 최초 설계 이력은 아래에 보존한다. 소스 기준: `1c5b169cd6283da23cc3e155d4b6d14e39e42793`.
 
 ## 구체적인 문제와 원인
 
@@ -27,11 +27,11 @@ Glue driver의 createUser/getS3Client/정책·버전 호출, AccountDetailsDao �
 
 ## 완료 기준과 검증
 
-- [ ] IAM origin·임의 상세 3개를 가진 계정에서 첫/추가 버킷 생성 전후 기존 행 값/개수 동일.
-- [ ] 기존 RGW 사용자 + Cloud 키 없음/오래된 키/접속 거부/동시 생성 각각 검증.
-- [ ] 한 계정의 서로 다른 저장소 두 곳이 키를 덮어쓰지 않고 기존 버킷 접근 유지.
-- [ ] 계정 삭제가 의도한 local/external IAM 경로를 유지; legacy/새 설치 업그레이드 검증.
-- [ ] 재시도·rollback 후 키·기존 상세·운영 객체 보존, 전용 자원 및 키 정리 확인.
+- [x] IAM origin·임의 상세 3개를 가진 계정에서 첫/추가 버킷 생성 전후 기존 행 값/개수 동일.
+- [x] 기존 RGW 사용자 + Cloud 키 없음/오래된 키/접속 거부/동시 생성 각각 검증.
+- [x] 한 계정의 서로 다른 저장소 두 곳이 키를 덮어쓰지 않고 기존 버킷 접근 유지.
+- [x] 계정 삭제가 의도한 local/external IAM 경로를 유지; legacy/새 설치 업그레이드 검증.
+- [x] 재시도·rollback 후 키·기존 상세·운영 객체 보존, 전용 자원 및 키 정리 확인.
 
 근거: Epic BKT-04, `account-detail-loss-and-recovery.json`, 계정 생성/버킷 생성/삭제의 API 기록. 재현 때 기존 admin 상세의 사전 행은 없었으며 전용 계정의 원래 행 복원 후 정리했다. 전체 Cloud 빌드는 별도 요청 대상이다.
 
@@ -48,3 +48,8 @@ Glue driver의 createUser/getS3Client/정책·버전 호출, AccountDetailsDao �
 - 선행 반영: 필수 선행 이슈 없음. 본문의 안전한 실측 순서는 따른다.
 - 인터페이스 조율·통합 검증: [BKT-05 #1533](https://github.com/ablecloud-team/ablestack-cloud/issues/1533), [BKT-07 #1535](https://github.com/ablecloud-team/ablestack-cloud/issues/1535), [BKT-10 #1538](https://github.com/ablecloud-team/ablestack-cloud/issues/1538).
 - 상위 Epic: [#1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527). 구현 완료 표시는 해당 이슈의 완료 기준과 실제 검증 후 별도로 갱신한다.
+
+
+## 구현 결과
+
+중간 account_details upsert 단계 대신 최종 scoped credential 테이블로 직접 전환했다. 기존 상세는 변경하지 않는다. 실제 Glue 검증·분산 pair lock·암호화 저장·검증 상태/시각·외부 생성 출처·안전한 실패와 부모 메타데이터 재시도를 구현했다. [현재 구현·배포·UI 검증·정리 보고서](../../validation/bucket-1529-20261031/REPORT.ko.md)를 따른다. 정상 상태 API 키 노출 제거는 #1533, 동시 생성의 quota 원장 결함은 #1531에 남는다. 전체 새 설치가 아닌 실제 MySQL fresh/idempotent 스키마를 검증했다. local-only 계정 6개를 IAM 표시 수동 복원 없이 삭제했고 외부 IAM 서버 통합 삭제는 실행하지 않았다.

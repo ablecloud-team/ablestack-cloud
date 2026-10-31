@@ -1,0 +1,101 @@
+[
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "31-error-final-dark-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "31-error-final-light-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "31-healthy-final-dark-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "31-healthy-final-light-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "32-error-final-dark-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "32-error-final-light-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "32-healthy-final-dark-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 360,
+      "height": 844
+    },
+    "format": "JPEG",
+    "height": 203,
+    "note": "Scaled browser preview; DOM viewport differs from decoded image",
+    "name": "32-healthy-final-light-ko-360-preview.jpg",
+    "width": 360
+  },
+  {
+    "domViewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "format": "JPEG",
+    "height": 720,
+    "note": "Native viewport capture",
+    "name": "32-review-final-native.jpg",
+    "width": 1280
+  }
+]

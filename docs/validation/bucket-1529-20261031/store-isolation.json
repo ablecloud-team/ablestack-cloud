@@ -1,0 +1,18 @@
+{
+  "31": {
+    "bucketCount": 3,
+    "distinctStoreRows": 2,
+    "distinctVerifiedActualKeys": 2,
+    "originalAndLegacyDetailsPreserved": true,
+    "allBucketS3ListHTTP": 200,
+    "bindingCount": 2
+  },
+  "32": {
+    "bucketCount": 3,
+    "distinctStoreRows": 2,
+    "distinctVerifiedActualKeys": 2,
+    "originalAndLegacyDetailsPreserved": true,
+    "allBucketS3ListHTTP": 200,
+    "bindingCount": 2
+  }
+}

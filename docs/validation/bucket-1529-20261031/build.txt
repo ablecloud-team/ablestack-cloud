@@ -1,0 +1,9 @@
+Changed Maven modules: api, engine/api, engine/schema, engine/storage, plugins/storage/object/ceph, server
+Backend focused tests: 21 + 2 actual DAO date binding tests = 23 passed
+UI final source: 37a8aa5de7b6c1a77e49bb450479ec254831d870
+UI production build/postbuild: PASS
+UI build command: NODE_OPTIONS=--openssl-legacy-provider npm run build
+Final UI Jest: 7 suites, 80 tests passed
+Final index SHA256: 19a33faefc4686ee0304840ebd3d0aa769e8e5c81065df6cc6f3f0a7df4fd50f
+Known build warnings: existing asset size warnings and outdated Browserslist dataset
+Full Cloud build/Actions and qemu build: not run

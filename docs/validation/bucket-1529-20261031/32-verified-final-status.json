@@ -1,0 +1,78 @@
+[
+  {
+    "cluster": 32,
+    "theme": "light",
+    "lang": "ko",
+    "state": "verified",
+    "statuses": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "검증 완료"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "lang": "en",
+    "state": "verified",
+    "statuses": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "Verified"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "lang": "ko",
+    "state": "verified",
+    "statuses": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "검증 완료"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "theme": "dark",
+    "lang": "en",
+    "state": "verified",
+    "statuses": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "Verified"
+      }
+    ],
+    "pass": true
+  }
+]

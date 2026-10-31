@@ -1,0 +1,42 @@
+{
+  "31": {
+    "removedTestBuckets": 5,
+    "removedTestObjects": 4,
+    "normalAccountDeletesWithoutIamRepair": 3,
+    "remainingQaCredentialRows": 0,
+    "quotaCounterFollowup": "#1531",
+    "testLedgerReconciledForCleanup": true,
+    "storeBCredentialRowsRemoved": 1,
+    "storeABindingsPreservedUntilAccountDelete": 1,
+    "remainingBucketCount": 0,
+    "remainingStoreCount": 0,
+    "retainedBuckets": []
+  },
+  "32": {
+    "removedTestBuckets": 5,
+    "removedTestObjects": 4,
+    "normalAccountDeletesWithoutIamRepair": 3,
+    "remainingQaCredentialRows": 0,
+    "quotaCounterFollowup": "#1531",
+    "testLedgerReconciledForCleanup": true,
+    "storeBCredentialRowsRemoved": 1,
+    "storeABindingsPreservedUntilAccountDelete": 1,
+    "remainingBucketCount": 1,
+    "remainingStoreCount": 1,
+    "retainedBuckets": [
+      {
+        "id": "3e952d59-a311-4a2b-86fe-d66ed38f050c",
+        "name": "qa-bkt-1540-32-files"
+      }
+    ]
+  },
+  "glue": {
+    "explicitlyRemovedQaUsers": 6,
+    "externalUsersPersistedThroughCloudCleanup": true,
+    "reviewOwnerAndAdminAndDashboardPreserved": true,
+    "remainingBuckets": [
+      "qa-bkt-1540-32-files"
+    ],
+    "health": "HEALTH_OK"
+  }
+}

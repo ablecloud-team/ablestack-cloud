@@ -1,0 +1,16 @@
+{
+  "31": {
+    "state": "NeedsVerification",
+    "provisioningSource": "CreatedByCloud",
+    "externalUserPreserved": true,
+    "cloudBucketCount": 0,
+    "accountDetailsUnchanged": true
+  },
+  "32": {
+    "state": "NeedsVerification",
+    "provisioningSource": "CreatedByCloud",
+    "externalUserPreserved": true,
+    "cloudBucketCount": 0,
+    "accountDetailsUnchanged": true
+  }
+}
