@@ -1,0 +1,22 @@
+{
+  "guards": [
+    {
+      "scenario": "B-dialog-conflict-dark",
+      "preflightEnabled": false
+    },
+    {
+      "scenario": "B-dialog-unsupported-dark",
+      "preflightEnabled": false
+    },
+    {
+      "scenario": "B-dialog-inherited-dark",
+      "preflightEnabled": false
+    },
+    {
+      "scenario": "B-dialog-unchanged-light",
+      "preflightEnabled": false
+    }
+  ],
+  "ackBeforeEnabled": false,
+  "ackAfterEnabled": true
+}

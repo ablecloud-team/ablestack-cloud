@@ -1,0 +1,69 @@
+- strong: "B · #1454 개선 UI 목업"
+- generic: 실제 Mold 공통 컴포넌트 · API 미연결 · 서비스 변경 없음
+- button "목록":
+  - generic: 목록
+- button "상세":
+  - generic: 상세
+- button "SMB":
+  - generic: SMB
+- switch "다크" [checked]:
+  - generic: 다크
+- complementary:
+  - text: ABLESTACK
+  - paragraph: 대시보드
+  - paragraph: 컴퓨트 ⌄
+  - paragraph: 가상머신
+  - paragraph: 스토리지 ⌄
+  - generic: 공유 파일 시스템
+  - paragraph: 네트워크
+  - paragraph: 이미지
+- banner:
+  - generic: ☰ 기본 보기
+  - generic: AC admin cloud
+- link "home":
+  - /url: /
+  - img "home":
+- text: /
+- link "공유 파일 시스템":
+  - /url: /sharedfs
+- button "reload 업데이트":
+  - img "reload":
+  - generic: 업데이트
+- main:
+  - button "plus 공유 파일 시스템 생성":
+    - img "plus":
+    - generic: 공유 파일 시스템 생성
+  - combobox
+  - generic: 전체
+  - textbox "이름 검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "이름 상태 스토리지 크기 계정 Zone":
+        - columnheader "이름"
+        - columnheader "상태"
+        - columnheader "스토리지"
+        - columnheader "크기"
+        - columnheader "계정"
+        - columnheader "Zone"
+    - rowgroup:
+      - row "sharedfs-mask-design 사용 가능 Primary Storage 10 GiB admin 13-Zone":
+        - cell "sharedfs-mask-design"
+        - cell "사용 가능":
+          - generic: 사용 가능
+        - cell "Primary Storage"
+        - cell "10 GiB"
+        - cell "admin"
+        - cell "13-Zone"
+  - list:
+    - listitem "Previous Page":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "Next Page":
+      - button "right" [disabled]:
+        - img "right":
+    - combobox
+    - generic: 20 / page

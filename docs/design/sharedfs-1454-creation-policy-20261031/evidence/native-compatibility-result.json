@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"installedProtectedUpdaterVersion\": 6, \"installedGuardReused\": true, \"defaultCompatibilityPreserved\": true, \"activeCustomOldHelperRejected\": true, \"candidateFeatureAstAcceptedWithoutExecutingCode\": true, \"disabledReferenceSkipped\": true, \"productionHelperUnchanged\": true}\n",
+  "stderr": ""
+}

@@ -1,0 +1,63 @@
+{
+  "standardComponents": [
+    "Vue3",
+    "Ant Design Vue",
+    "Mold Breadcrumb",
+    "ResourceLayout",
+    "MoldDialog lg",
+    "MoldDialogActions",
+    "current theme styles"
+  ],
+  "nativeVmReference": "S-vm-* actual 13 UI",
+  "mockupApiConnected": false,
+  "contrastRatio": {
+    "dark": {
+      "body": 13.35,
+      "hint": 9.18,
+      "label": 7.13,
+      "primary": 5.19
+    },
+    "light": {
+      "body": 14.68,
+      "hint": 7.56,
+      "label": 7.56,
+      "primary": 5.19
+    }
+  },
+  "minimumTextRatio": 4.5,
+  "headerFooterFixedDuringBodyScroll": true,
+  "bodyScroll": {
+    "before": 0,
+    "after": 202
+  },
+  "spacing": {
+    "formItemMarginBottom": "6px",
+    "buttonGap": "8px",
+    "toolbarGap": "8px",
+    "sectionSpacing": "16px"
+  },
+  "guards": {
+    "guards": [
+      {
+        "scenario": "B-dialog-conflict-dark",
+        "preflightEnabled": false
+      },
+      {
+        "scenario": "B-dialog-unsupported-dark",
+        "preflightEnabled": false
+      },
+      {
+        "scenario": "B-dialog-inherited-dark",
+        "preflightEnabled": false
+      },
+      {
+        "scenario": "B-dialog-unchanged-light",
+        "preflightEnabled": false
+      }
+    ],
+    "ackBeforeEnabled": false,
+    "ackAfterEnabled": true
+  },
+  "noDuplicatedTabTitle": true,
+  "wideButtonLastInLeftCluster": true
+}

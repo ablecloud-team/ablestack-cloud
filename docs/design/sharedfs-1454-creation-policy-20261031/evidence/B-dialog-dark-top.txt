@@ -1,0 +1,183 @@
+- strong: "B · #1454 개선 UI 목업"
+- generic: 실제 Mold 공통 컴포넌트 · API 미연결 · 서비스 변경 없음
+- button "목록":
+  - generic: 목록
+- button "상세":
+  - generic: 상세
+- button "SMB":
+  - generic: SMB
+- switch "다크" [checked]:
+  - generic: 다크
+- complementary:
+  - text: ABLESTACK
+  - paragraph: 대시보드
+  - paragraph: 컴퓨트 ⌄
+  - paragraph: 가상머신
+  - paragraph: 스토리지 ⌄
+  - generic: 공유 파일 시스템
+  - paragraph: 네트워크
+  - paragraph: 이미지
+- banner:
+  - generic: ☰ 기본 보기
+  - generic: AC admin cloud
+- link "home":
+  - /url: /
+  - img "home":
+- text: /
+- link "공유 파일 시스템":
+  - /url: /sharedfs
+- text: /
+- generic: sharedfs-mask-design
+- button "reload 업데이트":
+  - img "reload":
+  - generic: 업데이트
+- button "작업 down":
+  - generic: 작업
+  - img "down":
+- main:
+  - img "file-text":
+  - heading "sharedfs-mask-design" [level=3]
+  - generic: 사용 가능 · 설계 예시
+  - separator
+  - term: 주 IP
+  - definition: 10.10.13.220
+  - term: 백킹 볼륨
+  - definition: XFS · SPARSE · 10 GiB
+  - term: 활성 서비스
+  - definition: NFS · SMB
+  - term: 계정
+  - definition: admin
+  - term: Zone
+  - definition: 13-Zone
+  - tablist:
+    - tab "상세"
+    - tab "공유 디렉터리"
+    - tab "NFS"
+    - tab "SMB" [selected]
+    - tab "iSCSI"
+    - tab "NVMe-oF"
+    - tab "런타임"
+    - tab "네트워크"
+    - tab "메트릭"
+    - tab "작업 내역"
+    - tab "이벤트"
+  - tabpanel "SMB":
+    - button "plus SMB 공유 생성":
+      - img "plus":
+      - generic: SMB 공유 생성
+    - button "plus 엔드포인트 추가":
+      - img "plus":
+      - generic: 엔드포인트 추가
+    - button "reload 업데이트":
+      - img "reload":
+      - generic: 업데이트
+    - button "fullscreen 넓게 보기":
+      - img "fullscreen":
+      - generic: 넓게 보기
+    - table:
+      - rowgroup:
+        - row "접속 정보 \\\\10.10.13.220\\team-smb":
+          - rowheader "접속 정보"
+          - cell "\\\\10.10.13.220\\team-smb":
+            - generic: \\10.10.13.220\team-smb
+        - row "인증 방식 기존 로컬 · AD 인증 유지":
+          - rowheader "인증 방식"
+          - cell "기존 로컬 · AD 인증 유지":
+            - generic: 기존 로컬 · AD 인증 유지
+    - table:
+      - rowgroup:
+        - row "SMB 공유 이름 IP / 포트 파일 / 디렉터리 mask 새 객체 UID 부모 GID 상속 상태 작업":
+          - columnheader "SMB 공유 이름"
+          - columnheader "IP / 포트"
+          - columnheader "파일 / 디렉터리 mask"
+          - columnheader "새 객체 UID"
+          - columnheader "부모 GID 상속"
+          - columnheader "상태"
+          - columnheader "작업"
+      - rowgroup:
+        - row "team-smb 10.10.13.220:445 0660 / 0770 부모 UID 상속 활성 · setgid Ready edit 편집 setting 생성 권한 설정":
+          - cell "team-smb"
+          - cell "10.10.13.220:445"
+          - cell "0660 / 0770"
+          - cell "부모 UID 상속"
+          - cell "활성 · setgid"
+          - cell "Ready"
+          - cell "edit 편집 setting 생성 권한 설정":
+            - button "edit 편집":
+              - img "edit":
+              - generic: 편집
+            - button "setting 생성 권한 설정":
+              - img "setting":
+              - generic: 생성 권한 설정
+    - paragraph: 새 객체 mask는 기존 디렉터리 권한과 별개입니다. 설정된 mask·force 값과 유효 설정은 생성 권한 설정에서 확인합니다.
+- dialog "SMB 생성 권한 설정":
+  - document:
+    - button "Close":
+      - img "close":
+    - generic: SMB 생성 권한 설정
+    - table:
+      - rowgroup:
+        - row "SMB 공유 team-smb 적용 범위 이 공유의 새 파일·디렉터리":
+          - rowheader "SMB 공유"
+          - cell "team-smb":
+            - generic: team-smb
+          - rowheader "적용 범위"
+          - cell "이 공유의 새 파일·디렉터리":
+            - generic: 이 공유의 새 파일·디렉터리
+        - row "기존 데이터 소유자·권한·ACL·내용 유지 변경 방식 연결 유지 · 설정 갱신":
+          - rowheader "기존 데이터"
+          - cell "소유자·권한·ACL·내용 유지":
+            - generic: 소유자·권한·ACL·내용 유지
+          - rowheader "변경 방식"
+          - cell "연결 유지 · 설정 갱신":
+            - generic: 연결 유지 · 설정 갱신
+    - paragraph: 8진수 0000~0777을 입력합니다. force mode는 해당 mask 안의 비트만 지정할 수 있습니다.
+    - generic "파일 create mask"
+    - textbox "파일 create mask": "0775"
+    - generic: 현재 설정 0660 · 새 파일에 허용할 rwx 비트
+    - alert
+    - generic "파일 force create mode"
+    - textbox "파일 force create mode": "0111"
+    - generic: 현재 설정 0000 · 새 파일에 반드시 설정할 비트
+    - alert
+    - generic "디렉터리 directory mask"
+    - textbox "디렉터리 directory mask": "0775"
+    - generic: 현재 설정 0770 · 새 디렉터리에 허용할 rwx 비트
+    - alert
+    - generic "디렉터리 force directory mode"
+    - textbox "디렉터리 force directory mode": "0005"
+    - generic: 현재 설정 0000 · 새 디렉터리에 반드시 설정할 비트
+    - alert
+    - alert:
+      - img "exclamation-circle":
+      - generic: 새 파일의 실행 비트를 허용하거나 강제합니다.
+      - generic: 파일 mask의 실행 비트는 허용 범위이며 force create mode의 실행 비트는 강제 설정입니다. 사전 점검에서 영향을 확인하세요.
+    - generic: 함께 적용되는 정책
+    - table:
+      - rowgroup:
+        - row "부모 UID 상속 켜짐 · inherit owner 부모 GID 상속 켜짐 · setgid":
+          - rowheader "부모 UID 상속"
+          - cell "켜짐 · inherit owner":
+            - generic: 켜짐 · inherit owner
+          - rowheader "부모 GID 상속"
+          - cell "켜짐 · setgid":
+            - generic: 켜짐 · setgid
+        - row "부모 실제 mode 2770 · 기존 값 유지 고정 UID/GID 없음":
+          - rowheader "부모 실제 mode"
+          - cell "2770 · 기존 값 유지":
+            - generic: 2770 · 기존 값 유지
+          - rowheader "고정 UID/GID"
+          - cell "없음":
+            - generic: 없음
+        - row "권한 전체 상속 꺼짐 · inherit permissions 부모 기본 ACL 있음 · 최종 mode에 영향":
+          - rowheader "권한 전체 상속"
+          - cell "꺼짐 · inherit permissions":
+            - generic: 꺼짐 · inherit permissions
+          - rowheader "부모 기본 ACL"
+          - cell "있음 · 최종 mode에 영향":
+            - generic: 있음 · 최종 mode에 영향
+    - paragraph: mask·force는 새 객체의 rwx를, inherit owner·setgid는 UID·GID를 결정합니다. 실제 mode는 클라이언트 요청과 부모 기본 ACL의 영향을 받습니다. 이 창에서 부모 권한을 변경하지 않습니다.
+    - button "취소":
+      - generic: 취소
+    - button "사전 점검":
+      - generic: 사전 점검
