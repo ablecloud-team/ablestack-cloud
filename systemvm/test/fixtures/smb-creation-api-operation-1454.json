@@ -1,0 +1,348 @@
+{
+  "operationid": "f2f3068f-015d-48be-9acf-45d93d069548",
+  "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+  "baseRevision": 20,
+  "targetRevision": 21,
+  "vmUuid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+  "before": {
+    "smb share apply": {
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "instanceId": 91,
+      "netbiosName": "STORC1ECA707A5",
+      "enabled": true,
+      "listeners": [
+        {
+          "id": "bb7897d3-6702-4849-9472-1cf9229ad967",
+          "listenIp": "10.10.13.220",
+          "port": 445,
+          "state": "Ready"
+        },
+        {
+          "id": "4f04f7ac-0330-4a9d-b9b7-7c37a3010e46",
+          "listenIp": "10.10.13.220",
+          "port": 1445,
+          "state": "Ready"
+        }
+      ],
+      "listenIp": "10.10.13.220",
+      "port": 445,
+      "identityDomain": {
+        "domainName": "ablestack.local",
+        "dnsServers": "10.10.13.247",
+        "joinState": "JOINED",
+        "healthState": "OK",
+        "config": {
+          "identityProvider": "active_directory",
+          "workgroup": "ABLESTACK",
+          "adJoin": {
+            "operationid": "9f58f9e1-06f1-4db1-8a97-479bcfe069e3",
+            "jobid": "78ab129e-2388-40fa-bd30-cef6a04849bf",
+            "phase": "COMPLETED",
+            "state": "COMMITTED",
+            "membership": "JOINED",
+            "serviceApply": "VERIFIED",
+            "rollback": "NOT_NEEDED",
+            "updatedAt": 1793411744.736277
+          }
+        }
+      },
+      "shares": [
+        {
+          "id": 444,
+          "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+          "name": "common1453r5",
+          "displayPath": "/export/common1453r5",
+          "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+          "volumeId": 355,
+          "filesystem": "xfs",
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": false,
+            "crossProtocol": true,
+            "directoryMode": "0770",
+            "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+            "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "directoryPolicyUuid": "3f2bd382-d612-35cd-a9bf-e2fe90b14b0b"
+          },
+          "acls": [
+            {
+              "id": 471,
+              "uuid": "36df11b0-7b39-4ca3-8331-9a848455f524",
+              "principalType": "LOCAL_USER",
+              "principal": "epic1453rw",
+              "permission": "READ_WRITE",
+              "state": "Ready",
+              "config": {
+                "localAccount": true,
+                "passwordSupplied": true
+              }
+            },
+            {
+              "id": 472,
+              "uuid": "955efa4c-537d-4f50-8896-aaf47421bc76",
+              "principalType": "LOCAL_USER",
+              "principal": "epic1453ro",
+              "permission": "READ_ONLY",
+              "state": "Ready",
+              "config": {
+                "localAccount": true,
+                "passwordSupplied": true
+              }
+            }
+          ]
+        },
+        {
+          "id": 446,
+          "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+          "name": "ad1453r5",
+          "displayPath": "/export/ad1453r5",
+          "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5",
+          "volumeId": 355,
+          "filesystem": "xfs",
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": false,
+            "crossProtocol": true,
+            "directoryMode": "0770",
+            "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5",
+            "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "directoryPolicyUuid": "a144428b-5327-3d9e-94b6-87e0fbc963d6",
+            "inheritOwner": true
+          },
+          "acls": [
+            {
+              "id": 474,
+              "uuid": "9e31cb6e-1e50-41f2-a398-3f94e00702f0",
+              "principalType": "AD_USER",
+              "principal": "ABLESTACK\\epic1453ad",
+              "permission": "READ_WRITE",
+              "state": "Ready",
+              "config": {
+                "localAccount": false,
+                "passwordSupplied": false
+              }
+            },
+            {
+              "id": 475,
+              "uuid": "5a8ac14e-34ee-4cfd-b289-c856b6faa6fa",
+              "principalType": "AD_USER",
+              "principal": "ABLESTACK\\epic1453adro",
+              "permission": "READ_ONLY",
+              "state": "Ready",
+              "config": {
+                "localAccount": false,
+                "passwordSupplied": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "smb share apply": {
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "instanceId": 91,
+      "netbiosName": "STORC1ECA707A5",
+      "enabled": true,
+      "listeners": [
+        {
+          "id": "bb7897d3-6702-4849-9472-1cf9229ad967",
+          "listenIp": "10.10.13.220",
+          "port": 445,
+          "state": "Ready"
+        },
+        {
+          "id": "4f04f7ac-0330-4a9d-b9b7-7c37a3010e46",
+          "listenIp": "10.10.13.220",
+          "port": 1445,
+          "state": "Ready"
+        }
+      ],
+      "listenIp": "10.10.13.220",
+      "port": 445,
+      "identityDomain": {
+        "domainName": "ablestack.local",
+        "dnsServers": "10.10.13.247",
+        "joinState": "JOINED",
+        "healthState": "OK",
+        "config": {
+          "identityProvider": "active_directory",
+          "workgroup": "ABLESTACK",
+          "adJoin": {
+            "operationid": "9f58f9e1-06f1-4db1-8a97-479bcfe069e3",
+            "jobid": "78ab129e-2388-40fa-bd30-cef6a04849bf",
+            "phase": "COMPLETED",
+            "state": "COMMITTED",
+            "membership": "JOINED",
+            "serviceApply": "VERIFIED",
+            "rollback": "NOT_NEEDED",
+            "updatedAt": 1793411744.736277
+          }
+        }
+      },
+      "shares": [
+        {
+          "id": 444,
+          "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+          "name": "common1453r5",
+          "displayPath": "/export/common1453r5",
+          "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+          "volumeId": 355,
+          "filesystem": "xfs",
+          "state": "Updating",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": false,
+            "crossProtocol": true,
+            "directoryMode": "0770",
+            "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+            "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "directoryPolicyUuid": "3f2bd382-d612-35cd-a9bf-e2fe90b14b0b",
+            "createMask": "0640",
+            "directoryMask": "0750"
+          },
+          "acls": [
+            {
+              "id": 471,
+              "uuid": "36df11b0-7b39-4ca3-8331-9a848455f524",
+              "principalType": "LOCAL_USER",
+              "principal": "epic1453rw",
+              "permission": "READ_WRITE",
+              "state": "Ready",
+              "config": {
+                "localAccount": true,
+                "passwordSupplied": true
+              }
+            },
+            {
+              "id": 472,
+              "uuid": "955efa4c-537d-4f50-8896-aaf47421bc76",
+              "principalType": "LOCAL_USER",
+              "principal": "epic1453ro",
+              "permission": "READ_ONLY",
+              "state": "Ready",
+              "config": {
+                "localAccount": true,
+                "passwordSupplied": true
+              }
+            }
+          ]
+        },
+        {
+          "id": 446,
+          "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+          "name": "ad1453r5",
+          "displayPath": "/export/ad1453r5",
+          "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5",
+          "volumeId": 355,
+          "filesystem": "xfs",
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": false,
+            "crossProtocol": true,
+            "directoryMode": "0770",
+            "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5",
+            "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "directoryPolicyUuid": "a144428b-5327-3d9e-94b6-87e0fbc963d6",
+            "inheritOwner": true
+          },
+          "acls": [
+            {
+              "id": 474,
+              "uuid": "9e31cb6e-1e50-41f2-a398-3f94e00702f0",
+              "principalType": "AD_USER",
+              "principal": "ABLESTACK\\epic1453ad",
+              "permission": "READ_WRITE",
+              "state": "Ready",
+              "config": {
+                "localAccount": false,
+                "passwordSupplied": false
+              }
+            },
+            {
+              "id": 475,
+              "uuid": "5a8ac14e-34ee-4cfd-b289-c856b6faa6fa",
+              "principalType": "AD_USER",
+              "principal": "ABLESTACK\\epic1453adro",
+              "permission": "READ_ONLY",
+              "state": "Ready",
+              "config": {
+                "localAccount": false,
+                "passwordSupplied": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "onlineSmbOptions": true,
+  "preflight": {
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "revision": 20,
+    "protocol": "SMB",
+    "action": "UPDATE",
+    "drainrequired": false,
+    "recursive": false,
+    "ports": [
+      445,
+      1445
+    ],
+    "smbcreation": {
+      "createMask": "0640",
+      "directoryMask": "0750"
+    },
+    "smbcreationtarget": {
+      "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "name": "common1453r5",
+      "path": "/export/common1453r5",
+      "config": {
+        "readOnly": false,
+        "browseable": true,
+        "guestOk": false,
+        "createDirectory": false,
+        "crossProtocol": true,
+        "directoryMode": "0770",
+        "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+        "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "directoryPolicyUuid": "3f2bd382-d612-35cd-a9bf-e2fe90b14b0b"
+      }
+    },
+    "smboptionsonly": true,
+    "volumeuuids": [
+      "e070a0aa-dbf5-48c0-83e0-09f874446277"
+    ],
+    "resourceids": [
+      "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+      "bab4b234-633d-4389-961e-fa257e9b413c"
+    ],
+    "resourcecount": 2,
+    "resourcesdigest": "645936d2cc6664a193958dba6332638380654be72841d41678e6f24ca2a01d2a",
+    "ackrequired": true,
+    "expectedFingerprint": "4c2169bd48bf5c26bf4921d33cc092bfde683cd958c2862b71ea472dc9dbc8e6",
+    "requestbytes": 6527
+  },
+  "executionProfile": {
+    "name": "CONFIGURATION",
+    "softdeadlineseconds": 300,
+    "pollintervalseconds": 2,
+    "observationseconds": 600
+  }
+}

@@ -120,6 +120,69 @@ class SmbCreationContract(unittest.TestCase):
             desired.write_text("{damaged")
             with self.assertRaises(updater.RuntimeUpgradeError):updater.require_smb_creation_compatibility(target,desired)
 
+    def stored_api_state(self, root, before):
+        """Use the real listener stage/commit persistence that originally lost the flag."""
+        import uuid
+        controller = tx.SmbListenerProfiles(root / "profiles", root / "smb.conf")
+        controller.base.write_text("[global]\n[common1453r5]\n create mask = 0660\n directory mask = 0770\n")
+        operation = str(uuid.uuid4())
+        with patch.object(controller, "bootstrap", return_value={"instanceUuid": before["instanceUuid"], "profiles": {}}), \
+             patch.object(controller, "configuration", return_value=controller.base), \
+             patch.object(controller, "start"), patch.object(controller, "ready", return_value=True):
+            controller.stage(before, before, operation)
+            self.assertTrue(tx.load(controller.manifest)["pending"])
+            controller.commit(operation)
+        self.assertNotIn("pending", tx.load(controller.manifest))
+        return controller
+
+    def test_actual_api_payload_to_listener_saved_state_to_creation_snapshot(self):
+        fixture = json.loads((ROOT / "test/fixtures/smb-creation-api-operation-1454.json").read_text())
+        for flag in ("actual", None, False, True):
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as directory:
+                payload = copy.deepcopy(fixture)
+                if flag != "actual":
+                    for section in ("before", "candidate"):
+                        for share in payload[section]["smb share apply"]["shares"]:
+                            for acl in share["acls"]:
+                                if flag is None:
+                                    acl["config"].pop("passwordSupplied", None)
+                                else:
+                                    acl["config"]["passwordSupplied"] = flag
+                untouched = copy.deepcopy(payload)
+                controller = self.stored_api_state(Path(directory), payload["before"]["smb share apply"])
+                saved = tx.load(controller.desired)
+                self.assertNotIn("passwordSupplied", json.dumps(saved))
+                engine = h.SmbCreationPolicies(controller.base, controller.desired)
+                with patch.object(engine, "preview", return_value={}), patch.object(engine, "profiles", return_value=[]):
+                    snapshot = engine.snapshot(payload)
+                self.assertEqual("SMB_OPTIONS", snapshot["kind"])
+                self.assertEqual("0640", snapshot["after"]["createMask"])
+                self.assertEqual(untouched, payload)
+                self.assertNotIn("passwordSupplied", json.dumps(tx.load(controller.desired)))
+                self.assertEqual("READ_WRITE", saved["shares"][0]["acls"][0]["permission"])
+
+    def test_actual_api_acl_grants_and_unrecognized_fields_remain_protected(self):
+        fixture = json.loads((ROOT / "test/fixtures/smb-creation-api-operation-1454.json").read_text())
+        for field, value in (("principal", "unlisted"), ("principalType", "LOCAL_GROUP"),
+                             ("permission", "READ_ONLY"), ("state", "Disabled"),
+                             ("config.futureSecurityPolicy", "changed"), ("config.passwordPolicy", "changed")):
+            payload = copy.deepcopy(fixture)
+            acl = payload["candidate"]["smb share apply"]["shares"][0]["acls"][0]
+            if field.startswith("config."):
+                acl["config"][field.split(".", 1)[1]] = value
+            else:
+                acl[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(h.PolicyError, "INVALID_SMB_OPTIONS_INTENT"):
+                h.smb_options_difference(payload["before"]["smb share apply"], payload["candidate"]["smb share apply"])
+        with tempfile.TemporaryDirectory() as directory:
+            controller = self.stored_api_state(Path(directory), fixture["before"]["smb share apply"])
+            saved = tx.load(controller.desired)
+            saved["shares"][0]["acls"][0]["permission"] = "READ_ONLY"
+            tx.atomic_json(controller.desired, saved)
+            engine = h.SmbCreationPolicies(controller.base, controller.desired)
+            with self.assertRaisesRegex(h.PolicyError, "SMB_OPTIONS_BASELINE_CHANGED"):
+                engine.snapshot(fixture)
+
 
 if __name__ == "__main__":
     unittest.main()

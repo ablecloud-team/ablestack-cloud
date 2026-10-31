@@ -1,5 +1,5 @@
 {
-  "sourcePayloadSha256": "719537f62ff69e49bd7ae85a3b0978a1d319519de92bbadd2cd77f3d3ea65ea2",
+  "sourcePayloadSha256": "be637f36f8314b522e2135f2800d9225687250bc5c89976cf3c9d1ff29151c79",
   "files": [
     {
       "path": "ablestack-storage-boot-reconcile",
@@ -38,7 +38,7 @@
     },
     {
       "path": "lib/ablestack-storage/shared_directory_policy.py",
-      "sha256": "678e0c8732aa0e74ed27d0712912e1b57a8565791fafc62a7b329f4ee292304a",
+      "sha256": "f10615724fac8ee7f8e02b40dce2cd549b5fd718b58390c0e2819f8ba23ccd38",
       "mode": 420
     },
     {

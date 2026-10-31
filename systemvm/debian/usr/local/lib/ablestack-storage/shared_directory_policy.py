@@ -893,6 +893,12 @@ def smb_share_options(config):
     return result
 
 
+def smb_acl_policy_without_observation(row):
+    """The credential-supplied indicator is UI metadata, never an ACL grant."""
+    for acl in row.get("acls", []):
+        (acl.get("config") or {}).pop("passwordSupplied", None)
+
+
 def smb_options_difference(before, candidate):
     """A strict semantic diff, independent of a caller's options-only assertion."""
     import copy
@@ -917,6 +923,7 @@ def smb_options_difference(before, candidate):
                 raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
             if row.get("state") in ("Ready", "Updating"):
                 row["state"] = "Ready"
+            smb_acl_policy_without_observation(row)
             keyed[key] = row
         value["shares"] = keyed
         return value
@@ -1073,6 +1080,7 @@ class SmbCreationPolicies:
                 if row.get("state") in ("Ready", "Updating"):
                     row["state"] = "Ready"
                 row.setdefault("config", {}).update(smb_share_options(row.get("config") or {}))
+                smb_acl_policy_without_observation(row)
             value["shares"] = sorted(value.get("shares", []), key=lambda r: r["uuid"])
             return value
         if normalized(matched) != normalized(wanted):
