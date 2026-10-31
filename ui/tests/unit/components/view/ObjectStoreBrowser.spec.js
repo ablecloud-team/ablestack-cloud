@@ -241,4 +241,17 @@ describe('bucket browser request lifecycle', () => {
     await complete(streams[1], [{ name: 'authorized-B.txt' }])
     expect(wrapper.vm.records[0].name).toBe('authorized-B.txt')
   })
+
+  it('keeps object selection across refresh with new SDK objects and removes missing selections', async () => {
+    await open({ tab: 'browser' }, Browser)
+    await complete(streams[0], [{ name: 'file.txt', size: 1 }])
+    const checkbox = wrapper.findAll('input[type="checkbox"]')[1]
+    await checkbox.setChecked(true); await flushPromises()
+    expect(wrapper.vm.selectedRows.map(row => row.name)).toEqual(['file.txt'])
+    wrapper.vm.listObjects(); await complete(streams[1], [{ name: 'file.txt', size: 20 }])
+    expect(wrapper.vm.selectedRows[0].size).toBe(20)
+    expect(wrapper.findAll('input[type="checkbox"]')[1].element.checked).toBe(true)
+    wrapper.vm.listObjects(); await complete(streams[2], [])
+    expect(wrapper.vm.selectedRows).toEqual([])
+  })
 })

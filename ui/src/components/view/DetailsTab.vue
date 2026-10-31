@@ -61,6 +61,10 @@
           <a-tooltip v-if="$route.meta.name === 'storagepool' && item === 'disksizeallocated'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined style="margin-left: 8px" /></a-tooltip>
           <br/>
           <div v-if="allocationDetails[item]">{{ allocationDetails[item].value }}</div>
+          <status v-else-if="$route.meta.name === 'buckets' && item === 'state'" :text="String(dataResource[item] || '')" display-text />
+          <a-tag v-else-if="$route.meta.name === 'buckets' && ['encryption', 'versioning', 'objectlocking'].includes(item)">{{ $t(dataResource[item] === true || dataResource[item] === 'true' ? 'label.enabled' : dataResource[item] === false || dataResource[item] === 'false' ? 'label.disabled' : 'label.unknown') }}</a-tag>
+          <span v-else-if="$route.meta.name === 'buckets' && item === 'policy'">{{ ['Public', 'Private'].includes(dataResource[item]) ? $t('label.bucket.policy.' + dataResource[item].toLowerCase()) : dataResource[item] }}</span>
+          <span v-else-if="$route.meta.name === 'objectstore' && ['storagetotal', 'storageallocated', 'storageused'].includes(item)">{{ $bytesToHumanReadableSize(dataResource[item]) }}</span>
           <AffinityGroupPolicy v-else-if="$route.meta.name === 'affinitygroup' && item === 'type'" :type="dataResource.type" />
           <div v-else-if="$route.meta.name === 'kubernetes' && ['autoscalingenabled', 'csienabled'].includes(item)">{{ $t(dataResource[item] ? 'label.enabled' : 'label.disabled') }}</div>
           <div v-else-if="$route.meta.name === 'kubernetes' && item === 'clustertype'">{{ $t(dataResource[item] === 'ExternalManaged' ? 'label.external.managed' : 'label.cloud.managed') }}</div>
@@ -349,6 +353,7 @@
 </template>
 
 <script>
+import Status from '@/components/widgets/Status'
 import { creationVmDetails } from '@/utils/creationVmPresentation'
 import AffinityGroupPolicy from '@/views/compute/AffinityGroupPolicy'
 import LinkedDiskOffering from '@/components/offering/LinkedDiskOffering'
@@ -368,6 +373,7 @@ import { allocationDetailFields } from '@/utils/volumeAllocation'
 export default {
   name: 'DetailsTab',
   components: {
+    Status,
     LinkedDiskOffering,
     AffinityGroupPolicy,
     DedicateData,

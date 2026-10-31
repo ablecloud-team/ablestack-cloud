@@ -57,7 +57,7 @@
             <a-input v-model:value="form.url" placeholder="https://admin-hostname:19443" />
           </a-form-item>
           <a-form-item name="validateSSL" ref="validateSSL">
-            <a-checkbox v-model:checked="form.validateSSL">Validate SSL Certificate</a-checkbox>
+            <a-checkbox v-model:checked="form.validateSSL">{{ $t('label.objectstore.validate.ssl') }}</a-checkbox>
           </a-form-item>
           <a-form-item name="accessKey" ref="accessKey" :label="$t('label.cloudian.admin.username')">
             <!-- Use accessKey field for the username to make provider shared configuration easier -->
@@ -97,8 +97,8 @@
           </a-form-item>
         </div>
         <div :span="24" class="action-button">
-          <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+          <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -158,7 +158,7 @@ export default {
       this.$emit('close-action')
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e?.preventDefault) e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
@@ -219,11 +219,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.form-layout {
-  width: 85vw;
-
-  @media (min-width: 1000px) {
-    width: 35vw;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
 </style>

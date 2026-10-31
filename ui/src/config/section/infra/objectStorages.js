@@ -48,6 +48,7 @@ export default {
   actions: [
     {
       api: 'addObjectStoragePool',
+      dialogWidth: 'min(720px, calc(100vw - 32px))',
       icon: 'plus-outlined',
       docHelp: 'installguide/configuration.html#add-object-storage',
       label: 'label.add.object.storage',

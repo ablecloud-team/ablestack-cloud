@@ -791,6 +791,7 @@ export default {
       actions: [
         {
           api: 'createBucket',
+          dialogWidth: 'min(720px, calc(100vw - 32px))',
           icon: 'plus-outlined',
           docHelp: 'installguide/configuration.html#create-bucket',
           label: 'label.create.bucket',
@@ -800,6 +801,7 @@ export default {
         },
         {
           api: 'updateBucket',
+          dialogWidth: 'min(720px, calc(100vw - 32px))',
           icon: 'edit-outlined',
           docHelp: 'adminguide/object_storage.html#update-bucket',
           label: 'label.bucket.update',

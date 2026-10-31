@@ -47,18 +47,17 @@
           @change="val => { form.policy = val }"
           showSearch
           optionFilterProp="value"
-          :filterOption="(input, option) => {
-              return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }" >
+          :filterOption="(input, option) => String(option.label || option.value).toLowerCase().includes(input.toLowerCase())" >
           <a-select-option
             :value="policy"
+              :label="$t('label.bucket.policy.' + policy.toLowerCase())"
             v-for="(policy,idx) in policyList"
             :key="idx"
-          >{{ policy }}</a-select-option>
+          >{{ $t('label.bucket.policy.' + policy.toLowerCase()) }}</a-select-option>
         </a-select>
       </a-form-item>
       <div :span="24" class="action-button">
-        <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
+        <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
@@ -170,11 +169,5 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.form-layout {
-  width: 85vw;
-
-  @media (min-width: 760px) {
-    width: 500px;
-  }
-}
+.form-layout { width: 100%; min-width: 0; }
 </style>

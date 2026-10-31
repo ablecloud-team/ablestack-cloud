@@ -16,45 +16,37 @@
 // under the License.
 
 <template>
-  <a-modal
+  <MoldDialog
+    size="sm"
     :visible="showCreateFolderModal"
     :closable="!createFolderLoading"
-    :destroyOnClose="true"
-    title="폴더 생성"
-    :maskClosable="false"
-    :cancelText="$t('label.cancel')"
-    @cancel="closeCreateFolderModal"
-    okText="생성"
-    :confirmLoading="createFolderLoading"
-    :okButtonProps="{ disabled: createFolderLoading || !createFolderName }"
-    :cancelButtonProps="{ disabled: createFolderLoading }"
-    @ok="createFolder()"
-    centered
-    >
-    <tooltip-label bold title="폴더명" tooltip="현재 위치에 생성할 폴더 이름을 입력하세요."/>
-    <br/>
-    <a-input
-      v-model:value="createFolderName"
-      placeholder="예: aaa"
-      :disabled="createFolderLoading"
-      @pressEnter="createFolder()"/>
-  </a-modal>
+    :destroy-on-close="true"
+    :title="$t('label.objectstore.create.folder')"
+    @cancel="closeCreateFolderModal">
+    <a-form layout="vertical">
+      <a-form-item :label="$t('label.objectstore.folder.name')">
+        <a-input
+          v-model:value="createFolderName"
+          v-focus="true"
+          :aria-label="$t('label.objectstore.folder.name')"
+          :placeholder="$t('message.objectstore.folder.name')"
+          :disabled="createFolderLoading"
+          @pressEnter="createFolder()" />
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button :disabled="createFolderLoading" @click="closeCreateFolderModal">{{ $t('label.cancel') }}</a-button>
+      <a-button type="primary" :loading="createFolderLoading" :disabled="createFolderLoading || !getCreateFolderObjectName()" @click="createFolder()">{{ $t('label.create') }}</a-button>
+    </template>
+  </MoldDialog>
 
-  <a-modal
+  <MoldDialog
+    size="md"
     :visible="showUploadModal"
     :closable="!uploadLoading"
-    :destroyOnClose="true"
+    :destroy-on-close="true"
     :title="$t('label.upload')"
-    :maskClosable="false"
-    :cancelText="$t('label.cancel')"
-    @cancel="closeUploadModal"
-    :okText="$t('label.upload')"
-    :confirmLoading="uploadLoading"
-    :okButtonProps="{ disabled: uploadLoading || uploadFileList.length === 0 }"
-    :cancelButtonProps="{ disabled: uploadLoading }"
-    @ok="uploadFiles()"
-    centered
-    >
+    @cancel="closeUploadModal">
     <a-upload-dragger
       :multiple="true"
       :fileList="uploadFileList"
@@ -62,43 +54,39 @@
       :disabled="uploadLoading"
       :beforeUpload="beforeUpload"
       @remove="removeUploadFile">
-      <p class="ant-upload-drag-icon">
-        <cloud-upload-outlined />
-      </p>
-      <p class="ant-upload-text">
-        {{ $t('label.volume.volumefileupload.description') }}
-      </p>
+      <p class="ant-upload-drag-icon"><cloud-upload-outlined /></p>
+      <p class="ant-upload-text">{{ $t('label.volume.volumefileupload.description') }}</p>
     </a-upload-dragger>
-    <div v-if="uploadLoading || uploadTotalCount > 0" class="object-store-upload-status">
-      <div class="object-store-upload-status-title">
-        {{ uploadLoading ? '업로드 중' : '업로드 완료' }}
-      </div>
-      <div class="object-store-upload-status-summary">
-        전체 {{ uploadTotalCount }}개 / 완료 {{ uploadCompletedCount }}개 / 실패 {{ uploadFailedCount }}개 / 대기 {{ uploadPendingCount }}개
-      </div>
+    <div v-if="uploadLoading || uploadTotalCount > 0" class="object-store-upload-status" role="status" aria-live="polite">
+      <div class="object-store-upload-status-title">{{ $t(uploadLoading ? 'label.objectstore.uploading' : 'label.objectstore.upload.complete') }}</div>
+      <div class="object-store-upload-status-summary">{{ $t('message.objectstore.upload.counts', { total: uploadTotalCount, complete: uploadCompletedCount, failed: uploadFailedCount, pending: uploadPendingCount }) }}</div>
       <div v-if="uploadCurrentFileName" class="object-store-upload-current">
-        <div>현재 처리 중:</div>
+        {{ $t('label.objectstore.current.file') }}
         <div class="object-store-upload-current-name">{{ uploadCurrentFileName }}</div>
       </div>
     </div>
     <a-divider dashed/>
-    <tooltip-label bold :title="$t('label.upload.path')" :tooltip="$t('label.upload.description')"/>
-    <br/>
-    <a-input
-      v-model:value="uploadDirectory"
-      :placeholder="$t('label.upload.description')"
-      :disabled="uploadLoading"
-      enter-button/>
-    <a-divider dashed/>
-    <tooltip-label bold :title="$t('label.metadata')" :tooltip="$t('label.metadata.upload.description')"/>
-    <KeyValuePairInput :pairs="uploadMetaData" @update-pairs="(pairs) => uploadMetaData = pairs" />
-  </a-modal>
+    <a-form layout="vertical">
+      <a-form-item :label="$t('label.upload.path')">
+        <a-input v-model:value="uploadDirectory" :aria-label="$t('label.upload.path')" :placeholder="$t('label.upload.description')" :disabled="uploadLoading" />
+      </a-form-item>
+      <a-form-item :label="$t('label.metadata')">
+        <KeyValuePairInput :pairs="uploadMetaData" @update-pairs="(pairs) => uploadMetaData = pairs" />
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button :disabled="uploadLoading" @click="closeUploadModal">{{ $t('label.cancel') }}</a-button>
+      <a-button type="primary" :loading="uploadLoading" :disabled="uploadLoading || uploadFileList.length === 0" @click="uploadFiles()">{{ $t('label.upload') }}</a-button>
+    </template>
+  </MoldDialog>
 
   <a-drawer
+    class="object-store-drawer"
+    :width="'min(480px, calc(100vw - 24px))'"
     :visible="showObjectDetails"
     :closable="true"
     :maskClosable="true"
-    @close="() => showObjectDetails = false"
+    @close="closeObjectDetails"
     :title="record.name"
     >
     <div>
@@ -149,12 +137,14 @@
           <div class="object-store-presigned-url-controls">
             <a-input-number
               v-model:value="presignedUrlExpiryValue"
+              :aria-label="$t('label.objectstore.expiry.value')"
               :min="1"
               :max="getPresignedUrlExpiryMaxValue()"
               :precision="0"
               :disabled="presignedUrlLoading"/>
             <a-select
               v-model:value="presignedUrlExpiryUnit"
+              :aria-label="$t('label.objectstore.expiry.unit')"
               :disabled="presignedUrlLoading">
               <a-select-option value="seconds">{{ $t('label.seconds') }}</a-select-option>
               <a-select-option value="minutes">{{ $t('label.minutes') }}</a-select-option>
@@ -196,95 +186,57 @@
       <a-row>
         <a-breadcrumb>
           <a-breadcrumb-item>
-            <a @click="openDir('')">
+            <button type="button" class="object-store-link" :aria-label="$t('label.objectstore.root')" @click="openDir('')">
               <HomeOutlined />
               <span v-if="getObjectStorePathRoutes().length === 0" class="object-store-root-path">/</span>
-            </a>
+            </button>
           </a-breadcrumb-item>
           <a-breadcrumb-item
             v-for="route in getObjectStorePathRoutes()"
             :key="route.path">
-            <a @click="openDir(route.path)">
+            <button type="button" class="object-store-link" @click="openDir(route.path)">
               {{ route.breadcrumbName }}
-            </a>
+            </button>
           </a-breadcrumb-item>
         </a-breadcrumb>
       </a-row>
       <a-divider/>
       <a-row class="object-store-usage-row" :gutter="[16, 8]">
         <a-col>
-          <span class="object-store-usage-label">사용량</span>
+          <span class="object-store-usage-label">{{ $t('label.used.capacity') }}</span>
           <span>{{ convertKB(bucketUsageSize || 0) }}</span>
         </a-col>
         <a-col v-if="resource.quota">
-          <span class="object-store-usage-label">총용량</span>
+          <span class="object-store-usage-label">{{ $t('label.total.allocated.capacity') }}</span>
           <span>{{ resource.quota }} GiB</span>
         </a-col>
       </a-row>
-      <a-row class="object-store-toolbar" :gutter="[10,10]" :wrap="false" align="middle">
-        <a-col class="object-store-search-col" flex="auto">
-          <a-input-search
-            allowClear
-            size="medium"
-            v-model:value="searchInput"
-            :placeholder="$t('label.objectstore.search')"
-            :loading="loading"
-            @search="searchObjects()"
-            :enter-button="$t('label.search')"/>
-        </a-col>
-        <a-col flex="none">
-          <a-button
-            :loading="loading"
-            style="margin-bottom: 5px"
-            shape="round"
-            size="medium"
-            @click="listObjects()">
-            <reload-outlined />
-            {{ $t('label.refresh') }}
+      <div class="object-store-toolbar">
+        <div class="object-store-actions">
+          <a-button type="primary" :disabled="!client || loading || fetching || objectListScopeChanged" @click="openCreateFolderModal">
+            <template #icon><folder-add-outlined /></template>{{ $t('label.objectstore.create.folder') }}
           </a-button>
-        </a-col>
-        <a-col v-if="fetching" flex="none">
-          <a-button @click="cancelObjectListing">{{ $t('label.cancel') }}</a-button>
-        </a-col>
-        <a-col flex="none">
-          <a-button
-            :loading="loading"
-            style="margin-bottom: 5px"
-            shape="round"
-            size="medium"
-            type="primary"
-            @click="openCreateFolderModal">
-            <folder-add-outlined />
-            폴더 생성
+          <a-button :disabled="!client || loading || fetching || objectListScopeChanged" @click="openUploadModal">
+            <template #icon><upload-outlined /></template>{{ $t('label.upload') }}
           </a-button>
-        </a-col>
-        <a-col flex="none">
-          <a-button
-            :loading="loading"
-            style="margin-bottom: 5px"
-            shape="round"
-            size="medium"
-            type="primary"
-            @click="openUploadModal">
-            <upload-outlined />
-            {{ $t('label.upload') }}
+          <a-button v-if="selectedRows.length > 0" danger :disabled="loading || fetching || objectListScopeChanged" @click="removeObjects()">
+            <template #icon><delete-outlined /></template>{{ $t('label.delete') }}
           </a-button>
-        </a-col>
-        <a-col flex="none">
-          <a-button
-            v-if="selectedRows.length > 0"
-            :loading="loading"
-            style="margin-bottom: 5px"
-            type="primary"
-            shape="round"
-            size="medium"
-            danger
-            @click="removeObjects()">
-            <delete-outlined />
-            {{ $t('label.delete') }}
+          <a-button v-if="fetching" @click="cancelObjectListing">{{ $t('label.cancel') }}</a-button>
+          <a-button :loading="fetching" :disabled="!client || objectListScopeChanged" @click="listObjects()">
+            <template #icon><reload-outlined /></template>{{ $t('label.refresh') }}
           </a-button>
-        </a-col>
-      </a-row>
+        </div>
+        <a-input-search
+          class="object-store-search"
+          allow-clear
+          v-model:value="searchInput"
+          :aria-label="$t('label.objectstore.search')"
+          :placeholder="$t('label.objectstore.search')"
+          :disabled="!client || objectListScopeChanged"
+          @search="searchObjects()"
+          :enter-button="$t('label.search')" />
+      </div>
     </a-card>
 
     <div>
@@ -300,24 +252,25 @@
       </a-alert>
       <a-table
         :columns="columns"
-        :row-key="record => record"
+        :row-key="objectStoreRowKey"
         :data-source="records"
         :loading="loading"
+        :scroll="{ x: 620 }"
         :size="'small'"
         :pagination="{ current: page, pageSize: pageSize, total: total, showSizeChanger: false }"
-        :row-selection="{ selectedRowsKeys: selectedRows, onChange: onSelectChange }"
+        :row-selection="{ selectedRowKeys: selectedRows.map(objectStoreRowKey), onChange: onSelectChange }"
         @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key == 'name'">
             <template v-if="record.name === undefined && record.prefix">
-              <a @click="openDir(record.prefix)">
+              <button type="button" class="object-store-link" :aria-label="$t('label.objectstore.open.folder', { name: record.prefix })" @click="openDir(record.prefix)">
                 <folder-outlined /> {{ record.prefix.replace(this.browserPath, '').replace('/', '') }}
-              </a>
+              </button>
             </template>
             <template v-else>
-              <a @click="showObjectDescription(record)">
+              <button type="button" class="object-store-link" :aria-label="$t('label.objectstore.view.object', { name: record.name })" @click="showObjectDescription(record, $event)">
                 {{ record.name.split('/').pop() }}
-              </a>
+              </button>
             </template>
           </template>
           <template v-else-if="column.key == 'size'">
@@ -342,6 +295,7 @@ import * as Minio from 'minio'
 import { getAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
 import InfoCard from '@/components/view/InfoCard'
+import MoldDialog from '@/components/view/MoldDialog'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import KeyValuePairInput from '@/components/KeyValuePairInput'
@@ -367,6 +321,7 @@ export default {
   name: 'ObjectStoreBrowser',
   components: {
     InfoCard,
+    MoldDialog,
     TooltipButton,
     TooltipLabel,
     KeyValuePairInput
@@ -538,8 +493,8 @@ export default {
           })
         }
         this.$notification.success({
-          message: '폴더 생성',
-          description: `${objectName} 생성 완료`
+          message: this.$t('label.objectstore.create.folder'),
+          description: this.$t('message.objectstore.folder.created', { name: objectName })
         })
         this.showCreateFolderModal = false
         this.createFolderName = ''
@@ -689,6 +644,8 @@ export default {
         if (!this.isListRequestCurrent('listObjects', request) || this.objectListScopeChanged) return
         if (result.status === 'success') {
           this.records = result.records.filter(obj => !this.isCurrentDirectoryMarker(obj, currentPath))
+          const selected = new Set(this.selectedRows.map(this.objectStoreRowKey))
+          this.selectedRows = this.records.filter(row => selected.has(this.objectStoreRowKey(row)))
           this.total = this.records.length
           this.listRefreshFailed = false
         } else {
@@ -825,9 +782,8 @@ export default {
         this.listObjects()
       }
     },
-    onSelectChange (selectedRow) {
-      this.selectedRows = selectedRow
-    },
+    objectStoreRowKey (row) { return row.prefix ? `prefix:${row.prefix}` : `object:${row.name}` },
+    onSelectChange (keys, rows) { this.selectedRows = rows || [] },
     beforeUpload (file) {
       if (this.uploadLoading) {
         return false
@@ -944,7 +900,12 @@ export default {
         }).catch(reject)
       })
     },
-    showObjectDescription (record) {
+    closeObjectDetails () {
+      this.showObjectDetails = false
+      this.$nextTick(() => { if (this.objectDetailsTrigger?.isConnected) this.objectDetailsTrigger.focus() })
+    },
+    showObjectDescription (record, event) {
+      this.objectDetailsTrigger = event?.currentTarget
       this.record = {
         ...record,
         url: this.resource.url + '/' + record.name
@@ -1043,26 +1004,28 @@ export default {
 }
 
 .object-store-usage-label {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--ui-text-secondary);
   font-weight: 600;
   margin-right: 6px;
 }
 
-.object-store-toolbar {
-  overflow-x: auto;
-}
-
-.object-store-search-col {
-  min-width: 240px;
-}
+.object-store-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; min-width: 0; }
+.object-store-actions { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.object-store-toolbar .object-store-search { width: 280px; max-width: 100%; min-width: 0; margin-left: auto; }
+.object-store-link { border: 0; background: transparent; color: var(--ui-link); padding: 0; font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.object-store-link:hover { text-decoration: underline; }
+.object-store-link:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; border-radius: 2px; }
+.breadcrumb-card :deep(.ant-card-body) { min-width: 0; }
+.breadcrumb-card :deep(.ant-breadcrumb) { overflow-wrap: anywhere; }
+@media (max-width: 768px) { .object-store-toolbar .object-store-search { width: 100%; flex-basis: 100%; } }
 
 :deep(.ant-upload-list-picture .ant-upload-list-item-done) {
-  border-color: #1890ff;
+  border-color: var(--ui-link);
 }
 
 .object-store-upload-status {
-  background: #fafafa;
-  border: 1px solid #f0f0f0;
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border);
   border-radius: 4px;
   margin-top: 16px;
   padding: 10px 12px;
@@ -1075,7 +1038,7 @@ export default {
 
 .object-store-upload-status-summary,
 .object-store-upload-current {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--ui-text-secondary);
   font-size: 12px;
 }
 
@@ -1084,7 +1047,7 @@ export default {
 }
 
 .object-store-upload-current-name {
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--ui-text-primary);
   margin-top: 2px;
   word-break: break-all;
 }
@@ -1110,7 +1073,7 @@ export default {
 }
 
 .object-store-presigned-url-description {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--ui-text-muted);
   font-size: 12px;
   margin-top: 2px;
 }
@@ -1140,7 +1103,7 @@ export default {
 }
 
 .object-store-detail-value {
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--ui-text-primary);
   margin-top: 2px;
   padding-left: 12px;
   text-align: left;
