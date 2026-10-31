@@ -24,6 +24,21 @@ public final class BucketCredentials {
     private final String secretKey;
     private final String state;
     private final Date checked;
+    private long revision;
+    private String rotationId;
+    private String rotationState;
+    private boolean recoveryRequired;
+    private Date retireAfter;
+    public BucketCredentials withRotation(long revision, String id, String state, boolean recovery, Date retireAfter) {
+        this.revision = revision; this.rotationId = id; this.rotationState = state;
+        this.recoveryRequired = recovery; this.retireAfter = retireAfter == null ? null : new Date(retireAfter.getTime());
+        return this;
+    }
+    public long getRevision() { return revision; }
+    public String getRotationId() { return rotationId; }
+    public String getRotationState() { return rotationState; }
+    public boolean isRecoveryRequired() { return recoveryRequired; }
+    public Date getRetireAfter() { return retireAfter == null ? null : new Date(retireAfter.getTime()); }
 
     public BucketCredentials(String accessKey, String secretKey, String state, Date checked) {
         this.accessKey = accessKey;

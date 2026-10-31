@@ -20,11 +20,12 @@ import { h, reactive } from 'vue'
 import { EventEmitter } from 'events'
 import * as Minio from 'minio'
 import Browser from '@/components/view/ObjectStoreBrowser.vue'
+import { postAPI } from '@/api'
 
 jest.mock('minio', () => ({ Client: jest.fn() }))
-jest.mock('@/api', () => ({ getAPI: jest.fn() }))
+jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
-const resource = (id = 'A') => ({ id, name: `bucket-${id}`, url: `http://store:3333/bucket-${id}`, accesskey: `access-${id}`, usersecretkey: `secret-${id}`, quota: 1, size: 0 })
+const resource = (id = 'A') => ({ id, name: `bucket-${id}`, url: `http://store:3333/bucket-${id}`, credentialrevision: 1, quota: 1, size: 0 })
 const Harness = {
   ...Browser,
   render () {
@@ -43,6 +44,9 @@ describe('bucket browser request lifecycle', () => {
   let wrapper, streams, route, store, router
   const open = async (query = { tab: 'browser' }, component = Harness, translate = key => key) => {
     streams = []
+    postAPI.mockReset()
+    postAPI.mockImplementation((command, args) => Promise.resolve({ getbucketcredentialsresponse: { id: args.id,
+      url: `http://store:3333/bucket-${args.id}`, accesskey: `access-${args.id}`, usersecretkey: `secret-${args.id}` } }))
     Minio.Client.mockReset()
     Minio.Client.mockImplementation(() => ({ extensions: { listObjectsV2WithMetadata: jest.fn(() => { const stream = new Stream(); streams.push(stream); return stream }) } }))
     route = reactive({ path: '/buckets/A', params: { id: 'A' }, query, fullPath: '/buckets/A?' + new URLSearchParams(query) })
@@ -79,7 +83,7 @@ describe('bucket browser request lifecycle', () => {
     await flushPromises()
     expect(wrapper.vm.loading).toBe(false)
     expect(wrapper.vm.fetching).toBe(false)
-    expect(wrapper.vm.objectListError).toBe(`S3 ${statusCode}`)
+    expect(wrapper.vm.objectListError).toBe(statusCode === 403 ? 'message.bucket.credentials.auth.failed' : 'message.objectstore.list.error')
     wrapper.vm.fetchData(); await flushPromises()
     await complete(streams[1], [{ name: 'retry.txt' }])
     expect(wrapper.vm.records[0].name).toBe('retry.txt')
@@ -156,7 +160,7 @@ describe('bucket browser request lifecycle', () => {
   it('reinitializes the SDK for an endpoint/credential change', async () => {
     await open(); await complete(streams[0], [{ name: 'private.txt' }])
     wrapper.vm.listObjects(); const old = streams[1]
-    await wrapper.setProps({ resource: { ...resource(), url: 'http://other:3333/bucket-A', accesskey: 'new-access', usersecretkey: 'new-secret' } }); await flushPromises()
+    await wrapper.setProps({ resource: { ...resource(), url: 'http://other:3333/bucket-A', credentialrevision: 2 } }); await flushPromises()
     expect(old.destroy).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.records).toEqual([])
     expect(Minio.Client).toHaveBeenCalledTimes(2)
@@ -202,7 +206,7 @@ describe('bucket browser request lifecycle', () => {
     await wrapper.setProps({ resource: { ...resource(), url: 'http://other:3333/bucket-A' } }); await flushPromises()
     expect(wrapper.vm.loading).toBe(false)
     expect(wrapper.vm.fetching).toBe(false)
-    expect(wrapper.vm.objectListError).toBe('invalid endpoint')
+    expect(wrapper.vm.objectListError).toBe('message.bucket.credentials.fetch.failed')
   })
 
   it('isolates an old router rejection from the new folder listing', async () => {
@@ -223,7 +227,8 @@ describe('bucket browser request lifecycle', () => {
     streams[0].emit('error', new Error('S3 denied')); await flushPromises()
     const retry = wrapper.findAll('button').find(button => button.text() === 'label.retry')
     expect(retry).toBeDefined()
-    expect(wrapper.text()).toContain('S3 denied')
+    expect(wrapper.text()).toContain('message.objectstore.list.error')
+    expect(wrapper.text()).not.toContain('S3 denied')
     await retry.trigger('click'); await flushPromises()
     await complete(streams[1], [{ name: 'retry.txt', size: 1 }])
     expect(wrapper.text()).toContain('retry.txt')

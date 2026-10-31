@@ -298,9 +298,53 @@ public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl impleme
     public BucketCredentials getBucketCredentials(Bucket bucket) {
         try {
             ObjectStoreAccountCredentialVO row = credentialResolver().resolve(bucket.getAccountId(), bucket.getObjectStoreId(), false);
-            return new BucketCredentials(row.getAccessKey(), row.getSecretKey(), row.getState(), row.getChecked());
+            return new BucketCredentials(row.getAccessKey(), row.getSecretKey(), row.getState(), row.getChecked())
+                    .withRotation(row.getRevision(), row.getRotationUuid(), row.getRotationPhase(), row.getRotationError() != null, row.getRetireAfter());
         } catch (CloudRuntimeException e) {
             return new BucketCredentials(null, null, "NeedsVerification", null);
+        }
+    }
+
+    private CephBucketCredentialRotation rotationManager() {
+        return new CephBucketCredentialRotation(credentialDao, _bucketDao, this::getRgwAdminClient, (store, account, access, secret) -> {
+            AmazonS3 client = getS3Client(getStoreURL(store), access, secret);
+            try {
+                for (BucketVO bucket : _bucketDao.listByObjectStoreIdAndAccountId(store, account)) {
+                    if (bucket.getState() == Bucket.State.Created) {
+                        client.listObjectsV2(new com.amazonaws.services.s3.model.ListObjectsV2Request().withBucketName(bucket.getName()).withMaxKeys(1));
+                    }
+                }
+            } finally { client.shutdown(); }
+        }, (store, uid, candidate) -> {
+            Map<String, String> details = _storeDetailsDao.getDetails(store);
+            new CephBucketKeyClient(getStoreURL(store), details.get(ACCESS_KEY), details.get(SECRET_KEY)).create(uid, candidate);
+        });
+    }
+
+    @Override
+    public BucketCredentials rotateBucketCredentials(Bucket bucket, long revision, String operationId, String action, int graceSeconds) {
+        credentialResolver().resolve(bucket.getAccountId(), bucket.getObjectStoreId(), false);
+        rotationManager().rotate(bucket.getAccountId(), bucket.getObjectStoreId(), revision, operationId, action, graceSeconds);
+        return getBucketCredentials(bucket);
+    }
+
+    @Override
+    public void recoverCredentialRotations(long storeId) {
+        for (ObjectStoreAccountCredentialVO row : credentialDao.listByStore(storeId)) {
+            if (("Grace".equals(row.getRotationPhase()) || "Retiring".equals(row.getRotationPhase())) &&
+                    row.getRetireAfter() != null && !new java.util.Date().before(row.getRetireAfter())) {
+                try { rotationManager().rotate(row.getAccountId(), storeId, row.getRevision(), row.getRotationUuid(), "retry", 300); }
+                catch (RuntimeException error) { logger.warn("Credential retirement requires retry for account {} and store {}", row.getAccountId(), storeId); }
+            }
+        }
+    }
+
+    @Override
+    public void validateAdminCredentials(String url, Map<String, String> details) {
+        try {
+            new RgwAdminBuilder().accessKey(details.get(ACCESS_KEY)).secretKey(details.get(SECRET_KEY)).endpoint(url.replaceAll("/+$", "") + "/admin").build().listBucket();
+        } catch (RuntimeException error) {
+            throw new CloudRuntimeException("Unable to verify candidate administrator credentials; previous connection is retained");
         }
     }
 

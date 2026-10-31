@@ -246,7 +246,7 @@
         show-icon
         :message="$t('message.objectstore.list.failed')">
         <template #description>
-          <p>{{ objectListError === 'message.objectstore.credential.unverified' ? $t(objectListError) : objectListError }}</p>
+          <p>{{ objectListError.startsWith('message.') ? $t(objectListError) : objectListError }}</p>
           <a-button :disabled="objectListScopeChanged" @click="retryObjectListing">{{ $t('label.retry') }}</a-button>
         </template>
       </a-alert>
@@ -291,8 +291,9 @@
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
 import { readObjectStoreListing } from '@/utils/objectStoreListing'
-import * as Minio from 'minio'
-import { getAPI } from '@/api'
+import { BucketS3Session } from '@/utils/bucketS3Session'
+import { CopySourceOptions, CopyDestinationOptions } from 'minio'
+import { getAPI, postAPI } from '@/api'
 import { genericCompare } from '@/utils/sort.js'
 import InfoCard from '@/components/view/InfoCard'
 import MoldDialog from '@/components/view/MoldDialog'
@@ -403,7 +404,7 @@ export default {
     },
     objectStoreConnectionKey () {
       return JSON.stringify([this.resource.id, this.resource.name, this.resource.url, this.resource.credentialstate,
-        this.resource.accesskey, this.resource.usersecretkey])
+        this.resource.credentialrevision])
     },
     uploadPendingCount () {
       const uploadingCount = this.uploadLoading && this.uploadCurrentFileName ? 1 : 0
@@ -449,6 +450,8 @@ export default {
     this.fetchData()
   },
   beforeUnmount () {
+    this.bucketS3Session && this.bucketS3Session.dispose()
+    this.client = null
     this.cancelObjectListing()
     this.objectListing = null
   },
@@ -556,7 +559,9 @@ export default {
           throw new Error('message.objectstore.credential.unverified')
         }
         if (!this.client) {
-          this.initMinioClient()
+          this.loading = true
+          this.fetching = true
+          await this.initMinioClient()
         } else {
           return this.listObjects()
         }
@@ -564,10 +569,12 @@ export default {
         if (generation !== this.objectStoreFetchGeneration || this.listRefreshDisposed) return
         this.loading = false
         this.fetching = false
-        this.objectListError = error.message || this.$t('message.objectstore.list.failed')
+        this.objectListError = error.message === 'message.objectstore.credential.unverified' || error.message?.startsWith('message.bucket.credentials.') ? error.message : this.$t('message.objectstore.list.failed')
       }
     },
     resetObjectStoreClient (reload = true) {
+      this.bucketS3Session && this.bucketS3Session.dispose()
+      this.bucketS3Session = null
       ++this.objectStoreFetchGeneration
       this.cancelObjectListing()
       this.objectListing = null
@@ -662,7 +669,14 @@ export default {
         } else {
           request.failed = true
           this.listRefreshFailed = true
-          this.objectListError = result.error?.message || this.$t(`message.objectstore.list.${result.status}`)
+          if ([401, 403].includes(result.error?.statusCode) || ['AccessDenied', 'InvalidAccessKeyId', 'SignatureDoesNotMatch', 'ExpiredToken'].includes(result.error?.code)) {
+            this.bucketS3Session && this.bucketS3Session.dispose()
+            this.bucketS3Session = null
+            this.client = null
+            this.objectListError = 'message.bucket.credentials.auth.failed'
+          } else {
+            this.objectListError = this.$t(`message.objectstore.list.${result.status}`)
+          }
         }
       })
     },
@@ -779,19 +793,18 @@ export default {
         console.warn('Failed to synchronize bucket usage', error)
       }
     },
-    initMinioClient () {
-      if (!this.client) {
-        const url = /https?:\/\/([^/]+)\/?/.exec(this.resource.url.split(this.resource.name)[0])[1]
-        const isHttps = /^https/.test(this.resource.url)
-        this.client = new Minio.Client({
-          endPoint: url.split(':')[0],
-          port: url.split(':').length > 1 ? parseInt(url.split(':')[1]) : isHttps ? 443 : 80,
-          useSSL: isHttps,
-          accessKey: this.resource.accesskey,
-          secretKey: this.resource.usersecretkey
-        })
-        this.listObjects()
+    async initMinioClient () {
+      if (!this.bucketS3Session || this.bucketS3Session.disposed) {
+        const id = this.resource.id
+        this.bucketS3Session = new BucketS3Session(() => postAPI('getBucketCredentials', { id, reveal: true }, { preserveOnFailure: true }))
       }
+      const session = this.bucketS3Session
+      const context = this.objectStoreContextKey
+      const client = await session.getClient()
+      if (session.disposed || this.bucketS3Session !== session || context !== this.objectStoreContextKey ||
+          this.listRefreshDisposed || this.objectListScopeChanged || !this.objectStoreRouteMatchesResource) return
+      this.client = client
+      return this.listObjects()
     },
     objectStoreRowKey (row) { return row.prefix ? `prefix:${row.prefix}` : `object:${row.name}` },
     onSelectChange (keys, rows) { this.selectedRows = rows || [] },
@@ -985,8 +998,8 @@ export default {
     },
     updateMetadata () {
       this.client.copyObject(
-        new Minio.CopySourceOptions({ Bucket: this.resource.name, Object: this.record.name }),
-        new Minio.CopyDestinationOptions({ Bucket: this.resource.name, Object: this.record.name, MetadataDirective: 'REPLACE', UserMetadata: this.record.metadata }),
+        new CopySourceOptions({ Bucket: this.resource.name, Object: this.record.name }),
+        new CopyDestinationOptions({ Bucket: this.resource.name, Object: this.record.name, MetadataDirective: 'REPLACE', UserMetadata: this.record.metadata }),
         err => {
           if (err) {
             this.$notification.error({

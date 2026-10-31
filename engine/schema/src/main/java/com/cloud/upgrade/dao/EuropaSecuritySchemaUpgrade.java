@@ -33,6 +33,7 @@ public final class EuropaSecuritySchemaUpgrade {
         // This compatibility hook also runs on Europa databases already at schema 4.23.
         ObjectStoreCredentialSchemaUpgrade.migrate(connection);
         BucketQuotaSchemaUpgrade.migrate(connection);
+        BucketCredentialRotationSchemaUpgrade.migrate(connection);
         try {
             long width = scalar(connection, "SELECT character_maximum_length FROM information_schema.columns "
                     + "WHERE table_schema='cloud' AND table_name='api_keypair' AND column_name='description'");

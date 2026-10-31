@@ -4819,6 +4819,16 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             throw new IllegalArgumentException("Unable to find object store with ID: " + id);
         }
 
+        Map<String, String> requestedCredentials = cmd.getDetails();
+        if (requestedCredentials != null && (!"Glue".equals(objectStoreVO.getProviderName()) ||
+                requestedCredentials.size() != 2 || !requestedCredentials.containsKey("accesskey") || !requestedCredentials.containsKey("secretkey") ||
+                requestedCredentials.get("accesskey") == null || requestedCredentials.get("accesskey").isBlank() ||
+                requestedCredentials.get("secretkey") == null || requestedCredentials.get("secretkey").isBlank())) {
+            throw new InvalidParameterValueException("Provide both nonempty Glue administrator keys together, or omit both");
+        }
+        if (requestedCredentials != null && bucketQuotaOperations.hasActiveForStore(id)) {
+            throw new InvalidParameterValueException("Reconcile pending quota operations before replacing administrator keys");
+        }
         long reserved = bucketQuotaOperations.reservedBytesForStore(id);
         if (cmd.getUrl() != null && !cmd.getUrl().equals(objectStoreVO.getUrl()) && bucketQuotaOperations.hasActiveForStore(id)) {
             throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before changing object store endpoint");
@@ -4830,6 +4840,33 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             if (total > 0 && total < occupied) {
                 throw new InvalidParameterValueException("Object store size is below committed allocation and pending reservations");
             }
+        }
+        if ("Glue".equals(objectStoreVO.getProviderName()) && (requestedCredentials != null || cmd.getUrl() != null)) {
+            String candidateUrl = cmd.getUrl() == null ? objectStoreVO.getUrl() : cmd.getUrl();
+            try {
+                java.net.URI uri = java.net.URI.create(candidateUrl);
+                if (!("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme())) ||
+                        uri.getHost() == null || uri.getUserInfo() != null || uri.getQuery() != null || uri.getFragment() != null) {
+                    throw new IllegalArgumentException();
+                }
+                Map<String, String> candidate = new java.util.HashMap<>(_objectStoreDetailsDao.getDetails(id));
+                if (requestedCredentials != null) candidate.putAll(requestedCredentials);
+                ((org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider)
+                        _dataStoreMgr.getDataStore(id, DataStoreRole.Object).getDriver()).validateAdminCredentials(candidateUrl, candidate);
+                Transaction.execute(new TransactionCallbackNoReturn() {
+                    @Override public void doInTransactionWithoutResult(TransactionStatus status) {
+                        ObjectStoreVO update = _objectStoreDao.createForUpdate(id);
+                        if (cmd.getName() != null) update.setName(cmd.getName());
+                        if (cmd.getSize() != null) update.setTotalSize(Math.multiplyExact(cmd.getSize(), ResourceType.bytesToGiB));
+                        update.setUrl(candidateUrl);
+                        if (!_objectStoreDao.update(id, update)) throw new IllegalStateException();
+                        if (requestedCredentials != null) _objectStoreDetailsDao.update(id, candidate);
+                    }
+                });
+            } catch (RuntimeException failure) {
+                throw new InvalidParameterValueException("Unable to verify or save candidate object storage connection; previous URL and administrator credentials are retained");
+            }
+            return _objectStoreDao.findById(id);
         }
         if(cmd.getUrl() != null ) {
             String url = cmd.getUrl();

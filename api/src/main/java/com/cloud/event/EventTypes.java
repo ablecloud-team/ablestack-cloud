@@ -832,6 +832,8 @@ public class EventTypes {
     // BUCKETS
     public static final String EVENT_BUCKET_CREATE = "BUCKET.CREATE";
     public static final String EVENT_BUCKET_DELETE = "BUCKET.DELETE";
+    public static final String EVENT_BUCKET_CREDENTIAL_READ = "BUCKET.CREDENTIAL.READ";
+    public static final String EVENT_BUCKET_CREDENTIAL_ROTATE = "BUCKET.CREDENTIAL.ROTATE";
     public static final String EVENT_BUCKET_UPDATE = "BUCKET.UPDATE";
 
     // Quota
@@ -1436,6 +1438,8 @@ public class EventTypes {
 
         //Buckets
         entityEventDetails.put(EVENT_BUCKET_CREATE, Bucket.class);
+        entityEventDetails.put(EVENT_BUCKET_CREDENTIAL_READ, Bucket.class);
+        entityEventDetails.put(EVENT_BUCKET_CREDENTIAL_ROTATE, Bucket.class);
         entityEventDetails.put(EVENT_BUCKET_UPDATE, Bucket.class);
         entityEventDetails.put(EVENT_BUCKET_DELETE, Bucket.class);
 

@@ -137,6 +137,7 @@ public class CephObjectStoreCredentialResolver {
     private S3Credential choose(List<S3Credential> keys, ObjectStoreAccountCredentialVO row, long storeId, long accountId) {
         Optional<S3Credential> existing = matching(keys, row.getAccessKey(), row.getSecretKey());
         if (existing.isPresent()) return existing.get();
+        if (row.getRotationPhase() != null && !"Completed".equals(row.getRotationPhase())) throw failure(storeId);
         for (BucketVO bucket : buckets.listByObjectStoreIdAndAccountId(storeId, accountId)) {
             existing = matching(keys, bucket.getAccessKey(), bucket.getSecretKey());
             if (existing.isPresent()) return existing.get();

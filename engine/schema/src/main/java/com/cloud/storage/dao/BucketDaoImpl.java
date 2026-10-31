@@ -91,6 +91,14 @@ public class BucketDaoImpl extends GenericDaoBase<BucketVO, Long> implements Buc
     }
 
     @Override
+    public List<BucketVO> listByAccountId(long accountId) {
+        SearchCriteria<BucketVO> sc = searchFilteringStoreId.create();
+        sc.setParameters(ACCOUNT_ID, accountId);
+        sc.setParameters(STATE, BucketVO.State.Destroyed);
+        return listBy(sc);
+    }
+
+    @Override
     public List<BucketVO> searchByIds(Long[] ids) {
         SearchCriteria<BucketVO> sc = bucketSearch.create();
         sc.setParameters("idIN", ids);

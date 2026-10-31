@@ -64,6 +64,17 @@ export default {
       dataView: true
     },
     {
+      api: 'updateObjectStoragePool',
+      name: 'replaceObjectStorageCredentials',
+      icon: 'key-outlined',
+      label: 'label.objectstore.credentials.replace',
+      dialogWidth: 'min(720px, calc(100vw - 32px))',
+      dataView: true,
+      popup: true,
+      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ReplaceObjectStorageCredentials.vue'))),
+      show: record => record.providername === 'Glue'
+    },
+    {
       api: 'deleteObjectStoragePool',
       icon: 'delete-outlined',
       label: 'label.action.delete.object.storage',

@@ -53,6 +53,11 @@ public class CephObjectStoreLifeCycleImpl implements ObjectStoreLifeCycle {
     @Override
     public DataStore initialize(Map<String, Object> dsInfos) {
         String url = (String)dsInfos.get("url");
+        java.net.URI endpoint = java.net.URI.create(url);
+        if (!("http".equalsIgnoreCase(endpoint.getScheme()) || "https".equalsIgnoreCase(endpoint.getScheme())) ||
+                endpoint.getHost() == null || endpoint.getUserInfo() != null || endpoint.getQuery() != null || endpoint.getFragment() != null) {
+            throw new CloudRuntimeException("Provide an HTTP(S) endpoint without embedded credentials, query or fragment");
+        }
         String name = (String)dsInfos.get("name");
         Long size = (Long)dsInfos.get("size");
         String providerName = (String)dsInfos.get("providerName");
@@ -74,7 +79,7 @@ public class CephObjectStoreLifeCycleImpl implements ObjectStoreLifeCycle {
         objectStoreParameters.put("accesskey", accessKey);
         objectStoreParameters.put("secretkey", secretKey);
 
-        logger.info("Attempting to connect to Ceph RGW at " + url + " with access key " + accessKey);
+        logger.info("Attempting to connect to Ceph RGW");
 
         RgwAdmin rgwAdmin = new RgwAdminBuilder()
                 .accessKey(accessKey)
@@ -86,7 +91,7 @@ public class CephObjectStoreLifeCycleImpl implements ObjectStoreLifeCycle {
             logger.debug("Found " + buckets + " buckets at Ceph RGW: " + url);
             logger.info("Successfully connected to Ceph RGW: " + url);
         } catch (Exception e) {
-            logger.debug("Error while initializing Ceph RGW Object Store: " + e.getMessage());
+            logger.debug("Unable to validate Ceph RGW connection");
             throw new RuntimeException("Error while initializing Ceph RGW Object Store. Invalid credentials or URL");
         }
 

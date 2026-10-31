@@ -5662,8 +5662,7 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         bucketResponse.setBucketURL("Glue".equals(objectStoreVO.getProviderName())
                 ? objectStoreVO.getUrl().replaceAll("/+$", "") + "/" + bucket.getName() : bucket.getBucketURL());
         BucketCredentials credential = resolveBucketCredentials(bucket, objectStoreVO);
-        bucketResponse.setAccessKey(credential.getAccessKey());
-        bucketResponse.setSecretKey(credential.getSecretKey());
+        bucketResponse.setCredentialRevision(credential.getRevision());
         bucketResponse.setCredentialState(credential.getState());
         bucketResponse.setCredentialChecked(credential.getChecked());
         if (_bucketQuotaOperationDao != null) {

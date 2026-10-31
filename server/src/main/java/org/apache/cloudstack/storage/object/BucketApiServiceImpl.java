@@ -105,7 +105,18 @@ public class BucketApiServiceImpl extends ManagerBase implements BucketApiServic
         _executor.scheduleWithFixedDelay(new ManagedContextRunnable() {
             @Override protected void runInContext() {
                 CallContext.registerSystemCallContextOnceOnly();
-                try { quotaCoordinator().recover(); }
+                try {
+                    quotaCoordinator().recover();
+                    for (ObjectStoreVO store : _objectStoreDao.listObjectStores()) {
+                        if ("Glue".equals(store.getProviderName())) {
+                            BucketQuotaCoordinator.withStoreLock(store.getId(), () -> {
+                                ((org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider)
+                                    _dataStoreMgr.getDataStore(store.getId(), DataStoreRole.Object).getDriver()).recoverCredentialRotations(store.getId());
+                                return true;
+                            });
+                        }
+                    }
+                }
                 catch (RuntimeException failure) { logger.warn("Bucket quota recovery will retry"); }
                 finally { CallContext.unregister(); }
             }
@@ -226,6 +237,44 @@ public class BucketApiServiceImpl extends ManagerBase implements BucketApiServic
                 }
             }
         }
+    }
+
+    private BucketVO credentialBucket(long id, Account caller) {
+        BucketVO bucket = _bucketDao.findById(id);
+        if (bucket == null || bucket.getState() != Bucket.State.Created) throw new InvalidParameterValueException("A created bucket is required");
+        _accountMgr.checkAccess(caller, null, true, bucket);
+        return bucket;
+    }
+    private org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider credentialProvider(Bucket bucket) {
+        return (org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider)
+                _dataStoreMgr.getDataStore(bucket.getObjectStoreId(), DataStoreRole.Object).getDriver();
+    }
+    private org.apache.cloudstack.api.response.BucketCredentialResponse credentialResponse(BucketVO bucket, BucketCredentials credential, boolean reveal) {
+        if (credential.getAccessKey() == null || credential.getSecretKey() == null) {
+            throw new InvalidParameterValueException("Unable to verify bucket credentials; check the storage connection and retry");
+        }
+        ObjectStoreVO store = _objectStoreDao.findById(bucket.getObjectStoreId());
+        String url = "Glue".equals(store.getProviderName()) ? store.getUrl().replaceAll("/+$", "") + "/" + bucket.getName() : bucket.getBucketURL();
+        return new org.apache.cloudstack.api.response.BucketCredentialResponse(bucket, url, credential, reveal,
+                _bucketDao.listByObjectStoreIdAndAccountId(bucket.getObjectStoreId(), bucket.getAccountId()));
+    }
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_BUCKET_CREDENTIAL_READ, eventDescription = "read bucket credential metadata or explicitly revealed credentials")
+    public org.apache.cloudstack.api.response.BucketCredentialResponse getCredentials(long id, Account caller, boolean reveal) {
+        BucketVO bucket = credentialBucket(id, caller);
+        CallContext.current().setEventDetails("Bucket Id: " + bucket.getUuid() + ", reveal: " + reveal);
+        return credentialResponse(bucket, credentialProvider(bucket).getBucketCredentials(bucket), reveal);
+    }
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_BUCKET_CREDENTIAL_ROTATE, eventDescription = "rotate account and store bucket credentials")
+    public org.apache.cloudstack.api.response.BucketCredentialResponse rotateCredentials(long id, Account caller, long revision,
+            String operationId, String action, int graceSeconds) {
+        BucketVO bucket = credentialBucket(id, caller);
+        CallContext.current().setEventDetails("Bucket Id: " + bucket.getUuid() + ", revision: " + revision + ", operation: " + operationId);
+        return BucketQuotaCoordinator.withStoreLock(bucket.getObjectStoreId(), () -> {
+            if (quotaOperations.hasActiveForStore(bucket.getObjectStoreId())) throw new InvalidParameterValueException("Reconcile pending quota operations before rotating keys");
+            return credentialResponse(bucket, credentialProvider(bucket).rotateBucketCredentials(bucket, revision, operationId, action, graceSeconds), false);
+        });
     }
 
     @Override

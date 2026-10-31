@@ -114,13 +114,10 @@ public class BucketResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "Bucket URL")
     private String bucketURL;
 
-    @SerializedName(ApiConstants.ACCESS_KEY)
-    @Param(description = "Bucket Access Key")
-    private String accessKey;
-
-    @SerializedName(ApiConstants.USER_SECRET_KEY)
-    @Param(description = "Bucket Secret Key")
-    private String secretKey;
+    @SerializedName("credentialrevision")
+    @Param(description = "Credential revision; key values require explicit getBucketCredentials POST")
+    private Long credentialRevision;
+    public void setCredentialRevision(long value) { credentialRevision = value; }
 
     @SerializedName(ApiConstants.PROVIDER)
     @Param(description = "Object storage provider")
@@ -289,19 +286,19 @@ public class BucketResponse extends BaseResponseWithTagInformation implements Co
     }
 
     public String getAccessKey() {
-        return accessKey;
+        return null;
     }
 
     public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+        // Keys are available only from the explicit credentials API.
     }
 
     public String getSecretKey() {
-        return secretKey;
+        return null;
     }
 
     public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+        // Keys are available only from the explicit credentials API.
     }
 
     public void setState(Bucket.State state) {

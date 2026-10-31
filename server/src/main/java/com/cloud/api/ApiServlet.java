@@ -82,6 +82,8 @@ import com.cloud.utils.net.NetUtils;
 public class ApiServlet extends HttpServlet {
     protected static Logger LOGGER = LogManager.getLogger(ApiServlet.class);
     private static final Logger ACCESSLOGGER = LogManager.getLogger("apiserver." + ApiServlet.class.getName());
+    private static final java.util.Set<String> BUCKET_CREDENTIAL_COMMANDS = java.util.Set.of(
+            "getbucketcredentials", "rotatebucketcredentials", "addobjectstoragepool", "updateobjectstoragepool");
     private static final String REPLACEMENT = "_";
     private static final String LOGGER_REPLACEMENTS = "[\n\r\t]";
     public static final Pattern GET_REQUEST_COMMANDS = Pattern.compile("^(get|list|query|find)(\\w+)+$");
@@ -196,8 +198,8 @@ public class ApiServlet extends HttpServlet {
     private void checkSingleQueryParameterValue(Map<String, String[]> params) {
         params.forEach((k, v) -> {
             if (v.length > 1) {
-                String message = String.format("Query parameter '%s' has multiple values %s. Only the last value will be respected." +
-                    "It is advised to pass only a single parameter", k, Arrays.toString(v));
+                String message = String.format("Query parameter '%s' has multiple values. Only the last value will be respected. " +
+                    "It is advised to pass only a single parameter", k);
                 LOGGER.warn(message);
             }
         });
@@ -234,11 +236,22 @@ public class ApiServlet extends HttpServlet {
 
         // logging the request start and end in management log for easy debugging
         String reqStr = "";
-        String cleanQueryString = StringUtils.cleanString(req.getQueryString());
+        boolean bucketCredentialCommand = command != null && BUCKET_CREDENTIAL_COMMANDS.contains(command.toLowerCase(java.util.Locale.ROOT));
+        String cleanQueryString = bucketCredentialCommand ? command : StringUtils.cleanString(req.getQueryString());
+        if (bucketCredentialCommand) {
+            resp.setHeader("Cache-Control", "no-store, private, max-age=0");
+            resp.setHeader("Pragma", "no-cache");
+            if (!"POST".equalsIgnoreCase(req.getMethod())) {
+                String type = params.containsKey(ApiConstants.RESPONSE) ? (String)params.get(ApiConstants.RESPONSE)[0] : responseType;
+                String error = apiServer.getSerializedApiError(new ServerApiException(ApiErrorCode.BAD_REQUEST, "Use POST for credential operations"), params, type);
+                HttpUtils.writeHttpResponse(resp, error, HttpServletResponse.SC_BAD_REQUEST, type, ApiServer.JSONContentType.value());
+                return;
+            }
+        }
         if (LOGGER.isDebugEnabled()) {
             reqStr = auditTrailSb.toString() + " " + cleanQueryString;
             if (req.getMethod().equalsIgnoreCase("POST") && org.apache.commons.lang3.StringUtils.isNotBlank(command)) {
-                if (!POST_REQUESTS_TO_DISABLE_LOGGING.contains(command.toLowerCase()) && !reqParams.containsKey(ApiConstants.USER_DATA)) {
+                if (!bucketCredentialCommand && !POST_REQUESTS_TO_DISABLE_LOGGING.contains(command.toLowerCase()) && !reqParams.containsKey(ApiConstants.USER_DATA)) {
                     String cleanParamsString = getCleanParamsString(reqParams);
                     if (org.apache.commons.lang3.StringUtils.isNotBlank(cleanParamsString)) {
                         reqStr += "\n" + cleanParamsString;

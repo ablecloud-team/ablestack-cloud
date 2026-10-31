@@ -24,4 +24,11 @@ public interface ObjectStoreCredentialProvider {
     default BucketCredentials getBucketCredentials(Bucket bucket) {
         return new BucketCredentials(bucket.getAccessKey(), bucket.getSecretKey(), null, null);
     }
+    default BucketCredentials rotateBucketCredentials(Bucket bucket, long revision, String operationId, String action, int graceSeconds) {
+        throw new com.cloud.utils.exception.CloudRuntimeException("Credential rotation is not supported by this provider");
+    }
+    default void recoverCredentialRotations(long storeId) { }
+    default void validateAdminCredentials(String url, java.util.Map<String, String> details) {
+        throw new com.cloud.utils.exception.CloudRuntimeException("Administrator key replacement is not supported by this provider");
+    }
 }

@@ -20,6 +20,8 @@ import com.cloud.utils.db.GenericDao;
 
 public interface ObjectStoreAccountCredentialDao extends GenericDao<ObjectStoreAccountCredentialVO, Long> {
     ObjectStoreAccountCredentialVO findByAccountAndStore(long accountId, long storeId);
+    java.util.List<ObjectStoreAccountCredentialVO> listByAccount(long accountId);
+    java.util.List<ObjectStoreAccountCredentialVO> listByStore(long storeId);
     void removeByAccount(long accountId);
     void removeByStore(long storeId);
 }

@@ -37,6 +37,12 @@ public class ObjectStoreAccountCredentialDaoImpl extends GenericDaoBase<ObjectSt
         SearchCriteria<ObjectStoreAccountCredentialVO> sc = pair.create();
         sc.setParameters("account", accountId); sc.setParameters("store", storeId); return findOneBy(sc);
     }
+    @Override public java.util.List<ObjectStoreAccountCredentialVO> listByAccount(long id) {
+        SearchCriteria<ObjectStoreAccountCredentialVO> sc = account.create(); sc.setParameters("account", id); return listBy(sc);
+    }
+    @Override public java.util.List<ObjectStoreAccountCredentialVO> listByStore(long id) {
+        SearchCriteria<ObjectStoreAccountCredentialVO> sc = store.create(); sc.setParameters("store", id); return listBy(sc);
+    }
     @Override public void removeByAccount(long accountId) {
         SearchCriteria<ObjectStoreAccountCredentialVO> sc = account.create(); sc.setParameters("account", accountId); expunge(sc);
     }

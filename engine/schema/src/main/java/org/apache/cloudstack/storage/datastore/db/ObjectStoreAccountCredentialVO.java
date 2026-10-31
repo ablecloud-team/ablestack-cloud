@@ -42,6 +42,34 @@ public class ObjectStoreAccountCredentialVO {
     @Temporal(TemporalType.TIMESTAMP) @Column(name = "checked_at") private Date checked;
     @Column(name = "provisioning_source") private String provisioningSource;
 
+    @Encrypt @Column(name = "pending_access_key") private String pendingAccessKey;
+    public String getPendingAccessKey() { return pendingAccessKey; }
+    public void setPendingAccessKey(String value) { pendingAccessKey = value; }
+    @Encrypt @Column(name = "pending_secret_key") private String pendingSecretKey;
+    public String getPendingSecretKey() { return pendingSecretKey; }
+    public void setPendingSecretKey(String value) { pendingSecretKey = value; }
+    @Encrypt @Column(name = "previous_access_key") private String previousAccessKey;
+    public String getPreviousAccessKey() { return previousAccessKey; }
+    public void setPreviousAccessKey(String value) { previousAccessKey = value; }
+    @Encrypt @Column(name = "previous_secret_key") private String previousSecretKey;
+    public String getPreviousSecretKey() { return previousSecretKey; }
+    public void setPreviousSecretKey(String value) { previousSecretKey = value; }
+    @Column(name = "rotation_uuid") private String rotationUuid;
+    public String getRotationUuid() { return rotationUuid; }
+    public void setRotationUuid(String value) { rotationUuid = value; }
+    @Column(name = "rotation_phase") private String rotationPhase;
+    public String getRotationPhase() { return rotationPhase; }
+    public void setRotationPhase(String value) { rotationPhase = value; }
+    @Column(name = "rotation_error") private String rotationError;
+    public String getRotationError() { return rotationError; }
+    public void setRotationError(String value) { rotationError = value; }
+    @Temporal(TemporalType.TIMESTAMP) @Column(name = "retire_after") private Date retireAfter;
+    public Date getRetireAfter() { return retireAfter; }
+    public void setRetireAfter(Date value) { retireAfter = value; }
+
+    @Column(name = "rotation_grace_seconds") private Integer rotationGraceSeconds;
+    public Integer getRotationGraceSeconds() { return rotationGraceSeconds; }
+    public void setRotationGraceSeconds(Integer value) { rotationGraceSeconds = value; }
     public ObjectStoreAccountCredentialVO() { }
     public ObjectStoreAccountCredentialVO(long accountId, long storeId, String userId) {
         this.accountId = accountId; this.objectStoreId = storeId; this.rgwUserId = userId;
