@@ -14,7 +14,7 @@
 ## 검증 결과
 
 - Jest 7 suites / 76 tests PASS, 변경 파일 lint PASS. 실제 Ant Table 선택 갱신과 언어 전환 시 머리글 변경·중복 목록 요청 방지 회귀를 포함한다.
-- production UI build PASS. 전체 Cloud Maven/qemu 빌드와 Full Cloud CI는 실행하지 않았다. 기존 Browserslist/asset 크기 경고는 build.log에 보존한다.
+- production UI build PASS. 전체 Cloud Maven/qemu 빌드와 Full Cloud CI는 실행하지 않았다. 기존 Browserslist/asset 크기 경고는 build.txt에 보존한다.
 - 최종 배포본 레이아웃 32건: 31/32 × light/dark × 한국어/영어 × 1440/901/390/360. 1440px에서 작업·검색은 같은 행이고, 좁은 폭에서 버튼과 입력이 viewport 안에 있다. 최소 검색 input 폭 89.69px. 사용량 레이블 대비는 밝음 7.56:1, 다크 9.18:1이었다. 해당 레이블의 실측이며 전체 앱 접근성 인증은 아니다.
 - 중간 구현 `4f3d17e4716`의 실제 기능/폼/키보드 57건 PASS. 최종 구현의 추가/재확인 26건 PASS. 파일별 소스와 관찰값을 JSON에 구분했다.
 - 폴더 생성·파일 선택기 업로드·갱신 후 선택 유지, 상세 포커스 복원, 폴더/검색/직접 URL/뒤로·앞으로/빈 버킷, 403/404·취소·30초 시간 초과·재시도를 실제 UI로 검증했다. 오류 주입은 전용 QA 버킷의 ListObjectsV2 요청에만 적용했다.
@@ -34,7 +34,7 @@
 
 ## 근거
 
-[최종 레이아웃](layout.json) · [중간 기능 검증](functional-interim.json) · [최종 UI 재확인](functional-final.json) · [VM 표준](vm-standard.json) · [화면·이미지 치수](screenshots.json) · [보호 변경 확인](protected.json) · [31 배포](deployment-31.json) · [32 배포](deployment-32.json) · [해시](manifest.json) · [정리](cleanup.json) · [남긴 버킷](retained.json) · [Jest](tests.txt) · [빌드](build.log) · [수정 전 비교](../bucket-1528-20261031/STYLE-REVIEW.ko.md)
+[최종 레이아웃](layout.json) · [중간 기능 검증](functional-interim.json) · [최종 UI 재확인](functional-final.json) · [VM 표준](vm-standard.json) · [화면·이미지 치수](screenshots.json) · [보호 변경 확인](protected.json) · [31 배포](deployment-31.json) · [32 배포](deployment-32.json) · [해시](manifest.json) · [정리](cleanup.json) · [남긴 버킷](retained.json) · [Jest](tests.txt) · [lint](lint.txt) · [빌드](build.txt) · [수정 전 비교](../bucket-1528-20261031/STYLE-REVIEW.ko.md)
 
 ![32번 최종 다크모드](32-dark-final.jpg)
 
