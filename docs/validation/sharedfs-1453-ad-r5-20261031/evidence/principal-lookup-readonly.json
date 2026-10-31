@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"principals\": [{\"type\": \"LOCAL_USER\", \"principal\": \"epic1453rw\", \"backslashCount\": 0, \"getentExit\": 0, \"getent\": \"epic1453rw:x:1001:1001::/home/epic1453rw:/usr/sbin/nologin\"}, {\"type\": \"LOCAL_USER\", \"principal\": \"epic1453ro\", \"backslashCount\": 0, \"getentExit\": 0, \"getent\": \"epic1453ro:x:1002:1002::/home/epic1453ro:/usr/sbin/nologin\"}, {\"type\": \"AD_USER\", \"principal\": \"ABLESTACK\\\\epic1453ad\", \"backslashCount\": 1, \"getentExit\": 2, \"getent\": \"\"}, {\"type\": \"AD_USER\", \"principal\": \"ABLESTACK\\\\epic1453adro\", \"backslashCount\": 1, \"getentExit\": 2, \"getent\": \"\"}]}\n",
+  "stderr": ""
+}

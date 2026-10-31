@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"bootId\": \"935d9ed2-c353-4b59-b45d-2fe3c9288d1a\", \"activeVersion\": \"1453.ad.7970009e5535.r5\", \"managedFilesMatch\": true, \"links\": [{\"ifname\": \"eth0\", \"operstate\": \"UP\", \"address\": \"02:0d:00:cc:00:93\"}], \"addresses\": [{\"ifname\": \"eth0\", \"addresses\": [{\"local\": \"10.10.13.220\", \"prefixlen\": 16}]}], \"vendorWbinfoSha256\": \"263631dd3c09ead449fde6be4ce064498db9a4f37ca6b1fe830454d68b0bf63f\"}\n",
+  "stderr": ""
+}
