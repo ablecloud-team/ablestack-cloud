@@ -60,6 +60,10 @@ public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd
     private String forceDirectoryMode;
     public String getForceDirectoryMode() { return forceDirectoryMode; }
 
+    @Parameter(name = "relativepath", type = CommandType.STRING, length = 255, description = "Relative directory in an already mounted managed backing volume")
+    private String relativePath;
+    public String getRelativePath() { return relativePath; }
+
     @Inject
     StorageService storageService;
 

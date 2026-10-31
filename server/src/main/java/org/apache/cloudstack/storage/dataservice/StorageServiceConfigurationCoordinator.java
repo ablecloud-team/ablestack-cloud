@@ -130,6 +130,9 @@ final class StorageServiceConfigurationCoordinator {
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
                 StorageSmbCreationPolicy.requireCapability(cmd, capability);
+                if((protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB)
+                        && (publicRequest(cmd).get("relativepath")!=null || StorageFileSharePaths.all(instance.getId(),shares).stream().anyMatch(r->StorageFileSharePaths.bound(StorageFileSharePaths.config(r.getConfigJson())))))
+                    StorageFileSharePaths.requireCapability(capability);
                 if (StorageDirectoryPolicies.command(cmd) && (!capability.has("sharedDirectoryPolicyVersion")
                         || capability.get("sharedDirectoryPolicyVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("DIRECTORY_POLICY_CAPABILITY_REQUIRED");
@@ -168,6 +171,7 @@ final class StorageServiceConfigurationCoordinator {
             plan.validateNaturalKeys();
             JsonObject snapshot = new JsonObject();
             snapshot.add("tables", JsonParser.parseString(plan.snapshot()));
+            snapshot.addProperty("onlineSmbOptions",StorageSmbCreationPolicy.optionsOnly(cmd));
             snapshot.add("response", JSON.toJsonTree(response, responseType));
             snapshot.add("publicRequest", JSON.toJsonTree(publicRequest(cmd)));
             snapshot.add("networkChanges", JSON.toJsonTree(plan.networkChanges));
@@ -186,7 +190,7 @@ final class StorageServiceConfigurationCoordinator {
                 nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
             }
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
-            if (StorageSmbCreationPolicy.optionsOnly(cmd)) admission.add("expectedFingerprint", report.get("fingerprint"));
+            if (StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);
@@ -211,6 +215,7 @@ final class StorageServiceConfigurationCoordinator {
                 commit(instance, op, plan);
                 try { rpc(instance, "configuration operation commit", identity(op, instance)); }
                 catch (RuntimeException e) { /* DB commit is authoritative; never roll back an acknowledged SQL revision. */ }
+                if(observation.has("pathbindings"))return JSON.fromJson(parsed(op.getCandidateSnapshot()).get("response"),responseType);
                 return response;
             }
             if ("ROLLED_BACK".equals(state)) {
@@ -341,6 +346,7 @@ final class StorageServiceConfigurationCoordinator {
                     && "COMMITTED".equals(operations.findById(op.getId()).getState())) return true;
             if (!Objects.equals(locked.getActiveConfigurationOperationId(), op.getId()) || locked.getConfigurationRevision() != op.getBaseRevision())
                 throw new CloudRuntimeException("Configuration reservation/revision changed before commit");
+            StorageFileSharePaths.applyBindings(plan,op,parsed(op.getGuestObservationJson()));
             plan.commit();
             locked.setConfigurationRevision(op.getTargetRevision()); locked.setActiveConfigurationOperationId(null);
             instances.update(locked.getId(), locked);

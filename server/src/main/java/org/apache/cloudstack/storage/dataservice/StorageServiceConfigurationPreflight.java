@@ -74,6 +74,7 @@ final class StorageServiceConfigurationPreflight {
     DirectoryObserver directoryObserver;
     interface SmbInheritanceObserver { JsonObject inspect(StorageServiceInstanceVO instance,StorageFileShareVO share,JsonObject intent); }
     SmbInheritanceObserver smbInheritanceObserver;
+    java.util.function.BiConsumer<StorageServiceInstanceVO,JsonObject> pathPolicyValidator;
     static String api(String name) {
         if (name.endsWith("Cmd")) name=Character.toLowerCase(name.charAt(0))+name.substring(1,name.length()-3);
         if (!APIS.contains(name)) throw new InvalidParameterValueException("Unsupported configuration intent");
@@ -89,9 +90,11 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
+            if(value.has("relativepath")) StorageFileSharePaths.normalize(value.get("relativepath").getAsString());
+            if(value.has("createdirectory") && (!value.get("createdirectory").isJsonPrimitive() || !value.getAsJsonPrimitive("createdirectory").isBoolean()))throw new IllegalArgumentException();
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
                 if (value.has(k) && !value.get(k).isJsonPrimitive()) throw new IllegalArgumentException();
             if (value.has("recursive") && (!value.get("recursive").isJsonPrimitive() || !value.getAsJsonPrimitive("recursive").isBoolean())) throw new IllegalArgumentException();
@@ -163,6 +166,9 @@ final class StorageServiceConfigurationPreflight {
                 if (!StorageSmbCreationPolicy.optionsOnly(cmd)) value.addProperty("smbfullapply",true);
             }
         }
+        for(String key:Arrays.asList("relativepath","createdirectory","directorypolicyid"))
+            if(request.get(key)!=null && (value.get("api").getAsString().endsWith("StorageNfsExport") || value.get("api").getAsString().endsWith("StorageSmbShare")))
+                value.add(key,new Gson().toJsonTree(request.get(key)));
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
             value.addProperty("idmappingmode", StorageNfsIdentityMapping.valid(((org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)cmd).getIdMappingMode()));
         return value;
@@ -227,9 +233,20 @@ final class StorageServiceConfigurationPreflight {
                     || volume.getInstanceId()!=null && !Objects.equals(volume.getInstanceId(),instance.getVmId()))
                 throw new InvalidParameterValueException("Backing volume is not ready for this instance");
         }
+        VolumeVO pathVolume=volume;
+        if(pathVolume==null && selectedFile!=null && selectedFile.getVolumeId()!=null)pathVolume=volumes.findById(selectedFile.getVolumeId());
+        JsonObject pathQuery=StorageFileSharePaths.query(name,intent,selectedFile,pathVolume,StorageFileSharePaths.all(instance.getId(),shares));
+        if(pathQuery.has("pathtarget")) {
+            if(pathPolicyValidator!=null) {
+                JsonObject validation=pathQuery.getAsJsonObject("pathtarget").deepCopy();validation.add("intent",intent);
+                pathPolicyValidator.accept(instance,validation);
+            }
+        }
         boolean drain=name.startsWith("delete") || name.startsWith("update") &&
                 (name.contains("Acl") || name.contains("Iscsi") || name.contains("NvmeOf"));
         Long original=selectedFile!=null?selectedFile.getVolumeId():selectedBlock!=null?selectedBlock.getVolumeId():null;
+        boolean simpleSmbPath=name.equals("updateStorageSmbShare") && !intent.has("smbfullapply") && !intent.has("relativepath") && !intent.has("volumeid");
+        if(pathQuery.has("pathtarget") && (name.endsWith("StorageNfsExport") || name.endsWith("StorageSmbShare")) && !simpleSmbPath)drain=true;
         if (smbEndpoint) drain=false;
         if (name.startsWith("update") && volume!=null && !Objects.equals(original,volume.getId())) drain=true;
         JsonObject query=new JsonObject(); query.addProperty("instanceUuid",instance.getUuid());
@@ -281,6 +298,9 @@ final class StorageServiceConfigurationPreflight {
         if (StorageSmbParentInheritance.shareApi(name))
             StorageSmbCreationPolicy.query(selectedFile,intent).entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
         if (query.has("smbcreationtarget")) query.addProperty("smboptionsonly", !intent.has("smbfullapply") && !intent.has("volumeid") && !intent.has("newvolume"));
+        for(Map.Entry<String,JsonElement> entry:pathQuery.entrySet()) query.add(entry.getKey(),entry.getValue());
+        if(pathQuery.has("pathtarget") && query.has("posixtarget"))
+            query.add("posixtarget",pathQuery.get("pathtarget"));
         query.add("volumeuuids",volumeUuids);
         query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
         String identityDigest = "";
@@ -315,6 +335,7 @@ final class StorageServiceConfigurationPreflight {
                     throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
                 if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
+                if(query.has("pathtarget")) StorageFileSharePaths.requireCapability(capability);
                 if (query.has("smbcreation")) {
                     if (!capability.has("smbCreationPolicyVersion") || capability.get("smbCreationPolicyVersion").getAsInt()!=1)
                         throw new CloudRuntimeException("SMB_CREATION_POLICY_CAPABILITY_REQUIRED");

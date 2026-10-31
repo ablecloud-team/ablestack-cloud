@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 import com.google.gson.annotations.SerializedName;
 public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
+    @SerializedName("pathpreview") @Param(description="Canonical directory, mount boundary and nested references") private JsonObject pathpreview;
     @SerializedName("status") @Param(description="Admission decision") private String status;
     @SerializedName("revision") @Param(description="Configuration revision") private Long revision;
     @SerializedName("observedat") @Param(description="Measurement time") private java.util.Date observedat;
@@ -36,6 +37,7 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("inheritancepreview") @Param(description="Observed parent and future SMB object ownership policy") private JsonObject inheritancepreview;
     @SerializedName("creationpreview") @Param(description="SMB new-object mode policy and reload impact") private JsonObject creationpreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        pathpreview=report.has("pathpreview")?report.getAsJsonObject("pathpreview"):null;
         creationpreview=report.has("creationpreview")?report.getAsJsonObject("creationpreview"):null;
         inheritancepreview=report.has("inheritancepreview")?report.getAsJsonObject("inheritancepreview"):null;
         directorypreview=report.has("directorypreview")?report.getAsJsonObject("directorypreview"):null;

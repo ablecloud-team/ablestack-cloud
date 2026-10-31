@@ -22,6 +22,8 @@ def fingerprint(intent):
         material.update(smbinheritance=intent["smbinheritance"], inheritancefingerprint=intent.get("inheritancefingerprint"))
     if intent.get("smbcreation"):
         material.update(smbcreation=intent["smbcreation"], creationfingerprint=intent.get("creationfingerprint"), smboptionsonly=intent.get("smboptionsonly", False))
+    if intent.get("pathtarget"):
+        material.update(pathtarget=intent["pathtarget"], pathfingerprint=intent.get("pathfingerprint"), pathoperation=intent.get("pathoperation"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -152,6 +154,14 @@ def inspect(intent):
     try:
         intent = dict(intent)
         observed = None
+        path_preview = None
+        if intent.get("pathtarget"):
+            from shared_directory_policy import FileSharePathBindings, PolicyError, nested_path_protected
+            if not nested_path_protected(): raise PolicyError("DIRECTORY_PATH_RUNTIME_REQUIRED")
+            path_preview = FileSharePathBindings().inspect(intent["pathtarget"])
+            path_preview["resources"] = intent.get("pathresources", [])
+            path_preview["parentaccesswarning"] = any(r.get("relation") in ("ANCESTOR", "DESCENDANT") for r in path_preview["resources"])
+            intent["pathfingerprint"] = hashlib.sha256(json.dumps(path_preview, sort_keys=True).encode()).hexdigest()
         if intent.get("protocol") == "NFS" and intent.get("posixtarget"):
             from configuration_transaction import nfs_posix_observe
             observed = nfs_posix_observe(intent["posixtarget"])
@@ -170,6 +180,18 @@ def inspect(intent):
             creation = SmbCreationPolicies().preview(intent["smbcreationtarget"], intent["smbcreation"])
             intent["creationfingerprint"] = hashlib.sha256(json.dumps(creation, sort_keys=True).encode()).hexdigest()
         report = evaluate(intent, sample(intent))
+        if path_preview is not None:
+            report["pathpreview"] = path_preview
+            deleting = str(intent.get("pathoperation", "")).startswith("delete")
+            needs_creation = not path_preview["exists"] and not deleting and not intent["pathtarget"]["config"].get("createDirectory")
+            has_children = deleting and any(r.get("relation") == "DESCENDANT" for r in path_preview["resources"])
+            if needs_creation or has_children:
+                report["status"] = "BLOCKED"
+                report["checks"].append({"code": "DIRECTORY_CHILD_SHARES_EXIST" if has_children else "DIRECTORY_CREATION_REQUIRED",
+                                         "blocking": True, "severity": "ERROR"})
+            if path_preview["parentaccesswarning"]:
+                report["checks"].append({"code": "DIRECTORY_PARENT_ACCESS", "blocking": False, "severity": "WARNING"})
+                report["impact"]["ackrequired"] = True
         if creation is not None:
             report["creationpreview"] = creation
             if intent.get("smboptionsonly"):

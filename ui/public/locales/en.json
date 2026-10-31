@@ -10510,5 +10510,22 @@
   "label.storage.creation.effective": "Effective settings (file/directory · force)",
   "label.storage.creation.existing": "Existing data",
   "label.storage.creation.forceCreateMode": "File force create mode",
-  "label.storage.creation.summary": "File / directory mask"
+  "label.storage.creation.summary": "File / directory mask",
+  "label.storage.path.exact_alias": "Same-directory alias",
+  "message.storage.path.preserve": "Existing owner, mode and ACL are preserved. Missing directories require explicit creation below.",
+  "label.storage.path.physical": "Physical directory",
+  "message.storage.path.relative": "Example: projects/team-a. The public alias remains /export/name.",
+  "label.storage.path.relative": "Volume-relative path",
+  "label.storage.path.identity": "Filesystem UUID · inode",
+  "message.storage.path.parent.access": "Parent share access can reach child paths. Child share ACLs do not isolate access through a parent share.",
+  "label.storage.path.sibling": "Other path in volume",
+  "label.storage.path.enable": "Specify relative path",
+  "label.storage.path.status": "Path verification",
+  "message.storage.path.children": "Child NFS or SMB shares block deletion or path changes:",
+  "label.storage.path.relation": "Path relationship",
+  "label.storage.path.custom": "Directory within volume",
+  "label.storage.path.descendant": "Child share",
+  "label.storage.path.absent": "Absent — explicit creation required",
+  "message.storage.path.invalid": "Use at most 255 characters without empty components, absolute paths, ., .., backslashes or control characters.",
+  "label.storage.path.ancestor": "Parent share"
 }

@@ -24,6 +24,17 @@ show-icon
       <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ afterPosix }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.nfs.permission.scope')">{{ $t(report.posixchanges?.recursivePermission ? 'message.storage.nfs.recursive.scope' : 'message.storage.nfs.root.only') }}</a-descriptions-item>
     </a-descriptions>
+    <section v-if="report.pathpreview" class="path-preview">
+      <a-descriptions bordered size="small" :column="1" class="summary">
+        <a-descriptions-item :label="$t('label.storage.path.physical')"><code>{{ report.pathpreview.physicalpath }}</code></a-descriptions-item>
+        <a-descriptions-item :label="$t('label.storage.path.identity')">{{ report.pathpreview.filesystemuuid }} · {{ report.pathpreview.inode || '-' }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.storage.nfs.current.posix')">{{ report.pathpreview.exists ? report.pathpreview.owneruid + ':' + report.pathpreview.ownergid + ' / ' + report.pathpreview.mode : $t('label.storage.path.absent') }}</a-descriptions-item>
+      </a-descriptions>
+      <a-table size="small" row-key="uuid" :pagination="false" :data-source="report.pathpreview.resources || []" :columns="pathColumns">
+        <template #bodyCell="{ column, record }"><span v-if="column.key === 'relation'">{{ $t('label.storage.path.' + record.relation.toLowerCase()) }}</span></template>
+      </a-table>
+      <a-alert v-if="report.pathpreview.parentaccesswarning" type="warning" show-icon :message="$t('message.storage.path.parent.access')" />
+    </section>
     <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t(report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.online' : 'message.storage.preflight.interruption')" />
     <a-checkbox
 v-if="report.impact?.ackrequired"
@@ -43,6 +54,14 @@ export default {
   props: { report: { type: Object, required: true }, loading: Boolean, acknowledged: Boolean },
   emits: ['refresh', 'acknowledge'],
   computed: {
+    pathColumns () {
+      return [
+        { title: this.$t('label.name'), dataIndex: 'name', key: 'name' },
+        { title: this.$t('label.protocol'), dataIndex: 'protocol', key: 'protocol' },
+        { title: this.$t('label.storage.path.relative'), dataIndex: 'relativepath', key: 'relativepath' },
+        { title: this.$t('label.storage.path.relation'), dataIndex: 'relation', key: 'relation' }
+      ]
+    },
     beforePosix () {
       const p = this.report.posixobservation || {}
       return p.status === 'OBSERVED' ? `${p.owneruid}:${p.ownergid} / ${p.mode}` : this.$t('label.storage.nfs.posix.unavailable')
@@ -59,5 +78,7 @@ export default {
 .configuration-preflight { margin-bottom: 24px; color: var(--text-color); }
 .summary, .check, .ack { margin-top: 12px; }
 .check-message { overflow-wrap: anywhere; white-space: normal; }
+.path-preview { margin-top: 16px; display: grid; gap: 12px; }
+.path-preview code { overflow-wrap: anywhere; white-space: normal; }
 p { margin-top: 12px; color: var(--text-color-secondary); }
 </style>

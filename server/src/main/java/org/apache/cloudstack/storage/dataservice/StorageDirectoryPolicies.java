@@ -224,6 +224,15 @@ final class StorageDirectoryPolicies {
         StorageDirectoryPolicyResponse response=response(instance,record,null,references);response.setObservationstatus("APPLIED");return response;
     }
 
+    void validatePathPolicy(StorageServiceInstanceVO instance,JsonObject target) {
+        JsonObject c=target.getAsJsonObject("config"),intent=target.getAsJsonObject("intent");
+        JsonElement ref=intent.has("directorypolicyid")?intent.get("directorypolicyid"):c.get("directoryPolicyUuid");
+        if(ref==null)return;
+        StorageDirectoryPolicyVO p=require(instance,ref);VolumeVO v=volume(instance,p.getVolumeId());
+        if(!c.get("volumeMountPath").getAsString().equals("/srv/ablestack-storage/volumes/"+v.getUuid())
+                || !p.getCanonicalPath().equals(c.get("relativeSharePath").getAsString()))
+            throw new InvalidParameterValueException("DIRECTORY_POLICY_PATH_MISMATCH");
+    }
     void guardShare(StorageServiceInstanceVO instance,StorageFileShareVO candidate,Long selected,boolean posixSpecified) {
         List<StorageFileShareVO> peers=new ArrayList<>();
         for(StorageFileShareVO share:all(instance.getId()))
@@ -239,6 +248,8 @@ final class StorageDirectoryPolicies {
         if(selected!=null || previous!=null) {
             if(explicit==null || explicit.getRevision()<1 || explicit.getInstanceId()!=instance.getId()
                     || !Objects.equals(explicit.getVolumeId(),candidate.getVolumeId()))
+                throw new InvalidParameterValueException("DIRECTORY_POLICY_PATH_MISMATCH");
+            if(StorageFileSharePaths.bound(config) && !explicit.getCanonicalPath().equals(config.get("relativeSharePath").getAsString()))
                 throw new InvalidParameterValueException("DIRECTORY_POLICY_PATH_MISMATCH");
             VolumeVO backing=volume(instance,explicit.getVolumeId());
             JsonObject identity=parsed(explicit.getMetadataJson());

@@ -1,0 +1,22 @@
+{
+  "phase": "before deployment",
+  "guestRegression": {
+    "tests": 80,
+    "passed": 80
+  },
+  "managementRegression": {
+    "tests": 9,
+    "passed": 9,
+    "dao": "dedicated local MariaDB 127.0.0.1:13344, strict SQL mode; not cluster DB"
+  },
+  "uiPathsRegression": {
+    "tests": 7,
+    "passed": 7
+  },
+  "uiLint": "PASS",
+  "systemVmNativeChecks": 8,
+  "moduleBuild": "PASS",
+  "uiBuild": "in progress",
+  "apiUiClientAcceptance": "not started",
+  "issueMayClose": false
+}

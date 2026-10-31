@@ -1,6 +1,7 @@
 // Licensed to the Apache Software Foundation (ASF) under one or more
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
+import { fileSharePathParameters } from '@/utils/fileSharePaths'
 import { inheritanceIntent } from '@/utils/smbParentInheritance'
 import { smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 const kinds = {
@@ -56,6 +57,11 @@ export function configurationModalIntent (type, forms, context) {
   if (key === 'smbShare' && action !== 'delete') {
     const inheritance = inheritanceIntent(form)
     if (inheritance) result.smbinheritance = inheritance
+  }
+  if (['nfsExport', 'smbShare'].includes(key) && action !== 'delete') {
+    Object.assign(result, fileSharePathParameters(form, action === 'update'))
+    if (result.relativepath !== undefined) result.createdirectory = !!form.createdirectory
+    if (form.directorypolicyid) result.directorypolicyid = form.directorypolicyid
   }
   return result
 }
