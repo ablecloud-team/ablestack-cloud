@@ -1,0 +1,311 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - list:
+      - menuitem "cloud-server 가상머신":
+        - link "cloud-server 가상머신":
+          - /url: "#/vm"
+          - img "cloud-server":
+          - text: 가상머신
+      - menuitem "camera VM 스냅샷":
+        - link "camera VM 스냅샷":
+          - /url: "#/vmsnapshot"
+          - img "camera":
+          - text: VM 스냅샷
+      - menuitem "쿠버네티스":
+        - link "쿠버네티스":
+          - /url: "#/kubernetes"
+          - text: 쿠버네티스
+      - menuitem "fullscreen 오토스케일 VM 그룹":
+        - link "fullscreen 오토스케일 VM 그룹":
+          - /url: "#/autoscalevmgroup"
+          - img "fullscreen":
+          - text: 오토스케일 VM 그룹
+      - menuitem "gold 가상머신 그룹":
+        - link "gold 가상머신 그룹":
+          - /url: "#/vmgroup"
+          - img "gold":
+          - text: 가상머신 그룹
+      - menuitem "key SSH 키 쌍":
+        - link "key SSH 키 쌍":
+          - /url: "#/ssh"
+          - img "key":
+          - text: SSH 키 쌍
+      - menuitem "solution 사용자 데이터 라이브러리":
+        - link "solution 사용자 데이터 라이브러리":
+          - /url: "#/userdata"
+          - img "solution":
+          - text: 사용자 데이터 라이브러리
+      - menuitem "solution CNI 구성":
+        - link "solution CNI 구성":
+          - /url: "#/cniconfiguration"
+          - img "solution":
+          - text: CNI 구성
+      - menuitem "swap Affinity 그룹":
+        - link "swap Affinity 그룹":
+          - /url: "#/affinitygroup"
+          - img "swap":
+          - text: Affinity 그룹
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신":
+    - /url: "#/vm"
+  - text: /
+  - generic: epic1438-1453-r2-client-20261029-1
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/virtual_machines.html
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - button "down 작업":
+    - img "down":
+    - generic: 작업
+  - img "edit":
+  - heading "epic1438-1453-r2-client-20261029-1" [level=4]
+  - generic: i-2-190-VM
+  - generic: x86_64
+  - generic: KVM
+  - generic: HA 활성화
+  - button "code":
+    - img "code":
+  - separator
+  - generic: 상태
+  - generic: 실행 중
+  - generic: 아이디
+  - button "아이디 복사":
+    - img "barcode":
+  - link "aaa3c43c-4f32-48f2-bdd5-e3930f908a07":
+    - /url: javascript:;
+  - generic: IP
+  - img "environment":
+  - link "10.10.254.224":
+    - /url: javascript:;
+  - generic: 클라우드 · 주 IP
+  - generic: CPU
+  - text: 2 CPU x 2.00 GHz
+  - img "question-circle":
+  - generic: x86_64
+  - generic: 메모리
+  - text: 4096 MB 메모리
+  - generic: 네트워크
+  - img "wifi":
+  - generic: 1 NIC(s)
+  - strong: eth0
+  - link "10.10.254.224":
+    - /url: javascript:;
+  - generic: 기본
+  - img "apartment":
+  - link "L2-Network":
+    - /url: "#/guestnetwork/4d9047dc-c8b7-4c80-83bf-2c075adc2995"
+  - generic: 템플릿
+  - img "save":
+  - link "Rocky9":
+    - /url: "#/template/ad371aa1-504d-41ef-8de8-bc99eef9594c"
+  - generic: 컴퓨트 오퍼링
+  - img "cloud":
+  - link "epic1438-1441-fixed-20261021":
+    - /url: "#/computeoffering/de15d05b-32fb-48de-8aeb-b01b55e1594f"
+  - generic: 호스트
+  - img "desktop":
+  - link "ablecube13-1":
+    - /url: "#/host/9ac8f62b-38e6-4cef-aa6f-a04ebcb4f800"
+  - generic: Zone
+  - img "global":
+  - link "13-Zone":
+    - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+  - generic: 계정
+  - img "user":
+  - link "admin":
+    - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363"
+  - generic: 도메인
+  - img "block":
+  - link "ROOT":
+    - /url: "#/domain/47178e2f-bd56-11f1-b573-002481560363?tab=details"
+  - generic: 생성일
+  - img "calendar":
+  - text: 2026. 10. 30. 오전 12:05:53
+  - generic: 마지막 업데이트
+  - img "calendar":
+  - text: 2026. 10. 30. 오전 12:06:03
+  - separator
+  - strong: 태그
+  - button "reload 태그 새로고침":
+    - img "reload":
+    - generic: 태그 새로고침
+  - generic: 태그가 없습니다.
+  - button "plus 새 태그":
+    - img "plus":
+    - generic: 새 태그
+  - tablist:
+    - tab "상세" [selected]
+    - tab "IP 구성"
+    - tab "메트릭"
+    - tab "프로세스"
+    - tab "스케줄"
+    - tab "ISO"
+    - tab "볼륨"
+    - tab "NIC"
+    - tab "설정"
+    - tab "호스트 장치"
+    - tab "VM 스냅샷"
+    - tab "백업"
+    - tab "이벤트"
+    - tab "코멘트"
+  - tabpanel "상세":
+    - list:
+      - strong: VM 호스트 명
+      - generic: epic1438-1453-r2-client-20261029-1
+      - strong: VM 표시 명
+      - generic: epic1438-1453-r2-client-20261029-1
+      - strong: 에이전트 버전
+      - generic: 8.0.0
+      - strong: 아이디
+      - generic: aaa3c43c-4f32-48f2-bdd5-e3930f908a07
+      - strong: 상태
+      - generic: Running
+      - strong: IP 주소
+      - generic: 10.10.254.224
+      - strong: 템플릿
+      - generic: Rocky9
+      - strong: 템플릿 형식
+      - generic: USER
+      - strong: 컴퓨트 오퍼링
+      - generic: epic1438-1441-fixed-20261021
+      - strong: 동적으로 확장 가능
+      - generic: "false"
+      - strong: HA 활성화
+      - generic: "true"
+      - strong: 하이퍼바이저
+      - generic: KVM
+      - strong: CPU 아키텍처
+      - generic: x86_64
+      - strong: 계정
+      - generic: admin
+      - strong: 도메인
+      - generic: ROOT
+      - strong: Zone
+      - generic: 13-Zone
+      - strong: 제어 영역 상태
+      - generic: Enabled
+      - strong: VBMC 포트
+      - generic: 미할당
+      - strong: 삭제 보호
+      - generic: "false"
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (2건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":

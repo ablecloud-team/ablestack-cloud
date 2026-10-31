@@ -1,0 +1,142 @@
+{
+  "kind": "real SystemVM bind/two-port regression; not Mold UI acceptance",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "mounted SPARSE DATA identity",
+      "passed": true,
+      "volumeUuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs"
+    },
+    {
+      "name": "invalid path '/absolute'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path '../outside'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path 'a/../b'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path 'a//b'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path 'a/./b'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path 'a\\\\b'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path ''",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path '.'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "invalid path 'a\\ncontrol'",
+      "passed": true,
+      "code": "RELATIVE_PATH_INVALID"
+    },
+    {
+      "name": "missing path does not create by default",
+      "passed": true,
+      "code": "[Errno 2] No such file or directory"
+    },
+    {
+      "name": "symlink outside parent",
+      "passed": true,
+      "code": "[Errno 20] Not a directory"
+    },
+    {
+      "name": "same filesystem bind mount boundary",
+      "passed": true,
+      "code": "MOUNT_BOUNDARY"
+    },
+    {
+      "name": "mount ID guard catches what st_dev alone cannot",
+      "passed": true,
+      "sameDevice": true
+    },
+    {
+      "name": "foreign filesystem mount boundary",
+      "passed": true,
+      "code": "MOUNT_BOUNDARY"
+    },
+    {
+      "name": "parent child sibling NFS two ports and SMB read/write",
+      "passed": true,
+      "childInode": 8388757
+    },
+    {
+      "name": "parent delete strict descendant guard and existing per-volume detach references",
+      "passed": true,
+      "blockedChildren": [
+        "nfs-child",
+        "smb-child"
+      ],
+      "prefixBoundary": true
+    },
+    {
+      "name": "replaced pathname is rejected",
+      "passed": true,
+      "code": "[Errno 20] Not a directory"
+    },
+    {
+      "name": "pinned child does not follow post-activation pathname replacement",
+      "passed": true,
+      "rawPhysicalPath": {
+        "returncode": 0,
+        "marker": "outside-probe"
+      },
+      "pinnedMarker": "child-original",
+      "samePinnedInode": true
+    },
+    {
+      "name": "expected inode mismatch",
+      "passed": true,
+      "code": "PATH_IDENTITY_CHANGED"
+    },
+    {
+      "name": "private service restart and planned config rollback preserve non-target data",
+      "passed": true,
+      "restoredConfigs": true
+    },
+    {
+      "name": "removing child publication preserves child files and sibling publication",
+      "passed": true,
+      "filesPreserved": true
+    },
+    {
+      "name": "explicit creation and empty-only cleanup primitive",
+      "passed": true,
+      "createdInode": 25165967
+    },
+    {
+      "name": "explicit missing-parent chain and empty-only rollback preserves new client data",
+      "passed": true,
+      "createdCount": 2,
+      "retainedNonempty": 2,
+      "existingParentMetadataUnchanged": true
+    }
+  ],
+  "success": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true,
+  "productionFileCount": 14
+}
