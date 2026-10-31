@@ -96,7 +96,6 @@ import com.cloud.upgrade.dao.Upgrade42100to42200;
 import com.cloud.upgrade.dao.Upgrade42200to42210;
 import com.cloud.upgrade.dao.Upgrade42210to42300;
 import com.cloud.upgrade.dao.EuropaSecuritySchemaUpgrade;
-import com.cloud.upgrade.dao.ObjectStoreCredentialSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaComputeSchemaUpgrade;
 import com.cloud.upgrade.dao.EuropaStorageSchemaUpgrade;
@@ -657,7 +656,6 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
             }
             if ("Europa".equals(ablestackVersion)) {
                 EuropaSecuritySchemaUpgrade.migrate(conn);
-                ObjectStoreCredentialSchemaUpgrade.migrate(conn);
             }
             final String scriptFile = "META-INF/db/schema-" + ablestackVersion +"-After.sql";
             final InputStream script = Thread.currentThread().getContextClassLoader().getResourceAsStream(scriptFile);
