@@ -1,0 +1,55 @@
+{
+  "sourcePayloadSha256": "18e3a55ed84d0bfa6bc4b8c71a81727762c4eb45ec195eafdaf583138a0d23d0",
+  "files": [
+    {
+      "path": "ablestack-storage-boot-reconcile",
+      "sha256": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+      "mode": 493
+    },
+    {
+      "path": "ablestack-storage-monitor",
+      "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+      "mode": 493
+    },
+    {
+      "path": "ablestack-storagectl",
+      "sha256": "b5748ca166e302bb93e82d59040848532cc89fe3fd2642feb7b4ae40d1dbeafb",
+      "mode": 493
+    },
+    {
+      "path": "lib/ablestack-storage/configuration_preflight.py",
+      "sha256": "a829c0c1146ac75841fcf7ddd5c4adae2d5e2ba27ab0d85b3cfeaef03007f495",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/configuration_transaction.py",
+      "sha256": "b7551b3bcda6cd59f76ade7a013c353bf357886ea0404d600cc169eb2b73de8f",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/nvmeof_identity.py",
+      "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/session_auth.py",
+      "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/shared_directory_policy.py",
+      "sha256": "40b3238c01352ed8ad3a4025b60958f5ee711bfb3c81f2b1bab00be082212178",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/volume_identity.py",
+      "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "mode": 420
+    },
+    {
+      "path": "lib/ablestack-storage/volume_preparation.py",
+      "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+      "mode": 420
+    }
+  ]
+}

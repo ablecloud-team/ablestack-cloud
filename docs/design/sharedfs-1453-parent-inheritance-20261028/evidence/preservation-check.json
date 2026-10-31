@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "fieldsCompared": [
+    "root",
+    "seed",
+    "installedFiles",
+    "manifestSha256",
+    "profileSha256",
+    "protectionFiles",
+    "desiredHashes",
+    "ganeshaHashes",
+    "sambaConfigHash"
+  ],
+  "managedFileCount": 10,
+  "seedCount": 6
+}

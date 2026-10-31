@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "actualEntrypoint": "/opt/ablestack/storage-runtime/releases/epic1438-1453-inherit-58c615491bae-r2/ablestack-storagectl",
+  "releaseHasUpdater": false,
+  "originalCapabilityProtection": 0,
+  "candidateCapabilityProtection": 1,
+  "truePreflight": "READY",
+  "parent": {
+    "owneruid": 65534,
+    "ownergid": 65534,
+    "mode": "0775",
+    "inode": 8388736,
+    "filesystemuuid": "e6e5d2a7-1998-4cb4-b4cb-cafcf4ffd12b",
+    "volumeuuid": "c32a6e3e-ee08-4603-9fc6-501ba1dc51fa",
+    "canonicalpath": "export/common1453r2",
+    "fingerprint": "50d812cfc3fdab143a978cac2ec7d0089f7aacbc6e7f2a270ccc251e8a37f626"
+  },
+  "negativeGuards": [
+    "legacy",
+    "writable",
+    "missing"
+  ],
+  "configurationApplied": false,
+  "productionUnchanged": true,
+  "temporaryFilesRemoved": true
+}

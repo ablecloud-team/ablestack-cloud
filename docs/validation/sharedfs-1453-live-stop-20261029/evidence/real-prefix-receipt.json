@@ -1,0 +1,10 @@
+{
+  "readOnly": true,
+  "fullOperationReplayed": false,
+  "externalCommandsExecuted": false,
+  "errorType": "AttributeError",
+  "error": "'DirectoryPolicies' object has no attribute 'validate_inheritance_share'",
+  "bodyLine": 254,
+  "storagectlLine": 4972,
+  "configurationUnchanged": true
+}

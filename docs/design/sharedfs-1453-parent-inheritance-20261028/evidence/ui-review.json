@@ -1,0 +1,226 @@
+{
+  "layout": {
+    "darkBefore": [
+      {
+        "class": "ant-modal-header",
+        "clientHeight": 54,
+        "height": 55,
+        "overflow": "visible",
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "y": 33
+      },
+      {
+        "class": "ant-modal-body",
+        "clientHeight": 534,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 1239,
+        "scrollTop": 0,
+        "y": 88
+      },
+      {
+        "class": "ant-modal-footer",
+        "clientHeight": 64,
+        "height": 65,
+        "overflow": "visible",
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "y": 622
+      }
+    ],
+    "darkAfter": {
+      "parts": [
+        {
+          "class": "ant-modal-header",
+          "scrollTop": 0,
+          "y": 33
+        },
+        {
+          "class": "ant-modal-body",
+          "scrollTop": 705,
+          "y": 88
+        },
+        {
+          "class": "ant-modal-footer",
+          "scrollTop": 0,
+          "y": 622
+        }
+      ],
+      "primary": [
+        {
+          "bg": "rgb(9, 105, 218)",
+          "disabled": false,
+          "fg": "rgb(255, 255, 255)",
+          "gap": "8px"
+        }
+      ],
+      "secondary": [
+        {
+          "bg": "rgb(34, 40, 47)",
+          "fg": "rgb(197, 204, 212)"
+        },
+        {
+          "bg": "rgb(34, 40, 47)",
+          "fg": "rgb(197, 204, 212)"
+        }
+      ]
+    },
+    "light": {
+      "parts": [
+        {
+          "class": "ant-modal-header",
+          "height": 55,
+          "overflow": "visible",
+          "scrollTop": 0,
+          "y": 33
+        },
+        {
+          "class": "ant-modal-body",
+          "height": 534,
+          "overflow": "auto",
+          "scrollTop": 705,
+          "y": 88
+        },
+        {
+          "class": "ant-modal-footer",
+          "height": 65,
+          "overflow": "visible",
+          "scrollTop": 0,
+          "y": 622
+        }
+      ],
+      "primary": [
+        {
+          "bg": "rgb(9, 105, 218)",
+          "disabled": false,
+          "fg": "rgb(255, 255, 255)",
+          "gap": "8px"
+        }
+      ]
+    },
+    "setgidBefore": {
+      "footerY": 622,
+      "headerY": 33,
+      "text": "부모 GID 상속 설정볼륨 내 경로/export/team · SPARSE DATA현재 실제 부모UID 1001 · GID 2000 · mode 0770 · inode 8389001정책공통 POSIX · revision 4부모 GID 상속 (setgid)새 객체가 부모 GID를 상속변경 후 부모UID 1001 · GID 2000 · mode 2770 · inode 유지기존 파일·하위 디렉터리소유자·mode·ACL·데이터 변경 없음 · 재귀 적용 안 함새 객체부모의 현재 setgid 상태에 따라 GID 결정 · SMB UID 상속은 별도NFS 영향2049 · 2050 속성 갱신 · 연결 일시 중단 가능같은 실제 경로를 참조하는 공유이름프로토콜포트team-nfsNFS2049 · 2050team-smbSMB445부모 mode의 setgid 비트만 변경합니다.소유자·기본 rwx·그 외 특수 비트는 유지합니다. 해제해도 이미 만들어진 하위 디렉터리의 setgid 비트는 그대로입니다.취소사전 점검"
+    },
+    "unsupportedBlocked": true,
+    "unchangedDisabled": true,
+    "finalDark": {
+      "bodyOverflow": "auto",
+      "bodyScroll": 705,
+      "footerY": 622,
+      "formGap": [
+        "6px",
+        "6px",
+        "6px"
+      ],
+      "headerY": 33,
+      "primary": [
+        {
+          "bg": "rgb(9, 105, 218)",
+          "disabled": false,
+          "fg": "rgb(255, 255, 255)",
+          "gap": "8px"
+        }
+      ],
+      "secondary": [
+        {
+          "bg": "rgb(34, 40, 47)",
+          "fg": "rgb(197, 204, 212)"
+        },
+        {
+          "bg": "rgb(34, 40, 47)",
+          "fg": "rgb(197, 204, 212)"
+        }
+      ]
+    },
+    "contrast": {
+      "primary": 5.192060987927794,
+      "secondary": 9.176047597421213
+    }
+  },
+  "cases": [
+    {
+      "name": "B-smb-dialog-light",
+      "designBanner": true,
+      "blocked": false,
+      "dialogButtons": [
+        "",
+        "",
+        "",
+        "취소",
+        "사전 점검"
+      ]
+    },
+    {
+      "name": "B-conflict-dark",
+      "designBanner": true,
+      "blocked": true,
+      "buttons": [
+        "",
+        "",
+        "",
+        "취소",
+        "다시 편집",
+        "변경 적용"
+      ]
+    },
+    {
+      "name": "B-runtime-unsupported-dark",
+      "designBanner": true,
+      "blocked": true,
+      "buttons": [
+        "",
+        "",
+        "",
+        "취소",
+        "다시 편집",
+        "변경 적용"
+      ]
+    },
+    {
+      "name": "B-setgid-dialog-dark",
+      "designBanner": true,
+      "blocked": false,
+      "buttons": [
+        "",
+        "취소",
+        "사전 점검"
+      ]
+    },
+    {
+      "name": "B-setgid-preview-light",
+      "designBanner": true,
+      "blocked": false,
+      "buttons": [
+        "",
+        "취소",
+        "다시 편집",
+        "변경 적용"
+      ]
+    },
+    {
+      "name": "B-directory-dark",
+      "designBanner": true,
+      "blocked": false,
+      "buttons": []
+    },
+    {
+      "name": "B-list-light",
+      "designBanner": true,
+      "blocked": false,
+      "buttons": []
+    },
+    {
+      "name": "B-details-light",
+      "designBanner": true,
+      "blocked": false,
+      "buttons": []
+    }
+  ],
+  "previewAcknowledgementRequired": true,
+  "unsupportedBlocked": true,
+  "unchangedDisabled": true,
+  "actualApiConnected": false
+}

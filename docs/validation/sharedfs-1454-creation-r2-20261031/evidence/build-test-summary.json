@@ -1,0 +1,6 @@
+{
+  "unit.txt": "Ran 12 tests in 0.316s\nOK",
+  "related-guest.txt": "Ran 46 tests in 0.554s\nOK (skipped=2)",
+  "backend-tests.txt": "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.951 s - in org.apache.cloudstack.storage.dataservice.StorageSmbCreationPolicyTest\n[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0\n[INFO] BUILD SUCCESS\n[INFO] Finished at: 2026-10-31T19:09:33+09:00",
+  "module-build.txt": "[INFO] BUILD SUCCESS\n[INFO] Finished at: 2026-10-31T19:10:55+09:00"
+}

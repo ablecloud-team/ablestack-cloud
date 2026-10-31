@@ -1,0 +1,77 @@
+public void checkPrerequisites(com.cloud.dc.DataCenter, java.lang.Long);
+    Code:
+       0: aload_0
+       1: getfield      #107                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+       4: aload_2
+       5: invokeinterface #111,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      10: checkcast     #117                // class com/cloud/offering/ServiceOffering
+      13: astore_3
+      14: aload_3
+      15: ifnonnull     32
+      18: new           #342                // class com/cloud/exception/InvalidParameterValueException
+      21: dup
+      22: aload_2
+      23: invokedynamic #344,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/Long;)Ljava/lang/String;
+      28: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      31: athrow
+      32: aload_3
+      33: invokeinterface #349,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;
+      38: ifnonnull     52
+      41: new           #342                // class com/cloud/exception/InvalidParameterValueException
+      44: dup
+      45: ldc_w         #353                // String Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.
+      48: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      51: athrow
+      52: aload_3
+      53: invokeinterface #355,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;
+      58: ifnonnull     72
+      61: new           #342                // class com/cloud/exception/InvalidParameterValueException
+      64: dup
+      65: ldc_w         #358                // String Service offering must have a fixed RAM size for SharedFS VM. Custom RAM offerings are not supported.
+      68: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      71: athrow
+      72: aload_3
+      73: invokeinterface #349,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;
+      78: invokevirtual #360                // Method java/lang/Integer.intValue:()I
+      81: getstatic     #365                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;
+      84: aload_1
+      85: invokeinterface #370,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+      90: invokestatic  #322                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      93: invokevirtual #195                // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+      96: checkcast     #361                // class java/lang/Integer
+      99: invokevirtual #360                // Method java/lang/Integer.intValue:()I
+     102: if_icmpge     124
+     105: new           #342                // class com/cloud/exception/InvalidParameterValueException
+     108: dup
+     109: getstatic     #365                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;
+     112: invokevirtual #371                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;
+     115: invokedynamic #374,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+     120: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+     123: athrow
+     124: aload_3
+     125: invokeinterface #355,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;
+     130: invokevirtual #360                // Method java/lang/Integer.intValue:()I
+     133: getstatic     #376                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+     136: aload_1
+     137: invokeinterface #370,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+     142: invokestatic  #322                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     145: invokevirtual #195                // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+     148: checkcast     #361                // class java/lang/Integer
+     151: invokevirtual #360                // Method java/lang/Integer.intValue:()I
+     154: if_icmpge     176
+     157: new           #342                // class com/cloud/exception/InvalidParameterValueException
+     160: dup
+     161: getstatic     #376                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+     164: invokevirtual #371                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;
+     167: invokedynamic #379,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+     172: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+     175: athrow
+     176: aload_3
+     177: invokeinterface #380,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.isOfferHA:()Z
+     182: ifne          196
+     185: new           #342                // class com/cloud/exception/InvalidParameterValueException
+     188: dup
+     189: ldc_w         #383                // String Service offering\'s should be HA enabled
+     192: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+     195: athrow
+     196: return

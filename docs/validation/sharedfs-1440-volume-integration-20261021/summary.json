@@ -1,0 +1,132 @@
+{
+  "backend": {
+    "suites": [
+      {
+        "suite": "com.cloud.storage.VolumeAllocationLifecycleTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.storage.VolumeAllocationPolicyTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.storage.VolumeApiServiceImplTest",
+        "tests": 159,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.storage.VolumeAllocationMutationTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.cloud.storage.VolumeApiServiceImplUpdateTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.datastore.driver.CloudStackPrimaryDataStoreResizeResponseTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.datastore.driver.AblestackPrimaryDataStoreResizeResponseTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "total": {
+      "tests": 231,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "clean_reactor_modules": 37,
+    "result": "success"
+  },
+  "ui": {
+    "suites": 11,
+    "tests": 197,
+    "failures": 0,
+    "result": "success"
+  },
+  "date_kst": "2026-10-21",
+  "integration": {
+    "started_at_utc": "2026-10-21T07:56:53.800418+00:00",
+    "pre_head": "dc81fc2ecc82fc37fddafa121ca1aefcfc1616e9",
+    "base": "0e6b5093d51079f0cfd9bfc88b6e37a795be55a3",
+    "published_sharedfs_head": "5a819eab8597ab843de55dd8ab7402d172cfb0dc",
+    "volume_head": "ba4cfd1d52979f487959786f6b40b364ad11b359",
+    "published_lineage_merge": "80a112a4e7f3f9fe37c22ae0085380cf299bda95",
+    "integration_merge": "0dea71588808cfb434b9f0cc73a5a22460e09877",
+    "merge_parents": [
+      "80a112a4e7f3f9fe37c22ae0085380cf299bda95",
+      "ba4cfd1d52979f487959786f6b40b364ad11b359"
+    ],
+    "integrated_at_utc": "2026-10-21T08:07:45.639056+00:00",
+    "push_mode": "normal fast-forward; no force"
+  },
+  "source_integrity": {
+    "incoming_volume_commit": "ba4cfd1d52979f487959786f6b40b364ad11b359",
+    "staged_tree": "fb26fdfc59c3068960c45c2ec1c8abda39d003cc",
+    "production_differences_from_volume_epic": [
+      "ui/public/locales/en.json",
+      "ui/public/locales/ko_KR.json",
+      "ui/src/api/index.js",
+      "ui/src/utils/listRefreshMixin.js",
+      "ui/src/views/storage/SharedFSTab.vue",
+      "ui/tests/unit/views/storage/SharedFSRead.spec.js"
+    ],
+    "sharedfs_nonlocale_files_byte_identical": true,
+    "locale_keys": {
+      "sharedfs_per_locale": 7,
+      "incoming_volume_additions_per_locale": 126
+    },
+    "unresolved_conflicts": "",
+    "production_whitespace_check": 0
+  },
+  "ui_production_build": {
+    "result": "success",
+    "source_config_restored": true,
+    "deployed": false,
+    "release_build": false
+  },
+  "cluster13": {
+    "deployed": false,
+    "resource_mutations": false,
+    "actual_ui_acceptance": false
+  },
+  "issue1440": {
+    "state": "open",
+    "closure_verdict": "keep open pending cluster13 acceptance"
+  },
+  "ui_paths": [
+    "tests/unit/views/storage/UpdateVolume.spec.js",
+    "tests/unit/views/storage/ResizeVolume.spec.js",
+    "tests/unit/views/storage/VolumeOperationDialogs.spec.js",
+    "tests/unit/views/storage/OfferingPerformance.spec.js",
+    "tests/unit/components/view/AllocationPolicy.spec.js",
+    "tests/unit/utils/volumeAllocation.spec.js",
+    "tests/unit/views/compute/DiskOfferingAllocationTable.spec.js",
+    "tests/unit/views/storage/SharedFSRead.spec.js",
+    "tests/unit/views/storage/SharedFSTab.spec.js",
+    "tests/unit/views/storage/CreateSharedFS.spec.js",
+    "tests/unit/views/storage/SharedFSLocale.spec.js"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "flatClientAliasEnforced": true,
+  "currentBuilderDropsRelativePath": true,
+  "currentReuseBackingPath": "/srv/ablestack-storage/volumes/volume-example/export/team-a",
+  "currentNormalizerAcceptsLeadingSlash": "projects/team-a",
+  "existingVolumeReferenceGuardBlocksBoth": true,
+  "currentCandidateDoesNotCheckPhysicalChildren": true
+}

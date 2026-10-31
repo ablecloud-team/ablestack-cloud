@@ -1,0 +1,44 @@
+{
+  "experiments": {
+    "isolated": true,
+    "version": "Version 4.17.12-Debian",
+    "deployedRendererSha256": "124fa49dc915a08e5b0d7207d1d45d2613fae346c389d802463675e1cb20a614",
+    "reloadNewIpListens": false,
+    "reloadOldAuthenticatedSessionPreserved": true,
+    "currentRendererCartesianBindings": {
+      "10.144.9.2:14446": true,
+      "10.144.9.2:14447": true,
+      "10.144.9.3:14446": true,
+      "10.144.9.3:14447": true
+    },
+    "sharedLockStatePrivateDbProfilesAuthenticated": true,
+    "profileIncludesSharedExistingFormatBase": true,
+    "oldSessionPreservedAfterAddingProfile": true,
+    "profileOneOwnsExactSocket": true,
+    "profileTwoOwnsExactSocket": true,
+    "bindFailureDetectedBySocketOwnership": true,
+    "failedCandidateMayRemainRunning": false,
+    "healthyProfilesAndAuthenticatedSessionPreservedOnFailure": true,
+    "removeOneProfilePreservesOtherAuthenticatedSession": true,
+    "nonRequestedEndpointNotBound": true,
+    "ok": true
+  },
+  "protectedFilesUnchanged": true,
+  "protectedPaths": [
+    "/etc/passwd",
+    "/etc/group",
+    "/etc/shadow",
+    "/etc/gshadow",
+    "/etc/samba/smb.conf",
+    "/usr/local/bin/ablestack-storagectl",
+    "/var/lib/samba/private/passdb.tdb"
+  ],
+  "liveSmbPids": [
+    "1947"
+  ],
+  "noPrivateTestAddressInLiveNamespace": true,
+  "noPrivateTestPortsInLiveNamespace": true,
+  "nfsMarkerSha256": "dc404a613fedaeb54034514bc6505f56b933caa5250299ba7d094377a51caa46",
+  "newVirtualDisksCreated": 0,
+  "fixtureRemoved": true
+}

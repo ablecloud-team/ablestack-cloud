@@ -1,0 +1,39 @@
+{
+  "dialogClass": "ant-modal-wrap vm-volume-modal ant-modal-centered",
+  "nodes": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "h": 55,
+      "overflowY": "visible",
+      "padding": "16px 24px",
+      "selector": ".ant-modal-header",
+      "w": 520,
+      "x": 375,
+      "y": 73
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "h": 466,
+      "overflowY": "auto",
+      "padding": "24px",
+      "selector": ".ant-modal-body",
+      "w": 520,
+      "x": 375,
+      "y": 128
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "h": 53,
+      "overflowY": "visible",
+      "padding": "10px 16px",
+      "selector": ".ant-modal-footer",
+      "w": 520,
+      "x": 375,
+      "y": 594
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}

@@ -1,0 +1,11 @@
+{
+  "sourceHead": "a8922d9cb08cd2526eb5272e79083587605da536",
+  "localBase": "b71bb69f28cc53342c55e656742c27d9c6f8f8a5",
+  "baseDelta": "0\t0",
+  "source": {
+    "ui/src/views/storage/SharedFSTab.vue": "8b80d9d20ba6d022b813b60c43fad15e23777170ba6f7473c3a6032474ab59b0",
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": "011f92122503f843914fe82b76fc9a5ad3d905566129cca41d5144a1606f7856",
+    "systemvm/debian/usr/local/lib/ablestack-storage/configuration_transaction.py": "6f7efc80740dc7e311d7c5ef3f96fb9ebe3d1a27bfcbad8dabfdbd444bd0603a",
+    "server/target/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "3852e215b510578bb26ba7380ffa79915c7b63aa8b2253d36aa8c544452ea44e"
+  }
+}

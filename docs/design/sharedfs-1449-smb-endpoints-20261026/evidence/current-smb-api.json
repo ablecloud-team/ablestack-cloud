@@ -1,0 +1,24 @@
+[
+  {
+    "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+    "instanceid": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+    "protocol": "SMB",
+    "enabled": true,
+    "listenip": "10.10.13.235",
+    "port": 445,
+    "state": "Ready",
+    "listenertype": "DEDICATED",
+    "primaryip": "10.10.13.233",
+    "runtimeprimaryip": "10.10.13.233",
+    "identitystatus": "CONSISTENT",
+    "effectiveendpoints": [
+      {
+        "ipaddress": "10.10.13.235",
+        "port": 445,
+        "role": "DEDICATED"
+      }
+    ],
+    "runtimestate": "READY",
+    "linkedresourcecount": 0
+  }
+]

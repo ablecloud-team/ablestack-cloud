@@ -1,0 +1,275 @@
+{
+  "pretest": "actual active 10TiB XFS VM, memory sketch only",
+  "time": 1792725517.9035983,
+  "sourceSha": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+  "before": {
+    "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+    "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+    "formatCount": 1,
+    "formatStartedAt": 1792724392.235266
+  },
+  "old": {
+    "exception": "TimeoutExpired",
+    "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+    "elapsed": 8.317514186999915,
+    "calls": [
+      {
+        "argv": [
+          "lsblk",
+          "-b",
+          "-J",
+          "-o",
+          "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+        ],
+        "elapsed": 0.003504271999872799
+      },
+      {
+        "argv": [
+          "findmnt",
+          "-n",
+          "-o",
+          "SOURCE",
+          "--mountpoint",
+          "/srv/ablestack-storage/volumes/09f6122a-3225-406e-8de1-66bcaff79707"
+        ],
+        "elapsed": 0.0012760859999616514
+      },
+      {
+        "argv": [
+          "blkid",
+          "-p",
+          "-o",
+          "export",
+          "/dev/sdb"
+        ],
+        "elapsed": 8.312283694000143
+      }
+    ]
+  },
+  "candidate": [
+    {
+      "elapsed": 0.06122222299995883,
+      "state": {
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "createdAt": 1792724392.0718033,
+        "deadlineAt": 1792726312.235266,
+        "errorCode": null,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792725514.149908,
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "reason": null,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "canResume": false,
+        "blockedReason": "WORKER_RUNNING",
+        "observationAvailable": true,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "lastObservedAt": 1792725517.8732934
+      },
+      "calls": [
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.0049515779999183
+        },
+        {
+          "argv": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,SERIAL,SIZE,MOUNTPOINT"
+          ],
+          "elapsed": 0.003118751999863889
+        },
+        {
+          "argv": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/09f6122a-3225-406e-8de1-66bcaff79707"
+          ],
+          "elapsed": 0.001297986999816203
+        },
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.05083715299997493
+        }
+      ]
+    },
+    {
+      "elapsed": 0.012749454999948284,
+      "state": {
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "createdAt": 1792724392.0718033,
+        "deadlineAt": 1792726312.235266,
+        "errorCode": null,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792725514.149908,
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "reason": null,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "canResume": false,
+        "blockedReason": "WORKER_RUNNING",
+        "observationAvailable": true,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "lastObservedAt": 1792725517.8860514
+      },
+      "calls": [
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.004377247000093121
+        },
+        {
+          "argv": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,SERIAL,SIZE,MOUNTPOINT"
+          ],
+          "elapsed": 0.0025796920001539547
+        },
+        {
+          "argv": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/09f6122a-3225-406e-8de1-66bcaff79707"
+          ],
+          "elapsed": 0.0012182409998331423
+        },
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.0038679210001646425
+        }
+      ]
+    },
+    {
+      "elapsed": 0.01148055600015141,
+      "state": {
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "createdAt": 1792724392.0718033,
+        "deadlineAt": 1792726312.235266,
+        "errorCode": null,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792725514.149908,
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "reason": null,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "canResume": false,
+        "blockedReason": "WORKER_RUNNING",
+        "observationAvailable": true,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "lastObservedAt": 1792725517.897536
+      },
+      "calls": [
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.0036813069998515857
+        },
+        {
+          "argv": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,SERIAL,SIZE,MOUNTPOINT"
+          ],
+          "elapsed": 0.002437329999793292
+        },
+        {
+          "argv": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/09f6122a-3225-406e-8de1-66bcaff79707"
+          ],
+          "elapsed": 0.0011272619999544986
+        },
+        {
+          "argv": [
+            "systemctl",
+            "is-active",
+            "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service"
+          ],
+          "elapsed": 0.003670352000199273
+        }
+      ]
+    }
+  ],
+  "negative": {
+    "wrong-root": {
+      "type": "PreparationError",
+      "code": "ROOT_IDENTITY_CHANGED",
+      "reason": "SharedFS ROOT disk identity changed"
+    },
+    "wrong-data": {
+      "type": "VolumeIdentityError",
+      "code": null,
+      "reason": "Unable to identify the exact attached Storage Service volume device for 00000000-0000-4000-8000-000000000001"
+    }
+  },
+  "after": {
+    "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+    "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+    "formatCount": 1,
+    "formatStartedAt": 1792724392.235266
+  },
+  "productFileUnchanged": true,
+  "journalIntentUnchanged": true
+}

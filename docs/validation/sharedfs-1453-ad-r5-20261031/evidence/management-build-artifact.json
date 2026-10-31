@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "7970009e5535168e371b2eaa14ac1e18b2c4d0fd",
+  "managementPath": "/root/work/ablestack-cloud/client/target/cloud-client-ui-4.23.0.0.jar",
+  "managementBytes": 152418720,
+  "managementSha256": "b17ed65a6728cbe3719ad89d3fcb126384c14d94d260330df0a870e9019fac31",
+  "uiChanged": false,
+  "uiIndexSha256": "c37069d7fdd460ae2719ec49a549a35094f20fcc6f618eaf2f9120b25a176a48",
+  "baselineProfile": "576128350f3dca53f97a94de8f650b1bd3a58a18bf44d50a232181225e9dfff6"
+}

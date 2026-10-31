@@ -1,0 +1,48 @@
+{
+  "bootId": "f958c88e-2da3-43d5-bb21-ecd999470489",
+  "uptimeSeconds": 1125.56,
+  "applied": {
+    "appliedAt": 1792948659.4329913,
+    "defaultRoute": {
+      "dev": "eth0",
+      "gateway": "10.10.13.1",
+      "metric": 100
+    },
+    "dns": [
+      "8.8.8.8"
+    ],
+    "interface": "eth0",
+    "macAddress": "02:0d:00:cc:00:52",
+    "primary": {
+      "address": "10.10.13.250",
+      "prefixlen": 16
+    },
+    "schemaVersion": 1
+  },
+  "runtimeVersion": "epic1438-1448-network-7a9630a08a2",
+  "units": {
+    "exit": 0,
+    "output": "Result=success\nId=ablestack-sharedfs-network.service\nActiveState=active\nSubState=exited\n\nResult=success\nId=ablestack-storage-reconcile.service\nActiveState=inactive\nSubState=dead\n\nResult=success\nId=cloud-early-config.service\nActiveState=active\nSubState=exited\n\nResult=exit-code\nId=networking.service\nActiveState=failed\nSubState=failed\n",
+    "error": ""
+  },
+  "addresses": {
+    "exit": 0,
+    "output": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"altnames\":[\"enp0s3\",\"ens3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.10.13.250\",\"prefixlen\":16,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "error": ""
+  },
+  "routes": {
+    "exit": 0,
+    "output": "[{\"dst\":\"default\",\"gateway\":\"10.10.13.1\",\"dev\":\"eth0\",\"metric\":100,\"flags\":[]},{\"dst\":\"10.10.0.0/16\",\"dev\":\"eth0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"10.10.13.250\",\"flags\":[]}]\n",
+    "error": ""
+  },
+  "listeners": {
+    "exit": 0,
+    "output": "LISTEN 0      50          0.0.0.0:445  0.0.0.0:*\nLISTEN 0      65535       0.0.0.0:111  0.0.0.0:*\nLISTEN 0      128         0.0.0.0:22   0.0.0.0:*\nLISTEN 0      128    10.10.13.250:4420 0.0.0.0:*\nLISTEN 0      256    10.10.13.250:3260 0.0.0.0:*\nLISTEN 0      50             [::]:445     [::]:*\nLISTEN 0      65535          [::]:111     [::]:*\nLISTEN 0      4096              *:2049       *:*\nLISTEN 0      128            [::]:22      [::]:*\n",
+    "error": ""
+  },
+  "controlHashes": {
+    "/usr/local/sbin/ablestack-sharedfs-network": "e426fa2c27aa425d710dc62746e046cda3c7844991b50f3eff8743f6648ee091",
+    "/opt/cloud/bin/setup/sharedfsvm.sh": "857d461373b84485a39424ed7a83347d5daea41a32f7ab02a7719237702f7523",
+    "/etc/systemd/system/ablestack-storage-reconcile.service": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331"
+  }
+}

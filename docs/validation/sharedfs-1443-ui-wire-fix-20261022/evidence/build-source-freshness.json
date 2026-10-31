@@ -1,0 +1,20 @@
+{
+  "buildProcessStartEpoch": 1792651855.7,
+  "files": [
+    {
+      "path": "ui/src/utils/sharedFsPreparation.js",
+      "modifiedEpoch": 1792651714.7693918,
+      "beforeBuild": true
+    },
+    {
+      "path": "ui/src/views/storage/CreateSharedFS.vue",
+      "modifiedEpoch": 1792651847.2819176,
+      "beforeBuild": true
+    },
+    {
+      "path": "ui/src/views/storage/SharedFSPreparationPanel.vue",
+      "modifiedEpoch": 1792651714.7775927,
+      "beforeBuild": true
+    }
+  ]
+}

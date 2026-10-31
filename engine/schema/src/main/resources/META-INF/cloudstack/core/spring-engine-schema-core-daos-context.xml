@@ -329,11 +329,13 @@
   <bean id="apiKeyPairPermissionsDaoImpl" class="org.apache.cloudstack.acl.dao.ApiKeyPairPermissionsDaoImpl" />
   <bean id="StorageServiceInstanceDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDaoImpl" />
   <bean id="StorageServiceProtocolDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDaoImpl" />
+  <bean id="StorageDirectoryPolicyDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDaoImpl" />
   <bean id="StorageFileShareDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDaoImpl" />
   <bean id="StorageBlockTargetDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDaoImpl" />
   <bean id="StorageAccessRuleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl" />
   <bean id="StorageIdentityDomainDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageIdentityDomainDaoImpl" />
   <bean id="StorageServiceRuntimeBundleDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDaoImpl" />
+  <bean id="StorageServiceConfigurationOperationDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceConfigurationOperationDaoImpl" />
   <bean id="StorageServiceRuntimeUpgradeDaoImpl" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDaoImpl" />
   <bean id="kmsKeyDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKeyDaoImpl" />
   <bean id="kmsKekVersionDaoImpl" class="org.apache.cloudstack.kms.dao.KMSKekVersionDaoImpl" />
@@ -347,4 +349,6 @@
   <bean id="dnsNicJoinDao" class="org.apache.cloudstack.dns.dao.NicDnsJoinDaoImpl" />
   <bean id="dnsServerDetailsDao" class="org.apache.cloudstack.dns.dao.DnsServerDetailsDaoImpl" />
 
+    <bean id="storageServiceRuntimeBundleValidationDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleValidationDaoImpl" />
+    <bean id="storageServiceRuntimeBundleEventDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleEventDaoImpl" />
 </beans>

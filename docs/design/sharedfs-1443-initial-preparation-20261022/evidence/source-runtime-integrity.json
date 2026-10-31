@@ -1,0 +1,171 @@
+{
+  "head": "cd63783aa25919a4b9340d37a6f3438d7f1585cf",
+  "base": "0e6b5093d51079f0cfd9bfc88b6e37a795be55a3",
+  "sources": {
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": {
+      "sha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+      "locations": {
+        "volume_attach_inspect()": [
+          2663
+        ],
+        "def run(args):": [
+          201,
+          382,
+          886,
+          2682,
+          2973,
+          3212
+        ],
+        "def format_empty_device():": [
+          2860
+        ],
+        "volume attach inspect": [
+          6527
+        ]
+      }
+    },
+    "systemvm/debian/usr/local/lib/ablestack-storage/volume_identity.py": {
+      "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "locations": {
+        "def resolve_volume_device": [
+          147
+        ],
+        "if allow_blank_size_fallback": [
+          184
+        ]
+      }
+    },
+    "server/src/main/java/org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.java": {
+      "sha256": "694bfc3ff12e3dd6d220dc9de89418a2d44582420c1115989612584aba3deef3",
+      "locations": {
+        "protected SharedFS continueCreation": [
+          664
+        ],
+        "if (!c.existing)": [
+          724
+        ],
+        "saveCreation(fs, c, \"READY\")": [
+          766
+        ],
+        "if (e instanceof OperationTimedoutException": [
+          772
+        ]
+      }
+    },
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": {
+      "sha256": "381709cd24bf3519b0576c0b61e6ab246fbf914cc79c21ad262d70971c238780",
+      "locations": {
+        "protected void prepareFileShareBackingVolume": [
+          1458
+        ],
+        "protected void inspectAttachedFileShareVolume": [
+          2852
+        ],
+        "protected void cleanupFailedFileShareCreate": [
+          1505
+        ]
+      }
+    },
+    "ui/src/views/storage/CreateSharedFS.vue": {
+      "sha256": "8ce67dc1036222ea2aafe90cf09b2adbfba5fbe4e05e7ee0ef5d4c1936b12ba6",
+      "locations": {
+        "async continuePendingCreation": [
+          1820
+        ],
+        "async runInitialStorageServiceSetup": [
+          2145
+        ],
+        "async pollStorageServiceSetupJob": [
+          2502
+        ],
+        "async observeInitialFileShare": [
+          1881
+        ]
+      }
+    },
+    "ui/src/views/storage/SharedFSTab.vue": {
+      "sha256": "067c250e0895d1195d4ef2b315420377e5340a091800e6ad8e8ea0a3e5129ab7",
+      "locations": {
+        "nfsExportImportMode": [
+          6669,
+          7451,
+          7551
+        ],
+        "smbShareImportMode": [
+          6679,
+          7673,
+          7692
+        ]
+      }
+    },
+    "api/src/main/java/org/apache/cloudstack/storage/sharedfs/SharedFSCreationContext.java": {
+      "sha256": "3292cd1454b7ae53e75dfd55fa9096acba1e2836c59bae145ce6652ec13844d4",
+      "locations": {
+        "public static final int MAX_JSON_BYTES": [
+          31
+        ],
+        "public String phase": [
+          62
+        ]
+      }
+    },
+    "api/src/main/java/com/cloud/agent/api/StorageServiceHostCommand.java": {
+      "sha256": "000ede0a2b7f70f7cc51cb2e711830fcf0c33ff5c30c5e8a71a78bd0cecb569e",
+      "locations": {
+        "setWait(timeoutSeconds)": [
+          39
+        ],
+        "boolean executeInSequence": [
+          72
+        ]
+      }
+    },
+    "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.java": {
+      "sha256": "0e1e61c5a205779f8441bd62732da4476b3aea055812d425c3f2ad4bbf1bddaa",
+      "locations": {
+        "waitForGuestCommand": [
+          124,
+          153
+        ],
+        "protected void validateOperation": [
+          228
+        ]
+      }
+    },
+    "ui/src/components/view/MoldDialog.vue": {
+      "sha256": "8e928766e126d2c3c9098caeec020696c63dd7e52f330dbf2e2eec4c777c962f",
+      "locations": {
+        "<a-modal": [
+          11
+        ],
+        "dialogWidth": [
+          20,
+          34
+        ]
+      }
+    }
+  },
+  "classes": {
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl": {
+      "installedJarMatchedBySha256": true,
+      "classSha256": "ca20acae18ebc516c75c22843eff483a20518e77df48c0782e0f2ee0eb280028",
+      "matchesCurrentCompiledClass": true
+    },
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl": {
+      "installedJarMatchedBySha256": true,
+      "classSha256": "b5b2dd4da77a31da66cb970754058d41c61467317cff54351a21e41e8256346c",
+      "matchesCurrentCompiledClass": true
+    },
+    "org/apache/cloudstack/api/response/SharedFSResponse": {
+      "installedJarMatchedBySha256": true,
+      "classSha256": "6809af408c547386108c98f427c01852a8087fb120559f625142f95681ff1f34",
+      "matchesCurrentCompiledClass": true
+    },
+    "com/cloud/agent/api/StorageServiceHostCommand": {
+      "installedJarMatchedBySha256": true,
+      "classSha256": "d26c142ed8231ac591ed1cedb9bc01ef428c9f6d94224246c8f8ceb217781e78",
+      "matchesCurrentCompiledClass": true
+    }
+  },
+  "deployedGuestSectionByteIdentical": true
+}

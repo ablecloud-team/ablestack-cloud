@@ -1,0 +1,2669 @@
+[
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:11:03Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:11:03Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3774496768,
+          "requiredbytes": 218276432
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2480685056,
+          "requiredbytes": 83929236,
+          "readonly": false,
+          "freeinodes": 229975
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "enableStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.181",
+    "port": "1445",
+    "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+    "http": 200,
+    "jobid": "9a47f17e-00e8-4653-b23a-8fab20b30946"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+    "http": 200,
+    "operations": [
+      {
+        "id": "cbd271ce-8d67-40c2-8f21-608facfe48c2",
+        "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a47f17e-00e8-4653-b23a-8fab20b30946",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+    "http": 200,
+    "operations": [
+      {
+        "id": "cbd271ce-8d67-40c2-8f21-608facfe48c2",
+        "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a47f17e-00e8-4653-b23a-8fab20b30946",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+    "http": 200,
+    "operations": [
+      {
+        "id": "cbd271ce-8d67-40c2-8f21-608facfe48c2",
+        "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+        "resourceid": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "state": "RUNNING",
+        "phase": "COMMITTING",
+        "canresume": true,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a47f17e-00e8-4653-b23a-8fab20b30946",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+    "http": 200,
+    "operations": [
+      {
+        "id": "cbd271ce-8d67-40c2-8f21-608facfe48c2",
+        "requestid": "eea7b9fd-8b5e-4e19-8ac5-c3769869f254",
+        "resourceid": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "state": "COMMITTED",
+        "phase": "COMPLETED",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:13:02Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:13:02Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:13:56Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:13:56Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:15:11Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:15:11Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:17:31Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:17:31Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3773997056,
+          "requiredbytes": 218276432
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2480443392,
+          "requiredbytes": 83929236,
+          "readonly": false,
+          "freeinodes": 229968
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "enableStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.182",
+    "port": "1446",
+    "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+    "http": 200,
+    "jobid": "28c2daa0-fb09-4a9b-a067-944e2fb42cfa"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+    "http": 200,
+    "operations": [
+      {
+        "id": "f66e1552-7261-4ed2-85a4-8747ef1c3866",
+        "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "28c2daa0-fb09-4a9b-a067-944e2fb42cfa",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+    "http": 200,
+    "operations": [
+      {
+        "id": "f66e1552-7261-4ed2-85a4-8747ef1c3866",
+        "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "28c2daa0-fb09-4a9b-a067-944e2fb42cfa",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+    "http": 200,
+    "operations": [
+      {
+        "id": "f66e1552-7261-4ed2-85a4-8747ef1c3866",
+        "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+        "resourceid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "state": "RUNNING",
+        "phase": "COMMITTING",
+        "canresume": true,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "28c2daa0-fb09-4a9b-a067-944e2fb42cfa",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+    "http": 200,
+    "operations": [
+      {
+        "id": "f66e1552-7261-4ed2-85a4-8747ef1c3866",
+        "requestid": "45ff9e84-33a4-42db-88e3-8f1d242dd0cc",
+        "resourceid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "state": "COMMITTED",
+        "phase": "COMPLETED",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.182",
+        "port": 1446,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.182",
+        "port": 1446,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:19:30Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:20:45Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:20:45Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.182",
+        "port": 1446,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:20:45Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:21:50Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:21:50Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.182",
+        "port": 1446,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:21:50Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3769872384,
+          "requiredbytes": 218287024
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2480267264,
+          "requiredbytes": 83931884,
+          "readonly": false,
+          "freeinodes": 229958
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "enableStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.183",
+    "port": "1447",
+    "endpointid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+    "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+    "http": 200,
+    "jobid": "94f0b420-7d1c-43c0-9f3e-434eb3d4b9f0"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+    "http": 200,
+    "operations": [
+      {
+        "id": "be2bb38b-2c2b-4df1-92b6-a460622b50ae",
+        "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "94f0b420-7d1c-43c0-9f3e-434eb3d4b9f0",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+    "http": 200,
+    "operations": [
+      {
+        "id": "be2bb38b-2c2b-4df1-92b6-a460622b50ae",
+        "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "94f0b420-7d1c-43c0-9f3e-434eb3d4b9f0",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+    "http": 200,
+    "operations": [
+      {
+        "id": "be2bb38b-2c2b-4df1-92b6-a460622b50ae",
+        "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+        "resourceid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "state": "RUNNING",
+        "phase": "COMMITTING",
+        "canresume": true,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "94f0b420-7d1c-43c0-9f3e-434eb3d4b9f0",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+    "http": 200,
+    "operations": [
+      {
+        "id": "be2bb38b-2c2b-4df1-92b6-a460622b50ae",
+        "requestid": "6e8704ac-0bf9-4df7-9288-f82771f7e175",
+        "resourceid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "state": "COMMITTED",
+        "phase": "COMPLETED",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "PENDING",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:44Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "PENDING",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:44Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "PENDING",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:44Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:55Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:55Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:22:55Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:24:11Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:24:11Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:24:11Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:25:15Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:25:15Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:25:15Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "BLOCKED",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3769421824,
+          "requiredbytes": 218291424
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2480078848,
+          "requiredbytes": 83932984,
+          "readonly": false,
+          "freeinodes": 229951
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        },
+        {
+          "code": "SMB_ENDPOINT_TUPLE_IN_USE",
+          "blocking": true,
+          "severity": "ERROR"
+        }
+      ]
+    }
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3769380864,
+          "requiredbytes": 218291424
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2480054272,
+          "requiredbytes": 83932984,
+          "readonly": false,
+          "freeinodes": 229951
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "enableStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.183",
+    "port": "22",
+    "endpointid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+    "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+    "http": 200,
+    "jobid": "3d81246e-e650-4dbf-9a4a-a638426068e2"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+    "http": 200,
+    "operations": [
+      {
+        "id": "7d684f62-601d-4d3f-b418-e22edd7f2d21",
+        "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "3d81246e-e650-4dbf-9a4a-a638426068e2",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+    "http": 200,
+    "operations": [
+      {
+        "id": "7d684f62-601d-4d3f-b418-e22edd7f2d21",
+        "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "3d81246e-e650-4dbf-9a4a-a638426068e2",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+    "http": 200,
+    "operations": [
+      {
+        "id": "7d684f62-601d-4d3f-b418-e22edd7f2d21",
+        "requestid": "afdbbb4e-fc1c-4de0-89b6-2b4a283ed4a9",
+        "resourceid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "state": "RUNNING",
+        "phase": "COMPLETED",
+        "canresume": true,
+        "originalfailure": {
+          "code": "PROTOCOL_APPLY_FAILED",
+          "phase": "APPLYING",
+          "type": "Rejected"
+        },
+        "rollback": {
+          "state": "SUCCEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "3d81246e-e650-4dbf-9a4a-a638426068e2",
+    "jobstatus": 2
+  },
+  {
+    "requestId": "48496.14300",
+    "command": "rebootVirtualMachine",
+    "id": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+    "forced": null,
+    "jobid": "6b05e9d6-5f9c-4a48-9777-b78fa4d82a19"
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:35:17Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:35:17Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:35:17Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:36:22Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:36:22Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:36:22Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:37:27Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:37:27Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:37:27Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:38:42Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:38:42Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:38:42Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:39:47Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:39:47Z"
+      },
+      {
+        "id": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.183",
+        "port": 1447,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:39:47Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3767410688,
+          "requiredbytes": 218291424
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2479087616,
+          "requiredbytes": 83932984,
+          "readonly": false,
+          "freeinodes": 229943
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "deleteStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.183",
+    "port": "1447",
+    "endpointid": "2c3315d6-de7b-4ae2-8d2f-bc3a91b1dc96",
+    "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+    "http": 200,
+    "jobid": "9a4e16be-807f-4bfc-ab72-042b1b66433a"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+    "http": 200,
+    "operations": [
+      {
+        "id": "bbdc8d9f-15b6-44e9-ac16-f5bbef55810f",
+        "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a4e16be-807f-4bfc-ab72-042b1b66433a",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+    "http": 200,
+    "operations": [
+      {
+        "id": "bbdc8d9f-15b6-44e9-ac16-f5bbef55810f",
+        "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a4e16be-807f-4bfc-ab72-042b1b66433a",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+    "http": 200,
+    "operations": [
+      {
+        "id": "bbdc8d9f-15b6-44e9-ac16-f5bbef55810f",
+        "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+        "state": "RUNNING",
+        "phase": "SMB_FINALIZING",
+        "canresume": true,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "9a4e16be-807f-4bfc-ab72-042b1b66433a",
+    "jobstatus": 1
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+    "http": 200,
+    "operations": [
+      {
+        "id": "bbdc8d9f-15b6-44e9-ac16-f5bbef55810f",
+        "requestid": "b81eb027-0363-4390-8f8a-748b8a0e042b",
+        "state": "COMMITTED",
+        "phase": "COMPLETED",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:46:36Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:46:36Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:46:58Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:46:58Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:48:02Z"
+      },
+      {
+        "id": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+        "protocol": "SMB",
+        "enabled": true,
+        "listenip": "10.10.13.181",
+        "port": 1445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:48:02Z"
+      }
+    ]
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "preflight": {
+      "status": "READY",
+      "checks": [
+        {
+          "code": "MEMORY_AVAILABLE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 3769749504,
+          "requiredbytes": 218285232
+        },
+        {
+          "code": "FILESYSTEM_SPACE",
+          "blocking": false,
+          "severity": "INFO",
+          "availablebytes": 2478804992,
+          "requiredbytes": 83931436,
+          "readonly": false,
+          "freeinodes": 229939
+        },
+        {
+          "code": "VOLUME_PREPARATION_ACTIVE",
+          "blocking": false,
+          "severity": "INFO",
+          "count": 0
+        },
+        {
+          "code": "RUNTIME_WRITER_ACTIVE",
+          "blocking": false,
+          "severity": "INFO"
+        },
+        {
+          "code": "DRAIN_REQUIRED",
+          "blocking": false,
+          "severity": "INFO",
+          "connections": 2
+        }
+      ]
+    }
+  },
+  {
+    "command": "deleteStorageServiceProtocol",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "protocol": "SMB",
+    "listenip": "10.10.13.181",
+    "port": "1445",
+    "endpointid": "00e0674a-0f49-497f-a67c-858c6ef25d7b",
+    "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+    "http": 200,
+    "jobid": "7d01fba1-a146-4f39-b350-e2996e0d513c"
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+    "http": 200,
+    "operations": [
+      {
+        "id": "ee1b2b2d-4044-45f5-9bb4-68f8733bf8c6",
+        "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "7d01fba1-a146-4f39-b350-e2996e0d513c",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+    "http": 200,
+    "operations": [
+      {
+        "id": "ee1b2b2d-4044-45f5-9bb4-68f8733bf8c6",
+        "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+        "state": "PENDING",
+        "phase": "PREPARING",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {}
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "7d01fba1-a146-4f39-b350-e2996e0d513c",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+    "http": 200,
+    "operations": [
+      {
+        "id": "ee1b2b2d-4044-45f5-9bb4-68f8733bf8c6",
+        "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+        "state": "RUNNING",
+        "phase": "COMMITTING",
+        "canresume": true,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "http": 200,
+    "jobid": "7d01fba1-a146-4f39-b350-e2996e0d513c",
+    "jobstatus": 0
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+    "http": 200,
+    "operations": [
+      {
+        "id": "ee1b2b2d-4044-45f5-9bb4-68f8733bf8c6",
+        "requestid": "ae9c1c8c-f5b3-4531-ada1-2e4e9c253aa4",
+        "state": "COMMITTED",
+        "phase": "COMPLETED",
+        "canresume": false,
+        "originalfailure": {},
+        "rollback": {
+          "state": "NOT_NEEDED"
+        }
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:48:56Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:49:07Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:50:22Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:56:58Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:58:03Z"
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "http": 200,
+    "endpoints": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 2,
+        "identitystatus": "CONSISTENT"
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "runtimestate": "READY",
+        "linkedresourcecount": 1,
+        "identitystatus": "CONSISTENT",
+        "observedat": "2026-10-26T16:59:18Z"
+      }
+    ]
+  }
+]

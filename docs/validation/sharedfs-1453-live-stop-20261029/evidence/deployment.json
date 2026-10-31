@@ -1,0 +1,65 @@
+{
+  "sourceCommit": "b2459c366ee2dfea6bc87bda8a62c745488893bd",
+  "equivalentRebasedHead": "382e5a13c972e7fde266e199ca3181b2c63e2a24",
+  "upstreamBase": "06d3c598c116d2f6bdd232ea6c09f066240098f4",
+  "schema": {
+    "migrationRequired": false,
+    "reason": "#1453 uses existing config_json and mode"
+  },
+  "managementSha256": "e16a89d68fe9ee49a6ec560e9f51048a1a8e23e18d76bb465bfad434dfdd52ba",
+  "uiIndexSha256": "30bd0897e5d898298b5bf8c795d997de1d0d321b679c80a1f7b821efd7ee7b4f",
+  "uiFilesChanged": 12,
+  "configPreserved": true,
+  "systemVmArtifactsPreserved": true,
+  "rollbackRoot": "/var/tmp/epic1438-1453-b2459c366ee2",
+  "changedUiFiles": [
+    {
+      "path": "color.less",
+      "existed": true
+    },
+    {
+      "path": "index.html",
+      "existed": true
+    },
+    {
+      "path": "css/chunk-334eb978.4c1c8760.css",
+      "existed": false
+    },
+    {
+      "path": "css/chunk-d73e4432.d67ac0fb.css",
+      "existed": false
+    },
+    {
+      "path": "js/app.24aed46b.js",
+      "existed": false
+    },
+    {
+      "path": "js/app.24aed46b.js.map",
+      "existed": false
+    },
+    {
+      "path": "js/chunk-d73e4432.9fce62b4.js",
+      "existed": false
+    },
+    {
+      "path": "js/chunk-d73e4432.9fce62b4.js.map",
+      "existed": false
+    },
+    {
+      "path": "js/chunk-fdfcc70c.2713ab77.js",
+      "existed": false
+    },
+    {
+      "path": "js/chunk-fdfcc70c.2713ab77.js.map",
+      "existed": false
+    },
+    {
+      "path": "locales/en.json",
+      "existed": true
+    },
+    {
+      "path": "locales/ko_KR.json",
+      "existed": true
+    }
+  ]
+}

@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -39,7 +38,32 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class CreateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
+public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
+    @Parameter(name="directorypolicyid",type=CommandType.UUID,entityType=org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse.class,
+            description="Common POSIX policy for the same canonical backing directory")
+    private Long directoryPolicyId;
+    public Long getDirectoryPolicyId() { return directoryPolicyId; }
+
+    @Parameter(name = "createmask", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String createMask;
+    public String getCreateMask() { return createMask; }
+
+    @Parameter(name = "directorymask", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String directoryMask;
+    public String getDirectoryMask() { return directoryMask; }
+
+    @Parameter(name = "forcecreatemode", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String forceCreateMode;
+    public String getForceCreateMode() { return forceCreateMode; }
+
+    @Parameter(name = "forcedirectorymode", type = CommandType.STRING, length = 4, description = "Octal new-object SMB creation policy, 0000 through 0777; omitted preserves the current value")
+    private String forceDirectoryMode;
+    public String getForceDirectoryMode() { return forceDirectoryMode; }
+
+    @Parameter(name = "relativepath", type = CommandType.STRING, length = 255, description = "Relative directory in an already mounted managed backing volume")
+    private String relativePath;
+    public String getRelativePath() { return relativePath; }
+
     @Inject
     StorageService storageService;
 
@@ -72,6 +96,11 @@ public class CreateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
 
     @Parameter(name = "browseable", type = CommandType.BOOLEAN, description = "whether the SMB share is browseable")
     private Boolean browseable;
+
+    @Parameter(name = "inheritowner", type = CommandType.BOOLEAN, description = "Inherit the immediate parent owner for new SMB objects; existing objects are preserved")
+    private Boolean inheritOwner;
+
+    public Boolean getInheritOwner() { return inheritOwner; }
 
     @Parameter(name = "guestok", type = CommandType.BOOLEAN, description = "whether guest access is allowed")
     private Boolean guestOk;

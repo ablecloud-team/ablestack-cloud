@@ -1,0 +1,90 @@
+{
+  "operation": {
+    "liststorageserviceconfigurationoperationsresponse": {
+      "count": 1,
+      "configurationoperation": [
+        {
+          "id": "6dbab391-6bfa-4977-95bd-76eff3bf2272",
+          "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+          "requestid": "37c6a795-f793-47e1-8fa3-9cabc87743b6",
+          "state": "RECOVERY_REQUIRED",
+          "phase": "OBSERVING",
+          "protocol": "NFS",
+          "resourceid": "c6583367-fc3e-46cf-8e57-1ce80321c8c3",
+          "baserevision": 2,
+          "targetrevision": 3,
+          "canresume": true,
+          "originalfailure": {
+            "code": "ISSUE1444_UI_VERIFY_INJECTED",
+            "phase": "VERIFYING",
+            "type": "Rejected"
+          },
+          "rollback": {
+            "code": "ISSUE1444_UI_ROLLBACK_VERIFY_INJECTED",
+            "state": "FAILED",
+            "type": "Rejected"
+          },
+          "observation": {
+            "baseRevision": 2,
+            "instanceUuid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+            "operationid": "6dbab391-6bfa-4977-95bd-76eff3bf2272",
+            "originalfailure": {
+              "code": "ISSUE1444_UI_VERIFY_INJECTED",
+              "phase": "VERIFYING",
+              "type": "Rejected"
+            },
+            "phase": "OBSERVING",
+            "requestHash": "37af72056a1d8f5cee4ebf7e7b0263dea5431fce4a270a08428af78133be2f16",
+            "rollback": {
+              "code": "ISSUE1444_UI_ROLLBACK_VERIFY_INJECTED",
+              "state": "FAILED",
+              "type": "Rejected"
+            },
+            "state": "RECOVERY_REQUIRED",
+            "targetRevision": 3,
+            "updated": 1792812259.2728791,
+            "workerActive": false
+          },
+          "created": "2026-10-24T12:24:14+0900",
+          "updated": "2026-10-24T12:24:23+0900",
+          "candidate": {
+            "allsquash": false,
+            "anongid": 65534,
+            "anonuid": 65534,
+            "api": "UpdateStorageNfsExportCmd",
+            "createdirectory": true,
+            "endpointmode": "LISTENER_GROUP",
+            "expectedrevision": 2,
+            "filesystem": "xfs",
+            "id": 411,
+            "importmode": "MOUNT_EXISTING",
+            "listenerports": "2049",
+            "mode": "0775",
+            "name": "r1444n",
+            "ownergid": 65534,
+            "owneruid": 65534,
+            "path": "/export/r1444n",
+            "protocolmode": "V4_ONLY",
+            "readonly": true,
+            "recursivepermission": false,
+            "rootsquash": true,
+            "secure": false,
+            "sync": true,
+            "volumeid": 234
+          }
+        }
+      ]
+    }
+  },
+  "instance": {
+    "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "name": "epic1438-1444-rollback-20261023-01",
+    "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+    "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+    "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+    "provider": "SHAREDFS_COMPATIBILITY",
+    "state": "Running",
+    "configurationrevision": 2,
+    "configurationprotection": true
+  }
+}

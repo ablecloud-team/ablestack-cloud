@@ -1,0 +1,41 @@
+{
+  "phase": "design_and_live_ui_injection_only",
+  "source_commit": "8e36a5a9d11d9615565644f3f5236cb6046150b4",
+  "issue": 1441,
+  "issue_state": "OPEN",
+  "product_implementation": false,
+  "formal_build_or_deploy": false,
+  "resource_create_or_delete": false,
+  "supported_design_types": [
+    "fixed",
+    "free",
+    "ranged",
+    "partial-custom"
+  ],
+  "live_vue": "3.2.37",
+  "actual_visible_offering_count": 6,
+  "range_fixture_browser_only": true,
+  "final_design_cases": 35,
+  "all_passed": true,
+  "free_ui_values": {
+    "cpu": 4,
+    "memory_mib": 8192,
+    "speed_mhz": 2000
+  },
+  "range_ui_values": {
+    "cpu": 8,
+    "memory_mib": 16384,
+    "fixed_speed_mhz": 2000
+  },
+  "custom_vm_actual_creation_verified": false,
+  "prototype_removed": true,
+  "new_db_schema_required": false,
+  "excluded": [
+    "NFS ACL",
+    "client I/O",
+    "backup restore",
+    "runtime offering changes",
+    "mandatory live scaling",
+    "global UI cleanup"
+  ]
+}

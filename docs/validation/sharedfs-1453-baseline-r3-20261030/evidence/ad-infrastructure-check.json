@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "adService": "active",
+  "dns": "Using domain server:\nName: 127.0.0.1\nAddress: 127.0.0.1#53\nAliases: \n\n_ldap._tcp.ablestack.local has SRV record 0 100 389 ad1453.ablestack.local.\n",
+  "addedTestSource": "10.10.13.246/32",
+  "existingRulesPreserved": true
+}

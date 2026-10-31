@@ -1,0 +1,16 @@
+{
+  "sourceHead": "577301e6e10e45982ac6915df5ddda140e0b4c93",
+  "managementJarSha256": "978ce74bb62557ebb63a6d210669471ae9aae5ad99b505ab5c7eca0e375c2b12",
+  "uiIndexSha256": "497ab6dd4e3637aa05a83a88124234209fa52056ca6bc3d2e6f71b5400eab15f",
+  "ganeshaVersion": "4.3-2",
+  "managedPid": 9059,
+  "activeConfiguration": "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf",
+  "storedIdentityModeMissing": true,
+  "legacyDesignDefault": "NAME_DOMAIN/0",
+  "diskPolicy": "SPARSE",
+  "newDisks": 0,
+  "newVMs": 0,
+  "newFormats": 0,
+  "macChanges": 0,
+  "productImplementationStarted": false
+}

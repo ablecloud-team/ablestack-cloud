@@ -1,0 +1,9 @@
+{
+  "fault": "authorized management restart during UI FORMATTING",
+  "startedAt": 1792732439.6506462,
+  "finishedAt": 1792732442.7270002,
+  "before": "MainPID=3221479\nActiveState=active\n",
+  "after": "MainPID=3236818\nActiveState=active\n",
+  "rc": 0,
+  "stderr": ""
+}

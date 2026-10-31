@@ -93,6 +93,19 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse preflightStorageServiceConfiguration(
+        org.apache.cloudstack.api.command.user.storage.dataservice.PreflightStorageServiceConfigurationCmd cmd);
+
+    org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse getStorageServiceConfigurationOperation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceConfigurationOperationCmd cmd);
+    ListResponse<org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse> listStorageServiceConfigurationOperations(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigurationOperationsCmd cmd);
+    org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse resumeStorageServiceConfigurationOperation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd cmd);
+    String operateInitialBackingPreparation(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String action);
+
+    String prepareInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String mode);
+    void releaseInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS);
     StorageServiceInstanceResponse createStorageServiceInstance(CreateStorageServiceInstanceCmd cmd);
 
     ListResponse<StorageServiceInstanceResponse> listStorageServiceInstances(ListStorageServiceInstancesCmd cmd);
@@ -102,6 +115,12 @@ public interface StorageService {
     boolean deleteStorageServiceProtocol(DeleteStorageServiceProtocolCmd cmd);
 
     ListResponse<StorageServiceProtocolResponse> listStorageServiceProtocols(ListStorageServiceProtocolsCmd cmd);
+
+    org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse getStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsIdentityMappingCmd cmd);
+
+    org.apache.cloudstack.api.response.StorageNfsIdentityMappingResponse updateStorageNfsIdentityMapping(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd cmd);
 
     StorageNfsExportResponse createStorageNfsExport(CreateStorageNfsExportCmd cmd);
 
@@ -214,4 +233,11 @@ public interface StorageService {
     ListResponse<StorageServiceRuntimeUpgradeResponse> listStorageServiceRuntimeUpgrades(ListStorageServiceRuntimeUpgradesCmd cmd);
 
     StorageServiceRuntimeUpgradeResponse rollbackStorageServiceRuntimeUpgrade(RollbackStorageServiceRuntimeUpgradeCmd cmd);
+
+    org.apache.cloudstack.api.response.ListResponse<org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse> listStorageDirectoryPolicies(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageDirectoryPoliciesCmd cmd);
+    org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse createStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageDirectoryPolicyCmd cmd);
+    org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse updateStorageDirectoryPolicy(
+            org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageDirectoryPolicyCmd cmd);
 }

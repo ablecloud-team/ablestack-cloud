@@ -1,0 +1,11 @@
+{
+  "firstInputIssue": "os.path.ismount misses a same-filesystem bind mount during owned test cleanup",
+  "secondInputIssue": "NFS probe used UID0 under RootSquash while test objects belonged to65534",
+  "corrections": [
+    "findmnt exact mountpoint cleanup",
+    "normal numeric UID65534 in the private NFS client"
+  ],
+  "productChanges": false,
+  "finalChecks": 24,
+  "initialOwnedRemnantsCleaned": true
+}

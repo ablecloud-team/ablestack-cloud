@@ -94,6 +94,18 @@ public class StorageServiceProtocolResponse extends BaseResponse {
     @Param(description = "number of protocol resources linked to this listener port")
     private Integer linkedResourceCount;
 
+    @SerializedName("coveredbyid")
+    @Param(description = "SMB wildcard endpoint UUID covering this listener")
+    private String coveredById;
+
+    @SerializedName("observedat")
+    @Param(description = "SMB listener observation time in UTC")
+    private String observedAt;
+
+    public String getId() { return id; }
+    public void setCoveredById(String value) { coveredById = value; }
+    public void setObservedAt(String value) { observedAt = value; }
+
     public void setId(String id) {
         this.id = id;
     }

@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"actualInitialKerberosAbsent\": true, \"cases\": [{\"initial\": \"missing\", \"actualMemberCliCreatedKerberos\": true, \"failureCode\": \"AD_MEMBERSHIP_KINIT_FAILED\", \"rollback\": \"SUCCEEDED\", \"originalStateRestored\": true}, {\"initial\": \"existing\", \"actualMemberCliCreatedKerberos\": true, \"failureCode\": \"AD_MEMBERSHIP_KINIT_FAILED\", \"rollback\": \"SUCCEEDED\", \"originalStateRestored\": true}], \"symlinkRejected\": true, \"realCliAndKdcFailurePath\": true, \"configurationApplied\": false, \"productionFilesUnchanged\": true, \"listenerPidUnchanged\": true, \"temporaryResourcesRemoved\": true}\n",
+  "stderr": ""
+}

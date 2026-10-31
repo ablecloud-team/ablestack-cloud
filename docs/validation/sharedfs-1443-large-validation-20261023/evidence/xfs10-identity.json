@@ -1,0 +1,12 @@
+{
+  "sharedfs": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+  "vm": "093de0e0-0fe2-3faa-874b-53542640a372",
+  "root": "fcd7b575-935c-4d0c-af85-19271579e454",
+  "data": "09f6122a-3225-406e-8de1-66bcaff79707",
+  "domain": "i-2-121-VM",
+  "host": "10.10.13.2",
+  "ip": "10.10.13.251",
+  "filesystem": "xfs",
+  "sizeBytes": 10995116277760,
+  "provisioning": "sparse"
+}

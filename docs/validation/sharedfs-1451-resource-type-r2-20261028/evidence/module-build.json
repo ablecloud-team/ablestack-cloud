@@ -1,0 +1,17 @@
+{
+  "management": {
+    "beforeSha256": "665e97180fbc424669b032152e5f27a05afab7f136404e7f66b0e49ee68b98ed",
+    "afterSha256": "07c64a803b1702ebd22b652bcea2468351e38a89f81eff36e8ba47600972e9a4",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+        "before": "9a7c839f612cdfd945cb741b51bd7ce8033fe7667b20b5a9cfd2359c610f1eb1",
+        "after": "2520b0bc5f122bfa12e14a7bf8f84a29384cf27e178129ead94cbef0f8cc7c96"
+      }
+    ],
+    "unrelatedEntriesByteIdentical": true
+  },
+  "schemaMigration": false,
+  "guestChanged": false,
+  "uiChanged": false
+}

@@ -1,0 +1,33 @@
+[
+  {
+    "command": "listStorageServiceRuntimeBundles",
+    "status": 200,
+    "body": {
+      "liststorageserviceruntimebundlesresponse": {}
+    }
+  },
+  {
+    "command": "listStorageServiceRuntimeUpgrades",
+    "status": 200,
+    "body": {
+      "liststorageserviceruntimeupgradesresponse": {}
+    }
+  },
+  {
+    "command": "getStorageServiceRuntimeUpgradeCapabilities",
+    "status": 200,
+    "body": {
+      "getstorageserviceruntimeupgradecapabilitiesresponse": {
+        "storageserviceruntimecapability": {
+          "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+          "available": true,
+          "currentversion": "bootstrap-f858358b0e1b8eba",
+          "runtimeabiversion": "1",
+          "desiredstateschemaversion": "1",
+          "entrypointsmanaged": true,
+          "details": "Runtime updater is available"
+        }
+      }
+    }
+  }
+]

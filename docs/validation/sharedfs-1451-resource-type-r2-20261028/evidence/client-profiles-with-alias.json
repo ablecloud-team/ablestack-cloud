@@ -1,0 +1,2838 @@
+[
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "0",
+          "group": "0"
+        },
+        "sha256": "d5479e0d07c0462c948fada1b8828da9b1558f8667db1ffc162fb5ecaf690240"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "639fda411a934034d17b38d78bce4560c50b480659022c32fae3fa1250cb0c0d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "d6f977d5cbda097d2cabbb82ed454b9b38b491cdf3b9fd27412a2f12fb59da46"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "3ab4ab9f2049b43ba27d7d2d48d532eece4ccecada31d579487f5d0b94ab8516"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "0",
+          "group": "0"
+        },
+        "sha256": "d5479e0d07c0462c948fada1b8828da9b1558f8667db1ffc162fb5ecaf690240"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "639fda411a934034d17b38d78bce4560c50b480659022c32fae3fa1250cb0c0d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "d6f977d5cbda097d2cabbb82ed454b9b38b491cdf3b9fd27412a2f12fb59da46"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "3ab4ab9f2049b43ba27d7d2d48d532eece4ccecada31d579487f5d0b94ab8516"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "0",
+          "group": "0"
+        },
+        "sha256": "7714c59ab523dfe492b36f37c0fa9a797cb7de056f3dc70cb6b3133a9bd23b5c"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "e18b37218bc53c775f64165ba431de0a3832c62878e015ca89608be99c699c8d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "169b7627c79c20b8f7748cd0b4cc656bb24340990a969e6b5045ac0695e70ee0"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "b9f114ffa007436226ea9931b5f97fc0abb147709f99141f0a87cbf4d6360a44"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "0",
+          "group": "0"
+        },
+        "sha256": "7714c59ab523dfe492b36f37c0fa9a797cb7de056f3dc70cb6b3133a9bd23b5c"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "e18b37218bc53c775f64165ba431de0a3832c62878e015ca89608be99c699c8d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "169b7627c79c20b8f7748cd0b4cc656bb24340990a969e6b5045ac0695e70ee0"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "b9f114ffa007436226ea9931b5f97fc0abb147709f99141f0a87cbf4d6360a44"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 1,
+        "clientGid": 1,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1",
+          "group": "1"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "58a5751d29a3826cebe01ea03b7264b783ee97df28536f007ca9fdedd4b39972"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "021de92e37836185ba2d4e28c987bf9791d9841f05aecce424e3d4e71ab1a0af"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "2aaa83d7a528925fb7f9ad6aca4bd99594c521f3398ae0ab93e6b85a5dc78465"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "6488f3c27d7444a7ccf7c51383f4116a534dde7f45f00650115db6f18327ce35"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "58a5751d29a3826cebe01ea03b7264b783ee97df28536f007ca9fdedd4b39972"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "021de92e37836185ba2d4e28c987bf9791d9841f05aecce424e3d4e71ab1a0af"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "2aaa83d7a528925fb7f9ad6aca4bd99594c521f3398ae0ab93e6b85a5dc78465"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "6488f3c27d7444a7ccf7c51383f4116a534dde7f45f00650115db6f18327ce35"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "58a5751d29a3826cebe01ea03b7264b783ee97df28536f007ca9fdedd4b39972"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "021de92e37836185ba2d4e28c987bf9791d9841f05aecce424e3d4e71ab1a0af"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "2aaa83d7a528925fb7f9ad6aca4bd99594c521f3398ae0ab93e6b85a5dc78465"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "6488f3c27d7444a7ccf7c51383f4116a534dde7f45f00650115db6f18327ce35"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "58a5751d29a3826cebe01ea03b7264b783ee97df28536f007ca9fdedd4b39972"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "021de92e37836185ba2d4e28c987bf9791d9841f05aecce424e3d4e71ab1a0af"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "2aaa83d7a528925fb7f9ad6aca4bd99594c521f3398ae0ab93e6b85a5dc78465"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "6488f3c27d7444a7ccf7c51383f4116a534dde7f45f00650115db6f18327ce35"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "87c132f5e6468a343586d859c9cf4a18ac8256909c9625a2c56e02ccf6c279d1"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "076effec84cfbffec3a1d1677c9fb99a8fdddbfe97a363ca23ea407fd71b5a84"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "f11b454a3a7212163cd7b0c0b4cde0b17455df0cdcb5d6857cfd03843bd1b7a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "299f19f3e55dd58d9dab3383a6c5152ce7db2120d89c5013d7cdd38524b78133"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "87c132f5e6468a343586d859c9cf4a18ac8256909c9625a2c56e02ccf6c279d1"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "076effec84cfbffec3a1d1677c9fb99a8fdddbfe97a363ca23ea407fd71b5a84"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "f11b454a3a7212163cd7b0c0b4cde0b17455df0cdcb5d6857cfd03843bd1b7a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "299f19f3e55dd58d9dab3383a6c5152ce7db2120d89c5013d7cdd38524b78133"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "87c132f5e6468a343586d859c9cf4a18ac8256909c9625a2c56e02ccf6c279d1"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "076effec84cfbffec3a1d1677c9fb99a8fdddbfe97a363ca23ea407fd71b5a84"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "f11b454a3a7212163cd7b0c0b4cde0b17455df0cdcb5d6857cfd03843bd1b7a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "299f19f3e55dd58d9dab3383a6c5152ce7db2120d89c5013d7cdd38524b78133"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "ALL",
+    "access": "RW",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "87c132f5e6468a343586d859c9cf4a18ac8256909c9625a2c56e02ccf6c279d1"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "076effec84cfbffec3a1d1677c9fb99a8fdddbfe97a363ca23ea407fd71b5a84"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "f11b454a3a7212163cd7b0c0b4cde0b17455df0cdcb5d6857cfd03843bd1b7a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "65534",
+          "group": "65534"
+        },
+        "sha256": "299f19f3e55dd58d9dab3383a6c5152ce7db2120d89c5013d7cdd38524b78133"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NUMERIC",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "Y",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "root@localdomain",
+          "group": "root@localdomain"
+        },
+        "sha256": "d5479e0d07c0462c948fada1b8828da9b1558f8667db1ffc162fb5ecaf690240"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "639fda411a934034d17b38d78bce4560c50b480659022c32fae3fa1250cb0c0d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "d6f977d5cbda097d2cabbb82ed454b9b38b491cdf3b9fd27412a2f12fb59da46"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "3ab4ab9f2049b43ba27d7d2d48d532eece4ccecada31d579487f5d0b94ab8516"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "root@localdomain",
+          "group": "root@localdomain"
+        },
+        "sha256": "d5479e0d07c0462c948fada1b8828da9b1558f8667db1ffc162fb5ecaf690240"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "639fda411a934034d17b38d78bce4560c50b480659022c32fae3fa1250cb0c0d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "d6f977d5cbda097d2cabbb82ed454b9b38b491cdf3b9fd27412a2f12fb59da46"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "3ab4ab9f2049b43ba27d7d2d48d532eece4ccecada31d579487f5d0b94ab8516"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "root@localdomain",
+          "group": "root@localdomain"
+        },
+        "sha256": "7714c59ab523dfe492b36f37c0fa9a797cb7de056f3dc70cb6b3133a9bd23b5c"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "e18b37218bc53c775f64165ba431de0a3832c62878e015ca89608be99c699c8d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "169b7627c79c20b8f7748cd0b4cc656bb24340990a969e6b5045ac0695e70ee0"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b9f114ffa007436226ea9931b5f97fc0abb147709f99141f0a87cbf4d6360a44"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "NONE",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 0,
+        "clientUid": 0,
+        "clientGid": 0,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "root@localdomain",
+          "group": "root@localdomain"
+        },
+        "sha256": "7714c59ab523dfe492b36f37c0fa9a797cb7de056f3dc70cb6b3133a9bd23b5c"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "e18b37218bc53c775f64165ba431de0a3832c62878e015ca89608be99c699c8d"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "169b7627c79c20b8f7748cd0b4cc656bb24340990a969e6b5045ac0695e70ee0"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b9f114ffa007436226ea9931b5f97fc0abb147709f99141f0a87cbf4d6360a44"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RO",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": "EXPECTED_EROFS"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.196",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.194",
+    "port": 2049,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.194",
+    "port": 2050,
+    "version": "4",
+    "client": "c1",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.194",
+    "port": 2049,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  },
+  {
+    "server": "10.10.13.194",
+    "port": 2050,
+    "version": "4",
+    "client": "c2",
+    "identity": "NAME_DOMAIN",
+    "squash": "ROOT",
+    "access": "RW",
+    "mapping": "N",
+    "cases": [
+      {
+        "uid": 0,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+      },
+      {
+        "uid": 1,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1,
+        "clientUid": 2,
+        "clientGid": 2,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "daemon@localdomain",
+          "group": "daemon@localdomain"
+        },
+        "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+      },
+      {
+        "uid": 1001,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 1001,
+        "clientUid": 1001,
+        "clientGid": 1001,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "1001",
+          "group": "1001"
+        },
+        "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+      },
+      {
+        "uid": 65534,
+        "read": true,
+        "write": true,
+        "expectedServerUid": 65534,
+        "clientUid": 65534,
+        "clientGid": 65534,
+        "clientMode": "0o640",
+        "wire": {
+          "mode": "0o640",
+          "owner": "nobody@localdomain",
+          "group": "nogroup@localdomain"
+        },
+        "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+      }
+    ],
+    "seedSha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+  }
+]

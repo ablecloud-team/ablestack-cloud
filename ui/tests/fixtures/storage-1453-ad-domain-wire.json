@@ -1,0 +1,38 @@
+{
+  "APPLYING": {
+    "joinstorageservicetoaddomainresponse": {
+      "storageidentitydomain": {
+        "id": "domain",
+        "instanceid": "instance",
+        "domainname": "ablestack.local",
+        "joinstate": "JOINED",
+        "healthstate": "OK",
+        "config": "{\"adJoin\":{\"operationid\":\"operation\",\"jobid\":\"job\",\"membership\":\"JOINED\",\"serviceApply\":\"APPLYING\",\"state\":\"RUNNING\",\"rollback\":\"NOT_NEEDED\",\"failureCode\":\"\"}}"
+      }
+    }
+  },
+  "VERIFIED": {
+    "joinstorageservicetoaddomainresponse": {
+      "storageidentitydomain": {
+        "id": "domain",
+        "instanceid": "instance",
+        "domainname": "ablestack.local",
+        "joinstate": "JOINED",
+        "healthstate": "OK",
+        "config": "{\"adJoin\":{\"operationid\":\"operation\",\"jobid\":\"job\",\"membership\":\"JOINED\",\"serviceApply\":\"VERIFIED\",\"state\":\"COMMITTED\",\"rollback\":\"NOT_NEEDED\",\"failureCode\":\"\"}}"
+      }
+    }
+  },
+  "FAILED": {
+    "joinstorageservicetoaddomainresponse": {
+      "storageidentitydomain": {
+        "id": "domain",
+        "instanceid": "instance",
+        "domainname": "ablestack.local",
+        "joinstate": "JOINED",
+        "healthstate": "OK",
+        "config": "{\"adJoin\":{\"operationid\":\"operation\",\"jobid\":\"job\",\"membership\":\"JOINED\",\"serviceApply\":\"FAILED\",\"state\":\"ROLLED_BACK\",\"rollback\":\"SUCCEEDED\",\"failureCode\":\"SMB_ENDPOINT_IN_USE\"}}"
+      }
+    }
+  }
+}

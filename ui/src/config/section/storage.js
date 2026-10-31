@@ -866,6 +866,32 @@ export default {
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateSharedFS.vue')))
         },
         {
+          api: 'getSharedFileSystemPreparation',
+          icon: 'clock-circle-outlined',
+          label: 'label.sharedfs.preparation.status',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSPreparationStatus.vue'))),
+          show: record => !!record.creationrequestid && !!record.preparation
+        },
+        {
+          api: 'resumeSharedFileSystemCreation',
+          icon: 'close-circle-outlined',
+          label: 'label.sharedfs.initial.cancel',
+          message: 'message.sharedfs.initial.corrupt',
+          dataView: true,
+          popup: true,
+          args: [],
+          mapping: {
+            id: { value: record => record.id },
+            requestid: { value: record => record.creationrequestid },
+            action: { value: () => 'CANCEL_PREPARATION' }
+          },
+          show: record => record.creationstage === 'CORRUPT' && !!record.creationrequestid &&
+            !record.virtualmachineid && ['Allocated', 'Error'].includes(record.state)
+        },
+        {
           api: 'updateSharedFileSystem',
           icon: 'edit-outlined',
           docHelp: 'adminguide/storage.html#lifecycle-operations',
@@ -909,15 +935,6 @@ export default {
           popup: true,
           args: ['cleanup'],
           show: (record) => { return ['Stopped', 'Ready', 'Detached'].includes(record.state) }
-        },
-        {
-          api: 'getStorageServiceRuntimeUpgradeCapabilities',
-          icon: 'cloud-upload-outlined',
-          label: 'label.storage.service.runtime.upgrade',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageServiceRuntimeUpgrade.vue'))),
-          show: (record) => { return ['Ready', 'Stopped'].includes(record.state) }
         },
         {
           api: 'changeSharedFileSystemServiceOffering',

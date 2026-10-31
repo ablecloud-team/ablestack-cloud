@@ -1,0 +1,65 @@
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-plugin-sharedfs-provider-storagevm ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-plugin-sharedfs-provider-storagevm ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.353 s - in org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-plugin-sharedfs-provider-storagevm ---
+[INFO] Building jar: /root/work/ablestack-cloud/plugins/storage/sharedfs/storagevm/target/cloud-plugin-sharedfs-provider-storagevm-4.23.0.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-plugin-sharedfs-provider-storagevm ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Apache CloudStack 4.23.0.0:
+[INFO]
+[INFO] Apache CloudStack Developer Tools - Checkstyle Configuration SUCCESS [  1.460 s]
+[INFO] Apache CloudStack .................................. SUCCESS [  2.231 s]
+[INFO] Apache CloudStack Framework - Managed Context ...... SUCCESS [  1.489 s]
+[INFO] Apache CloudStack Framework ........................ SUCCESS [  0.051 s]
+[INFO] Apache CloudStack Framework - Certificate Authority  SUCCESS [  0.103 s]
+[INFO] Apache CloudStack Utils ............................ SUCCESS [  3.983 s]
+[INFO] Apache CloudStack Framework - Database ............. SUCCESS [  0.685 s]
+[INFO] Apache CloudStack Framework - Configuration ........ SUCCESS [  0.439 s]
+[INFO] Apache CloudStack Framework - Direct Download to Primary Storage SUCCESS [  0.367 s]
+[INFO] Apache CloudStack Framework - Key Management Service SUCCESS [  0.422 s]
+[INFO] Apache CloudStack API .............................. SUCCESS [ 27.025 s]
+[INFO] Apache CloudStack Framework - REST ................. SUCCESS [  0.432 s]
+[INFO] Apache CloudStack Framework - IPC .................. SUCCESS [  1.522 s]
+[INFO] Apache CloudStack Cloud Engine ..................... SUCCESS [  0.049 s]
+[INFO] Apache CloudStack Cloud Engine API ................. SUCCESS [  1.112 s]
+[INFO] Apache CloudStack Cloud Engine Schema Component .... SUCCESS [ 13.599 s]
+[INFO] Apache CloudStack Framework - Security ............. SUCCESS [  0.407 s]
+[INFO] Apache CloudStack Core ............................. SUCCESS [  0.821 s]
+[INFO] Apache CloudStack Agents ........................... SUCCESS [  0.988 s]
+[INFO] Apache CloudStack Framework - Clustering ........... SUCCESS [  0.667 s]
+[INFO] Apache CloudStack Framework - Event Notification ... SUCCESS [  0.334 s]
+[INFO] Apache CloudStack Framework - Jobs ................. SUCCESS [  0.503 s]
+[INFO] Apache CloudStack Cloud Engine Internal Components API SUCCESS [  0.515 s]
+[INFO] Apache CloudStack Agent Management Servers Load Balancer SUCCESS [  0.054 s]
+[INFO] Apache CloudStack Framework - Storage Config Drive Component SUCCESS [  0.830 s]
+[INFO] Apache CloudStack Framework - Extensions ........... SUCCESS [  0.524 s]
+[INFO] Apache CloudStack Server ........................... SUCCESS [ 49.515 s]
+[INFO] Apache CloudStack Cloud Services ................... SUCCESS [  0.020 s]
+[INFO] Apache CloudStack Secondary Storage ................ SUCCESS [  0.020 s]
+[INFO] Apache CloudStack Secondary Storage Service ........ SUCCESS [  0.944 s]
+[INFO] Apache CloudStack Engine Storage Component ......... SUCCESS [  0.778 s]
+[INFO] Apache CloudStack Engine Storage Object Component .. SUCCESS [  0.650 s]
+[INFO] Apache CloudStack Plugin POM ....................... SUCCESS [  0.989 s]
+[INFO] Apache CloudStack Plugin - StorageVm shared filesystem provider SUCCESS [  9.183 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:04 min
+[INFO] Finished at: 2026-10-22T01:01:10+09:00
+[INFO] ------------------------------------------------------------------------

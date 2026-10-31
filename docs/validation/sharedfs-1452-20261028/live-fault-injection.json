@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "unit": "ablestack-storage-ganesha@0.0.0.0_2050.service",
+  "dropin": "/run/systemd/system/ablestack-storage-ganesha@0.0.0.0_2050.service.d/epic1452-failure-once.conf",
+  "marker": "/run/epic1452-failure-once",
+  "originalPid": "31182",
+  "currentServiceUnchanged": true,
+  "fault": "exactly one future restart fails; next restart succeeds"
+}

@@ -27,6 +27,19 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageNfsExportResponse extends BaseResponse {
+    @SerializedName("relativepath") @Param(description="Physical directory relative to the backing volume") private String relativePath;
+    @SerializedName("pathstatus") @Param(description="Read-only path binding observation") private String pathStatus;
+    @SerializedName("pathreason") @Param(description="Safe path observation reason") private String pathReason;
+    public void setRelativePath(String value) { relativePath=value; }
+    public void setPathStatus(String value) { pathStatus=value; }
+    public void setPathReason(String value) { pathReason=value; }
+
+    @SerializedName("posixobservation")
+    @Param(description = "Read-only current directory POSIX observation, independent of saved configuration")
+    private com.google.gson.JsonObject posixObservation;
+
+    public void setPosixObservation(com.google.gson.JsonObject value) { posixObservation = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the NFS export")
     private String id;

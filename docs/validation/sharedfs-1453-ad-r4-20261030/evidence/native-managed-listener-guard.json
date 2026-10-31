@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"fullCliAdCapability\": 1, \"failureCode\": \"SMB_ENDPOINT_IN_USE\", \"membership\": \"UNCHANGED\", \"serviceApply\": \"NOT_APPLIED\", \"configurationApplied\": false, \"productionUnchanged\": true, \"temporaryFilesRemoved\": true}\n",
+  "stderr": ""
+}

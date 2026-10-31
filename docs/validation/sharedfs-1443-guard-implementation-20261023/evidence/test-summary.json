@@ -1,0 +1,30 @@
+[
+  {
+    "name": "org.apache.cloudstack.storage.sharedfs.SharedFSStaticNetworkBootstrapTest",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest",
+    "tests": "14",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+    "tests": "36",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  {
+    "name": "com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest",
+    "tests": "13",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+]

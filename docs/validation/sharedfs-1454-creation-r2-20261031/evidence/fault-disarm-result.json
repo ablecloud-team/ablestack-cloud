@@ -1,0 +1,17 @@
+{
+  "faultDisarmed": true,
+  "fired": {
+    "firedAt": 1793442543.8308012,
+    "args": [
+      "-s",
+      "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+      "-t",
+      "10",
+      "1942",
+      "reload-config"
+    ]
+  },
+  "originalBinaryRestored": true,
+  "sha256": "c541fb9f988c58b0cf835b80ed892a751a5893ebfa14eff9f07ab9ad2df78a00",
+  "temporaryRootRetainedForEvidence": "/var/tmp/epic1454-r2-once-reload-fault"
+}

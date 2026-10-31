@@ -1,0 +1,21 @@
+{
+  "guestSuite": {
+    "run": 103,
+    "passed": 100,
+    "skipped": 3
+  },
+  "actualSystemVmUpdaterMethodsPassed": 14,
+  "signedNegativeSubcases": 9,
+  "actualAtomicReceiverCasesPassed": 4,
+  "uiSfcPassed": 25,
+  "uiLint": "PASS",
+  "uiProductionBuild": "PASS",
+  "mavenModulePackage": "PASS",
+  "javaTestLines": [
+    "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.333 s - in org.apache.cloudstack.storage.dataservice.StorageRuntimeBaselineTest",
+    "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.11 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest",
+    "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s - in com.cloud.api.response.StorageRuntimeWireTest",
+    "[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0"
+  ],
+  "workflowYamlSyntax": "PASS"
+}

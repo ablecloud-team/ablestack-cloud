@@ -1,0 +1,42 @@
+{
+  "designOnly": true,
+  "kind": "editNfsExport",
+  "api": "updateStorageNfsExport",
+  "rawConfig": {
+    "readOnly": false,
+    "rootSquash": true,
+    "allSquash": false,
+    "sync": true,
+    "secure": false
+  },
+  "draft": {
+    "owneruid": 65534,
+    "ownergid": 65534,
+    "mode": "0775"
+  },
+  "capturedRequest": {
+    "id": "export",
+    "name": "fixture",
+    "path": "/export/fixture",
+    "createdirectory": true,
+    "volumeid": "",
+    "filesystem": "xfs",
+    "protocolmode": "V4_ONLY",
+    "importmode": "FORMAT_IF_EMPTY",
+    "quotabytes": null,
+    "readonly": false,
+    "rootsquash": true,
+    "allsquash": false,
+    "anonuid": 65534,
+    "anongid": 65534,
+    "owneruid": 65534,
+    "ownergid": 65534,
+    "mode": "0775",
+    "recursivepermission": false,
+    "sync": true,
+    "secure": false,
+    "endpointmode": "LISTENER_GROUP",
+    "listenerports": "2049"
+  },
+  "noNetworkMutation": true
+}

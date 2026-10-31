@@ -1,0 +1,135 @@
+{
+  "root": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o777"
+  },
+  "files": {
+    ".e1451-seed.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "sha256": "b565430320e645edf9ec5af8fff8ee123741befb6901bd412b1c2cc235661f62"
+    },
+    ".e1451-c1-name_domain-root-2049-0.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+    },
+    ".e1451-c1-name_domain-root-2049-1.txt": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640",
+      "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+    },
+    ".e1451-c1-name_domain-root-2049-1001.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o640",
+      "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+    },
+    ".e1451-c1-name_domain-root-2049-65534.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+    },
+    ".e1451-c2-name_domain-root-2049-0.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+    },
+    ".e1451-c2-name_domain-root-2049-1.txt": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640",
+      "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+    },
+    ".e1451-c2-name_domain-root-2049-1001.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o640",
+      "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+    },
+    ".e1451-c2-name_domain-root-2049-65534.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+    },
+    ".e1451-c1-name_domain-root-2050-0.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "664e5c64c97fd382143cf5862eadde13c978dfb43dd56b15959b1206f20c5e3b"
+    },
+    ".e1451-c1-name_domain-root-2050-1.txt": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640",
+      "sha256": "42594f239a5b39581f84dd52c7b5f3731db78cda76e1ef63203c567aef2359ae"
+    },
+    ".e1451-c1-name_domain-root-2050-1001.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o640",
+      "sha256": "05330676ce771778859d175d69beed0bb35f016e65d1f57122909d8569ad28a7"
+    },
+    ".e1451-c1-name_domain-root-2050-65534.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "b539f2bab0075874b965abed1615897df58fea119bea27b300ed7c5b13f6ece6"
+    },
+    ".e1451-c2-name_domain-root-2050-0.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "de3fc3f8f9909b3cf1304de18ad43975a08184ec28d8c58bf66f93ee6785a92b"
+    },
+    ".e1451-c2-name_domain-root-2050-1.txt": {
+      "uid": 1,
+      "gid": 1,
+      "mode": "0o640",
+      "sha256": "0d3dcf6375a789db32a0d5cfdace5110ca924003092f7f8a2955e307b35ebf96"
+    },
+    ".e1451-c2-name_domain-root-2050-1001.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o640",
+      "sha256": "734a9245abd06af3ad4537114c935ed3e5b956fd353458c08e22db73088fe61d"
+    },
+    ".e1451-c2-name_domain-root-2050-65534.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "sha256": "dbe20093b5d027dea3b96f8202f08520b52667a99a369e3295442991412c2e77"
+    },
+    "evidence/c1-r4-name/epic1451-c1-name_domain-root-rw-4-2049-10.10.13.193.json": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "sha256": "706cc7a236e0a6d8246254515a04238962c2b80bddc760c2e78b1355a7743ee6"
+    },
+    "evidence/c1-r4-name/epic1451-c1-name_domain-root-rw-4-2050-10.10.13.193.json": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "sha256": "bbdb80238b75f025a2b88cee85fe73331febbb2de9d2b3bea94fea2882673a4e"
+    },
+    "evidence/c2-r4-name/epic1451-c2-name_domain-root-rw-4-2049-10.10.13.193.json": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "sha256": "044ea5fd4f1836403612fabab30da689131681ad0773660f11e036a3480af929"
+    },
+    "evidence/c2-r4-name/epic1451-c2-name_domain-root-rw-4-2050-10.10.13.193.json": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "sha256": "5e1df2a56aa49ea1ecc993f874cc56bbfaa0e9e60cbf134d428488af0e9c269f"
+    }
+  }
+}

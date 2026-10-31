@@ -197,6 +197,7 @@ public class SharedFSServiceImplTest {
 
     private CreateSharedFSCmd getMockCreateSharedFSCmd() {
         CreateSharedFSCmd cmd = mock(CreateSharedFSCmd.class);
+        when(cmd.getVolumeId()).thenReturn(null);
         when(cmd.getEntityOwnerId()).thenReturn(s_ownerId);
         when(cmd.getZoneId()).thenReturn(s_zoneId);
         when(cmd.getDiskOfferingId()).thenReturn(s_diskOfferingId);
@@ -209,6 +210,7 @@ public class SharedFSServiceImplTest {
         when(cmd.getNetworkId()).thenReturn(s_networkId);
         when(cmd.getFsFormat()).thenReturn(s_fsFormat);
         when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.DHCP);
+        when(cmd.getCustomComputeParameters()).thenReturn(java.util.Collections.emptyMap());
         return cmd;
     }
 
@@ -221,12 +223,17 @@ public class SharedFSServiceImplTest {
     @Test
     public void testDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, NoTransitionException, OperationTimedoutException {
         CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        DataCenterVO creationZone = mock(DataCenterVO.class);
+        when(creationZone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+        when(dataCenterDao.findById(s_zoneId)).thenReturn(creationZone);
+        when(lifeCycle.checkCreationPrerequisites(creationZone, s_serviceOfferingId, java.util.Collections.emptyMap()))
+                .thenReturn(java.util.Collections.emptyMap());
 
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
 
         Pair<Long, Long> result = new Pair<>(s_volumeId, s_vmId);
-        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops)).thenReturn(result);
+        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops, java.util.Collections.emptyMap())).thenReturn(result);
         when(sharedFSDao.update(sharedFS.getId(), sharedFS)).thenReturn(true);
 
         Assert.assertEquals(sharedFSServiceImpl.deploySharedFS(cmd), sharedFS);
@@ -238,11 +245,16 @@ public class SharedFSServiceImplTest {
     @Test
     public void testDeploySharedFSException() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, NoTransitionException, OperationTimedoutException {
         CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        DataCenterVO creationZone = mock(DataCenterVO.class);
+        when(creationZone.getAllocationState()).thenReturn(Grouping.AllocationState.Enabled);
+        when(dataCenterDao.findById(s_zoneId)).thenReturn(creationZone);
+        when(lifeCycle.checkCreationPrerequisites(creationZone, s_serviceOfferingId, java.util.Collections.emptyMap()))
+                .thenReturn(java.util.Collections.emptyMap());
 
         SharedFSVO sharedFS = getMockSharedFS();
         when(sharedFSDao.findById(0L)).thenReturn(sharedFS);
 
-        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops)).thenThrow(new CloudRuntimeException(""));
+        when(lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops, java.util.Collections.emptyMap())).thenThrow(new CloudRuntimeException(""));
 
         Assert.assertThrows(CloudRuntimeException.class, () -> sharedFSServiceImpl.deploySharedFS(cmd));
         verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
@@ -445,6 +457,35 @@ public class SharedFSServiceImplTest {
         SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network);
         Assert.assertEquals("10.10.1.201", configuration.ipAddress);
         Assert.assertEquals("10.10.1.0/24", configuration.networkCidr);
+    }
+
+    @Test
+    public void testStaticNetworkRejectsGatewayBeforeAllocatingResources() {
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+        for (String gateway : new String[]{"10.10.1.201", "10.10.1.0", "10.10.1.255", "10.10.2.1", "224.0.0.1", "0.0.0.0"}) {
+            CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+            when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+            when(cmd.getIpCidr()).thenReturn("10.10.1.201/24");
+            when(cmd.getGateway()).thenReturn(gateway);
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        }
+    }
+
+    @Test
+    public void testStaticNetworkAllows31PeerAnd32WithoutGateway() {
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getId()).thenReturn(s_networkId);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+        when(cmd.getIpCidr()).thenReturn("10.10.1.200/31");
+        when(cmd.getGateway()).thenReturn("10.10.1.201");
+        Assert.assertNotNull(sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        when(cmd.getIpCidr()).thenReturn("10.10.1.200/32");
+        when(cmd.getGateway()).thenReturn(null);
+        Assert.assertNotNull(sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
     }
 
     @Test

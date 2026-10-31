@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.command.user.UserCmd;
 import org.apache.cloudstack.api.response.StorageServiceInstanceResponse;
@@ -35,7 +34,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class DeleteStorageServiceProtocolCmd extends BaseAsyncCmd implements UserCmd {
+public class DeleteStorageServiceProtocolCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -53,6 +52,14 @@ public class DeleteStorageServiceProtocolCmd extends BaseAsyncCmd implements Use
     @Parameter(name = "port", type = CommandType.INTEGER,
             description = "optional listener port endpoint to remove together with listenip")
     private Integer port;
+
+    @Parameter(name = "endpointid", type = CommandType.STRING,
+            description = "SMB endpoint UUID to replace or remove within the selected instance")
+    private String endpointId;
+
+    public String getEndpointId() {
+        return endpointId;
+    }
 
     public Long getInstanceId() {
         return instanceId;

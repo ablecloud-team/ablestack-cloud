@@ -1,0 +1,19 @@
+{
+  "baseCompressedSha256": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+  "installedModuleHashes": {
+    "etc/ablestack-storage/runtime-default/manifest.json": "3c492eb6ab86342a34c6b250999279d75a716698bd18fcd910cb2d5ead229163",
+    "etc/ablestack-storage/runtime-default/manifest.sig": "4ad7f0cdf63a9d067d754a1b77ac863933e3ed44e79ab3a1ecb46693061f653c"
+  },
+  "changedGuestPaths": [
+    "etc/ablestack-storage/runtime-default/manifest.json",
+    "etc/ablestack-storage/runtime-default/manifest.sig"
+  ],
+  "unchangedGuestPathsVerified": 33935,
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261028/issue1451-bootstrap-r4/systemvm-epic1451-bootstrap-20261028-r4.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261028/issue1451-bootstrap-r4/systemvm-epic1451-bootstrap-20261028-r4.qcow2.bz2",
+  "compressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+  "compressedBytes": 498378060,
+  "qemuImageCheck": "No errors were found on the image.\n27437/80000 = 34.30% allocated, 0.00% fragmented, 0.00% compressed clusters\nImage end offset: 1799028736",
+  "buildKind": "signed manifest/signature correction only; nine payloads, baseline profile and other image paths unchanged"
+}

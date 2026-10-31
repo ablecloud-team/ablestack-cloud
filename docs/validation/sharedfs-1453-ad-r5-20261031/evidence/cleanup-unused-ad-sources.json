@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"unusedPreparationSourcesRemoved\": [\"10.10.13.249\", \"10.10.13.251\"], \"removedRules\": 6, \"activeR5Source220Preserved\": true, \"adService\": \"active\"}\n",
+  "stderr": ""
+}

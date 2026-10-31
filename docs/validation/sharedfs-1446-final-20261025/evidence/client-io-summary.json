@@ -1,0 +1,28 @@
+{
+  "onlineUpgradeRollback": {
+    "successfulHashChecks": 4992,
+    "failedChecks": 0,
+    "errorLines": 0,
+    "protocols": [
+      "NFS",
+      "SMB",
+      "iSCSI",
+      "NVMe-oF"
+    ]
+  },
+  "afterRollbackReboot": {
+    "hashChecksPassed": 4
+  },
+  "afterUpgradeReboot": {
+    "hashChecksPassed": 12,
+    "rounds": 3
+  },
+  "blockRead": {
+    "offsetBytes": 1048576,
+    "lengthBytes": 4096,
+    "directIo": true
+  },
+  "observedThrough": "actual Mold noVNC console",
+  "newDisksCreated": 0,
+  "macChanged": false
+}

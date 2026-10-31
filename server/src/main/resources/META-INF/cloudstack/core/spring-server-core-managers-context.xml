@@ -446,6 +446,7 @@
 
     <bean id="storageServiceGuestCommandDispatcher" class="org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommandDispatcherImpl" />
     <bean id="storageServiceRuntimeHostDispatcher" class="org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeHostDispatcherImpl" />
+    <bean id="storageServiceRuntimeCatalogManager" class="org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeCatalogManagerImpl" />
     <bean id="storageServiceRuntimeUpgradeManager" class="org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeUpgradeManagerImpl" />
     <bean id="storageServiceManagerImpl" class="org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl" />
     <bean id="internalBackupServiceImpl" class="org.apache.cloudstack.backup.InternalBackupServiceImpl" >

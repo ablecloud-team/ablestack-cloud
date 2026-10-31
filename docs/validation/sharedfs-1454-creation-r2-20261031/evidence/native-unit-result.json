@@ -1,0 +1,5 @@
+{
+  "actualSystemVmApiPersistenceRegression": "PASS",
+  "tests": 12,
+  "liveConfigurationChanged": false
+}

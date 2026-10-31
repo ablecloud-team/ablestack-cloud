@@ -1,0 +1,26 @@
+[
+  {
+    "case": "range CPU above max after blur",
+    "input": "5",
+    "confirmEnabled": false,
+    "text": "CPU 코어\n허용 범위: 2 ~ 4\nCPU 코어은(는) 2 ~ 4 범위의 정수여야 합니다."
+  },
+  {
+    "case": "fraction after blur",
+    "input": "3.5",
+    "confirmEnabled": false
+  },
+  {
+    "case": "missing CPU",
+    "input": "",
+    "confirmEnabled": false
+  },
+  {
+    "case": "valid upper bounds",
+    "cpu": "4",
+    "memory": "8192",
+    "fixedSpeed": "2000",
+    "fixedSpeedEnabled": false,
+    "confirmEnabled": true
+  }
+]

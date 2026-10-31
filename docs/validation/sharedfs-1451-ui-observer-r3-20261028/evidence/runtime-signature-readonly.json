@@ -1,0 +1,9 @@
+{
+  "signatureValid": true,
+  "trustScope": "same as bootstrap template trust",
+  "bundleVersion": "epic1438-1448-network-7a9630a08a2",
+  "manifestSha256": "7aa2656ff033d6be0a4b7b5ec74bb3c53588bbe59542fd0798a6a6ba711adfa1",
+  "currentExists": false,
+  "integrityExists": false,
+  "faultFixtureAbsent": true
+}

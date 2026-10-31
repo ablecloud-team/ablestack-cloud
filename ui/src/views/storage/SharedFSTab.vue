@@ -18,8 +18,22 @@
 -->
 
 <template>
-  <a-spin :spinning="storageService.initialLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+  <div>
+    <a-alert
+      v-if="storageReadPending.length || Object.keys(storageReadErrors).length"
+      class="storage-service__alert"
+      :type="Object.keys(storageReadErrors).length ? 'warning' : 'info'"
+      show-icon
+      role="status"
+      :message="storageReadStatus"
+      :description="storageReadDescription">
+      <template #action>
+        <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
+          <template #icon><ReloadOutlined /></template>
+          {{ $t('label.refresh') }}
+        </a-button>
+      </template>
+    </a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
@@ -31,7 +45,7 @@
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
-            v-if="!storageService.instance && !storageService.loading"
+            v-if="storageService.loaded && !storageService.instance && !storageReadErrors.instance"
             class="storage-service__alert"
             type="warning"
             show-icon
@@ -53,34 +67,32 @@
         </div>
       </a-tab-pane>
 
+      <a-tab-pane v-if="hasDirectoryPolicyApi && storageService.instance" :tab="$t('label.storage.directory.tab')" key="directory">
+        <StorageDirectoryPolicyPanel
+          :key="storageService.instance.id"
+          :instance="storageService.instance"
+          :execute="executeDirectoryPolicy"
+          :guarded="configurationProtected"
+          :operation="configurationDisplayOperation"
+          :refresh-token="storageRefreshGeneration"
+          @loaded="directoryPolicyRows=$event"
+          @resume="resumeConfigurationOperation" />
+      </a-tab-pane>
+
       <a-tab-pane v-if="hasStorageServiceApi" tab="NFS" key="nfs">
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
-            <protocol-header protocol="NFS" />
-            <a-space v-if="storageService.instance" class="protocol-toolbar protocol-toolbar--right" wrap>
-              <a-button @click="toggleProtocolWideLayout">
-                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
-                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
-              </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'NFS' })">
-                <template #icon><PoweroffOutlined /></template>
-                {{ $t('label.storage.service.enable.protocol') }}
-              </a-button>
-              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })">
-                <template #icon><DeleteOutlined /></template>
-                {{ $t('label.storage.service.delete.endpoint') }}
-              </a-button>
-              <a-button @click="openActionModal('nfsExport')">
-                <template #icon><PlusOutlined /></template>
-                {{ $t('label.storage.service.create.nfs.export') }}
-              </a-button>
-              <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
-                <template #icon><ReloadOutlined /></template>
-                {{ $t('label.refresh') }}
-              </a-button>
+            <a-space v-if="storageService.instance" class="protocol-toolbar" wrap>
+              <a-button type="primary" @click="openActionModal('nfsExport')"><PlusOutlined />{{ $t('label.storage.service.create.nfs.export') }}</a-button>
+              <a-button @click="openActionModal('enableProtocol', { protocol: 'NFS' })"><PoweroffOutlined />{{ $t('label.storage.service.enable.protocol') }}</a-button>
+              <a-button danger @click="openActionModal('deleteEndpoint', { protocol: 'NFS' })"><DeleteOutlined />{{ $t('label.storage.service.delete.endpoint') }}</a-button>
+              <a-button :disabled="!nfsIdentity.report || nfsIdentity.error" @click="openActionModal('nfsIdentity')">{{ $t('label.storage.nfs.identity.settings') }}</a-button>
+              <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData"><ReloadOutlined />{{ $t('label.refresh') }}</a-button>
+              <a-button @click="toggleProtocolWideLayout"><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else />{{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}</a-button>
             </a-space>
           </div>
           <template v-if="storageService.instance">
+            <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <a-alert
               v-if="storageIdentityDrift"
               class="storage-service__alert"
@@ -340,21 +352,16 @@
       <a-tab-pane v-if="hasStorageServiceApi" tab="SMB" key="smb">
         <div class="storage-service storage-service--protocol" :class="{ 'storage-service--wide': protocolWideLayout }">
           <div class="storage-protocol-topbar">
-            <protocol-header protocol="SMB" />
-            <a-space v-if="storageService.instance" class="protocol-toolbar protocol-toolbar--right" wrap>
-              <a-button @click="toggleProtocolWideLayout">
-                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
-                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
-              </a-button>
-              <a-button type="primary" @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
-                <template #icon><PoweroffOutlined /></template>
-                {{ $t('label.storage.service.enable.protocol') }}
-              </a-button>
-              <a-button @click="openActionModal('smbShare')">
+            <a-space v-if="storageService.instance" class="protocol-toolbar" wrap>
+              <a-button type="primary" @click="openActionModal('smbShare')">
                 <template #icon><PlusOutlined /></template>
                 {{ $t('label.storage.service.create.smb.share') }}
               </a-button>
-              <a-button v-if="!isSmbAdConfigured" @click="openActionModal('adJoin')">
+              <a-button @click="openActionModal('enableProtocol', { protocol: 'SMB' })">
+                <template #icon><PlusOutlined /></template>
+                {{ $t('label.storage.service.smb.endpoint.add') }}
+              </a-button>
+              <a-button v-if="!isSmbAdConfigured" :disabled="adOperationBusy" @click="openActionModal('adJoin')">
                 <template #icon><LinkOutlined /></template>
                 {{ $t('label.storage.service.join.ad.domain') }}
               </a-button>
@@ -366,9 +373,14 @@
                 <template #icon><ReloadOutlined /></template>
                 {{ $t('label.refresh') }}
               </a-button>
+              <a-button @click="toggleProtocolWideLayout">
+                <template #icon><FullscreenExitOutlined v-if="protocolWideLayout" /><FullscreenOutlined v-else /></template>
+                {{ protocolWideLayout ? $t('label.storage.service.default.view') : $t('label.storage.service.wide.view') }}
+              </a-button>
             </a-space>
           </div>
           <template v-if="storageService.instance">
+            <AdDomainProgressPanel v-if="Object.keys(adApplyStatus).length" :status="adApplyStatus" :busy="adProgress.busy" :error="adProgress.error" />
             <a-alert
               v-if="storageIdentityDrift"
               class="storage-service__alert"
@@ -435,11 +447,11 @@
               <a-table
                 class="storage-data-table"
                 size="small"
-                rowKey="key"
-                :columns="protocolListenerColumns"
+                rowKey="id"
+                :columns="smbListenerColumns"
                 :dataSource="smbListenerRows"
                 :pagination="false"
-                :scroll="{ x: 1260 }"
+                :scroll="{ x: 980 }"
                 :locale="storageTableLocale('message.storage.service.no.listeners')">
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.key === 'state'">
@@ -447,7 +459,10 @@
                   </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
-                      <a-button size="small" danger :disabled="!record.canDelete" :title="record.deleteDisabledReason || ''" @click="openDeleteConfirm('protocolListener', record)">
+                      <a-button size="small" :disabled="configurationProtected" @click="openSmbEndpointEdit(record)">
+                        <template #icon><EditOutlined /></template>{{ $t('label.edit') }}
+                      </a-button>
+                      <a-button size="small" danger :disabled="!record.canDelete || configurationProtected" :title="record.deleteDisabledReason || ''" @click="openSmbEndpointDelete(record)">
                         <template #icon><DeleteOutlined /></template>
                         {{ $t('label.delete') }}
                       </a-button>
@@ -486,6 +501,10 @@
                         <a-button size="small" @click="openActionModal('editSmbShare', record)">
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
+                      </a-button>
+                      <a-button size="small" @click="openSmbCreationPolicy(record)">
+                        <template #icon><SafetyCertificateOutlined /></template>
+                        {{ $t('label.storage.creation.settings') }}
                       </a-button>
                       <a-button size="small" @click="openActionModal('resizeShare', { id: record.id })">
                         <template #icon><ExpandAltOutlined /></template>
@@ -559,7 +578,7 @@
                   <p>{{ $t('message.storage.service.smb.identity.table') }}</p>
                 </div>
                 <a-space class="storage-section-actions" wrap>
-                  <a-button v-if="!isSmbAdConfigured" size="small" @click="openActionModal('adJoin')">
+                  <a-button v-if="!isSmbAdConfigured" size="small" :disabled="adOperationBusy" @click="openActionModal('adJoin')">
                     <template #icon><LinkOutlined /></template>
                     {{ $t('label.storage.service.join.ad.domain') }}
                   </a-button>
@@ -567,11 +586,11 @@
                     <template #icon><SafetyCertificateOutlined /></template>
                     {{ $t('label.storage.service.check.ad.domain.status') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" @click="openActionModal('adRejoin')">
+                  <a-button v-if="isSmbAdConfigured" size="small" :disabled="adOperationBusy" @click="openActionModal('adRejoin')">
                     <template #icon><ReloadOutlined /></template>
-                    {{ $t('label.storage.service.rejoin.ad.domain') }}
+                    {{ $t(adApplyStatus.membership === 'JOINED' && adApplyStatus.serviceApply && adApplyStatus.serviceApply !== 'VERIFIED' ? 'label.storage.ad.retry.service' : 'label.storage.service.rejoin.ad.domain') }}
                   </a-button>
-                  <a-button v-if="isSmbAdConfigured" size="small" danger @click="openActionModal('adLeave')">
+                  <a-button v-if="isSmbAdConfigured" size="small" danger :disabled="adOperationBusy" @click="openActionModal('adLeave')">
                     <template #icon><DisconnectOutlined /></template>
                     {{ $t('label.storage.service.leave.ad.domain') }}
                   </a-button>
@@ -1302,32 +1321,104 @@
         </div>
       </a-tab-pane>
 
-      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis"><NicsTab :resource="vm"/></a-tab-pane>
+      <a-tab-pane v-if="'getStorageServiceRuntimeUpgradeCapabilities' in $store.getters.apis" tab="런타임" key="runtime">
+        <StorageServiceRuntimeUpgrade v-if="currentTab === 'runtime'" :resource="resource" />
+      </a-tab-pane>
+      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis">
+        <SharedFSNetworkStatus
+          :resource="resource"
+:health="storageService.health"
+          :unavailable="!!storageReadErrors.health"
+:protocols="storageService.protocols"
+          :protected="configurationProtected || actionModal.loading"
+:refreshing="storageService.refreshing"
+          @refresh="refreshNetworkPolicy"
+@restarted="parentFetchData" />
+        <NicsTab :resource="vm" standard />
+      </a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="vmstats"><StatsTab :resource="vm"/></a-tab-pane>
+      <a-tab-pane
+v-if="storageService.instance && 'listStorageServiceConfigurationOperations' in $store.getters.apis"
+        :tab="$t('label.storage.configuration.history')"
+key="configurationoperations">
+        <StorageConfigurationOperationPanel history :instanceid="storageService.instance.id" @resume="resumeConfigurationOperation" />
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis"><events-tab :resource="resource" resourceType="SharedFS" :loading="loading" /></a-tab-pane>
     </a-tabs>
 
-    <a-modal
+    <SmbCreationPolicyDialog
+      v-if="smbCreationRow && storageService.instance"
+      :key="smbCreationRow.id"
+      :row="smbCreationRow"
+      :instance="storageService.instance"
+      :guarded="!!configurationProtected"
+      :operation="configurationDisplayOperation"
+      :execute="executeSmbCreationPolicy"
+      @close="smbCreationRow=null"
+      @done="smbCreationRow=null"
+      @refresh="refreshConfigurationOperation"
+      @resume="resumeConfigurationOperation" />
+
+    <MoldDialog
 :visible="actionModal.visible"
 :title="actionModalTitle"
 :confirmLoading="actionModal.loading"
 :maskClosable="false"
-:width="860"
-:centered="true"
+size="lg"
+form-actions
 :okText="actionModalOkText"
 :cancelText="$t('label.cancel')"
 :okButtonProps="actionModalOkButtonProps"
 wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
+      <StorageConfigurationPreflightPanel
+        v-if="configurationPreflight && !configurationProtected"
+        :report="configurationPreflight"
+:loading="configurationPreflightLoading"
+        :acknowledged="configurationImpactAcknowledged"
+        @acknowledge="configurationImpactAcknowledged = $event"
+@refresh="checkConfigurationPreflight" />
+      <a-alert
+v-if="configurationResult?.state === 'SUBMISSION_REJECTED'"
+type="warning"
+show-icon
+        :message="$t('label.storage.preflight.blocked')"
+:description="configurationResult.message" />
+      <StorageConfigurationOperationPanel
+v-if="configurationDisplayOperation"
+:operation="configurationDisplayOperation"
+        @refresh="refreshConfigurationOperation"
+@resume="resumeConfigurationOperation" />
+      <fieldset
+class="configuration-fields"
+:disabled="actionModal.loading || configurationProtected || configurationPreflightLoading"
+         :inert="actionModal.loading || configurationProtected || configurationPreflightLoading ? '' : null"
+:aria-busy="actionModal.loading">
       <div class="storage-modal-body"><a-form layout="vertical">
+        <div v-if="actionModal.type === 'nfsIdentity'">
+          <a-form-item :label="$t('label.storage.nfs.identity.mode')">
+            <a-select v-model:value="forms.nfsIdentity.idmappingmode">
+              <a-select-option value="NAME_DOMAIN">NAME_DOMAIN</a-select-option>
+              <a-select-option value="NUMERIC">NUMERIC (AUTH_SYS)</a-select-option>
+            </a-select>
+          </a-form-item>
+          <StorageNfsIdentityPanel :report="nfsIdentity.report" :mode="forms.nfsIdentity.idmappingmode" />
+        </div>
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
+          <a-alert
+v-if="forms.enableProtocol.protocol === 'SMB'"
+type="info"
+show-icon
+class="storage-service-inline-alert"
+            :message="$t('message.storage.service.smb.endpoint.preserve')"
+            :description="actionModal.context?.endpointid ? actionModal.context.endpointid + ' / ' + actionModal.context.listenIp + ':' + actionModal.context.port : ''" />
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.protocol')" :tooltip="$t('message.storage.service.protocol.help')" />
             </template>
-            <a-select v-model:value="forms.enableProtocol.protocol">
+            <a-select v-model:value="forms.enableProtocol.protocol" :disabled="actionModal.context?.protocol === 'SMB'">
               <a-select-option value="NFS">NFS</a-select-option>
               <a-select-option value="SMB">SMB</a-select-option>
               <a-select-option value="ISCSI">iSCSI</a-select-option>
@@ -1354,6 +1445,7 @@ wrapClassName="storage-service-action-modal"
               <tooltip-label :title="$t('label.storage.service.listen.ip')" :tooltip="$t('message.storage.service.listen.ip.help')" />
             </template>
             <a-select v-model:value="forms.enableProtocol.listenip" show-search optionFilterProp="label">
+              <a-select-option v-if="forms.enableProtocol.protocol === 'SMB'" value="0.0.0.0">0.0.0.0 ({{ $t('label.storage.service.listener.type.wildcard') }})</a-select-option>
               <a-select-option v-for="nic in serviceListenIps" :key="nic.key" :value="nic.ipaddress" :label="nic.label">
                 {{ nic.label }}
               </a-select-option>
@@ -1396,6 +1488,16 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'nfsExport' || actionModal.type === 'editNfsExport'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item v-if="hasDirectoryPolicyApi" :label="$t('label.storage.directory.reference')">
+            <a-select v-model:value="forms.nfsExport.directorypolicyid" show-search option-filter-prop="label" @change="selectDirectoryPolicy('nfsExport', $event)">
+              <a-select-option value="">{{ $t('label.storage.directory.standalone') }}</a-select-option>
+              <a-select-option v-for="row in registeredDirectoryPolicies" :key="row.id" :value="row.id" :label="row.path + ' · ' + row.volumeid">{{ row.path }} · {{ row.owneruid }}:{{ row.ownergid }} / {{ row.mode }} · {{ row.volumeid }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-alert v-if="forms.nfsExport.directorypolicyid" type="info" show-icon class="storage-action-alert" :message="$t('message.storage.directory.inherited')">
+            <template #action><a-button type="link" @click="viewDirectoryPolicy">{{ $t('label.storage.directory.manage') }}</a-button></template>
+          </a-alert>
+
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.nfs.export.name.help')" />
@@ -1404,11 +1506,11 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item required>
             <template #label>
-              <tooltip-label :title="$t('label.storage.service.internal.path')" :tooltip="$t('message.storage.service.nfs.backing.path.help')" />
+              <tooltip-label :title="$t(forms.nfsExport.directorypolicyid ? 'label.storage.directory.alias.path' : 'label.storage.service.internal.path')" :tooltip="$t(forms.nfsExport.directorypolicyid ? 'message.storage.directory.alias.path' : 'message.storage.service.nfs.backing.path.help')" />
             </template>
             <a-input v-model:value="forms.nfsExport.path" />
           </a-form-item>
-          <section class="storage-action-section">
+          <fieldset class="storage-policy-backing" :disabled="!!forms.nfsExport.directorypolicyid" :inert="forms.nfsExport.directorypolicyid ? '' : null"><section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
             <a-form-item required>
               <template #label>
@@ -1446,6 +1548,11 @@ wrapClassName="storage-service-action-modal"
                 </div>
               </div>
             </a-form-item>
+            <FileSharePathFields
+              :form="forms.nfsExport"
+              :root="currentBackingVolumeMountPath(selectedCurrentBackingVolume)"
+              :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading"
+              @change="forms.nfsExport[$event.key] = $event.value" />
             <volume-select
               v-if="forms.nfsExport.volumemode === 'EXISTING'"
               v-model:value="forms.nfsExport.volumeid"
@@ -1505,7 +1612,7 @@ wrapClassName="storage-service-action-modal"
                 </a-select>
               </a-form-item>
             </template>
-          </section>
+          </section></fieldset>
           <capacity-input :label="$t('label.storage.service.nfs.export.capacity.limit')" :tooltip="$t('message.storage.service.nfs.quota.help')" v-model:amount="forms.nfsExport.quotaamount" v-model:unit="forms.nfsExport.quotaunit" :units="capacityUnits" />
           <section v-if="isNfsRuntimeDualMode" class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.export.endpoints') }}</div>
@@ -1553,8 +1660,7 @@ wrapClassName="storage-service-action-modal"
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.export.options') }}</div>
             <div class="storage-action-checkbox-grid">
               <a-checkbox v-model:checked="forms.nfsExport.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.rootsquash">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsExport.allsquash">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
+              <a-select v-model:value="nfsExportSquashPolicy" style="min-width: 180px" :aria-label="$t('label.storage.nfs.mapping')"><a-select-option value="ROOT">Root Squash</a-select-option><a-select-option value="NONE">No Root Squash</a-select-option><a-select-option value="ALL">All Squash</a-select-option></a-select>
               <a-checkbox v-model:checked="forms.nfsExport.sync">{{ $t('label.storage.service.sync') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsExport.secure">
                 <a-tooltip :title="$t('message.storage.service.secure.help')">
@@ -1563,22 +1669,46 @@ wrapClassName="storage-service-action-modal"
               </a-checkbox>
             </div>
             <a-alert
-              v-if="forms.nfsExport.rootsquash"
               class="storage-action-context-alert"
               type="info"
               show-icon
-              :message="$t('message.storage.service.nfs.posix.permission.help')" />
+              :message="$t('message.storage.nfs.mapping.' + nfsExportSquashPolicy.toLowerCase())" />
           </section>
           <section class="storage-action-section">
-            <div class="storage-action-section__title">{{ $t('label.storage.service.posix.permission') }}</div>
-            <a-row :gutter="12">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.current.posix') }}</div>
+            <a-descriptions bordered size="small" :column="3">
+              <a-descriptions-item :label="$t('label.storage.service.owner.uid')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.owneruid : '-' }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.service.owner.gid')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.ownergid : '-' }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.service.directory.mode')">{{ nfsPosixObserved.status === 'OBSERVED' ? nfsPosixObserved.mode : $t('label.storage.nfs.posix.unavailable') }}</a-descriptions-item>
+            </a-descriptions>
+            <p class="storage-panel__description">{{ $t('message.storage.nfs.posix.observation') }} {{ nfsPosixObserved.observedat || '' }}</p>
+            <a-alert v-if="nfsAnonymousWriteMismatch" type="warning" show-icon class="storage-service-inline-alert" :message="$t('message.storage.nfs.anonymous.mismatch')" />
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.recommendation') }}</div>
+            <div class="storage-action-summary-box">
+              <code>{{ nfsRecommendedPosix.owneruid }}:{{ nfsRecommendedPosix.ownergid }} / {{ nfsRecommendedPosix.mode }}</code>
+              <a-button :disabled="!!forms.nfsExport.directorypolicyid || (actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED')" @click="useNfsRecommendedPosix">{{ $t('label.storage.nfs.use.recommendation') }}</a-button>
+              <p class="storage-panel__description">{{ $t('message.storage.nfs.recommendation.help') }}</p>
+            </div>
+            <a-form-item :label="$t('label.storage.nfs.change.permissions')">
+              <a-switch v-model:checked="nfsPosixEdit" :disabled="!!forms.nfsExport.directorypolicyid || (actionModal.type === 'editNfsExport' && nfsPosixObserved.status !== 'OBSERVED')" />
+              <span style="margin-left: 12px">{{ $t(nfsPosixEdit ? 'label.storage.nfs.explicit.change' : 'label.storage.nfs.preserve.permissions') }}</span>
+            </a-form-item>
+            <a-row :gutter="16">
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.uid')" :tooltip="$t('message.storage.service.owner.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.owneruid" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.owner.gid')" :tooltip="$t('message.storage.service.owner.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.ownergid" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
               <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsExport.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" placeholder="0775" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template><a-input v-model:value="forms.nfsExport.mode" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" placeholder="0775" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.recursive.permission')" :tooltip="$t('message.storage.service.recursive.permission.help')" /></template><a-switch v-model:checked="forms.nfsExport.recursivepermission" :disabled="!!forms.nfsExport.directorypolicyid || !nfsPosixEdit" /></a-form-item></a-col>
             </a-row>
+          </section>
+          <section class="storage-action-section">
+            <div class="storage-action-section__title">{{ $t('label.storage.nfs.permission.preview') }}</div>
+            <a-descriptions bordered size="small" :column="1">
+              <a-descriptions-item :label="$t('label.storage.nfs.current.posix')">{{ nfsCurrentPosixSummary }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ nfsNextPosixSummary }}</a-descriptions-item>
+              <a-descriptions-item :label="$t('label.storage.nfs.permission.scope')">{{ $t(nfsPosixParameters.recursivepermission ? 'message.storage.nfs.recursive.scope' : Object.keys(nfsPosixParameters).length ? 'message.storage.nfs.root.only' : 'message.storage.nfs.policy.only') }}</a-descriptions-item>
+            </a-descriptions>
           </section>
         </div>
         <div v-if="actionModal.type === 'nfsAcl' || actionModal.type === 'editNfsAcl'" class="storage-action-form storage-action-form--vertical">
@@ -1635,8 +1765,7 @@ wrapClassName="storage-service-action-modal"
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.nfs.access.options') }}</div>
             <div class="storage-action-checkbox-grid">
-              <a-checkbox v-model:checked="forms.nfsAcl.rootsquash">{{ $t('label.storage.service.root.squash') }}</a-checkbox>
-              <a-checkbox v-model:checked="forms.nfsAcl.allsquash">{{ $t('label.storage.service.all.squash') }}</a-checkbox>
+              <a-select v-model:value="forms.nfsAcl.squashpolicy" style="min-width: 200px" :aria-label="$t('label.storage.nfs.mapping')"><a-select-option value="INHERIT">{{ $t('label.storage.nfs.inherit.policy') }}</a-select-option><a-select-option value="ROOT">Root Squash</a-select-option><a-select-option value="NONE">No Root Squash</a-select-option><a-select-option value="ALL">All Squash</a-select-option></a-select>
               <a-checkbox v-model:checked="forms.nfsAcl.sync">{{ $t('label.storage.service.sync') }}</a-checkbox>
               <a-checkbox v-model:checked="forms.nfsAcl.secure">
                 <a-tooltip :title="$t('message.storage.service.secure.help')">
@@ -1646,10 +1775,10 @@ wrapClassName="storage-service-action-modal"
             </div>
           </section>
           <section class="storage-action-section">
-            <div class="storage-action-section__title">{{ $t('label.storage.service.squash.user.mapping') }}</div>
+            <div class="storage-action-section__title">{{ $t('label.storage.service.squash.user.mapping') }}</div><a-alert type="info" show-icon class="storage-service-inline-alert" :message="$t('message.storage.nfs.acl.permissions.unchanged')" />
             <a-row :gutter="12">
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anonuid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
-              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anongid" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.uid')" :tooltip="$t('message.storage.service.anon.uid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anonuid" :disabled="forms.nfsAcl.squashpolicy === 'INHERIT'" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
+              <a-col :xs="24" :md="12"><a-form-item><template #label><tooltip-label :title="$t('label.storage.service.anon.gid')" :tooltip="$t('message.storage.service.anon.gid.help')" /></template><a-input-number v-model:value="forms.nfsAcl.anongid" :disabled="forms.nfsAcl.squashpolicy === 'INHERIT'" class="storage-input-number" :min="0" :max="65535" /></a-form-item></a-col>
             </a-row>
           </section>
         </div>
@@ -1684,12 +1813,13 @@ wrapClassName="storage-service-action-modal"
             class="storage-action-context-alert storage-action-context-alert--danger"
             type="warning"
             show-icon
-            :message="$t('message.storage.service.delete.endpoint.warning')" />
+            :message="$t(forms.deleteEndpoint.protocol === 'SMB' ? 'message.storage.service.smb.endpoint.delete' : 'message.storage.service.delete.endpoint.warning')" />
           <a-form-item required>
             <template #label>
               <tooltip-label :title="$t('label.storage.service.endpoint')" :tooltip="$t('message.storage.service.delete.endpoint.help')" />
             </template>
-            <a-select v-model:value="forms.deleteEndpoint.listenip" show-search optionFilterProp="label">
+            <a-input v-if="forms.deleteEndpoint.protocol === 'SMB'" :value="forms.deleteEndpoint.listenip + ':' + forms.deleteEndpoint.port" readonly />
+            <a-select v-else v-model:value="forms.deleteEndpoint.listenip" show-search optionFilterProp="label">
               <a-select-option v-for="endpoint in removableServiceEndpoints" :key="endpoint.ipaddress" :value="endpoint.ipaddress" :label="endpoint.label">
                 {{ endpoint.label }}
               </a-select-option>
@@ -1703,15 +1833,25 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
         </div>
         <div v-if="actionModal.type === 'smbShare' || actionModal.type === 'editSmbShare'" class="storage-action-form storage-action-form--vertical">
+          <a-form-item v-if="hasDirectoryPolicyApi" :label="$t('label.storage.directory.reference')">
+            <a-select v-model:value="forms.smbShare.directorypolicyid" show-search option-filter-prop="label" @change="selectDirectoryPolicy('smbShare', $event)">
+              <a-select-option value="">{{ $t('label.storage.directory.standalone') }}</a-select-option>
+              <a-select-option v-for="row in registeredDirectoryPolicies" :key="row.id" :value="row.id" :label="row.path + ' · ' + row.volumeid">{{ row.path }} · {{ row.owneruid }}:{{ row.ownergid }} / {{ row.mode }} · {{ row.volumeid }}</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-alert v-if="forms.smbShare.directorypolicyid" type="info" show-icon class="storage-action-alert" :message="$t('message.storage.directory.inherited')">
+            <template #action><a-button type="link" @click="viewDirectoryPolicy">{{ $t('label.storage.directory.manage') }}</a-button></template>
+          </a-alert>
+
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.name')" :tooltip="$t('message.storage.service.smb.name.autogenerated')" /></template>
             <a-input v-model:value="forms.smbShare.name" />
           </a-form-item>
           <a-form-item required>
-            <template #label><tooltip-label :title="$t('label.storage.service.internal.path')" :tooltip="$t('message.storage.service.smb.internal.path.help')" /></template>
+            <template #label><tooltip-label :title="$t(forms.smbShare.directorypolicyid ? 'label.storage.directory.alias.path' : 'label.storage.service.internal.path')" :tooltip="$t(forms.smbShare.directorypolicyid ? 'message.storage.directory.alias.path' : 'message.storage.service.smb.internal.path.help')" /></template>
             <a-input v-model:value="forms.smbShare.path" placeholder="/export/smb01" />
           </a-form-item>
-          <section class="storage-action-section">
+          <fieldset class="storage-policy-backing" :disabled="!!forms.smbShare.directorypolicyid" :inert="forms.smbShare.directorypolicyid ? '' : null"><section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.backing.volume') }}</div>
             <a-form-item required>
               <template #label>
@@ -1749,6 +1889,11 @@ wrapClassName="storage-service-action-modal"
                 </div>
               </div>
             </a-form-item>
+            <FileSharePathFields
+              :form="forms.smbShare"
+              :root="currentBackingVolumeMountPath(selectedSmbCurrentBackingVolume)"
+              :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading"
+              @change="forms.smbShare[$event.key] = $event.value" />
             <volume-select
               v-if="forms.smbShare.volumemode === 'EXISTING'"
               v-model:value="forms.smbShare.volumeid"
@@ -1808,7 +1953,7 @@ wrapClassName="storage-service-action-modal"
                 </a-select>
               </a-form-item>
             </template>
-          </section>
+          </section></fieldset>
           <capacity-input :label="$t('label.storage.service.smb.share.capacity.limit')" :tooltip="$t('message.storage.service.smb.quota.help')" v-model:amount="forms.smbShare.quotaamount" v-model:unit="forms.smbShare.quotaunit" :units="capacityUnits" />
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.storage.service.cross.protocol.share')" :tooltip="$t('message.storage.service.cross.protocol.share.help')" /></template>
@@ -1816,13 +1961,15 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item>
             <template #label><tooltip-label :title="$t('label.storage.service.directory.mode')" :tooltip="$t('message.storage.service.directory.mode.help')" /></template>
-            <a-input v-model:value="forms.smbShare.directorymode" placeholder="0770" />
+            <a-input v-if="forms.smbShare.directorypolicyid" :value="selectedDirectoryPolicy('smbShare')?.mode || ''" readonly />
+            <a-input v-else v-model:value="forms.smbShare.directorymode" placeholder="0770" />
           </a-form-item>
           <a-space wrap>
             <a-checkbox v-model:checked="forms.smbShare.readonly">{{ $t('label.storage.service.permission.readonly') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.browseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.guestok">{{ $t('label.storage.service.guest.access') }}</a-checkbox>
           </a-space>
+          <SmbParentInheritanceFields v-model:value="forms.smbShare.inheritowner" :policy="selectedDirectoryPolicy('smbShare')" :report="configurationPreflight" :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading" @manage="viewDirectoryPolicy" />
         </div>
         <div v-if="actionModal.type === 'smbAcl' || actionModal.type === 'editSmbAcl'" class="storage-action-form storage-action-form--vertical">
           <a-row :gutter="16">
@@ -1834,6 +1981,7 @@ wrapClassName="storage-service-action-modal"
           </a-row>
         </div>
         <div v-if="actionModal.type === 'adJoin' || actionModal.type === 'adRejoin'" class="storage-action-form storage-action-form--vertical">
+          <AdDomainProgressPanel :status="adApplyStatus" :busy="adProgress.busy" :error="adProgress.error" />
           <a-alert
             class="storage-service__alert"
             type="info"
@@ -2201,7 +2349,12 @@ wrapClassName="storage-service-action-modal"
           </a-row>
         </div>
       </a-form></div>
-    </a-modal>
+      </fieldset>
+      <MoldDialogActions :busy="adProgress.busy || (actionModal.loading && !configurationOperation?.requestid)">
+        <a-button @click="closeActionModal">{{ $t(configurationProtected ? 'label.close' : 'label.cancel') }}</a-button>
+        <a-button type="primary" :loading="actionModal.loading" v-bind="actionModalOkButtonProps" @click="submitActionModal">{{ actionModalOkText }}</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
     <a-modal
       :visible="identityRepair.visible"
       :title="$t('label.storage.service.nic.identity.repair')"
@@ -2228,7 +2381,7 @@ wrapClassName="storage-service-action-modal"
         </div>
       </div>
     </a-modal>
-  </a-spin>
+  </div>
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -2241,9 +2394,29 @@ import DetailsTab from '@/components/view/DetailsTab'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
 import NicsTab from '@/views/network/NicsTab.vue'
+import SharedFSNetworkStatus from '@/views/storage/SharedFSNetworkStatus.vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
+import { backingFilesystem } from '@/utils/sharedFsBacking'
+import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
+import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
+import FileSharePathFields from '@/components/storage/FileSharePathFields'
+import { fileSharePathParameters, shareRelativePath, childShares, validRelativePath, relativePath } from '@/utils/fileSharePaths'
+import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
+import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanceFields'
+import AdDomainProgressPanel from '@/components/storage/AdDomainProgressPanel'
+import { adDomainProgress, adDomainApplied, adDomainBusy } from '@/utils/adDomainProgress'
+import { inheritOwnerParameters, setgidEnabled } from '@/utils/smbParentInheritance'
+import SmbCreationPolicyDialog from '@/components/storage/SmbCreationPolicyDialog'
+import { smbCreationModes, smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
+import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
+import { nfsSquashPolicy, nfsSquashFlags, nfsPosixRecommendation, nfsPermissionDelta, nfsMappingDelta, nfsPermissionIntent, nfsPosixObservation } from '@/utils/nfsPosixPolicy'
+import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
+import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
   DeleteOutlined,
   DisconnectOutlined,
@@ -2266,6 +2439,7 @@ const ProtocolHeader = {
     }
   },
   computed: {
+
     protocolLabel () {
       return this.protocol === 'NVME_OF' ? 'NVMe-oF' : this.protocol
     }
@@ -2450,10 +2624,22 @@ const CapacityInput = {
 export default {
   name: 'SharedFSTab',
   components: {
+    StorageServiceRuntimeUpgrade,
+    MoldDialog,
+    StorageNfsIdentityPanel,
+    StorageDirectoryPolicyPanel,
+    FileSharePathFields,
+    SmbParentInheritanceFields,
+    SmbCreationPolicyDialog,
+    AdDomainProgressPanel,
+    MoldDialogActions,
+    StorageConfigurationOperationPanel,
+    StorageConfigurationPreflightPanel,
     DetailsTab,
     StatsTab,
     EventsTab,
     NicsTab,
+    SharedFSNetworkStatus,
     TooltipButton,
     TooltipLabel,
     Status,
@@ -2473,7 +2659,7 @@ export default {
     ReloadOutlined,
     SafetyCertificateOutlined
   },
-  mixins: [listRefreshMixin(['fetchStorageServiceData'], { interval: 60000, active: vm => vm.hasStorageServiceApi }), mixinDevice],
+  mixins: [listRefreshMixin(['fetchStorageServiceData'], { interval: 60000, active: vm => vm.hasStorageServiceApi, requestScope: vm => vm.storageReadScope }), mixinDevice],
   props: {
     resource: {
       type: Object,
@@ -2488,6 +2674,7 @@ export default {
   inject: ['parentFetchData'],
   data () {
     return {
+      nfsIdentity: { report: null, loading: false, error: false, read: 0 },
       vm: {},
       volume: {},
       volumes: [],
@@ -2522,6 +2709,9 @@ export default {
         backingVolumes: []
       },
       storageRefreshGeneration: 0,
+      storageReadPending: [],
+      storageReadErrors: {},
+      storageReadUpdated: null,
       diskOfferings: [],
       diskOfferingLoading: false,
       actionModal: {
@@ -2530,6 +2720,30 @@ export default {
         context: null,
         loading: false
       },
+      directoryPolicyRows: [],
+      configurationAcceptedPreflight: null,
+      configurationFormStamp: '',
+      nfsPosixEdit: false,
+      nfsPosixBaseline: {},
+      nfsAnonBaseline: {},
+      nfsPosixObserved: { status: 'UNAVAILABLE' },
+      nfsAclMappingBaseline: {},
+      smbCreationRow: null,
+      configurationPreflight: null,
+      configurationPreflightLoading: false,
+      configurationPreflightRead: 0,
+      configurationImpactAcknowledged: false,
+      adProgress: { busy: false, error: '', jobid: null, latest: null },
+      configurationPreflightTimer: null,
+      preparedConfigurationVolumes: {},
+      preparedConfigurationKeys: [],
+      configurationOperation: null,
+      configurationGeneration: 0,
+      configurationProtectionRead: 0,
+      configurationProtectionLoading: false,
+      configurationProtectionUnavailable: false,
+      configurationRequest: null,
+      configurationResult: null,
       actionLoading: {},
       identityRepair: {
         visible: false,
@@ -2547,8 +2761,10 @@ export default {
         { value: 'TiB', label: 'TiB', multiplier: 1024 * 1024 * 1024 * 1024 }
       ],
       forms: {
+        nfsIdentity: { idmappingmode: 'NAME_DOMAIN' },
         enableProtocol: {
           protocol: 'NFS',
+          endpointid: '',
           listenipmode: 'EXISTING',
           listenip: '',
           port: null,
@@ -2565,6 +2781,9 @@ export default {
           newvolumesize: null,
           filesystem: 'xfs',
           relativepath: '',
+          nestedpath: true,
+          nestedpathbaseline: false,
+          relativepathbaseline: '',
           createdirectory: false,
           quotaamount: null,
           quotaunit: 'GiB',
@@ -2614,7 +2833,9 @@ export default {
           guestok: false,
           createdirectory: true,
           crossprotocol: false,
-          directorymode: '0770'
+          directorymode: '0770',
+          inheritowner: false,
+          inheritownerbaseline: false
         },
         smbAcl: {
           id: '',
@@ -2740,6 +2961,7 @@ export default {
           confirmation: ''
         },
         deleteEndpoint: {
+          endpointid: '',
           protocol: 'NFS',
           listenip: '',
           confirmation: ''
@@ -2748,6 +2970,54 @@ export default {
     }
   },
   computed: {
+    adApplyStatus () {
+      const observed = adDomainProgress(this.storageService.domains?.[0])
+      if (this.adProgress.busy || (['adJoin', 'adRejoin'].includes(this.actionModal.type) && this.adProgress.error)) return this.adProgress.latest || observed
+      return observed.membership ? observed : this.adProgress.latest || {}
+    },
+    adOperationBusy () { return this.adProgress.busy || adDomainBusy(adDomainProgress(this.storageService.domains?.[0])) || adDomainBusy(this.adApplyStatus) },
+
+    storageReadScope () {
+      return JSON.stringify([this.resource.id, this.resource.virtualmachineid, this.resource.zoneid,
+        this.$store.getters.project?.id, this.$store.getters.userInfo?.id])
+    },
+    storageReadStatus () {
+      return this.$t(Object.keys(this.storageReadErrors).length
+        ? 'message.storage.service.read.partial' : 'message.storage.service.read.loading')
+    },
+    storageReadDescription () {
+      const labels = {
+        instance: 'label.storage.service.overview',
+        health: 'label.storage.service.status.summary',
+        protocols: 'label.protocol',
+        domains: 'label.storage.service.ad.domain',
+        nfsExports: 'label.storage.service.nfs.export',
+        smbShares: 'label.storage.service.smb.share',
+        iscsiTargets: 'label.storage.service.iscsi.target',
+        nvme: 'NVMe-oF',
+        nfsAcls: 'label.storage.service.nfs.acl',
+        smbAcls: 'label.storage.service.smb.acl',
+        iscsiAcls: 'label.storage.service.iscsi.acl',
+        backingVolumes: 'label.volumes',
+        vm: 'label.virtualmachine',
+        volume: 'label.volume'
+      }
+      const reasons = {
+        timeout: 'message.storage.service.read.timeout',
+        forbidden: 'message.storage.service.read.forbidden',
+        failed: 'message.storage.service.read.failed',
+        network: 'message.storage.service.read.network'
+      }
+      const errors = Object.entries(this.storageReadErrors).map(([section, kind]) =>
+        (section === 'nvme' ? 'NVMe-oF' : this.$t(labels[section])) + ': ' +
+        this.$t(reasons[kind]))
+      if (this.storageReadUpdated && errors.length) {
+        errors.push(this.$t('message.storage.service.read.last.success', { time: new Date(this.storageReadUpdated).toLocaleString() }))
+      }
+      return errors.join(' / ')
+    },
+    hasDirectoryPolicyApi () { return 'listStorageDirectoryPolicies' in (this.$store.getters.apis || {}) },
+    registeredDirectoryPolicies () { return this.directoryPolicyRows.filter(row => row.id && row.observationstatus === 'APPLIED') },
     hasStorageServiceApi () {
       return 'listStorageServiceInstances' in this.$store.getters.apis
     },
@@ -3080,7 +3350,7 @@ export default {
       return items
     },
     nfsListenerGroupOptions () {
-      const ports = new Set([2049])
+      const ports = new Set()
       this.nfsRuntimeProtocolEntries().forEach(entry => {
         const port = Number(entry.port)
         if (Number.isFinite(port) && port > 0) ports.add(port)
@@ -3094,11 +3364,15 @@ export default {
           groups.forEach(group => addPorts(group?.port ?? group?.listenerPort ?? group?.listenerport))
         }
       }
-      (this.storageService.protocols || []).forEach(protocol => {
-        addPorts(protocol?.port ?? protocol?.listenPort ?? protocol?.listenport ?? protocol?.endpointPort)
-        addConfigPorts(this.parseStorageConfig(protocol.config))
-      })
+      (this.storageService.protocols || [])
+        .filter(protocol => String(protocol?.protocol || protocol?.name || '').trim().toUpperCase() === 'NFS')
+        .filter(protocol => protocol.enabled === undefined || this.boolValue(protocol.enabled))
+        .forEach(protocol => {
+          addPorts(protocol.port ?? protocol.listenPort ?? protocol.listenport ?? protocol.endpointPort)
+          addConfigPorts(this.parseStorageConfig(protocol.config))
+        })
       this.storageService.nfsExports.forEach(share => addConfigPorts(this.parseStorageConfig(share.config)))
+      if (!ports.size) ports.add(2049)
       return Array.from(ports).sort((a, b) => a - b).map(port => ({
         value: port,
         label: `${this.$t('label.port')} ${port} / ${this.formatNfsListenerGroupEndpoints([port])}`
@@ -3235,6 +3509,12 @@ export default {
     },
     nvmeListenerColumns () {
       return this.protocolListenerColumns
+    },
+    smbListenerColumns () {
+      return this.protocolListenerColumns.map(column => ({
+        ...column,
+        width: ({ listenIp: 170, port: 80, type: 110, effectiveEndpoints: 210, linkedResourceCount: 110, state: 140, actions: 160 })[column.key]
+      }))
     },
     protocolListenerColumns () {
       return [
@@ -3573,11 +3853,14 @@ export default {
         { title: this.$t('label.storage.service.export.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 180, code: true },
         { title: this.$t('label.storage.service.client.mount.root'), dataIndex: 'clientPath', key: 'clientPath', width: 240, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
+        { title: this.$t('label.storage.path.relative'), dataIndex: 'relativePath', key: 'relativePath', width: 220, code: true },
+        { title: this.$t('label.storage.path.physical'), dataIndex: 'physicalPath', key: 'physicalPath', width: 320, code: true },
+        { title: this.$t('label.storage.path.status'), dataIndex: 'pathStatus', key: 'pathStatus', width: 240 },
         { title: this.$t('label.storage.service.nfs.protocol.mode'), dataIndex: 'protocolMode', key: 'protocolMode', width: 150 },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
         { title: this.$t('label.storage.service.permission'), dataIndex: 'permission', key: 'permission', width: 130 },
-        { title: this.$t('label.storage.service.root.squash'), dataIndex: 'rootSquash', key: 'rootSquash', width: 130 },
-        { title: this.$t('label.storage.service.posix.permission'), dataIndex: 'posixPermission', key: 'posixPermission', width: 220, code: true },
+        { title: this.$t('label.storage.nfs.mapping'), dataIndex: 'rootSquash', key: 'rootSquash', width: 150 },
+        { title: this.$t('label.storage.nfs.current.posix'), dataIndex: 'posixPermission', key: 'posixPermission', width: 220, code: true },
         { title: this.$t('label.storage.service.access.rules'), dataIndex: 'aclSummary', key: 'aclSummary', width: 220 },
         { title: this.$t('label.storage.service.capacity'), dataIndex: 'capacity', key: 'capacity', width: 150 },
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
@@ -3628,8 +3911,14 @@ export default {
     smbShareColumns () {
       return [
         { title: this.$t('label.storage.service.smb.share.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 190, code: true },
+        { title: this.$t('label.storage.creation.summary'), dataIndex: 'creationMasks', key: 'creationMasks', width: 180, code: true },
+        { title: this.$t('label.storage.inheritance.new.uid'), dataIndex: 'inheritOwner', key: 'inheritOwner', width: 150 },
+        { title: this.$t('label.storage.inheritance.group'), dataIndex: 'inheritGroup', key: 'inheritGroup', width: 160 },
         { title: this.$t('label.storage.service.client.unc.root'), dataIndex: 'clientPath', key: 'clientPath', width: 340, code: true },
         { title: this.$t('label.storage.service.internal.path'), dataIndex: 'path', key: 'path', width: 220, code: true },
+        { title: this.$t('label.storage.path.relative'), dataIndex: 'relativePath', key: 'relativePath', width: 220, code: true },
+        { title: this.$t('label.storage.path.physical'), dataIndex: 'physicalPath', key: 'physicalPath', width: 320, code: true },
+        { title: this.$t('label.storage.path.status'), dataIndex: 'pathStatus', key: 'pathStatus', width: 240 },
         { title: this.$t('label.storage.service.ip.port'), dataIndex: 'endpoint', key: 'endpoint', width: 260, code: true },
         { title: this.$t('label.storage.service.browseable'), dataIndex: 'browseable', key: 'browseable', width: 120 },
         { title: this.$t('label.storage.service.guest.access'), dataIndex: 'guestOk', key: 'guestOk', width: 130 },
@@ -3637,7 +3926,7 @@ export default {
         { title: this.$t('label.storage.service.capacity'), dataIndex: 'capacity', key: 'capacity', width: 150 },
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 110 },
-        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 260, align: 'right', className: 'storage-table-actions-column' }
+        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 420, align: 'right', className: 'storage-table-actions-column' }
       ]
     },
     smbAclColumns () {
@@ -3693,11 +3982,14 @@ export default {
           name,
           clientPath: this.formatNfsClientMountRoots(share, name),
           path: share.path || share.mountpath || share.backingpath || '-',
+          relativePath: share.relativepath || config.relativeSharePath || '-',
+          physicalPath: config.backingPath || '-',
+          pathStatus: share.pathstatus === 'LEGACY' ? '-' : [share.pathstatus, share.pathreason].filter(Boolean).join(' · ') || '-',
           endpoint: this.formatNfsExportEndpoints(share),
           protocolMode: this.nfsProtocolModeLabel(protocolMode),
           permission: this.permissionLabel(share.permission || (share.readonly || config.readOnly ? 'READ_ONLY' : 'READ_WRITE')),
-          rootSquash: this.booleanLabel(config.rootSquash),
-          posixPermission: this.posixPermissionSummary(config),
+          rootSquash: { ROOT: 'Root Squash', NONE: 'No Root Squash', ALL: 'All Squash' }[nfsSquashPolicy(config)],
+          posixPermission: this.nfsObservationSummary(share.posixobservation),
           aclSummary: this.aclSummary(acls),
           capacity: this.formatCapacityValue(share.quotabytes || share.quotaBytes || share.capacitybytes || share.sizebytes),
           volumeName: volume.name || volume.displayname || share.volumename || share.volumeName || share.volumeid || '-',
@@ -3809,12 +4101,21 @@ export default {
         const name = this.clientVisibleName(share.name || share.sharename, `smb${index + 1}`)
         const config = this.parseStorageConfig(share.config)
         const volume = this.volumeForShare(share)
+        const observed = (this.parsedInventory.smbParentInheritanceObservations || []).find(row => row.uuid === share.id)
+        const policy = this.directoryPolicyRows.find(row => row.id === config.directoryPolicyUuid)
+        const group = setgidEnabled(observed?.parent?.mode || policy?.observation?.mode)
         return {
           key: share.id || `smb-share-${index}`,
           id: share.id,
           name,
           clientPath: this.smbClientPathForShare(name),
+          creationMasks: this.smbCreationSummary(config),
+          inheritOwner: this.$t(config.inheritOwner === true ? 'label.storage.inheritance.parent.uid' : 'label.storage.inheritance.creator.uid'),
+          inheritGroup: this.$t(group === null ? 'label.unknown' : group ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled'),
           path: share.path || share.mountpath || share.backingpath || '-',
+          relativePath: share.relativepath || config.relativeSharePath || '-',
+          physicalPath: config.backingPath || '-',
+          pathStatus: share.pathstatus === 'LEGACY' ? '-' : [share.pathstatus, share.pathreason].filter(Boolean).join(' · ') || '-',
           endpoint: this.smbEndpointPairSummary || `${share.listenip || this.serviceEndpoint || '-'}:${share.port || 445}`,
           browseable: this.booleanLabel(share.browseable ?? config.browseable),
           guestOk: this.booleanLabel(share.guestok ?? share.guestOk ?? config.guestOk),
@@ -4328,7 +4629,11 @@ export default {
       })
     },
     actionModalTitle () {
+      if (this.actionModal.type === 'enableProtocol' && this.forms.enableProtocol.protocol === 'SMB') {
+        return this.$t(this.forms.enableProtocol.endpointid ? 'label.storage.service.smb.endpoint.edit' : 'label.storage.service.smb.endpoint.add')
+      }
       const titles = {
+        nfsIdentity: 'label.storage.nfs.identity.settings',
         enableProtocol: 'label.storage.service.enable.protocol',
         nfsExport: 'label.storage.service.create.nfs.export',
         editNfsExport: 'label.storage.service.update.nfs.export',
@@ -4362,10 +4667,69 @@ export default {
       }
       return this.$t(titles[this.actionModal.type] || 'label.action')
     },
+    nfsExportSquashPolicy: {
+      get () { return nfsSquashPolicy(this.forms.nfsExport) },
+      set (value) { Object.assign(this.forms.nfsExport, nfsSquashFlags(value)) }
+    },
+    nfsRecommendedPosix () {
+      const f = this.forms.nfsExport
+      return nfsPosixRecommendation(this.nfsExportSquashPolicy, f.readonly, f.anonuid, f.anongid)
+    },
+    nfsPosixParameters () { if (this.forms.nfsExport.directorypolicyid || this.forms.nfsExport.nestedpath && this.configurationPreflight?.pathpreview?.exists) return {}; return nfsPermissionDelta(this.nfsPosixBaseline, this.forms.nfsExport, this.nfsPosixEdit) },
+    nfsAclPolicyParameters () {
+      if (this.forms.nfsAcl.squashpolicy === 'INHERIT') return { inheritpolicy: true }
+      return { ...nfsSquashFlags(this.forms.nfsAcl.squashpolicy || 'ROOT'), ...nfsMappingDelta(this.nfsAclMappingBaseline, this.forms.nfsAcl) }
+    },
+    nfsCurrentPosixSummary () { return this.nfsObservationSummary(this.nfsPosixObserved) },
+    nfsNextPosixSummary () {
+      if (!Object.keys(this.nfsPosixParameters).length) return this.$t('label.storage.nfs.preserve.permissions')
+      const f = { ...this.nfsPosixBaseline, ...(this.nfsPosixObserved.status === 'OBSERVED' ? this.nfsPosixObserved : {}), ...this.nfsPosixParameters }
+      return `${f.owneruid ?? '-'}:${f.ownergid ?? '-'} / ${f.mode || '-'}`
+    },
+    nfsAnonymousWriteMismatch () {
+      const f = this.forms.nfsExport; const o = this.nfsPosixObserved
+      if (f.readonly || this.nfsExportSquashPolicy === 'NONE' || o.status !== 'OBSERVED') return false
+      const uid = f.anonuid ?? 65534; const gid = f.anongid ?? 65534; const mode = parseInt(o.mode, 8)
+      return !(uid === 0 || (uid === o.owneruid && (mode & 128)) || (gid === o.ownergid && (mode & 16)) || (mode & 2))
+    },
+    configurationIntent () {
+      const value = configurationModalIntent(this.actionModal.type, this.forms, this.actionModal.context)
+      if (value && ['nfsExport', 'editNfsExport'].includes(this.actionModal.type)) {
+        value.posixchanges = nfsPermissionIntent(this.nfsPosixParameters)
+        value.name = this.forms.nfsExport.name
+        value.path = this.forms.nfsExport.path
+      }
+      return value
+    },
     actionModalOkText () {
+      if (this.actionModal.loading || this.configurationProtected) return this.$t('label.storage.configuration.state.running')
+      if (this.configurationIntent) return this.$t(this.configurationPreflight ? 'label.storage.preflight.apply' : 'label.storage.preflight.check')
       return ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type) ? this.$t('label.ok') : this.$t('label.ok')
     },
+    configurationProtected () {
+      return this.configurationProtectionLoading || this.configurationProtectionUnavailable ||
+        this.boolValue(this.storageService.instance?.configurationprotection) ||
+        !!(this.configurationOperation && !configurationRetryAllowed(this.configurationOperation) &&
+          this.configurationOperation.state !== 'COMMITTED')
+    },
+    configurationDisplayOperation () {
+      const operation = this.configurationOperation
+      const protectedByServer = this.boolValue(this.storageService.instance?.configurationprotection)
+      if (operation && (!protectedByServer || !terminalConfigurationState(operation.state))) {
+        return this.configurationProtectionUnavailable ? { ...operation, observationwarning: true } : operation
+      }
+      if (this.configurationProtected) {
+        return {
+          instanceid: this.storageService.instance?.id,
+          state: 'OBSERVATION_UNAVAILABLE',
+          phase: 'OBSERVING',
+          observationwarning: this.configurationProtectionUnavailable
+        }
+      }
+      return operation
+    },
     actionModalOkButtonProps () {
+      if (['adJoin', 'adRejoin'].includes(this.actionModal.type) && (this.adProgress.busy || adDomainBusy(this.adApplyStatus))) return { disabled: true }
       const deleteEndpointBlocked = this.actionModal.type === 'deleteEndpoint' && !this.deleteEndpointConfirmationMatched
       const resizeVolumeSize = Number(this.forms.resizeBackingVolume.size)
       const resizeVolumeMinSize = Number(this.forms.resizeBackingVolume.minSizeGiB)
@@ -4377,7 +4741,8 @@ export default {
       )
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
-        disabled: (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+        disabled: !!this.configurationProtected || this.configurationPreflightLoading ||
+          (this.configurationIntent && this.configurationPreflight && !preflightApplicable(this.configurationPreflight, this.configurationImpactAcknowledged)) || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
           resizeBackingVolumeBlocked ||
@@ -4462,15 +4827,55 @@ export default {
     }
   },
   created () {
-    const self = this
     this.dataResource = this.resource
     this.initStorageDefaults()
     this.fetchData()
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
+    this.storagePopstate = () => this.setCurrentTab()
+    window.addEventListener('popstate', this.storagePopstate)
+  },
+  beforeUnmount () {
+    this.configurationGeneration++
+    this.cancelStorageRead()
+    if (this._vmRead) this._vmRead.abort()
+    if (this._volumeRead) this._volumeRead.abort()
+    clearTimeout(this.configurationPreflightTimer)
+    this.configurationPreflightRead++
+    window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+
+    'resource.id' () { this.smbCreationRow = null },
+    forms: {
+      deep: true,
+      handler () {
+        const stamp = JSON.stringify(this.forms)
+        if (stamp === this.configurationFormStamp) return
+        this.configurationFormStamp = stamp
+        if (!this.actionModal.loading && !this.configurationPreflightLoading) this.invalidateConfigurationPreflight()
+      }
+    },
+    'actionModal.visible' (visible) {
+      if (visible) {
+        this.invalidateConfigurationPreflight()
+        this.configurationResult = null
+        if (!this.configurationProtected) {
+          this.configurationGeneration++
+          this.configurationOperation = null
+          this.configurationRequest = null
+        }
+      }
+    },
+    'storageService.instance' (instance, previous) {
+      if (instance?.id !== previous?.id) this.resetConfigurationProtection()
+      if (instance && (this.boolValue(instance.configurationprotection) ||
+        this.boolValue(previous?.configurationprotection) || this.configurationProtected)) {
+        this.refreshConfigurationProtection()
+      }
+    },
+    storageReadScope () {
+      this.resetConfigurationProtection()
+      this.fetchStorageServiceData()
+    },
     resource: {
       deep: true,
       handler (newData, oldData) {
@@ -4485,18 +4890,21 @@ export default {
       this.setCurrentTab()
     },
     'forms.enableProtocol.protocol': function (protocol) {
+      if (this.forms.enableProtocol.endpointid && protocol === 'SMB') return
       this.forms.enableProtocol.port = this.defaultProtocolPort(protocol)
       if (String(protocol || '').toUpperCase() === 'NFS' && !this.forms.enableProtocol.protocolmode) {
         this.forms.enableProtocol.protocolmode = this.nfsRuntimeProtocolMode()
       }
     },
     'forms.nfsExport.volumemode': function (mode) {
+      if (this.actionModal.type === 'nfsExport') this.forms.nfsExport.createdirectory = mode !== 'CURRENT'
       if (mode === 'CURRENT' && !this.forms.nfsExport.volumeid) {
         this.forms.nfsExport.volumeid = this.defaultCurrentBackingVolumeId()
       }
       this.syncNfsExportPathToCurrentVolume()
     },
     'forms.smbShare.volumemode': function (mode) {
+      if (this.actionModal.type === 'smbShare') this.forms.smbShare.createdirectory = mode !== 'CURRENT'
       if (mode === 'CURRENT' && !this.forms.smbShare.volumeid) {
         this.forms.smbShare.volumeid = this.defaultCurrentBackingVolumeId()
       }
@@ -4632,7 +5040,7 @@ export default {
     },
     handleChangeTab (e) {
       this.currentTab = e
-      if (['details', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
+      if (['details', 'directory', 'nfs', 'smb', 'iscsi', 'nvmeof'].includes(e)) {
         this.fetchStorageServiceData()
       }
       if (!this.isStorageProtocolTab(e)) {
@@ -4682,39 +5090,46 @@ export default {
       }
       this.$router.replace({ path: this.$route.path, query }).catch(() => {})
     },
-    fetchInstances () {
-      if (!this.resource.virtualmachineid) {
-        return
-      }
+    async fetchInstances () {
+      if (!this.resource.virtualmachineid) return
+      if (this._vmRead) this._vmRead.abort()
+      const controller = new AbortController()
+      this._vmRead = controller
+      const scope = this.storageReadScope
       this.instanceLoading = true
-      var params = {
-        id: this.resource.virtualmachineid,
-        listall: true
-      }
-      if (this.$store.getters.listAllProjects) {
-        params.projectid = '-1'
-      }
-      getAPI('listVirtualMachines', params).then(json => {
+      const params = { id: this.resource.virtualmachineid, listall: true }
+      if (this.$store.getters.listAllProjects) params.projectid = '-1'
+      try {
+        const json = await getAPI('listVirtualMachines', params, { timeout: 30000, preserveOnFailure: true, signal: controller.signal })
+        if (this.listRefreshDisposed || controller.signal.aborted || scope !== this.storageReadScope) return
         this.virtualmachines = json.listvirtualmachinesresponse.virtualmachine || []
         this.vm = this.virtualmachines[0] || {}
-      })
-      this.instanceLoading = false
+        delete this.storageReadErrors.vm
+      } catch (error) {
+        if (!controller.signal.aborted && scope === this.storageReadScope) this.storageReadErrors.vm = this.storageReadErrorKind(error)
+      } finally {
+        if (this._vmRead === controller) this.instanceLoading = false
+      }
     },
-    fetchVolumes () {
-      if (!this.resource.volumeid) {
-        return
-      }
+    async fetchVolumes () {
+      if (!this.resource.volumeid) return
+      if (this._volumeRead) this._volumeRead.abort()
+      const controller = new AbortController()
+      this._volumeRead = controller
+      const scope = this.storageReadScope
       this.volumeLoading = true
-      var params = {
-        id: this.resource.volumeid,
-        listsystemvms: 'true',
-        listall: true
-      }
-      getAPI('listVolumes', params).then(json => {
+      try {
+        const json = await getAPI('listVolumes', { id: this.resource.volumeid, listsystemvms: 'true', listall: true },
+          { timeout: 30000, preserveOnFailure: true, signal: controller.signal })
+        if (this.listRefreshDisposed || controller.signal.aborted || scope !== this.storageReadScope) return
         this.volumes = json.listvolumesresponse.volume || []
         this.volume = this.volumes[0] || {}
-      })
-      this.volumeLoading = false
+        delete this.storageReadErrors.volume
+      } catch (error) {
+        if (!controller.signal.aborted && scope === this.storageReadScope) this.storageReadErrors.volume = this.storageReadErrorKind(error)
+      } finally {
+        if (this._volumeRead === controller) this.volumeLoading = false
+      }
     },
     fetchData () {
       this.fetchInstances()
@@ -4807,96 +5222,167 @@ export default {
       }
       return ports[protocol] || null
     },
-    async fetchStorageServiceData () {
-      if (!this.hasStorageServiceApi || this.storageService.loading) {
-        return
-      }
-      const request = this.listRequestToken('fetchStorageServiceData')
-      const initialLoad = !this.storageService.loaded
-      this.storageService.loading = true
-      this.storageService.initialLoading = initialLoad
-      this.storageService.refreshing = !initialLoad
-      const refreshGeneration = ++this.storageRefreshGeneration
+    storageReadErrorKind (error) {
+      if (error?.code === 'ECONNABORTED' || error?.code === 'ETIMEDOUT') return 'timeout'
+      if (error?.response?.status === 403 || error?.response?.status === 401) return 'forbidden'
+      return error?.response ? 'failed' : 'network'
+    },
+    cancelStorageRead () {
+      const owner = this._storageRead
+      if (!owner) return
+      this._storageRead = null
+      owner.request.pending = false
+      owner.request.failed = true
+      owner.controller.abort()
+      clearTimeout(owner.timer)
+      this.storageService.loading = false
+      this.storageService.initialLoading = false
+      this.storageService.refreshing = false
+      this.storageReadPending = []
+    },
+    async fetchNfsIdentity () {
+      const instanceid = this.storageService.instance?.id
+      const scope = this.storageReadScope
+      const read = ++this.nfsIdentity.read
+      this.nfsIdentity.loading = true
+      this.nfsIdentity.error = false
+      this.nfsIdentity.report = null
       try {
-        const params = {
-          zoneid: this.resource.zoneid,
-          listall: true
-        }
-        const instances = await this.listApi('listStorageServiceInstances', params, 'storageserviceinstance')
-        if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
-        const instance = instances.find(item => item.virtualmachineid === this.resource.virtualmachineid) || null
-        if (!instance) {
-          Object.assign(this.storageService, {
-            instance: null,
-            health: [],
-            inventory: [],
-            protocols: [],
-            sessions: [],
-            domains: [],
-            nfsExports: [],
-            smbShares: [],
-            iscsiTargets: [],
-            nvmeSubsystems: [],
-            nvmeNamespaces: [],
-            nfsAcls: [],
-            smbAcls: [],
-            iscsiAcls: [],
-            nvmeHostAcls: [],
-            backingVolumes: [],
-            loaded: true
-          })
-          return
-        }
-        const results = await Promise.all([
-          this.listApi('listStorageServiceHealth', { instanceid: instance.id }, 'storageserviceruntime'),
-          this.listApi('listStorageServiceProtocols', { instanceid: instance.id }, 'storageserviceprotocol'),
-          this.listApi('listStorageServiceDomainStatus', { instanceid: instance.id }, 'storageidentitydomain'),
-          this.listApi('listStorageNfsExports', { instanceid: instance.id }, 'storagenfsexport'),
-          this.listApi('listStorageSmbShares', { instanceid: instance.id }, 'storagesmbshare'),
-          this.listApi('listStorageIscsiTargets', { instanceid: instance.id }, 'storageiscsitarget'),
-          this.fetchNvmeStorageSnapshot(instance.id)
-        ])
-        if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
-          return
-        }
-        const [health, protocols, domains, nfsExports, smbShares, iscsiTargets, nvmeSnapshot] = results
-        const accessRules = await this.loadAccessRules(instance.id, nfsExports, smbShares, iscsiTargets, nvmeSnapshot.nvmeSubsystems, nvmeSnapshot.nvmeHostAcls)
-        const backingVolumes = await this.loadBackingVolumes({
-          instance,
-          nfsExports,
-          smbShares,
-          iscsiTargets,
-          nvmeNamespaces: nvmeSnapshot.nvmeNamespaces
-        })
-        if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
-          return
-        }
-        Object.assign(this.storageService, {
-          instance,
-          health,
-          protocols,
-          domains,
-          nfsExports,
-          smbShares,
-          iscsiTargets,
-          inventory: nvmeSnapshot.inventory,
-          sessions: nvmeSnapshot.sessions,
-          nvmeSubsystems: nvmeSnapshot.nvmeSubsystems,
-          nvmeNamespaces: nvmeSnapshot.nvmeNamespaces,
-          ...accessRules,
-          backingVolumes,
-          loaded: true
-        })
+        if (!instanceid) return
+        const wire = await getAPI('getStorageNfsIdentityMapping', { instanceid }, { timeout: 25000, preserveOnFailure: true })
+        if (read !== this.nfsIdentity.read || scope !== this.storageReadScope || instanceid !== this.storageService.instance?.id) return
+        const report = wire.getstoragenfsidentitymappingresponse?.nfsidentitymapping
+        if (!['NAME_DOMAIN', 'NUMERIC'].includes(report?.mode) || !Array.isArray(report?.endpoints)) throw new Error('Invalid NFS identity observation')
+        this.nfsIdentity.report = report
       } catch (error) {
-        if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
+        if (read === this.nfsIdentity.read && scope === this.storageReadScope) this.nfsIdentity.error = true
+      } finally { if (read === this.nfsIdentity.read) this.nfsIdentity.loading = false }
+    },
+    updateNfsIdentity () {
+      return this.runStorageAction('nfsIdentity', 'updateStorageNfsIdentityMapping', {
+        instanceid: this.storageService.instance.id, idmappingmode: this.forms.nfsIdentity.idmappingmode
+      })
+    },
+    async fetchStorageServiceData () {
+      if (!this.hasStorageServiceApi) return
+      this.cancelStorageRead()
+      const request = this.listRequestToken('fetchStorageServiceData')
+      const scope = this.storageReadScope
+      if (this._storageDataScope !== scope) {
+        this.clearStorageServiceRuntime()
+        this.storageService.instance = null
+        this.storageService.loaded = false
+        this.storageReadErrors = {}
+        this.storageReadUpdated = null
+        this._storageDataScope = scope
+      }
+      const owner = { request, controller: new AbortController(), timer: null }
+      this._storageRead = owner
+      const generation = ++this.storageRefreshGeneration
+      const current = () => this._storageRead === owner &&
+        generation === this.storageRefreshGeneration &&
+        this.isListRequestCurrent('fetchStorageServiceData', request)
+      const options = { timeout: 30000, preserveOnFailure: true, signal: owner.controller.signal }
+      this.storageService.loading = true
+      this.storageService.initialLoading = !this.storageService.loaded
+      this.storageService.refreshing = this.storageService.loaded
+      this.storageReadPending = ['instance']
+      // One deadline covers the complete read, including dependent ACL/volume reads.
+      owner.timer = setTimeout(() => {
+        if (!current()) return
+        this.storageReadPending.forEach(section => { this.storageReadErrors[section] = 'timeout' })
         request.failed = true
         this.listRefreshFailed = true
-        if (initialLoad) this.$notifyError(error)
+        this.cancelStorageRead()
+      }, 30000)
+      const section = async (key, load, apply) => {
+        if (!current()) return
+        this.storageReadPending = [...this.storageReadPending, key]
+        try {
+          const value = await load()
+          if (!current()) return
+          apply(value)
+          delete this.storageReadErrors[key]
+        } catch (error) {
+          if (!current()) return
+          this.storageReadErrors[key] = this.storageReadErrorKind(error)
+          request.failed = true
+          this.listRefreshFailed = true
+        } finally {
+          if (current()) this.storageReadPending = this.storageReadPending.filter(item => item !== key)
+        }
+      }
+      try {
+        const vmId = this.resource.virtualmachineid
+        const instances = await this.listApi('listStorageServiceInstances',
+          { zoneid: this.resource.zoneid, listall: true }, 'storageserviceinstance', options)
+        if (!current()) return
+        const instance = instances.find(item => item.virtualmachineid === vmId) || null
+        this.storageService.instance = instance
+        this.fetchNfsIdentity()
+        delete this.storageReadErrors.instance
+        this.storageReadPending = []
+        if (!instance) {
+          this.clearStorageServiceRuntime()
+          this.storageService.loaded = true
+          this.storageReadUpdated = Date.now()
+          return
+        }
+        const collections = [
+          ['protocols', 'listStorageServiceProtocols', 'storageserviceprotocol'],
+          ['health', 'listStorageServiceHealth', 'storageserviceruntime'],
+          ['nfsExports', 'listStorageNfsExports', 'storagenfsexport'],
+          ['smbShares', 'listStorageSmbShares', 'storagesmbshare'],
+          ['iscsiTargets', 'listStorageIscsiTargets', 'storageiscsitarget'],
+          ['domains', 'listStorageServiceDomainStatus', 'storageidentitydomain']
+        ]
+        const tasks = Object.fromEntries(collections.map(([key, api, objectName]) => [key, section(key,
+          () => this.listApi(api, { instanceid: instance.id }, objectName, options),
+          value => { this.storageService[key] = value })]))
+        const aclTasks = [
+          ['nfsExports', 'nfsAcls', 'NFS'],
+          ['smbShares', 'smbAcls', 'SMB'],
+          ['iscsiTargets', 'iscsiAcls', 'ISCSI']
+        ].map(async ([collection, key, protocol]) => {
+          await tasks[collection]
+          if (!current() || this.storageReadErrors[collection]) return
+          return section(key, () => this.loadAccessRules(instance.id,
+            this.storageService.nfsExports, this.storageService.smbShares,
+            this.storageService.iscsiTargets, [], [],
+            { ...options, aclProtocols: [protocol] }),
+          rules => { this.storageService[key] = rules[key] })
+        })
+        await Promise.all([
+          ...Object.values(tasks), ...aclTasks,
+          section('nvme', () => this.fetchNvmeStorageSnapshot(instance.id, options), snapshot => {
+            this.applyNvmeStorageSnapshot(snapshot, generation)
+          }),
+          section('backingVolumes', () => this.loadBackingVolumes({
+            instance,
+            nfsExports: this.storageService.nfsExports,
+            smbShares: this.storageService.smbShares,
+            iscsiTargets: this.storageService.iscsiTargets,
+            nvmeNamespaces: this.storageService.nvmeNamespaces,
+            readOptions: options
+          }), value => { this.storageService.backingVolumes = value })
+        ])
+        if (!current()) return
+        this.storageService.loaded = true
+        if (!Object.keys(this.storageReadErrors).length) this.storageReadUpdated = Date.now()
+      } catch (error) {
+        if (!current()) return
+        this.storageReadErrors.instance = this.storageReadErrorKind(error)
+        request.failed = true
+        this.listRefreshFailed = true
       } finally {
-        if (this.isListRequestCurrent('fetchStorageServiceData', request)) {
+        clearTimeout(owner.timer)
+        // A stale result cannot commit data, but its owner must always settle.
+        if (this._storageRead === owner) {
+          this._storageRead = null
           this.storageService.loading = false
           this.storageService.initialLoading = false
           this.storageService.refreshing = false
+          this.storageReadPending = []
         }
       }
     },
@@ -4923,14 +5409,14 @@ export default {
     async fetchCollection (api, key, objectName) {
       this.storageService[key] = await this.listApi(api, { instanceid: this.storageService.instance.id }, objectName)
     },
-    async fetchNvmeStorageSnapshot (instanceId) {
+    async fetchNvmeStorageSnapshot (instanceId, readOptions = {}) {
       const [inventory, sessions, nvmeSubsystems, nvmeNamespaces] = await Promise.all([
-        this.listApi('listStorageServiceInventory', { instanceid: instanceId }, 'storageserviceruntime'),
-        this.listApi('listStorageServiceSessions', { instanceid: instanceId }, 'storageserviceruntime'),
-        this.listApi('listStorageNvmeOfSubsystems', { instanceid: instanceId }, 'storagenvmeofsubsystem'),
-        this.listApi('listStorageNvmeOfNamespaces', { instanceid: instanceId }, 'storagenvmeofnamespace')
+        this.listApi('listStorageServiceInventory', { instanceid: instanceId }, 'storageserviceruntime', readOptions),
+        this.listApi('listStorageServiceSessions', { instanceid: instanceId }, 'storageserviceruntime', readOptions),
+        this.listApi('listStorageNvmeOfSubsystems', { instanceid: instanceId }, 'storagenvmeofsubsystem', readOptions),
+        this.listApi('listStorageNvmeOfNamespaces', { instanceid: instanceId }, 'storagenvmeofnamespace', readOptions)
       ])
-      const nvmeHostAclLists = await Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule')))
+      const nvmeHostAclLists = await Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule', readOptions)))
       return {
         inventory,
         sessions,
@@ -4960,13 +5446,14 @@ export default {
         prefetchedNvmeHostAcls)
       Object.assign(this.storageService, rules)
     },
-    async loadAccessRules (instanceId, nfsExports, smbShares, iscsiTargets, nvmeSubsystems, prefetchedNvmeHostAcls = null) {
+    async loadAccessRules (instanceId, nfsExports, smbShares, iscsiTargets, nvmeSubsystems, prefetchedNvmeHostAcls = null, readOptions = {}) {
+      const enabled = protocol => !readOptions.aclProtocols || readOptions.aclProtocols.includes(protocol)
       const [nfsAcls, smbAcls, iscsiAcls, nvmeHostAcls] = await Promise.all([
-        this.listApi('listStorageNfsAcls', { instanceid: instanceId }, 'storageaccessrule'),
-        Promise.all(smbShares.map(share => this.listApi('listStorageSmbAcls', { shareid: share.id }, 'storageaccessrule'))),
-        Promise.all(iscsiTargets.map(target => this.listApi('listStorageIscsiAcls', { targetid: target.id }, 'storageaccessrule'))),
+        enabled('NFS') ? this.listApi('listStorageNfsAcls', { instanceid: instanceId }, 'storageaccessrule', readOptions) : [],
+        Promise.all((enabled('SMB') ? smbShares : []).map(share => this.listApi('listStorageSmbAcls', { shareid: share.id }, 'storageaccessrule', readOptions))),
+        Promise.all((enabled('ISCSI') ? iscsiTargets : []).map(target => this.listApi('listStorageIscsiAcls', { targetid: target.id }, 'storageaccessrule', readOptions))),
         prefetchedNvmeHostAcls === null
-          ? Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule'))).then(items => items.flat())
+          ? Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule', readOptions))).then(items => items.flat())
           : Promise.resolve(prefetchedNvmeHostAcls)
       ])
       const iscsiAclMap = new Map()
@@ -5010,7 +5497,7 @@ export default {
         nvmeNamespaces: this.storageService.nvmeNamespaces
       })
     },
-    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces }) {
+    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces, readOptions = {} }) {
       if (!('listVolumes' in this.$store.getters.apis)) {
         return []
       }
@@ -5045,14 +5532,14 @@ export default {
         id,
         listall: true,
         listsystemvms: true
-      }, 'volume'))
+      }, 'volume', readOptions))
       const vmId = this.resource.virtualmachineid || this.vm.id || instance?.virtualmachineid
       if (vmId) {
         volumeRequests.push(this.listApi('listVolumes', {
           virtualmachineid: vmId,
           listall: true,
           listsystemvms: true
-        }, 'volume'))
+        }, 'volume', readOptions))
       }
       const volumeLists = await Promise.all(volumeRequests)
       const seen = new Set()
@@ -5064,13 +5551,13 @@ export default {
         return true
       })
     },
-    async listApi (api, params, objectName) {
+    async listApi (api, params, objectName, readOptions = {}) {
       const apiMap = this.$store.getters.apis || {}
       const storageReadApi = api.startsWith('listStorage') || api === 'listVolumes'
       if (!(api in apiMap) && !storageReadApi) {
         return []
       }
-      const json = await getAPI(api, params)
+      const json = await getAPI(api, params, readOptions)
       const response = json[api.toLowerCase() + 'response'] || {}
       const items = response[objectName] || Object.values(response).find(value => Array.isArray(value)) || []
       return Array.isArray(items) ? items : [items]
@@ -5241,7 +5728,59 @@ export default {
       const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0
       return (this.ipv4ToNumber(ip) & mask) === (this.ipv4ToNumber(baseIp) & mask)
     },
+    async fetchDirectoryPolicies () {
+      const id = this.storageService.instance?.id
+      if (!id || !this.hasDirectoryPolicyApi) return
+      const scope = this.storageReadScope
+      try {
+        const wire = await getAPI('listStorageDirectoryPolicies', { instanceid: id, page: 1, pagesize: 500 })
+        if (scope === this.storageReadScope && id === this.storageService.instance?.id) this.directoryPolicyRows = wire.liststoragedirectorypoliciesresponse?.directorypolicy || []
+      } catch (error) { if (scope === this.storageReadScope) this.$notifyError(error) }
+    },
+    smbCreationSummary (config) {
+      try { const m = smbCreationModes(config); return m.createMask + ' / ' + m.directoryMask } catch { return '?' }
+    },
+    async openSmbCreationPolicy (record) {
+      this.smbCreationRow = record.raw || record
+      await this.refreshConfigurationProtection(true)
+    },
+    async executeSmbCreationPolicy (api, params, report) {
+      if (!this.storageService.instance || this.configurationProtected) return
+      if (terminalConfigurationState(this.configurationOperation?.state)) this.configurationRequest = null
+      this.configurationAcceptedPreflight = { ...report, scope: this.storageReadScope, instanceid: this.storageService.instance.id }
+      return this.runConfigurationAction('smbCreation', api, params)
+    },
+    async executeDirectoryPolicy (api, params, report) {
+      if (!this.storageService.instance || this.configurationProtected) return
+      // This panel owns its modal, so starting another completed action needs a fresh logical key.
+      if (terminalConfigurationState(this.configurationOperation?.state)) this.configurationRequest = null
+      this.configurationAcceptedPreflight = { ...report, scope: this.storageReadScope, instanceid: this.storageService.instance.id }
+      return this.runConfigurationAction('directoryPolicy', api, params)
+    },
+    selectDirectoryPolicy (kind, id) {
+      const form = this.forms[kind]; form.directorypolicyid = id || ''
+      const policy = this.directoryPolicyRows.find(row => row.id === id)
+      if (!policy) return
+      form.volumeid = policy.volumeid
+      form.filesystem = policy.observation?.filesystem || form.filesystem
+      form.volumemode = this.currentBackingVolumes.some(v => v.id === policy.volumeid) ? 'CURRENT' : 'EXISTING'
+      form.createdirectory = false
+      form.relativepath = String(policy.path || '').replace(/^\/+/, '')
+      form.nestedpath = form.volumemode === 'CURRENT' && !!form.relativepath
+      if (kind === 'nfsExport') {
+        this.nfsPosixEdit = false
+        Object.assign(form, { owneruid: policy.owneruid, ownergid: policy.ownergid, mode: policy.mode })
+        this.nfsPosixObserved = nfsPosixObservation(policy.observation)
+      }
+      if (kind === 'smbShare') form.crossprotocol = true
+    },
+    nestedChildShares (record) {
+      try { return childShares(record?.raw || record, [...this.storageService.nfsExports, ...this.storageService.smbShares]) } catch (error) { return [] }
+    },
+    selectedDirectoryPolicy (kind) { return this.directoryPolicyRows.find(row => row.id === this.forms[kind].directorypolicyid) },
+    viewDirectoryPolicy () { this.closeActionModal(); this.handleChangeTab('directory') },
     async runStorageAction (key, api, params, title) {
+      if (isConfigurationApi(api)) return this.runConfigurationAction(key, api, params)
       if (!this.storageService.instance || this.actionLoading[key]) {
         return
       }
@@ -5273,6 +5812,239 @@ export default {
         this.actionLoading[key] = false
       }
     },
+    invalidateConfigurationPreflight () {
+      clearTimeout(this.configurationPreflightTimer)
+      this.configurationPreflight = null
+      this.configurationImpactAcknowledged = false
+    },
+    async checkConfigurationPreflight () {
+      if (!this.configurationIntent || !this.storageService.instance || this.configurationProtected || this.configurationPreflightLoading) return
+      this.invalidateConfigurationPreflight()
+      const key = ({
+        nfsExport: 'nfsExport',
+        editNfsExport: 'nfsExport',
+        smbShare: 'smbShare',
+        editSmbShare: 'smbShare',
+        iscsiTarget: 'iscsiTarget',
+        editIscsiTarget: 'iscsiTarget',
+        nvmeNamespace: 'nvmeNamespace',
+        editNvmeNamespace: 'nvmeNamespace'
+      })[this.actionModal.type]
+      const backing = key && this.forms[key]
+      if (backing && ['CURRENT', 'EXISTING'].includes(backing.volumemode) && !backing.volumeid) {
+        this.$message.error(this.$t('message.storage.service.current.volume.required'))
+        return
+      }
+      if (backing?.volumemode === 'NEW' && (!backing.diskofferingid || !backing.storageid)) {
+        this.$message.error(this.$t('message.storage.service.new.volume.required'))
+        return
+      }
+      if (backing?.nestedpath && backing.volumemode === 'CURRENT' && !validRelativePath(relativePath(backing))) {
+        this.$message.error(this.$t('message.storage.path.invalid'))
+        return
+      }
+      const intent = JSON.stringify(this.configurationIntent)
+      const read = ++this.configurationPreflightRead
+      const instanceid = this.storageService.instance.id
+      const scope = this.storageReadScope
+      this.configurationPreflightLoading = true
+      try {
+        const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid, intent }, { timeout: 30000, preserveOnFailure: true })
+        if (read !== this.configurationPreflightRead || scope !== this.storageReadScope || instanceid !== this.storageService.instance?.id || intent !== JSON.stringify(this.configurationIntent)) return
+        const report = decodeConfigurationPreflight(wire)
+        if (!report) throw new Error('Invalid configuration preflight response')
+        if (['nfsExport', 'editNfsExport'].includes(this.actionModal.type) && report.posixobservation) {
+          this.nfsPosixObserved = nfsPosixObservation(report.posixobservation)
+        }
+        this.configurationPreflight = report
+        if (report.status === 'READY') {
+          this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
+        }
+      } catch (error) {
+        if (read === this.configurationPreflightRead && scope === this.storageReadScope && instanceid === this.storageService.instance?.id) {
+          this.configurationPreflight = configurationPreflightFailure(error, this.storageService.instance.configurationrevision)
+          this.$notifyError(error)
+        }
+      } finally { if (read === this.configurationPreflightRead) this.configurationPreflightLoading = false }
+    },
+    configurationPreparedVolumeKey (params) {
+      return preparedVolumeKey(this.$store.getters.userInfo?.id, this.storageService.instance?.id, this.actionModal.type, params)
+    },
+    async findPreparedConfigurationVolume (params) {
+      const key = this.configurationPreparedVolumeKey(params)
+      if (!key) return null
+      let id = this.preparedConfigurationVolumes[key]
+      try { id = id || sessionStorage.getItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+      if (!id) return null
+      const wire = await getAPI('listVolumes', { id }, { timeout: 30000, preserveOnFailure: true })
+      const row = wire.listvolumesresponse?.volume?.find(v => v.id === id)
+      if (!row) {
+        delete this.preparedConfigurationVolumes[key]
+        try { sessionStorage.removeItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+        return null
+      }
+      if (row.state !== 'Ready' || (row.virtualmachineid && row.virtualmachineid !== this.storageService.instance?.virtualmachineid && row.virtualmachineid !== this.resource.virtualmachineid)) throw new Error('Prepared volume is unavailable')
+      this.preparedConfigurationVolumes[key] = id
+      if (!this.preparedConfigurationKeys.includes(key)) this.preparedConfigurationKeys.push(key)
+      return id
+    },
+    rememberPreparedConfigurationVolume (params, id) {
+      const key = this.configurationPreparedVolumeKey(params)
+      if (!key) return
+      this.preparedConfigurationVolumes[key] = id
+      if (!this.preparedConfigurationKeys.includes(key)) this.preparedConfigurationKeys.push(key)
+      try { sessionStorage.setItem(key, id) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+    },
+    clearPreparedConfigurationVolumes () {
+      for (const key of this.preparedConfigurationKeys) {
+        delete this.preparedConfigurationVolumes[key]
+        try { sessionStorage.removeItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+      }
+      this.preparedConfigurationKeys = []
+    },
+    resetConfigurationProtection () {
+      this.adProgress = { busy: false, error: '', jobid: null, latest: null }
+      this.invalidateConfigurationPreflight()
+      this.configurationPreflightRead++
+      this.configurationPreflightLoading = false
+      this.configurationAcceptedPreflight = null
+      this.preparedConfigurationVolumes = {}
+      this.preparedConfigurationKeys = []
+      this.configurationGeneration++
+      this.configurationProtectionRead++
+      this.configurationOperation = null
+      this.configurationRequest = null
+      this.configurationResult = null
+      this.configurationProtectionLoading = false
+      this.configurationProtectionUnavailable = false
+      this.actionLoading = {}
+    },
+    async refreshConfigurationProtection (refreshInstance = false) {
+      const instanceid = this.storageService.instance?.id
+      if (!instanceid) return
+      const scope = this.storageReadScope
+      const generation = this.configurationGeneration
+      const read = ++this.configurationProtectionRead
+      const current = () => !this.listRefreshDisposed && scope === this.storageReadScope &&
+        generation === this.configurationGeneration && read === this.configurationProtectionRead &&
+        instanceid === this.storageService.instance?.id
+      this.configurationProtectionLoading = true
+      try {
+        if (refreshInstance) {
+          const wire = await getAPI('listStorageServiceInstances', { id: instanceid })
+          if (!current()) return
+          const instance = wire.liststorageserviceinstancesresponse?.storageserviceinstance?.find(value => value.id === instanceid)
+          if (!instance) throw new Error('Configuration instance observation unavailable')
+          Object.assign(this.storageService.instance, instance)
+        }
+        const protectedByServer = this.boolValue(this.storageService.instance.configurationprotection)
+        const previous = this.configurationOperation
+        const unresolved = previous && !configurationRetryAllowed(previous) && previous.state !== 'COMMITTED'
+        this.configurationProtectionUnavailable = false
+        if (!protectedByServer && !unresolved) return
+        if (!protectedByServer && !previous?.requestid) {
+          this.configurationOperation = null
+          return
+        }
+        const params = protectedByServer
+          ? { instanceid, page: 1, pagesize: 200 }
+          : { instanceid, requestid: previous.requestid }
+        const wire = await getAPI('listStorageServiceConfigurationOperations', params)
+        if (!current()) return
+        const rows = decodeConfigurationOperations(wire).filter(value => !value.instanceid || value.instanceid === instanceid)
+        const operation = protectedByServer
+          ? rows.find(value => value.canresume) || rows.find(value => !terminalConfigurationState(value.state))
+          : rows.find(value => value.requestid === previous.requestid || value.id === previous.id)
+        if (operation) {
+          // A read started before terminal observation cannot resurrect the same pending operation.
+          const latest = this.configurationOperation
+          if (!(latest?.id === operation.id && terminalConfigurationState(latest.state) &&
+            !terminalConfigurationState(operation.state))) {
+            this.configurationOperation = { ...operation, instanceid }
+          }
+        } else {
+          this.configurationProtectionUnavailable = true
+        }
+      } catch (error) {
+        if (current()) this.configurationProtectionUnavailable = true
+      } finally {
+        if (current()) this.configurationProtectionLoading = false
+      }
+    },
+    async runConfigurationAction (key, api, params) {
+      if (!this.storageService.instance || this.actionLoading[key] || this.configurationProtected) return
+      if (!this.configurationAcceptedPreflight || this.configurationAcceptedPreflight.scope !== this.storageReadScope ||
+        this.configurationAcceptedPreflight.instanceid !== this.storageService.instance.id) return
+      const instanceid = this.storageService.instance.id
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope
+      if (!this.configurationRequest || configurationRetryAllowed(this.configurationOperation)) this.configurationRequest = configurationRequestId()
+      const requestid = this.configurationRequest
+      this.actionLoading[key] = true
+      this.configurationOperation = { instanceid, requestid, state: 'QUEUED', phase: 'PREPARING' }
+      let jobid
+      try {
+        const response = await postAPI(api, this.cleanParams({
+          ...params,
+          requestid,
+          expectedrevision: this.storageService.instance.configurationrevision,
+          impactack: this.configurationAcceptedPreflight.fingerprint
+        }))
+        if (!current()) return
+        jobid = response[api.toLowerCase() + 'response']?.jobid
+      } catch (error) {
+        if (!current()) return
+        // A lost POST response does not prove that the operation failed. Keep the same key.
+        this.configurationOperation = { instanceid, requestid, state: 'SUBMISSION_UNCONFIRMED', phase: 'OBSERVING' }
+        this.$notifyError(error)
+      }
+      try {
+        const operation = await observeConfigurationOperation({
+          get: getAPI,
+          instanceid,
+          requestid,
+          jobid,
+          current,
+          changed: value => { if (current()) this.configurationOperation = { ...value, instanceid } }
+        })
+        if (!current()) return
+        if (terminalConfigurationState(operation?.state) || operation?.state === 'SUBMISSION_REJECTED') {
+          await this.refreshConfigurationProtection(true)
+          if (!current()) return
+        }
+        this.configurationResult = operation
+        if (operation?.state === 'COMMITTED') {
+          this.clearPreparedConfigurationVolumes()
+          await this.refreshAfterStorageAction(key)
+        }
+        if (terminalConfigurationState(operation?.state)) this.invalidateConfigurationPreflight()
+        return operation
+      } finally { if (current()) this.actionLoading[key] = false }
+    },
+    async refreshConfigurationOperation () {
+      await this.refreshConfigurationProtection(true)
+    },
+    async resumeConfigurationOperation (operation) {
+      if (!operation?.canresume || !this.storageService.instance || this.actionModal.loading) return
+      const instanceid = this.storageService.instance.id
+      if (operation.instanceid && operation.instanceid !== instanceid) return
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope &&
+        instanceid === this.storageService.instance?.id
+      this.configurationOperation = { ...operation, instanceid }
+      this.actionModal.loading = true
+      try {
+        const wire = await postAPI('resumeStorageServiceConfigurationOperation', { instanceid, id: operation.id })
+        const jobid = wire.resumestorageserviceconfigurationoperationresponse?.jobid
+        if (jobid) await observeConfigurationJob({ get: getAPI, jobid, current })
+        if (!current()) return
+        await this.refreshConfigurationOperation()
+      } catch (error) {
+        if (current()) { this.configurationProtectionUnavailable = true; this.$notifyError(error) }
+      } finally { if (current()) this.actionModal.loading = false }
+    },
     async refreshAfterStorageAction (key, actionTab = this.currentTab, actionWideLayout = this.protocolWideLayout) {
       if (!this.storageService.instance) {
         return this.fetchStorageServiceData()
@@ -5281,8 +6053,11 @@ export default {
       this.protocolWideLayout = !!actionWideLayout
       this.preserveCurrentProtocolRoute()
       this.emitWideLayout()
+      this.cancelStorageRead()
+      this.storageRefreshGeneration += 1
       this.storageService.refreshing = true
       try {
+        this.fetchNfsIdentity()
         const nvmeActions = ['nvmePrepare', 'nvmeSubsystem', 'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
         if (nvmeActions.includes(key)) {
           const refreshGeneration = ++this.storageRefreshGeneration
@@ -5304,6 +6079,14 @@ export default {
           this.fetchCollection('listStorageServiceProtocols', 'protocols', 'storageserviceprotocol'),
           this.fetchRuntime('listStorageServiceSessions', 'sessions')
         ])
+        if (key === 'directoryPolicy') {
+          await Promise.all([
+            this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport'),
+            this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare'),
+            this.fetchDirectoryPolicies()
+          ])
+          return
+        }
         if (['resizeBackingVolume', 'detachBackingVolume'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport'),
@@ -5318,7 +6101,7 @@ export default {
           await this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport')
           await this.fetchAccessRules()
           await this.fetchBackingVolumes()
-        } else if (['smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
+        } else if (['smbCreation', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageServiceDomainStatus', 'domains', 'storageidentitydomain'),
             this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare')
@@ -6067,14 +6850,14 @@ export default {
           identityStatus: item.identitystatus || item.identityStatus || 'UNKNOWN',
           identityWarning: item.identitywarning || item.identityWarning || '',
           effectiveEndpoints: item.effectiveendpoints || item.effectiveEndpoints || [],
-          runtimeState: item.runtimestate || item.runtimeState || item.state || '-',
+          runtimeState: item.runtimestate || item.runtimeState || (protocol === 'SMB' ? 'UNKNOWN' : item.state || '-'),
           linkedResourceCount: Number(item.linkedresourcecount ?? item.linkedResourceCount ?? 0),
           raw: item
         }))
         .filter(item => Number.isFinite(item.port) && item.port > 0)
       const seen = new Set()
       const unique = raw.filter(item => {
-        const key = `${item.listenIp}:${item.port}`
+        const key = protocol === 'SMB' && item.raw?.id ? item.raw.id : `${item.listenIp}:${item.port}`
         if (seen.has(key)) {
           return false
         }
@@ -6087,6 +6870,7 @@ export default {
           wildcardByPort.set(item.port, item)
         }
       })
+      if (protocol === 'SMB') return unique
       return unique.filter(item => {
         if (item.listenerType === 'WILDCARD' || this.isWildcardListenIp(item.listenIp)) return true
         const wildcard = wildcardByPort.get(item.port)
@@ -6097,7 +6881,8 @@ export default {
     },
     protocolListenerRows (protocolName) {
       const protocol = String(protocolName || '').toUpperCase()
-      return this.protocolListenerEntries(protocol).map(entry => {
+      const entries = this.protocolListenerEntries(protocol)
+      return entries.map(entry => {
         const wildcard = entry.listenerType === 'WILDCARD' || this.isWildcardListenIp(entry.listenIp)
         const apiEndpoints = (Array.isArray(entry.effectiveEndpoints) ? entry.effectiveEndpoints : [])
           .map(item => {
@@ -6111,7 +6896,8 @@ export default {
           : [`${entry.listenIp}:${entry.port}`]
         const endpoints = apiEndpoints.length ? apiEndpoints : inferredEndpoints
         const linkedResourceCount = Number.isFinite(entry.linkedResourceCount) ? entry.linkedResourceCount : 0
-        const canDelete = linkedResourceCount === 0
+        const smbReason = protocol === 'SMB' ? this.smbEndpointDeleteReason(entry, entries) : ''
+        const canDelete = protocol === 'SMB' ? !smbReason : linkedResourceCount === 0
         return {
           key: `${protocol}:${entry.listenIp}:${entry.port}`,
           id: entry.raw?.id,
@@ -6126,10 +6912,24 @@ export default {
           status: entry.runtimeState || '-',
           protocol,
           canDelete,
-          deleteDisabledReason: canDelete ? '' : this.$t('message.storage.service.listener.in.use'),
+          deleteDisabledReason: smbReason || (canDelete ? '' : this.$t('message.storage.service.listener.in.use')),
           raw: entry.raw || entry
         }
       })
+    },
+    smbEndpointDeleteReason (entry, entries) {
+      if (entries.length === 1 && (entry.linkedResourceCount > 0 || this.isSmbAdConfigured)) return this.$t('message.storage.service.smb.endpoint.last')
+      if (this.isWildcardListenIp(entry.listenIp) && entries.some(other => other.raw?.id !== entry.raw?.id && other.port === entry.port)) return this.$t('message.storage.service.smb.endpoint.wildcard')
+      return ''
+    },
+    openSmbEndpointEdit (record) {
+      this.openActionModal('enableProtocol', { protocol: 'SMB', endpointid: record.id, listenIp: record.listenIp, port: record.port })
+      Object.assign(this.forms.enableProtocol, { endpointid: record.id, listenip: record.listenIp, port: record.port, listenipmode: 'EXISTING' })
+    },
+    openSmbEndpointDelete (record) {
+      if (!record.canDelete) return
+      this.openActionModal('deleteEndpoint', { protocol: 'SMB', endpointid: record.id })
+      Object.assign(this.forms.deleteEndpoint, { endpointid: record.id, protocol: 'SMB', listenip: record.listenIp, port: record.port, confirmation: '' })
     },
     protocolEndpointValues (rows) {
       const values = []
@@ -6351,8 +7151,10 @@ export default {
       if (this.isNfsRuntimeDualMode) {
         return 2049
       }
+      const registered = this.protocolListenerEntries('NFS').map(entry => entry.port)
+      if (registered.length) return registered.includes(2049) ? 2049 : registered[0]
       const options = this.nfsListenerGroupOptions || []
-      return options[0]?.value || 2049
+      return options.find(option => option.value === 2049)?.value || options[0]?.value || 2049
     },
     nfsExportListenerPorts (share, config = null) {
       if (this.isNfsRuntimeDualMode || this.nfsExportProtocolMode(share, config) === 'V3V4_DUAL') {
@@ -6546,6 +7348,7 @@ export default {
       return this.normalizeEndpointIps(this.forms.nfsExport.listenips)
     },
     nfsExportImportMode () {
+      if ((this.resource?.backingmode === 'EXISTING' || this.resource?.preparation?.status === 'PREPARED') && this.forms.nfsExport.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.nfsExport.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }
@@ -6555,6 +7358,7 @@ export default {
       return 'FORMAT_IF_EMPTY'
     },
     smbShareImportMode () {
+      if ((this.resource?.backingmode === 'EXISTING' || this.resource?.preparation?.status === 'PREPARED') && this.forms.smbShare.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.smbShare.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }
@@ -6831,6 +7635,7 @@ export default {
     },
     resetNfsExportForm () {
       Object.assign(this.forms.nfsExport, {
+        directorypolicyid: '',
         name: '',
         path: '',
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -6839,9 +7644,12 @@ export default {
         diskofferingid: '',
         storageid: this.defaultNewVolumeStorageId(),
         newvolumesize: null,
-        filesystem: 'xfs',
+        filesystem: backingFilesystem(this.resource, this.currentBackingVolumeFilesystem?.(this.volume)),
         relativepath: '',
-        createdirectory: true,
+        nestedpath: true,
+        nestedpathbaseline: false,
+        relativepathbaseline: '',
+        createdirectory: false,
         quotaamount: null,
         quotaunit: 'GiB',
         protocolmode: this.nfsRuntimeProtocolMode(),
@@ -6853,13 +7661,17 @@ export default {
         allsquash: false,
         anonuid: 65534,
         anongid: 65534,
-        owneruid: 65534,
-        ownergid: 65534,
-        mode: '0775',
+        owneruid: null,
+        ownergid: null,
+        mode: '',
         recursivepermission: false,
         sync: true,
         secure: false
       })
+      this.nfsPosixEdit = false
+      this.nfsPosixObserved = { status: 'UNAVAILABLE' }
+      this.nfsPosixBaseline = {}
+      this.nfsAnonBaseline = {}
     },
     resetNfsAclForm () {
       Object.assign(this.forms.nfsAcl, {
@@ -6868,6 +7680,7 @@ export default {
         principal: '',
         principals: [],
         permission: 'READ_WRITE',
+        squashpolicy: 'INHERIT',
         rootsquash: true,
         allsquash: false,
         anonuid: null,
@@ -6875,6 +7688,7 @@ export default {
         sync: true,
         secure: false
       })
+      this.nfsAclMappingBaseline = {}
     },
     nextSmbShareName () {
       let index = this.storageService.smbShares.length + 1
@@ -6891,8 +7705,10 @@ export default {
       return `/export/${safeName}`
     },
     resetSmbShareForm () {
+      delete this.forms.smbShare.baseline
       const name = this.nextSmbShareName()
       Object.assign(this.forms.smbShare, {
+        directorypolicyid: '',
         name,
         path: this.defaultSmbSharePath(name),
         volumeid: this.defaultCurrentBackingVolumeId(),
@@ -6901,15 +7717,21 @@ export default {
         diskofferingid: '',
         storageid: this.defaultSmbNewVolumeStorageId(),
         newvolumesize: null,
-        filesystem: 'xfs',
+        filesystem: backingFilesystem(this.resource, this.currentBackingVolumeFilesystem?.(this.volume)),
         quotaamount: null,
         quotaunit: 'GiB',
         readonly: false,
         browseable: true,
         guestok: false,
-        createdirectory: true,
+        relativepath: '',
+        nestedpath: true,
+        nestedpathbaseline: false,
+        relativepathbaseline: '',
+        createdirectory: false,
         crossprotocol: false,
-        directorymode: '0770'
+        directorymode: '0770',
+        inheritowner: false,
+        inheritownerbaseline: false
       })
     },
     populateSmbShareForm (record) {
@@ -6919,6 +7741,11 @@ export default {
       const volumeId = share.volumeid || share.volumeId || ''
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       Object.assign(this.forms.smbShare, {
+        directorypolicyid: config.directoryPolicyUuid || '',
+        relativepath: shareRelativePath(share),
+        relativepathbaseline: shareRelativePath(share),
+        nestedpath: config.pathBindingVersion === 1,
+        nestedpathbaseline: config.pathBindingVersion === 1,
         name: this.clientVisibleName(share.name || share.sharename, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -6935,8 +7762,12 @@ export default {
         guestok: this.boolValue(share.guestok ?? share.guestOk ?? config.guestOk),
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         crossprotocol: this.boolValue(config.crossProtocol ?? config.crossprotocol),
-        directorymode: config.directoryMode || config.directorymode || '0770'
+        directorymode: config.directoryMode || config.directorymode || '0770',
+        inheritowner: config.inheritOwner === true,
+        inheritownerbaseline: config.inheritOwner === true
       })
+      delete this.forms.smbShare.baseline
+      this.forms.smbShare.baseline = JSON.parse(JSON.stringify(this.forms.smbShare))
     },
     resetSmbAclForm () {
       Object.assign(this.forms.smbAcl, {
@@ -6961,7 +7792,7 @@ export default {
     },
     populateNfsExportForm (record) {
       const share = record?.raw || record || {}
-      const config = this.effectiveNfsExportConfig(this.parseStorageConfig(share.config || share.configjson || share.configJson))
+      const config = this.parseStorageConfig(share.config || share.configjson || share.configJson)
       const quota = this.capacityBytesToInput(share.quotabytes || share.quotaBytes || share.capacitybytes || share.sizebytes)
       const rawListenIps = this.normalizeEndpointIps(share.listenips ?? share.listenIps ?? config.listenIps ?? config.listenips)
       const endpointMode = this.nfsExportEndpointMode(share, config, rawListenIps)
@@ -6970,6 +7801,11 @@ export default {
       const currentVolume = this.currentBackingVolumes.find(volume => String(volume.id) === String(volumeId))
       const protocolMode = this.nfsRuntimeProtocolMode()
       Object.assign(this.forms.nfsExport, {
+        directorypolicyid: config.directoryPolicyUuid || '',
+        relativepath: shareRelativePath(share),
+        relativepathbaseline: shareRelativePath(share),
+        nestedpath: config.pathBindingVersion === 1,
+        nestedpathbaseline: config.pathBindingVersion === 1,
         name: this.clientVisibleName(share.name || share.exportname, ''),
         path: share.path || share.mountpath || share.backingpath || '',
         volumeid: volumeId,
@@ -6978,7 +7814,6 @@ export default {
         diskofferingid: '',
         newvolumesize: null,
         filesystem: share.filesystem || share.fsType || 'xfs',
-        relativepath: '',
         createdirectory: config.createDirectory === undefined && config.createdirectory === undefined ? true : this.boolValue(config.createDirectory ?? config.createdirectory),
         quotaamount: quota.amount,
         quotaunit: quota.unit,
@@ -6987,17 +7822,24 @@ export default {
         listenips: endpointMode === 'SELECTED' ? rawListenIps : [],
         listenerports: listenerPorts,
         readonly: this.boolValue(config.readOnly ?? config.readonly),
-        rootsquash: this.boolValue(config.rootSquash ?? config.rootsquash),
+        rootsquash: config.rootSquash === undefined && config.rootsquash === undefined ? true : this.boolValue(config.rootSquash ?? config.rootsquash),
         allsquash: this.boolValue(config.allSquash ?? config.allsquash),
         anonuid: config.anonUid ?? config.anonuid ?? null,
         anongid: config.anonGid ?? config.anongid ?? null,
         owneruid: config.ownerUid ?? config.owneruid ?? null,
         ownergid: config.ownerGid ?? config.ownergid ?? null,
         mode: config.mode || '',
-        recursivepermission: this.boolValue(config.recursivePermission ?? config.recursivepermission),
+        recursivepermission: false,
         sync: this.boolValue(config.sync),
         secure: this.boolValue(config.secure)
       })
+      this.nfsPosixEdit = false
+      this.nfsPosixObserved = nfsPosixObservation(share.posixobservation)
+      if (this.nfsPosixObserved.status === 'OBSERVED') {
+        Object.assign(this.forms.nfsExport, { owneruid: this.nfsPosixObserved.owneruid, ownergid: this.nfsPosixObserved.ownergid, mode: this.nfsPosixObserved.mode })
+      }
+      this.nfsPosixBaseline = { ...this.forms.nfsExport }
+      this.nfsAnonBaseline = { ...this.forms.nfsExport }
     },
     populateNfsAclForm (record) {
       const acl = record?.raw || record || {}
@@ -7008,6 +7850,7 @@ export default {
         principal: acl.principal || acl.cidr || acl.client || '',
         principals: [acl.principal || acl.cidr || acl.client].filter(Boolean),
         permission: acl.permission || acl.access || 'READ_WRITE',
+        squashpolicy: ['rootSquash', 'allSquash', 'anonUid', 'anonGid'].some(key => config[key] !== undefined) ? nfsSquashPolicy(config) : 'INHERIT',
         rootsquash: this.boolValue(acl.rootsquash ?? acl.rootSquash ?? config.rootSquash),
         allsquash: this.boolValue(acl.allsquash ?? acl.allSquash ?? config.allSquash),
         anonuid: config.anonUid ?? config.anonuid ?? null,
@@ -7015,6 +7858,7 @@ export default {
         sync: this.boolValue(acl.sync ?? config.sync),
         secure: this.boolValue(acl.secure ?? config.secure)
       })
+      this.nfsAclMappingBaseline = { ...this.forms.nfsAcl }
     },
     nfsAclPrincipals () {
       let values
@@ -7030,9 +7874,14 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      if (['adJoin', 'adRejoin', 'adLeave'].includes(type) && this.adOperationBusy) return
+      if (['adJoin', 'adRejoin'].includes(type)) this.adProgress = { busy: false, error: '', jobid: null, latest: null }
+      if (['nfsExport', 'editNfsExport', 'smbShare', 'editSmbShare'].includes(type)) this.fetchDirectoryPolicies()
+      if (type === 'nfsIdentity') this.forms.nfsIdentity.idmappingmode = this.nfsIdentity.report?.mode || 'NAME_DOMAIN'
       this.actionModal.type = type
       this.actionModal.context = context
       this.actionModal.visible = true
+      if (type === 'enableProtocol') this.forms.enableProtocol.endpointid = context?.endpointid || ''
       if (type === 'enableProtocol' && context?.protocol) {
         this.forms.enableProtocol.protocol = context.protocol
         this.forms.enableProtocol.protocolmode = String(context.protocol || '').toUpperCase() === 'NFS' ? this.nfsRuntimeProtocolMode() : 'V4_ONLY'
@@ -7188,6 +8037,13 @@ export default {
     },
     openDeleteModal (resourceType, record) {
       const raw = record?.raw || record || {}
+      if (['nfsExport', 'smbShare'].includes(resourceType)) {
+        const children = this.nestedChildShares(raw)
+        if (children.length) {
+          this.$message.error(this.$t('message.storage.path.children') + ' ' + children.map(row => row.name).join(', '))
+          return
+        }
+      }
       const names = {
         protocol: record?.name || record?.protocol,
         nfsExport: record?.name || this.clientVisibleName(raw.name || raw.exportname, ''),
@@ -7237,6 +8093,9 @@ export default {
       this.openDeleteModal(resourceType, record)
     },
     closeActionModal () {
+      if (this.adProgress?.busy) return
+      if (this.actionModal.loading && !this.configurationOperation?.requestid) return
+      if (!this.configurationProtected) this.configurationGeneration++
       this.actionModal.visible = false
       this.actionModal.type = ''
       this.actionModal.context = null
@@ -7244,6 +8103,7 @@ export default {
     },
     async submitActionModal () {
       const actions = {
+        nfsIdentity: this.updateNfsIdentity,
         enableProtocol: this.enableProtocol,
         nfsExport: this.createNfsExport,
         editNfsExport: this.updateNfsExport,
@@ -7280,9 +8140,30 @@ export default {
         this.closeActionModal()
         return
       }
+      if (this.configurationIntent && !preflightApplicable(this.configurationPreflight, this.configurationImpactAcknowledged)) {
+        await this.checkConfigurationPreflight()
+        return
+      }
+      if (this.configurationIntent) {
+        this.configurationAcceptedPreflight = {
+          ...this.configurationPreflight, scope: this.storageReadScope, instanceid: this.storageService.instance.id
+        }
+      }
       this.actionModal.loading = true
-      await action.call(this)
-      this.closeActionModal()
+      this.configurationResult = null
+      const generation = this.configurationGeneration
+      try {
+        const completed = await action.call(this)
+        if (['adJoin', 'adRejoin'].includes(this.actionModal.type) && completed !== true) return
+        if (generation !== this.configurationGeneration) return
+        // Local validation/no POST and any non-committed configuration keep the form open.
+        const configurationTypes = ['nfsIdentity', 'enableProtocol', 'nfsExport', 'editNfsExport', 'nfsAcl', 'editNfsAcl',
+          'deleteConfirm', 'deleteEndpoint', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl',
+          'iscsiTarget', 'editIscsiTarget', 'iscsiAcl', 'editIscsiAcl', 'nvmeSubsystem', 'editNvmeSubsystem',
+          'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
+        this.actionModal.loading = false
+        if (!configurationTypes.includes(this.actionModal.type) || this.configurationResult?.state === 'COMMITTED') this.closeActionModal()
+      } finally { if (generation === this.configurationGeneration) this.actionModal.loading = false }
     },
     enableProtocol () {
       if (!this.validateListenIpSelection()) {
@@ -7291,6 +8172,7 @@ export default {
       return this.runStorageAction('enableProtocol', 'enableStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
         protocol: this.forms.enableProtocol.protocol,
+        endpointid: this.forms.enableProtocol.protocol === 'SMB' ? this.forms.enableProtocol.endpointid || undefined : undefined,
         listenip: this.forms.enableProtocol.listenip,
         port: this.forms.enableProtocol.port,
         protocolmode: this.forms.enableProtocol.protocol === 'NFS' ? this.forms.enableProtocol.protocolmode : undefined
@@ -7322,6 +8204,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.path,
         createdirectory: this.forms.nfsExport.createdirectory,
+        ...fileSharePathParameters(this.forms.nfsExport, this.actionModal.type.startsWith('edit')),
         volumeid: volumeId,
         filesystem: this.forms.nfsExport.filesystem,
         protocolmode: this.forms.nfsExport.protocolmode,
@@ -7330,12 +8213,9 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
-        anonuid: this.forms.nfsExport.anonuid,
-        anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
-        recursivepermission: this.forms.nfsExport.recursivepermission,
+        directorypolicyid: this.forms.nfsExport.directorypolicyid || undefined,
+        ...this.nfsPosixParameters,
+        ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
         endpointmode: dualMode ? undefined : 'LISTENER_GROUP',
@@ -7373,6 +8253,8 @@ export default {
         storageid: this.forms.nfsExport.storageid,
         size: this.forms.nfsExport.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7382,6 +8264,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -7397,10 +8280,7 @@ export default {
         principal: principals[0],
         principals: principals.join(','),
         permission: this.forms.nfsAcl.permission,
-        rootsquash: this.forms.nfsAcl.rootsquash,
-        allsquash: this.forms.nfsAcl.allsquash,
-        anonuid: this.forms.nfsAcl.anonuid,
-        anongid: this.forms.nfsAcl.anongid,
+        ...this.nfsAclPolicyParameters,
         sync: this.forms.nfsAcl.sync,
         secure: this.forms.nfsAcl.secure
       }, this.$t('label.storage.service.create.nfs.acl'))
@@ -7422,6 +8302,7 @@ export default {
         name: this.forms.nfsExport.name,
         path: this.forms.nfsExport.path,
         createdirectory: this.forms.nfsExport.createdirectory,
+        ...fileSharePathParameters(this.forms.nfsExport, this.actionModal.type.startsWith('edit')),
         volumeid: this.forms.nfsExport.volumeid,
         filesystem: this.forms.nfsExport.filesystem,
         protocolmode: this.forms.nfsExport.protocolmode,
@@ -7430,12 +8311,9 @@ export default {
         readonly: this.forms.nfsExport.readonly,
         rootsquash: this.forms.nfsExport.rootsquash,
         allsquash: this.forms.nfsExport.allsquash,
-        anonuid: this.forms.nfsExport.anonuid,
-        anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.mode,
-        recursivepermission: this.forms.nfsExport.recursivepermission,
+        directorypolicyid: this.forms.nfsExport.directorypolicyid || undefined,
+        ...this.nfsPosixParameters,
+        ...nfsMappingDelta(this.nfsAnonBaseline, this.forms.nfsExport),
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
         endpointmode: dualMode ? undefined : 'LISTENER_GROUP',
@@ -7454,10 +8332,7 @@ export default {
         id: context.id || this.actionModal.context?.id,
         principal: principals[0],
         permission: this.forms.nfsAcl.permission,
-        rootsquash: this.forms.nfsAcl.rootsquash,
-        allsquash: this.forms.nfsAcl.allsquash,
-        anonuid: this.forms.nfsAcl.anonuid,
-        anongid: this.forms.nfsAcl.anongid,
+        ...this.nfsAclPolicyParameters,
         sync: this.forms.nfsAcl.sync,
         secure: this.forms.nfsAcl.secure
       }, this.$t('label.storage.service.update.nfs.acl'))
@@ -7491,6 +8366,7 @@ export default {
       return this.runStorageAction('deleteEndpoint', 'deleteStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
         protocol: this.forms.deleteEndpoint.protocol,
+        endpointid: this.forms.deleteEndpoint.protocol === 'SMB' ? this.forms.deleteEndpoint.endpointid : undefined,
         listenip: this.forms.deleteEndpoint.listenip,
         port: this.forms.deleteEndpoint.port
       }, this.$t('label.storage.service.delete.endpoint'))
@@ -7524,6 +8400,8 @@ export default {
         storageid: this.forms.smbShare.storageid,
         size: this.forms.smbShare.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7533,6 +8411,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -7553,13 +8432,18 @@ export default {
         browseable: this.forms.smbShare.browseable,
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
+        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode,
+        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        ...inheritOwnerParameters(this.forms.smbShare),
+        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode,
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.smb.share'))
     },
     updateSmbShare () {
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
+      const simple = smbSimpleOptionPatch(this.forms.smbShare.baseline, this.forms.smbShare)
+      if (simple) return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', { id: context.id || this.actionModal.context?.id, ...simple }, this.$t('label.storage.service.update.smb.share'))
       return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', {
         id: context.id || this.actionModal.context?.id,
         name: this.forms.smbShare.name,
@@ -7572,8 +8456,11 @@ export default {
         browseable: this.forms.smbShare.browseable,
         guestok: this.forms.smbShare.guestok,
         createdirectory: this.forms.smbShare.createdirectory,
+        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
         crossprotocol: this.forms.smbShare.crossprotocol,
-        directorymode: this.forms.smbShare.directorymode
+        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
+        ...inheritOwnerParameters(this.forms.smbShare),
+        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode
       }, this.$t('label.storage.service.update.smb.share'))
     },
     createSmbAcl () {
@@ -7592,14 +8479,59 @@ export default {
       this.forms.smbAcl.password = ''
       return result
     },
-    joinAdDomain () {
+    async joinAdDomain () {
+      const instanceid = this.storageService.instance?.id
       const key = this.actionModal.type === 'adRejoin' ? 'adRejoin' : 'adJoin'
-      const result = this.runStorageAction(key, 'joinStorageServiceToAdDomain', {
-        instanceid: this.storageService.instance.id,
-        ...this.forms.adJoin
-      }, this.$t(key === 'adRejoin' ? 'label.storage.service.rejoin.ad.domain' : 'label.storage.service.join.ad.domain'))
-      this.forms.adJoin.password = ''
-      return result
+      if (!instanceid || this.actionLoading[key] || this.adProgress.busy || adDomainBusy(this.adApplyStatus)) return false
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope && instanceid === this.storageService.instance?.id
+      this.actionLoading[key] = true
+      this.adProgress = { busy: true, error: '', jobid: null, latest: { membership: 'JOINING', serviceApply: 'WAITING' } }
+      try {
+        const params = this.cleanParams({ instanceid, ...this.forms.adJoin })
+        this.forms.adJoin.password = ''
+        const response = await postAPI('joinStorageServiceToAdDomain', params)
+        if (!current()) return false
+        const jobid = response.joinstorageservicetoaddomainresponse?.jobid
+        if (!jobid) throw new Error('AD_DOMAIN_RESPONSE_UNCONFIRMED')
+        this.adProgress.jobid = jobid
+        for (let attempt = 0; attempt < 300; attempt++) {
+          const wire = await getAPI('queryAsyncJobResult', { jobid })
+          if (!current()) return false
+          const job = wire.queryasyncjobresultresponse || {}
+          try {
+            const statusWire = await getAPI('listStorageServiceDomainStatus', { instanceid })
+            if (!current()) return false
+            const domains = statusWire.liststorageservicedomainstatusresponse?.storageidentitydomain
+            if (Array.isArray(domains)) {
+              this.storageService.domains = domains
+              const observed = adDomainProgress(domains[0])
+              if (observed.membership && observed.jobid === jobid) this.adProgress.latest = observed
+            }
+          } catch { /* A read never retries the accepted join request. */ }
+          if (Number(job.jobstatus) === 2) throw new Error(job.jobresult?.errortext || 'AD_SMB_APPLY_FAILED')
+          if (Number(job.jobstatus) === 1) {
+            const result = job.jobresult?.storageidentitydomain || job.jobresult
+            const final = adDomainProgress(result)
+            if (final.membership) this.adProgress.latest = final
+            if (!adDomainApplied(this.adProgress.latest)) throw new Error('AD_SERVICE_VERIFICATION_UNCONFIRMED')
+            try { await this.refreshAfterStorageAction(key, this.currentTab, this.protocolWideLayout) } catch (unavailable) { this.$notifyError(unavailable) }
+            return true
+          }
+          await this.delay(2000)
+        }
+        throw new Error('AD_DOMAIN_OBSERVATION_PENDING')
+      } catch (error) {
+        if (current()) {
+          const apiText = error?.response?.data?.errorresponse?.errortext
+          this.adProgress.error = String(apiText || error.message || error).slice(0, 1200)
+          if (!this.adProgress.jobid || this.adProgress.latest?.jobid !== this.adProgress.jobid) this.adProgress.latest = { membership: 'UNCHANGED', serviceApply: 'NOT_APPLIED', state: 'REJECTED' }
+        }
+        return false
+      } finally {
+        if (current()) { this.forms.adJoin.password = ''; this.adProgress.busy = false; this.actionLoading[key] = false }
+      }
     },
     leaveAdDomain () {
       if (!this.adLeaveConfirmationMatched) {
@@ -7657,6 +8589,8 @@ export default {
         storageid: this.forms.iscsiTarget.storageid,
         size: this.forms.iscsiTarget.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7666,6 +8600,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -7730,6 +8665,8 @@ export default {
         storageid: this.forms.nvmeNamespace.storageid,
         size: this.forms.nvmeNamespace.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7739,6 +8676,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -7957,6 +8895,28 @@ export default {
         force: this.forms.disconnectSession.force
       }, this.$t('label.storage.service.disconnect.session'))
     },
+    async refreshNetworkPolicy () {
+      if (!this.storageService.instance || this.storageService.refreshing) return
+      const instanceid = this.storageService.instance.id
+      const scope = this.storageReadScope
+      const current = () => scope === this.storageReadScope && instanceid === this.storageService.instance?.id
+      this.storageService.refreshing = true
+      try {
+        const results = await Promise.allSettled([
+          this.listApi('listStorageServiceHealth', { instanceid }, 'storageserviceruntime'),
+          this.fetchInstances()
+        ])
+        if (!current()) return
+        if (results[0].status === 'fulfilled') {
+          this.storageService.health = results[0].value
+          delete this.storageReadErrors.health
+        } else {
+          this.storageReadErrors.health = this.$t('message.sharedfs.network.observation.unavailable')
+          this.$notifyError(results[0].reason)
+        }
+        if (results[1].status === 'rejected') this.$notifyError(results[1].reason)
+      } finally { if (current()) this.storageService.refreshing = false }
+    },
     parseRuntimeResult (item) {
       if (!item) {
         return {}
@@ -8059,38 +9019,19 @@ export default {
       return `${owner} / ${mode} / ${recursive}`
     },
     effectiveNfsExportConfig (config = {}) {
-      const next = { ...config }
-      const readOnly = this.boolValue(next.readOnly ?? next.readonly)
-      const rootSquash = next.rootSquash === undefined && next.rootsquash === undefined ? true : this.boolValue(next.rootSquash ?? next.rootsquash)
-      if (!readOnly && rootSquash) {
-        if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
-        if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
-        if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = next.anonUid ?? next.anonuid ?? 65534
-        if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = next.anonGid ?? next.anongid ?? 65534
-        if (!next.mode) next.mode = '0775'
-        if (next.recursivePermission === undefined && next.recursivepermission === undefined) next.recursivePermission = false
-      }
-      return next
+      return { ...config }
     },
     applyNfsWritableDefaults () {
-      if (this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
-        return
-      }
-      if (this.forms.nfsExport.anonuid === null || this.forms.nfsExport.anonuid === undefined || this.forms.nfsExport.anonuid === '') {
-        this.forms.nfsExport.anonuid = 65534
-      }
-      if (this.forms.nfsExport.anongid === null || this.forms.nfsExport.anongid === undefined || this.forms.nfsExport.anongid === '') {
-        this.forms.nfsExport.anongid = 65534
-      }
-      if (this.forms.nfsExport.owneruid === null || this.forms.nfsExport.owneruid === undefined || this.forms.nfsExport.owneruid === '') {
-        this.forms.nfsExport.owneruid = this.forms.nfsExport.anonuid
-      }
-      if (this.forms.nfsExport.ownergid === null || this.forms.nfsExport.ownergid === undefined || this.forms.nfsExport.ownergid === '') {
-        this.forms.nfsExport.ownergid = this.forms.nfsExport.anongid
-      }
-      if (!this.forms.nfsExport.mode) {
-        this.forms.nfsExport.mode = '0775'
-      }
+      // Recommendations are shown independently; opening/saving never changes a draft.
+    },
+    useNfsRecommendedPosix () {
+      if (this.actionModal.type === 'editNfsExport' && this.nfsPosixObserved.status !== 'OBSERVED') return
+      this.nfsPosixEdit = true
+      Object.assign(this.forms.nfsExport, this.nfsRecommendedPosix)
+    },
+    nfsObservationSummary (value) {
+      const observed = nfsPosixObservation(value)
+      return observed.status === 'OBSERVED' ? `${observed.owneruid}:${observed.ownergid} / ${observed.mode}` : this.$t('label.storage.nfs.posix.unavailable')
     },
     clientVisibleName (value, fallback) {
       const normalized = String(value || fallback || '').trim().replace(/^\/+|\/+$/g, '')
@@ -8889,4 +9830,12 @@ export default {
       grid-template-columns: 1fr;
     }
   }
+</style>
+
+<style scoped>
+.storage-policy-backing { border: 0; padding: 0; margin: 0; min-width: 0; }
+.configuration-fields .storage-modal-body { overflow: visible; max-height: none; padding: 0; }
+.configuration-fields { border: 0; padding: 0; margin: 16px 0 0; min-width: 0; }
+.configuration-fields[inert] :deep(input),
+.configuration-fields[inert] :deep(.ant-select-selector) { color: var(--text-color); -webkit-text-fill-color: var(--text-color); opacity: 1; }
 </style>

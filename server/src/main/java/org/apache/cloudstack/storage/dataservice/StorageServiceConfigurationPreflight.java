@@ -1,0 +1,389 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+package org.apache.cloudstack.storage.dataservice;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.utils.exception.CloudRuntimeException;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao;
+import org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao;
+
+/** Read-only planning/admission; never invokes a configuration candidate or runtime-upgrade preflight. */
+final class StorageServiceConfigurationPreflight {
+    private static final Set<String> APIS = new HashSet<>();
+    static {
+        for (String kind : Arrays.asList("NfsExport","NfsAcl","SmbShare","SmbAcl","IscsiTarget","IscsiAcl","NvmeOfSubsystem","NvmeOfNamespace","NvmeOfHostAcl"))
+            for (String action : Arrays.asList("create","update","delete")) APIS.add(action+"Storage"+kind);
+        APIS.add("updateStorageNfsIdentityMapping");
+        APIS.add("createStorageDirectoryPolicy"); APIS.add("updateStorageDirectoryPolicy");
+        APIS.add("enableStorageServiceProtocol"); APIS.add("deleteStorageServiceProtocol");
+    }
+    private final StorageServiceProtocolDao protocols;
+    private final StorageFileShareDao shares;
+    private final StorageBlockTargetDao targets;
+    private final StorageAccessRuleDao rules;
+    private final VolumeDao volumes;
+    private final StorageServiceRuntimeUpgradeDao upgrades;
+    private final StorageServiceGuestCommandDispatcher guest;
+    private final Consumer<VolumeVO> volumeAccess;
+    private final java.util.function.BiConsumer<StorageServiceInstanceVO, JsonObject> smbListenerValidation;
+    StorageServiceConfigurationPreflight(StorageServiceProtocolDao p, StorageFileShareDao s, StorageBlockTargetDao t, StorageAccessRuleDao a,
+            VolumeDao v, StorageServiceRuntimeUpgradeDao u, StorageServiceGuestCommandDispatcher g, Consumer<VolumeVO> access) {
+        this(p, s, t, a, v, u, g, access, (instance, intent) -> { });
+    }
+    StorageServiceConfigurationPreflight(StorageServiceProtocolDao p, StorageFileShareDao s, StorageBlockTargetDao t, StorageAccessRuleDao a,
+            VolumeDao v, StorageServiceRuntimeUpgradeDao u, StorageServiceGuestCommandDispatcher g, Consumer<VolumeVO> access,
+            java.util.function.BiConsumer<StorageServiceInstanceVO, JsonObject> validate) {
+        protocols=p; shares=s; targets=t; rules=a; volumes=v; upgrades=u; guest=g; volumeAccess=access; smbListenerValidation=validate;
+    }
+    interface DirectoryObserver { JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner); }
+    DirectoryObserver directoryObserver;
+    interface SmbInheritanceObserver { JsonObject inspect(StorageServiceInstanceVO instance,StorageFileShareVO share,JsonObject intent); }
+    SmbInheritanceObserver smbInheritanceObserver;
+    java.util.function.BiConsumer<StorageServiceInstanceVO,JsonObject> pathPolicyValidator;
+    static String api(String name) {
+        if (name.endsWith("Cmd")) name=Character.toLowerCase(name.charAt(0))+name.substring(1,name.length()-3);
+        if (!APIS.contains(name)) throw new InvalidParameterValueException("Unsupported configuration intent");
+        return name;
+    }
+    static boolean runtimeWriting(StorageServiceRuntimeUpgradeVO value) {
+        return value != null && (value.getState()==StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING ||
+                value.getState()==StorageServiceRuntimeUpgradeVO.State.RUNNING &&
+                Arrays.asList("ACTIVATING","VERIFYING","ROLLING_BACK").contains(value.getPhase()));
+    }
+    static JsonObject parseIntent(String raw) {
+        if (raw == null || raw.getBytes(StandardCharsets.UTF_8).length>4096)
+            throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
+        try {
+            JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid"));
+            if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
+            api(value.get("api").getAsString());
+            if(value.has("relativepath")) StorageFileSharePaths.normalize(value.get("relativepath").getAsString());
+            if(value.has("createdirectory") && (!value.get("createdirectory").isJsonPrimitive() || !value.getAsJsonPrimitive("createdirectory").isBoolean()))throw new IllegalArgumentException();
+            for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip"))
+                if (value.has(k) && !value.get(k).isJsonPrimitive()) throw new IllegalArgumentException();
+            if (value.has("recursive") && (!value.get("recursive").isJsonPrimitive() || !value.getAsJsonPrimitive("recursive").isBoolean())) throw new IllegalArgumentException();
+            if (value.has("newvolume")) {
+                JsonObject n=value.getAsJsonObject("newvolume");
+                if (!new HashSet<>(Arrays.asList("diskofferingid","storageid","size")).containsAll(n.keySet())) throw new IllegalArgumentException();
+                for (JsonElement e:n.asMap().values()) if (!e.isJsonPrimitive()) throw new IllegalArgumentException();
+            }
+            if (value.has("posixchanges")) {
+                JsonObject change = value.getAsJsonObject("posixchanges");
+                if (!new HashSet<>(Arrays.asList("ownerUid","ownerGid","mode","recursivePermission")).containsAll(change.keySet()))
+                    throw new IllegalArgumentException();
+                for (String key : change.keySet()) {
+                    if (!change.get(key).isJsonPrimitive()) throw new IllegalArgumentException();
+                    if (key.equals("mode")) {
+                        if (!change.get(key).getAsString().matches("^0?[0-7]{3,4}$")) throw new IllegalArgumentException();
+                    } else if (key.equals("recursivePermission")) {
+                        if (!change.getAsJsonPrimitive(key).isBoolean()) throw new IllegalArgumentException();
+                    } else {
+                        double n=change.get(key).getAsDouble();
+                        if (n<0 || n>65535 || n!=Math.floor(n)) throw new IllegalArgumentException();
+                    }
+                }
+            }
+            for (String key : Arrays.asList("name","path"))
+                if (value.has(key) && (!value.get(key).isJsonPrimitive() || value.get(key).getAsString().length()>(value.get("api").getAsString().endsWith("StorageDirectoryPolicy")?4096:512)))
+                    throw new IllegalArgumentException();
+            if (value.has("port") && (!value.get("port").isJsonPrimitive() || value.get("port").getAsInt() < 1 || value.get("port").getAsInt() > 65535)) throw new IllegalArgumentException();
+            if ("updateStorageNfsIdentityMapping".equals(value.get("api").getAsString()))
+                StorageNfsIdentityMapping.valid(value.get("idmappingmode").getAsString());
+            else if (value.has("idmappingmode")) throw new IllegalArgumentException();
+            if (value.has("smbinheritance")) StorageSmbParentInheritance.validateIntent(value);
+            if (value.has("smbfullapply") && (!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()) || !value.get("smbfullapply").isJsonPrimitive() || !value.getAsJsonPrimitive("smbfullapply").isBoolean())) throw new IllegalArgumentException();
+            if (value.has("smbcreation") || value.has("smboptions")) StorageSmbCreationPolicy.validateIntent(value);
+            return value;
+        } catch (RuntimeException error) { throw new InvalidParameterValueException("Invalid public configuration intent"); }
+    }
+    static JsonObject commandIntent(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd cmd) {
+        JsonObject value=new JsonObject(); value.addProperty("api",api(cmd.getClass().getSimpleName()));
+        Map<String,Object> request=StorageServiceConfigurationCoordinator.publicRequest(cmd);
+        for (String name:Arrays.asList("id","protocol","volumeid","recursivepermission"))
+            if (request.get(name)!=null) value.add(name,new Gson().toJsonTree(request.get(name)));
+        if (StorageServiceConfigurationCoordinator.smbEndpointCommand(cmd))
+            for (String name:Arrays.asList("endpointid","listenip","port"))
+                if (request.get(name)!=null) value.add(name,new Gson().toJsonTree(request.get(name)));
+        if (StorageNfsPosix.exportCommand(cmd)) {
+            value.add("posixchanges", StorageNfsPosix.fields(request));
+            for (String key : Arrays.asList("name","path"))
+                if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
+        }
+        if (StorageDirectoryPolicies.command(cmd)) {
+            value.add("posixchanges", StorageNfsPosix.fields(request));
+            for (String key : Arrays.asList("path","expectedpolicyrevision"))
+                if (request.get(key)!=null) value.add(key,new Gson().toJsonTree(request.get(key)));
+        }
+        if (StorageSmbParentInheritance.shareApi(value.get("api").getAsString())
+                && (request.get("inheritowner")!=null || request.get("directorypolicyid")!=null)) {
+            JsonObject inheritance=new JsonObject();
+            if (request.get("inheritowner")!=null) inheritance.add("inheritOwner",new Gson().toJsonTree(request.get("inheritowner")));
+            if (request.get("directorypolicyid")!=null) inheritance.addProperty("directoryPolicyId",String.valueOf(request.get("directorypolicyid")));
+            value.add("smbinheritance",inheritance);
+        }
+        if (StorageSmbParentInheritance.shareApi(value.get("api").getAsString())) {
+            JsonObject creation = StorageSmbCreationPolicy.fields(request);
+            if (creation.size()>0) value.add("smbcreation",creation);
+            if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd) {
+                JsonObject options = StorageSmbCreationPolicy.options(request);
+                if (options.size()>0) value.add("smboptions",options);
+                if (!StorageSmbCreationPolicy.optionsOnly(cmd)) value.addProperty("smbfullapply",true);
+            }
+        }
+        for(String key:Arrays.asList("relativepath","createdirectory","directorypolicyid"))
+            if(request.get(key)!=null && (value.get("api").getAsString().endsWith("StorageNfsExport") || value.get("api").getAsString().endsWith("StorageSmbShare")))
+                value.add(key,new Gson().toJsonTree(request.get(key)));
+        if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
+            value.addProperty("idmappingmode", StorageNfsIdentityMapping.valid(((org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)cmd).getIdMappingMode()));
+        return value;
+    }
+    private StorageFileShareVO share(JsonElement id) {
+        if (id==null || id.isJsonNull()) return null;
+        String v=id.getAsString(); return v.matches("[0-9]+")?shares.findById(Long.valueOf(v)):shares.findByUuid(v);
+    }
+    private StorageBlockTargetVO target(JsonElement id) {
+        if (id==null || id.isJsonNull()) return null;
+        String v=id.getAsString(); return v.matches("[0-9]+")?targets.findById(Long.valueOf(v)):targets.findByUuid(v);
+    }
+    private StorageAccessRuleVO rule(JsonElement id) {
+        if (id==null || id.isJsonNull()) return null;
+        String v=id.getAsString(); return v.matches("[0-9]+")?rules.findById(Long.valueOf(v)):rules.findByUuid(v);
+    }
+    JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner) {
+        String name=api(intent.get("api").getAsString());
+        if (name.endsWith("StorageDirectoryPolicy")) {
+            if (directoryObserver == null) throw new CloudRuntimeException("DIRECTORY_POLICY_UNAVAILABLE");
+            try { return directoryObserver.observe(instance,intent,owner); }
+            catch (CloudRuntimeException error) {
+                JsonObject report=new JsonObject();String message=error.getMessage();
+                String code=message!=null && message.matches("DIRECTORY_[A-Z0-9_]+")?message:"DIRECTORY_OBSERVATION_UNAVAILABLE";
+                report.addProperty("status",code.contains("UNAVAILABLE")?"UNKNOWN":"BLOCKED");
+                report.addProperty("revision",instance.getConfigurationRevision());
+                report.addProperty("observedat",System.currentTimeMillis()/1000.0);
+                report.addProperty("expiresat",System.currentTimeMillis()/1000.0+30);
+                report.addProperty("fingerprint","");report.add("checks",new JsonArray());
+                JsonObject check=new JsonObject();check.addProperty("code",code);check.addProperty("blocking",true);check.addProperty("severity","ERROR");
+                report.getAsJsonArray("checks").add(check);return report;
+            }
+        }
+        StorageServiceInstance.Protocol protocol=name.contains("Nfs")?StorageServiceInstance.Protocol.NFS:
+                name.contains("Smb")?StorageServiceInstance.Protocol.SMB:name.contains("Iscsi")?StorageServiceInstance.Protocol.ISCSI:
+                name.contains("NvmeOf")?StorageServiceInstance.Protocol.NVME_OF:
+                StorageServiceInstance.Protocol.valueOf(intent.get("protocol").getAsString().toUpperCase(Locale.ROOT));
+        final boolean smbEndpoint = protocol == StorageServiceInstance.Protocol.SMB && Arrays.asList("enableStorageServiceProtocol", "deleteStorageServiceProtocol").contains(name);
+        List<StorageFileShareVO> fs=shares.listByInstanceIdAndProtocol(instance.getId(),protocol);
+        List<StorageBlockTargetVO> bs=targets.listByInstanceIdAndProtocol(instance.getId(),protocol);
+        JsonElement ref=intent.has("resourceid")?intent.get("resourceid"):intent.get("id");
+        StorageFileShareVO selectedFile=null; StorageBlockTargetVO selectedBlock=null;
+        if (ref!=null) {
+            if (name.contains("Acl")) {
+                StorageAccessRuleVO selected=rule(ref);
+                if (selected==null) throw new InvalidParameterValueException("Configuration resource not found");
+                JsonPrimitive parent=new JsonPrimitive(selected.getResourceId());
+                if (selected.getResourceType()==StorageServiceInstance.AccessResourceType.FILE_SHARE) selectedFile=share(parent);
+                else selectedBlock=target(parent);
+            } else if (protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) selectedFile=share(ref);
+            else selectedBlock=target(ref);
+            if (selectedFile==null && selectedBlock==null || selectedFile!=null && (selectedFile.getInstanceId()!=instance.getId() || selectedFile.getProtocol()!=protocol)
+                    || selectedBlock!=null && (selectedBlock.getInstanceId()!=instance.getId() || selectedBlock.getProtocol()!=protocol))
+                throw new InvalidParameterValueException("Configuration resource is outside this instance/protocol");
+        }
+        VolumeVO volume=null;
+        if (intent.has("volumeid") && !intent.get("volumeid").isJsonNull() && !intent.get("volumeid").getAsString().isEmpty()) {
+            String v=intent.get("volumeid").getAsString(); volume=v.matches("[0-9]+")?volumes.findById(Long.valueOf(v)):volumes.findByUuid(v);
+            if (volume==null) throw new InvalidParameterValueException("Backing volume not found");
+            volumeAccess.accept(volume);
+            if (volume.getDataCenterId()!=instance.getDataCenterId() || !"Ready".equals(String.valueOf(volume.getState()))
+                    || volume.getInstanceId()!=null && !Objects.equals(volume.getInstanceId(),instance.getVmId()))
+                throw new InvalidParameterValueException("Backing volume is not ready for this instance");
+        }
+        VolumeVO pathVolume=volume;
+        if(pathVolume==null && selectedFile!=null && selectedFile.getVolumeId()!=null)pathVolume=volumes.findById(selectedFile.getVolumeId());
+        JsonObject pathQuery=StorageFileSharePaths.query(name,intent,selectedFile,pathVolume,StorageFileSharePaths.all(instance.getId(),shares));
+        if(pathQuery.has("pathtarget")) {
+            if(pathPolicyValidator!=null) {
+                JsonObject validation=pathQuery.getAsJsonObject("pathtarget").deepCopy();validation.add("intent",intent);
+                pathPolicyValidator.accept(instance,validation);
+            }
+        }
+        boolean drain=name.startsWith("delete") || name.startsWith("update") &&
+                (name.contains("Acl") || name.contains("Iscsi") || name.contains("NvmeOf"));
+        Long original=selectedFile!=null?selectedFile.getVolumeId():selectedBlock!=null?selectedBlock.getVolumeId():null;
+        boolean simpleSmbPath=name.equals("updateStorageSmbShare") && !intent.has("smbfullapply") && !intent.has("relativepath") && !intent.has("volumeid");
+        if(pathQuery.has("pathtarget") && (name.endsWith("StorageNfsExport") || name.endsWith("StorageSmbShare")) && !simpleSmbPath)drain=true;
+        if (smbEndpoint) drain=false;
+        if (name.startsWith("update") && volume!=null && !Objects.equals(original,volume.getId())) drain=true;
+        JsonObject query=new JsonObject(); query.addProperty("instanceUuid",instance.getUuid());
+        query.addProperty("revision",instance.getConfigurationRevision()); query.addProperty("protocol",protocol.name());
+        query.addProperty("action",name.startsWith("delete")?"DELETE":name.startsWith("update")?"UPDATE":"CREATE");
+        query.addProperty("drainrequired",drain);
+        query.addProperty("recursive",intent.has("recursive")?intent.get("recursive").getAsBoolean():
+                intent.has("recursivepermission") && intent.get("recursivepermission").getAsBoolean());
+        List<String> refs=java.util.stream.Stream.concat(fs.stream().map(StorageFileShareVO::getUuid),bs.stream().map(StorageBlockTargetVO::getUuid)).sorted().collect(java.util.stream.Collectors.toList());
+        JsonArray ids=new JsonArray(); refs.stream().limit(20).forEach(ids::add);
+        Set<Integer> ports=new java.util.TreeSet<>();
+        for (StorageServiceProtocolVO row:protocols.listByInstanceId(instance.getId())) {
+            if (row.getProtocol()!=protocol) continue;
+            if (row.getPort()!=null) ports.add(row.getPort());
+            JsonObject config=StorageServiceConfigurationCoordinator.parsed(row.getConfigJson());
+            if (config.has("listenerGroups")) for (JsonElement item:config.getAsJsonArray("listenerGroups"))
+                if (item.isJsonObject() && item.getAsJsonObject().has("port")) ports.add(item.getAsJsonObject().get("port").getAsInt());
+        }
+        if (smbEndpoint) ports.add(intent.has("port") ? intent.get("port").getAsInt() : 445);
+        JsonArray listenerPorts=new JsonArray();ports.forEach(listenerPorts::add);query.add("ports",listenerPorts);
+        Set<Long> volumeRefs=new HashSet<>();
+        fs.stream().map(StorageFileShareVO::getVolumeId).filter(Objects::nonNull).forEach(volumeRefs::add);
+        bs.stream().map(StorageBlockTargetVO::getVolumeId).filter(Objects::nonNull).forEach(volumeRefs::add);
+        if (volume!=null) volumeRefs.add(volume.getId());
+        JsonArray volumeUuids=new JsonArray();
+        for (Long volumeRef:volumeRefs) {
+            VolumeVO backing=volumes.findById(volumeRef);
+            if (backing!=null) volumeUuids.add(backing.getUuid());
+        }
+        if (protocol==StorageServiceInstance.Protocol.NFS && name.contains("NfsExport") && !name.startsWith("delete")) {
+            JsonObject changes=intent.has("posixchanges")?intent.getAsJsonObject("posixchanges").deepCopy():new JsonObject();
+            query.add("posixchanges",changes);
+            JsonObject targetConfig=selectedFile==null?new JsonObject():StorageServiceConfigurationCoordinator.parsed(selectedFile.getConfigJson()).deepCopy();
+            if (selectedFile==null && volume!=null) {
+                String path=intent.has("path")?intent.get("path").getAsString():"/export/"+(intent.has("name")?intent.get("name").getAsString():"");
+                if (path.matches("/export/[A-Za-z0-9_.-]+")) {
+                    String mount="/srv/ablestack-storage/volumes/"+volume.getUuid();
+                    targetConfig.addProperty("volumeMountPath",mount);
+                    targetConfig.addProperty("backingPath",mount+path);
+                }
+            }
+            JsonObject target=new JsonObject();target.addProperty("uuid",selectedFile==null?"NEW":selectedFile.getUuid());
+            target.add("config",targetConfig);query.add("posixtarget",target);
+        }
+        if (StorageSmbParentInheritance.shareApi(name) && smbInheritanceObserver!=null) {
+            JsonObject patch=smbInheritanceObserver.inspect(instance,selectedFile,intent);
+            patch.entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
+        }
+        if (StorageSmbParentInheritance.shareApi(name))
+            StorageSmbCreationPolicy.query(selectedFile,intent).entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
+        if (query.has("smbcreationtarget")) query.addProperty("smboptionsonly", !intent.has("smbfullapply") && !intent.has("volumeid") && !intent.has("newvolume"));
+        for(Map.Entry<String,JsonElement> entry:pathQuery.entrySet()) query.add(entry.getKey(),entry.getValue());
+        if(pathQuery.has("pathtarget") && query.has("posixtarget"))
+            query.add("posixtarget",pathQuery.get("pathtarget"));
+        query.add("volumeuuids",volumeUuids);
+        query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
+        String identityDigest = "";
+        if ("updateStorageNfsIdentityMapping".equals(name)) {
+            List<StorageServiceProtocolVO> nfsRows = protocols.listByInstanceIdAndProtocol(instance.getId(), protocol);
+            StorageNfsIdentityMapping.policy(nfsRows);
+            if (nfsRows.stream().noneMatch(StorageServiceProtocolVO::isEnabled)) throw new InvalidParameterValueException("NFS_ENABLED_REQUIRED");
+            JsonArray vector = new JsonArray();
+            nfsRows.stream().sorted(java.util.Comparator.comparing(StorageServiceProtocolVO::getUuid)).forEach(row -> {
+                JsonObject item = new JsonObject(); item.addProperty("id", row.getUuid());
+                item.addProperty("enabled", row.isEnabled()); item.addProperty("ip", row.getListenIp()); item.addProperty("port", row.getPort());
+                item.add("config", StorageNfsIdentityMapping.config(row.getConfigJson())); vector.add(item);
+            });
+            identityDigest = "\nNFS_IDENTITY:" + StorageNfsIdentityMapping.valid(intent.get("idmappingmode").getAsString()) + ":" + vector;
+        }
+        query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
+                (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest + (query.has("smbcreation") ? "\nSMB_CREATION:"+query.get("smbcreation") : "") + (query.has("smbinheritance") ? "\\nSMB_INHERITANCE:"+query.get("smbinheritance") : "")));
+        query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && (!refs.isEmpty() || query.has("posixchanges") && query.getAsJsonObject("posixchanges").size()>0));
+        if (instance.getVmId()==null) throw new InvalidParameterValueException("SystemVM is unavailable");
+        JsonObject report;
+        try {
+            if (owner==null) {
+                StorageServiceGuestCommandResult caps=guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                    "configuration capability show","{}",20,Collections.emptySet()));
+                JsonObject capability=StorageServiceConfigurationCoordinator.parsed(caps==null?null:caps.getResultJson());
+                if (caps==null || !caps.isSuccess() || !capability.has("configurationPreflightVersion") || capability.get("configurationPreflightVersion").getAsInt()!=1)
+                    throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
+                if (protocol==StorageServiceInstance.Protocol.NFS && (!capability.has("nfsPosixIntentVersion") || capability.get("nfsPosixIntentVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("NFS_POSIX_CAPABILITY_REQUIRED");
+                if ("updateStorageNfsIdentityMapping".equals(name)
+                        && (!capability.has("nfsIdentityMappingVersion") || capability.get("nfsIdentityMappingVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("NFS_IDENTITY_CAPABILITY_REQUIRED");
+                if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
+                    throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
+                if(query.has("pathtarget")) StorageFileSharePaths.requireCapability(capability);
+                if (query.has("smbcreation")) {
+                    if (!capability.has("smbCreationPolicyVersion") || capability.get("smbCreationPolicyVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_CREATION_POLICY_CAPABILITY_REQUIRED");
+                    if (!capability.has("smbCreationPolicyProtectionVersion") || capability.get("smbCreationPolicyProtectionVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_CREATION_POLICY_PROTECTION_REQUIRED");
+                }
+                if (query.has("smbinheritance") && query.getAsJsonObject("smbinheritance").get("inheritOwner").getAsBoolean()) {
+                    if (!capability.has("smbParentInheritanceVersion") || capability.get("smbParentInheritanceVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED");
+                    if (!capability.has("smbParentInheritanceProtectionVersion") || capability.get("smbParentInheritanceProtectionVersion").getAsInt()!=1)
+                        throw new CloudRuntimeException("SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED");
+                }
+            }
+            StorageServiceGuestCommandResult wire=guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+                "configuration preflight show",query.toString(),20,Collections.emptySet()));
+            report=StorageServiceConfigurationCoordinator.parsed(wire==null?null:wire.getResultJson());
+            if (wire==null || !wire.isSuccess() || !report.has("checks") || !report.has("status")) throw new CloudRuntimeException("PREFLIGHT_OBSERVATION_UNAVAILABLE");
+        } catch (CloudRuntimeException error) {
+            report=new JsonObject(); report.addProperty("status","UNKNOWN");report.addProperty("revision",instance.getConfigurationRevision());
+            report.addProperty("observedat",System.currentTimeMillis()/1000.0);report.addProperty("expiresat",System.currentTimeMillis()/1000.0);
+            report.addProperty("fingerprint","");report.add("checks",new JsonArray());
+            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED", "SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "SMB_CREATION_POLICY_PROTECTION_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
+            failed.addProperty("blocking",true);failed.addProperty("severity","ERROR");report.getAsJsonArray("checks").add(failed);
+        }
+        if (instance.getActiveConfigurationOperationId()!=null && !Objects.equals(owner,instance.getActiveConfigurationOperationId()))
+            block(report,"CONFIGURATION_WRITER_ACTIVE");
+        if (runtimeWriting(upgrades.findActiveByInstanceId(instance.getId()))) block(report,"RUNTIME_WRITER_ACTIVE");
+        if (smbEndpoint) {
+            try { smbListenerValidation.accept(instance, intent); }
+            catch (InvalidParameterValueException error) { block(report, error.getMessage()); }
+        }
+        report.add("intent", query);
+        return report;
+    }
+    static void block(JsonObject report,String code) {
+        report.addProperty("status","BLOCKED");JsonObject c=new JsonObject();c.addProperty("code",code);c.addProperty("blocking",true);
+        c.addProperty("severity","ERROR");report.getAsJsonArray("checks").add(c);
+    }
+    static void requireReady(JsonObject report,String ack) {
+        if (!"READY".equals(report.get("status").getAsString()) || report.getAsJsonArray("checks").asList().stream()
+                .anyMatch(c -> c.isJsonObject() && c.getAsJsonObject().has("blocking") && c.getAsJsonObject().get("blocking").getAsBoolean())) throw new Rejected(report);
+        if (report.has("impact") && report.getAsJsonObject("impact").get("ackrequired").getAsBoolean()
+                && (!report.has("fingerprint") || !Objects.equals(ack,report.get("fingerprint").getAsString()))) {
+            block(report,"IMPACT_ACK_REQUIRED");throw new Rejected(report);
+        }
+    }
+    static final class Rejected extends CloudRuntimeException {
+        final JsonObject report;
+        Rejected(JsonObject value) {super("CONFIGURATION_PREFLIGHT_BLOCKED");report=value;}
+    }
+}

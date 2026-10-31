@@ -1,0 +1,122 @@
+{
+  "uiIntent": {
+    "api": "createStorageNfsExport",
+    "recursive": false,
+    "volumeid": "b67f2980-6295-4e5d-929b-db07b829e5e9",
+    "posixchanges": {
+      "ownerUid": 65534,
+      "ownerGid": 65534,
+      "mode": "0775"
+    },
+    "name": "e1450-r3",
+    "path": "/export/e1450-r3"
+  },
+  "preflight": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "READY",
+        "revision": 1,
+        "observedat": "2026-10-27T10:23:52+0900",
+        "expiresat": "2026-10-27T10:24:22+0900",
+        "fingerprint": "66d63336d4e3e2e7d3568652d4c790b6bad0ce0a06c967dc2ee9b7dcdfbcd57c",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3857530880,
+            "requiredbytes": 218280016
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655289344,
+            "requiredbytes": 83930132,
+            "readonly": false,
+            "freeinodes": 230503
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 0,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false,
+        "posixobservation": {
+          "resourceuuid": "NEW",
+          "status": "PATH_MISSING",
+          "observedat": 1793064232.8395002,
+          "fingerprint": "45fd8b7834606d2d56283daeb04ead239bd709814a699bd18826b891e3fa8076"
+        },
+        "posixchanges": {
+          "ownerUid": 65534,
+          "ownerGid": 65534,
+          "mode": "0775"
+        }
+      }
+    }
+  },
+  "actualCreate": {
+    "command": "createStorageNfsExport",
+    "response": "json",
+    "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+    "name": "e1450-r3",
+    "path": "/export/e1450-r3",
+    "volumeid": "b67f2980-6295-4e5d-929b-db07b829e5e9",
+    "filesystem": "xfs",
+    "importmode": "MOUNT_EXISTING",
+    "createdirectory": "true",
+    "protocolmode": "V4_ONLY",
+    "readonly": "false",
+    "rootsquash": "true",
+    "anonuid": "65534",
+    "anongid": "65534",
+    "owneruid": "65534",
+    "ownergid": "65534",
+    "mode": "0775",
+    "recursivepermission": "false",
+    "sync": "true",
+    "secure": "false",
+    "deferapply": "true",
+    "requestid": "24f15cd5-300c-48a8-99f8-d022b99ccca0",
+    "impactack": "66d63336d4e3e2e7d3568652d4c790b6bad0ce0a06c967dc2ee9b7dcdfbcd57c"
+  },
+  "assertions": {
+    "name": true,
+    "path": true,
+    "volume": true,
+    "ownerUid": true,
+    "ownerGid": true,
+    "mode": true,
+    "ack": true,
+    "recursiveFalseOmitted": true
+  },
+  "traceHasGaps": true
+}

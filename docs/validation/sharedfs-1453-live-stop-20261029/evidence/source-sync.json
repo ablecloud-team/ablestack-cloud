@@ -1,0 +1,17 @@
+{
+  "oldHead": "c8d872f76ca1956d86f5a1c3697138679840c452",
+  "oldBase": "37bceae693041b9c79cc52084053b050b577029d",
+  "newHead": "382e5a13c972e7fde266e199ca3181b2c63e2a24",
+  "newBase": "06d3c598c116d2f6bdd232ea6c09f066240098f4",
+  "backupTag": "backup/epic1438-before-1453-resume-20261029-2013",
+  "treeDifferenceFromBuiltSource": "M\tscripts/vm/network/security_group.py",
+  "artifactPayloadPathsUnchanged": [
+    "api",
+    "server",
+    "systemvm",
+    "ui",
+    "engine",
+    "plugins"
+  ],
+  "featureRebased": true
+}

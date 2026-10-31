@@ -1,0 +1,275 @@
+{
+  "instance": {
+    "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "configurationprotection": false,
+    "revision": 2
+  },
+  "operations": [
+    {
+      "id": "a86266a6-7d00-4b39-83b2-bc60d5bd51b4",
+      "requestid": "7ace184b-c11f-4a00-9b48-94503e06896b",
+      "protocol": "NVME_OF",
+      "api": "DeleteStorageNvmeOfNamespaceCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "aee85c18-e302-4c99-8c15-71734862ec8e",
+      "requestid": "f4e664f4-a908-42df-b7a3-f02b1a9f5c0a",
+      "protocol": "NVME_OF",
+      "api": "CreateStorageNvmeOfNamespaceCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "34481ae5-5753-4b5b-8310-55d6aa31bf91",
+      "requestid": "fdd42547-cff6-4a90-b27e-761fcc42c511",
+      "protocol": "NFS",
+      "api": "UpdateStorageNfsExportCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "6dbab391-6bfa-4977-95bd-76eff3bf2272",
+      "requestid": "37c6a795-f793-47e1-8fa3-9cabc87743b6",
+      "protocol": "NFS",
+      "api": "UpdateStorageNfsExportCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "276540e4-0aab-40c3-8b61-cf85f317c3d2",
+      "requestid": "8cc4bf2e-3471-42b0-8ec2-a2a5a5dc1634",
+      "protocol": "NVME_OF",
+      "api": "DeleteStorageNvmeOfNamespaceCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "e890fc85-3509-4ff0-9f71-b41a4b9e3afd",
+      "requestid": "c24865ab-3e67-40e7-9705-8e4e788f5dcd",
+      "protocol": "ISCSI",
+      "api": "DeleteStorageIscsiTargetCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "0408eb03-e6e6-4999-a3c6-0471e50077f5",
+      "requestid": "21b164f7-bbbb-4178-b6fa-fc5d4fc61771",
+      "protocol": "SMB",
+      "api": "DeleteStorageSmbShareCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "bbc3f3e7-4c33-4634-918e-4aec518d41f7",
+      "requestid": "69f722db-0cef-4664-9ed7-ad4a042bb72e",
+      "protocol": "NFS",
+      "api": "DeleteStorageNfsExportCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "761b38ef-22ec-4b9f-9c35-176a82c84991",
+      "requestid": "4d15cf1e-557c-4e28-92ef-ae2373ab1d38",
+      "protocol": "NVME_OF",
+      "api": "CreateStorageNvmeOfNamespaceCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "ef531e80-30c6-452e-a6e4-51ea964fbdb8",
+      "requestid": "54827969-df69-480b-8bfd-890dade9a613",
+      "protocol": "ISCSI",
+      "api": "CreateStorageIscsiTargetCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "e7910dbb-f541-4854-ade8-67ba73d000aa",
+      "requestid": "15cb709f-b2e4-4e97-a559-a3c6c68c387a",
+      "protocol": "SMB",
+      "api": "CreateStorageSmbShareCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "917e8ab9-424f-47bc-b9dc-774eabb554c9",
+      "requestid": "2624298a-6752-4283-8dfd-9db5ccd2c3ed",
+      "protocol": "NFS",
+      "api": "CreateStorageNfsExportCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "f1bf9a74-6d53-4f04-8543-79e7a646baf9",
+      "requestid": "1883939f-3fb6-4630-8376-6c88b0c6f4da",
+      "protocol": "NVME_OF",
+      "api": "DeleteStorageNvmeOfHostAclCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "7009916e-698f-4cd6-b52f-5d099ca05732",
+      "requestid": "ffef553c-bdf6-4e98-b92b-d62f8855e7a8",
+      "protocol": "ISCSI",
+      "api": "UpdateStorageIscsiAclCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "a70f2b4c-7268-4ca8-a47e-1fc44395bf5f",
+      "requestid": "a09c835d-566c-4811-9811-df7026270e62",
+      "protocol": "SMB",
+      "api": "UpdateStorageSmbShareCmd",
+      "state": "COMMITTED",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "45de8a8c-2309-4c56-9244-4aacf14fe266",
+      "requestid": "cc5a770c-759d-4f36-9644-278ebce75f7a",
+      "protocol": "SMB",
+      "api": "UpdateStorageSmbShareCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "4029872c-46af-4150-803d-6af7cff11ae9",
+      "requestid": "4dd638eb-9485-4d00-9c73-37a91b80cd57",
+      "protocol": "SMB",
+      "api": "UpdateStorageSmbShareCmd",
+      "state": "COMMITTED",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "5479e2dd-c677-4868-b575-54e50d2bd349",
+      "requestid": "8830e2fa-bb82-4e29-9730-f3b4f80482d3",
+      "protocol": "NFS",
+      "api": "UpdateStorageNfsExportCmd",
+      "state": "ROLLED_BACK",
+      "originalfailure": {
+        "code": "ISSUE1444_UI_VERIFY_INJECTED",
+        "phase": "VERIFYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    }
+  ],
+  "httpCaptureComplete": false,
+  "capturedHttpMutationCounts": {
+    "createStorageNvmeOfNamespace": 1
+  }
+}

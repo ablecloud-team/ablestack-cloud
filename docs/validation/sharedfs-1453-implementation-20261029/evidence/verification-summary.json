@@ -1,0 +1,39 @@
+{
+  "backend": {
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "actualDao": true,
+    "actualApiSerialization": true
+  },
+  "ui": {
+    "tests": 58,
+    "suites": 6,
+    "lint": "PASS",
+    "actualApiFixture": "ui/tests/fixtures/storage-1453-inheritance-wire.json"
+  },
+  "guest": {
+    "tests": 38,
+    "failures": 0,
+    "nativePosixTools": true
+  },
+  "moduleBuild": {
+    "management": {
+      "result": "PASS",
+      "modules": 151
+    },
+    "ui": {
+      "result": "PASS"
+    },
+    "systemvm": {
+      "result": "PASS"
+    }
+  },
+  "liveAcceptance": "NOT_STARTED",
+  "issueState": "OPEN",
+  "deployment": "NOT_APPLIED",
+  "asOf": "2026-10-29T14:13:00+09:00",
+  "supersededBy": "docs/validation/sharedfs-1453-live-stop-20261029/README.md",
+  "coverageLimitation": "Partial renderer fixture substituted module for actual instance; direct CLI ordering not covered; live SMB acceptance failed"
+}

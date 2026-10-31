@@ -1,0 +1,9 @@
+{
+  "files": 241,
+  "root": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o777"
+  },
+  "uidGidModeSha256Preserved": true
+}

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList, 'runtime-catalog-screen': $route.meta?.name === 'runtimebundle' }">
     <a-affix
       :key="'affix-' + showSearchFilters + ((isStorageUi || isSnapshotList || isPolicyUi) ? '-' + storageHeaderWidth + '-' + device : ($route.meta?.name === 'userdata' ? '-' + device + '-' + selectedRowKeys.length : ''))"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78"
@@ -30,6 +30,7 @@
             <breadcrumb :resource="resource">
               <template #end>
                 <a-button
+                  v-if="$route.meta?.name !== 'runtimebundle'"
                   :loading="loading || (($route.meta?.name === 'vmgroup' || isSnapshotList) && listRequestPending)"
                   :disabled="isSnapshotList && listRequestPending"
                   style="margin-bottom: 5px"
@@ -150,6 +151,15 @@
                 :resource="resource"
                 @exec-action="(action) => execAction(action, action.groupAction && !dataView)"/>
             </template>
+            <a-button
+              v-if="$route.meta?.name === 'runtimebundle'"
+              data-testid="runtime-catalog-refresh"
+              :loading="loading"
+              :aria-label="$t('label.refresh')"
+              @click="fetchData({ irefresh: true })">
+              <template #icon><reload-outlined /></template>
+              {{ $t('label.refresh') }}
+            </a-button>
             <search-view
               v-if="!dataView"
               :searchFilters="searchFilters"
@@ -3281,7 +3291,7 @@ export default {
         } else {
           query.networkfilter = filter
         }
-      } else if (['account', 'publicip', 'systemvm', 'router'].includes(this.$route.name)) {
+      } else if (['account', 'publicip', 'systemvm', 'router', 'runtimebundle'].includes(this.$route.name)) {
         if (filter !== 'all') {
           query.state = filter
         }
@@ -3614,6 +3624,11 @@ export default {
 </script>
 
 <style scoped>
+.runtime-catalog-screen :deep(.breadcrumb-card > .ant-card-body > .ant-row) { display:flex; flex-direction:column; gap:8px; }
+.runtime-catalog-screen :deep(.breadcrumb-card .ant-col) { width:100%; max-width:100%; float:none !important; }
+.runtime-catalog-screen :deep(.autogen-toolbar-actions) { display:flex !important; align-items:center; gap:8px; }
+.runtime-catalog-screen :deep(.autogen-action-dropdown__trigger) { float:none !important; }
+
 .breadcrumb-card {
   margin-left: -24px;
   margin-right: -24px;

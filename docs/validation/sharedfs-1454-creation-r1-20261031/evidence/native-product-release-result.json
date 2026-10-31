@@ -1,0 +1,114 @@
+{
+  "kind": "real SystemVM bind/two-port regression; not Mold UI acceptance",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "candidate module imported",
+      "passed": true,
+      "path": "/var/tmp/epic1454-native-product-m9l6dzkp/shared_directory_policy.py",
+      "transaction": "/var/tmp/epic1454-native-product-m9l6dzkp/configuration_transaction.py"
+    },
+    {
+      "name": "real product RuntimeAdapter transaction apply/verify/commit/duplicate/resume and partial reload rollback",
+      "passed": true,
+      "records": [
+        {
+          "case": "limited",
+          "operation": "b7e9c73d-35f3-422a-acd4-e9f8a8d27871",
+          "state": "COMMITTED",
+          "observed": [
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0640",
+              "inode": 25165962
+            },
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0640",
+              "inode": 25165964
+            }
+          ]
+        },
+        {
+          "case": "execute",
+          "operation": "75a25f0f-fa53-4f4c-8689-7b28bb6396f4",
+          "state": "COMMITTED",
+          "observed": [
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0770",
+              "inode": 25165966
+            },
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0770",
+              "inode": 25165968
+            }
+          ]
+        },
+        {
+          "case": "default",
+          "operation": "b1e44c96-a95b-4a6e-872d-1969fc2dbdf2",
+          "state": "COMMITTED",
+          "observed": [
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 25165970
+            },
+            {
+              "uid": 1001,
+              "gid": 65534,
+              "mode": "0660",
+              "inode": 25165972
+            }
+          ]
+        },
+        {
+          "case": "actual second reload failure",
+          "state": "ROLLED_BACK",
+          "rollback": {
+            "state": "SUCCEEDED"
+          },
+          "originalfailure": {
+            "code": "DIRECTORY_RUNTIME_COMMAND_FAILED",
+            "phase": "APPLYING",
+            "type": "PolicyError"
+          }
+        }
+      ],
+      "stable": {
+        "23045": {
+          "parentPid": 254941,
+          "sessionIds": [
+            "2702308466"
+          ],
+          "treeIds": [
+            "3242890011",
+            "982654772"
+          ]
+        },
+        "23046": {
+          "parentPid": 254948,
+          "sessionIds": [
+            "3191522806"
+          ],
+          "treeIds": [
+            "2708070543",
+            "665122032"
+          ]
+        }
+      },
+      "stopOrRestartCalls": 0
+    }
+  ],
+  "success": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true,
+  "productionFileCount": 6
+}

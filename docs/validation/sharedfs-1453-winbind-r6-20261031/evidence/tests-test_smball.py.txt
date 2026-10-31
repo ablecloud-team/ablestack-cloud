@@ -1,0 +1,40 @@
+test_actual_cli_calls_guard_before_acl_and_mutable_share_loop (test_smb_ad_resolution.AdResolution) ... ok
+test_cold_start_trust_then_exact_user_and_group_nss (test_smb_ad_resolution.AdResolution) ... ok
+test_local_disabled_or_inactive_ad_acls_skip_all_commands (test_smb_ad_resolution.AdResolution) ... ok
+test_nss_waits_for_readiness_then_uses_existing_exact_identity (test_smb_ad_resolution.AdResolution) ... ok
+test_start_failure_does_not_reach_nss (test_smb_ad_resolution.AdResolution) ... ok
+test_symlink_or_writable_config_rejected (test_smb_ad_resolution.AdResolution) ... ok
+test_timeout_has_safe_error (test_smb_ad_resolution.AdResolution) ... ok
+test_trust_failure_does_not_reach_nss (test_smb_ad_resolution.AdResolution) ... ok
+test_unknown_principal_fails_closed_with_existing_code (test_smb_ad_resolution.AdResolution) ... ok
+test_warm_resolver_not_restarted (test_smb_ad_resolution.AdResolution) ... ok
+test_wrong_realm_or_unjoined_fails_before_service_change (test_smb_ad_resolution.AdResolution) ... ok
+test_nonempty_payload_keeps_the_real_directory_policy_instance (test_smb_entrypoint_binding.SmbEntrypointBinding) ... ok
+test_a_missing_managed_manifest_does_not_fall_back_to_legacy (test_smb_listener_profiles.SmbLegacyRollbackTests) ... ok
+test_manifest_was_never_created_and_unchanged_owned_legacy_is_restored (test_smb_listener_profiles.SmbLegacyRollbackTests) ... ok
+test_missing_or_changed_before_configuration_cannot_be_accepted (test_smb_listener_profiles.SmbLegacyRollbackTests) ... ok
+test_runtime_adapter_uses_before_image_for_failed_first_migration (test_smb_listener_profiles.SmbLegacyRollbackTests) ... ok
+test_wrong_instance_listener_process_or_running_configuration_cannot_be_accepted (test_smb_listener_profiles.SmbLegacyRollbackTests) ... ok
+test_conflicting_socket_is_rejected_before_any_process_start (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_corrupt_unit_identity_cannot_select_another_service (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_live_owned_tuple_is_not_started_twice (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_null_defaults_are_a_single_tuple_but_different_ports_are_distinct (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_only_new_secondary_with_matching_persisted_nic_identity_is_owned (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_primary_manual_or_still_bound_alias_cannot_be_released (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_release_requires_secondary_and_does_not_replay_after_boot (test_smb_listener_profiles.SmbListenerLaunchTests) ... ok
+test_systemd_session_leader_does_not_run_samba_setsid_again (test_smb_listener_profiles.SmbListenerLaunchTests)
+The old smbd -F invocation fails EPERM before socket creation. ... ok
+test_native_systemd_sessions_locking_rollback_and_boot (test_smb_listener_systemvm.SmbListenerSystemVMTests) ... skipped 'explicit root/SystemVM native integration opt-in'
+test_signed_release_entrypoint_does_not_use_the_legacy_helper (test_smb_listener_systemvm.SmbListenerSystemVMTests) ... skipped 'explicit root/SystemVM native integration opt-in'
+test_ad_baseline_requires_six_without_disabling_parent_inheritance_on_five (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_baseline_inspection_never_executes_candidate_code (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_invalid_inventory_row_is_diagnostic_not_a_list_failure (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_optional_boolean_and_fixed_identity_are_strict (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_parent_observation_and_explicit_disable_preserve_identity (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_preview_fingerprint_binds_policy_and_observed_parent (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+test_signed_target_guard_legacy_active_false_and_nonexecuting_ast (test_smb_parent_inheritance.ParentInheritanceTest) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.201s
+
+OK (skipped=2)

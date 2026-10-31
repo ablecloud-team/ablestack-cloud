@@ -1,0 +1,10 @@
+{
+  "current": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba",
+  "previous": "/opt/ablestack/storage-runtime/releases/epic1438-1446-7f473dc06768",
+  "returnedToOriginalRuntime": true,
+  "sameVmBoot": true,
+  "sameProtocolProcesses": true,
+  "sameNvmeIdentity": true,
+  "configurationAndPermissionsPreserved": true,
+  "configurationFileCount": 15
+}

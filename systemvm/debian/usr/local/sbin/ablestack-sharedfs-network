@@ -1,0 +1,388 @@
+#!/usr/bin/env python3
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+"""SharedFS-owned IPv4 policy. Reads never reconcile or start services."""
+import fcntl
+import ipaddress
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import stat
+import subprocess
+import sys
+import time
+
+STATE = Path("/etc/ablestack-storage/sharedfs-network.json")
+APPLIED = Path("/etc/ablestack-storage/sharedfs-network-applied.json")
+STATUS = Path("/run/ablestack-storage/network-status.json")
+ALIASES = Path("/etc/ablestack-storage/network-endpoints.json")
+LINKS = Path("/sys/class/net")
+RESOLV = Path("/etc/resolv.conf")
+
+
+def run(*args):
+    return subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, timeout=5).stdout
+
+
+def trusted_json(path, optional=False):
+    if optional and not path.exists() and not path.is_symlink():
+        return None
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(fd) as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o077 or info.st_size > 65536:
+            raise ValueError("UNSAFE_STATE: " + str(path))
+        result = json.load(stream)
+    if not isinstance(result, dict):
+        raise ValueError("INVALID_STATE: " + str(path))
+    return result
+
+
+def atomic_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "w") as stream:
+        os.fchmod(stream.fileno(), 0o600)
+        json.dump(data, stream, sort_keys=True)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def valid_unicast(value):
+    address = ipaddress.ip_address(value)
+    if address.version != 4 or int(address) >= 0xe0000000 or address.is_unspecified:
+        raise ValueError("INVALID_IPV4: " + str(value))
+    return address
+
+
+def validate(state):
+    if not isinstance(state, dict):
+        raise ValueError("INVALID_STATIC_POLICY")
+    network = ipaddress.ip_network(state["cidr"], strict=False)
+    address = valid_unicast(state["ipAddress"])
+    if network.version != 4 or address not in network or (network.prefixlen <= 30 and address in (network.network_address, network.broadcast_address)):
+        raise ValueError("INVALID_STATIC_ADDRESS")
+    gateway = valid_unicast(state["gateway"]) if state.get("gateway") else None
+    if gateway and (gateway not in network or gateway == address or
+                    (network.prefixlen <= 30 and gateway in (network.network_address, network.broadcast_address))):
+        raise ValueError("INVALID_GATEWAY")
+    dns = list(dict.fromkeys(str(valid_unicast(state[key])) for key in ("dns1", "dns2") if state.get(key)))
+    mac = str(state["macAddress"]).lower()
+    if not re.fullmatch(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}", mac):
+        raise ValueError("INVALID_MAC")
+    return {"ipAddress": str(address), "cidr": str(network), "prefixlen": network.prefixlen,
+            "gateway": str(gateway) if gateway else None, "dns": dns, "macAddress": mac}
+
+
+def interface_for_mac(mac, links=LINKS):
+    matches = [p.name for p in links.iterdir() if p.name != "lo" and
+               (p / "address").read_text().strip().lower() == mac.lower()]
+    if len(matches) != 1:
+        raise ValueError("NIC_OWNER_UNKNOWN: expected exactly one NIC for " + mac)
+    return matches[0]
+
+
+def addresses():
+    return json.loads(run("ip", "-j", "-4", "addr", "show", "scope", "global"))
+
+
+def routes():
+    return json.loads(run("ip", "-j", "-4", "route", "show", "table", "main"))
+
+
+def v4_addresses(links, interface):
+    return [a for link in links if link.get("ifname") == interface for a in link.get("addr_info", []) if a.get("family") == "inet"]
+
+
+def owned_dhclient(interface, proc=Path("/proc")):
+    result = []
+    for entry in proc.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            args = (entry / "cmdline").read_bytes().decode().strip("\0").split("\0")
+            if args and Path(args[0]).name == "dhclient" and interface in args and "-6" not in args:
+                result.append((int(entry.name), args))
+        except (OSError, UnicodeError):
+            continue
+    return result
+
+
+def resolver_contents(path=RESOLV):
+    info = path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+        raise ValueError("DNS_OWNER_UNKNOWN: refusing to replace resolver managed elsewhere")
+    return path.read_text()
+
+
+def dns_plan(text, desired, previous):
+    if not desired:
+        return text
+    lines = []
+    for line in text.splitlines(keepends=True):
+        match = re.match(r"\s*nameserver\s+(\S+)", line)
+        if not match or match[1] not in set(previous) | set(desired):
+            lines.append(line)
+    return "".join("nameserver " + value + "\n" for value in desired) + "".join(lines)
+
+
+def default_via(route, interface):
+    return route.get("dst") == "default" and bool(route.get("gateway")) and route.get("dev") == interface
+
+
+def route_key(route):
+    return {k: route[k] for k in ("gateway", "dev", "metric", "protocol", "table") if k in route}
+
+
+def route_delete(route):
+    args = ["ip", "-4", "route", "del", "default", "via", route["gateway"], "dev", route["dev"]]
+    for key in ("metric", "protocol", "table"):
+        if key in route:
+            args.extend([key, str(route[key])])
+    return args
+
+
+def plan(policy, interface, observed, routing, previous, dhcp, resolver):
+    if previous and previous.get("macAddress") != policy["macAddress"]:
+        raise ValueError("OWNER_CONFLICT: previous policy belongs to another NIC")
+    current = v4_addresses(observed, interface)
+    desired = (policy["ipAddress"], policy["prefixlen"])
+    previous_address = (previous or {}).get("primary")
+    owned = [(previous_address["address"], previous_address["prefixlen"])] if previous_address else []
+    if dhcp:
+        owned.extend((a["local"], a["prefixlen"]) for a in current if not a.get("secondary") and "secondary" not in a.get("flags", []))
+    remove_addresses = []
+    for info in current:
+        key = (info["local"], info["prefixlen"])
+        if key != desired and key in owned:
+            remove_addresses.append(key)
+        elif info["local"] == desired[0] and key != desired:
+            raise ValueError("OWNER_CONFLICT: unowned prefix on requested primary address")
+    old_route = (previous or {}).get("defaultRoute")
+    remove_routes = []
+    matching = None
+    for route in routing:
+        if not default_via(route, interface):
+            continue
+        if route["gateway"] == policy["gateway"]:
+            if route.get("protocol") == "dhcp" or route.get("expires"):
+                remove_routes.append(route)
+            else:
+                matching = route_key(route)
+        elif (old_route and route_key(route) == old_route) or dhcp:
+            remove_routes.append(route)
+        else:
+            raise ValueError("OWNER_CONFLICT: unowned default route on managed NIC")
+    dns = dns_plan(resolver, policy["dns"], (previous or {}).get("dns", []))
+    matching_address = next((a for a in current if (a["local"], a["prefixlen"]) == desired), None)
+    renew = matching_address is not None and (matching_address.get("dynamic") or "dynamic" in matching_address.get("flags", []) or
+            matching_address.get("valid_life_time", 0xffffffff) not in (0xffffffff, "forever") or
+            matching_address.get("preferred_life_time", 0xffffffff) not in (0xffffffff, "forever"))
+    return {"addAddress": matching_address is None, "renewPrimary": bool(renew),
+            "removeAddresses": remove_addresses, "removeRoutes": remove_routes,
+            "addDefault": bool(policy["gateway"]) and matching is None,
+            "defaultRoute": matching, "resolver": dns}
+
+
+def set_manual_interface(interface, path=Path("/etc/network/interfaces")):
+    # Preserve all other NIC stanzas. ifup must not run a second DHCP owner.
+    text = path.read_text()
+    pattern = r"(?ms)^iface\s+" + re.escape(interface) + r"\s+inet\s+\S+[^\n]*\n(?:(?!^(?:iface|auto|allow-|source|mapping)\b)[ \t]+[^\n]*\n)*"
+    updated = re.sub(pattern, "", text).rstrip() + "\niface " + interface + " inet manual\n"
+    if updated != text:
+        path.write_text(updated)
+
+
+def apply(state, applied_path=APPLIED):
+    policy = validate(state)
+    interface = interface_for_mac(policy["macAddress"])
+    previous = trusted_json(applied_path, optional=True)
+    before = addresses()
+    dhcp = owned_dhclient(interface)
+    text = resolver_contents()
+    changes = plan(policy, interface, before, routes(), previous, dhcp, text)
+    # All ownership and input checks precede mutations.
+    for pid, args in dhcp:
+        try:
+            if Path("/proc", str(pid), "cmdline").read_bytes().decode().strip("\0").split("\0") == args:
+                os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    set_manual_interface(interface)
+    run("ip", "link", "set", "dev", interface, "up")
+    if changes["addAddress"]:
+        run("ip", "addr", "add", policy["ipAddress"] + "/" + str(policy["prefixlen"]), "dev", interface)
+    elif changes["renewPrimary"]:
+        run("ip", "addr", "change", policy["ipAddress"] + "/" + str(policy["prefixlen"]), "dev", interface,
+            "valid_lft", "forever", "preferred_lft", "forever")
+    if changes["removeAddresses"]:
+        promote = Path("/proc/sys/net/ipv4/conf", interface, "promote_secondaries")
+        value = promote.read_text()
+        try:
+            promote.write_text("1")
+            for address, prefix in changes["removeAddresses"]:
+                run("ip", "addr", "del", address + "/" + str(prefix), "dev", interface)
+        finally:
+            promote.write_text(value)
+    for route in changes["removeRoutes"]:
+        run(*route_delete(route))
+    if changes["addDefault"]:
+        # add, never replace another NIC's default. Choose a free metric.
+        metrics = {int(r.get("metric", 0)) for r in routes() if r.get("dst") == "default"}
+        metric = next(n for n in range(100, 65535) if n not in metrics)
+        run("ip", "-4", "route", "add", "default", "via", policy["gateway"], "dev", interface, "metric", str(metric))
+    if changes["resolver"] != text:
+        RESOLV.write_text(changes["resolver"])
+    actual_routes = routes()
+    actual = v4_addresses(addresses(), interface)
+    if not any(a.get("local") == policy["ipAddress"] and a.get("prefixlen") == policy["prefixlen"] for a in actual):
+        raise RuntimeError("PRIMARY_ADDRESS_VERIFICATION_FAILED")
+    selected = next((route_key(r) for r in actual_routes if default_via(r, interface) and r["gateway"] == policy["gateway"]), None)
+    if policy["gateway"] and not selected:
+        raise RuntimeError("GATEWAY_VERIFICATION_FAILED")
+    for old in v4_addresses(before, interface):
+        if (old["local"], old["prefixlen"]) not in changes["removeAddresses"] and not any(
+                a["local"] == old["local"] and a["prefixlen"] == old["prefixlen"] for a in actual):
+            raise RuntimeError("ADDITIONAL_ADDRESS_LOST")
+    atomic_json(applied_path, {"schemaVersion": 1, "macAddress": policy["macAddress"], "interface": interface,
+                              "primary": {"address": policy["ipAddress"], "prefixlen": policy["prefixlen"]},
+                              "defaultRoute": selected, "dns": policy["dns"], "appliedAt": time.time()})
+    record("NETWORK_PRIMARY", "READY", None)
+    return observe()
+
+
+def record(phase, status, error):
+    atomic_json(STATUS, {"phase": phase, "status": status, "error": error, "observedEpoch": time.time()})
+
+
+def observe(ignore_aliases=False):
+    result = {"schemaVersion": 1, "source": "guest", "observedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "observedEpoch": time.time(), "status": "UNKNOWN", "phase": "NETWORK_PRIMARY"}
+    try:
+        state = trusted_json(STATE, optional=True)
+        policy = validate(state) if state else None
+        result["mode"] = "STATIC" if state else "DHCP"
+        if policy:
+            interface = interface_for_mac(policy["macAddress"])
+            result["desired"] = policy
+        else:
+            choices = [p for p in LINKS.iterdir() if p.name != "lo" and (p / "type").read_text().strip() == "1"]
+            if len(choices) != 1:
+                raise ValueError("NIC_OWNER_UNKNOWN")
+            interface = choices[0].name
+        result.update({"interface": interface, "macAddress": (LINKS / interface / "address").read_text().strip(),
+                       "owner": "SharedFS STATIC policy" if policy else "DHCP",
+                       "addresses": v4_addresses(addresses(), interface), "routes": routes()})
+        result["dns"] = re.findall(r"(?m)^\s*nameserver\s+(\S+)", RESOLV.read_text())
+        primary_ready = bool(result["addresses"])
+        if policy:
+            primary_ready = any(a["local"] == policy["ipAddress"] and a["prefixlen"] == policy["prefixlen"] for a in result["addresses"])
+            primary_ready = primary_ready and (not policy["gateway"] or any(default_via(r, interface) and r["gateway"] == policy["gateway"] for r in result["routes"]))
+            primary_ready = primary_ready and all(d in result["dns"] for d in policy["dns"])
+        result["aliases"] = []
+        # Legacy endpoint state is 0644. It contains addresses, not credentials.
+        if ALIASES.exists():
+            entries = json.loads(ALIASES.read_text()).get("endpoints")
+            if not isinstance(entries, list):
+                raise ValueError("INVALID_ENDPOINT_STATE")
+            for entry in entries:
+                ip = str(entry.get("listenIp", ""))
+                if ip in ("", "0.0.0.0", "::"):
+                    continue
+                active = any(a.get("local") == ip and a.get("prefixlen") == int(entry.get("prefixlen", 24)) for a in result["addresses"])
+                result["aliases"].append({"ipaddress": ip, "prefixlen": entry.get("prefixlen"), "active": active})
+        result["status"] = "READY" if primary_ready and (ignore_aliases or all(a["active"] for a in result["aliases"])) else "FAILED"
+        if result["status"] != "READY":
+            result["phase"] = "NETWORK_PRIMARY" if not primary_ready else "NETWORK_ALIASES"
+            result["error"] = "PRIMARY_POLICY_MISMATCH" if not primary_ready else "ADDITIONAL_ADDRESS_NOT_READY"
+        last = trusted_json(STATUS, optional=True)
+        if last:
+            result["lastApply"] = last
+            if last.get("status") == "FAILED":
+                result.update({k: last[k] for k in ("phase", "status", "error")})
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+        result.update({"status": "UNKNOWN", "error": str(error)[:1024]})
+    return result
+
+
+def dhcp_guard(interface):
+    state = trusted_json(STATE, optional=True)
+    if state is None:
+        return False
+    # Even a malformed address policy must not fall back to DHCP on a known NIC.
+    mac = str(state.get("macAddress", "")).lower()
+    return bool(re.fullmatch(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}", mac)) and interface_for_mac(mac) == interface
+
+
+def boot_interface(macs=""):
+    choices = re.findall(r"(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}", macs)
+    if choices:
+        if len(set(m.lower() for m in choices)) != 1:
+            raise ValueError("NIC_OWNER_UNKNOWN: SharedFS bootstrap requires one managed NIC")
+        return interface_for_mac(choices[0])
+    choices = [p.name for p in LINKS.iterdir() if p.name != "lo" and (p / "type").read_text().strip() == "1"]
+    if len(choices) != 1:
+        raise ValueError("NIC_OWNER_UNKNOWN")
+    return choices[0]
+
+
+def main(args):
+    if args and args[0] == "--interface":
+        print(boot_interface(args[1] if len(args) > 1 else ""))
+        return 0
+    if args and args[0] == "--dhcp-guard":
+        return 0 if dhcp_guard(args[1]) else 1
+    if args and args[0] == "--observe":
+        print(json.dumps(observe(), sort_keys=True))
+        return 0
+    if args and args[0] in ("--ready", "--primary-ready"):
+        # Check current facts, not the last failure from a previous attempt.
+        if STATUS.exists():
+            last = trusted_json(STATUS)
+            if last.get("status") == "FAILED":
+                record("NETWORK_PRIMARY", "CHECKING", None)
+        result = observe(ignore_aliases=args[0] == "--primary-ready")
+        if result["status"] != "READY":
+            record(result["phase"], "FAILED", result.get("error"))
+            print(json.dumps(result))
+            return 1
+        record("NETWORK_READY", "READY", None)
+        print(json.dumps(result))
+        return 0
+    if args and args[0] == "--record-failure":
+        record(args[1], "FAILED", args[2][:1024] if len(args) > 2 else "NETWORK_RESTORE_FAILED")
+        return 0
+    path = Path(args[-1]) if args else STATE
+    state = trusted_json(path)
+    if args and args[0] == "--validate":
+        print(json.dumps(validate(state)))
+        return 0
+    with open("/run/lock/ablestack-sharedfs-network.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        print(json.dumps(apply(state), sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
+        try:
+            record("NETWORK_PRIMARY", "FAILED", str(error)[:1024])
+        except OSError:
+            pass
+        print(str(error), file=sys.stderr)
+        sys.exit(1)

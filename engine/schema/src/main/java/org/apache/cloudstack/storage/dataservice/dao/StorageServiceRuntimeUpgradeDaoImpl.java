@@ -65,7 +65,7 @@ public class StorageServiceRuntimeUpgradeDaoImpl extends GenericDaoBase<StorageS
         final SearchCriteria<StorageServiceRuntimeUpgradeVO> criteria = activeSearch.create();
         criteria.setParameters("instanceId", instanceId);
         criteria.setParameters("state", Arrays.asList(StorageServiceRuntimeUpgradeVO.State.RUNNING,
-                StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY).toArray());
+                StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY, StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING).toArray());
         return findOneBy(criteria);
     }
 

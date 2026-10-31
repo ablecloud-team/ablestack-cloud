@@ -1,0 +1,140 @@
+{
+  "entries": {
+    "ablestack-storagectl": {
+      "exists": true,
+      "symlink": true,
+      "resolved": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storagectl",
+      "sha256": "c84021ff3c2ceb4163942d01c3441e47629fee192bfba5455d00e6d6685f260a",
+      "mode": "0o755"
+    },
+    "ablestack-storage-boot-reconcile": {
+      "exists": true,
+      "symlink": true,
+      "resolved": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storage-boot-reconcile",
+      "sha256": "5be65f7a729208b8ff7d3716192a4fe4fb0ecb5d9e5dd3a3a4f01c81d70f1fec",
+      "mode": "0o755"
+    },
+    "ablestack-storage-monitor": {
+      "exists": true,
+      "symlink": true,
+      "resolved": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storage-monitor",
+      "sha256": "f21764f58b334dc08d2a6d5cac0f17f754b98ccf886467eff1bf4ddbc0df122c",
+      "mode": "0o755"
+    },
+    "ablestack-storage-runtime-updater": {
+      "exists": true,
+      "symlink": false,
+      "resolved": "/usr/local/bin/ablestack-storage-runtime-updater",
+      "sha256": "3cb2341f6792ac609fa128ace6f49d0e318553c1f57fd051dca54aab30a17699",
+      "mode": "0o755"
+    }
+  },
+  "modules": {
+    "session_auth.py": {
+      "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+      "mode": "0o644"
+    },
+    "configuration_preflight.py": {
+      "sha256": "a99c77e9cf84d7592c85d10a8e2fea9c5370c7bcb40c0b391074f2d1877de186",
+      "mode": "0o644"
+    },
+    "volume_identity.py": {
+      "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "mode": "0o644"
+    },
+    "volume_preparation.py": {
+      "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+      "mode": "0o644"
+    },
+    "nvmeof_identity.py": {
+      "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+      "mode": "0o644"
+    },
+    "configuration_transaction.py": {
+      "sha256": "0550dd0349d00f7bd9c114d3e14ff370ea8f68b113e02d16fb5e1445e600c474",
+      "mode": "0o644"
+    },
+    "runtime_updater.py": {
+      "sha256": "5c41f8fd624f0cbe2e955a5fa1bc7bc4376040a02525ab6e00d712b7f5321334",
+      "mode": "0o644"
+    },
+    "sharedfs_bootstrap_network.py": {
+      "sha256": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573",
+      "mode": "0o644"
+    }
+  },
+  "links": {
+    "current": {
+      "symlink": true,
+      "resolved": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba"
+    },
+    "previous": {
+      "symlink": false,
+      "resolved": "/opt/ablestack/storage-runtime/previous"
+    }
+  },
+  "baselineManifests": [
+    {
+      "file": "bootstrap.json",
+      "bundleVersion": "bootstrap-f858358b0e1b8eba",
+      "fileHashes": [
+        {
+          "path": "ablestack-storagectl",
+          "declared": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+          "actual": "c84021ff3c2ceb4163942d01c3441e47629fee192bfba5455d00e6d6685f260a"
+        },
+        {
+          "path": "ablestack-storage-boot-reconcile",
+          "declared": "5be65f7a729208b8ff7d3716192a4fe4fb0ecb5d9e5dd3a3a4f01c81d70f1fec",
+          "actual": "5be65f7a729208b8ff7d3716192a4fe4fb0ecb5d9e5dd3a3a4f01c81d70f1fec"
+        },
+        {
+          "path": "ablestack-storage-monitor",
+          "declared": "f21764f58b334dc08d2a6d5cac0f17f754b98ccf886467eff1bf4ddbc0df122c",
+          "actual": "f21764f58b334dc08d2a6d5cac0f17f754b98ccf886467eff1bf4ddbc0df122c"
+        }
+      ]
+    }
+  ],
+  "publicKeys": [
+    {
+      "path": "/etc/ablestack-storage/runtime-trusted-keys/ablestack-runtime-dev.pem",
+      "sha256": "01bd6c60ce29c0ebc1ac028e34758d6530e9ca14076c84109b7ed2b3ae140766",
+      "derSha256": "8cb21907e446d6dc826ae40f79bbac2bbc54c8cbd79d1546a17c08e15e2c5f13",
+      "publicKeyReadable": true
+    }
+  ],
+  "capabilities": {
+    "success": true,
+    "runtimeAbiVersion": "1",
+    "desiredStateSchemaVersion": "1",
+    "supportedServiceImpacts": [
+      "NONE"
+    ],
+    "currentVersion": "bootstrap-f858358b0e1b8eba",
+    "previousVersion": null,
+    "entrypointsManaged": true,
+    "commands": [
+      "capabilities",
+      "bootstrap",
+      "begin",
+      "status",
+      "finalize",
+      "verify",
+      "preflight",
+      "activate",
+      "rollback",
+      "cleanup"
+    ]
+  },
+  "protocolUnits": {
+    "smbd.service": "MainPID=1547\nActiveState=active\nInvocationID=2e95b2b75571411594a0481c83e19068",
+    "nmbd.service": "MainPID=1556\nActiveState=active\nInvocationID=e30dd2debeb147b8a998f2eb1992613b",
+    "winbind.service": "MainPID=1560\nActiveState=active\nInvocationID=863cdcbc21ea493c8e474b705d48e0bd"
+  },
+  "ganeshaPids": {
+    "/run/ablestack-storage/ganesha/0.0.0.0_2049.pid": "1336"
+  },
+  "bootId": "ea6ed18a-f810-4a2e-abff-39a2b1099823",
+  "runtimeTransactions": []
+}

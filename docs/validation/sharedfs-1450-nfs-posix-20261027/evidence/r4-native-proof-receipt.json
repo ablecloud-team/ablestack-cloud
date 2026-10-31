@@ -1,0 +1,36 @@
+{
+  "privatePrototypeSha256": "7c3b732b912178afae40df66612d2726641610e76b62cc7c78d84512a93f5874",
+  "beforeProductImplementation": true,
+  "actualSystemVM": "fcbb55c6-c422-3a0d-9cd5-4a9d94b8a643",
+  "result": {
+    "newMetadataBeforePublication": {
+      "state": "VERIFIED",
+      "root": [
+        65534,
+        65534,
+        509
+      ],
+      "childPreserved": true
+    },
+    "resumeAndIdempotence": true,
+    "laterAclPreservesInitializedRoot": true,
+    "importedPreserved": true,
+    "failedVerifyRollsBack": {
+      "state": "ROLLED_BACK",
+      "rollback": {
+        "state": "SUCCEEDED"
+      },
+      "root": [
+        0,
+        0,
+        493
+      ]
+    },
+    "staleObservationRejected": true,
+    "foreignReceiptRejected": true,
+    "productionFilesAndPidUnchanged": true,
+    "noExportPublication": true,
+    "noDiskFormat": true,
+    "privateCandidateOnly": true
+  }
+}

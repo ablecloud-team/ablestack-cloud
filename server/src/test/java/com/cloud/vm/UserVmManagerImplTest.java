@@ -246,6 +246,9 @@ public class UserVmManagerImplTest {
     protected NicDao nicDao;
 
     @Mock
+    protected org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao sharedFSDao;
+
+    @Mock
     private NetworkDao _networkDao;
 
     @Mock

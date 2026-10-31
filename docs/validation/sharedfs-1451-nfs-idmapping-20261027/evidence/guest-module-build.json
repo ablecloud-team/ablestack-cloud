@@ -1,0 +1,21 @@
+{
+  "baseCompressedSha256": "4d91e34ab34fe10120f3568ddf62eb9a6063647620d2471c5b9c900aed4b5c74",
+  "installedModuleHashes": {
+    "usr/local/bin/ablestack-storagectl": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61",
+    "usr/local/lib/ablestack-storage/configuration_transaction.py": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json": "dfb19c54b4d4c5626762f4930b14df97b66e9ff283627a3d2597c81130942657"
+  },
+  "changedGuestPaths": [
+    "usr/local/bin/ablestack-storagectl",
+    "usr/local/lib/ablestack-storage/configuration_transaction.py",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json"
+  ],
+  "unchangedGuestPathsVerified": 33934,
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261027/issue1451-implementation/systemvm-epic1451-nfs-idmapping-20261027-final.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261027/issue1451-implementation/systemvm-epic1451-nfs-idmapping-20261027-final.qcow2.bz2",
+  "compressedSha256": "0f27d55427f1e2851578572076c04de685278dda4ee3e8b6ccce83b9ceb71371",
+  "compressedBytes": 498361067,
+  "qemuImageCheck": "No errors were found on the image.\n27437/80000 = 34.30% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1799028736",
+  "buildKind": "scoped NFSv4 identity policy modules and matching runtime baseline; other image paths verified unchanged"
+}

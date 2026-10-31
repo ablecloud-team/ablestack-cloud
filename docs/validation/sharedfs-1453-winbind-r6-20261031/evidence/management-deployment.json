@@ -1,0 +1,18 @@
+{
+  "deployment": {
+    "managementBeforeSha256": "b17ed65a6728cbe3719ad89d3fcb126384c14d94d260330df0a870e9019fac31",
+    "managementAfterSha256": "587b5d405304be71e92875555d9e984041caa2241942a7d91c936b76b44d1d19",
+    "changedJarEntries": [
+      "storage-runtime/bootstrap/runtime-baseline-profile.json"
+    ],
+    "schemaMigrationRequired": false,
+    "uiUnchanged": true
+  },
+  "imagePublication": {
+    "image": "systemvm-epic1453-winbind-r6.qcow2.bz2",
+    "bytes": 498387997,
+    "sha256": "47b7ca53221f2c46aa8b22850f1231441115c9000dce3b7ba20d1c54577bba39",
+    "url": "http://10.10.13.10:8080/client/systemvm/systemvm-epic1453-winbind-r6.qcow2.bz2"
+  },
+  "moldService": "active"
+}

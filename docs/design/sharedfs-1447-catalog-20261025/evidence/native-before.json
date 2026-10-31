@@ -1,0 +1,83 @@
+{
+  "updaterSha256": "65618c2aa35db2ea8efb1cfb11dd5581ceac730c00f625074fcf9476234c3f40",
+  "pythonVersion": "3.11.2",
+  "capability": {
+    "success": true,
+    "updaterVersion": 2,
+    "updaterSha256": "65618c2aa35db2ea8efb1cfb11dd5581ceac730c00f625074fcf9476234c3f40",
+    "payloadLayout": 2,
+    "activationConfirmation": true,
+    "integrity": {
+      "verified": true,
+      "files": [
+        {
+          "path": "ablestack-storagectl",
+          "sha256": "486d04141c7f504c687f61794f29f7942252073efd010714d72f7e0342aad69f",
+          "mode": "0755"
+        },
+        {
+          "path": "ablestack-storage-boot-reconcile",
+          "sha256": "8de772de6d44e01262d9a009b51b4ce840fb5e0f2a2bfa8d7fd85dd788e421b9",
+          "mode": "0755"
+        },
+        {
+          "path": "ablestack-storage-monitor",
+          "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+          "mode": "0755"
+        },
+        {
+          "path": "lib/ablestack-storage/volume_identity.py",
+          "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+          "mode": "0644"
+        },
+        {
+          "path": "lib/ablestack-storage/volume_preparation.py",
+          "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+          "mode": "0644"
+        },
+        {
+          "path": "lib/ablestack-storage/session_auth.py",
+          "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+          "mode": "0644"
+        },
+        {
+          "path": "lib/ablestack-storage/configuration_transaction.py",
+          "sha256": "0550dd0349d00f7bd9c114d3e14ff370ea8f68b113e02d16fb5e1445e600c474",
+          "mode": "0644"
+        },
+        {
+          "path": "lib/ablestack-storage/configuration_preflight.py",
+          "sha256": "a99c77e9cf84d7592c85d10a8e2fea9c5370c7bcb40c0b391074f2d1877de186",
+          "mode": "0644"
+        },
+        {
+          "path": "lib/ablestack-storage/nvmeof_identity.py",
+          "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+          "mode": "0644"
+        }
+      ]
+    },
+    "runtimeAbiVersion": "1",
+    "desiredStateSchemaVersion": "1",
+    "supportedServiceImpacts": [
+      "NONE"
+    ],
+    "currentVersion": "epic1438-1446-7f473dc06768",
+    "previousVersion": "bootstrap-f858358b0e1b8eba",
+    "entrypointsManaged": true,
+    "commands": [
+      "capabilities",
+      "bootstrap",
+      "begin",
+      "status",
+      "finalize",
+      "verify",
+      "preflight",
+      "activate",
+      "rollback",
+      "cleanup"
+    ]
+  },
+  "bootId": "1221b5a9-63b6-42c9-a297-0a44d178c1f7",
+  "sambaPids": "MainPID=1550\nInvocationID=7ce306ba64034d97acbedd841d3ef0fc"
+}

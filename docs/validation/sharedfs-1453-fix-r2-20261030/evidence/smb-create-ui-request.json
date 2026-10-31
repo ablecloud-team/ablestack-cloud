@@ -1,0 +1,20 @@
+{
+  "command": "createStorageSmbShare",
+  "response": "json",
+  "instanceid": "c74b8e05-f121-4bb6-97d4-453134f88f5e",
+  "name": "common1453r2",
+  "path": "/export/common1453r2",
+  "volumeid": "c32a6e3e-ee08-4603-9fc6-501ba1dc51fa",
+  "filesystem": "xfs",
+  "importmode": "MOUNT_EXISTING",
+  "readonly": "false",
+  "browseable": "true",
+  "guestok": "false",
+  "createdirectory": "false",
+  "crossprotocol": "true",
+  "directorypolicyid": "f5c8a5ac-260a-3b63-9802-619e805ec04a",
+  "cleanupvolumeonfailure": "false",
+  "requestid": "fdad497d-c2ea-4a44-b0ef-c2190fb4390c",
+  "expectedrevision": "5",
+  "impactack": "469aca85821b4ab3c071c44202db1371c9a82237af8c880d2707943c6763fdfb"
+}

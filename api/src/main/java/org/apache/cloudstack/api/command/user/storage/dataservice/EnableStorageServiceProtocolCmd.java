@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -37,7 +36,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class EnableStorageServiceProtocolCmd extends BaseAsyncCmd implements UserCmd {
+public class EnableStorageServiceProtocolCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -55,6 +54,14 @@ public class EnableStorageServiceProtocolCmd extends BaseAsyncCmd implements Use
 
     @Parameter(name = "protocolmode", type = CommandType.STRING, description = "NFS protocol mode. Supported values are V4_ONLY and V3V4_DUAL")
     private String protocolMode;
+
+    @Parameter(name = "endpointid", type = CommandType.STRING,
+            description = "SMB endpoint UUID to replace or remove within the selected instance")
+    private String endpointId;
+
+    public String getEndpointId() {
+        return endpointId;
+    }
 
     public Long getInstanceId() {
         return instanceId;

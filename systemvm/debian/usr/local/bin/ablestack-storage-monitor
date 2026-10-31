@@ -2,10 +2,12 @@
 
 set -euo pipefail
 
+runtime_release="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
 CACHE_DIR="${ABLESTACK_STORAGE_MONITOR_CACHE_DIR:-/run/ablestack-storage/monitor}"
 INTERVAL="${ABLESTACK_STORAGE_MONITOR_INTERVAL:-10}"
 STALE_AFTER="${ABLESTACK_STORAGE_MONITOR_STALE_AFTER:-30}"
-STORAGECTL="${ABLESTACK_STORAGECTL:-/usr/local/bin/ablestack-storagectl}"
+STORAGECTL="${ABLESTACK_STORAGECTL:-${runtime_release}/ablestack-storagectl}"
 
 write_json() {
   local scope="$1"

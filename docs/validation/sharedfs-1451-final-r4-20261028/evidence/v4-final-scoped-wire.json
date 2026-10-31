@@ -1,0 +1,879 @@
+[
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156334.2591434",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156393.206818",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "listStorageServiceConfigurationOperations",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "page": "1",
+      "pagesize": "200",
+      "command": "listStorageServiceConfigurationOperations",
+      "response": "json"
+    },
+    "body": {
+      "liststorageserviceconfigurationoperationsresponse": {
+        "count": 7,
+        "configurationoperation": [
+          {
+            "id": "1ca6d279-fbbe-4833-883a-d15d8f5f6c20",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "0f2842dd-d910-435c-875b-0aefe80cd93f",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "baserevision": 6,
+            "targetrevision": 7,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 6,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "1ca6d279-fbbe-4833-883a-d15d8f5f6c20",
+              "phase": "COMMITTING",
+              "requestHash": "e5a6453fbe26fe043b54b20f3cb09bf0da7bc237614877668d8c1c2283a38e4b",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 7,
+              "updated": 1793154166.4242656
+            },
+            "created": "2026-10-28T11:22:41+0900",
+            "updated": "2026-10-28T11:22:48+0900",
+            "completed": "2026-10-28T11:22:48+0900",
+            "result": {
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "mode": "NUMERIC",
+              "policyrevision": 7,
+              "observationstatus": "LEGACY_UNCONFIRMED",
+              "securityflavors": [
+                "sys"
+              ],
+              "endpoints": []
+            },
+            "candidate": {
+              "api": "UpdateStorageNfsIdentityMappingCmd",
+              "expectedrevision": 6,
+              "idmappingmode": "NUMERIC",
+              "impactack": "6fd6c39addf0202db419b340f4cdb0e549f9b429aeab66ca890b1199c83a95be",
+              "instanceid": 84
+            }
+          },
+          {
+            "id": "571a6c6b-3635-4a08-a981-1124b1430ea9",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "3f6256ca-dbf8-4fc8-8e0f-ff8fc81445ae",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+            "baserevision": 5,
+            "targetrevision": 6,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 5,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "571a6c6b-3635-4a08-a981-1124b1430ea9",
+              "phase": "COMMITTING",
+              "requestHash": "433ff69659f3c11219a4e3facceb4e74310e99be33849f61f95a8e7947466180",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 6,
+              "updated": 1793153994.9089048
+            },
+            "created": "2026-10-28T11:19:46+0900",
+            "updated": "2026-10-28T11:19:56+0900",
+            "completed": "2026-10-28T11:19:56+0900",
+            "result": {
+              "posixobservation": {
+                "fingerprint": "42c09d94ee2456bf5d7cbd9739e91ec734da3d94e6a0512b12706aae830b4eff",
+                "mode": "0777",
+                "observedat": 1793153985.6851509,
+                "ownergid": 65534,
+                "owneruid": 65534,
+                "resourceuuid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+                "status": "OBSERVED"
+              },
+              "id": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "name": "e1451",
+              "path": "/export/e1451",
+              "volumeid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "volumeuuid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "filesystemuuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+              "volumemountpath": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+              "runtimedevicepath": "/dev/sdb",
+              "runtimeobservedat": "2026-10-28T02:19:45Z",
+              "runtimebootid": "5721062e-65e9-4753-a955-61278637b8bf",
+              "runtimematchedby": "VOLUME_SERIAL",
+              "mappingstatus": "EXACT",
+              "filesystem": "xfs",
+              "state": "Ready",
+              "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"anonUid\":65534,\"anonGid\":65534,\"ownerUid\":65534,\"ownerGid\":65534,\"mode\":\"0777\",\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049,2050],\"posixPolicy\":\"ANONYMOUS_WRITE\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\",\"attachedVolumeName\":\"sharedfs-DATA-176\",\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\",\"bootId\":\"5721062e-65e9-4753-a955-61278637b8bf\",\"configurationOperationId\":\"571a6c6b-3635-4a08-a981-1124b1430ea9\",\"directoryCreated\":false,\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"observedAt\":\"2026-10-28T02:19:51.966167Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/e1451\",\"schemaVersion\":2,\"serial\":\"78396639cab646a89999\",\"status\":\"ok\",\"success\":true,\"supportsInitialPosixPreservation\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"volumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\"},\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\"}",
+              "listenerports": "2049,2050",
+              "endpointmode": "LISTENER_GROUP",
+              "protocolmode": "V4_ONLY",
+              "configvalid": true
+            },
+            "candidate": {
+              "allsquash": false,
+              "api": "UpdateStorageNfsExportCmd",
+              "createdirectory": true,
+              "endpointmode": "LISTENER_GROUP",
+              "expectedrevision": 5,
+              "filesystem": "xfs",
+              "id": 430,
+              "impactack": "5604a2101e116f0d5731f043cfa232c846132db701ddadbe23017ae5e1b12670",
+              "importmode": "MOUNT_EXISTING",
+              "listenerports": "2049,2050",
+              "name": "e1451",
+              "path": "/export/e1451",
+              "protocolmode": "V4_ONLY",
+              "readonly": false,
+              "rootsquash": true,
+              "secure": false,
+              "sync": true,
+              "volumeid": 311
+            }
+          },
+          {
+            "id": "792fe9a8-0af2-4f62-8c4b-e1db1a13a8c4",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "f6fa1c73-05c2-467f-b1d8-870f49a47103",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "aa0d4dfc-68c1-4c24-8129-aa02d68d9062",
+            "baserevision": 4,
+            "targetrevision": 5,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 4,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "792fe9a8-0af2-4f62-8c4b-e1db1a13a8c4",
+              "phase": "COMMITTING",
+              "requestHash": "869a3a162aae6651c2029789597be14eef6d2cc624f0373628018058d777019e",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 5,
+              "updated": 1793153914.3598187
+            },
+            "created": "2026-10-28T11:18:28+0900",
+            "updated": "2026-10-28T11:18:37+0900",
+            "completed": "2026-10-28T11:18:37+0900",
+            "result": {
+              "id": "aa0d4dfc-68c1-4c24-8129-aa02d68d9062",
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "protocol": "NFS",
+              "enabled": true,
+              "listenip": "10.10.13.193",
+              "port": 2050,
+              "state": "Ready",
+              "protocolmode": "V4_ONLY",
+              "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2050,\"state\":\"Ready\"}],\"serviceIps\":[\"10.10.13.193\"],\"nfs4IdentityMappingMode\":\"NAME_DOMAIN\",\"nfs4IdentityPolicyRevision\":0}",
+              "listenertype": "DEDICATED",
+              "primaryip": "10.10.13.193",
+              "runtimeprimaryip": "10.10.13.193",
+              "identitystatus": "CONSISTENT",
+              "effectiveendpoints": [
+                {
+                  "ipaddress": "10.10.13.193",
+                  "port": 2050,
+                  "role": "DEDICATED"
+                }
+              ],
+              "runtimestate": "READY",
+              "linkedresourcecount": 0
+            },
+            "candidate": {
+              "api": "EnableStorageServiceProtocolCmd",
+              "expectedrevision": 4,
+              "impactack": "54014ec85cceb840008752041242392343e41413287aa1bfedf4dd169676cd22",
+              "instanceid": 84,
+              "listenip": "10.10.13.193",
+              "port": 2050,
+              "protocol": "NFS",
+              "protocolmode": "V4_ONLY"
+            }
+          },
+          {
+            "id": "b25a6425-1c01-4ece-9eaa-73ea7bb991e7",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "5ba14222-f604-4512-af05-9d78639a14ab",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+            "baserevision": 3,
+            "targetrevision": 4,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 3,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "b25a6425-1c01-4ece-9eaa-73ea7bb991e7",
+              "phase": "COMMITTING",
+              "requestHash": "c103321b646216dfa8ac83726f25b7455c8ab31f4f8c1384ed9778f3801d7a58",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 4,
+              "updated": 1793153838.0169377
+            },
+            "created": "2026-10-28T11:17:09+0900",
+            "updated": "2026-10-28T11:17:20+0900",
+            "completed": "2026-10-28T11:17:20+0900",
+            "result": {
+              "posixobservation": {
+                "fingerprint": "58b6805e9e69247076243f2b98ae77a7a684cdf522608d319a2fc88dd718ec64",
+                "mode": "0775",
+                "observedat": 1793153825.7577057,
+                "ownergid": 65534,
+                "owneruid": 65534,
+                "resourceuuid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+                "status": "OBSERVED"
+              },
+              "id": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "name": "e1451",
+              "path": "/export/e1451",
+              "volumeid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "volumeuuid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "filesystemuuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+              "volumemountpath": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+              "runtimedevicepath": "/dev/sdb",
+              "runtimeobservedat": "2026-10-28T02:17:05Z",
+              "runtimebootid": "5721062e-65e9-4753-a955-61278637b8bf",
+              "runtimematchedby": "VOLUME_SERIAL",
+              "mappingstatus": "EXACT",
+              "filesystem": "xfs",
+              "state": "Ready",
+              "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"anonUid\":65534,\"anonGid\":65534,\"ownerUid\":65534,\"ownerGid\":65534,\"mode\":\"0777\",\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049],\"posixPolicy\":\"ANONYMOUS_WRITE\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\",\"attachedVolumeName\":\"sharedfs-DATA-176\",\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\",\"bootId\":\"5721062e-65e9-4753-a955-61278637b8bf\",\"configurationOperationId\":\"b25a6425-1c01-4ece-9eaa-73ea7bb991e7\",\"directoryCreated\":false,\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"observedAt\":\"2026-10-28T02:17:15.116309Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/e1451\",\"schemaVersion\":2,\"serial\":\"78396639cab646a89999\",\"status\":\"ok\",\"success\":true,\"supportsInitialPosixPreservation\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"volumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\"},\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\"}",
+              "listenerports": "2049",
+              "endpointmode": "LISTENER_GROUP",
+              "protocolmode": "V4_ONLY",
+              "configvalid": true
+            },
+            "candidate": {
+              "allsquash": false,
+              "api": "UpdateStorageNfsExportCmd",
+              "createdirectory": true,
+              "endpointmode": "LISTENER_GROUP",
+              "expectedrevision": 3,
+              "filesystem": "xfs",
+              "id": 430,
+              "impactack": "78a1cea5b1aa5b896472e44291c0146687698c64dc5673b0a283e5af75001985",
+              "importmode": "MOUNT_EXISTING",
+              "listenerports": "2049",
+              "mode": "0777",
+              "name": "e1451",
+              "path": "/export/e1451",
+              "protocolmode": "V4_ONLY",
+              "readonly": false,
+              "rootsquash": true,
+              "secure": false,
+              "sync": true,
+              "volumeid": 311
+            }
+          },
+          {
+            "id": "d58780c2-42c9-41fc-ac02-673cc8580fa6",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "7949292c-56c1-413e-a9fe-d9c1b3f8882a",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "71faad61-3450-4717-a465-ba42bd49b744",
+            "baserevision": 2,
+            "targetrevision": 3,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 2,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "d58780c2-42c9-41fc-ac02-673cc8580fa6",
+              "phase": "COMMITTING",
+              "requestHash": "63d408104ff3d75a26ba87e0b03ccb7d50ec9b7eec5afafa861db54f81fcea81",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 3,
+              "updated": 1793153554.7397962
+            },
+            "created": "2026-10-28T11:12:29+0900",
+            "updated": "2026-10-28T11:12:37+0900",
+            "completed": "2026-10-28T11:12:37+0900",
+            "result": {
+              "id": "71faad61-3450-4717-a465-ba42bd49b744",
+              "resourcetype": "FILE_SHARE",
+              "resourceid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+              "principaltype": "CIDR",
+              "principal": "10.10.0.0/16",
+              "permission": "READ_WRITE",
+              "state": "Ready",
+              "config": "{\"rootSquash\":true,\"sync\":true,\"secure\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049]}"
+            },
+            "candidate": {
+              "api": "CreateStorageNfsAclCmd",
+              "exportid": 430,
+              "impactack": "3b6b69c8c4dd61ceb10986910189da155311216a4f35561d165b3e937d6acb5d",
+              "permission": "READ_WRITE",
+              "principal": "10.10.0.0/16",
+              "principaltype": "CIDR",
+              "rootsquash": true,
+              "secure": false,
+              "sync": true
+            }
+          },
+          {
+            "id": "2a798e42-14af-49a5-a7c1-b7b21c9db8e1",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "32ff547f-fcf7-403e-8aa6-c96392d6b88a",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+            "baserevision": 1,
+            "targetrevision": 2,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 1,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "2a798e42-14af-49a5-a7c1-b7b21c9db8e1",
+              "phase": "COMMITTING",
+              "requestHash": "5510da77cc5425b991f288d17fb706ff251256ab94ba705ba2acbe495e73e286",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 2,
+              "updated": 1793153491.253601
+            },
+            "created": "2026-10-28T11:11:22+0900",
+            "updated": "2026-10-28T11:11:32+0900",
+            "completed": "2026-10-28T11:11:32+0900",
+            "result": {
+              "posixobservation": {
+                "status": "UNAVAILABLE"
+              },
+              "id": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "name": "e1451",
+              "path": "/export/e1451",
+              "volumeid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "volumeuuid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "filesystemuuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+              "volumemountpath": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+              "runtimedevicepath": "/dev/sdb",
+              "runtimeobservedat": "2026-10-28T02:11:24Z",
+              "runtimebootid": "5721062e-65e9-4753-a955-61278637b8bf",
+              "runtimematchedby": "VOLUME_SERIAL",
+              "mappingstatus": "EXACT",
+              "filesystem": "xfs",
+              "state": "Allocated",
+              "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"anonUid\":65534,\"anonGid\":65534,\"ownerUid\":65534,\"ownerGid\":65534,\"mode\":\"0775\",\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049],\"posixPolicy\":\"ANONYMOUS_WRITE\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\",\"attachedVolumeName\":\"sharedfs-DATA-176\",\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\",\"bootId\":\"5721062e-65e9-4753-a955-61278637b8bf\",\"configurationOperationId\":\"2a798e42-14af-49a5-a7c1-b7b21c9db8e1\",\"directoryCreated\":true,\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"eddc0aa3-2a28-4983-a569-11cecc8d91b5\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"observedAt\":\"2026-10-28T02:11:28.368012Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/e1451\",\"schemaVersion\":2,\"serial\":\"78396639cab646a89999\",\"status\":\"ok\",\"success\":true,\"supportsInitialPosixPreservation\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01\",\"volumeUuid\":\"78396639-cab6-46a8-9999-89f991abbd01\"},\"backingPath\":\"/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/export/e1451\"}",
+              "listenerports": "2049",
+              "endpointmode": "LISTENER_GROUP",
+              "protocolmode": "V4_ONLY",
+              "configvalid": true
+            },
+            "candidate": {
+              "anongid": 65534,
+              "anonuid": 65534,
+              "api": "CreateStorageNfsExportCmd",
+              "createdirectory": true,
+              "deferapply": true,
+              "filesystem": "xfs",
+              "impactack": "125740dccddbb4079a202e969da1edb4870c097819b5f8853a099aa3574a608a",
+              "importmode": "MOUNT_EXISTING",
+              "instanceid": 84,
+              "mode": "0775",
+              "name": "e1451",
+              "ownergid": 65534,
+              "owneruid": 65534,
+              "path": "/export/e1451",
+              "protocolmode": "V4_ONLY",
+              "readonly": false,
+              "recursivepermission": false,
+              "rootsquash": true,
+              "secure": false,
+              "sync": true,
+              "volumeid": 311
+            }
+          },
+          {
+            "id": "964d9e51-e4bb-4d77-89d0-c41e14eb53d4",
+            "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+            "requestid": "7507c9a4-db4e-4500-9d7e-b531302de585",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "1d1e30c9-2d7d-4a00-ab03-c1b7842f0944",
+            "baserevision": 0,
+            "targetrevision": 1,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 0,
+              "instanceUuid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "operationid": "964d9e51-e4bb-4d77-89d0-c41e14eb53d4",
+              "phase": "COMMITTING",
+              "requestHash": "e082bcff24733a815366a2545a694c2b289877e0364a61bbaf457aea27436897",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 1,
+              "updated": 1793153335.1469712
+            },
+            "created": "2026-10-28T11:08:49+0900",
+            "updated": "2026-10-28T11:08:57+0900",
+            "completed": "2026-10-28T11:08:57+0900",
+            "result": {
+              "id": "1d1e30c9-2d7d-4a00-ab03-c1b7842f0944",
+              "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+              "protocol": "NFS",
+              "enabled": true,
+              "port": 2049,
+              "state": "Ready",
+              "protocolmode": "V4_ONLY",
+              "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}],\"nfs4IdentityMappingMode\":\"NAME_DOMAIN\",\"nfs4IdentityPolicyRevision\":0}",
+              "listenertype": "WILDCARD",
+              "primaryip": "10.10.13.193",
+              "runtimeprimaryip": "10.10.13.193",
+              "identitystatus": "CONSISTENT",
+              "effectiveendpoints": [
+                {
+                  "ipaddress": "10.10.13.193",
+                  "port": 2049,
+                  "role": "PRIMARY"
+                }
+              ],
+              "runtimestate": "READY",
+              "linkedresourcecount": 0
+            },
+            "candidate": {
+              "api": "EnableStorageServiceProtocolCmd",
+              "instanceid": 84,
+              "port": 2049,
+              "protocol": "NFS",
+              "protocolmode": "V4_ONLY"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156459.3628078",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156525.5039005",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156657.838535",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156725.001105",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156790.2481973",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": "getStorageNfsIdentityMapping",
+    "params": {
+      "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+      "command": "getStorageNfsIdentityMapping",
+      "response": "json"
+    },
+    "body": {
+      "getstoragenfsidentitymappingresponse": {
+        "nfsidentitymapping": {
+          "instanceid": "c97159a3-e45a-4291-b92b-5b33d0963599",
+          "mode": "NUMERIC",
+          "policyrevision": 7,
+          "effectivemode": "NUMERIC",
+          "observationstatus": "APPLIED",
+          "observeddomain": "localdomain",
+          "observedat": "1793156825.833368",
+          "securityflavors": [
+            "sys"
+          ],
+          "endpoints": [
+            {
+              "port": 2049,
+              "endpoint": "0.0.0.0_2049",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.4648182"
+            },
+            {
+              "port": 2050,
+              "endpoint": "0.0.0.0_2050",
+              "configuredmode": "NUMERIC",
+              "configuredrevision": 7,
+              "state": "APPLIED",
+              "effectivemode": "NUMERIC",
+              "observedrevision": 7,
+              "observeddomain": "localdomain",
+              "observedat": "1793154365.466164"
+            }
+          ]
+        }
+      }
+    }
+  }
+]

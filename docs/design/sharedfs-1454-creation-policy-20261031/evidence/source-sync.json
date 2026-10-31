@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "63bf9978604da78dfee89abb9f774ff70e884919",
+  "localBase": "1c5b169cd6283da23cc3e155d4b6d14e39e42793",
+  "baseUpstreamDivergence": "0\t0",
+  "productDiff": "",
+  "files": {
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.java": "05779f2dc35a293b4149c8a7b4bb316cb037ee242c74e8f9830b4b782d91010c",
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.java": "cf461623a1fc66d7103b5e65853847f31fafa750667c3dc1587723d871bb06b6",
+    "api/src/main/java/org/apache/cloudstack/api/response/StorageSmbShareResponse.java": "d29e97d0ceb0adb95b59a173dcbf0f0fe132cb679f2b040f8817364862357e69",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "c191e4c586fb6b76902675a29c45dfcd51138735d59eb63cd59acf80b42cd19f",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.java": "69b48da196de77cf890a10c4a1eec129ed1d6f5ff297f3f6291141d464e3f484",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.java": "621dbd1335f40cb5a304315289ec362a98a5f7658ce79fed3008be9e0d4c5b03",
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": "d5921fd9d50ed86e6ed107b00ae7a2736b1afa37f12e20074de7ef92467d7fca",
+    "systemvm/debian/usr/local/lib/ablestack-storage/configuration_transaction.py": "00362bf65e31ebc3beb171cbfc075add109f1eeabadd8884207f37281c97ea16",
+    "systemvm/debian/usr/local/lib/ablestack-storage/configuration_preflight.py": "ffc0337f772b0a1dc087127f49bf4666ef3625945df7cf370816de7357599258",
+    "systemvm/debian/usr/local/lib/ablestack-storage/shared_directory_policy.py": "34c36254f08fd9f638dfb66d5b246cee0508f374b852ae76ae933c36b2b55cb5",
+    "systemvm/debian/usr/local/lib/ablestack-storage/runtime_updater.py": "b35041183dbcc79d3ef6403eecab9f75d720819c0ca5ffbbf59df6905f8660f7",
+    "ui/src/views/storage/SharedFSTab.vue": "52713b1f8a84deae51659761270a95e68e20ef08550d324710db0f9bf5cbbc43"
+  }
+}
