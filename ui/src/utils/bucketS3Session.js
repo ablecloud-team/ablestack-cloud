@@ -19,7 +19,8 @@ import * as Minio from 'minio'
 import { registerBucketSession, forgetBucketSession } from '@/utils/bucketCredentialMemory'
 
 export class BucketS3Session {
-  constructor (loadCredentials) {
+  constructor (loadCredentials, onIdentityLoss = () => {}) {
+    this.onIdentityLoss = onIdentityLoss
     this.loadCredentials = loadCredentials
     this.disposed = false
     this.client = null
@@ -51,7 +52,8 @@ export class BucketS3Session {
     return this.pending
   }
 
-  dispose () {
+  dispose (reason = 'reset') {
+    if (this.disposed) return
     this.disposed = true
     // In-flight callbacks retain only their operation; subsequent actions cannot reuse a key.
     if (this.client) {
@@ -63,5 +65,7 @@ export class BucketS3Session {
     this.pending = null
     this.loadCredentials = null
     forgetBucketSession(this)
+    if (reason === 'identity') this.onIdentityLoss()
+    this.onIdentityLoss = null
   }
 }

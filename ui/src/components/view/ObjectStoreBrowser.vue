@@ -538,7 +538,7 @@ export default {
       }
     },
     retryObjectListing () {
-      if (this.resource.credentialstate && this.resource.credentialstate !== 'Verified') {
+      if (this.objectListScopeChanged || (this.resource.credentialstate && this.resource.credentialstate !== 'Verified')) {
         this.$emit('refresh')
         return
       }
@@ -796,7 +796,16 @@ export default {
     async initMinioClient () {
       if (!this.bucketS3Session || this.bucketS3Session.disposed) {
         const id = this.resource.id
-        this.bucketS3Session = new BucketS3Session(() => postAPI('getBucketCredentials', { id, reveal: true }, { preserveOnFailure: true }))
+        this.bucketS3Session = new BucketS3Session(() => postAPI('getBucketCredentials', { id, reveal: true }, { preserveOnFailure: true }), () => {
+          this.objectListScopeChanged = true
+          this.cancelObjectListing()
+          this.client = null
+          this.records = []
+          this.selectedRows = []
+          this.loading = false
+          this.fetching = false
+          this.objectListError = 'message.bucket.credentials.context.changed'
+        })
       }
       const session = this.bucketS3Session
       const context = this.objectStoreContextKey

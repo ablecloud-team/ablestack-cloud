@@ -20,6 +20,7 @@ import { reactive } from 'vue'
 import Credentials from '@/views/storage/BucketCredentials'
 import Replace from '@/views/infra/ReplaceObjectStorageCredentials'
 import { postAPI } from '@/api'
+import { clearBucketS3Sessions } from '@/utils/bucketCredentialMemory'
 jest.mock('@/api', () => ({ postAPI: jest.fn() }))
 const meta = (extra = {}) => ({ id: 'bucket', url: 'http://store/bucket', accesskeyhint: '********CESS', credentialrevision: 1, credentialstate: 'Verified', affectedbuckets: [{ id: 'bucket', name: 'bucket' }], ...extra })
 const reply = extra => ({ getbucketcredentialsresponse: { bucketcredential: meta(extra) } })
@@ -81,4 +82,15 @@ it('administrator replacement submits only POST details and wipes inputs after f
   expect(postAPI).toHaveBeenCalledWith('updateObjectStoragePool', { id: 'bucket', 'details[0].key': 'accesskey', 'details[0].value': 'PRIVATE_ACCESS', 'details[1].key': 'secretkey', 'details[1].value': 'PRIVATE_SECRET' }, { preserveOnFailure: true })
   expect(view.vm.access).toBe(''); expect(view.vm.secret).toBe('')
   expect(view.vm.errorText).toBe('message.objectstore.credentials.failed'); expect(view.emitted('close-action')).toBeFalsy()
+})
+
+it('revokes preview and a late response immediately when logout starts', async () => {
+  await open(); postAPI.mockResolvedValueOnce(reply({ accesskey: 'PRIVATE_ACCESS', usersecretkey: 'PRIVATE_SECRET' }))
+  await view.vm.load(true); expect(view.vm.keys).not.toBeNull()
+  clearBucketS3Sessions(); expect(view.vm.keys).toBeNull()
+})
+it('clears pending administrator input on cross-tab identity changes', async () => {
+  await open(Replace); view.vm.access = 'PRIVATE_ACCESS'; view.vm.secret = 'PRIVATE_SECRET'
+  window.dispatchEvent(new StorageEvent('storage', { key: 'ls__Access-Token' }))
+  expect(view.vm.access).toBe(''); expect(view.vm.secret).toBe('')
 })

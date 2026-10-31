@@ -20,5 +20,11 @@ const sessions = new Set()
 export const registerBucketSession = session => sessions.add(session)
 export const forgetBucketSession = session => sessions.delete(session)
 export function clearBucketS3Sessions () {
-  for (const session of [...sessions]) session.dispose()
+  for (const session of [...sessions]) session.dispose('identity')
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', event => {
+    if (event.key === null || /Access-Token|CURRENT_PROJECT/.test(event.key)) clearBucketS3Sessions()
+  })
 }

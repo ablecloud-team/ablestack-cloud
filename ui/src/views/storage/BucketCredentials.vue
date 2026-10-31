@@ -64,6 +64,7 @@
 </template>
 <script>
 import { postAPI } from '@/api'
+import { registerBucketSession, forgetBucketSession } from '@/utils/bucketCredentialMemory'
 import Status from '@/components/widgets/Status'
 export default {
   name: 'BucketCredentials',
@@ -83,6 +84,8 @@ export default {
   },
   created () {
     this.generation = 0
+    this.secretScope = { dispose: () => this.disposeSecrets() }
+    registerBucketSession(this.secretScope)
     this.load(false)
     this.clock = setInterval(() => { this.now = Date.now() }, 1000)
     this.poll = setInterval(() => {
@@ -92,7 +95,7 @@ export default {
   beforeUnmount () { this.disposeSecrets() },
   methods: {
     hideKeys () { this.keys = null; clearTimeout(this.expiry) },
-    disposeSecrets () { ++this.generation; this.hideKeys(); clearInterval(this.clock); clearInterval(this.poll) },
+    disposeSecrets () { forgetBucketSession(this.secretScope); ++this.generation; this.hideKeys(); clearInterval(this.clock); clearInterval(this.poll) },
     close () { this.disposeSecrets(); this.parentFetchData && this.parentFetchData(); this.$emit('close-action') },
     async load (reveal = false) {
       if (this.loading) return
@@ -134,7 +137,7 @@ export default {
       } catch (_) {
         if (generation === this.generation) this.errorText = this.$t('message.bucket.credentials.recovery')
       } finally {
-        if (generation === this.generation) { this.loading = false; await this.load(false) }
+        if (generation === this.generation) { this.loading = false; await this.load(false); if (this.errorText && (!this.metadata?.rotationstate || this.metadata.rotationstate === 'Completed')) this.errorText = this.$t('message.bucket.credentials.rejected') }
       }
     }
   }

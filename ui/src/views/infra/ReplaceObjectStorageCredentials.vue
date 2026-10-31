@@ -36,6 +36,7 @@
 </template>
 <script>
 import { postAPI } from '@/api'
+import { registerBucketSession, forgetBucketSession } from '@/utils/bucketCredentialMemory'
 export default {
   name: 'ReplaceObjectStorageCredentials',
   props: { resource: { type: Object, required: true } },
@@ -46,7 +47,8 @@ export default {
     contextKey () { return JSON.stringify([this.resource.id, this.$store.getters.project?.id, this.$store.getters.userInfo?.id, this.$store.state.user?.token]) }
   },
   watch: { contextKey () { this.wipe(); this.$emit('close-action') } },
-  beforeUnmount () { this.wipe() },
+  created () { this.secretScope = { dispose: () => this.wipe() }; registerBucketSession(this.secretScope) },
+  beforeUnmount () { forgetBucketSession(this.secretScope); this.wipe() },
   methods: {
     wipe () { this.access = ''; this.secret = ''; this.acknowledged = false },
     close () { this.wipe(); this.$emit('close-action') },
