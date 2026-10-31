@@ -1,0 +1,1068 @@
+{
+  "local-limited-result.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0640",
+          "directoryMask": "0750",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0640",
+          "directoryMask": "0750",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [
+      "467966700",
+      "3990782465"
+    ],
+    "trees": [
+      "2735854406",
+      "1356321880",
+      "2104588379",
+      "738616596"
+    ]
+  },
+  "local-force-result.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0775",
+          "directoryMask": "0770",
+          "forceCreateMode": "0111",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0775",
+          "directoryMask": "0770",
+          "forceCreateMode": "0111",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-force.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0775",
+        "inode": 8388750,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\n\n",
+        "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b"
+      },
+      "/export/common1453r5/r2-local-forcedir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 8388751,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [
+      "467966700",
+      "3990782465"
+    ],
+    "trees": [
+      "2735854406",
+      "1356321880",
+      "2104588379",
+      "738616596"
+    ]
+  },
+  "ad-force-result.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0775",
+          "directoryMask": "0770",
+          "forceCreateMode": "0111",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0775",
+          "directoryMask": "0770",
+          "forceCreateMode": "0111",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-force.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0775",
+        "inode": 8388750,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\n\n",
+        "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b"
+      },
+      "/export/common1453r5/r2-local-forcedir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 8388751,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-ad-670.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 148,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "674aaa0a027696a4836092e72fe7b266d3ea93284c1ba763715ea72feba591f1"
+      },
+      "/export/ad1453r5/r2-ad-2770": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2770",
+        "inode": 16908421,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [
+      "467966700",
+      "3990782465"
+    ],
+    "trees": [
+      "2735854406",
+      "1356321880",
+      "2104588379",
+      "738616596"
+    ]
+  },
+  "before-reboot.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 293971,
+          "starttime": "2232257",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1942,
+          "starttime": "1137",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-force.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0775",
+        "inode": 8388750,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\n\n",
+        "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b"
+      },
+      "/export/common1453r5/r2-local-forcedir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 8388751,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-nfs-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0644",
+        "inode": 8388752,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "94e811e9d8d540c99c3d97fa2f147e2cabc8029edab5443481530fcee61ee584"
+      },
+      "/export/common1453r5/r2-local-default.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388753,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "4feaea9b407b0506fb815f151fcaea3aaf04f605845ec442319fbac5ab2f0a59"
+      },
+      "/export/common1453r5/r2-local-defaultdir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 25165959,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-ad-670.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 148,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "674aaa0a027696a4836092e72fe7b266d3ea93284c1ba763715ea72feba591f1"
+      },
+      "/export/ad1453r5/r2-ad-2770": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2770",
+        "inode": 16908421,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-nfs-ad.txt": {
+        "uid": 10000,
+        "gid": 10004,
+        "mode": "0644",
+        "inode": 149,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "ad90774416636d8937e6e7fbbe12743960b70e9ad6f7896b3a929ad5d02d31f8"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [],
+    "trees": []
+  },
+  "after-vm-reboot.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 1718,
+          "starttime": "1059",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1702,
+          "starttime": "1041",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 1718,
+          "starttime": "1059",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1702,
+          "starttime": "1041",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-force.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0775",
+        "inode": 8388750,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\n\n",
+        "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b"
+      },
+      "/export/common1453r5/r2-local-forcedir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 8388751,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-nfs-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0644",
+        "inode": 8388752,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "94e811e9d8d540c99c3d97fa2f147e2cabc8029edab5443481530fcee61ee584"
+      },
+      "/export/common1453r5/r2-local-default.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388753,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "4feaea9b407b0506fb815f151fcaea3aaf04f605845ec442319fbac5ab2f0a59"
+      },
+      "/export/common1453r5/r2-local-defaultdir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 25165959,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-afterboot-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388754,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "25377624d6f840e49b0ebda015bd4a528ded4b423e02552898189a5a3660c3c6"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-ad-670.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 148,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "674aaa0a027696a4836092e72fe7b266d3ea93284c1ba763715ea72feba591f1"
+      },
+      "/export/ad1453r5/r2-ad-2770": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2770",
+        "inode": 16908421,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-nfs-ad.txt": {
+        "uid": 10000,
+        "gid": 10004,
+        "mode": "0644",
+        "inode": 149,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "ad90774416636d8937e6e7fbbe12743960b70e9ad6f7896b3a929ad5d02d31f8"
+      },
+      "/export/ad1453r5/r2-afterboot-ad.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 150,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "c717f5a5107340ce0b237cc445ccf86a89567b062072d1f3b54e6bebaa2bca24"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [
+      "3373598206",
+      "1866794542"
+    ],
+    "trees": [
+      "34628022",
+      "1241444112",
+      "2579914620",
+      "1247878120"
+    ]
+  },
+  "after-management-restart.json": {
+    "settings": {
+      "common1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 1718,
+          "starttime": "1059",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1702,
+          "starttime": "1041",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0660",
+          "directoryMask": "0770",
+          "forceCreateMode": "0000",
+          "forceDirectoryMode": "0000",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": false,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ],
+      "ad1453r5": [
+        {
+          "ports": "1445",
+          "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+          "pid": 1718,
+          "starttime": "1059",
+          "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        },
+        {
+          "ports": "445",
+          "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+          "pid": 1702,
+          "starttime": "1041",
+          "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+          "createMask": "0770",
+          "directoryMask": "0770",
+          "forceCreateMode": "0010",
+          "forceDirectoryMode": "0020",
+          "readOnly": false,
+          "browseable": true,
+          "inheritOwner": true,
+          "inheritPermissions": false,
+          "forceUser": "",
+          "forceGroup": ""
+        }
+      ]
+    },
+    "objects": {
+      "/export/common1453r5": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0775",
+        "inode": 8388736,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-640.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0640",
+        "inode": 8388749,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+        "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38"
+      },
+      "/export/common1453r5/r2-local-750": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750",
+        "inode": 147,
+        "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-local-force.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0775",
+        "inode": 8388750,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\n\n",
+        "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b"
+      },
+      "/export/common1453r5/r2-local-forcedir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 8388751,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-nfs-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0644",
+        "inode": 8388752,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "94e811e9d8d540c99c3d97fa2f147e2cabc8029edab5443481530fcee61ee584"
+      },
+      "/export/common1453r5/r2-local-default.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388753,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "4feaea9b407b0506fb815f151fcaea3aaf04f605845ec442319fbac5ab2f0a59"
+      },
+      "/export/common1453r5/r2-local-defaultdir": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770",
+        "inode": 25165959,
+        "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/common1453r5/r2-afterboot-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388754,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "25377624d6f840e49b0ebda015bd4a528ded4b423e02552898189a5a3660c3c6"
+      },
+      "/export/common1453r5/r2-final-nfs-local.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0644",
+        "inode": 8388755,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "d265c5ace54142ca8bc388089c584db914deb03bf122abd767e00fb7b9f8f66a"
+      },
+      "/export/common1453r5/hold1454r2-c1.txt": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0660",
+        "inode": 8388748,
+        "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      },
+      "/export/ad1453r5": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2775",
+        "inode": 132,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-ad-670.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 148,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "674aaa0a027696a4836092e72fe7b266d3ea93284c1ba763715ea72feba591f1"
+      },
+      "/export/ad1453r5/r2-ad-2770": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "2770",
+        "inode": 16908421,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n"
+      },
+      "/export/ad1453r5/r2-nfs-ad.txt": {
+        "uid": 10000,
+        "gid": 10004,
+        "mode": "0644",
+        "inode": 149,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "ad90774416636d8937e6e7fbbe12743960b70e9ad6f7896b3a929ad5d02d31f8"
+      },
+      "/export/ad1453r5/r2-afterboot-ad.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0770",
+        "inode": 150,
+        "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\n\n",
+        "sha256": "c717f5a5107340ce0b237cc445ccf86a89567b062072d1f3b54e6bebaa2bca24"
+      },
+      "/export/ad1453r5/r2-final-nfs-ad.txt": {
+        "uid": 10000,
+        "gid": 10004,
+        "mode": "0644",
+        "inode": 151,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--\n\n",
+        "sha256": "650364d523d0d04cad8b7cd5ba7513dde5a3fc6b0b6dd4fcf1ea42b451a2548f"
+      },
+      "/export/ad1453r5/hold1454r2-c2.txt": {
+        "uid": 65534,
+        "gid": 10004,
+        "mode": "0660",
+        "inode": 146,
+        "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+        "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8"
+      }
+    },
+    "sessions": [
+      "3373598206",
+      "1866794542"
+    ],
+    "trees": [
+      "34628022",
+      "1241444112",
+      "2579914620",
+      "1247878120"
+    ]
+  }
+}

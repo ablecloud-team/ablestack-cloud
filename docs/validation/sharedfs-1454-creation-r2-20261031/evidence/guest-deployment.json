@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "method": "operator module maintenance; existing trust signatures verified; no service/configuration reapply",
+  "previousVersion": "1454.creation.1",
+  "currentVersion": "1454.creation.2",
+  "protectedBaseline": 7,
+  "verifiedManagedFiles": 10,
+  "manifestSha256": "cb2114defcb51c9593538e6328fd5ff41e194d3740831414f54bd3c531a6abcf",
+  "protectedModuleSha256": "37c26028e7f582ff628f8adf0bda97a932ffc2b4af5f725e008c1eb8f4b92c18",
+  "rollbackRoot": "/var/tmp/epic1454-metadata-r2-before"
+}
