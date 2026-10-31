@@ -23,6 +23,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import com.cloud.utils.db.Encrypt;
 
 @Entity
@@ -37,7 +39,7 @@ public class ObjectStoreAccountCredentialVO {
     @Encrypt @Column(name = "secret_key") private String secretKey;
     @Column(name = "state") private String state;
     @Column(name = "revision") private long revision;
-    @Column(name = "checked_at") private Date checked;
+    @Temporal(TemporalType.TIMESTAMP) @Column(name = "checked_at") private Date checked;
     @Column(name = "provisioning_source") private String provisioningSource;
 
     public ObjectStoreAccountCredentialVO() { }
