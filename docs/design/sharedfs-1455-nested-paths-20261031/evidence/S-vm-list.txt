@@ -1,0 +1,910 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - list:
+      - menuitem "cloud-server 가상머신":
+        - link "cloud-server 가상머신":
+          - /url: "#/vm"
+          - img "cloud-server":
+          - text: 가상머신
+      - menuitem "camera VM 스냅샷":
+        - link "camera VM 스냅샷":
+          - /url: "#/vmsnapshot"
+          - img "camera":
+          - text: VM 스냅샷
+      - menuitem "쿠버네티스":
+        - link "쿠버네티스":
+          - /url: "#/kubernetes"
+          - text: 쿠버네티스
+      - menuitem "fullscreen 오토스케일 VM 그룹":
+        - link "fullscreen 오토스케일 VM 그룹":
+          - /url: "#/autoscalevmgroup"
+          - img "fullscreen":
+          - text: 오토스케일 VM 그룹
+      - menuitem "gold 가상머신 그룹":
+        - link "gold 가상머신 그룹":
+          - /url: "#/vmgroup"
+          - img "gold":
+          - text: 가상머신 그룹
+      - menuitem "key SSH 키 쌍":
+        - link "key SSH 키 쌍":
+          - /url: "#/ssh"
+          - img "key":
+          - text: SSH 키 쌍
+      - menuitem "solution 사용자 데이터 라이브러리":
+        - link "solution 사용자 데이터 라이브러리":
+          - /url: "#/userdata"
+          - img "solution":
+          - text: 사용자 데이터 라이브러리
+      - menuitem "solution CNI 구성":
+        - link "solution CNI 구성":
+          - /url: "#/cniconfiguration"
+          - img "solution":
+          - text: CNI 구성
+      - menuitem "swap Affinity 그룹":
+        - link "swap Affinity 그룹":
+          - /url: "#/affinitygroup"
+          - img "swap":
+          - text: Affinity 그룹
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신" [active]:
+    - /url: "#/vm"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/virtual_machines.html
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - combobox
+  - generic: 모두
+  - switch "메트릭":
+    - generic: 메트릭
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "가상머신 추가":
+    - img "plus":
+    - generic: 가상머신 추가
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "VM 표시 명 caret-up caret-down 내부 이름 caret-up caret-down 상태 caret-up caret-down 할당 자원 caret-up caret-down 에이전트 버전 caret-up caret-down IP 주소 caret-up caret-down 템플릿 형식 caret-up caret-down 백업 오퍼링 이름 caret-up caret-down CPU 아키텍처 caret-up caret-down 호스트 caret-up caret-down 계정 caret-up caret-down Zone caret-up caret-down filter":
+        - columnheader:
+          - checkbox
+        - columnheader "VM 표시 명 caret-up caret-down":
+          - generic: VM 표시 명
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "내부 이름 caret-up caret-down":
+          - generic: 내부 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "할당 자원 caret-up caret-down":
+          - generic: 할당 자원
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "에이전트 버전 caret-up caret-down":
+          - generic: 에이전트 버전
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IP 주소 caret-up caret-down":
+          - generic: IP 주소
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "템플릿 형식 caret-up caret-down":
+          - generic: 템플릿 형식
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "백업 오퍼링 이름 caret-up caret-down":
+          - generic: 백업 오퍼링 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "CPU 아키텍처 caret-up caret-down":
+          - generic: CPU 아키텍처
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "호스트 caret-up caret-down":
+          - generic: 호스트
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone caret-up caret-down":
+          - generic: Zone
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "VM-9f3bf7a1-c5b2-45ba-ba06-1e466d09b364 i-2-16-VM 정지된 상태 2 CPU 2048 MB 8.0.0 10.1.1.107 USER x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "VM-9f3bf7a1-c5b2-45ba-ba06-1e466d09b364":
+          - link "VM-9f3bf7a1-c5b2-45ba-ba06-1e466d09b364":
+            - /url: "#/vm/9f3bf7a1-c5b2-45ba-ba06-1e466d09b364"
+        - cell "i-2-16-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "8.0.0":
+          - generic: 8.0.0
+        - cell "10.1.1.107":
+          - link "10.1.1.107":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral1-control-1a0fa38f3d4 i-2-20-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.30 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral1-control-1a0fa38f3d4":
+          - link "koral1-control-1a0fa38f3d4":
+            - /url: "#/vm/0b2f79de-3690-4495-9817-d0708ea9e0ce"
+        - cell "i-2-20-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.30":
+          - link "10.1.1.30":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral1-node-1a0fa391956 i-2-21-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.123 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral1-node-1a0fa391956":
+          - link "koral1-node-1a0fa391956":
+            - /url: "#/vm/7e405db7-0b13-4f64-97c2-485a154bafed"
+        - cell "i-2-21-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.123":
+          - link "10.1.1.123":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral3-control-1a0fb462779 i-2-35-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.213 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral3-control-1a0fb462779":
+          - link "koral3-control-1a0fb462779":
+            - /url: "#/vm/0bcf54c2-77d4-4262-9fc5-529ef4220b89"
+        - cell "i-2-35-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.213":
+          - link "10.1.1.213":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral3-control-1a0fb464d99 i-2-36-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.22 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral3-control-1a0fb464d99":
+          - link "koral3-control-1a0fb464d99":
+            - /url: "#/vm/ff833368-71d9-4407-a57c-2eb54fa9897a"
+        - cell "i-2-36-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.22":
+          - link "10.1.1.22":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral3-node-1a0fb46766a i-2-37-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.202 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral3-node-1a0fb46766a":
+          - link "koral3-node-1a0fb46766a":
+            - /url: "#/vm/76be772d-570c-4011-b624-45e081dec551"
+        - cell "i-2-37-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.202":
+          - link "10.1.1.202":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "koral3-node-1a0fb469c58 i-2-38-VM 정지된 상태 2 CPU 2048 MB 7.2.22 10.1.1.90 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "koral3-node-1a0fb469c58":
+          - link "koral3-node-1a0fb469c58":
+            - /url: "#/vm/f7678d77-9e69-4e0b-8adf-40acf8cf2070"
+        - cell "i-2-38-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 2048 MB":
+          - text: 2 CPU
+          - text: 2048 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.1.1.90":
+          - link "10.1.1.90":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "VM-3cf3fed4-8a42-4eab-a570-948428c3d62b i-2-57-VM 실행 중 2 CPU 4096 MB 110.2.3 10.10.254.100 USER x86_64 ablecube13-1 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "VM-3cf3fed4-8a42-4eab-a570-948428c3d62b":
+          - link "VM-3cf3fed4-8a42-4eab-a570-948428c3d62b":
+            - /url: "#/vm/3cf3fed4-8a42-4eab-a570-948428c3d62b"
+        - cell "i-2-57-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.100":
+          - link "10.10.254.100":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube13-1":
+          - link "ablecube13-1":
+            - /url: "#/host/9ac8f62b-38e6-4cef-aa6f-a04ebcb4f800"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "VM-1aa29f80-626d-45c4-8ba7-80e98b28986a i-2-58-VM 실행 중 2 CPU 4096 MB 110.2.3 10.10.254.70 USER x86_64 ablecube13-1 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "VM-1aa29f80-626d-45c4-8ba7-80e98b28986a":
+          - link "VM-1aa29f80-626d-45c4-8ba7-80e98b28986a":
+            - /url: "#/vm/1aa29f80-626d-45c4-8ba7-80e98b28986a"
+        - cell "i-2-58-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.70":
+          - link "10.10.254.70":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube13-1":
+          - link "ablecube13-1":
+            - /url: "#/host/9ac8f62b-38e6-4cef-aa6f-a04ebcb4f800"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-basic-nfs-20261021-01-1a15cfe505a i-2-101-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.195 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-basic-nfs-20261021-01-1a15cfe505a":
+          - link "sharedfs-epic1438-basic-nfs-20261021-01-1a15cfe505a":
+            - /url: "#/vm/8a2ef0b9-9663-47b5-b3ab-ea4c58d7f706"
+        - cell "i-2-101-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.195":
+          - link "10.10.254.195":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-1439-nfs-20261021-01-1a15d2a1a6a i-2-102-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.190 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-1439-nfs-20261021-01-1a15d2a1a6a":
+          - link "sharedfs-epic1438-1439-nfs-20261021-01-1a15d2a1a6a":
+            - /url: "#/vm/59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f"
+        - cell "i-2-102-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.190":
+          - link "10.10.254.190":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-1440-nfs-20261021-01-1a15da8bc0d i-2-103-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.190 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-1440-nfs-20261021-01-1a15da8bc0d":
+          - link "sharedfs-epic1438-1440-nfs-20261021-01-1a15da8bc0d":
+            - /url: "#/vm/8b4fa66a-434a-4248-98f1-a98cf081f752"
+        - cell "i-2-103-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.190":
+          - link "10.10.254.190":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "epic1438-1440-client-20261021-01 i-2-104-VM 정지된 상태 2 CPU 4096 MB 8.0.0 10.10.254.192 USER x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "epic1438-1440-client-20261021-01":
+          - link "epic1438-1440-client-20261021-01":
+            - /url: "#/vm/fd6ecae3-ef41-40c0-bfa9-acf88b67b6e5"
+        - cell "i-2-104-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "8.0.0":
+          - generic: 8.0.0
+        - cell "10.10.254.192":
+          - link "10.10.254.192":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-1441-fixed-sfs-20261021-01-1a15e4f639c i-2-105-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.196 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-1441-fixed-sfs-20261021-01-1a15e4f639c":
+          - link "sharedfs-epic1438-1441-fixed-sfs-20261021-01-1a15e4f639c":
+            - /url: "#/vm/b6a39a5d-c451-4b60-9a68-3e4d102a4ea4"
+        - cell "i-2-105-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.196":
+          - link "10.10.254.196":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-1441-free-sfs-20261021-01-1a15e541b95 i-2-106-VM 정지된 상태 3 CPU 6144 MB 7.2.22 10.10.254.197 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-1441-free-sfs-20261021-01-1a15e541b95":
+          - link "sharedfs-epic1438-1441-free-sfs-20261021-01-1a15e541b95":
+            - /url: "#/vm/92d99386-9157-4abe-b427-98829770a15d"
+        - cell "i-2-106-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "3 CPU 6144 MB":
+          - text: 3 CPU
+          - text: 6144 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.197":
+          - link "10.10.254.197":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-epic1438-1441-range-sfs-20261021-01-1a15e563e0f i-2-107-VM 정지된 상태 4 CPU 8192 MB 7.2.22 10.10.254.198 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-epic1438-1441-range-sfs-20261021-01-1a15e563e0f":
+          - link "sharedfs-epic1438-1441-range-sfs-20261021-01-1a15e563e0f":
+            - /url: "#/vm/d5b1c41d-f023-4efe-9195-6c2d55b760b8"
+        - cell "i-2-107-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.198":
+          - link "10.10.254.198":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "epic1438-1442-client-20261021-01 i-2-108-VM 정지된 상태 2 CPU 4096 MB 8.0.0 10.10.254.200 USER x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "epic1438-1442-client-20261021-01":
+          - link "epic1438-1442-client-20261021-01":
+            - /url: "#/vm/b7cafa18-d952-4579-98f8-9d913d67a7fc"
+        - cell "i-2-108-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "8.0.0":
+          - generic: 8.0.0
+        - cell "10.10.254.200":
+          - link "10.10.254.200":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-0685be9d-b958-3d2a-a9ef-9e53a7c9ba07 i-2-109-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.117 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-0685be9d-b958-3d2a-a9ef-9e53a7c9ba07":
+          - link "sharedfs-0685be9d-b958-3d2a-a9ef-9e53a7c9ba07":
+            - /url: "#/vm/0685be9d-b958-3d2a-a9ef-9e53a7c9ba07"
+        - cell "i-2-109-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.117":
+          - link "10.10.254.117":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "epic1438-1442-posix-client-20261022-01 i-2-110-VM 정지된 상태 2 CPU 4096 MB 8.0.0 10.10.254.119 USER x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "epic1438-1442-posix-client-20261022-01":
+          - link "epic1438-1442-posix-client-20261022-01":
+            - /url: "#/vm/fe723777-4be1-461b-8c8d-7f399d34bc29"
+        - cell "i-2-110-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "8.0.0":
+          - generic: 8.0.0
+        - cell "10.10.254.119":
+          - link "10.10.254.119":
+            - /url: javascript:;
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+      - row "sharedfs-634178d0-3d06-31ec-84d3-9ec113093025 i-2-111-VM 정지된 상태 2 CPU 4096 MB 7.2.22 10.10.254.122 SYSTEM x86_64 admin 13-Zone":
+        - cell:
+          - checkbox
+        - cell "sharedfs-634178d0-3d06-31ec-84d3-9ec113093025":
+          - link "sharedfs-634178d0-3d06-31ec-84d3-9ec113093025":
+            - /url: "#/vm/634178d0-3d06-31ec-84d3-9ec113093025"
+        - cell "i-2-111-VM"
+        - cell "정지된 상태":
+          - generic: 정지된 상태
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.122":
+          - link "10.10.254.122":
+            - /url: javascript:;
+        - cell "SYSTEM":
+          - link "SYSTEM":
+            - /url: "#/vm/SYSTEM"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=47178e2f-bd56-11f1-b573-002481560363&dataView=true"
+        - cell "13-Zone":
+          - link "13-Zone":
+            - /url: "#/zone/f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+        - cell
+  - list:
+    - listitem: 전체 70 개 항목 중 1-20 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "2":
+      - generic: "2"
+    - listitem "3":
+      - generic: "3"
+    - listitem "4":
+      - generic: "4"
+    - listitem "다음 페이지":
+      - button "right":
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+    - text: 이동하기
+    - textbox
+- alert:
+  - img "exclamation-circle":
+  - generic: 조치가 필요한 경보
+  - generic: (2건)
+  - generic: "-"
+  - generic: 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+  - button "세부 경보 내용 확인":
+    - generic: 세부 경보 내용 확인
+  - button "경보 규칙으로 이동":
+    - generic: 경보 규칙으로 이동
+  - button "닫기":
+    - img "close":

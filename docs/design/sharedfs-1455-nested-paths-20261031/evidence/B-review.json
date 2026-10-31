@@ -1,0 +1,40 @@
+{
+  "guards": {
+    "invalidPathBlocks": true,
+    "impactAckRequired": true,
+    "ackEnablesApply": true,
+    "parentDeleteBlocked": true,
+    "detachBlocked": true
+  },
+  "light": {
+    "background": "rgb(255, 255, 255)",
+    "footerTop": 639,
+    "headerTop": 33,
+    "height": 534,
+    "rect": {
+      "bottom": 622,
+      "left": 161,
+      "right": 1119,
+      "top": 88
+    },
+    "scrollHeight": 965,
+    "scrollTop": 431,
+    "textColor": "rgb(31, 41, 55)"
+  },
+  "dark": {
+    "background": "rgb(34, 40, 47)",
+    "footerTop": 639,
+    "headerTop": 33,
+    "height": 534,
+    "scrollHeight": 975,
+    "scrollTop": 441,
+    "textColor": "rgb(240, 243, 246)"
+  },
+  "components": [
+    "Breadcrumb",
+    "ResourceLayout",
+    "MoldDialog",
+    "MoldDialogActions"
+  ],
+  "implementation": false
+}
