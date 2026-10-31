@@ -89,10 +89,24 @@ public class CephBucketQuotaClient {
             byte[] payload = content == null ? new byte[0] : content;
             request.setContent(new ByteArrayInputStream(payload));
             request.addHeader("Content-Type", "application/json");
-            request.addHeader("x-amz-content-sha256", com.amazonaws.util.BinaryUtils.toHex(
-                    java.security.MessageDigest.getInstance("SHA-256").digest(payload)));
-            AWS4Signer signer = new AWS4Signer(false); signer.setServiceName("s3"); signer.setRegionName("us-east-1");
-            signer.sign(request, credentials);
+            if (content == null) {
+                request.addHeader("x-amz-content-sha256", com.amazonaws.util.BinaryUtils.toHex(
+                        java.security.MessageDigest.getInstance("SHA-256").digest(payload)));
+                AWS4Signer signer = new AWS4Signer(false); signer.setServiceName("s3"); signer.setRegionName("us-east-1");
+                signer.sign(request, credentials);
+            } else {
+                // Glue's deployed Admin Ops PUT requires its existing S3 V2 authentication contract.
+                // Sign the payload digest as well; never fall back by retrying an ambiguous write.
+                String md5 = java.util.Base64.getEncoder().encodeToString(java.security.MessageDigest.getInstance("MD5").digest(payload));
+                String date = java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME.format(
+                        java.time.ZonedDateTime.now(java.time.ZoneId.of("GMT")));
+                String canonical = "PUT\n" + md5 + "\napplication/json\n" + date + "\n" + request.getResourcePath();
+                javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA1");
+                mac.init(new javax.crypto.spec.SecretKeySpec(credentials.getAWSSecretKey().getBytes(StandardCharsets.UTF_8), "HmacSHA1"));
+                String signature = java.util.Base64.getEncoder().encodeToString(mac.doFinal(canonical.getBytes(StandardCharsets.UTF_8)));
+                request.addHeader("Content-MD5", md5); request.addHeader("Date", date);
+                request.addHeader("Authorization", "AWS " + credentials.getAWSAccessKeyId() + ":" + signature);
+            }
             String query = request.getParameters().entrySet().stream().flatMap(e -> e.getValue().stream().map(v -> encode(e.getKey()) + "=" + encode(v))).collect(Collectors.joining("&"));
             connection = (HttpURLConnection)URI.create(endpoint.toASCIIString() + request.getResourcePath() + "?" + query).toURL().openConnection();
             connection.setConnectTimeout(5000); connection.setReadTimeout(15000); connection.setRequestMethod(request.getHttpMethod().name());

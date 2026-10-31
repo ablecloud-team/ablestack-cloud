@@ -76,19 +76,20 @@ public class CephBucketQuotaClientTest {
             assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", digest.get());
         } finally { server.stop(0); }
     }
-    @Test public void signedWriteDigestMatchesActualJsonPayload() throws Exception {
+    @Test public void signedWriteMatchesGlueV2AndPayloadDigest() throws Exception {
         java.util.concurrent.atomic.AtomicReference<String> digest = new java.util.concurrent.atomic.AtomicReference<>();
         java.util.concurrent.atomic.AtomicReference<byte[]> payload = new java.util.concurrent.atomic.AtomicReference<>();
         com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/admin/bucket", exchange -> {
             assertTrue(exchange.getRequestURI().getQuery().contains("uid=owner"));
-            digest.set(exchange.getRequestHeaders().getFirst("x-amz-content-sha256")); payload.set(exchange.getRequestBody().readAllBytes());
+            assertTrue(exchange.getRequestHeaders().getFirst("Authorization").startsWith("AWS PUBLIC:"));
+            digest.set(exchange.getRequestHeaders().getFirst("Content-MD5")); payload.set(exchange.getRequestBody().readAllBytes());
             exchange.sendResponseHeaders(200, -1); exchange.close();
         });
         server.start();
         try {
             new CephBucketQuotaClient("http://127.0.0.1:" + server.getAddress().getPort(), "PUBLIC", "PRIVATE").write("bucket", "owner", reader(BODY).read("bucket", "owner"));
-            assertEquals(com.amazonaws.util.BinaryUtils.toHex(java.security.MessageDigest.getInstance("SHA-256").digest(payload.get())), digest.get());
+            assertEquals(java.util.Base64.getEncoder().encodeToString(java.security.MessageDigest.getInstance("MD5").digest(payload.get())), digest.get());
         } finally { server.stop(0); }
     }
 
