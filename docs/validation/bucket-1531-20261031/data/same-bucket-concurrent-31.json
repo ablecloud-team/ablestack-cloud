@@ -1,0 +1,73 @@
+{
+  "sameBucketTwoConcurrentRequests": true,
+  "responses": [
+    {
+      "updatebucketresponse": {
+        "success": true
+      }
+    },
+    {
+      "updatebucketresponse": {
+        "uuidList": [
+          {
+            "uuid": "995dd6ea-db28-437a-8824-6d1d159a9771",
+            "description": "quotaoperationid; reconciliationrequired=true"
+          }
+        ],
+        "errorcode": 530,
+        "cserrorcode": -1,
+        "errortext": "Bucket quota operation 995dd6ea-db28-437a-8824-6d1d159a9771 requires reconciliation; existing data has been preserved. Retry recovery after checking the storage connection."
+      }
+    }
+  ],
+  "finalQuotaGiB": 3,
+  "ledgerAtCompletion": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-31-a",
+        "allocated": 3221225472,
+        "reserved": 0,
+        "createdQuotaBytes": 3221225472
+      }
+    ],
+    "accountCounts": [
+      {
+        "accountId": 336,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 336,
+        "type": "object_storage",
+        "actual": 3221225472,
+        "expectedIncludingHolds": 3221225472
+      }
+    ]
+  },
+  "resetToGiB": 2,
+  "ledgerAfterReset": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-31-a",
+        "allocated": 2147483648,
+        "reserved": 0,
+        "createdQuotaBytes": 2147483648
+      }
+    ],
+    "accountCounts": [
+      {
+        "accountId": 336,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 336,
+        "type": "object_storage",
+        "actual": 2147483648,
+        "expectedIncludingHolds": 2147483648
+      }
+    ]
+  }
+}

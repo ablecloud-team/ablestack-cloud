@@ -1,0 +1,28 @@
+{
+  "source": "969739b4e9cc9ed0264e757ed417408c9f16b5e4",
+  "growThenShrinkPassed": true,
+  "ledger": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-31-a",
+        "allocated": 2147483648,
+        "reserved": 0,
+        "createdQuotaBytes": 2147483648
+      }
+    ],
+    "accountCounts": [
+      {
+        "accountId": 336,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 336,
+        "type": "object_storage",
+        "actual": 2147483648,
+        "expectedIncludingHolds": 2147483648
+      }
+    ]
+  }
+}

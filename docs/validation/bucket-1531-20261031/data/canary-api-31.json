@@ -1,0 +1,68 @@
+{
+  "invalidQuotaRejections": [
+    {
+      "input": -1,
+      "code": 431,
+      "message": "Bucket quota must be a positive integer GiB (1-2147483647)"
+    },
+    {
+      "input": 0,
+      "code": 431,
+      "message": "Bucket quota must be a positive integer GiB (1-2147483647)"
+    },
+    {
+      "input": "",
+      "code": 431,
+      "message": "Bucket quota must be a positive integer GiB (1-2147483647)"
+    },
+    {
+      "input": "1.5",
+      "code": 431,
+      "message": "Unable to execute API command updatebucket due to invalid value 1.5 for parameter quota"
+    },
+    {
+      "input": "1e2",
+      "code": 431,
+      "message": "Unable to execute API command updatebucket due to invalid value 1e2 for parameter quota"
+    },
+    {
+      "input": "2147483648",
+      "code": 431,
+      "message": "Unable to execute API command updatebucket due to invalid value 2147483648 for parameter quota"
+    },
+    {
+      "input": "99999999999999999999",
+      "code": 431,
+      "message": "Unable to execute API command updatebucket due to invalid value 99999999999999999999 for parameter quota"
+    },
+    {
+      "input": 2147483647,
+      "code": 535,
+      "message": "Bucket quota exceeds account, project or domain resource limit"
+    }
+  ],
+  "growAndShrinkVerified": true,
+  "state": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-31-a",
+        "allocated": 0,
+        "reserved": 0,
+        "createdQuotaBytes": 0
+      },
+      {
+        "name": "qa-bkt-1531-31-b",
+        "allocated": 1073741824,
+        "reserved": 0,
+        "createdQuotaBytes": 1073741824
+      },
+      {
+        "name": "qa-bkt-1531-31-fault",
+        "allocated": 0,
+        "reserved": 0,
+        "createdQuotaBytes": 0
+      }
+    ],
+    "accountCounts": []
+  }
+}

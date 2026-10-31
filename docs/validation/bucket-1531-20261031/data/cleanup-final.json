@@ -1,0 +1,78 @@
+{
+  "31": {
+    "removedBuckets": [
+      "qa-bkt-1531-31-ui-alpha"
+    ],
+    "counterLedgerBeforeAccountDeletion": {
+      "stores": [
+        {
+          "name": "qa-bkt-1531-31-a",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        }
+      ],
+      "accountCounts": [
+        {
+          "accountId": 336,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 336,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        }
+      ]
+    },
+    "noLedgerCorrection": true,
+    "remainingQaBuckets": [],
+    "pendingQuotaOperations": 0,
+    "ephemeralReservations": 0
+  },
+  "32": {
+    "removedBuckets": [
+      "qa-bkt-1531-32-ui-alpha"
+    ],
+    "counterLedgerBeforeAccountDeletion": {
+      "stores": [
+        {
+          "name": "qa-bkt-1531-32-a",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        }
+      ],
+      "accountCounts": [
+        {
+          "accountId": 148,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 148,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        }
+      ]
+    },
+    "noLedgerCorrection": true,
+    "remainingQaBuckets": [],
+    "pendingQuotaOperations": 0,
+    "ephemeralReservations": 0
+  },
+  "rgw": {
+    "removedUsers": [
+      "0e68d0ad-62e5-4786-95d9-238056a2c160",
+      "e848de02-6953-4849-9e1d-775cceaa66e1"
+    ],
+    "keptQaUsers": [],
+    "buckets": [
+      "qa-bkt-1540-32-files"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "browserTabSelected": true,
+  "rootObjectButtons": 5,
+  "folderButtons": 3,
+  "loadingIndicator": 0,
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "image": {
+    "height": 720,
+    "width": 1280,
+    "format": "jpeg"
+  }
+}

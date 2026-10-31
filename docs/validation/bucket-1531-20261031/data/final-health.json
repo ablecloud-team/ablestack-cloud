@@ -1,0 +1,119 @@
+{
+  "31": {
+    "mold": "active",
+    "http": 200,
+    "webinf": true,
+    "metaInfExists": false,
+    "indexSHA256": "fd6431425c8e03771952edc8752f6b564c5f8f63333585625b4609f0ec8c21a2",
+    "librarySHA256": {
+      "cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+      "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+      "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+      "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+      "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+      "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+      "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+      "cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+      "cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "4b8968f405d59d27d689b3a3e15071fe11fc202311cecf1c72a55c56d8b75ada"
+    },
+    "verifiedStaticFiles": 626,
+    "deployedSource": "source=969739b4e9cc9ed0264e757ed417408c9f16b5e4",
+    "rootFreeBytes": 173240864768,
+    "inventory": {
+      "activeBuckets": 0,
+      "activeStores": 0,
+      "activeQaBuckets": 0,
+      "activeQaAccounts": 0,
+      "activeQaStores": 0,
+      "pendingQuotaOperations": 0,
+      "reservedBytes": 0,
+      "qaCredentialRows": 0,
+      "qaEphemeralReservations": 0,
+      "qaFaultTriggers": 0
+    },
+    "rootResourceCounts": [
+      "bucket\t0",
+      "object_storage\t0"
+    ],
+    "apiVersion": "4.23.0.0-Mold.Europa-202609222315",
+    "routingHosts": [
+      {
+        "name": "ablecube31-1",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube31-2",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube31-3",
+        "state": "Up"
+      }
+    ]
+  },
+  "32": {
+    "mold": "active",
+    "http": 200,
+    "webinf": true,
+    "metaInfExists": false,
+    "indexSHA256": "fd6431425c8e03771952edc8752f6b564c5f8f63333585625b4609f0ec8c21a2",
+    "librarySHA256": {
+      "cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+      "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+      "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+      "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+      "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+      "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+      "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+      "cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+      "cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "4b8968f405d59d27d689b3a3e15071fe11fc202311cecf1c72a55c56d8b75ada"
+    },
+    "verifiedStaticFiles": 626,
+    "deployedSource": "source=969739b4e9cc9ed0264e757ed417408c9f16b5e4",
+    "rootFreeBytes": 948985856,
+    "inventory": {
+      "activeBuckets": 1,
+      "activeStores": 1,
+      "activeQaBuckets": 0,
+      "activeQaAccounts": 0,
+      "activeQaStores": 0,
+      "pendingQuotaOperations": 0,
+      "reservedBytes": 0,
+      "qaCredentialRows": 0,
+      "qaEphemeralReservations": 0,
+      "qaFaultTriggers": 0
+    },
+    "rootResourceCounts": [
+      "bucket\t1",
+      "object_storage\t1073741824"
+    ],
+    "apiVersion": "4.23.0.0-Mold.Europa-202609222315",
+    "routingHosts": [
+      {
+        "name": "ablecube32-1",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube32-2",
+        "state": "Up"
+      },
+      {
+        "name": "ablecube32-3",
+        "state": "Up"
+      }
+    ]
+  },
+  "glue": {
+    "health": "HEALTH_OK",
+    "rgwRunning": 3,
+    "users": [
+      "6af1b9e3-6326-43aa-945f-a442871f6960",
+      "dashboard",
+      "qa-bkt-1540-admin"
+    ],
+    "onlyBucket": [
+      "qa-bkt-1540-32-files"
+    ]
+  },
+  "alignedNineLibrariesAndUi": true
+}

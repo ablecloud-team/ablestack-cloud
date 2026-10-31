@@ -1,0 +1,25 @@
+{
+  "allThreeAdminMutationsRejected": true,
+  "checks": {
+    "size": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Object store size is below committed allocation and pending reservations"
+    },
+    "endpoint": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Pending bucket quota operations must be reconciled before changing object store endpoint"
+    },
+    "delete": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Pending bucket quota operations must be reconciled before deleting object store"
+    }
+  },
+  "reservedBytesPreserved": 1073741824,
+  "originalEndpointAndCapacityPreserved": true
+}

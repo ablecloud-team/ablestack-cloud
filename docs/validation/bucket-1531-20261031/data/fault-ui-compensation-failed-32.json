@@ -1,0 +1,110 @@
+{
+  "bucket": {
+    "id": "ec579bd4-3ef2-4528-92b8-2b5d5847dac1",
+    "name": "qa-bkt-1531-32-fault",
+    "quota": 1,
+    "quotaoperationid": "1a24ea36-b84b-4cad-903d-9ddd7d251abd",
+    "quotaoperationstate": "NeedsReconcile"
+  },
+  "providerQuota": {
+    "enabled": true,
+    "check_on_raw": false,
+    "max_size": 2147483648,
+    "max_size_kb": 2097152,
+    "max_objects": -1
+  },
+  "operation": [
+    "1a24ea36-b84b-4cad-903d-9ddd7d251abd",
+    "NeedsReconcile",
+    "UPDATE",
+    "1",
+    "2",
+    "1073741824",
+    "1073741824",
+    "1"
+  ],
+  "ledger": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-32-a",
+        "allocated": 4294967296,
+        "reserved": 0,
+        "createdQuotaBytes": 4294967296
+      },
+      {
+        "name": "qa-bkt-1531-32-b",
+        "allocated": 3221225472,
+        "reserved": 0,
+        "createdQuotaBytes": 3221225472
+      },
+      {
+        "name": "qa-bkt-1531-32-fault",
+        "allocated": 1073741824,
+        "reserved": 1073741824,
+        "createdQuotaBytes": 1073741824
+      }
+    ],
+    "accountCounts": [
+      {
+        "accountId": 148,
+        "type": "bucket",
+        "actual": 3,
+        "expectedIncludingHolds": 3
+      },
+      {
+        "accountId": 148,
+        "type": "object_storage",
+        "actual": 5368709120,
+        "expectedIncludingHolds": 5368709120
+      },
+      {
+        "accountId": 149,
+        "type": "bucket",
+        "actual": 0,
+        "expectedIncludingHolds": 0
+      },
+      {
+        "accountId": 149,
+        "type": "object_storage",
+        "actual": 0,
+        "expectedIncludingHolds": 0
+      },
+      {
+        "accountId": 150,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 150,
+        "type": "object_storage",
+        "actual": 2147483648,
+        "expectedIncludingHolds": 2147483648
+      },
+      {
+        "accountId": 151,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 151,
+        "type": "object_storage",
+        "actual": 1073741824,
+        "expectedIncludingHolds": 1073741824
+      },
+      {
+        "accountId": 152,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 152,
+        "type": "object_storage",
+        "actual": 1073741824,
+        "expectedIncludingHolds": 1073741824
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "cases": [
+    {
+      "value": "-1",
+      "validationShown": true,
+      "modalRemains": true
+    },
+    {
+      "value": "0",
+      "validationShown": true,
+      "modalRemains": true
+    },
+    {
+      "value": "",
+      "validationShown": true,
+      "modalRemains": true
+    },
+    {
+      "value": "1.5",
+      "validationShown": true,
+      "modalRemains": true
+    },
+    {
+      "value": "2147483648",
+      "validationShown": true,
+      "modalRemains": true
+    }
+  ],
+  "createRequests": 0
+}
