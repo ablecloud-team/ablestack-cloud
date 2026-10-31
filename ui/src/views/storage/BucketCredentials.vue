@@ -26,11 +26,11 @@
           <span>{{ $t('label.bucket.credentials.revision') }}: {{ metadata.credentialrevision }}</span>
         </div>
         <a-form layout="vertical">
-          <a-form-item :label="$t('label.access.key')">
-            <a-input-password :value="keys ? keys.accesskey : metadata.accesskeyhint" readonly autocomplete="off" :visibility-toggle="!!keys" />
+          <a-form-item :label="$t('label.access.key')" :html-for="'bucket-key-access-' + resource.id">
+            <a-input-password :id="'bucket-key-access-' + resource.id" :value="keys ? keys.accesskey : metadata.accesskeyhint" readonly autocomplete="off" :visibility-toggle="!!keys" />
           </a-form-item>
-          <a-form-item :label="$t('label.secret.key')">
-            <a-input-password :value="keys ? keys.usersecretkey : '********'" readonly autocomplete="off" :visibility-toggle="!!keys" />
+          <a-form-item :label="$t('label.secret.key')" :html-for="'bucket-key-secret-' + resource.id">
+            <a-input-password :id="'bucket-key-secret-' + resource.id" :value="keys ? keys.usersecretkey : '********'" readonly autocomplete="off" :visibility-toggle="!!keys" />
           </a-form-item>
           <a-space wrap>
             <a-button :disabled="loading || !metadata" @click="keys ? hideKeys() : load(true)">{{ $t(keys ? 'label.bucket.credentials.hide' : 'label.bucket.credentials.reveal') }}</a-button>
@@ -49,8 +49,8 @@
               </a-space>
             </template>
             <template v-else>
-              <a-form-item :label="$t('label.bucket.credentials.grace')">
-                <a-input-number v-model:value="grace" :min="5" :max="86400" :precision="0" style="width:100%" />
+              <a-form-item :label="$t('label.bucket.credentials.grace')" :html-for="'bucket-key-grace-' + resource.id">
+                <a-input-number :id="'bucket-key-grace-' + resource.id" v-model:value="grace" :min="5" :max="86400" :precision="0" style="width:100%" />
               </a-form-item>
               <a-checkbox v-model:checked="acknowledged">{{ $t('message.bucket.credentials.acknowledge') }}</a-checkbox>
               <a-button type="primary" :disabled="loading || !acknowledged || !validGrace" @click="rotate('rotate')">{{ $t('label.bucket.credentials.rotate') }}</a-button>
@@ -59,6 +59,7 @@
         </a-form>
       </template>
     </a-spin>
+    <a-button v-if="!metadata" :loading="loading" :disabled="loading" @click="load(false)">{{ $t('label.retry') }}</a-button>
     <div class="action-button"><a-button @click="close">{{ $t('label.close') }}</a-button></div>
   </div>
 </template>
@@ -97,8 +98,9 @@ export default {
     hideKeys () { this.keys = null; clearTimeout(this.expiry) },
     disposeSecrets () { forgetBucketSession(this.secretScope); ++this.generation; this.hideKeys(); clearInterval(this.clock); clearInterval(this.poll) },
     close () { this.disposeSecrets(); this.parentFetchData && this.parentFetchData(); this.$emit('close-action') },
-    async load (reveal = false) {
+    async load (reveal = false, preserveError = false) {
       if (this.loading) return
+      if (!preserveError) this.errorText = ''
       const generation = ++this.generation
       const context = this.contextKey
       this.hideKeys()
@@ -133,11 +135,12 @@ export default {
         }, { preserveOnFailure: true })
         if (generation !== this.generation || context !== this.contextKey) return
         this.acknowledged = false
+        this.$notification.success({ message: this.$t('label.bucket.credentials.manage'), description: this.$t('message.bucket.credentials.updated') })
         this.parentFetchData && this.parentFetchData()
       } catch (_) {
         if (generation === this.generation) this.errorText = this.$t('message.bucket.credentials.recovery')
       } finally {
-        if (generation === this.generation) { this.loading = false; await this.load(false); if (this.errorText && (!this.metadata?.rotationstate || this.metadata.rotationstate === 'Completed')) this.errorText = this.$t('message.bucket.credentials.rejected') }
+        if (generation === this.generation) { this.loading = false; await this.load(false, true); if (this.errorText && (!this.metadata?.rotationstate || this.metadata.rotationstate === 'Completed')) this.errorText = this.$t('message.bucket.credentials.rejected') }
       }
     }
   }

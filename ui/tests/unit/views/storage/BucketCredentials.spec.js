@@ -27,7 +27,7 @@ const reply = extra => ({ getbucketcredentialsresponse: { bucketcredential: meta
 let view, store
 const open = async (component = Credentials) => {
   store = reactive({ getters: { apis: { rotateBucketCredentials: {} }, project: { id: 'project' }, userInfo: { id: 'user' } }, state: { user: { token: 'session' } } })
-  view = mount(component, { props: { resource: { id: 'bucket', provider: 'Glue', credentialrevision: 1 } }, global: { mocks: { $t: key => key, $toLocaleDate: String, $route: { path: '/buckets/bucket' }, $store: store } } })
+  view = mount(component, { props: { resource: { id: 'bucket', provider: 'Glue', credentialrevision: 1 } }, global: { mocks: { $notification: { success: jest.fn() }, $t: key => key, $toLocaleDate: String, $route: { path: '/buckets/bucket' }, $store: store } } })
   await flushPromises(); return view
 }
 beforeEach(() => { postAPI.mockReset(); postAPI.mockResolvedValue(reply()) })
@@ -93,4 +93,24 @@ it('clears pending administrator input on cross-tab identity changes', async () 
   await open(Replace); view.vm.access = 'PRIVATE_ACCESS'; view.vm.secret = 'PRIVATE_SECRET'
   window.dispatchEvent(new StorageEvent('storage', { key: 'ls__Access-Token' }))
   expect(view.vm.access).toBe(''); expect(view.vm.secret).toBe('')
+})
+
+it.each([Credentials, Replace])('associates credential input labels with actual password controls for %p', async component => {
+  await open(component)
+  const inputs = view.findAll('input[type="password"]')
+  expect(inputs).toHaveLength(2)
+  for (const input of inputs) {
+    expect(input.attributes('id')).toBeTruthy()
+    expect(view.find('label[for="' + input.attributes('id') + '"]').exists()).toBe(true)
+  }
+})
+it('offers an explicit first-load retry and clears stale error after successful retrieval', async () => {
+  postAPI.mockRejectedValueOnce(new Error('unavailable'))
+  await open()
+  expect(view.vm.metadata).toBeNull()
+  expect(view.vm.errorText).toBe('message.bucket.credentials.fetch.failed')
+  const retry = view.findAll('button').find(button => button.text() === 'label.retry')
+  expect(retry).toBeDefined()
+  await retry.trigger('click'); await flushPromises()
+  expect(view.vm.metadata.id).toBe('bucket'); expect(view.vm.errorText).toBe('')
 })

@@ -20,11 +20,11 @@
     <a-alert type="info" show-icon :message="$t('label.objectstore.credentials.replace')" :description="$t('message.objectstore.credentials.replace')" />
     <a-alert v-if="errorText" type="error" show-icon :message="errorText" />
     <a-form layout="vertical" @finish="submit">
-      <a-form-item :label="$t('label.access.key')" required>
-        <a-input-password v-model:value="access" autocomplete="off" :disabled="loading" />
+      <a-form-item :label="$t('label.access.key')" :html-for="'store-key-access-' + resource.id" required>
+        <a-input-password :id="'store-key-access-' + resource.id" v-model:value="access" autocomplete="off" :disabled="loading" />
       </a-form-item>
-      <a-form-item :label="$t('label.secret.key')" required>
-        <a-input-password v-model:value="secret" autocomplete="off" :disabled="loading" />
+      <a-form-item :label="$t('label.secret.key')" :html-for="'store-key-secret-' + resource.id" required>
+        <a-input-password :id="'store-key-secret-' + resource.id" v-model:value="secret" autocomplete="off" :disabled="loading" />
       </a-form-item>
       <a-checkbox v-model:checked="acknowledged" :disabled="loading">{{ $t('message.objectstore.credentials.acknowledge') }}</a-checkbox>
       <div class="action-button">
@@ -68,6 +68,7 @@ export default {
           'details[1].value': secret
         }, { preserveOnFailure: true })
         if (context !== this.contextKey) return
+        this.$notification.success({ message: this.$t('label.objectstore.credentials.replace'), description: this.$t('message.objectstore.credentials.replaced') })
         this.parentFetchData && this.parentFetchData()
         this.close()
       } catch (_) {
