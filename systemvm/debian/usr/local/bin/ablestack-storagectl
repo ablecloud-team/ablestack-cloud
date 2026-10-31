@@ -4972,6 +4972,14 @@ for candidate_share in payload.get("shares", []):
     if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
         directory_policy_module.validate_inheritance_share(candidate_share, payload)
 
+# Validate modes before any ownership/account/ACL mutation.
+for candidate_share in payload.get("shares", []):
+    if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
+        candidate_config = candidate_share.get("config") or {}
+        directory_policy_module.smb_creation_modes(candidate_config)
+        if directory_policy_module.smb_creation_custom(candidate_config) and not directory_policy_module.smb_creation_protected():
+            raise directory_policy_module.PolicyError("SMB_CREATION_POLICY_PROTECTION_REQUIRED")
+
 # Cold boot must establish AD NSS before ownership or ACL resolution.
 directory_policy_module.prepare_smb_ad_resolution(payload, netbios_name)
 
@@ -5056,8 +5064,10 @@ for share in payload.get("shares", []):
         f"   read only = {'yes' if truth(config, 'readOnly', False) else 'no'}",
         f"   browseable = {'yes' if truth(config, 'browseable', True) else 'no'}",
         f"   guest ok = {'yes' if guest_ok else 'no'}",
-        "   create mask = 0660",
-        "   directory mask = 0770",
+        "   create mask = " + directory_policy_module.smb_creation_modes(config)["createMask"],
+        "   directory mask = " + directory_policy_module.smb_creation_modes(config)["directoryMask"],
+        "   force create mode = " + directory_policy_module.smb_creation_modes(config)["forceCreateMode"],
+        "   force directory mode = " + directory_policy_module.smb_creation_modes(config)["forceDirectoryMode"],
     ])
     if "inheritOwner" in config:
         lines.append("   inherit owner = " + ("yes" if directory_policy_module.inheritance_enabled(config) else "no"))

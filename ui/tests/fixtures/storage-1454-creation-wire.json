@@ -1,0 +1,52 @@
+{
+  "preflight": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "READY",
+        "revision": 20,
+        "observedat": "2080-11-28T15:13:20+0900",
+        "expiresat": "2080-11-28T15:13:50+0900",
+        "fingerprint": "creation-confirmed",
+        "checks": [],
+        "impact": {
+          "class": "ONLINE_RELOAD",
+          "ackrequired": true
+        },
+        "profile": {},
+        "cancellationsupported": false,
+        "creationpreview": {
+          "before": {
+            "createMask": "0660",
+            "directoryMask": "0770",
+            "forceCreateMode": "0000",
+            "forceDirectoryMode": "0000"
+          },
+          "after": {
+            "createMask": "0640",
+            "directoryMask": "0770",
+            "forceCreateMode": "0000",
+            "forceDirectoryMode": "0000"
+          },
+          "existingobjectschange": false,
+          "parent": {
+            "owneruid": 100001,
+            "ownergid": 200001,
+            "mode": "2770"
+          }
+        }
+      }
+    }
+  },
+  "list": {
+    "liststoragesmbsharesresponse": {
+      "count": 1,
+      "storagesmbshare": [
+        {
+          "id": "share",
+          "name": "team",
+          "config": "{\"directoryMode\":\"2770\",\"inheritOwner\":true}"
+        }
+      ]
+    }
+  }
+}

@@ -34,7 +34,9 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("posixchanges") @Param(description="Explicit NFS POSIX changes only") private JsonObject posixchanges;
     @SerializedName("directorypreview") @Param(description="Common directory values, references and NFS unit impact") private JsonObject directorypreview;
     @SerializedName("inheritancepreview") @Param(description="Observed parent and future SMB object ownership policy") private JsonObject inheritancepreview;
+    @SerializedName("creationpreview") @Param(description="SMB new-object mode policy and reload impact") private JsonObject creationpreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        creationpreview=report.has("creationpreview")?report.getAsJsonObject("creationpreview"):null;
         inheritancepreview=report.has("inheritancepreview")?report.getAsJsonObject("inheritancepreview"):null;
         directorypreview=report.has("directorypreview")?report.getAsJsonObject("directorypreview"):null;
         posixobservation=report.has("posixobservation")?report.getAsJsonObject("posixobservation"):null;

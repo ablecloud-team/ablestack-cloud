@@ -2,6 +2,7 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
 import { inheritanceIntent } from '@/utils/smbParentInheritance'
+import { smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 const kinds = {
   nfsExport: ['NfsExport', 'NFS'],
   nfsAcl: ['NfsAcl', 'NFS'],
@@ -38,6 +39,19 @@ export function configurationModalIntent (type, forms, context) {
   if (form.volumemode === 'NEW') {
     result.newvolume = { diskofferingid: form.diskofferingid, storageid: form.storageid, size: form.newvolumesize }
     delete result.volumeid
+  }
+  if (key === 'smbShare' && action === 'update') {
+    const simple = smbSimpleOptionPatch(form.baseline, form)
+    if (simple) {
+      const result = { api: 'updateStorageSmbShare', protocol: 'SMB', resourceid: context?.raw?.id || form.id }
+      const options = {}
+      if (simple.readonly !== undefined) options.readOnly = simple.readonly
+      if (simple.browseable !== undefined) options.browseable = simple.browseable
+      if (Object.keys(options).length) result.smboptions = options
+      if (simple.inheritowner !== undefined) result.smbinheritance = { inheritOwner: simple.inheritowner }
+      return result
+    }
+    result.smbfullapply = true
   }
   if (key === 'smbShare' && action !== 'delete') {
     const inheritance = inheritanceIntent(form)

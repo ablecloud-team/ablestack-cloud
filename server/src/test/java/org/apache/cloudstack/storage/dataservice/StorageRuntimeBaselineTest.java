@@ -41,4 +41,22 @@ public class StorageRuntimeBaselineTest {
             assertTrue(expected.getCause().getMessage().contains("verified template baseline"));
         }
     }
+
+    @Test public void resourceVersionAcceptsAlignedSevenAndDoesNotOverwriteGuardedBaselines() {
+        var manager=new StorageServiceRuntimeUpgradeManagerImpl();
+        byte[] module="UPDATER_VERSION = 7\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var capability=new com.google.gson.JsonObject();
+        capability.addProperty("updaterVersion",7);
+        capability.addProperty("updaterSha256",org.apache.commons.codec.digest.DigestUtils.sha256Hex(module));
+        manager.requireAlignedUpdater(capability,module);
+        for(int current:new int[]{6,8}) {
+            capability.addProperty("updaterVersion",current);
+            try {manager.requireAlignedUpdater(capability,module);fail("unmaintained protected baseline accepted");}
+            catch(com.cloud.utils.exception.CloudRuntimeException expected) { }
+        }
+        capability.addProperty("updaterVersion",7);capability.addProperty("updaterSha256","different");
+        try {manager.requireAlignedUpdater(capability,module);fail("modified protected baseline accepted");}
+        catch(com.cloud.utils.exception.CloudRuntimeException expected) {assertEquals("PROTECTED_BASELINE_MAINTENANCE_REQUIRED",expected.getMessage());}
+        capability.addProperty("updaterVersion",3);manager.requireAlignedUpdater(capability,module);
+    }
 }

@@ -129,6 +129,7 @@ final class StorageServiceConfigurationCoordinator {
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
+                StorageSmbCreationPolicy.requireCapability(cmd, capability);
                 if (StorageDirectoryPolicies.command(cmd) && (!capability.has("sharedDirectoryPolicyVersion")
                         || capability.get("sharedDirectoryPolicyVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("DIRECTORY_POLICY_CAPABILITY_REQUIRED");
@@ -178,12 +179,14 @@ final class StorageServiceConfigurationCoordinator {
             JsonObject payload = identity(op, instance);
             if (vmUuid != null) payload.addProperty("vmUuid", vmUuid);
             payload.add("before", beforeCommands); payload.add("candidate", commandJson(plan.commands));
+            if (StorageSmbCreationPolicy.optionsOnly(cmd)) payload.addProperty("onlineSmbOptions", true);
             if (!StorageDirectoryPolicies.command(cmd) && protocol == StorageServiceInstance.Protocol.NFS && payload.getAsJsonObject("candidate").has("nfs export apply")) {
                 JsonObject nfs = payload.getAsJsonObject("candidate").getAsJsonObject("nfs export apply");
                 nfs.addProperty("configurationOperationId", op.getUuid());
                 nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
             }
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
+            if (StorageSmbCreationPolicy.optionsOnly(cmd)) admission.add("expectedFingerprint", report.get("fingerprint"));
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);

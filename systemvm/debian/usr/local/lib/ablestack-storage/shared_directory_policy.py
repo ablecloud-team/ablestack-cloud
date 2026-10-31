@@ -804,7 +804,7 @@ def inheritance_preview(target, policy, requested, sources=None):
             "futureowner": "PARENT" if enabled else "CREATOR",
             "futuregroup": "PARENT" if int(observed["mode"], 8) & 0o2000 else "CREATOR",
             "setgid": bool(int(observed["mode"], 8) & 0o2000),
-            "createmask": "0660", "directorymask": "0770", "existingobjectschange": False, "runtime": actual}
+            "createmask": smb_creation_modes(config)["createMask"], "directorymask": smb_creation_modes(config)["directoryMask"], "existingobjectschange": False, "runtime": actual}
 
 
 def validate_inheritance_share(row, payload=None):
@@ -851,6 +851,345 @@ def inheritance_observations(payload):
             value.update(status="UNKNOWN", code=getattr(error, "code", "SMB_PARENT_OBSERVATION_UNAVAILABLE"))
         result.append(value)
     return result
+
+
+SMB_CREATION_POLICY_VERSION = 1
+SMB_MODE_DEFAULTS = {"createMask": "0660", "directoryMask": "0770",
+                     "forceCreateMode": "0000", "forceDirectoryMode": "0000"}
+SMB_OPTION_DEFAULTS = {"readOnly": False, "browseable": True, "inheritOwner": False}
+SMB_OPTION_NAMES = {"createMask": "create mask", "directoryMask": "directory mask",
+                    "forceCreateMode": "force create mode", "forceDirectoryMode": "force directory mode",
+                    "readOnly": "read only", "browseable": "browseable", "inheritOwner": "inherit owner"}
+
+
+def smb_creation_modes(config):
+    result = {}
+    for key, default in SMB_MODE_DEFAULTS.items():
+        value = config.get(key, default)
+        if not isinstance(value, str) or not re.fullmatch(r"0?[0-7]{3}", value):
+            raise PolicyError("SMB_CREATION_MODE_INVALID")
+        result[key] = format(int(value, 8), "04o")
+    for force, mask in (("forceCreateMode", "createMask"), ("forceDirectoryMode", "directoryMask")):
+        if int(result[force], 8) & ~int(result[mask], 8):
+            raise PolicyError("SMB_FORCE_MODE_OUTSIDE_MASK")
+    return result
+
+
+def smb_creation_custom(config):
+    return smb_creation_modes(config) != SMB_MODE_DEFAULTS
+
+
+def smb_creation_protected():
+    return inheritance_protection_version(minimum=7) == 1
+
+
+def smb_share_options(config):
+    result = smb_creation_modes(config)
+    for key, default in SMB_OPTION_DEFAULTS.items():
+        value = config.get(key, default)
+        if not isinstance(value, bool):
+            raise PolicyError("SMB_SHARE_OPTION_INVALID")
+        result[key] = value
+    return result
+
+
+def smb_options_difference(before, candidate):
+    """A strict semantic diff, independent of a caller's options-only assertion."""
+    import copy
+    def canonical(value):
+        value = copy.deepcopy(value)
+        for key in ("listenerOnly", "configurationOperationId", "releaseAddresses", "listenerBefore", "listenerOriginalNetwork"):
+            value.pop(key, None)
+        for listener in value.get("listeners", []):
+            if listener.get("state") in ("Ready", "Updating", "Creating", "Allocated"):
+                listener["state"] = "Ready"
+        # These two fields are observations/job display data, never service policy.
+        identity = value.get("identityDomain") or {}
+        identity.pop("healthState", None)
+        (identity.get("config") or {}).pop("adJoin", None)
+        rows = value.get("shares", [])
+        if not isinstance(rows, list):
+            raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+        keyed = {}
+        for row in rows:
+            key = row.get("uuid")
+            if not key or key in keyed:
+                raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+            if row.get("state") in ("Ready", "Updating"):
+                row["state"] = "Ready"
+            keyed[key] = row
+        value["shares"] = keyed
+        return value
+    left, right = canonical(before), canonical(candidate)
+    changed = []
+    if set(left["shares"]) != set(right["shares"]):
+        raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+    for key in left["shares"]:
+        a, b = left["shares"][key], right["shares"][key]
+        old, new = smb_share_options(a.get("config") or {}), smb_share_options(b.get("config") or {})
+        for row in (a, b):
+            row.setdefault("config", {})
+            for field in SMB_OPTION_NAMES:
+                row["config"].pop(field, None)
+        if old != new:
+            if a.get("state") != "Ready" or b.get("state") != "Ready":
+                raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+            changed.append({"uuid": key, "name": a.get("name"), "before": old, "after": new,
+                            "row": before["shares"][next(i for i, x in enumerate(before["shares"]) if x["uuid"] == key)]})
+    if left != right or len(changed) > 1:
+        raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+    return changed[0] if changed else None
+
+
+class SmbCreationPolicies:
+    """Only owned config bytes and targeted reloads. Never mutates accounts or DATA."""
+    def __init__(self, base=Path("/etc/samba/smb.conf"),
+                 desired=Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"), profiles=None):
+        self.base, self.desired, self.private_profiles = Path(base), Path(desired), profiles
+
+    @staticmethod
+    def read_file(path):
+        try:
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        except OSError:
+            raise PolicyError("SMB_OPTIONS_FILE_UNSAFE")
+        try:
+            info = os.fstat(descriptor)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_nlink != 1 or info.st_mode & 0o022 or info.st_size > LIMIT:
+                raise PolicyError("SMB_OPTIONS_FILE_UNSAFE")
+            data = os.read(descriptor, LIMIT + 1)
+            if len(data) > LIMIT:
+                raise PolicyError("SMB_OPTIONS_FILE_UNSAFE")
+            return data, {"uid": info.st_uid, "gid": info.st_gid, "mode": stat.S_IMODE(info.st_mode)}
+        finally:
+            os.close(descriptor)
+
+    def profiles(self):
+        if self.private_profiles is not None:
+            sources = self.private_profiles
+        else:
+            from configuration_transaction import SmbListenerProfiles
+            engine = SmbListenerProfiles()
+            if engine.manifest.exists():
+                manifest = json.loads(self.read_file(engine.manifest)[0])
+                if manifest.get("pending"):
+                    raise PolicyError("SMB_OPTIONS_TOPOLOGY_PENDING")
+                sources = []
+                for row in manifest.get("profiles", {}).values():
+                    if row.get("kind") == "covered":
+                        continue
+                    if not engine.ready(row, manifest["profiles"]):
+                        raise PolicyError("SMB_OPTIONS_LISTENER_UNAVAILABLE")
+                    sources.append((engine.base if row.get("kind") == "legacy" else engine.root / (row["key"] + ".conf"), engine.pid(row)))
+            else:
+                value = checked(["systemctl", "show", "smbd.service", "-p", "MainPID", "--value"])
+                sources = [(self.base, int(value.strip() or 0))]
+        result = []
+        for config, pid in sources:
+            config, pid = Path(config), int(pid or 0)
+            raw, _ = self.read_file(config)
+            if pid <= 1 or Path("/proc/%d/exe" % pid).resolve() != Path("/usr/sbin/smbd").resolve():
+                raise PolicyError("SMB_OPTIONS_PROCESS_CHANGED")
+            args = Path("/proc/%d/cmdline" % pid).read_bytes().split(b"\0")
+            if config != Path("/etc/samba/smb.conf") and str(config).encode() not in args and ("--configfile=" + str(config)).encode() not in args:
+                raise PolicyError("SMB_OPTIONS_PROCESS_CHANGED")
+            start = Path("/proc/%d/stat" % pid).read_text().rsplit(")", 1)[1].split()[19]
+            ports = checked(["testparm", "-s", "--parameter-name=smb ports", str(config)]).decode().strip()
+            result.append({"ports": ports, "config": str(config), "pid": pid, "starttime": start,
+                           "overlayhash": hashlib.sha256(raw).hexdigest() if config != self.base else None})
+        if not result:
+            raise PolicyError("SMB_OPTIONS_LISTENER_UNAVAILABLE")
+        return sorted(result, key=lambda v: v["config"])
+
+    def settings(self, name, profiles=None):
+        if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(name)):
+            raise PolicyError("SMB_CREATION_NAME_INVALID")
+        values = []
+        for profile in profiles or self.profiles():
+            options = {}
+            for key, parameter in list(SMB_OPTION_NAMES.items()) + [("inheritPermissions", "inherit permissions"), ("forceUser", "force user"), ("forceGroup", "force group")]:
+                raw = checked(["testparm", "-s", "--section-name=" + name, "--parameter-name=" + parameter,
+                               profile["config"]]).decode().strip()
+                options[key] = (raw.lower() in ("yes", "true", "windows and unix")) if key in SMB_OPTION_DEFAULTS or key == "inheritPermissions" else raw if key in ("forceUser", "forceGroup") else format(int(raw, 8), "04o")
+            values.append({**profile, **options})
+        return values
+
+    def preview(self, row, changes):
+        current = smb_share_options(row.get("config") or {})
+        wanted = dict(current)
+        wanted.update(changes)
+        wanted = smb_share_options(wanted)
+        if (set(changes) & set(SMB_MODE_DEFAULTS) or smb_creation_custom(wanted)) and not smb_creation_protected():
+            raise PolicyError("SMB_CREATION_POLICY_PROTECTION_REQUIRED")
+        base, _ = self.read_file(self.base)
+        if re.search(r"(?im)^[ \t]*(include|copy)[ \t]*=", base.decode()):
+            raise PolicyError("SMB_OPTIONS_SECTION_AMBIGUOUS")
+        observed = self.settings(row["name"])
+        for entry in observed:
+            if any(entry[k] != current[k] for k in SMB_OPTION_NAMES):
+                raise PolicyError("SMB_CREATION_POLICY_DRIFT")
+            if entry["inheritPermissions"]:
+                raise PolicyError("SMB_CREATION_POLICY_INHERIT_CONFLICT")
+        parent = DirectoryPolicies().observe(row)
+        if parent.get("status") != "OBSERVED":
+            raise PolicyError("DIRECTORY_OBSERVATION_UNAVAILABLE")
+        for entry in observed:
+            inheritance_conflict({**entry, "inheritOwner": wanted["inheritOwner"]}, parent["mode"])
+        target = {**row, "config": {**(row.get("config") or {}), **wanted}}
+        validate_inheritance_share(target)
+        return {"before": current, "after": wanted, "runtime": observed, "configurationhash":hashlib.sha256(base).hexdigest(),
+                "parent": {k: parent.get(k) for k in ("owneruid", "ownergid", "mode", "inode", "filesystemuuid", "volumeuuid", "fingerprint")},
+                "existingobjectschange": False, "applymode": "ONLINE_RELOAD",
+                "executablebits": bool(int(wanted["createMask"], 8) & 0o111)}
+
+    def snapshot(self, payload):
+        import base64
+        before = payload.get("before", {}).get("smb share apply")
+        candidate = payload.get("candidate", {}).get("smb share apply")
+        if set(payload.get("candidate", {})) != {"smb share apply"} or not isinstance(before, dict):
+            raise PolicyError("INVALID_SMB_OPTIONS_INTENT")
+        change = smb_options_difference(before, candidate)
+        if change is None:
+            import base64
+            raw, metadata = self.read_file(self.base)
+            return {"kind":"SMB_OPTIONS_NOOP", "base":{"content":base64.b64encode(raw).decode(), **metadata}, "profiles":self.profiles()}
+        saved, desired_meta = self.read_file(self.desired)
+        # Reuse the strict diff canonicalization to allow only job observation drift.
+        old_saved = json.loads(saved)
+        matched = json.loads(json.dumps(old_saved))
+        wanted = json.loads(json.dumps(before))
+        # Compare whole structures after removing the same observational fields and normalizing states/options.
+        def normalized(value):
+            value = json.loads(json.dumps(value))
+            for key in ("listenerOnly", "configurationOperationId", "releaseAddresses", "listenerBefore", "listenerOriginalNetwork"):
+                value.pop(key, None)
+            for listener in value.get("listeners", []):
+                if listener.get("state") in ("Ready", "Updating", "Creating", "Allocated"):
+                    listener["state"] = "Ready"
+            identity = value.get("identityDomain") or {}
+            identity.pop("healthState", None)
+            (identity.get("config") or {}).pop("adJoin", None)
+            for row in value.get("shares", []):
+                if row.get("state") in ("Ready", "Updating"):
+                    row["state"] = "Ready"
+                row.setdefault("config", {}).update(smb_share_options(row.get("config") or {}))
+            value["shares"] = sorted(value.get("shares", []), key=lambda r: r["uuid"])
+            return value
+        if normalized(matched) != normalized(wanted):
+            raise PolicyError("SMB_OPTIONS_BASELINE_CHANGED")
+        preview = self.preview(change["row"], change["after"])
+        raw, metadata = self.read_file(self.base)
+        text = raw.decode()
+        headers = list(re.finditer(r"(?m)^\s*\[([^]\r\n]+)\]\s*$", text))
+        selected = [(i, h) for i, h in enumerate(headers) if h.group(1) == change["name"]]
+        if len(selected) != 1:
+            raise PolicyError("SMB_OPTIONS_SECTION_AMBIGUOUS")
+        i, header = selected[0]
+        start, end = header.end(), headers[i + 1].start() if i + 1 < len(headers) else len(text)
+        section = text[start:end]
+        if re.search(r"(?im)^\s*(include|copy)\s*=", section):
+            raise PolicyError("SMB_OPTIONS_SECTION_AMBIGUOUS")
+        changes = {key: value for key, value in change["after"].items() if change["before"][key] != value}
+        for key, value in changes.items():
+            parameter = SMB_OPTION_NAMES[key]
+            pattern = r"(?im)^[ \t]*" + re.escape(parameter) + r"[ \t]*=.*$"
+            matches = list(re.finditer(pattern, section))
+            if len(matches) > 1:
+                raise PolicyError("SMB_OPTIONS_SECTION_AMBIGUOUS")
+            line = "   " + parameter + " = " + ("yes" if value is True else "no" if value is False else value)
+            section = re.sub(pattern, lambda _: line, section) if matches else section.rstrip() + "\n" + line + "\n"
+        candidate_text = text[:start] + section + text[end:]
+        return {"kind": "SMB_OPTIONS", "target": change["name"], "before": change["before"], "after": change["after"],
+                "base": {"content": base64.b64encode(raw).decode(), **metadata},
+                "desired": {"content": base64.b64encode(saved).decode(), **desired_meta},
+                "candidate": candidate_text, "candidateDesired": json.dumps(candidate, sort_keys=True, indent=2) + "\n",
+                "profiles": self.profiles(), "preview": preview}
+
+    @staticmethod
+    def write_file(path, data, metadata):
+        import tempfile
+        descriptor, temp = tempfile.mkstemp(prefix=".smb-options-", dir=str(path.parent))
+        try:
+            os.fchmod(descriptor, metadata["mode"])
+            os.fchown(descriptor, metadata["uid"], metadata["gid"])
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(data); stream.flush(); os.fsync(stream.fileno())
+            os.replace(temp, path)
+            descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try: os.fsync(descriptor)
+            finally: os.close(descriptor)
+        finally:
+            if os.path.exists(temp):
+                os.unlink(temp)
+
+    def require_profiles(self, snapshot):
+        if self.profiles() != snapshot["profiles"]:
+            raise PolicyError("SMB_OPTIONS_PROCESS_CHANGED")
+
+    def reload(self, snapshot):
+        self.require_profiles(snapshot)
+        for profile in snapshot["profiles"]:
+            getattr(self, "progress", lambda value: None)({"phase":"RELOADING", "ports":profile["ports"], "pid":profile["pid"], "config":profile["config"]})
+            try:
+                checked(["smbcontrol", "-s", profile["config"], "-t", "10", str(profile["pid"]), "reload-config"], timeout=15)
+                checked(["smbcontrol", "-s", profile["config"], "-t", "10", str(profile["pid"]), "ping"], timeout=15)
+            except (PolicyError, OSError, subprocess.SubprocessError):
+                raise PolicyError("SMB_OPTIONS_RELOAD_FAILED")
+            getattr(self, "progress", lambda value: None)({"phase":"RELOADED", "ports":profile["ports"], "pid":profile["pid"]})
+        self.require_profiles(snapshot)
+
+    def apply(self, snapshot, candidate):
+        if snapshot["kind"] == "SMB_OPTIONS_NOOP":
+            self.verify(snapshot)
+            return
+        import tempfile, base64
+        self.require_profiles(snapshot)
+        raw, _ = self.read_file(self.base)
+        if raw not in (base64.b64decode(snapshot["base"]["content"]), snapshot["candidate"].encode()):
+            raise PolicyError("SMB_OPTIONS_BASELINE_CHANGED")
+        descriptor, name = tempfile.mkstemp(prefix=".smb-options-check-", dir=str(self.base.parent))
+        try:
+            with os.fdopen(descriptor, "w") as stream:
+                stream.write(snapshot["candidate"])
+            checked(["testparm", "-s", name])
+        finally:
+            os.unlink(name)
+        self.write_file(self.base, snapshot["candidate"].encode(), snapshot["base"])
+        self.reload(snapshot)
+        self.write_file(self.desired, (json.dumps(candidate, sort_keys=True, indent=2) + "\n").encode(), snapshot["desired"])
+        self.verify(snapshot)
+
+    def verify(self, snapshot, restored=False):
+        import base64
+        self.require_profiles(snapshot)
+        if snapshot["kind"] == "SMB_OPTIONS_NOOP":
+            if self.read_file(self.base)[0] != base64.b64decode(snapshot["base"]["content"]):
+                raise PolicyError("SMB_OPTIONS_CONFIG_MISMATCH")
+            return True
+        expected = snapshot["before" if restored else "after"]
+        raw, _ = self.read_file(self.base)
+        target = base64.b64decode(snapshot["base"]["content"]) if restored else snapshot["candidate"].encode()
+        if raw != target:
+            raise PolicyError("SMB_OPTIONS_CONFIG_MISMATCH")
+        desired, _ = self.read_file(self.desired)
+        wanted = base64.b64decode(snapshot["desired"]["content"]) if restored else snapshot["candidateDesired"].encode()
+        if desired != wanted:
+            raise PolicyError("SMB_OPTIONS_DESIRED_MISMATCH")
+        for row in self.settings(snapshot["target"], snapshot["profiles"]):
+            if any(row[key] != expected[key] for key in SMB_OPTION_NAMES):
+                raise PolicyError("SMB_OPTIONS_VERIFY_FAILED")
+        return True
+
+    def restore(self, snapshot):
+        if snapshot["kind"] == "SMB_OPTIONS_NOOP":
+            self.verify(snapshot)
+            return
+        import base64
+        self.require_profiles(snapshot)
+        self.write_file(self.base, base64.b64decode(snapshot["base"]["content"]), snapshot["base"])
+        self.write_file(self.desired, base64.b64decode(snapshot["desired"]["content"]), snapshot["desired"])
+        self.reload(snapshot)
+        self.verify(snapshot, restored=True)
 
 
 if __name__=="__main__":
