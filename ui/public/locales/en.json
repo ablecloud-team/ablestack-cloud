@@ -9959,5 +9959,8 @@
   "message.bucket.credentials.rejected": "The rotation request was rejected. Refresh and check the current revision, keys shared with other stores, and rotation state before retrying.",
   "label.credentialrevision": "Credential revision",
   "message.objectstore.credentials.replaced": "Candidate administrator keys were verified and saved.",
-  "message.bucket.credentials.updated": "Credential rotation state was updated. Check the old-key grace and retirement status."
+  "message.bucket.credentials.updated": "Credential rotation state was updated. Check the old-key grace and retirement status.",
+  "label.objectstore.generated.share.url": "Generated share URL",
+  "message.objectstore.share.copy.failed": "Automatic copy failed. Select the generated URL and copy it manually.",
+  "message.objectstore.share.failed": "Unable to generate a share URL. Check the connection and permissions, then retry."
 }

@@ -298,4 +298,57 @@ describe('bucket browser request lifecycle', () => {
     expect(Minio.Client).toHaveBeenCalledTimes(1)
     expect(streams).toHaveLength(1)
   })
+  it('shows an explicitly generated link and reports clipboard failure without false success', async () => {
+    await open()
+    await complete(streams[0], [])
+    wrapper.vm.showObjectDescription({ name: 'file.txt' })
+    wrapper.vm.$copyText = jest.fn(() => Promise.reject(new Error('clipboard unavailable')))
+    wrapper.vm.$message = { success: jest.fn() }
+    wrapper.vm.client.presignedGetObject = jest.fn((bucket, object, expiry, callback) => callback(null, 'http://store/signed-link'))
+    wrapper.vm.generatePresignedUrl()
+    await flushPromises()
+    expect(wrapper.vm.client.presignedGetObject).toHaveBeenCalledWith('bucket-A', 'file.txt', 3600, expect.any(Function))
+    expect(wrapper.vm.presignedUrlPreview).toBe('http://store/signed-link')
+    expect(wrapper.vm.presignedUrlCopyFailed).toBe(true)
+    expect(wrapper.vm.$message.success).not.toHaveBeenCalled()
+    wrapper.vm.closeObjectDetails()
+    expect(wrapper.vm.presignedUrlPreview).toBe('')
+  })
+  it('discards signed-link callbacks after the credential context changes', async () => {
+    await open()
+    await complete(streams[0], [])
+    let callback
+    wrapper.vm.showObjectDescription({ name: 'file.txt' })
+    wrapper.vm.$copyText = jest.fn()
+    wrapper.vm.client.presignedGetObject = jest.fn((bucket, object, expiry, done) => { callback = done })
+    wrapper.vm.generatePresignedUrl()
+    store.getters.userInfo.id = 'another-user'
+    await flushPromises()
+    callback(null, 'http://store/old-user-signed-link')
+    await flushPromises()
+    expect(wrapper.vm.presignedUrlPreview).toBe('')
+    expect(wrapper.vm.$copyText).not.toHaveBeenCalled()
+  })
+  it('shows copy success only after clipboard completion and uses safe provider errors', async () => {
+    await open()
+    await complete(streams[0], [])
+    let copied
+    wrapper.vm.showObjectDescription({ name: 'file.txt' })
+    wrapper.vm.$copyText = jest.fn(() => new Promise(resolve => { copied = resolve }))
+    wrapper.vm.$message = { success: jest.fn() }
+    wrapper.vm.client.presignedGetObject = jest.fn((bucket, object, expiry, callback) => callback(null, 'http://store/signed-link'))
+    wrapper.vm.generatePresignedUrl()
+    await flushPromises()
+    expect(wrapper.vm.$message.success).not.toHaveBeenCalled()
+    copied()
+    await flushPromises()
+    expect(wrapper.vm.$message.success).toHaveBeenCalledTimes(1)
+    wrapper.vm.client.presignedGetObject = jest.fn((bucket, object, expiry, callback) => callback(new Error('private key data')))
+    wrapper.vm.generatePresignedUrl()
+    expect(wrapper.vm.presignedUrlPreview).toBe('')
+    expect(wrapper.vm.$notification.error).toHaveBeenLastCalledWith({
+      message: 'error.execute.api.failed', description: 'message.objectstore.share.failed'
+    })
+  })
+
 })

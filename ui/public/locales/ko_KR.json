@@ -9924,5 +9924,8 @@
   "message.bucket.credentials.rejected": "키 교체 요청이 거부되었습니다. 현재 revision, 다른 저장소와의 키 공유 여부 및 교체 상태를 확인한 뒤 다시 시도하세요.",
   "label.credentialrevision": "키 버전",
   "message.objectstore.credentials.replaced": "새 관리자 키의 연결 검증과 저장을 완료했습니다.",
-  "message.bucket.credentials.updated": "키 교체 상태를 갱신했습니다. 구 키 유예와 폐기 상태를 확인하세요."
+  "message.bucket.credentials.updated": "키 교체 상태를 갱신했습니다. 구 키 유예와 폐기 상태를 확인하세요.",
+  "label.objectstore.generated.share.url": "생성된 공유 URL",
+  "message.objectstore.share.copy.failed": "자동 복사하지 못했습니다. 생성된 URL을 선택해 직접 복사하세요.",
+  "message.objectstore.share.failed": "공유 URL을 생성하지 못했습니다. 연결과 권한을 확인한 뒤 다시 시도하세요."
 }

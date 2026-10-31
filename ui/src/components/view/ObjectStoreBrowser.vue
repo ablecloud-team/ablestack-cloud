@@ -160,6 +160,14 @@
               {{ $t('label.copy.share.url') }}
             </a-button>
           </div>
+          <a-input
+            v-if="presignedUrlPreview"
+            class="object-store-share-preview"
+            :value="presignedUrlPreview"
+            :aria-label="$t('label.objectstore.generated.share.url')"
+            readonly
+            autocomplete="off" />
+          <a-alert v-if="presignedUrlCopyFailed" type="warning" show-icon :message="$t('message.objectstore.share.copy.failed')" />
         </a-col>
       </a-row>
         <a-divider>
@@ -370,6 +378,9 @@ export default {
       presignedUrlExpiryValue: 1,
       presignedUrlExpiryUnit: 'hours',
       presignedUrlLoading: false,
+      presignedUrlPreview: '',
+      presignedUrlCopyFailed: false,
+      presignedUrlGeneration: 0,
       record: {},
       showObjectDetails: false,
       fetching: false
@@ -450,6 +461,7 @@ export default {
     this.fetchData()
   },
   beforeUnmount () {
+    this.clearPresignedUrl()
     this.bucketS3Session && this.bucketS3Session.dispose()
     this.client = null
     this.cancelObjectListing()
@@ -573,6 +585,7 @@ export default {
       }
     },
     resetObjectStoreClient (reload = true) {
+      this.clearPresignedUrl()
       this.bucketS3Session && this.bucketS3Session.dispose()
       this.bucketS3Session = null
       ++this.objectStoreFetchGeneration
@@ -797,6 +810,9 @@ export default {
       if (!this.bucketS3Session || this.bucketS3Session.disposed) {
         const id = this.resource.id
         this.bucketS3Session = new BucketS3Session(() => postAPI('getBucketCredentials', { id, reveal: true }, { preserveOnFailure: true }), () => {
+          this.clearPresignedUrl()
+          this.showObjectDetails = false
+          this.record = {}
           this.objectListScopeChanged = true
           this.cancelObjectListing()
           this.client = null
@@ -933,11 +949,19 @@ export default {
         }).catch(reject)
       })
     },
+    clearPresignedUrl () {
+      ++this.presignedUrlGeneration
+      this.presignedUrlPreview = ''
+      this.presignedUrlCopyFailed = false
+      this.presignedUrlLoading = false
+    },
     closeObjectDetails () {
+      this.clearPresignedUrl()
       this.showObjectDetails = false
       this.$nextTick(() => { if (this.objectDetailsTrigger?.isConnected) this.objectDetailsTrigger.focus() })
     },
     showObjectDescription (record, event) {
+      this.clearPresignedUrl()
       this.objectDetailsTrigger = event?.currentTarget
       this.record = {
         ...record,
@@ -981,28 +1005,31 @@ export default {
     },
     generatePresignedUrl () {
       const expirySeconds = this.getPresignedUrlExpirySeconds()
-      if (expirySeconds <= 0) {
-        return
-      }
-      if (expirySeconds > 7 * 24 * 60 * 60) {
-        return this.$notification.error({
-          message: this.$t('error.execute.api.failed'),
-          description: 'Presigned URL expiry cannot exceed 7 days.'
-        })
-      }
+      if (!this.client || !this.showObjectDetails || expirySeconds <= 0 || expirySeconds > 7 * 24 * 60 * 60) return
+      this.clearPresignedUrl()
+      const generation = this.presignedUrlGeneration
+      const client = this.client
+      const context = this.objectStoreContextKey
+      const connection = this.objectStoreConnectionKey
+      const isCurrent = () => generation === this.presignedUrlGeneration && this.showObjectDetails &&
+        client === this.client && context === this.objectStoreContextKey && connection === this.objectStoreConnectionKey
       this.presignedUrlLoading = true
-      this.client.presignedGetObject(this.resource.name, this.record.name, expirySeconds, (err, presignedUrl) => {
+      client.presignedGetObject(this.resource.name, this.record.name, expirySeconds, async (err, presignedUrl) => {
+        if (!isCurrent()) return
         this.presignedUrlLoading = false
         if (err) {
           return this.$notification.error({
             message: this.$t('error.execute.api.failed'),
-            description: err.message
+            description: this.$t('message.objectstore.share.failed')
           })
         }
-        this.$copyText(presignedUrl)
-        this.$message.success({
-          content: this.$t('label.copied.clipboard')
-        })
+        this.presignedUrlPreview = presignedUrl
+        try {
+          await this.$copyText(presignedUrl)
+          if (isCurrent()) this.$message.success({ content: this.$t('label.copied.clipboard') })
+        } catch (_) {
+          if (isCurrent()) this.presignedUrlCopyFailed = true
+        }
       })
     },
     updateMetadata () {
@@ -1111,6 +1138,9 @@ export default {
   margin-top: 2px;
 }
 
+.object-store-share-preview {
+  margin-top: 12px;
+}
 .object-store-presigned-url-action {
   margin-bottom: 8px;
   width: 100%;
