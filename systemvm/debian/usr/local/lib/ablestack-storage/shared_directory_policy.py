@@ -34,6 +34,69 @@ def checked(args, **kwargs):
     return result.stdout
 
 
+def prepare_smb_ad_resolution(payload, netbios_name, config=Path("/etc/samba/smb.conf")):
+    """Prepare NSS before applying AD ACLs, without starting the default SMB listener."""
+    inactive = ("Disabled", "Destroyed", "Error")
+    principals = {(acl.get("principalType"), acl.get("principal"))
+                  for row in payload.get("shares", []) if row.get("state") not in inactive
+                  for acl in row.get("acls", []) if acl.get("state") not in inactive
+                  and acl.get("principalType") in ("AD_USER", "AD_GROUP")}
+    if not payload.get("enabled", True) or not principals:
+        return
+    identity = payload.get("identityDomain") or {}
+    domain = str(identity.get("domainName") or "")
+    if identity.get("joinState") != "JOINED" or not domain:
+        raise PolicyError("SMB_AD_RESOLVER_CONFIG_MISMATCH")
+
+    def command(args, code, timeout=10):
+        try:
+            result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        except (OSError, subprocess.SubprocessError):
+            raise PolicyError(code)
+        if result.returncode:
+            raise PolicyError(code)
+        return result.stdout.strip()
+
+    try:
+        info = config.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022 or info.st_size > LIMIT:
+            raise PolicyError("SMB_AD_RESOLVER_CONFIG_UNSAFE")
+    except OSError:
+        raise PolicyError("SMB_AD_RESOLVER_CONFIG_UNSAFE")
+    expected = {"security": "ADS", "realm": domain, "netbios name": netbios_name}
+    for parameter, value in expected.items():
+        observed = command(["testparm", "-s", "--parameter-name=" + parameter, str(config)],
+                           "SMB_AD_RESOLVER_CONFIG_MISMATCH")
+        if observed.upper() != value.upper():
+            raise PolicyError("SMB_AD_RESOLVER_CONFIG_MISMATCH")
+
+    try:
+        active = subprocess.run(["systemctl", "is-active", "--quiet", "winbind.service"],
+                                capture_output=True, timeout=5).returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        raise PolicyError("SMB_AD_RESOLVER_UNAVAILABLE")
+    if not active:
+        command(["systemctl", "start", "winbind.service"], "SMB_AD_RESOLVER_UNAVAILABLE", timeout=20)
+    command(["wbinfo", "-t"], "SMB_AD_TRUST_UNAVAILABLE")
+    deadline = time.monotonic() + 8
+    pending = set(principals)
+    while pending:
+        for kind, name in list(pending):
+            if not isinstance(name, str) or not name:
+                raise PolicyError("DIRECTORY_PRINCIPAL_UNAVAILABLE")
+            try:
+                result = subprocess.run(["getent", "--", "passwd" if kind == "AD_USER" else "group", name],
+                                        capture_output=True, text=True, timeout=min(2, max(.1, deadline - time.monotonic())))
+            except (OSError, subprocess.SubprocessError):
+                continue
+            if result.returncode == 0 and result.stdout.strip():
+                pending.remove((kind, name))
+        if pending:
+            if time.monotonic() >= deadline:
+                raise PolicyError("DIRECTORY_PRINCIPAL_UNAVAILABLE")
+            time.sleep(.2)
+
+
 def canonical_hash(path):
     return hashlib.sha256(path.encode("utf-8")).hexdigest()
 

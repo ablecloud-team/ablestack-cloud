@@ -4972,6 +4972,9 @@ for candidate_share in payload.get("shares", []):
     if candidate_share.get("state") not in ("Disabled", "Destroyed", "Error"):
         directory_policy_module.validate_inheritance_share(candidate_share, payload)
 
+# Cold boot must establish AD NSS before ownership or ACL resolution.
+directory_policy_module.prepare_smb_ad_resolution(payload, netbios_name)
+
 quota_state = {}
 access_state = {}
 enabled = bool(payload.get("enabled", True))
