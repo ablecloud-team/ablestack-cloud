@@ -861,6 +861,7 @@
           :tabs="$route.meta.tabs"
           :actions="(isSshKeyPairDetail && !sshKeyPairDetailActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
           @exec-action="handleDataViewAction"
+          @refresh="$route.meta.name === 'buckets' && fetchData({ irefresh: true })"
           @change-resource="resource = $event" />
       </div>
       <div
