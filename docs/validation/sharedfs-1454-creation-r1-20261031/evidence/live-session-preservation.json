@@ -1,0 +1,25 @@
+{
+  "listenerManifestEqual": true,
+  "configsEqual": true,
+  "sessionIdsBefore": [
+    "1262832129",
+    "506905172"
+  ],
+  "sessionIdsAfter": [
+    "1262832129",
+    "506905172"
+  ],
+  "treeIdsBefore": [
+    "1161574288",
+    "1562074128",
+    "2996788128",
+    "57049979"
+  ],
+  "treeIdsAfter": [
+    "1161574288",
+    "1562074128",
+    "2996788128",
+    "57049979"
+  ],
+  "defaultSmbdAfter": "inactive"
+}
