@@ -9956,5 +9956,6 @@
   "message.objectstore.credentials.replace": "Verify the candidate administrator keys before saving. Verification or persistence failure retains the previous URL and keys. This action does not issue or retire Glue administrator keys.",
   "message.objectstore.credentials.acknowledge": "I verified the administrator key pair to use.",
   "message.objectstore.credentials.failed": "Candidate key verification or persistence failed. The previous connection and keys are retained. Check the input and retry.",
-  "message.bucket.credentials.rejected": "The rotation request was rejected. Refresh and check the current revision, keys shared with other stores, and rotation state before retrying."
+  "message.bucket.credentials.rejected": "The rotation request was rejected. Refresh and check the current revision, keys shared with other stores, and rotation state before retrying.",
+  "label.credentialrevision": "Credential revision"
 }
