@@ -39,6 +39,11 @@ import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupScheduleDao;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPoint;
+import org.apache.cloudstack.engine.subsystem.api.storage.EndPointSelector;
+import org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore;
+import com.cloud.storage.Volume;
+import com.cloud.storage.Storage.StoragePoolType;
 import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Answer;
@@ -61,6 +66,7 @@ public class BackupSnapshotGuardTest {
     @Mock private AgentManager agentManager;
     @Mock private VolumeDao volumeDao;
     @Mock private VolumeDataFactory volumeDataFactory;
+    @Mock private EndPointSelector endpointSelector;
     @InjectMocks private BackupSnapshotGuard guard;
     private VMInstanceVO vm;
     @Before public void setup() {
@@ -158,4 +164,46 @@ public class BackupSnapshotGuardTest {
                 .thenReturn(new Answer(null, false, "BACKUP_TRACKING_UNKNOWN: Cannot inspect disks"));
         guard.checkRuntime(1L);
     }
+    private VolumeInfo hostlessRbdVolume() {
+        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        when(vm.getHostId()).thenReturn(null); when(vm.getLastHostId()).thenReturn(null);
+        VolumeVO volume = mock(VolumeVO.class); when(volume.getId()).thenReturn(100L);
+        when(volumeDao.findByInstance(1L)).thenReturn(Collections.singletonList(volume));
+        VolumeInfo info = mock(VolumeInfo.class); when(volumeDataFactory.getVolume(100L)).thenReturn(info);
+        VolumeObjectTO to = new VolumeObjectTO(); to.setId(100L); to.setPath("owned-rbd-image"); when(info.getTO()).thenReturn(to);
+        when(info.getState()).thenReturn(Volume.State.Ready);
+        PrimaryDataStore pool = mock(PrimaryDataStore.class); when(pool.getPoolType()).thenReturn(StoragePoolType.RBD);
+        when(info.getDataStore()).thenReturn(pool); return info;
+    }
+    @Test public void neverStartedStoppedRbdVmUsesStorageEndpointWithOfflineDisks() throws Exception {
+        VolumeInfo info = hostlessRbdVolume();
+        EndPoint endpoint = mock(EndPoint.class); when(endpoint.getId()).thenReturn(30L);
+        when(endpointSelector.select(info)).thenReturn(endpoint);
+        when(agentManager.send(eq(30L), any(CheckVmBackupTrackingCommand.class))).thenReturn(new Answer(null,true,null));
+        guard.checkRuntime(1L);
+        ArgumentCaptor<CheckVmBackupTrackingCommand> command = ArgumentCaptor.forClass(CheckVmBackupTrackingCommand.class);
+        verify(agentManager).send(eq(30L), command.capture());
+        assertTrue(command.getValue().isStopped()); assertEquals("owned-rbd-image",command.getValue().getVolumes().get(0).getPath());
+    }
+    @Test public void hostlessFilePoolAndNonReadyRbdVolumeFailClosed() {
+        VolumeInfo info = hostlessRbdVolume();
+        when(((PrimaryDataStore) info.getDataStore()).getPoolType()).thenReturn(StoragePoolType.SharedMountPoint);
+        try { guard.checkRuntime(1L); org.junit.Assert.fail("file pool was accepted"); } catch(CloudRuntimeException expected) { }
+        when(((PrimaryDataStore) info.getDataStore()).getPoolType()).thenReturn(StoragePoolType.RBD);
+        assertEquals(StoragePoolType.RBD, ((PrimaryDataStore) info.getDataStore()).getPoolType());
+        when(info.getState()).thenReturn(Volume.State.Creating);
+        try { guard.checkRuntime(1L); org.junit.Assert.fail("creating volume was accepted"); } catch(CloudRuntimeException expected) { }
+        verifyNoInteractions(agentManager,endpointSelector);
+    }
+    @Test public void noAvailableStorageEndpointStillBlocksColdVm() {
+        hostlessRbdVolume();
+        try { guard.checkRuntime(1L); org.junit.Assert.fail("missing endpoint was accepted"); } catch(CloudRuntimeException expected) { }
+        verifyNoInteractions(agentManager);
+    }
+    @Test public void runningVmWithoutHostNeverUsesStorageFallback() {
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running); when(vm.getHostId()).thenReturn(null); when(vm.getLastHostId()).thenReturn(null);
+        try { guard.checkRuntime(1L); org.junit.Assert.fail("running VM without host was accepted"); } catch(CloudRuntimeException expected) { }
+        verifyNoInteractions(agentManager,endpointSelector,volumeDataFactory,volumeDao);
+    }
+
 }

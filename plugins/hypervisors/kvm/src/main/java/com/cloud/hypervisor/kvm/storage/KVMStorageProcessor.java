@@ -3659,7 +3659,7 @@ public class KVMStorageProcessor implements StorageProcessor {
             logger.debug(String.format("Attempting to create volume from RBD snapshot %s", snapshotName));
             if (StoragePoolType.RBD.equals(pool.getPoolType())) {
                 disk = createRBDvolumeFromRBDSnapshot(snapshotDisk, snapshotName, newVol.getUuid(),
-                        PhysicalDiskFormat.RAW, newVol.getSize(), destPool, cmd.getWaitInMillSeconds());
+                        PhysicalDiskFormat.RAW, newVol.getSize(), destPool, cmd.getWaitInMillSeconds(), newVol.getVmCloneType());
                 logger.debug(String.format("Created RBD volume %s from snapshot %s", disk, snapshotDisk));
             } else {
                 Map<String, String> details = cmd.getOptions2();
@@ -3765,7 +3765,7 @@ public class KVMStorageProcessor implements StorageProcessor {
     }
 
     private KVMPhysicalDisk createRBDvolumeFromRBDSnapshot(KVMPhysicalDisk volume, String snapshotName, String name,
-            PhysicalDiskFormat format, long size, KVMStoragePool destPool, int timeout) {
+            PhysicalDiskFormat format, long size, KVMStoragePool destPool, int timeout, String vmCloneType) {
 
         KVMStoragePool srcPool = volume.getPool();
         KVMPhysicalDisk disk = null;
@@ -3812,8 +3812,7 @@ public class KVMStorageProcessor implements StorageProcessor {
                 diskImage.resize(disk.getVirtualSize());
             }
 
-            // 스냅샷으로 볼륨 생성시 linked clone형식으로 변경
-            // diskImage.flatten();
+            finishRbdVmClone(diskImage, vmCloneType);
             rbd.close(diskImage);
 
             // srcImage.snapUnprotect(snapshotName);
@@ -3825,6 +3824,15 @@ public class KVMStorageProcessor implements StorageProcessor {
         }
 
         return disk;
+    }
+
+    protected void finishRbdVmClone(RbdImage image, String vmCloneType) throws RbdException {
+        // Full VM clones must be independent even when startvm=false. Do this
+        // before returning a successful copy; ordinary snapshot restores and
+        // Linked clones retain their existing behavior.
+        if ("full".equalsIgnoreCase(vmCloneType)) {
+            image.flatten();
+        }
     }
 
     @Override
