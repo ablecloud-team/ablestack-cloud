@@ -442,6 +442,9 @@ export default {
       return JSON.stringify([this.$route?.path, this.$store?.getters.project?.id,
         this.$store?.getters.userInfo?.id, this.$store?.state?.user?.token])
     },
+    objectStoreRouteMatchesResource () {
+      return !this.$route.params?.id || String(this.resource.id).toLowerCase() === String(this.$route.params.id).toLowerCase()
+    },
     objectStoreConnectionKey () {
       return JSON.stringify([this.resource.id, this.resource.name, this.resource.url,
         this.resource.accesskey, this.resource.usersecretkey])
@@ -461,11 +464,15 @@ export default {
       this.resetObjectStoreClient(false)
     },
     objectStoreConnectionKey () {
+      if (!this.objectStoreRouteMatchesResource) {
+        this.objectListScopeChanged = true
+        return this.resetObjectStoreClient(false)
+      }
       this.objectListScopeChanged = false
       this.resetObjectStoreClient()
     },
     resource (value, previous) {
-      if (this.objectListScopeChanged && value !== previous && value.id) {
+      if (this.objectListScopeChanged && value !== previous && value.id && this.objectStoreRouteMatchesResource) {
         this.objectListScopeChanged = false
         this.resetObjectStoreClient()
       }
@@ -572,7 +579,7 @@ export default {
       }
     },
     async fetchData () {
-      if (this.objectListScopeChanged || !this.resource.id) return
+      if (this.objectListScopeChanged || !this.objectStoreRouteMatchesResource || !this.resource.id) return
       const generation = ++this.objectStoreFetchGeneration
       const path = this.browserPath
       const context = this.objectStoreContextKey
@@ -658,7 +665,7 @@ export default {
       this.fetchData()
     },
     listObjects () {
-      if (!this.client || this.objectListScopeChanged) return
+      if (!this.client || this.objectListScopeChanged || !this.objectStoreRouteMatchesResource) return
       const request = this.listRequestToken('listObjects')
       this.cancelObjectListing()
       this.loading = !request.loaded

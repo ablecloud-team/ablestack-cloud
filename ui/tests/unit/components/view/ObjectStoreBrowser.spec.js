@@ -43,9 +43,9 @@ describe('bucket browser request lifecycle', () => {
   let wrapper, streams, route, store, router
   const open = async (query = { tab: 'browser' }, component = Harness) => {
     streams = []
-    Minio.Client.mockClear()
+    Minio.Client.mockReset()
     Minio.Client.mockImplementation(() => ({ extensions: { listObjectsV2WithMetadata: jest.fn(() => { const stream = new Stream(); streams.push(stream); return stream }) } }))
-    route = reactive({ path: '/buckets/A', query, fullPath: '/buckets/A?' + new URLSearchParams(query) })
+    route = reactive({ path: '/buckets/A', params: { id: 'A' }, query, fullPath: '/buckets/A?' + new URLSearchParams(query) })
     store = reactive({ getters: { userInfo: { id: 'user' }, project: { id: 'project' } }, state: { user: { token: 'session' } } })
     router = { replace: jest.fn(({ query }) => Promise.resolve().then(() => { route.query = query; route.fullPath = route.path + '?' + new URLSearchParams(query) })) }
     wrapper = mount(component, { props: { resource: resource(), resourceType: 'Bucket' }, global: { mocks: { $route: route, $router: router, $store: store, $t: key => key, $toLocaleDate: value => String(value), $notifyError: jest.fn(), $notification: { error: jest.fn() } } } })
@@ -140,7 +140,7 @@ describe('bucket browser request lifecycle', () => {
     if (identity === 'user') store.getters.userInfo.id = 'other'
     if (identity === 'project') store.getters.project.id = 'other'
     if (identity === 'session') store.state.user.token = 'other'
-    if (identity === 'route') route.path = '/buckets/B'
+    if (identity === 'route') { route.path = '/buckets/B'; route.params.id = 'B' }
     await flushPromises()
     expect(wrapper.vm.records).toEqual([])
     expect(wrapper.vm.client).toBe(null)
@@ -148,15 +148,15 @@ describe('bucket browser request lifecycle', () => {
     expect(old.destroy).toHaveBeenCalledTimes(1)
     old.emit('data', { name: 'private-late.txt' }); old.emit('end'); await flushPromises()
     expect(wrapper.vm.records).toEqual([])
-    await wrapper.setProps({ resource: resource('B') }); await flushPromises()
+    await wrapper.setProps({ resource: resource(identity === 'route' ? 'B' : 'A') }); await flushPromises()
     await complete(streams[2], [{ name: 'authorized.txt' }])
     expect(wrapper.vm.records[0].name).toBe('authorized.txt')
   })
 
-  it('reinitializes the SDK for a bucket/endpoint/credential change', async () => {
+  it('reinitializes the SDK for an endpoint/credential change', async () => {
     await open(); await complete(streams[0], [{ name: 'private.txt' }])
     wrapper.vm.listObjects(); const old = streams[1]
-    await wrapper.setProps({ resource: resource('B') }); await flushPromises()
+    await wrapper.setProps({ resource: { ...resource(), url: 'http://other:3333/bucket-A', accesskey: 'new-access', usersecretkey: 'new-secret' } }); await flushPromises()
     expect(old.destroy).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.records).toEqual([])
     expect(Minio.Client).toHaveBeenCalledTimes(2)
@@ -199,7 +199,7 @@ describe('bucket browser request lifecycle', () => {
   it('reports a synchronous SDK constructor error without stranding the spinner', async () => {
     await open(); wrapper.vm.cancelObjectListing(); await flushPromises()
     Minio.Client.mockImplementationOnce(() => { throw new Error('invalid endpoint') })
-    await wrapper.setProps({ resource: resource('B') }); await flushPromises()
+    await wrapper.setProps({ resource: { ...resource(), url: 'http://other:3333/bucket-A' } }); await flushPromises()
     expect(wrapper.vm.loading).toBe(false)
     expect(wrapper.vm.fetching).toBe(false)
     expect(wrapper.vm.objectListError).toBe('invalid endpoint')
@@ -228,5 +228,17 @@ describe('bucket browser request lifecycle', () => {
     await complete(streams[1], [{ name: 'retry.txt', size: 1 }])
     expect(wrapper.text()).toContain('retry.txt')
     expect(wrapper.text()).not.toContain('S3 denied')
+  })
+
+  it('rejects old resource props while the URL targets another bucket', async () => {
+    await open(); await complete(streams[0], [{ name: 'private-A.txt' }])
+    route.path = '/buckets/B'; route.params.id = 'B'; await flushPromises()
+    await wrapper.setProps({ resource: resource('A') }); await flushPromises()
+    expect(wrapper.vm.client).toBe(null)
+    expect(wrapper.vm.records).toEqual([])
+    expect(streams).toHaveLength(1)
+    await wrapper.setProps({ resource: resource('B') }); await flushPromises()
+    await complete(streams[1], [{ name: 'authorized-B.txt' }])
+    expect(wrapper.vm.records[0].name).toBe('authorized-B.txt')
   })
 })
