@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="form-layout" v-ctrl-enter="handleSubmit">
+  <div class="form-layout bucket-quota-form" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
       <a-form
         :ref="formRef"
@@ -197,4 +197,14 @@ export default {
 </script>
 <style lang="scss" scoped>
 .form-layout { width: 100%; min-width: 0; }
+.bucket-quota-form {
+  :deep(.ant-input:not([disabled])),
+  :deep(.ant-select:not(.ant-select-disabled) .ant-select-selector) {
+    color: var(--ui-text-primary) !important;
+    background: var(--ui-bg-input) !important;
+  }
+  :deep(.ant-select:not(.ant-select-disabled) .ant-select-selection-item) {
+    color: var(--ui-text-primary) !important;
+  }
+}
 </style>

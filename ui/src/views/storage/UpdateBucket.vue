@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <div class="form-layout" v-ctrl-enter="handleSubmit">
+  <div class="form-layout bucket-quota-form" v-ctrl-enter="handleSubmit">
     <a-alert v-if="pending" type="warning" show-icon class="quota-message">
       <template #message>{{ $t('message.bucket.quota.pending') }}</template>
       <template #description>
@@ -172,4 +172,14 @@ export default {
 .form-layout { width: 100%; min-width: 0; }
 .quota-message { margin-bottom: 16px; overflow-wrap: anywhere; }
 .quota-message .ant-btn { margin-top: 8px; height: 32px; border-radius: 4px; }
+.bucket-quota-form {
+  :deep(.ant-input:not([disabled])),
+  :deep(.ant-select:not(.ant-select-disabled) .ant-select-selector) {
+    color: var(--ui-text-primary) !important;
+    background: var(--ui-bg-input) !important;
+  }
+  :deep(.ant-select:not(.ant-select-disabled) .ant-select-selection-item) {
+    color: var(--ui-text-primary) !important;
+  }
+}
 </style>
