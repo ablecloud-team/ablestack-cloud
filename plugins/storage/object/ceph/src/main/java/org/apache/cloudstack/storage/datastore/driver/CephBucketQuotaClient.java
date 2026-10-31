@@ -87,6 +87,8 @@ public class CephBucketQuotaClient {
             byte[] payload = content == null ? new byte[0] : content;
             request.setContent(new ByteArrayInputStream(payload));
             request.addHeader("Content-Type", "application/json");
+            request.addHeader("x-amz-content-sha256", com.amazonaws.util.BinaryUtils.toHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(payload)));
             AWS4Signer signer = new AWS4Signer(false); signer.setServiceName("s3"); signer.setRegionName("us-east-1");
             signer.sign(request, credentials);
             String query = request.getParameters().entrySet().stream().flatMap(e -> e.getValue().stream().map(v -> encode(e.getKey()) + "=" + encode(v))).collect(Collectors.joining("&"));

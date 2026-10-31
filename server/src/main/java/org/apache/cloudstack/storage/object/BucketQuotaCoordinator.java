@@ -371,6 +371,9 @@ public class BucketQuotaCoordinator {
             if (!current.exists() || old.getEffectiveLimitBytes() >= 0 && old.getEffectiveLimitBytes() < current.getUsedBytes()) {
                 throw new CloudRuntimeException("Previous quota cannot be safely restored");
             }
+            if (!current.sameQuota(old) && !current.sameQuota(old.withLimitGiB(op.getRequestedQuota()))) {
+                throw new CloudRuntimeException("Provider quota changed outside this operation; preserve it for reconciliation");
+            }
             if (!current.sameQuota(old)) { provider.writeBucketQuota(bucket, old); }
             if (!provider.readBucketQuota(bucket).sameQuota(old)) { throw new CloudRuntimeException("Quota compensation was not verified"); }
         }

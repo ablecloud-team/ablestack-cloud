@@ -66,9 +66,11 @@
             :text="dataResource[item] === 'Verified' ? 'ready' : 'error'"
             :display-label="$t(dataResource[item] === 'Verified' ? 'label.objectstore.credential.verified' : 'label.objectstore.credential.unverified')"
             display-text />
-          <status v-else-if="$route.meta.name === 'buckets' && item === 'quotaoperationstate' && dataResource[item]"
+          <status
+v-else-if="$route.meta.name === 'buckets' && item === 'quotaoperationstate' && dataResource[item]"
             :text="dataResource[item] === 'Succeeded' ? 'Running' : dataResource[item] === 'Failed' ? 'Error' : 'Pending'"
-            :display-label="$t('state.bucket.quota.' + dataResource[item].toLowerCase())" display-text />
+            :display-label="$t('state.bucket.quota.' + dataResource[item].toLowerCase())"
+display-text />
           <span v-else-if="$route.meta.name === 'buckets' && item === 'quotaoperationupdated'">{{ dataResource[item] ? $toLocaleDate(dataResource[item]) : $t('label.unknown') }}</span>
           <span v-else-if="$route.meta.name === 'buckets' && item === 'credentialchecked'">{{ dataResource[item] ? $toLocaleDate(dataResource[item]) : $t('label.unknown') }}</span>
           <status v-else-if="$route.meta.name === 'buckets' && item === 'state'" :text="String(dataResource[item] || '')" display-text />
