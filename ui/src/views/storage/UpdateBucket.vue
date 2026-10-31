@@ -115,6 +115,7 @@ export default {
       this.form = reactive({})
       this.rules = reactive({
         quota: [{
+          required: true,
           validator: (_, value) => this.legacy && !this.quotaTouched && String(value) === String(this.resource.quota)
             ? Promise.resolve()
             : validBucketQuota(value) ? Promise.resolve() : Promise.reject(new Error(this.$t('message.bucket.quota.validation')))

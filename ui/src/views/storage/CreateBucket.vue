@@ -130,7 +130,7 @@ export default {
       this.rules = reactive({
         name: [{ required: true, message: this.$t('label.required') }],
         objectstore: [{ required: true, message: this.$t('label.required') }],
-        quota: [{ validator: (_, value) => validBucketQuota(value) ? Promise.resolve() : Promise.reject(new Error(this.$t('message.bucket.quota.validation'))) }]
+        quota: [{ required: true, validator: (_, value) => validBucketQuota(value) ? Promise.resolve() : Promise.reject(new Error(this.$t('message.bucket.quota.validation'))) }]
       })
     },
     fetchData () {
