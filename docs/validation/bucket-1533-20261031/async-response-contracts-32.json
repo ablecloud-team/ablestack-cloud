@@ -1,0 +1,69 @@
+{
+  "newAndHistoricalCompletedBucketJobs": [
+    {
+      "jobid": "8d47c2ac-6c06-4fe1-a199-9e36266f3a7d",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "d3d6a67e-ef5a-46ab-8285-21151bb0e9cc",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "c2748d06-60ec-4f1c-83f8-c994aa50acc4",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "5c9e946c-f602-4901-a125-780370b9f641",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "fc5150f4-657f-462f-a922-dda2b8a7ee03",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "b18d3b12-66e3-4b2e-bb8e-a0784dc940de",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "c6f063d5-53df-4bc4-bd2b-6bbc3f200faa",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "4e9060e6-543c-4e0e-9d70-fdca6aa006b5",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "fce6d9b3-94f7-4300-bb4c-186301c35950",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "82437250-cb5e-418f-a6ff-e75592cbe8f5",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "ba9b7c6b-5532-4ea6-8d9a-ea5623e7bab4",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "5e764cb9-8069-4c94-b74f-0587b87dcba4",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "f8d370c0-bdcb-4fa2-9e60-bc727e34f773",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "88078b6f-0aab-4194-ae4d-f32f9eafaf99",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "8b648e10-514d-4011-9abd-0e7536d021bd",
+      "generalResultHasNoKeyFields": true
+    },
+    {
+      "jobid": "bba54f32-017c-49d0-9d6c-d65d18f4efdc",
+      "generalResultHasNoKeyFields": true
+    }
+  ],
+  "noKeyFields": true
+}

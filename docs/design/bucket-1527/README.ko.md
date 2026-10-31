@@ -1,6 +1,6 @@
 # Epic #1527 하위 이슈 해결 설계 및 등록 결과
 
-[상위 Epic #1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)에 13개 하위 이슈를 실제 연결했다. 등록 당시 P1 6개/P2 7개였다. 이번 Epic 작업 브랜치는 #1528·#1540·#1529·#1531을 구현·검증했으며 나머지 9개는 OPEN으로 유지한다. #1531의 구현·동시성·장애 복구 결과는 [할당량 검증 보고서](../../validation/bucket-1531-20261031/REPORT.ko.md)를 따른다. #1529의 자격 증명 개선 결과는 [자격 증명 개선 보고서](../../validation/bucket-1529-20261031/REPORT.ko.md)를 따른다. #1540의 결과는 [UI 표준 개선 보고서](../../validation/bucket-1540-20261031/REPORT.ko.md)를 따른다. #1528의 배포·검증 결과는 [검증 보고서](../../validation/bucket-1528-20261031/REPORT.ko.md)를 따른다.
+[상위 Epic #1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527)에 13개 하위 이슈를 실제 연결했다. 등록 당시 P1 6개/P2 7개였다. 이번 Epic 작업 브랜치는 #1528·#1540·#1529·#1531·#1533을 구현·검증했으며 나머지 8개는 OPEN으로 유지한다. #1533의 키 보호·명시적 조회·교체/복구 결과는 [키 관리 검증 보고서](../../validation/bucket-1533-20261031/REPORT.ko.md)를 따른다. #1531의 구현·동시성·장애 복구 결과는 [할당량 검증 보고서](../../validation/bucket-1531-20261031/REPORT.ko.md)를 따른다. #1529의 자격 증명 개선 결과는 [자격 증명 개선 보고서](../../validation/bucket-1529-20261031/REPORT.ko.md)를 따른다. #1540의 결과는 [UI 표준 개선 보고서](../../validation/bucket-1540-20261031/REPORT.ko.md)를 따른다. #1528의 배포·검증 결과는 [검증 보고서](../../validation/bucket-1528-20261031/REPORT.ko.md)를 따른다.
 
 각 본문에는 문제·재현, 소스 원인, 해결 순서, API/데이터/UI 계약, 실패·복구·호환성, 대상 소스와 검증 기준을 수록했다. 미구현 후속의 새 API·테이블·필드는 구현 제안이며 #1529·#1531의 현재 계약은 구현 결과를 따른다.
 

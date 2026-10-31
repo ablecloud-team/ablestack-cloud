@@ -1,0 +1,14 @@
+{
+  "bucket": "qa-bkt-1540-32-files",
+  "loadingIndicators": 0,
+  "app": [
+    "js/app.da7b8cc5.js"
+  ],
+  "image": {
+    "height": 720,
+    "width": 1270,
+    "format": "jpeg"
+  },
+  "visibleRootEntries": 8,
+  "rawDomRowCount": 11
+}

@@ -1,0 +1,66 @@
+{
+  "bucket": "qa-bkt-1540-32-files",
+  "id": "3e952d59-a311-4a2b-86fe-d66ed38f050c",
+  "objectCount": 11,
+  "allOriginalObjectNamesSizesAndSHA256Unchanged": true,
+  "originalAccountDetailsUnchanged": true,
+  "credentialState": "Verified",
+  "browserUrl": "http://10.10.32.10:8080/client/#/buckets/3e952d59-a311-4a2b-86fe-d66ed38f050c?tab=browser",
+  "objects": [
+    {
+      "name": "folder/",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "folder/deep/",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "folder/deep/deep.txt",
+      "size": 33,
+      "sha256": "feee19517f5c5eda061b8e84d6fd07d72f6616d50a2c2221d5d2056edd241a23"
+    },
+    {
+      "name": "folder/nested.txt",
+      "size": 33,
+      "sha256": "feee19517f5c5eda061b8e84d6fd07d72f6616d50a2c2221d5d2056edd241a23"
+    },
+    {
+      "name": "long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt",
+      "size": 23,
+      "sha256": "994c5f186b8b0d73397900972fa31e6d9b0d7f6c9882d97655983e81a632fc90"
+    },
+    {
+      "name": "root-file.txt",
+      "size": 33,
+      "sha256": "feee19517f5c5eda061b8e84d6fd07d72f6616d50a2c2221d5d2056edd241a23"
+    },
+    {
+      "name": "ui-folder-1540/",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ui-folder-final-1540/",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ui-upload-1540-final.txt",
+      "size": 52,
+      "sha256": "f8dd5d54b74fb3b5d9f672d35c664f6d0476f5719a3cce48c130b696294ffa63"
+    },
+    {
+      "name": "ui-upload-1540.txt",
+      "size": 34,
+      "sha256": "b18e96ab4db49a779e055c6a984cfa27b9ba791e252417c97eb97b874328bbfb"
+    },
+    {
+      "name": "긴이름-오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트.txt",
+      "size": 23,
+      "sha256": "994c5f186b8b0d73397900972fa31e6d9b0d7f6c9882d97655983e81a632fc90"
+    }
+  ]
+}

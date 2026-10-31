@@ -1,0 +1,43 @@
+{
+  "source": "f62c70d2be7429d430055d07a50b9285167925b1",
+  "before": {
+    "jarSHA256": "48ada087b7cf6d8cee7011907e54f21ff6e47b01c4a1933d5f06c22ed31880d1",
+    "indexSHA256": "fd6431425c8e03771952edc8752f6b564c5f8f63333585625b4609f0ec8c21a2",
+    "pid": "4191893",
+    "webinf": true
+  },
+  "after": {
+    "jarSHA256": "24f1f0d298a16327345b385da514e2a99f80ca7b9d754fb3d69c8ccbabfb7537",
+    "indexSHA256": "fd6431425c8e03771952edc8752f6b564c5f8f63333585625b4609f0ec8c21a2",
+    "pid": "533",
+    "webinf": true
+  },
+  "protectedCount": 18,
+  "protectedUnchanged": true,
+  "health": {
+    "http": 200,
+    "apiLogin": true,
+    "rotationColumns": 9,
+    "ordinaryResponsesContainNoKeys": true,
+    "bucketStates": [
+      {
+        "id": "1cbb8af4-57ca-430a-8683-8256ea985ad5",
+        "name": "qa-bkt-1533-31-other",
+        "credentialstate": "Verified"
+      },
+      {
+        "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+        "name": "qa-bkt-1533-31-recovery-one",
+        "credentialstate": "Verified"
+      },
+      {
+        "id": "247780b9-4a4d-4dcf-b919-e87bdfc68efa",
+        "name": "qa-bkt-1533-31-recovery-two",
+        "credentialstate": "Verified"
+      }
+    ]
+  },
+  "backup": "/var/tmp/bucket-1533-20261031/backup/cloudstack-4.23.0.0-ABLESTACK.Mold.jar",
+  "rollbackNeeded": false,
+  "sameVersionMigrationAppliedBeforeJar": true
+}

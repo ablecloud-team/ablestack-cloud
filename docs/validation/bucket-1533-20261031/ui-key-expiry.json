@@ -1,0 +1,15 @@
+{
+  "elapsedMs": 33630,
+  "clusters": [
+    {
+      "cluster": 31,
+      "revealButtonVisible": true,
+      "hideButtonCount": 0
+    },
+    {
+      "cluster": 32,
+      "revealButtonVisible": true,
+      "hideButtonCount": 0
+    }
+  ]
+}

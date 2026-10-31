@@ -31,3 +31,9 @@ schema-42210to42300, Europa 보완 경로와 같은 버전용 migrate-bucket-cre
 키 관리/관리자 교체는 공통 MoldDialog·Status·32px 버튼·테마 토큰과 반응형 폭을 사용한다. 영향 범위 확인과 유예 동의를 거쳐야 회전 버튼이 활성화된다. 실제 31/32 UI/API/DB/Glue 및 다크모드 결과는 검증 보고서에 기록한다.
 
 근거: [Ceph Admin Ops Create/Remove Key](https://docs.ceph.com/en/latest/radosgw/adminops/#create-key), 로컬 THREAT_MODEL.md의 관리자·tenant 신뢰 경계. 새 권한을 부여하는 키 발급 기능이 아니라 기존 범위의 명시적 조회/교체다.
+
+## 공유 링크와 최종 검증
+
+명시적으로 생성한 presigned URL은 상세 drawer의 읽기 전용 입력에만 표시하고 복사 Promise 완료를 기다린다. 복사 실패는 수동 복사 안내를 표시한다. 닫기/다른 객체/계정·프로젝트·키 revision/세션 폐기 시 링크를 지우고 늦은 생성·복사 콜백을 무시한다. provider 오류 원문 대신 안전한 다국어 안내를 사용한다. 링크는 기본 목록 응답이나 브라우저 저장소에 추가하지 않는다.
+
+[31/32 실제 검증과 정리 결과](../../validation/bucket-1533-20261031/REPORT.ko.md).

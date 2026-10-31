@@ -1,0 +1,6 @@
+{
+  "invalidCandidateRejectedViaUI": true,
+  "validCandidateStoredViaUI": true,
+  "tenantS3SyncAfterAdminReplacement": true,
+  "apiPartialEmptyInvalidAndDatabaseRollbackVerified": true
+}

@@ -1,0 +1,11 @@
+{
+  "bucket": "960dd357-780a-4f66-afd1-4688d161cd36",
+  "rotationId": "4168c09e-035e-44eb-867d-ee0972418e2b",
+  "phase": "Prepared",
+  "revision": 1,
+  "recoveryRequired": true,
+  "oldConnectionPreserved": true,
+  "keyCount": 2,
+  "affectedBucketCount": 2,
+  "expectedObjectSHA256": "1d809d03e14be8785b168ab66cae672131f9067791c62be6f7c29f964efe9a0e"
+}

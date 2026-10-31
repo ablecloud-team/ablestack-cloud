@@ -1,6 +1,6 @@
 # [Europa][BKT-05][P1] 버킷·Object Store 자격 증명 노출 제거와 명시적 키 관리
 
-상위 Epic: #1527. 상태: 해결 설계, 미구현. 소스 기준: `1c5b169cd6283da23cc3e155d4b6d14e39e42793`.
+상위 Epic: #1527. 상태: 구현·31/32 UI/API/DB/Glue 검증 완료, PR #1541 미병합. 최초 감사 소스 기준: `1c5b169cd6283da23cc3e155d4b6d14e39e42793`.
 
 ## 문제와 원인
 
@@ -23,11 +23,11 @@ AddObjectStorage.vue, BucketResponse/ViewResponseHelper/ApiResponseHelper, 버�
 
 ## 완료 기준
 
-- [ ] 일반 목록/상세/async 결과/동기화 응답과 URL·로그에 실제 시험용 비밀 값이 없음.
-- [ ] 키 미리보기 기본 마스킹, 명시적 권한 검사와 no-store, 컨텍스트 변경 시 메모리 폐기.
-- [ ] 전환 후 파일 목록·폴더·업로드·삭제·metadata·공유 URL이 회귀하지 않음.
-- [ ] 관리자 키 교체 실패 시 기존 연결 유지; tenant 회전 후 같은 계정/store의 모든 대상 버킷 검증.
-- [ ] 비소유자 거부와 키 폐기/유예 만료를 실제 Glue에서 확인하고 시험 키 정리.
+- [x] 일반 목록/상세/async 결과/동기화 응답과 URL·로그에 실제 시험용 비밀 값이 없음.
+- [x] 키 미리보기 기본 마스킹, 명시적 권한 검사와 no-store, 컨텍스트 변경 시 메모리 폐기.
+- [x] 전환 후 파일 목록·폴더·업로드·삭제·metadata·공유 URL이 회귀하지 않음.
+- [x] 관리자 키 교체 실패 시 기존 연결 유지; tenant 회전 후 같은 계정/store의 모든 대상 버킷 검증.
+- [x] 비소유자 거부와 키 폐기/유예 만료를 실제 Glue에서 확인하고 시험 키 정리.
 
 근거: Epic BKT-05, key-log-check JSON, AddObjectStorage.vue의 GET 경로 및 BucketResponse 키 필드. Cloud 구현은 dhslove 작업본/변경 모듈 빌드 규칙을 따른다.
 
@@ -45,3 +45,7 @@ AddObjectStorage.vue, BucketResponse/ViewResponseHelper/ApiResponseHelper, 버�
 - 선행 반영: [BKT-04 #1529](https://github.com/ablecloud-team/ablestack-cloud/issues/1529)
 - 인터페이스 조율·통합 검증: [BKT-03 #1532](https://github.com/ablecloud-team/ablestack-cloud/issues/1532), [BKT-10 #1538](https://github.com/ablecloud-team/ablestack-cloud/issues/1538), [BKT-11 #1539](https://github.com/ablecloud-team/ablestack-cloud/issues/1539).
 - 상위 Epic: [#1527](https://github.com/ablecloud-team/ablestack-cloud/issues/1527). 구현 완료 표시는 해당 이슈의 완료 기준과 실제 검증 후 별도로 갱신한다.
+
+## 구현과 검증 완료
+
+[최종 설계](1533-credential-management.ko.md)와 [31/32 검증 보고서](../../validation/bucket-1533-20261031/REPORT.ko.md)를 따른다. 일반 응답 키 노출 복구 opt-in은 제공하지 않으며 구 클라이언트는 명시적 POST 조회로 전환한다. metadata 업로드·S3 응답 보존은 검증했으며 기존 상세 표시 제약 #1538은 OPEN이다. 공유 URL은 사용자 요청으로 만든 제한된 S3 서명 링크이며 비밀 키를 포함하지 않는다. Epic은 5/13 완료, 다음 권장 작업은 #1532다.

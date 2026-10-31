@@ -1,0 +1,250 @@
+{
+  "matrixScreens": 20,
+  "normalTextContrastThreshold": 4.5,
+  "horizontalOverflowFailures": 0,
+  "unassociatedInputs": 0,
+  "matrices": [
+    {
+      "file": "ui-key-31-dark-1280.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 1280,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-admin-32-dark-360.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 360,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-key-32-light-360.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 360,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-admin-32-light-360.json",
+      "minimumContrast": 7.557378129674007,
+      "width": 360,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-admin-31-light-360.json",
+      "minimumContrast": 7.557378129674007,
+      "width": 360,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-admin-32-light-1280.json",
+      "minimumContrast": 7.557378129674007,
+      "width": 1280,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-key-32-light-768.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 768,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 758,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-admin-31-light-1280.json",
+      "minimumContrast": 7.557378129674007,
+      "width": 1280,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-31-dark-768.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 768,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 758,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-31-light-360.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 360,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-32-dark-1280.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 1280,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-key-32-light-1280.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 1280,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-key-31-light-768.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 768,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 758,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-32-dark-768.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 768,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 758,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-admin-31-dark-360.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 360,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-admin-32-dark-1280.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 1280,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    },
+    {
+      "file": "ui-key-31-dark-360.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 360,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-31-light-1280.json",
+      "minimumContrast": 6.977601437110393,
+      "width": 1280,
+      "theme": "light",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-admin-31-dark-1280.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 1280,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 1270,
+        "format": "jpeg"
+      },
+      "cluster": 31
+    },
+    {
+      "file": "ui-key-32-dark-360.json",
+      "minimumContrast": 7.128935659391724,
+      "width": 360,
+      "theme": "dark",
+      "image": {
+        "height": 844,
+        "width": 350,
+        "format": "jpeg"
+      },
+      "cluster": 32
+    }
+  ],
+  "publicArtifactsContainNoKnownQaKeyValues": true,
+  "knownQaKeyValues": 22
+}
