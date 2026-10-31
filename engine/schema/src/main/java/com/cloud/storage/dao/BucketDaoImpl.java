@@ -108,10 +108,17 @@ public class BucketDaoImpl extends GenericDaoBase<BucketVO, Long> implements Buc
 
     @Override
     public Long calculateObjectStorageAllocationForAccount(long accountId) {
-        SearchCriteria<SumCount> sc = CalculateBucketsQuotaByAccount.create();
-        sc.setParameters(ACCOUNT_ID, accountId);
-        sc.setParameters(STATE, BucketVO.State.Destroyed);
-        Long totalQuota = customSearch(sc, null).get(0).sum;
-        return (totalQuota * Resource.ResourceType.bytesToGiB);
+        String sql = "SELECT COALESCE(SUM(CASE WHEN quota>0 THEN quota ELSE 0 END),0)*1073741824 "
+                + "FROM bucket WHERE account_id=? AND removed IS NULL AND state<>'Destroyed'";
+        try (java.sql.PreparedStatement p = com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(sql)) {
+            p.setLong(1, accountId);
+            long committed;
+            try (java.sql.ResultSet rs = p.executeQuery()) { rs.next(); committed = rs.getBigDecimal(1).longValueExact(); }
+            String holds = "SELECT COALESCE(SUM(account_hold_bytes),0) FROM bucket_quota_operation WHERE account_id=? AND state NOT IN ('Succeeded','Failed')";
+            try (java.sql.PreparedStatement h = com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(holds)) {
+                h.setLong(1, accountId);
+                try (java.sql.ResultSet rs = h.executeQuery()) { rs.next(); return Math.addExact(committed, rs.getBigDecimal(1).longValueExact()); }
+            }
+        } catch (java.sql.SQLException | ArithmeticException e) { throw new com.cloud.utils.exception.CloudRuntimeException("Unable to calculate bucket allocation", e); }
     }
 }

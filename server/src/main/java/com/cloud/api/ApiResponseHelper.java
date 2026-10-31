@@ -546,6 +546,8 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
     @Inject
     ObjectStoreDao _objectStoreDao;
     @Inject
+    private org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationDao _bucketQuotaOperationDao;
+    @Inject
     VpcOfferingDao vpcOfferingDao;
     @Inject
     BgpPeerDao bgpPeerDao;
@@ -5664,6 +5666,14 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         bucketResponse.setSecretKey(credential.getSecretKey());
         bucketResponse.setCredentialState(credential.getState());
         bucketResponse.setCredentialChecked(credential.getChecked());
+        if (_bucketQuotaOperationDao != null) {
+            org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationVO operation = _bucketQuotaOperationDao.findLatestByBucket(bucket.getId());
+            if (operation != null) {
+                bucketResponse.setQuotaOperationId(operation.getUuid());
+                bucketResponse.setQuotaOperationState(operation.getState());
+                bucketResponse.setQuotaOperationUpdated(operation.getUpdated());
+            }
+        }
         bucketResponse.setObjectStoragePoolId(objectStoreVO.getUuid());
         bucketResponse.setObjectStoragePool(objectStoreVO.getName());
         bucketResponse.setObjectName("bucket");

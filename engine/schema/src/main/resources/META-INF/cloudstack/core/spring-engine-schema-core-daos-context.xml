@@ -348,4 +348,5 @@
   <bean id="dnsNicJoinDao" class="org.apache.cloudstack.dns.dao.NicDnsJoinDaoImpl" />
   <bean id="dnsServerDetailsDao" class="org.apache.cloudstack.dns.dao.DnsServerDetailsDaoImpl" />
 
+  <bean id="bucketQuotaOperationDaoImpl" class="org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationDaoImpl" />
 </beans>

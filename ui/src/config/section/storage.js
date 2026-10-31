@@ -768,7 +768,7 @@ export default {
       icon: 'funnel-plot-outlined',
       permission: ['listBuckets'],
       columns: ['name', 'state', 'objectstore', { field: 'size', customTitle: 'used.capacity' }, { field: 'quota', customTitle: 'total.allocated.capacity' }, 'account'],
-      details: ['id', 'name', 'state', 'objectstore', 'credentialstate', 'credentialchecked', { field: 'size', customTitle: 'used.capacity' }, 'url', 'accesskey', 'usersecretkey', 'account', 'domain', 'created', { field: 'quota', customTitle: 'total.allocated.capacity' }, 'encryption', 'versioning', 'objectlocking', 'policy'],
+      details: ['id', 'name', 'state', 'objectstore', 'credentialstate', 'credentialchecked', 'quotaoperationstate', 'quotaoperationid', 'quotaoperationupdated', { field: 'size', customTitle: 'used.capacity' }, 'url', 'accesskey', 'usersecretkey', 'account', 'domain', 'created', { field: 'quota', customTitle: 'total.allocated.capacity' }, 'encryption', 'versioning', 'objectlocking', 'policy'],
       tabs: [
         {
           name: 'details',

@@ -285,6 +285,9 @@ import com.google.common.collect.Sets;
 
 @Component
 public class StorageManagerImpl extends ManagerBase implements StorageManager, ClusterManagerListener, Configurable {
+    @Inject
+    private org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationDao bucketQuotaOperations;
+
 
     protected String _name;
     @Inject
@@ -4770,7 +4773,14 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_OBJECT_STORE_DELETE, eventDescription = "deleting object storage")
     public boolean deleteObjectStore(DeleteObjectStoragePoolCmd cmd) {
+        return org.apache.cloudstack.storage.object.BucketQuotaCoordinator.withStoreLock(cmd.getId(), () -> deleteObjectStoreLocked(cmd));
+    }
+
+    private boolean deleteObjectStoreLocked(DeleteObjectStoragePoolCmd cmd) {
         final long storeId = cmd.getId();
+        if (bucketQuotaOperations.hasActiveForStore(storeId)) {
+            throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before deleting object store");
+        }
         // Verify that object store exists
         ObjectStoreVO store = _objectStoreDao.findById(storeId);
         if (store == null) {
@@ -4799,13 +4809,28 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_OBJECT_STORE_UPDATE, eventDescription = "update object storage")
     public ObjectStore updateObjectStore(Long id, UpdateObjectStoragePoolCmd cmd) {
+        return org.apache.cloudstack.storage.object.BucketQuotaCoordinator.withStoreLock(id, () -> updateObjectStoreLocked(id, cmd));
+    }
 
+    private ObjectStore updateObjectStoreLocked(Long id, UpdateObjectStoragePoolCmd cmd) {
         // Input validation
         ObjectStoreVO objectStoreVO = _objectStoreDao.findById(id);
         if (objectStoreVO == null) {
             throw new IllegalArgumentException("Unable to find object store with ID: " + id);
         }
 
+        long reserved = bucketQuotaOperations.reservedBytesForStore(id);
+        if (cmd.getUrl() != null && !cmd.getUrl().equals(objectStoreVO.getUrl()) && bucketQuotaOperations.hasActiveForStore(id)) {
+            throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before changing object store endpoint");
+        }
+        if (cmd.getSize() != null) {
+            if (cmd.getSize() < 0) { throw new InvalidParameterValueException("Object store size must be nonnegative GiB"); }
+            long total = Math.multiplyExact(cmd.getSize().longValue(), ResourceType.bytesToGiB);
+            long occupied = Math.addExact(java.util.Objects.requireNonNullElse(objectStoreVO.getAllocatedSize(), 0L), reserved);
+            if (total > 0 && total < occupied) {
+                throw new InvalidParameterValueException("Object store size is below committed allocation and pending reservations");
+            }
+        }
         if(cmd.getUrl() != null ) {
             String url = cmd.getUrl();
             try {
@@ -4816,28 +4841,26 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             }
             ObjectStoreEntity objectStore = (ObjectStoreEntity)_dataStoreMgr.getDataStore(objectStoreVO.getId(), DataStoreRole.Object);
             String oldUrl = objectStoreVO.getUrl();
-            objectStoreVO.setUrl(url);
-            _objectStoreDao.update(id, objectStoreVO);
+            ObjectStoreVO endpoint = _objectStoreDao.createForUpdate(id);
+            endpoint.setUrl(url);
+            _objectStoreDao.update(id, endpoint);
             //Update URL and check access
             try {
                 objectStore.listBuckets();
             } catch (Exception e) {
                 //Revert to old URL on failure
-                objectStoreVO.setUrl(oldUrl);
-                _objectStoreDao.update(id, objectStoreVO);
+                ObjectStoreVO endpointRollback = _objectStoreDao.createForUpdate(id);
+                endpointRollback.setUrl(oldUrl);
+                _objectStoreDao.update(id, endpointRollback);
                 throw new IllegalArgumentException("Unable to access Object Storage with URL: " + cmd.getUrl());
             }
         }
 
-        if(cmd.getName() != null ) {
-            objectStoreVO.setName(cmd.getName());
-        }
-        if (cmd.getSize() != null) {
-            objectStoreVO.setTotalSize(cmd.getSize() * ResourceType.bytesToGiB);
-        }
-        _objectStoreDao.update(id, objectStoreVO);
-        logger.debug("Successfully updated object store: {}", objectStoreVO);
-        return objectStoreVO;
+        ObjectStoreVO update = _objectStoreDao.createForUpdate(id);
+        if(cmd.getName() != null ) { update.setName(cmd.getName()); }
+        if (cmd.getSize() != null) { update.setTotalSize(Math.multiplyExact(cmd.getSize().longValue(), ResourceType.bytesToGiB)); }
+        if (cmd.getName() != null || cmd.getSize() != null) { _objectStoreDao.update(id, update); }
+        return _objectStoreDao.findById(id);
     }
 
     @Override

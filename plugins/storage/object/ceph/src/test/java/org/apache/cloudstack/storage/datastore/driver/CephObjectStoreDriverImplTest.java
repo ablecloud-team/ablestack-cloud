@@ -102,7 +102,7 @@ public class CephObjectStoreDriverImplTest {
         row.setAccessKey("test-access"); row.setSecretKey("test-secret");
         doReturn(resolver).when(cephObjectStoreDriverImpl).credentialResolver();
         when(resolver.resolve(anyLong(), anyLong(), org.mockito.Mockito.anyBoolean())).thenReturn(row);
-        when(bucketDao.findById(anyLong())).thenReturn(new BucketVO(bucket.getName()));
+        when(bucketDao.createForUpdate(anyLong())).thenReturn(new BucketVO(bucket.getName()));
         BucketCrossOriginConfiguration corsConfiguration = new BucketCrossOriginConfiguration();
         corsConfiguration.setRules(Collections.singletonList(new CORSRule().withId("CORSRule")));
         when(rgwClient.getBucketCrossOriginConfiguration(anyString())).thenReturn(corsConfiguration);

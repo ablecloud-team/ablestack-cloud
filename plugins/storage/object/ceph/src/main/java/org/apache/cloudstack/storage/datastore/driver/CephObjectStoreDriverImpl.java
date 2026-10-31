@@ -68,7 +68,7 @@ import org.twonote.rgwadmin4j.model.BucketInfo;
 import org.twonote.rgwadmin4j.RgwAdmin;
 import org.twonote.rgwadmin4j.RgwAdminBuilder;
 
-public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl {
+public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl implements org.apache.cloudstack.storage.object.ObjectStoreQuotaProvider {
 
     @Inject
     AccountDao _accountDao;
@@ -121,7 +121,7 @@ public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl {
             String accessKey = credential.getAccessKey();
             String secretKey = credential.getSecretKey();
             ObjectStoreVO store = _storeDao.findById(storeId);
-            BucketVO bucketVO = _bucketDao.findById(bucket.getId());
+            BucketVO bucketVO = _bucketDao.createForUpdate(bucket.getId());
             bucketVO.setAccessKey(accessKey);
             bucketVO.setSecretKey(secretKey);
             bucketVO.setBucketURL(store.getUrl() + "/" + bucketName);
@@ -261,6 +261,27 @@ public class CephObjectStoreDriverImpl extends BaseObjectStoreDriverImpl {
     public void deleteBucketPolicy(BucketTO bucket, long storeId) {
         AmazonS3 client = getS3Client(storeId, bucket.getAccountId());
         client.deleteBucketPolicy(new DeleteBucketPolicyRequest(bucket.getName()));
+    }
+
+    private CephBucketQuotaClient quotaClient(long storeId) {
+        Map<String, String> details = _storeDetailsDao.getDetails(storeId);
+        return new CephBucketQuotaClient(_storeDao.findById(storeId).getUrl(), details.get(ACCESS_KEY), details.get(SECRET_KEY));
+    }
+
+    @Override
+    public org.apache.cloudstack.storage.object.BucketQuotaState readBucketQuota(Bucket bucket) {
+        return quotaClient(bucket.getObjectStoreId()).read(bucket.getName(), _accountDao.findById(bucket.getAccountId()).getUuid());
+    }
+
+    @Override
+    public void writeBucketQuota(Bucket bucket, org.apache.cloudstack.storage.object.BucketQuotaState quota) {
+        quotaClient(bucket.getObjectStoreId()).write(bucket.getName(), _accountDao.findById(bucket.getAccountId()).getUuid(), quota);
+    }
+
+    @Override
+    public void deleteEmptyBucket(Bucket bucket) {
+        // Standard S3 delete refuses live objects, versions and delete markers. Never use admin purge here.
+        getS3Client(bucket.getObjectStoreId(), bucket.getAccountId()).deleteBucket(bucket.getName());
     }
 
     protected CephObjectStoreCredentialResolver credentialResolver() {

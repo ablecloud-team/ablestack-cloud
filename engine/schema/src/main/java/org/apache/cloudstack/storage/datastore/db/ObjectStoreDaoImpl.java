@@ -41,6 +41,8 @@ public class ObjectStoreDaoImpl extends GenericDaoBase<ObjectStoreVO, Long> impl
     private SearchBuilder<ObjectStoreVO> providerSearch;
     @Inject
     private ConfigurationDao _configDao;
+    @Inject
+    private BucketQuotaOperationDao quotaOperations;
     private final SearchBuilder<ObjectStoreVO> osSearch;
 
     private SearchBuilder<ObjectStoreVO> urlSearch;
@@ -162,6 +164,7 @@ public class ObjectStoreDaoImpl extends GenericDaoBase<ObjectStoreVO, Long> impl
         osResponse.setProviderName(store.getProviderName());
         String url = store.getUrl();
         osResponse.setUrl(url);
+        osResponse.setStorageReserved(quotaOperations == null ? 0L : quotaOperations.reservedBytesForStore(store.getId()));
         osResponse.setObjectName("objectstore");
         return osResponse;
     }
@@ -178,17 +181,18 @@ public class ObjectStoreDaoImpl extends GenericDaoBase<ObjectStoreVO, Long> impl
     }
 
     @Override
-    public Boolean updateAllocatedSize(ObjectStoreVO objectStoreVO, long delta) {
-        return Transaction.execute(new TransactionCallback<Boolean>() {
-            @Override
-            public Boolean doInTransaction(final TransactionStatus status) {
-                if (objectStoreVO.getAllocatedSize() != null) {
-                    objectStoreVO.setAllocatedSize(objectStoreVO.getAllocatedSize() + delta);
-                } else {
-                    objectStoreVO.setAllocatedSize(delta);
-                }
-                return update(objectStoreVO.getId(), objectStoreVO);
-            }
-        });
+    public Boolean updateAllocatedSize(ObjectStoreVO store, long delta) {
+        long before = store.getAllocatedSize() == null ? 0 : store.getAllocatedSize();
+        return compareAndSetAllocatedSize(store.getId(), before, Math.addExact(before, delta));
+    }
+
+    @Override
+    public boolean compareAndSetAllocatedSize(long id, long expected, long requested) {
+        if (expected < 0 || requested < 0) return false;
+        String sql = "UPDATE object_store SET allocated_size=? WHERE id=? AND removed IS NULL AND COALESCE(allocated_size,0)=?";
+        try (java.sql.PreparedStatement p = com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(sql)) {
+            p.setLong(1, requested); p.setLong(2, id); p.setLong(3, expected);
+            return p.executeUpdate() == 1;
+        } catch (java.sql.SQLException e) { throw new com.cloud.utils.exception.CloudRuntimeException("Unable to commit object storage allocation", e); }
     }
 }

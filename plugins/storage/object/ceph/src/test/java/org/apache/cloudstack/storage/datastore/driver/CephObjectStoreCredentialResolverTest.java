@@ -50,6 +50,7 @@ public class CephObjectStoreCredentialResolverTest {
     @Before public void setup() throws Exception {
         AccountVO owner = mock(AccountVO.class); when(owner.getUuid()).thenReturn("owner");
         when(accounts.findById(1L)).thenReturn(owner);
+        when(buckets.createForUpdate(anyLong())).thenAnswer(i -> new BucketVO("projection"));
         when(buckets.listByObjectStoreIdAndAccountId(anyLong(), anyLong())).thenReturn(Collections.emptyList());
         when(dao.findByAccountAndStore(eq(1L), anyLong())).thenAnswer(i -> rows.get(i.getArgument(1)));
         when(dao.persist(any(ObjectStoreAccountCredentialVO.class))).thenAnswer(i -> {
@@ -116,7 +117,12 @@ public class CephObjectStoreCredentialResolverTest {
         bucket.setAccessKey("legacy"); bucket.setSecretKey("legacy-secret");
         when(buckets.listByObjectStoreIdAndAccountId(11, 1)).thenReturn(Collections.singletonList(bucket));
         when(buckets.update(anyLong(), any(BucketVO.class))).thenReturn(true);
-        resolve(11, false); assertEquals("access-A", bucket.getAccessKey()); verify(buckets).update(bucket.getId(), bucket);
+        resolve(11, false);
+        org.mockito.ArgumentCaptor<BucketVO> patch = org.mockito.ArgumentCaptor.forClass(BucketVO.class);
+        verify(buckets).update(eq(bucket.getId()), patch.capture());
+        assertEquals("access-A", patch.getValue().getAccessKey());
+        assertEquals("legacy", bucket.getAccessKey());
+        assertNull(patch.getValue().getQuota());
     }
     @Test public void databaseFailureAfterUserCreationDoesNotDeleteExternalUser() {
         when(admin.getUserInfo("owner")).thenThrow(new RgwAdminException(404)).thenReturn(Optional.of(user));

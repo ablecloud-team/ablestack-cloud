@@ -30,6 +30,22 @@ import java.util.Set;
 @EntityReference(value = Bucket.class)
 @SuppressWarnings("unused")
 public class BucketResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse, ControlledEntityResponse {
+    @SerializedName("quotaoperationid")
+    @Param(description = "last quota operation reference")
+    private String quotaOperationId;
+    public void setQuotaOperationId(String value) { quotaOperationId = value; }
+    public String getQuotaOperationId() { return quotaOperationId; }
+    @SerializedName("quotaoperationstate")
+    @Param(description = "last quota operation state")
+    private String quotaOperationState;
+    public void setQuotaOperationState(String value) { quotaOperationState = value; }
+    public String getQuotaOperationState() { return quotaOperationState; }
+    @SerializedName("quotaoperationupdated")
+    @Param(description = "last quota operation update time")
+    private Date quotaOperationUpdated;
+    public void setQuotaOperationUpdated(Date value) { quotaOperationUpdated = value; }
+    public Date getQuotaOperationUpdated() { return quotaOperationUpdated; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the Bucket")
     private String id;

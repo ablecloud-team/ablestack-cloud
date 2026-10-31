@@ -105,8 +105,9 @@ public class CephObjectStoreCredentialResolver {
                 // Compatibility projection only. Provider verification remains the authority.
                 for (BucketVO bucket : buckets.listByObjectStoreIdAndAccountId(storeId, accountId)) {
                     if (!Objects.equals(bucket.getAccessKey(), verified.getAccessKey()) || !Objects.equals(bucket.getSecretKey(), verified.getSecretKey())) {
-                        bucket.setAccessKey(verified.getAccessKey()); bucket.setSecretKey(verified.getSecretKey());
-                        if (!buckets.update(bucket.getId(), bucket)) throw failure(storeId);
+                        BucketVO projection = buckets.createForUpdate(bucket.getId());
+                        projection.setAccessKey(verified.getAccessKey()); projection.setSecretKey(verified.getSecretKey());
+                        if (!buckets.update(bucket.getId(), projection)) throw failure(storeId);
                     }
                 }
             });

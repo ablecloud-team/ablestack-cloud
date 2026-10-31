@@ -42,9 +42,13 @@
             </a-select-option>
           </a-select>
         </a-form-item>
+        <BucketQuotaContext :store-id="form.objectstore || ''" />
         <a-form-item name="quota" ref="quota" :label="$t('label.quotagib')">
           <a-input
             v-model:value="form.quota"
+inputmode="numeric"
+autocomplete="off"
+:maxlength="10"
             :placeholder="$t('label.quota')"/>
         </a-form-item>
         <a-form-item name="encryption" ref="encryption" :label="$t('label.encryption')">
@@ -92,7 +96,8 @@
 import { ref, reactive, toRaw } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
-import ResourceIcon from '@/components/view/ResourceIcon'
+import BucketQuotaContext from '@/components/view/BucketQuotaContext'
+import { validBucketQuota, quotaErrorField } from '@/utils/bucketQuota'
 
 export default {
   name: 'CreateBucket',
@@ -104,7 +109,7 @@ export default {
     }
   },
   components: {
-    ResourceIcon
+    BucketQuotaContext
   },
   inject: ['parentFetchData'],
   data () {
@@ -125,7 +130,7 @@ export default {
       this.rules = reactive({
         name: [{ required: true, message: this.$t('label.required') }],
         objectstore: [{ required: true, message: this.$t('label.required') }],
-        quota: [{ required: true, message: this.$t('label.required') }]
+        quota: [{ validator: (_, value) => validBucketQuota(value) ? Promise.resolve() : Promise.reject(new Error(this.$t('message.bucket.quota.validation'))) }]
       })
     },
     fetchData () {
@@ -155,7 +160,7 @@ export default {
         var data = {
           name: values.name,
           objectstorageid: values.objectstore,
-          quota: values.quota,
+          quota: Number(values.quota),
           encryption: values.encryption,
           versioning: values.versioning,
           objectlocking: values.objectlocking,
@@ -174,12 +179,14 @@ export default {
           })
           this.closeModal()
         }).catch(error => {
-          this.$notifyError(error)
+          if (quotaErrorField(error)) {
+            this.formRef.value.setFields([{ name: 'quota', errors: [error.response.data.createbucketresponse.errortext] }])
+          } else { this.$notifyError(error) }
         }).finally(() => {
           this.loading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error?.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
       })
     }
   }
