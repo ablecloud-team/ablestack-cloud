@@ -386,6 +386,16 @@ public class ResourceLimitManagerImpl extends ManagerBase implements ResourceLim
         }
     }
 
+    /** Quota sagas must abort their SQL transaction when a ledger decrement fails. */
+    public void decrementBucketResourceCount(long accountId, ResourceType type, long delta) {
+        if (type != ResourceType.bucket && type != ResourceType.object_storage || delta < 0) {
+            throw new IllegalArgumentException("Invalid bucket resource decrement");
+        }
+        if (accountId != Account.ACCOUNT_ID_SYSTEM && !updateResourceCountForAccount(accountId, type, null, false, delta)) {
+            throw new CloudRuntimeException("Unable to commit bucket resource counters");
+        }
+    }
+
     @Override
     public void decrementResourceCount(long accountId, ResourceType type, Long... delta) {
         decrementResourceCountWithTag(accountId, type, null, delta);

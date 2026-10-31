@@ -1,0 +1,104 @@
+## build-modules-final.log
+[INFO] --- site:3.21.0:attach-descriptor (attach-descriptor) @ cloud-server ---
+[INFO] --- install:2.3.1:install (default-install) @ cloud-server ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/server/target/cloud-server-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/server/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.pom
+[INFO] -------------< org.apache.cloudstack:cloud-engine-storage >-------------
+[INFO] --- checkstyle:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-storage ---
+[INFO] --- remote-resources:1.3:process (default) @ cloud-engine-storage ---
+[INFO] --- resources:2.5:resources (default-resources) @ cloud-engine-storage ---
+[INFO] --- compiler:3.8.1:compile (default-compile) @ cloud-engine-storage ---
+[INFO] --- resources:2.5:testResources (default-testResources) @ cloud-engine-storage ---
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ cloud-engine-storage ---
+[INFO] --- surefire:2.22.2:test (default-test) @ cloud-engine-storage ---
+[INFO] --- jar:3.2.0:jar (default-jar) @ cloud-engine-storage ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1527/engine/storage/target/cloud-engine-storage-4.23.0.0.jar
+[INFO] --- site:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-storage ---
+[INFO] --- install:2.3.1:install (default-install) @ cloud-engine-storage ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/storage/target/cloud-engine-storage-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-storage/4.23.0.0/cloud-engine-storage-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/storage/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-storage/4.23.0.0/cloud-engine-storage-4.23.0.0.pom
+[INFO] Apache CloudStack API .............................. SUCCESS [  7.509 s]
+[INFO] Apache CloudStack Cloud Engine API ................. SUCCESS [  1.303 s]
+[INFO] Apache CloudStack Cloud Engine Schema Component .... SUCCESS [  4.272 s]
+[INFO] Apache CloudStack Server ........................... SUCCESS [ 43.157 s]
+[INFO] Apache CloudStack Engine Storage Component ......... SUCCESS [  1.487 s]
+[INFO] Apache CloudStack Plugin - Ceph RGW object storage provider SUCCESS [  7.389 s]
+[INFO] BUILD SUCCESS
+
+## build-schema-hook.log
+[INFO] -------------< org.apache.cloudstack:cloud-engine-schema >--------------
+[INFO] --- checkstyle:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-schema ---
+[INFO] --- gplus:3.0.2:execute (setproperty) @ cloud-engine-schema ---
+[INFO] --- download:1.6.3:wget (download-checksums) @ cloud-engine-schema ---
+[INFO] --- gplus:3.0.2:execute (set-properties) @ cloud-engine-schema ---
+[INFO] --- remote-resources:1.3:process (default) @ cloud-engine-schema ---
+[INFO] --- resources:2.5:resources (default-resources) @ cloud-engine-schema ---
+[INFO] --- compiler:3.8.1:compile (default-compile) @ cloud-engine-schema ---
+[INFO] --- resources:2.5:testResources (default-testResources) @ cloud-engine-schema ---
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ cloud-engine-schema ---
+[INFO] --- surefire:2.22.2:test (default-test) @ cloud-engine-schema ---
+[INFO] --- jar:3.2.0:jar (default-jar) @ cloud-engine-schema ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/target/cloud-engine-schema-4.23.0.0.jar
+[INFO] --- site:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-schema ---
+[INFO] --- exec:3.4.1:exec (systemvm-template-metadata) @ cloud-engine-schema ---
+[INFO] --- install:2.3.1:install (default-install) @ cloud-engine-schema ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/target/cloud-engine-schema-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-schema/4.23.0.0/cloud-engine-schema-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-schema/4.23.0.0/cloud-engine-schema-4.23.0.0.pom
+[INFO] BUILD SUCCESS
+
+## build-date-fix.log
+[INFO] -------------< org.apache.cloudstack:cloud-engine-schema >--------------
+[INFO] --- checkstyle:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-schema ---
+[INFO] --- gplus:3.0.2:execute (setproperty) @ cloud-engine-schema ---
+[INFO] --- download:1.6.3:wget (download-checksums) @ cloud-engine-schema ---
+[INFO] --- gplus:3.0.2:execute (set-properties) @ cloud-engine-schema ---
+[INFO] --- remote-resources:1.3:process (default) @ cloud-engine-schema ---
+[INFO] --- resources:2.5:resources (default-resources) @ cloud-engine-schema ---
+[INFO] --- compiler:3.8.1:compile (default-compile) @ cloud-engine-schema ---
+[INFO] --- resources:2.5:testResources (default-testResources) @ cloud-engine-schema ---
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ cloud-engine-schema ---
+[INFO] --- surefire:2.22.2:test (default-test) @ cloud-engine-schema ---
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.546 s - in org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialVOTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] --- jar:3.2.0:jar (default-jar) @ cloud-engine-schema ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/target/cloud-engine-schema-4.23.0.0.jar
+[INFO] --- site:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-schema ---
+[INFO] --- exec:3.4.1:exec (systemvm-template-metadata) @ cloud-engine-schema ---
+[INFO] --- install:2.3.1:install (default-install) @ cloud-engine-schema ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/target/cloud-engine-schema-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-schema/4.23.0.0/cloud-engine-schema-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1527/engine/schema/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-engine-schema/4.23.0.0/cloud-engine-schema-4.23.0.0.pom
+[INFO] BUILD SUCCESS
+
+## backend-tests.log
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] --- checkstyle:3.6.0:check (cloudstack-checkstyle) @ cloud-server ---
+[INFO] --- remote-resources:1.3:process (default) @ cloud-server ---
+[INFO] --- antrun:1.8:run (generate-resource) @ cloud-server ---
+[INFO] --- resources:2.5:resources (default-resources) @ cloud-server ---
+[INFO] --- compiler:3.8.1:compile (default-compile) @ cloud-server ---
+[INFO] --- resources:2.5:testResources (default-testResources) @ cloud-server ---
+[INFO] --- compiler:3.8.1:testCompile (default-testCompile) @ cloud-server ---
+[INFO] --- surefire:2.22.2:test (default-test) @ cloud-server ---
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.011 s - in com.cloud.api.ApiResponseHelperBucketCredentialsTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.937 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreDriverImplTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.43 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreCredentialResolverTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.storage.datastore.provider.CephObjectStoreProviderImplTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Apache CloudStack Server ........................... SUCCESS [ 28.817 s]
+[INFO] Apache CloudStack Plugin - Ceph RGW object storage provider SUCCESS [  9.060 s]
+[INFO] BUILD SUCCESS
+
+## ui-final-tests.log
+Test Suites: 7 passed, 7 total
+Tests:       80 passed, 80 total
+Time:        20.975s
+
+## ui-lint-final.log
+ DONE  No lint errors found!
+
+## ui-retry-lint.log
+ DONE  No lint errors found!
+
+## ui-locale-lint.log
+ DONE  No lint errors found!

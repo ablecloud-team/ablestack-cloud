@@ -102,5 +102,8 @@ public interface BucketApiService {
 
     Bucket syncBucketUsage(SyncBucketUsageCmd cmd, Account caller);
 
+    org.apache.cloudstack.api.response.BucketCredentialResponse getCredentials(long id, Account caller, boolean reveal);
+    org.apache.cloudstack.api.response.BucketCredentialResponse rotateCredentials(long id, Account caller, long revision,
+            String operationId, String action, int graceSeconds);
     void getBucketUsage();
 }

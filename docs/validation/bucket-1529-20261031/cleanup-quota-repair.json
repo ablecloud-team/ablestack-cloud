@@ -1,0 +1,19 @@
+{
+  "31": {
+    "before": "5d40fb7e-42fa-4e9e-a413-b0b987bdee2e\tqa-bkt-1529-31-a\t0\t1073741824\nqa-bkt-1529-31-a1\t1\t2026-10-31 08:23:08\nqa-bkt-1529-31-a2\t1\tNULL\nqa-bkt-1529-31-b1\t1\tNULL\nbucket\t2\nobject_storage\t2147483648\nbucket\t1\nobject_storage\t-3221225472\n",
+    "followup": "#1531",
+    "onlyOwnedObjectStoreAllocationAdjusted": true,
+    "noIamDetailsRepair": true,
+    "recreatedEmptyOwnedBucketAfterFailedDelete": "qa-bkt-1529-31-a2",
+    "after": "5d40fb7e-42fa-4e9e-a413-b0b987bdee2e\tqa-bkt-1529-31-a\t1073741824\t1073741824\nqa-bkt-1529-31-a1\t1\t2026-10-31 08:23:08\nqa-bkt-1529-31-a2\t1\tNULL\nqa-bkt-1529-31-b1\t1\tNULL\nbucket\t2\nobject_storage\t2147483648\nbucket\t2\nobject_storage\t2147483648\n",
+    "resourceCountRepairUsedApiForBucketAndObjectStorageOnly": true
+  },
+  "32": {
+    "before": "acee64fb-38e1-43f1-aac4-d70fccbdbd4d\tqa-bkt-1529-32-a\t1073741824\t2147483648\nqa-bkt-1529-32-a2\t1\tNULL\nqa-bkt-1529-32-a1\t1\tNULL\nqa-bkt-1529-32-b1\t1\tNULL\nbucket\t3\nobject_storage\t3221225472\nbucket\t4\nobject_storage\t4294967296\n",
+    "followup": "#1531",
+    "onlyOwnedObjectStoreAllocationAdjusted": true,
+    "noIamDetailsRepair": true,
+    "after": "acee64fb-38e1-43f1-aac4-d70fccbdbd4d\tqa-bkt-1529-32-a\t2147483648\t2147483648\nqa-bkt-1529-32-a2\t1\tNULL\nqa-bkt-1529-32-a1\t1\tNULL\nqa-bkt-1529-32-b1\t1\tNULL\nbucket\t3\nobject_storage\t3221225472\nbucket\t4\nobject_storage\t4294967296\n",
+    "resourceCountRepairUsedApiForBucketAndObjectStorageOnly": true
+  }
+}

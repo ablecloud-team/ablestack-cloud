@@ -1,0 +1,38 @@
+[
+  {
+    "cluster": 31,
+    "bucket": "qa-bkt-1528-31-files",
+    "http": 200,
+    "keys": [
+      "root-file.txt"
+    ],
+    "prefixes": [
+      "folder/"
+    ]
+  },
+  {
+    "cluster": 31,
+    "bucket": "qa-bkt-1528-31-empty",
+    "http": 200,
+    "keys": [],
+    "prefixes": []
+  },
+  {
+    "cluster": 32,
+    "bucket": "qa-bkt-1528-32-files",
+    "http": 200,
+    "keys": [
+      "root-file.txt"
+    ],
+    "prefixes": [
+      "folder/"
+    ]
+  },
+  {
+    "cluster": 32,
+    "bucket": "qa-bkt-1528-32-empty",
+    "http": 200,
+    "keys": [],
+    "prefixes": []
+  }
+]

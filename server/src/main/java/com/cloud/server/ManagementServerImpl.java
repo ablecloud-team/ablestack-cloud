@@ -7339,6 +7339,8 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         cmdList.add(DeleteBucketCmd.class);
         cmdList.add(ListBucketsCmd.class);
         cmdList.add(SyncBucketUsageCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.user.bucket.GetBucketCredentialsCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.user.bucket.RotateBucketCredentialsCmd.class);
 
         //ABLESTACK Made APIs
         cmdList.add(DeployVMVolumeCmdByAdmin.class);

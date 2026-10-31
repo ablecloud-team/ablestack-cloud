@@ -1,0 +1,26 @@
+{
+  "base": "1c5b169cd6283da23cc3e155d4b6d14e39e42793",
+  "implementationCommit": "40a013a899650a78cac50b06ef73f76193c462e4",
+  "branch": "dhslove/epic-1527-buckets",
+  "files": {
+    "ui/public/locales/en.json": "dd0f43bdcfa3b5a5c4ab7e8251beef14e924b509c17b423171d896fc862986ec",
+    "ui/public/locales/ko_KR.json": "4c1e017c3fc63403ff37ee7eec3554aa9a238799e91d43376ccfb20455c82eb7",
+    "ui/src/components/view/ObjectStoreBrowser.vue": "484485078e49669eb49ac0b6d8faae8b62dc305f79f013b5fdc7b4e8e2f8b93a",
+    "ui/src/utils/listRefreshMixin.js": "d928fb2b077cd596e34a373426fce504bb883e29d293d25f11f9d68d58d056e1",
+    "ui/src/utils/objectStoreListing.js": "319aa0fe68cf9f54bea2a0c2afae55a31f9ed1b9b496c9ab8d4f869edbc4bd18",
+    "ui/src/views/AutogenView.vue": "12e9589fbb68298735b5d342b815fa3999c79d33a082d9eb13a39bc768b60868",
+    "ui/tests/unit/components/view/ObjectStoreBrowser.spec.js": "deb6715185a5e3f96bfef67d7d6aa20fc9d04944e9c70225143c02f1cd8972c1",
+    "ui/tests/unit/utils/objectStoreListing.spec.js": "7ce7d81ea053836ce0a0116fecdd42080e068ae11c85d230bd2ae53da80037c8",
+    "ui/tests/unit/views/AutogenBucketBrowser.spec.js": "b80f4f6874b72a2002be1e6ceccdfad7783f458d8528a2fd82cdd3149d2a37c5"
+  },
+  "tests": {
+    "suites": 6,
+    "passed": 66,
+    "baselineRegressionFailures": 2
+  },
+  "lint": "PASS",
+  "productionUiBuild": "PASS",
+  "fullCloudBuild": "not run",
+  "node": "20.20.2",
+  "npm": "10.8.2"
+}

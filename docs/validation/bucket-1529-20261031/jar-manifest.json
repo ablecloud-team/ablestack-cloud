@@ -1,0 +1,170 @@
+{
+  "source": "57e8fe086fd3ddd1c96b76605de898f166c91ffd",
+  "baselineSHA256": "69c9b9aaeb84b5a638e8cf7683af3dd8276eacae0d69257d1508ecc0619d2d08",
+  "jarSHA256": "7bee8728fee1ad8b92e8b61bf45f1f226af8c42ffca3e482f03a80621ba1c0d0",
+  "overlayCount": 40,
+  "preservedEntryCount": 204552,
+  "preservedEntryHashesVerified": true,
+  "entries": {
+    "org/apache/cloudstack/api/response/BucketResponse.class": {
+      "sha256": "2c7e030141dfe1c6731eb594c5e7fa4c596d57cc94230e667a47728216209b4b",
+      "source": "api/src/main/java/org/apache/cloudstack/api/response/BucketResponse.java"
+    },
+    "org/apache/cloudstack/storage/object/BucketCredentials.class": {
+      "sha256": "f8c02ca1919968621c4adf0d6f1cd60ea13d2dd4da7b1541226df883c18fa9b8",
+      "source": "api/src/main/java/org/apache/cloudstack/storage/object/BucketCredentials.java"
+    },
+    "org/apache/cloudstack/engine/subsystem/api/storage/ObjectStoreCredentialProvider.class": {
+      "sha256": "781b7d8b6d48aca6f7d66f430eddffca0c0883a43460c445b9393d39e0af7ce1",
+      "source": "engine/api/src/main/java/org/apache/cloudstack/engine/subsystem/api/storage/ObjectStoreCredentialProvider.java"
+    },
+    "com/cloud/upgrade/dao/EuropaSecuritySchemaUpgrade.class": {
+      "sha256": "c2fdb1a7bd4dc5c6e2a404ca5313974453c08e75343e0450b261a10994dc0547",
+      "source": "engine/schema/src/main/java/com/cloud/upgrade/dao/EuropaSecuritySchemaUpgrade.java"
+    },
+    "com/cloud/upgrade/dao/ObjectStoreCredentialSchemaUpgrade.class": {
+      "sha256": "412be78325255b92097e4c3305c8be38e49becce5799d4b69dc9c85715a62d7b",
+      "source": "engine/schema/src/main/java/com/cloud/upgrade/dao/ObjectStoreCredentialSchemaUpgrade.java"
+    },
+    "org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialDao.class": {
+      "sha256": "9c25d377f9b1004cf47c1d466f3adb85377695c388ddbd230318e8a91e081257",
+      "source": "engine/schema/src/main/java/org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialDao.java"
+    },
+    "org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialDaoImpl.class": {
+      "sha256": "d311ee44609be7f780b283024b39e062f584369eb838c319013b54ecf55b3871",
+      "source": "engine/schema/src/main/java/org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialDaoImpl.java"
+    },
+    "org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialVO.class": {
+      "sha256": "11ab2101181b37d1dc0897d7c0967734b952ad86b2d931e93b1bacd27385a483",
+      "source": "engine/schema/src/main/java/org/apache/cloudstack/storage/datastore/db/ObjectStoreAccountCredentialVO.java"
+    },
+    "org/apache/cloudstack/storage/object/ObjectStoreDriver.class": {
+      "sha256": "991688ecee12903d4b52c3ab5b75ceef0801e72a22eacc95f5be1de55d39874e",
+      "source": "engine/storage/src/main/java/org/apache/cloudstack/storage/object/ObjectStoreDriver.java"
+    },
+    "org/apache/cloudstack/storage/datastore/driver/CephObjectStoreCredentialResolver.class": {
+      "sha256": "392ea2b520a930e4e8aa12ef6b5167a94aa9ed974b338614e90737bf32032e1b",
+      "source": "plugins/storage/object/ceph/src/main/java/org/apache/cloudstack/storage/datastore/driver/CephObjectStoreCredentialResolver.java"
+    },
+    "org/apache/cloudstack/storage/datastore/driver/CephObjectStoreCredentialResolver$1.class": {
+      "sha256": "735087bae92285baa85ed22502fddeef6563c025c1c9992ab655cb052458b07b",
+      "source": "plugins/storage/object/ceph/src/main/java/org/apache/cloudstack/storage/datastore/driver/CephObjectStoreCredentialResolver.java"
+    },
+    "org/apache/cloudstack/storage/datastore/driver/CephObjectStoreDriverImpl.class": {
+      "sha256": "bacdfc1efae3d8a2e2fd3825ca383152e3acc72f1fbfeb9871d799d97f137948",
+      "source": "plugins/storage/object/ceph/src/main/java/org/apache/cloudstack/storage/datastore/driver/CephObjectStoreDriverImpl.java"
+    },
+    "com/cloud/api/ApiResponseHelper$1.class": {
+      "sha256": "93f3b508fa95129ffba35fd85488043eb36fd10e7818f42b83aac14c357be09c",
+      "source": "server/src/main/java/com/cloud/api/ApiResponseHelper.java"
+    },
+    "com/cloud/api/ApiResponseHelper.class": {
+      "sha256": "862883a44f8c7aa5c5734831525bd00b21bad2a3deffb223a98c967d144c0202",
+      "source": "server/src/main/java/com/cloud/api/ApiResponseHelper.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$DownloadURLGarbageCollector.class": {
+      "sha256": "1c6b99146a2fa9fcf8499e0ed9568753544de197eb96f5cdb3a1b7cb06f1fb1d",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$5.class": {
+      "sha256": "24669fda69603414e4806bcdd40a5ccac793e3aba1a3c33c6c289066298dd169",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$3.class": {
+      "sha256": "9f760d758a3a88e6f0bcff36599833c9f56a9da27bbd66b547196149865abd0f",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$2.class": {
+      "sha256": "d44704c0c31d787e012a2c56190d922c02a970c10c55a7d76d6653d20532dc59",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$4.class": {
+      "sha256": "7b21967439900cf6d1be499fb5126d5f1b931e0abf5a3cb19547ba6b0b13d974",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$1.class": {
+      "sha256": "6c88d5162a96d736108caea9a92ae786e446cb70d142ee8ce3e8732a688f2cf3",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$StorageGarbageCollector.class": {
+      "sha256": "1528bfd2a21d4f4457261d8f7ba3b53af38895592a1b1ebb80bc9c3aecde2ec3",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$6.class": {
+      "sha256": "c7b352b066fa85f3181bdcf325b1a3ff717dc4babfc14d19da0e2728a58bdb97",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl$7.class": {
+      "sha256": "fc3bc94053f270dfb0732639608464f0f50565229634326b4e51aed9bfdd8b53",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/storage/StorageManagerImpl.class": {
+      "sha256": "8f3bbe30dd9c4ab6519003061cfb553ed8f8ca5b4efcd0d2c7f3288757883d61",
+      "source": "server/src/main/java/com/cloud/storage/StorageManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$6.class": {
+      "sha256": "84c61715e6e3bd1d1f6f99565443f87ddc394a6a31c60d3398e6864d14b1f2a3",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$AccountCleanupTask.class": {
+      "sha256": "66f7c3a2299511e18f529044169eeab88f2436c10210e98c372a95193d998122",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$EnableUserTask$1.class": {
+      "sha256": "c79e964ae71db946366281d99cfb11877994c40ab0eaf2120c047617e478eed7",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$4.class": {
+      "sha256": "15ba1b9683b2a8397b5785ab599627afb03f1b5d17cbe12364f1e58cb9aca6cb",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$2.class": {
+      "sha256": "86631c39b6a5cee34884375504c9c784ec8eab71be78a13bcb27bf0d1ea4fe53",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$7.class": {
+      "sha256": "8996fd38beb3ce4efbb1268e60dcc1ac5765ee8e539ae6a8a9536ac4f5c00fe8",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$EnableUserTask.class": {
+      "sha256": "5dbba3c8396c2ecc0445c01b5d0952a321c6d0f8e59575624f278310cda26a56",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$3.class": {
+      "sha256": "30b3cc3240f3219fd10a443a408b38ed84434ca5943a9c2254eece7e22765e8b",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$5.class": {
+      "sha256": "56ba7019b3c25f2eeada98a6bbf29193c19ed3f5ae60c796b5517b3d66aae6b3",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl$1.class": {
+      "sha256": "517652f71cce9b1aaa46426844ffd964eb4c058a1e2cb0734eb060c85e600044",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "com/cloud/user/AccountManagerImpl.class": {
+      "sha256": "4dbb124c2bb7c6dc4d633aa63c214e64d748a23a1c2c68e9da9b023741be75ed",
+      "source": "server/src/main/java/com/cloud/user/AccountManagerImpl.java"
+    },
+    "org/apache/cloudstack/storage/object/BucketApiServiceImpl.class": {
+      "sha256": "c1d8635a1069d074d182259a75e85181763a04ba6f0808c9da9bec8ffb595117",
+      "source": "server/src/main/java/org/apache/cloudstack/storage/object/BucketApiServiceImpl.java"
+    },
+    "org/apache/cloudstack/storage/object/BucketApiServiceImpl$BucketUsageTask.class": {
+      "sha256": "d3baca14a7606eff03a899b3bba4ce4a2c73d482ad14e706c3240c99db18d341",
+      "source": "server/src/main/java/org/apache/cloudstack/storage/object/BucketApiServiceImpl.java"
+    },
+    "META-INF/cloudstack/core/spring-engine-schema-core-daos-context.xml": {
+      "sha256": "47c3244f86397308fb8b7936c1875974608a8f379643e9ca5c7e7e5624797011",
+      "source": "additive schema/bean/build marker"
+    },
+    "META-INF/db/schema-42210to42300.sql": {
+      "sha256": "3ded2ef1a66bf8dda909b177aab75d7494b1201047abce6df41092f953734b7e",
+      "source": "additive schema/bean/build marker"
+    },
+    "META-INF/ablestack-bucket-1529.properties": {
+      "sha256": "f6970265aebe906b39c053a8b38d241fd3a61dd965b69fac674187f87c958972",
+      "source": "additive schema/bean/build marker"
+    }
+  }
+}

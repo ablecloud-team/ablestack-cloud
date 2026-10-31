@@ -768,7 +768,7 @@ export default {
       icon: 'funnel-plot-outlined',
       permission: ['listBuckets'],
       columns: ['name', 'state', 'objectstore', { field: 'size', customTitle: 'used.capacity' }, { field: 'quota', customTitle: 'total.allocated.capacity' }, 'account'],
-      details: ['id', 'name', 'state', 'objectstore', { field: 'size', customTitle: 'used.capacity' }, 'url', 'accesskey', 'usersecretkey', 'account', 'domain', 'created', { field: 'quota', customTitle: 'total.allocated.capacity' }, 'encryption', 'versioning', 'objectlocking', 'policy'],
+      details: ['id', 'name', 'state', 'objectstore', 'credentialstate', 'credentialchecked', 'quotaoperationstate', 'quotaoperationid', 'quotaoperationupdated', { field: 'size', customTitle: 'used.capacity' }, 'url', 'credentialrevision', 'account', 'domain', 'created', { field: 'quota', customTitle: 'total.allocated.capacity' }, 'encryption', 'versioning', 'objectlocking', 'policy'],
       tabs: [
         {
           name: 'details',
@@ -791,6 +791,7 @@ export default {
       actions: [
         {
           api: 'createBucket',
+          dialogWidth: 'min(720px, calc(100vw - 32px))',
           icon: 'plus-outlined',
           docHelp: 'installguide/configuration.html#create-bucket',
           label: 'label.create.bucket',
@@ -799,7 +800,18 @@ export default {
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateBucket.vue')))
         },
         {
+          api: 'getBucketCredentials',
+          icon: 'key-outlined',
+          label: 'label.bucket.credentials.manage',
+          dialogWidth: 'min(720px, calc(100vw - 32px))',
+          dataView: true,
+          popup: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/BucketCredentials.vue'))),
+          show: record => record.state === 'Created'
+        },
+        {
           api: 'updateBucket',
+          dialogWidth: 'min(720px, calc(100vw - 32px))',
           icon: 'edit-outlined',
           docHelp: 'adminguide/object_storage.html#update-bucket',
           label: 'label.bucket.update',

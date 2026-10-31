@@ -1,0 +1,11 @@
+Command: NODE_OPTIONS=--openssl-legacy-provider npm run build
+WSL ext4: /home/ablecloud/work/dhslove/cloud-epic-1527/ui
+Implementation: 40a013a8996
+
+Theme generated successfully
+ WARNING  Compiled with 2 warnings12:14:51 PM
+asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+ DONE  Build complete. The dist directory is ready to be deployed.
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

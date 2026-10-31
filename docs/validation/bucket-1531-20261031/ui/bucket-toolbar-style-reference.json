@@ -1,0 +1,38 @@
+[
+  {
+    "cluster": 31,
+    "theme": "dark",
+    "buttons": [
+      {
+        "fontSize": "14px",
+        "height": 24,
+        "radius": "24px",
+        "text": "업데이트"
+      },
+      {
+        "fontSize": "14px",
+        "height": 32,
+        "radius": "32px",
+        "text": "버킷 만들기"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "theme": "light",
+    "buttons": [
+      {
+        "fontSize": "14px",
+        "height": 24,
+        "radius": "24px",
+        "text": "업데이트"
+      },
+      {
+        "fontSize": "14px",
+        "height": 32,
+        "radius": "32px",
+        "text": "버킷 만들기"
+      }
+    ]
+  }
+]

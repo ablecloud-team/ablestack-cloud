@@ -1,0 +1,310 @@
+{
+  "body": {
+    "client": 720,
+    "scroll": 720
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 56,
+      "radius": "0px",
+      "text": "Close"
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "키 조회"
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "업데이트"
+    },
+    {
+      "disabled": true,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "새 키로 교체"
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "닫기"
+    }
+  ],
+  "panel": {
+    "bottom": 803.15625,
+    "height": 762.328125,
+    "right": 739,
+    "width": 720,
+    "x": 19,
+    "y": 40.828125
+  },
+  "samples": [
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "16px",
+      "selector": ".ant-modal-title",
+      "text": "버킷 키 관리"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label",
+      "text": "액세스 키"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label",
+      "text": "비밀 키"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label",
+      "text": "구 키 유예 기간(초, 5~86400)"
+    },
+    {
+      "background": [
+        234,
+        244,
+        255
+      ],
+      "color": "rgb(11, 59, 102)",
+      "contrast": 10.308999108587123,
+      "fontSize": "16px",
+      "selector": ".ant-alert-message",
+      "text": "버킷 키 관리"
+    },
+    {
+      "background": [
+        234,
+        244,
+        255
+      ],
+      "color": "rgb(11, 59, 102)",
+      "contrast": 10.308999108587123,
+      "fontSize": "14px",
+      "selector": ".ant-alert-description",
+      "text": "키는 이 계정과 오브젝트 스토리지의 버킷들이 공유합니다. 조회는 키를 발급하거나 교체하지 않습니다. 명시적으로 조회한 키는 30초 후 숨겨집니다."
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".credential-state",
+      "text": "키 교체 완료키 버전: 2"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgba(0, 0, 0, 0.65)",
+      "contrast": 6.977601437110393,
+      "fontSize": "14px",
+      "selector": ".credential-targets li",
+      "text": "qa-bkt-1533-32-ui-one 2b449a9e-903d-46eb-a0ee-335960f2e948"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgba(0, 0, 0, 0.65)",
+      "contrast": 6.977601437110393,
+      "fontSize": "14px",
+      "selector": ".credential-targets li",
+      "text": "qa-bkt-1533-32-api-two 245907f4-7ef3-4113-8653-4dee5fff7e0c"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "11.2px",
+      "selector": ".credential-targets small",
+      "text": "2b449a9e-903d-46eb-a0ee-335960f2e948"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "11.2px",
+      "selector": ".credential-targets small",
+      "text": "245907f4-7ef3-4113-8653-4dee5fff7e0c"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-checkbox-wrapper",
+      "text": "영향 버킷을 확인했습니다. 새 키 전환 후 유예 기간이 지나면 구 키를 폐기합니다. 외부 S3 클라이언트도 새 키로 변경하겠습니다."
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(31, 41, 55)",
+      "contrast": 14.67911847763172,
+      "fontSize": "14px",
+      "selector": "input[type=password]",
+      "text": "[input]"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(31, 41, 55)",
+      "contrast": 14.67911847763172,
+      "fontSize": "14px",
+      "selector": "input[type=password]",
+      "text": "[input]"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(31, 41, 55)",
+      "contrast": 14.67911847763172,
+      "fontSize": "14px",
+      "selector": ".ant-input-number-input",
+      "text": "[input]"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-btn",
+      "text": "키 조회"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-btn",
+      "text": "업데이트"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-btn",
+      "text": "닫기"
+    }
+  ],
+  "viewport": {
+    "height": 844,
+    "width": 768
+  },
+  "inputs": [
+    {
+      "autocomplete": "off",
+      "id": "bucket-key-access-2b449a9e-903d-46eb-a0ee-335960f2e948",
+      "labelCount": 1,
+      "type": "password"
+    },
+    {
+      "autocomplete": "off",
+      "id": "bucket-key-secret-2b449a9e-903d-46eb-a0ee-335960f2e948",
+      "labelCount": 1,
+      "type": "password"
+    },
+    {
+      "autocomplete": "off",
+      "id": "bucket-key-grace-2b449a9e-903d-46eb-a0ee-335960f2e948",
+      "labelCount": 1,
+      "type": "text"
+    },
+    {
+      "autocomplete": "",
+      "id": "",
+      "labelCount": 1,
+      "type": "checkbox"
+    }
+  ],
+  "activeApp": [
+    "js/app.da7b8cc5.js"
+  ],
+  "image": {
+    "height": 844,
+    "width": 758,
+    "format": "jpeg"
+  },
+  "capture": "fullPage",
+  "cluster": 32,
+  "theme": "light"
+}

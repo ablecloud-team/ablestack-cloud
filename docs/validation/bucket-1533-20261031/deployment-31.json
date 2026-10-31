@@ -1,0 +1,81 @@
+{
+  "markers": {
+    "message.objectstore.credential.unverified": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "credentialstate": [
+      "js/chunk-41f39e4e.d11b783b.js",
+      "js/chunk-1a202a74.54c7dc6d.js",
+      "js/app.da7b8cc5.js",
+      "js/chunk-56ca565e.d96987a2.js",
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "message.objectstore.upload.success.summary": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "objectStoreRowKey": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "objectStoreFetchGeneration": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "objectStoreRouteMatchesResource": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "objectListScopeChanged": [
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "extractJobId": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "message.bucket.credentials.scope": [
+      "js/chunk-e32fa14c.7015d549.js"
+    ],
+    "getBucketCredentials": [
+      "js/chunk-e32fa14c.7015d549.js",
+      "js/app.da7b8cc5.js",
+      "js/chunk-4b4ec1a5.1d3e9a6f.js"
+    ],
+    "rotateBucketCredentials": [
+      "js/chunk-e32fa14c.7015d549.js"
+    ],
+    "bucket-quota-context": [
+      "js/chunk-231eeec4.601ad342.js",
+      "js/chunk-93f5395c.05b7aac8.js"
+    ],
+    "message.bucket.quota.pending": [
+      "js/chunk-231eeec4.601ad342.js"
+    ],
+    "quotaoperationstate": [
+      "js/app.da7b8cc5.js",
+      "js/chunk-231eeec4.601ad342.js",
+      "js/chunk-93f5395c.05b7aac8.js"
+    ]
+  },
+  "before": {
+    "pid": "533",
+    "active": "active",
+    "http": 200,
+    "webinf": true,
+    "index": "44f7b71c89fd6489eb565798e6da62e78f4bee71e9c6fc1cf68638c1bed55bd5"
+  },
+  "after": {
+    "pid": "533",
+    "active": "active",
+    "http": 200,
+    "webinf": true,
+    "index": "7992cc5cfaa3d0d8557173b20e127340daa26f5f4139cd730ba4ccaac21be0fe"
+  },
+  "protectedCount": 19,
+  "protectedUnchanged": true,
+  "manifestCount": 630,
+  "verifiedAllStaticHashes": true,
+  "changedCount": 7,
+  "backup": "/var/tmp/bucket-1533-ui-20261031-share/backup"
+}

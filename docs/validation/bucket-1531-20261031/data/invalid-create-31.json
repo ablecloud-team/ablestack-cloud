@@ -1,0 +1,33 @@
+{
+  "cases": [
+    {
+      "input": -1,
+      "code": 431
+    },
+    {
+      "input": 0,
+      "code": 431
+    },
+    {
+      "input": "",
+      "code": 431
+    },
+    {
+      "input": "1.5",
+      "code": 431
+    },
+    {
+      "input": "1e2",
+      "code": 431
+    },
+    {
+      "input": "2147483648",
+      "code": 431
+    },
+    {
+      "input": 2147483647,
+      "code": 431
+    }
+  ],
+  "noBucketOrReservationOrCounterChange": true
+}

@@ -57,11 +57,11 @@
             <a-input v-model:value="form.url" placeholder="https://admin-hostname:19443" />
           </a-form-item>
           <a-form-item name="validateSSL" ref="validateSSL">
-            <a-checkbox v-model:checked="form.validateSSL">Validate SSL Certificate</a-checkbox>
+            <a-checkbox v-model:checked="form.validateSSL">{{ $t('label.objectstore.validate.ssl') }}</a-checkbox>
           </a-form-item>
           <a-form-item name="accessKey" ref="accessKey" :label="$t('label.cloudian.admin.username')">
             <!-- Use accessKey field for the username to make provider shared configuration easier -->
-            <a-input v-model:value="form.accessKey" />
+            <a-input-password v-model:value="form.accessKey" autocomplete="off" />
           </a-form-item>
           <a-form-item name="secretKey" ref="secretKey" :label="$t('label.cloudian.admin.password')">
             <!-- Use secretKey field for the password to make provider shared configuration easier -->
@@ -84,10 +84,10 @@
             <a-input v-model:value="form.url" />
           </a-form-item>
           <a-form-item name="accessKey" ref="accessKey" :label="$t('label.access.key')">
-            <a-input v-model:value="form.accessKey" />
+            <a-input-password v-model:value="form.accessKey" autocomplete="off" />
           </a-form-item>
           <a-form-item name="secretKey" ref="secretKey" :label="$t('label.secret.key')">
-            <a-input v-model:value="form.secretKey" />
+            <a-input-password v-model:value="form.secretKey" autocomplete="off" />
           </a-form-item>
           <a-form-item name="size" ref="size">
             <template #label>
@@ -97,8 +97,8 @@
           </a-form-item>
         </div>
         <div :span="24" class="action-button">
-          <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button :disabled="loading" @click="closeModal">{{ $t('label.cancel') }}</a-button>
+          <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -106,7 +106,7 @@
 </template>
 <script>
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI } from '@/api'
+import { postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -158,7 +158,7 @@ export default {
       this.$emit('close-action')
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e?.preventDefault) e.preventDefault()
       if (this.loading) return
       this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
@@ -208,7 +208,7 @@ export default {
     },
     addObjectStore (params) {
       return new Promise((resolve, reject) => {
-        getAPI('addObjectStoragePool', params).then(json => {
+        postAPI('addObjectStoragePool', params).then(json => {
           resolve()
         }).catch(error => {
           reject(error)
@@ -220,10 +220,10 @@ export default {
 </script>
 <style lang="scss" scoped>
 .form-layout {
-  width: 85vw;
-
-  @media (min-width: 1000px) {
-    width: 35vw;
+  width: 100%; min-width: 0;
+  :deep(.ant-input), :deep(.ant-input-affix-wrapper) {
+    color: var(--ui-text-primary) !important;
+    background: var(--ui-bg-input) !important;
   }
 }
 </style>

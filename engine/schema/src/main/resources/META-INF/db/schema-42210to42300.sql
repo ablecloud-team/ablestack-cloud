@@ -1494,3 +1494,89 @@ CREATE TABLE IF NOT EXISTS `cloud`.`vm_process_profile` (
 -- Kubernetes Service cleanup receipts must distinguish pool IP allocation reuse.
 ALTER TABLE `cloud`.`user_ip_address` ADD COLUMN `allocation_generation` VARCHAR(36) DEFAULT NULL;
 UPDATE `cloud`.`user_ip_address` SET `allocation_generation` = UUID() WHERE `allocated` IS NOT NULL;
+
+-- Scoped Glue credentials; existing account details are preserved.
+CREATE TABLE IF NOT EXISTS `cloud`.`object_store_account_credential` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `account_id` BIGINT UNSIGNED NOT NULL,
+  `object_store_id` BIGINT UNSIGNED NOT NULL,
+  `rgw_user_id` VARCHAR(255) NOT NULL,
+  `access_key` VARCHAR(1024) DEFAULT NULL,
+  `secret_key` VARCHAR(2048) DEFAULT NULL,
+  `state` VARCHAR(32) NOT NULL DEFAULT 'NeedsVerification',
+  `revision` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `checked_at` DATETIME DEFAULT NULL,
+  `provisioning_source` VARCHAR(32) NOT NULL DEFAULT 'Existing',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_object_store_account_credential_pair` (`account_id`,`object_store_id`),
+  CONSTRAINT `fk_object_store_account_credential_account` FOREIGN KEY (`account_id`) REFERENCES `cloud`.`account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_object_store_account_credential_store` FOREIGN KEY (`object_store_id`) REFERENCES `cloud`.`object_store` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `cloud`.`bucket_quota_operation` (
+ `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+ `uuid` VARCHAR(40) NOT NULL,
+ `bucket_id` BIGINT UNSIGNED NOT NULL,
+ `active_bucket_id` BIGINT UNSIGNED DEFAULT NULL,
+ `account_id` BIGINT UNSIGNED NOT NULL,
+ `domain_id` BIGINT UNSIGNED NOT NULL,
+ `object_store_id` BIGINT UNSIGNED NOT NULL,
+ `operation_type` VARCHAR(16) NOT NULL,
+ `previous_quota` INT DEFAULT NULL,
+ `requested_quota` INT DEFAULT NULL,
+ `previous_snapshot` VARCHAR(1024) DEFAULT NULL,
+ `store_url` VARCHAR(2048) NOT NULL,
+ `external_id` VARCHAR(255) DEFAULT NULL,
+ `external_created` TINYINT(1) NOT NULL DEFAULT 0,
+ `state` VARCHAR(32) NOT NULL DEFAULT 'Prepared',
+ `account_hold_bytes` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+ `reserved_bytes` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+ `attempts` INT NOT NULL DEFAULT 0,
+ `error_code` VARCHAR(64) DEFAULT NULL,
+ `created` DATETIME NOT NULL,
+ `updated_at` DATETIME NOT NULL,
+ PRIMARY KEY (`id`), UNIQUE KEY `uk_bucket_quota_operation_uuid` (`uuid`),
+ UNIQUE KEY `uk_bucket_quota_operation_active_bucket` (`active_bucket_id`),
+ KEY `idx_bucket_quota_operation_pending_store` (`object_store_id`,`state`),
+ KEY `idx_bucket_quota_operation_pending_account` (`account_id`,`state`),
+ CONSTRAINT `fk_bucket_quota_operation_account` FOREIGN KEY (`account_id`) REFERENCES `cloud`.`account` (`id`) ON DELETE CASCADE,
+ CONSTRAINT `fk_bucket_quota_operation_store` FOREIGN KEY (`object_store_id`) REFERENCES `cloud`.`object_store` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- #1533 same-version additive migration; apply before management JAR.
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='pending_access_key') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN pending_access_key VARCHAR(1024) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='pending_secret_key') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN pending_secret_key VARCHAR(1024) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='previous_access_key') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN previous_access_key VARCHAR(1024) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='previous_secret_key') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN previous_secret_key VARCHAR(1024) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='rotation_uuid') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN rotation_uuid VARCHAR(40) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='rotation_phase') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN rotation_phase VARCHAR(32) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='rotation_error') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN rotation_error VARCHAR(32) DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='retire_after') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN retire_after DATETIME DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;
+SET @bkt_credential_ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='cloud' AND table_name='object_store_account_credential' AND column_name='rotation_grace_seconds') = 0, 'ALTER TABLE cloud.object_store_account_credential ADD COLUMN rotation_grace_seconds INT DEFAULT NULL', 'SELECT 1');
+PREPARE bkt_credential_stmt FROM @bkt_credential_ddl;
+EXECUTE bkt_credential_stmt;
+DEALLOCATE PREPARE bkt_credential_stmt;

@@ -1,0 +1,695 @@
+[
+  {
+    "requestId": "34916.1445",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1446",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1447",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1448",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1449",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1452",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1453",
+    "command": "getWallAlertAvailability",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1454",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1455",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1456",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1457",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1458",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1459",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1460",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1461",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1462",
+    "command": "listHostsMetrics",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1463",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1464",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1465",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1466",
+    "command": "updateObjectStoragePool",
+    "method": "POST",
+    "pathname": "/client/api/",
+    "bodyFields": [
+      "command",
+      "response",
+      "id",
+      "details[0].key",
+      "details[0].value",
+      "details[1].key",
+      "details[1].value",
+      "sessionkey"
+    ],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1467",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1468",
+    "command": "getWallAlertAvailability",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1469",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1470",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1471",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1472",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1473",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1474",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1475",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1476",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1477",
+    "command": "listHostsMetrics",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1478",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1479",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1480",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1481",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1482",
+    "command": "getWallAlertAvailability",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1483",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1484",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1485",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1486",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1487",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1488",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1489",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1490",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1491",
+    "command": "listHostsMetrics",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1492",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1493",
+    "command": "updateObjectStoragePool",
+    "method": "POST",
+    "pathname": "/client/api/",
+    "bodyFields": [
+      "command",
+      "response",
+      "id",
+      "details[0].key",
+      "details[0].value",
+      "details[1].key",
+      "details[1].value",
+      "sessionkey"
+    ],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": true
+  },
+  {
+    "requestId": "34916.1494",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1495",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1496",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1497",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1498",
+    "command": "getWallAlertAvailability",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1499",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1500",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1501",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1502",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1503",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1504",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1505",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1506",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1507",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1508",
+    "command": "listHostsMetrics",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1509",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1510",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1511",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1512",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1513",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1514",
+    "command": "getWallAlertAvailability",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1515",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1516",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1517",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1518",
+    "command": "listObjectStoragePools",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1519",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1520",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  },
+  {
+    "requestId": "34916.1521",
+    "command": "readyForShutdown",
+    "method": "GET",
+    "pathname": "/client/api/",
+    "bodyFields": [],
+    "actualKeyInUrl": false,
+    "administratorPairInBody": false
+  }
+]

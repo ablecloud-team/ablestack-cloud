@@ -1,0 +1,64 @@
+{
+  "cluster": 32,
+  "bucket": {
+    "id": "3e952d59-a311-4a2b-86fe-d66ed38f050c",
+    "name": "qa-bkt-1540-32-files",
+    "policy": "Private",
+    "quotaGiB": 1
+  },
+  "account": "qa-bkt-1540-32",
+  "store": {
+    "id": "23400b34-eaa2-45a6-b355-c23cf2263aa5",
+    "name": "qa-bkt-1540-glue-32",
+    "provider": "Glue"
+  },
+  "objects": [
+    {
+      "name": "folder/",
+      "size": 0
+    },
+    {
+      "name": "folder/deep/",
+      "size": 0
+    },
+    {
+      "name": "folder/deep/deep.txt",
+      "size": 33
+    },
+    {
+      "name": "folder/nested.txt",
+      "size": 33
+    },
+    {
+      "name": "long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt",
+      "size": 23
+    },
+    {
+      "name": "root-file.txt",
+      "size": 33
+    },
+    {
+      "name": "ui-folder-1540/",
+      "size": 0
+    },
+    {
+      "name": "ui-folder-final-1540/",
+      "size": 0
+    },
+    {
+      "name": "ui-upload-1540-final.txt",
+      "size": 52
+    },
+    {
+      "name": "ui-upload-1540.txt",
+      "size": 34
+    },
+    {
+      "name": "긴이름-오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트.txt",
+      "size": 23
+    }
+  ],
+  "uiUploadedFinalFileSHA256": "f8dd5d54b74fb3b5d9f672d35c664f6d0476f5719a3cce48c130b696294ffa63",
+  "originalIamMarkerRestored": true,
+  "s3ReadVerified": true
+}

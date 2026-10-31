@@ -28,7 +28,7 @@ import org.apache.cloudstack.api.response.ObjectStoreResponse;
 import org.apache.cloudstack.context.CallContext;
 
 @APICommand(name = UpdateObjectStoragePoolCmd.APINAME, description = "Updates object storage pool", responseObject = ObjectStoreResponse.class, entityType = {ObjectStore.class},
-        requestHasSensitiveInfo = false, responseHasSensitiveInfo = false, since = "4.19.0")
+        requestHasSensitiveInfo = true, responseHasSensitiveInfo = false, httpMethod = "POST", since = "4.19.0")
 public class UpdateObjectStoragePoolCmd extends BaseCmd {
     public static final String APINAME = "updateObjectStoragePool";
 
@@ -46,6 +46,19 @@ public class UpdateObjectStoragePoolCmd extends BaseCmd {
 
     @Parameter(name = ApiConstants.SIZE, type = CommandType.LONG, description = "the total size of the object store in GiB. Used for tracking capacity and sending alerts. Set to 0 to stop tracking.", since = "4.21")
     private Long size;
+
+    @Parameter(name = ApiConstants.DETAILS, type = CommandType.MAP, description = "Glue administrator accesskey and secretkey; both must be supplied together via POST. Omit both to preserve existing keys.")
+    private java.util.Map<String, java.util.Map<String, String>> details;
+    public java.util.Map<String, String> getDetails() {
+        if (details == null) return null;
+        java.util.Map<String, String> result = new java.util.HashMap<>();
+        for (java.util.Map<String, String> entry : details.values()) {
+            String key = entry.get(ApiConstants.KEY);
+            if (key == null || result.containsKey(key)) throw new IllegalArgumentException("Duplicate or missing credential detail name");
+            result.put(key, entry.get(ApiConstants.VALUE));
+        }
+        return result;
+    }
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////

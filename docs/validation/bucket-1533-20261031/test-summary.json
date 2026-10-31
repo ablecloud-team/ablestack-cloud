@@ -1,0 +1,12 @@
+{
+  "backendServerTests": 61,
+  "backendCephTests": 39,
+  "backendTotalUnique": 100,
+  "uiSuites": 6,
+  "uiTests": 81,
+  "uiCoverageCollection": false,
+  "changedJavaCheckstyle": "PASS",
+  "fullCloudBuildAndFullCI": false,
+  "uiProductionBuildSource": "4538f566d59c553d9e0827b8ada32fe56bbb63c0",
+  "backendProductionBuildSource": "f62c70d2be7429d430055d07a50b9285167925b1"
+}

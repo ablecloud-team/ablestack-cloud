@@ -68,6 +68,8 @@ import com.cloud.user.dao.AccountDao;
 import com.cloud.user.dao.SSHKeyPairDao;
 import com.cloud.user.dao.UserAccountDao;
 import com.cloud.user.dao.UserDao;
+import org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialDao;
+
 import com.google.gson.reflect.TypeToken;
 import com.cloud.utils.db.TransactionCallbackWithException;
 import org.apache.cloudstack.acl.APIChecker;
@@ -274,6 +276,9 @@ import org.apache.cloudstack.api.BaseCmd;
 import org.joda.time.DateTime;
 
 public class AccountManagerImpl extends ManagerBase implements AccountManager, Manager {
+
+    @Inject
+    private ObjectStoreAccountCredentialDao objectStoreAccountCredentialDao;
 
     @Inject
     private AccountDao _accountDao;
@@ -1467,6 +1472,9 @@ public class AccountManagerImpl extends ManagerBase implements AccountManager, M
                     }
                 }
             }
+
+            // Removing a Cloud credential binding never deletes a possibly shared external RGW user.
+            objectStoreAccountCredentialDao.removeByAccount(accountId);
 
             // Updating and deleting the resourceLimit and resourceCount should be the last step in cleanupAccount
 // process.

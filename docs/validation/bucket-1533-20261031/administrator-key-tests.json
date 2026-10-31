@@ -1,0 +1,44 @@
+{
+  "31": {
+    "missingAndEmptyPairRejected": true,
+    "candidateConnectionFailureKeepsOldDetails": true,
+    "databaseFailureAtomicRollback": true,
+    "validReplacementAndExistingTenantConnectionVerified": true,
+    "originalAdministratorPairRestored": true,
+    "rejections": [
+      {
+        "errorcode": 431,
+        "safeMessage": "Provide both nonempty Glue administrator keys together, or omit both"
+      },
+      {
+        "errorcode": 431,
+        "safeMessage": "Provide both nonempty Glue administrator keys together, or omit both"
+      },
+      {
+        "errorcode": 431,
+        "safeMessage": "Unable to verify or save candidate object storage connection; previous URL and administrator credentials are retained"
+      }
+    ]
+  },
+  "32": {
+    "missingAndEmptyPairRejected": true,
+    "candidateConnectionFailureKeepsOldDetails": true,
+    "databaseFailureAtomicRollback": true,
+    "validReplacementAndExistingTenantConnectionVerified": true,
+    "originalAdministratorPairRestored": true,
+    "rejections": [
+      {
+        "errorcode": 431,
+        "safeMessage": "Provide both nonempty Glue administrator keys together, or omit both"
+      },
+      {
+        "errorcode": 431,
+        "safeMessage": "Provide both nonempty Glue administrator keys together, or omit both"
+      },
+      {
+        "errorcode": 431,
+        "safeMessage": "Unable to verify or save candidate object storage connection; previous URL and administrator credentials are retained"
+      }
+    ]
+  }
+}

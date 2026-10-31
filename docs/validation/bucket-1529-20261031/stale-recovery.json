@@ -1,0 +1,16 @@
+{
+  "31": {
+    "uiReconciledVerifiedDatabaseRow": true,
+    "externalKeysUnchanged": true,
+    "accountDetailsUnchanged": true,
+    "storeKeysRemainIsolated": true,
+    "provisioningSource": "Existing"
+  },
+  "32": {
+    "uiReconciledVerifiedDatabaseRow": true,
+    "externalKeysUnchanged": true,
+    "accountDetailsUnchanged": true,
+    "storeKeysRemainIsolated": true,
+    "provisioningSource": "Existing"
+  }
+}

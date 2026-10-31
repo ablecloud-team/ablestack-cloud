@@ -1,0 +1,68 @@
+{
+  "31": {
+    "removedBuckets": [
+      "qa-bkt-1533-31-other",
+      "qa-bkt-1533-31-ui-one",
+      "qa-bkt-1533-31-api-two"
+    ],
+    "accountLedgerBeforeDeletion": [
+      {
+        "account": "4a3ea579-cc54-47a7-a5e5-60490227985c",
+        "bucketAndObjectStorageCountsZero": true,
+        "iamDetailsPreservedBeforeDeletion": true
+      },
+      {
+        "account": "988a2a9f-df12-44f3-adcb-bf0a960a140f",
+        "bucketAndObjectStorageCountsZero": true,
+        "iamDetailsPreservedBeforeDeletion": true
+      }
+    ],
+    "counterCorrectionUsed": false,
+    "qaActiveBuckets": 0,
+    "qaActiveStores": 0,
+    "qaCredentialRows": 0,
+    "testTriggers": 0
+  },
+  "32": {
+    "removedBuckets": [
+      "qa-bkt-1533-32-other",
+      "qa-bkt-1533-32-ui-one",
+      "qa-bkt-1533-32-api-two"
+    ],
+    "accountLedgerBeforeDeletion": [
+      {
+        "account": "c1cd5b64-896d-49bf-8030-b085a89de9a5",
+        "bucketAndObjectStorageCountsZero": true,
+        "iamDetailsPreservedBeforeDeletion": true
+      },
+      {
+        "account": "880c64c8-b90d-4207-8d83-8549ccb1af5c",
+        "bucketAndObjectStorageCountsZero": true,
+        "iamDetailsPreservedBeforeDeletion": true
+      }
+    ],
+    "counterCorrectionUsed": false,
+    "qaActiveBuckets": 0,
+    "qaActiveStores": 0,
+    "qaCredentialRows": 0,
+    "testTriggers": 0
+  },
+  "rgw": {
+    "removedQaUsersIncludingAllTheirKeys": [
+      "4a3ea579-cc54-47a7-a5e5-60490227985c",
+      "988a2a9f-df12-44f3-adcb-bf0a960a140f",
+      "c1cd5b64-896d-49bf-8030-b085a89de9a5",
+      "880c64c8-b90d-4207-8d83-8549ccb1af5c",
+      "qa-bkt-1533-admin"
+    ],
+    "remainingUsers": [
+      "6af1b9e3-6326-43aa-945f-a442871f6960",
+      "dashboard",
+      "qa-bkt-1540-admin"
+    ],
+    "remainingBuckets": [
+      "qa-bkt-1540-32-files"
+    ],
+    "reviewFixtureNotRotated": true
+  }
+}

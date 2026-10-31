@@ -48,6 +48,7 @@ export default {
   actions: [
     {
       api: 'addObjectStoragePool',
+      dialogWidth: 'min(720px, calc(100vw - 32px))',
       icon: 'plus-outlined',
       docHelp: 'installguide/configuration.html#add-object-storage',
       label: 'label.add.object.storage',
@@ -61,6 +62,17 @@ export default {
       label: 'label.action.update.object.storage',
       args: ['name', 'url', 'size'],
       dataView: true
+    },
+    {
+      api: 'updateObjectStoragePool',
+      name: 'replaceObjectStorageCredentials',
+      icon: 'key-outlined',
+      label: 'label.objectstore.credentials.replace',
+      dialogWidth: 'min(720px, calc(100vw - 32px))',
+      dataView: true,
+      popup: true,
+      component: shallowRef(defineAsyncComponent(() => import('@/views/infra/ReplaceObjectStorageCredentials.vue'))),
+      show: record => record.providername === 'Glue'
     },
     {
       api: 'deleteObjectStoragePool',

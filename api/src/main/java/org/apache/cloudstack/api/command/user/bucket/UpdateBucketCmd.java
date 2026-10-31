@@ -59,6 +59,15 @@ public class UpdateBucketCmd extends BaseCmd {
     @Parameter(name = ApiConstants.QUOTA, type = CommandType.INTEGER, description = "Bucket Quota in GiB")
     private Integer quota;
 
+    @Parameter(name = "reconcile", type = CommandType.BOOLEAN, description = "Retry a pending verified quota operation; cannot be combined with property changes")
+    private Boolean reconcile;
+
+    @Parameter(name = "expectedquotaoperationid", type = CommandType.STRING, description = "Expected pending quota operation UUID")
+    private String expectedQuotaOperationId;
+
+    public boolean isReconcile() { return Boolean.TRUE.equals(reconcile); }
+    public String getExpectedQuotaOperationId() { return expectedQuotaOperationId; }
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -80,6 +89,12 @@ public class UpdateBucketCmd extends BaseCmd {
     }
 
     public Integer getQuota() {
+        if (getFullUrlParams() != null && getFullUrlParams().containsKey(ApiConstants.QUOTA)) {
+            String raw = getFullUrlParams().get(ApiConstants.QUOTA);
+            if (raw == null || !raw.matches("[0-9]+")) {
+                throw new com.cloud.exception.InvalidParameterValueException("Bucket quota must be a positive integer GiB (1-2147483647)");
+            }
+        }
         return quota;
     }
 
@@ -117,8 +132,14 @@ public class UpdateBucketCmd extends BaseCmd {
         boolean result = false;
         try {
             result = _bucketService.updateBucket(this, CallContext.current().getCallingAccount());
+        } catch (com.cloud.exception.InvalidParameterValueException e) {
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, e.getMessage(), e);
+        } catch (com.cloud.exception.ResourceAllocationException e) {
+            throw new ServerApiException(ApiErrorCode.RESOURCE_ALLOCATION_ERROR, "Bucket quota exceeds account, project or domain resource limit", e);
+        } catch (org.apache.cloudstack.storage.object.BucketQuotaException e) {
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, e.getMessage(), e);
         } catch (Exception e) {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Error while updating bucket. "+e.getMessage());
+            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Unable to update bucket properties; refresh and retry");
         }
         if(result) {
             SuccessResponse response = new SuccessResponse(getCommandName());

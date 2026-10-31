@@ -1,0 +1,30 @@
+{
+  "31": {
+    "other": {
+      "normalAccountDeleteWithoutIamRepair": true,
+      "removedEmptyBucket": "qa-bkt-1529-31-other",
+      "credentialBindingsRemoved": true,
+      "externalUserPreservedByCloud": true
+    },
+    "recovery": {
+      "normalAccountDeleteWithoutIamRepair": true,
+      "removedEmptyBucket": "qa-bkt-1529-31-recovered",
+      "credentialBindingsRemoved": true,
+      "externalUserPreservedByCloud": true
+    }
+  },
+  "32": {
+    "other": {
+      "normalAccountDeleteWithoutIamRepair": true,
+      "removedEmptyBucket": "qa-bkt-1529-32-other",
+      "credentialBindingsRemoved": true,
+      "externalUserPreservedByCloud": true
+    },
+    "recovery": {
+      "normalAccountDeleteWithoutIamRepair": true,
+      "removedEmptyBucket": "qa-bkt-1529-32-recovered",
+      "credentialBindingsRemoved": true,
+      "externalUserPreservedByCloud": true
+    }
+  }
+}

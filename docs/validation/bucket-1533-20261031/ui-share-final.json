@@ -1,0 +1,30 @@
+[
+  {
+    "cluster": 31,
+    "generatedURLReadable": true,
+    "previewStyle": {
+      "autocomplete": "off",
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "readonly": true,
+      "right": 1246,
+      "viewport": 1280,
+      "width": 420
+    },
+    "copyFailureExplained": 0
+  },
+  {
+    "cluster": 32,
+    "generatedURLReadable": true,
+    "previewStyle": {
+      "autocomplete": "off",
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "readonly": true,
+      "right": 1246,
+      "viewport": 1280,
+      "width": 420
+    },
+    "copyFailureExplained": 0
+  }
+]

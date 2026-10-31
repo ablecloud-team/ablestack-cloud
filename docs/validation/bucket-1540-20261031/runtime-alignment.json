@@ -1,0 +1,43 @@
+{
+  "sameManagementLibraries": true,
+  "libraryCount": 9,
+  "sameUiIndex": true,
+  "clusters": {
+    "31": {
+      "libraries": {
+        "/usr/share/cloudstack-management/lib/cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+        "/usr/share/cloudstack-management/lib/bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+        "/usr/share/cloudstack-management/lib/bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+        "/usr/share/cloudstack-management/lib/bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+        "/usr/share/cloudstack-management/lib/bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+        "/usr/share/cloudstack-management/lib/java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+        "/usr/share/cloudstack-management/lib/mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+        "/usr/share/cloudstack-management/lib/cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+        "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "69c9b9aaeb84b5a638e8cf7683af3dd8276eacae0d69257d1508ecc0619d2d08"
+      },
+      "pid": "4013130",
+      "active": "active",
+      "http": 200,
+      "webinf": true,
+      "index": "3d53dbabfb14557c2f12ab790b7ab82e410d14cfc153dd54b7826058379fab88"
+    },
+    "32": {
+      "libraries": {
+        "/usr/share/cloudstack-management/lib/cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+        "/usr/share/cloudstack-management/lib/bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+        "/usr/share/cloudstack-management/lib/bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+        "/usr/share/cloudstack-management/lib/bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+        "/usr/share/cloudstack-management/lib/bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+        "/usr/share/cloudstack-management/lib/java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+        "/usr/share/cloudstack-management/lib/mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+        "/usr/share/cloudstack-management/lib/cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+        "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "69c9b9aaeb84b5a638e8cf7683af3dd8276eacae0d69257d1508ecc0619d2d08"
+      },
+      "pid": "14288",
+      "active": "active",
+      "http": 200,
+      "webinf": true,
+      "index": "3d53dbabfb14557c2f12ab790b7ab82e410d14cfc153dd54b7826058379fab88"
+    }
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "31": {
+    "removedBuckets": [
+      "qa-bkt-1531-31-api",
+      "qa-bkt-1531-31-fault",
+      "qa-bkt-1531-31-domain",
+      "qa-bkt-1531-31-project",
+      "qa-bkt-1531-31-legacy",
+      "qa-bkt-1531-31-ui-beta"
+    ],
+    "counterLedgerBeforeAccountDeletion": {
+      "stores": [
+        {
+          "name": "qa-bkt-1531-31-a",
+          "allocated": 2147483648,
+          "reserved": 0,
+          "createdQuotaBytes": 2147483648
+        },
+        {
+          "name": "qa-bkt-1531-31-b",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        },
+        {
+          "name": "qa-bkt-1531-31-fault",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        }
+      ],
+      "accountCounts": [
+        {
+          "accountId": 336,
+          "type": "bucket",
+          "actual": 1,
+          "expectedIncludingHolds": 1
+        },
+        {
+          "accountId": 336,
+          "type": "object_storage",
+          "actual": 2147483648,
+          "expectedIncludingHolds": 2147483648
+        },
+        {
+          "accountId": 337,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 337,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 338,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 338,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 339,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 339,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 340,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 340,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        }
+      ]
+    },
+    "noLedgerCorrection": true,
+    "remainingQaBuckets": [
+      "qa-bkt-1531-31-ui-alpha"
+    ],
+    "pendingQuotaOperations": 0,
+    "ephemeralReservations": 0
+  },
+  "32": {
+    "removedBuckets": [
+      "qa-bkt-1531-32-api",
+      "qa-bkt-1531-32-fault",
+      "qa-bkt-1531-32-domain",
+      "qa-bkt-1531-32-project",
+      "qa-bkt-1531-32-ui-beta"
+    ],
+    "counterLedgerBeforeAccountDeletion": {
+      "stores": [
+        {
+          "name": "qa-bkt-1531-32-a",
+          "allocated": 2147483648,
+          "reserved": 0,
+          "createdQuotaBytes": 2147483648
+        },
+        {
+          "name": "qa-bkt-1531-32-b",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        },
+        {
+          "name": "qa-bkt-1531-32-fault",
+          "allocated": 0,
+          "reserved": 0,
+          "createdQuotaBytes": 0
+        }
+      ],
+      "accountCounts": [
+        {
+          "accountId": 148,
+          "type": "bucket",
+          "actual": 1,
+          "expectedIncludingHolds": 1
+        },
+        {
+          "accountId": 148,
+          "type": "object_storage",
+          "actual": 2147483648,
+          "expectedIncludingHolds": 2147483648
+        },
+        {
+          "accountId": 149,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 149,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 150,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 150,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 151,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 151,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 152,
+          "type": "bucket",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        },
+        {
+          "accountId": 152,
+          "type": "object_storage",
+          "actual": 0,
+          "expectedIncludingHolds": 0
+        }
+      ]
+    },
+    "noLedgerCorrection": true,
+    "remainingQaBuckets": [
+      "qa-bkt-1531-32-ui-alpha"
+    ],
+    "pendingQuotaOperations": 0,
+    "ephemeralReservations": 0
+  },
+  "rgw": {
+    "removedUsers": [
+      "1371c740-4157-4857-8fe2-1b3065a0cc8d",
+      "15a0d322-a1f9-46f6-b1dd-ec131b747cd0",
+      "3d739b48-74a8-432d-95f7-ffffc6284249",
+      "6d2b73ba-81f5-4dd0-add3-2a65e0933875",
+      "79fb4787-14cc-4835-9435-b648303b9941",
+      "a7a6a1c0-67b7-4fbe-961b-47bea7a1c27a",
+      "f775b0e9-5a0b-44d0-9ca2-866f490efde7"
+    ],
+    "keptQaUsers": [
+      "0e68d0ad-62e5-4786-95d9-238056a2c160",
+      "e848de02-6953-4849-9e1d-775cceaa66e1"
+    ],
+    "buckets": [
+      "qa-bkt-1531-31-ui-alpha",
+      "qa-bkt-1540-32-files",
+      "qa-bkt-1531-32-ui-alpha"
+    ]
+  }
+}

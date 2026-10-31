@@ -1,0 +1,19 @@
+{
+  "buckets": [
+    {
+      "bucket": "a8c4cb82-4083-4f52-8ba7-95c506a82148",
+      "oldKeyStatus": 200,
+      "newKeyStatus": 200,
+      "revision": 2,
+      "phase": "Grace"
+    },
+    {
+      "bucket": "5152275c-cc2e-41ec-bb76-f040ba1d9ce5",
+      "oldKeyStatus": 200,
+      "newKeyStatus": 200,
+      "revision": 2,
+      "phase": "Grace"
+    }
+  ],
+  "unrelatedAccountRemainsConnected": true
+}

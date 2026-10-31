@@ -1,0 +1,308 @@
+{
+  "implementation": "994319d3f68",
+  "cases": [
+    {
+      "cluster": 31,
+      "case": "new-bundle-first-listing",
+      "pass": true,
+      "asset": [
+        "http://10.10.31.10:8080/client/js/chunk-0e18ec76.75cf421d.js"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "new-bundle-first-listing",
+      "pass": true,
+      "asset": [
+        "http://10.10.32.10:8080/client/js/chunk-0e18ec76.75cf421d.js"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "live-locale-ko",
+      "pass": true,
+      "headers": [
+        "",
+        "이름",
+        "크기",
+        "마지막 업데이트"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "live-locale-en",
+      "pass": true,
+      "headers": [
+        "",
+        "Name",
+        "Size",
+        "Last update"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "live-locale-en",
+      "pass": true,
+      "headers": [
+        "",
+        "Name",
+        "Size",
+        "Last update"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "live-locale-ko",
+      "pass": true,
+      "headers": [
+        "",
+        "이름",
+        "크기",
+        "마지막 업데이트"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "live-locale-ko",
+      "pass": true,
+      "headers": [
+        "",
+        "이름",
+        "크기",
+        "마지막 업데이트"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "live-locale-en",
+      "pass": true,
+      "headers": [
+        "",
+        "Name",
+        "Size",
+        "Last update"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "live-locale-en",
+      "pass": true,
+      "headers": [
+        "",
+        "Name",
+        "Size",
+        "Last update"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "live-locale-ko",
+      "pass": true,
+      "headers": [
+        "",
+        "이름",
+        "크기",
+        "마지막 업데이트"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "actual-folder-create",
+      "pass": true,
+      "modal": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 360,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 516,
+            "right": 242.953125,
+            "text": "Cancel"
+          },
+          {
+            "bottom": 516,
+            "right": 331,
+            "text": "Create"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": "Folder name",
+        "inputs": [
+          {
+            "aria": "Folder name",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 533,
+          "height": 222,
+          "left": 12,
+          "right": 348,
+          "top": 311,
+          "width": 336,
+          "x": 12,
+          "y": 311
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "actual-upload-and-localized-notification",
+      "pass": true,
+      "description": "1 files uploaded."
+    },
+    {
+      "cluster": 31,
+      "case": "selection-retained-after-refresh",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "actual-folder-create",
+      "pass": true,
+      "modal": {
+        "background": "rgb(34, 40, 47)",
+        "buttons": [
+          {
+            "bottom": 360,
+            "right": 347,
+            "text": ""
+          },
+          {
+            "bottom": 516,
+            "right": 257.234375,
+            "text": "취소"
+          },
+          {
+            "bottom": 516,
+            "right": 331,
+            "text": "생성"
+          }
+        ],
+        "color": "rgb(240, 243, 246)",
+        "focus": "폴더 이름",
+        "inputs": [
+          {
+            "aria": "폴더 이름",
+            "right": 331,
+            "width": 302
+          }
+        ],
+        "rect": {
+          "bottom": 533,
+          "height": 222,
+          "left": 12,
+          "right": 348,
+          "top": 311,
+          "width": 336,
+          "x": 12,
+          "y": 311
+        },
+        "viewport": {
+          "height": 844,
+          "width": 360
+        }
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "actual-upload-and-localized-notification",
+      "pass": true,
+      "description": "전체 1개 파일 업로드 완료"
+    },
+    {
+      "cluster": 32,
+      "case": "selection-retained-after-refresh",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "mobile-object-drawer-focus",
+      "pass": true,
+      "rect": {
+        "bottom": 844,
+        "height": 844,
+        "left": 14,
+        "right": 350,
+        "top": 0,
+        "width": 336,
+        "x": 14,
+        "y": 0
+      }
+    },
+    {
+      "cluster": 31,
+      "case": "retains-data-on-404",
+      "pass": true,
+      "alert": "Unable to load the object list.\n\nQA1540Final\n\nRetry"
+    },
+    {
+      "cluster": 31,
+      "case": "retry-after-error",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "mobile-object-drawer-focus",
+      "pass": true,
+      "rect": {
+        "bottom": 844,
+        "height": 844,
+        "left": 14,
+        "right": 350,
+        "top": 0,
+        "width": 336,
+        "x": 14,
+        "y": 0
+      }
+    },
+    {
+      "cluster": 32,
+      "case": "retains-data-on-403",
+      "pass": true,
+      "alert": "파일 목록을 불러오지 못했습니다.\n\nQA1540Final\n\n재시도"
+    },
+    {
+      "cluster": 32,
+      "case": "retry-after-error",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "mobile-prefix-search",
+      "pass": true,
+      "rows": [
+        "ui-upload-1540-final.txt",
+        "ui-upload-1540.txt",
+        "ui-folder-1540",
+        "ui-folder-final-1540"
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "cleanup-empty-bucket-list-ui",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "one-retained-bucket-list-ui",
+      "pass": true,
+      "names": [
+        "qa-bkt-1540-32-files"
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "retained-bucket-real-list-detail-browser-path",
+      "pass": true
+    }
+  ]
+}

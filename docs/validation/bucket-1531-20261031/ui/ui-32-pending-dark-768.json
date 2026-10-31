@@ -1,0 +1,205 @@
+{
+  "buttons": [
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "0px",
+      "rect": {
+        "bottom": 90.78125,
+        "height": 56,
+        "right": 739,
+        "width": 56,
+        "x": 683,
+        "y": 34.78125
+      },
+      "text": "Close"
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "4px",
+      "rect": {
+        "bottom": 291.0625,
+        "height": 32,
+        "right": 249.71875,
+        "width": 142.71875,
+        "x": 107,
+        "y": 259.0625
+      },
+      "text": "할당량 복구 재시도"
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "100px",
+      "rect": {
+        "bottom": 591.953125,
+        "height": 22,
+        "right": 87,
+        "width": 44,
+        "x": 43,
+        "y": 569.953125
+      },
+      "text": null
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "100px",
+      "rect": {
+        "bottom": 659.953125,
+        "height": 22,
+        "right": 87,
+        "width": 44,
+        "x": 43,
+        "y": 637.953125
+      },
+      "text": null
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "4px",
+      "rect": {
+        "bottom": 785.203125,
+        "height": 32,
+        "right": 639.234375,
+        "width": 57.765625,
+        "x": 581.46875,
+        "y": 753.203125
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "4px",
+      "rect": {
+        "bottom": 785.203125,
+        "height": 32,
+        "right": 710,
+        "width": 57.765625,
+        "x": 652.234375,
+        "y": 753.203125
+      },
+      "text": "확인"
+    }
+  ],
+  "panel": {
+    "bottom": 809.203125,
+    "height": 774.421875,
+    "right": 739,
+    "width": 720,
+    "x": 19,
+    "y": 34.78125
+  },
+  "panelScroll": {
+    "client": 720,
+    "scroll": 720
+  },
+  "samples": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "disabled": false,
+      "fontSize": "16px",
+      "fontWeight": "500",
+      "selector": ".ant-modal-title",
+      "text": "버킷 업데이트"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".ant-form-item-label label",
+      "text": "할당량(GiB)"
+    },
+    {
+      "background": [
+        32.6,
+        54.56,
+        76.12
+      ],
+      "color": "rgb(214, 235, 255)",
+      "disabled": false,
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "selector": ".bucket-quota-context .ant-alert-message",
+      "text": "1~2147483647 GiB 범위의 양의 정수를 입력하세요."
+    },
+    {
+      "background": [
+        32.6,
+        54.56,
+        76.12
+      ],
+      "color": "rgb(214, 235, 255)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".bucket-quota-context .ant-alert-description",
+      "text": "변경 전에 서버가 실제 사용량, 계정·프로젝트·도메인 제한과 저장소 예약을 확인합니다.예약 가능한 용량: 2 GiB · 진행 중 예약: 1 GiB 확인 시각: 2"
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "color": "rgb(255, 231, 163)",
+      "disabled": false,
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "selector": ".ant-alert-warning .ant-alert-message",
+      "text": "복구 중인 할당량 작업이 있습니다. 복구가 끝날 때까지 다른 변경을 차단합니다. 새로 고친 뒤 재시도하세요."
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "color": "rgb(255, 231, 163)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".ant-alert-warning .ant-alert-description",
+      "text": "복구 필요1a24ea36-b84b-4cad-903d-9ddd7d251abd확인 시각: 2026. 10. 31. 오후 6:51:25할당량 복구 재시도"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": "input#form_item_quota",
+      "text": "1"
+    }
+  ],
+  "viewport": {
+    "height": 844,
+    "width": 768
+  },
+  "image": {
+    "height": 432,
+    "width": 768,
+    "format": "jpeg"
+  },
+  "cluster": 32,
+  "state": "pending",
+  "theme": "dark"
+}

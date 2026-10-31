@@ -1,0 +1,20 @@
+[
+  {
+    "cluster": 31,
+    "status": 200,
+    "url": "http://10.10.32.12:3333/qa-bkt-1528-31-files?delimiter=%2F&encoding-type=url&list-type=2&max-keys=1000&metadata=true&prefix=",
+    "bodyLength": 953,
+    "rootFile": true,
+    "uploadedFile": true,
+    "finalFolder": true
+  },
+  {
+    "cluster": 32,
+    "status": 200,
+    "url": "http://10.10.32.12:3333/qa-bkt-1528-32-files?delimiter=%2F&encoding-type=url&list-type=2&max-keys=1000&metadata=true&prefix=",
+    "bodyLength": 953,
+    "rootFile": true,
+    "uploadedFile": true,
+    "finalFolder": true
+  }
+]

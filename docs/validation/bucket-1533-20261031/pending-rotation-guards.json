@@ -1,0 +1,192 @@
+{
+  "31": {
+    "requestsRejectedWithoutNewKeyOrRevision": [
+      {
+        "command": "updateObjectStoragePool",
+        "input": {
+          "id": "e02098b0-2647-465e-9e61-61383e177a2f",
+          "url": "http://10.10.32.12:00003333"
+        },
+        "errorcode": 431,
+        "safeMessage": "Complete pending bucket credential rotations before changing the endpoint"
+      },
+      {
+        "command": "deleteObjectStoragePool",
+        "input": {
+          "id": "e02098b0-2647-465e-9e61-61383e177a2f"
+        },
+        "errorcode": 431,
+        "safeMessage": "Complete pending bucket credential rotations before deleting object store"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 0
+        },
+        "errorcode": 431,
+        "safeMessage": "Credential revision changed; refresh before retrying"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "action": "retry",
+          "rotationid": "wrong"
+        },
+        "errorcode": 431,
+        "safeMessage": "The current rotation ID is required for retry or retirement"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "action": "retire",
+          "rotationid": "4168c09e-035e-44eb-867d-ee0972418e2b"
+        },
+        "errorcode": 431,
+        "safeMessage": "Candidate activation must complete before old-key retirement"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "graceperiod": 0
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "graceperiod": -1
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "graceperiod": 86401
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "960dd357-780a-4f66-afd1-4688d161cd36",
+          "expectedrevision": 1,
+          "graceperiod": "overflow"
+        },
+        "errorcode": 431,
+        "safeMessage": "Unable to execute API command rotatebucketcredentials due to invalid value overflow for parameter graceperiod"
+      }
+    ],
+    "samePreparedOperation": true,
+    "keyCount": 2,
+    "restartsPreservedCandidateAndOldConnection": true
+  },
+  "32": {
+    "requestsRejectedWithoutNewKeyOrRevision": [
+      {
+        "command": "updateObjectStoragePool",
+        "input": {
+          "id": "7c0d95ad-c375-415f-8310-21a683b3e67b",
+          "url": "http://10.10.32.12:00003333"
+        },
+        "errorcode": 431,
+        "safeMessage": "Complete pending bucket credential rotations before changing the endpoint"
+      },
+      {
+        "command": "deleteObjectStoragePool",
+        "input": {
+          "id": "7c0d95ad-c375-415f-8310-21a683b3e67b"
+        },
+        "errorcode": 431,
+        "safeMessage": "Complete pending bucket credential rotations before deleting object store"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 0
+        },
+        "errorcode": 431,
+        "safeMessage": "Credential revision changed; refresh before retrying"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "action": "retry",
+          "rotationid": "wrong"
+        },
+        "errorcode": 431,
+        "safeMessage": "The current rotation ID is required for retry or retirement"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "action": "retire",
+          "rotationid": "109ae52c-fcfe-45f9-a329-e481640dd30f"
+        },
+        "errorcode": 431,
+        "safeMessage": "Candidate activation must complete before old-key retirement"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "graceperiod": 0
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "graceperiod": -1
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "graceperiod": 86401
+        },
+        "errorcode": 431,
+        "safeMessage": "Use rotate, retry or retire and a grace period of 5..86400 seconds"
+      },
+      {
+        "command": "rotateBucketCredentials",
+        "input": {
+          "id": "7944a94e-c503-4861-88b9-7126c4bce237",
+          "expectedrevision": 1,
+          "graceperiod": "overflow"
+        },
+        "errorcode": 431,
+        "safeMessage": "Unable to execute API command rotatebucketcredentials due to invalid value overflow for parameter graceperiod"
+      }
+    ],
+    "samePreparedOperation": true,
+    "keyCount": 2,
+    "restartsPreservedCandidateAndOldConnection": true
+  }
+}

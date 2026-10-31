@@ -1,0 +1,2064 @@
+{
+  "states": 27,
+  "horizontalFailures": 0,
+  "contrastFailures": [],
+  "minLight": 7.557,
+  "minDark": 6.792,
+  "rows": [
+    {
+      "file": "ui-31-create-error-dark-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-create-error-dark-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-create-error-dark-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-create-error-light-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-create-error-light-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-create-error-light-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-dark-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-dark-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-dark-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-light-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-light-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-31-update-error-light-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-dark-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-dark-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-dark-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-light-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-light-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-create-error-light-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-pending-dark-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-message",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-description",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-pending-dark-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-message",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-description",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-pending-dark-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-message",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": ".ant-alert-warning .ant-alert-description",
+          "ratio": 9.191,
+          "color": "rgb(255, 231, 163)",
+          "background": [
+            64.24,
+            58.620000000000005,
+            43.22
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-dark-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-dark-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-dark-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.129,
+          "color": "rgba(255, 255, 255, 0.65)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.073,
+          "color": "rgb(214, 235, 255)",
+          "background": [
+            32.6,
+            54.56,
+            76.12
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 6.792,
+          "color": "rgb(247, 147, 154)",
+          "background": [
+            34,
+            40,
+            47
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.563,
+          "color": "rgb(240, 243, 246)",
+          "background": [
+            27,
+            33,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-light-1280.json",
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      },
+      "image": {
+        "height": 720,
+        "width": 1280,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-light-360.json",
+      "viewport": {
+        "height": 844,
+        "width": 360
+      },
+      "image": {
+        "height": 203,
+        "width": 360,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "file": "ui-32-update-error-light-768.json",
+      "viewport": {
+        "height": 844,
+        "width": 768
+      },
+      "image": {
+        "height": 432,
+        "width": 768,
+        "format": "jpeg"
+      },
+      "horizontalFit": true,
+      "samples": [
+        {
+          "selector": ".ant-modal-title",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-label label",
+          "ratio": 7.557,
+          "color": "rgb(75, 85, 99)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-message",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".bucket-quota-context .ant-alert-description",
+          "ratio": 10.309,
+          "color": "rgb(11, 59, 102)",
+          "background": [
+            234,
+            244,
+            255
+          ]
+        },
+        {
+          "selector": ".ant-form-item-explain-error",
+          "ratio": 11.281,
+          "color": "rgb(112, 27, 27)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "selector": "input#form_item_quota",
+          "ratio": 14.679,
+          "color": "rgb(31, 41, 55)",
+          "background": [
+            255,
+            255,
+            255
+          ]
+        }
+      ]
+    }
+  ]
+}

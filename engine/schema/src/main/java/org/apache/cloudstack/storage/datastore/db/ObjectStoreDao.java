@@ -41,4 +41,5 @@ public interface ObjectStoreDao extends GenericDao<ObjectStoreVO, Long> {
     Integer countAllObjectStores();
 
     Boolean updateAllocatedSize(ObjectStoreVO objectStoreVO, long delta);
+    boolean compareAndSetAllocatedSize(long id, long expected, long requested);
 }

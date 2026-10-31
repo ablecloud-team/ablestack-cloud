@@ -1,0 +1,7 @@
+{
+  "rotationBlockedWhileOtherStoreReferencesSameKey": true,
+  "noNewProviderKey": true,
+  "revisionUnchanged": true,
+  "otherStoreRemovedThroughNormalAPI": true,
+  "remainingConnectionPreserved": true
+}

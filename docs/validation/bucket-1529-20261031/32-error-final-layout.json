@@ -1,0 +1,2674 @@
+[
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 761.53125,
+        "y": 286
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 761.53125,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 878.890625,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 979.53125,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 1299.234375,
+        "y": 391
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 800.53125,
+        "y": 551.140625
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 646,
+        "scroll": 646
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 761.53125,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 878.890625,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 979.53125,
+        "y": 391
+      }
+    ],
+    "browserWidth": 670.46875,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 800.53125,
+      "y": 551.140625
+    },
+    "search": {
+      "height": 32,
+      "width": 260.9375,
+      "x": 1097.0625,
+      "y": 391
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 249.53125,
+        "y": 820.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 760.234375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 288.53125,
+        "y": 1085.640625
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 619,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 925.5
+      }
+    ],
+    "browserWidth": 643.46875,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 288.53125,
+      "y": 1085.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 233.9375,
+      "x": 585.0625,
+      "y": 925.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 978.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1113.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1113.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1153.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 249.234375,
+        "y": 1197.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 101,
+        "y": 1426.78125
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1113.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1113.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1153.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 101,
+      "y": 1426.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1197.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 1000.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1135.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1135.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1175.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 219.234375,
+        "y": 1219.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 101,
+        "y": 1448.78125
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1135.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1135.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1175.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 101,
+      "y": 1448.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1219.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 759.34375,
+        "y": 286
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 759.34375,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 901.640625,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1008.453125,
+        "y": 391
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 1283.859375,
+        "y": 391
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 798.34375,
+        "y": 551.140625
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 649,
+        "scroll": 649
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 759.34375,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 901.640625,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1008.453125,
+        "y": 391
+      }
+    ],
+    "browserWidth": 672.65625,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 798.34375,
+      "y": 551.140625
+    },
+    "search": {
+      "height": 32,
+      "width": 237.828125,
+      "x": 1120.171875,
+      "y": 391
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 247.34375,
+        "y": 820.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 744.859375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 286.34375,
+        "y": 1085.640625
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 622,
+        "scroll": 622
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 925.5
+      }
+    ],
+    "browserWidth": 645.65625,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 286.34375,
+      "y": 1085.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 210.828125,
+      "x": 608.171875,
+      "y": 925.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 996.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1131.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1131.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1171.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 233.859375,
+        "y": 1215.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 101,
+        "y": 1419.640625
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1131.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1131.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1171.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 101,
+      "y": 1419.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1215.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          255,
+          241,
+          240
+        ],
+        "color": "rgb(112, 27, 27)",
+        "ratio": 10.256178250362137,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgb(75, 85, 99)",
+        "ratio": 7.557378129674007,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 1076.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1211.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1251.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1251.5
+      },
+      {
+        "background": "rgb(242, 244, 247)",
+        "color": "rgb(123, 132, 145)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 203.859375,
+        "y": 1295.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 101,
+        "y": 1524.78125
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1211.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1251.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1251.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 101,
+      "y": 1524.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1295.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 761.53125,
+        "y": 286
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 761.53125,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 878.890625,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 979.53125,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 1299.234375,
+        "y": 391
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 800.53125,
+        "y": 551.140625
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 646,
+        "scroll": 646
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 761.53125,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 878.890625,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 979.53125,
+        "y": 391
+      }
+    ],
+    "browserWidth": 670.46875,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 800.53125,
+      "y": 551.140625
+    },
+    "search": {
+      "height": 32,
+      "width": 260.9375,
+      "x": 1097.0625,
+      "y": 391
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 249.53125,
+        "y": 820.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 760.234375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 288.53125,
+        "y": 1085.640625
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 619,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 925.5
+      }
+    ],
+    "browserWidth": 643.46875,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 288.53125,
+      "y": 1085.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 233.9375,
+      "x": 585.0625,
+      "y": 925.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 978.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1113.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1113.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1153.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 249.234375,
+        "y": 1197.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 101,
+        "y": 1426.78125
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1113.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1113.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1153.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 101,
+      "y": 1426.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1197.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "파일 목록을 불러오지 못했습니다."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "스토리지 자격 증명을 확인하지 못했습니다. 저장소 연결을 확인한 후 다시 시도하세요. 기존 객체는 보존되어 있습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "재시도"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 1000.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1135.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1135.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1175.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 219.234375,
+        "y": 1219.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "재시도",
+        "width": 70.640625,
+        "x": 101,
+        "y": 1448.78125
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1135.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1135.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1175.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": {
+      "height": 32,
+      "width": 70.640625,
+      "x": 101,
+      "y": 1448.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1219.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 759.34375,
+        "y": 286
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 759.34375,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 901.640625,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1008.453125,
+        "y": 391
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 1283.859375,
+        "y": 391
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 798.34375,
+        "y": 551.140625
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 649,
+        "scroll": 649
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 759.34375,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 901.640625,
+        "y": 391
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1008.453125,
+        "y": 391
+      }
+    ],
+    "browserWidth": 672.65625,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 798.34375,
+      "y": 551.140625
+    },
+    "search": {
+      "height": 32,
+      "width": 237.828125,
+      "x": 1120.171875,
+      "y": 391
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 247.34375,
+        "y": 820.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 744.859375,
+        "y": 925.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 286.34375,
+        "y": 1085.640625
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 622,
+        "scroll": 622
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 925.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 925.5
+      }
+    ],
+    "browserWidth": 645.65625,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 286.34375,
+      "y": 1085.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 210.828125,
+      "x": 608.171875,
+      "y": 925.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 996.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1131.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1131.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1171.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 233.859375,
+        "y": 1215.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 101,
+        "y": 1419.640625
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1131.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1131.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1171.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 101,
+      "y": 1419.640625
+    },
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1215.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  },
+  {
+    "cluster": 32,
+    "phase": "error-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Unable to load the object list."
+      },
+      {
+        "background": [
+          95,
+          52,
+          52
+        ],
+        "color": "rgb(255, 210, 210)",
+        "ratio": 7.596700703204829,
+        "text": "Storage credentials could not be verified. Check the storage connection and retry. Existing objects have been preserved."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "color": "rgb(197, 204, 212)",
+        "ratio": 8.469986394935841,
+        "text": "Retry"
+      }
+    ],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 1076.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1211.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1251.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1251.5
+      },
+      {
+        "background": "rgb(85, 85, 85)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "disabled": true,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 203.859375,
+        "y": 1295.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Retry",
+        "width": 63.671875,
+        "x": 101,
+        "y": 1524.78125
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/7de00753-b80f-4d73-bde6-ebdd391be0a5?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1211.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1251.5
+      },
+      {
+        "disabled": true,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1251.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": {
+      "height": 32,
+      "width": 63.671875,
+      "x": 101,
+      "y": 1524.78125
+    },
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1295.5
+    },
+    "retryEnabled": true,
+    "errors": []
+  }
+]

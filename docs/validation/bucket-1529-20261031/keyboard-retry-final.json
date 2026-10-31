@@ -1,0 +1,54 @@
+{
+  "31": {
+    "keyboardEnterRecoveredFile": true,
+    "requests": [
+      {
+        "kind": "Cloud listBuckets",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Cloud listBuckets",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Glue S3 list",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Glue S3 list",
+        "method": "OPTIONS",
+        "http": 200
+      }
+    ],
+    "pass": true
+  },
+  "32": {
+    "keyboardEnterRecoveredFile": true,
+    "requests": [
+      {
+        "kind": "Cloud listBuckets",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Cloud listBuckets",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Glue S3 list",
+        "method": "GET",
+        "http": 200
+      },
+      {
+        "kind": "Glue S3 list",
+        "method": "OPTIONS",
+        "http": 200
+      }
+    ],
+    "pass": true
+  }
+}

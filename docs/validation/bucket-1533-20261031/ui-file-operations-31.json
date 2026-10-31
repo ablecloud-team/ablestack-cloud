@@ -1,0 +1,12 @@
+{
+  "folderAndUploadViaUI": true,
+  "explicitNewKeyLookupUsed": true,
+  "signedNewKeyGetStatus": 200,
+  "uploadSHA256": "9c244086edc13d387395ff45b5af912578e000142f19044ee6b19ceaaf618eae",
+  "uploadMetadataPreserved": true,
+  "uiCreatedShareURLGetStatus": 200,
+  "shareURLContainsNoSecretKey": true,
+  "shareURLCredentialIdentifierAndSignatureAreExpected": true,
+  "clipboardRestored": true,
+  "objectDeletedViaUIAndS3Get404": true
+}

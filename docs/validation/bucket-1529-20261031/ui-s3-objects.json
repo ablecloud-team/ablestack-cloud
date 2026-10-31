@@ -1,0 +1,72 @@
+{
+  "31": {
+    "uploadedAndFolderObjects": [
+      {
+        "bucket": "qa-bkt-1529-31-a1",
+        "object": "qa-scoped-1529.txt",
+        "size": 54,
+        "sha256": "6d8a319bcbb7134fc98999f61e4816f34caea605250d2105cb29be282f2ade15",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-31-a1",
+        "object": "scoped-1529/",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-31-b1",
+        "object": "qa-scoped-1529.txt",
+        "size": 54,
+        "sha256": "6d8a319bcbb7134fc98999f61e4816f34caea605250d2105cb29be282f2ade15",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-31-b1",
+        "object": "scoped-1529/",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "getHTTP": 200
+      }
+    ],
+    "unverifiedReplyOmitsKeys": true,
+    "storeAStillVerified": true,
+    "accountDetailsUnchanged": true
+  },
+  "32": {
+    "uploadedAndFolderObjects": [
+      {
+        "bucket": "qa-bkt-1529-32-a1",
+        "object": "qa-scoped-1529.txt",
+        "size": 54,
+        "sha256": "6d8a319bcbb7134fc98999f61e4816f34caea605250d2105cb29be282f2ade15",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-32-a1",
+        "object": "scoped-1529/",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-32-b1",
+        "object": "qa-scoped-1529.txt",
+        "size": 54,
+        "sha256": "6d8a319bcbb7134fc98999f61e4816f34caea605250d2105cb29be282f2ade15",
+        "getHTTP": 200
+      },
+      {
+        "bucket": "qa-bkt-1529-32-b1",
+        "object": "scoped-1529/",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "getHTTP": 200
+      }
+    ],
+    "unverifiedReplyOmitsKeys": true,
+    "storeAStillVerified": true,
+    "accountDetailsUnchanged": true
+  }
+}

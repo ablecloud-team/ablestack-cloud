@@ -1,0 +1,558 @@
+[
+  {
+    "cluster": 31,
+    "name": "initial-tab-new-bundle",
+    "time": "2026-10-31T02:57:28.108Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "initial-tab-new-bundle",
+    "time": "2026-10-31T02:57:29.307Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "folder-navigation",
+    "time": "2026-10-31T02:57:48.954Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tnested.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t deep\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/"
+  },
+  {
+    "cluster": 32,
+    "name": "folder-navigation",
+    "time": "2026-10-31T02:57:49.542Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tnested.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t deep\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/"
+  },
+  {
+    "cluster": 31,
+    "name": "deep-folder",
+    "time": "2026-10-31T02:57:57.853Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 32,
+    "name": "deep-folder",
+    "time": "2026-10-31T02:58:08.172Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 31,
+    "name": "deep-url-reload",
+    "time": "2026-10-31T02:58:09.674Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 31,
+    "name": "root-history-entry",
+    "time": "2026-10-31T02:58:10.313Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "history-back",
+    "time": "2026-10-31T02:58:10.715Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 31,
+    "name": "history-forward",
+    "time": "2026-10-31T02:58:11.127Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "deep-url-reload",
+    "time": "2026-10-31T02:58:24.410Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 32,
+    "name": "root-history-entry",
+    "time": "2026-10-31T02:58:24.944Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "history-back",
+    "time": "2026-10-31T02:58:25.340Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+  },
+  {
+    "cluster": 32,
+    "name": "history-forward",
+    "time": "2026-10-31T02:58:25.749Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "prefix-search",
+    "time": "2026-10-31T02:58:26.322Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "empty-search",
+    "time": "2026-10-31T02:58:27.200Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "데이터 없음"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "clear-search",
+    "time": "2026-10-31T02:58:28.127Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "prefix-search",
+    "time": "2026-10-31T02:58:28.720Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "empty-search",
+    "time": "2026-10-31T02:58:29.310Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "데이터 없음"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "clear-search",
+    "time": "2026-10-31T02:58:30.150Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "intercept-diagnostic",
+    "time": "2026-10-31T02:59:33.243Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "injected-403-retains-data",
+    "time": "2026-10-31T02:59:50.571Z",
+    "busy": 0,
+    "error": "파일 목록을 불러오지 못했습니다.\nQA injected 403",
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "cancel-retains-data",
+    "time": "2026-10-31T03:01:05.837Z",
+    "busy": 0,
+    "error": "파일 목록을 불러오지 못했습니다.\n파일 목록 조회를 취소했습니다.",
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "cancel-retry-refresh",
+    "time": "2026-10-31T03:01:06.380Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "cancel-retains-data",
+    "time": "2026-10-31T03:01:07.562Z",
+    "busy": 0,
+    "error": "파일 목록을 불러오지 못했습니다.\n파일 목록 조회를 취소했습니다.",
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "cancel-retry-refresh",
+    "time": "2026-10-31T03:01:08.109Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "deadline-timeout-retains-data",
+    "time": "2026-10-31T03:01:46.200Z",
+    "busy": 0,
+    "error": "파일 목록을 불러오지 못했습니다.\n파일 목록 조회 시간이 초과되었습니다. 다시 시도하세요.",
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "timeout-retry-refresh",
+    "time": "2026-10-31T03:01:46.806Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "deadline-timeout-retains-data",
+    "time": "2026-10-31T03:01:47.059Z",
+    "busy": 0,
+    "error": "파일 목록을 불러오지 못했습니다.\n파일 목록 조회 시간이 초과되었습니다. 다시 시도하세요.",
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "timeout-retry-refresh",
+    "time": "2026-10-31T03:01:47.676Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "create-folder-refresh",
+    "time": "2026-10-31T03:01:59.445Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "create-folder-refresh",
+    "time": "2026-10-31T03:02:00.626Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "ui-upload-refresh",
+    "time": "2026-10-31T03:02:17.976Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "ui-upload-refresh",
+    "time": "2026-10-31T03:02:19.850Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "switch-to-empty-bucket",
+    "time": "2026-10-31T03:02:34.067Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/c54f18f7-1a21-49a7-8e31-84399094ac0f?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "switch-back-to-files-bucket",
+    "time": "2026-10-31T03:02:34.778Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "switch-to-empty-bucket",
+    "time": "2026-10-31T03:02:35.484Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/4724b3bb-b226-45d0-b77a-ef16616c6efe?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "switch-back-to-files-bucket",
+    "time": "2026-10-31T03:02:36.200Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "reload-after-transition-diagnostic",
+    "time": "2026-10-31T03:06:31.249Z",
+    "rows": [],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "direct-reload-diagnostic",
+    "time": "2026-10-31T03:07:07.011Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "object-detail-close-keeps-list",
+    "time": "2026-10-31T03:07:52.999Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "new-root-before-old-folder",
+    "time": "2026-10-31T03:10:34.415Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 31,
+    "name": "late-folder-cannot-overwrite-root",
+    "time": "2026-10-31T03:10:34.746Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "new-root-before-old-folder",
+    "time": "2026-10-31T03:10:36.427Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  },
+  {
+    "cluster": 32,
+    "name": "late-folder-cannot-overwrite-root",
+    "time": "2026-10-31T03:10:36.761Z",
+    "busy": 0,
+    "loading": 0,
+    "rows": [
+      "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+      "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+      "\t folder\t\t",
+      "\t ui-folder\t\t"
+    ],
+    "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+  }
+]

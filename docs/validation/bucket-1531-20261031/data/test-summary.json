@@ -1,0 +1,36 @@
+{
+  "serverTests": 24,
+  "cephTests": 24,
+  "backendTotal": 48,
+  "uiFocusedTests": 89,
+  "uiSuites": 4,
+  "details": {
+    "backend-all-final.log": [
+      "[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.416 s - in com.cloud.resourcelimit.BucketResourceCountTest",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.106 s - in org.apache.cloudstack.storage.object.BucketApiServiceImplTest",
+      "[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.347 s - in org.apache.cloudstack.storage.object.BucketQuotaCoordinatorTest",
+      "[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.542 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreDriverImplTest",
+      "[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.319 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreCredentialResolverTest",
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.346 s - in org.apache.cloudstack.storage.datastore.driver.CephBucketQuotaClientTest",
+      "[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "backend-client-final.log": [
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.504 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreDriverImplTest",
+      "[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.305 s - in org.apache.cloudstack.storage.datastore.driver.CephObjectStoreCredentialResolverTest",
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.324 s - in org.apache.cloudstack.storage.datastore.driver.CephBucketQuotaClientTest",
+      "[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ]
+  },
+  "fullCloudBuildAndFullCI": false,
+  "finalImportOnlyRerun": {
+    "server": 24,
+    "cephClientAndCredential": 20,
+    "total": 44,
+    "result": "PASS"
+  },
+  "changedJavaDirectCheckstyle": "PASS",
+  "moduleCheckstyleBaselineErrors": 6
+}

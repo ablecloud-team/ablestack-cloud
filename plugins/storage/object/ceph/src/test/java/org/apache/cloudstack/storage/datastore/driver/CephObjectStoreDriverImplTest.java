@@ -22,7 +22,9 @@ import com.amazonaws.services.s3.model.CORSRule;
 import com.cloud.agent.api.to.BucketTO;
 import com.cloud.storage.BucketVO;
 import com.cloud.storage.dao.BucketDao;
-import com.cloud.user.AccountDetailVO;
+import org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialVO;
+import org.apache.cloudstack.storage.object.BucketCredentials;
+import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.user.AccountDetailsDao;
 import com.cloud.user.AccountVO;
 import com.cloud.user.dao.AccountDao;
@@ -95,9 +97,12 @@ public class CephObjectStoreDriverImplTest {
     @Test
     public void testCreateBucket() throws Exception {
         doReturn(rgwClient).when(cephObjectStoreDriverImpl).getS3Client(anyLong(), anyLong());
-        when(accountDetailsDao.findDetail(anyLong(),anyString())).
-                thenReturn(new AccountDetailVO(1L, "abc","def"));
-        when(bucketDao.findById(anyLong())).thenReturn(new BucketVO(bucket.getName()));
+        CephObjectStoreCredentialResolver resolver = org.mockito.Mockito.mock(CephObjectStoreCredentialResolver.class);
+        ObjectStoreAccountCredentialVO row = new ObjectStoreAccountCredentialVO(1, 1, "owner");
+        row.setAccessKey("test-access"); row.setSecretKey("test-secret");
+        doReturn(resolver).when(cephObjectStoreDriverImpl).credentialResolver();
+        when(resolver.resolve(anyLong(), anyLong(), org.mockito.Mockito.anyBoolean())).thenReturn(row);
+        when(bucketDao.createForUpdate(anyLong())).thenReturn(new BucketVO(bucket.getName()));
         BucketCrossOriginConfiguration corsConfiguration = new BucketCrossOriginConfiguration();
         corsConfiguration.setRules(Collections.singletonList(new CORSRule().withId("CORSRule")));
         when(rgwClient.getBucketCrossOriginConfiguration(anyString())).thenReturn(corsConfiguration);
@@ -116,4 +121,31 @@ public class CephObjectStoreDriverImplTest {
         assertTrue(success);
         verify(rgwAdmin, times(1)).removeBucket(anyString());
     }
+    @Test
+    public void policiesAndVersioningResolveTheStoreAccountPair() {
+        BucketVO record = new BucketVO(77, 1, 12, "bucket", 1, false, false, false, "Private");
+        record.setAccessKey("stale-access"); record.setSecretKey("stale-secret");
+        BucketTO transfer = new BucketTO(record);
+        doReturn(rgwClient).when(cephObjectStoreDriverImpl).getS3Client(12L, 77L);
+        cephObjectStoreDriverImpl.setBucketPolicy(transfer, "Private", 12);
+        cephObjectStoreDriverImpl.getBucketPolicy(transfer, 12);
+        cephObjectStoreDriverImpl.deleteBucketPolicy(transfer, 12);
+        cephObjectStoreDriverImpl.setBucketVersioning(transfer, 12);
+        cephObjectStoreDriverImpl.deleteBucketVersioning(transfer, 12);
+        verify(cephObjectStoreDriverImpl, times(5)).getS3Client(12L, 77L);
+    }
+
+    @Test
+    public void failedVerificationNeverReturnsSnapshotKeys() {
+        CephObjectStoreCredentialResolver resolver = org.mockito.Mockito.mock(CephObjectStoreCredentialResolver.class);
+        doReturn(resolver).when(cephObjectStoreDriverImpl).credentialResolver();
+        when(resolver.resolve(anyLong(), anyLong(), org.mockito.Mockito.anyBoolean())).thenThrow(new CloudRuntimeException("unavailable"));
+        BucketVO record = new BucketVO(77, 1, 12, "bucket", 1, false, false, false, "Private");
+        record.setAccessKey("stale-access"); record.setSecretKey("stale-secret");
+        BucketCredentials result = cephObjectStoreDriverImpl.getBucketCredentials(record);
+        org.junit.Assert.assertNull(result.getAccessKey());
+        org.junit.Assert.assertNull(result.getSecretKey());
+        assertEquals("NeedsVerification", result.getState());
+    }
+
 }

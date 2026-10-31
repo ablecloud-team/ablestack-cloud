@@ -1,0 +1,1 @@
+{"freshSchema": true, "idempotentWithExistingRows": true, "pairUniqueConstraint": true, "missingParentRejected": true, "storeCascade": true, "accountCascade": true, "actualParentTypes": {"account": "bigint unsigned", "object_store": "bigint unsigned"}}

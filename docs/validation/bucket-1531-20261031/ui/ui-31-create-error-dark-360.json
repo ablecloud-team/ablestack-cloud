@@ -1,0 +1,192 @@
+{
+  "buttons": [
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "0px",
+      "rect": {
+        "bottom": 72,
+        "height": 56,
+        "right": 339,
+        "width": 56,
+        "x": 283,
+        "y": 16
+      },
+      "text": "Close"
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "100px",
+      "rect": {
+        "bottom": 551.03125,
+        "height": 22,
+        "right": 71,
+        "width": 44,
+        "x": 27,
+        "y": 529.03125
+      },
+      "text": null
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "100px",
+      "rect": {
+        "bottom": 619.03125,
+        "height": 22,
+        "right": 71,
+        "width": 44,
+        "x": 27,
+        "y": 597.03125
+      },
+      "text": null
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "100px",
+      "rect": {
+        "bottom": 687.03125,
+        "height": 22,
+        "right": 71,
+        "width": 44,
+        "x": 27,
+        "y": 665.03125
+      },
+      "text": null
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "4px",
+      "rect": {
+        "bottom": 812.28125,
+        "height": 32,
+        "right": 237.234375,
+        "width": 57.765625,
+        "x": 179.46875,
+        "y": 780.28125
+      },
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "fontSize": "14px",
+      "radius": "4px",
+      "rect": {
+        "bottom": 812.28125,
+        "height": 32,
+        "right": 308,
+        "width": 57.765625,
+        "x": 250.234375,
+        "y": 780.28125
+      },
+      "text": "확인"
+    }
+  ],
+  "panel": {
+    "bottom": 828,
+    "height": 812,
+    "right": 339,
+    "width": 328,
+    "x": 11,
+    "y": 16
+  },
+  "panelScroll": {
+    "client": 328,
+    "scroll": 328
+  },
+  "samples": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "disabled": false,
+      "fontSize": "16px",
+      "fontWeight": "500",
+      "selector": ".ant-modal-title",
+      "text": "버킷 만들기"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".ant-form-item-label label",
+      "text": "이름"
+    },
+    {
+      "background": [
+        32.6,
+        54.56,
+        76.12
+      ],
+      "color": "rgb(214, 235, 255)",
+      "disabled": false,
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "selector": ".bucket-quota-context .ant-alert-message",
+      "text": "1~2147483647 GiB 범위의 양의 정수를 입력하세요."
+    },
+    {
+      "background": [
+        32.6,
+        54.56,
+        76.12
+      ],
+      "color": "rgb(214, 235, 255)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".bucket-quota-context .ant-alert-description",
+      "text": "변경 전에 서버가 실제 사용량, 계정·프로젝트·도메인 제한과 저장소 예약을 확인합니다.예약 가능한 용량: 2 GiB · 진행 중 예약: 0 GiB 확인 시각: 2"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgb(247, 147, 154)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": ".ant-form-item-explain-error",
+      "text": "1~2147483647 GiB 범위의 양의 정수를 입력하세요."
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "color": "rgb(240, 243, 246)",
+      "disabled": false,
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "selector": "input#form_item_quota",
+      "text": "0"
+    }
+  ],
+  "viewport": {
+    "height": 844,
+    "width": 360
+  },
+  "image": {
+    "height": 203,
+    "width": 360,
+    "format": "jpeg"
+  },
+  "cluster": 31,
+  "state": "create-error",
+  "theme": "dark"
+}

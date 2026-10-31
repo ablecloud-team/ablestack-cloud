@@ -1,0 +1,10 @@
+{
+  "originalWindowsHeadBranchStatusTrackedDiffUnchanged": true,
+  "originalWslHeadBranchTrackedDiffUnchanged": true,
+  "originalWslAdditionalUntrackedPreserved": [
+    "?? ui/tests/unit/views/infra/dr/DrSiteList.spec.js"
+  ],
+  "originalWslNewUntrackedSha256": {
+    "ui/tests/unit/views/infra/dr/DrSiteList.spec.js": "279cb6b7619aa65e6439e2fe5810024118709ae912c5fdaf4554cb5e42b8b6e5"
+  }
+}

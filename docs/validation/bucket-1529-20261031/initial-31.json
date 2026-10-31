@@ -1,0 +1,18 @@
+{
+  "concurrentUiBucketCount": 2,
+  "pairRowCount": 1,
+  "externalUserKeyCount": 1,
+  "credentialState": "Verified",
+  "encryptedAtRest": true,
+  "accountDetailsUnchanged": true,
+  "details": {
+    "count": 4,
+    "sha256": "55da8be59b324f7445143dd5d109db33f000d73583d2e668ce1e4d65805102f1",
+    "names": [
+      "mold.external-iam.provisioning",
+      "qa.preserve.color",
+      "qa.preserve.json",
+      "qa.preserve.unicode"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "31": {
+    "bucketResourceCount": 0,
+    "objectStorageResourceBytes": 0,
+    "activeQaAccounts": 0,
+    "activeQaStores": 0,
+    "activeBuckets": 0
+  },
+  "32": {
+    "bucketResourceCount": 1,
+    "objectStorageResourceBytes": 1073741824,
+    "activeQaAccounts": 0,
+    "activeQaStores": 0,
+    "activeBuckets": 1
+  }
+}

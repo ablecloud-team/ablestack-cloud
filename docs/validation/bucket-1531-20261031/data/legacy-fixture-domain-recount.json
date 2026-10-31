@@ -1,0 +1,15 @@
+{
+  "reason": "Disposable legacy fixture preparation changed Cloud quota from 1 GiB to 0 directly and recounted the account only; the parent domain retained its fixture setup increment. Production saga concurrency/failure ledgers matched without repairs. Final domain cleanup uses standard updateResourceCount API.",
+  "fixtureScript": "prepare-legacy-usage.py:8-9",
+  "before": [
+    "bucket\t0",
+    "object_storage\t1073741824"
+  ],
+  "after": [
+    "bucket\t0",
+    "object_storage\t0"
+  ],
+  "standardApi": "updateResourceCount(domainid=ROOT,resourcetype=15)",
+  "noActiveBucketsOrPendingOperations": true,
+  "noManualSqlCounterUpdate": true
+}

@@ -1,0 +1,83 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/components/view/ObjectStoreBrowser.spec.js --runInBand --coverage=false
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+  console.info ../../ablestack-cloud-europa-release/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+    Download the Vue Devtools extension for a better development experience:
+    https://github.com/vuejs/vue-devtools
+
+  console.info ../../ablestack-cloud-europa-release/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+    You are running Vue in development mode.
+    Make sure to turn on production mode when deploying for production.
+    See more tips at https://vuejs.org/guide/deployment.html
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+
+  console.warn ../../ablestack-cloud-europa-release/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+    [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+FAIL tests/unit/components/view/ObjectStoreBrowser.spec.js (23.053s)
+  bucket browser request lifecycle
+    ✕ renders the first listing after its own browserPath URL normalization (528ms)
+    ✕ renders a folder response without waiting for periodic refresh after URL changes (157ms)
+
+  ● bucket browser request lifecycle › renders the first listing after its own browserPath URL normalization
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected
+    + Received
+
+    - Array [
+    -   "file.txt",
+    -   "folder/",
+    - ]
+    + Array []
+
+      58 |     expect(route.query.browserPath).toBe('')
+      59 |     await complete(streams[0], [{ name: 'file.txt', size: 32 }, { prefix: 'folder/' }])
+    > 60 |     expect(wrapper.vm.records.map(row => row.name || row.prefix)).toEqual(['file.txt', 'folder/'])
+         |                                                                   ^
+      61 |     expect(wrapper.vm.loading).toBe(false)
+      62 |     expect(wrapper.vm.fetching).toBe(false)
+      63 |   })
+
+      at Object.<anonymous> (tests/unit/components/view/ObjectStoreBrowser.spec.js:60:67)
+
+  ● bucket browser request lifecycle › renders a folder response without waiting for periodic refresh after URL changes
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected
+    + Received
+
+      Array [
+    -   "folder/nested.txt",
+    +   undefined,
+      ]
+
+      70 |     await complete(streams[1], [{ name: 'folder/nested.txt', size: 16 }])
+      71 |     expect(route.query.browserPath).toBe('folder/')
+    > 72 |     expect(wrapper.vm.records.map(row => row.name)).toEqual(['folder/nested.txt'])
+         |                                                     ^
+      73 |     expect(wrapper.vm.loading).toBe(false)
+      74 |   })
+      75 | })
+
+      at Object.<anonymous> (tests/unit/components/view/ObjectStoreBrowser.spec.js:72:53)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        70.036s
+Ran all test suites within paths "tests/unit/components/view/ObjectStoreBrowser.spec.js".

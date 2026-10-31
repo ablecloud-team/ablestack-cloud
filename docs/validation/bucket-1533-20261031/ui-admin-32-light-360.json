@@ -1,0 +1,181 @@
+{
+  "body": {
+    "client": 328,
+    "scroll": 328
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 56,
+      "radius": "0px",
+      "text": "Close"
+    },
+    {
+      "disabled": false,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "font": "14px",
+      "height": 32,
+      "radius": "4px",
+      "text": "관리자 키 교체"
+    }
+  ],
+  "panel": {
+    "bottom": 661.5625,
+    "height": 479.140625,
+    "right": 339,
+    "width": 328,
+    "x": 11,
+    "y": 182.421875
+  },
+  "samples": [
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "16px",
+      "selector": ".ant-modal-title",
+      "text": "관리자 키 교체"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label",
+      "text": "액세스 키"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label",
+      "text": "비밀 키"
+    },
+    {
+      "background": [
+        234,
+        244,
+        255
+      ],
+      "color": "rgb(11, 59, 102)",
+      "contrast": 10.308999108587123,
+      "fontSize": "16px",
+      "selector": ".ant-alert-message",
+      "text": "관리자 키 교체"
+    },
+    {
+      "background": [
+        234,
+        244,
+        255
+      ],
+      "color": "rgb(11, 59, 102)",
+      "contrast": 10.308999108587123,
+      "fontSize": "14px",
+      "selector": ".ant-alert-description",
+      "text": "새 관리자 키로 연결을 먼저 검증한 뒤 저장합니다. 검증·저장 실패 시 기존 URL과 키를 유지합니다. 이 작업은 Glue의 관리자 키를 새로 발급하거나 구 키를 폐기하지 않습니다"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-checkbox-wrapper",
+      "text": "교체할 관리자 키 쌍을 확인했습니다."
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(31, 41, 55)",
+      "contrast": 14.67911847763172,
+      "fontSize": "14px",
+      "selector": "input[type=password]",
+      "text": "[input]"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(31, 41, 55)",
+      "contrast": 14.67911847763172,
+      "fontSize": "14px",
+      "selector": "input[type=password]",
+      "text": "[input]"
+    },
+    {
+      "background": [
+        255,
+        255,
+        255
+      ],
+      "color": "rgb(75, 85, 99)",
+      "contrast": 7.557378129674007,
+      "fontSize": "14px",
+      "selector": ".ant-btn",
+      "text": "취소"
+    }
+  ],
+  "viewport": {
+    "height": 844,
+    "width": 360
+  },
+  "inputs": [
+    {
+      "autocomplete": "off",
+      "id": "store-key-access-af825d63-b64a-4f22-935c-7ed888ae7f3a",
+      "labelCount": 1,
+      "type": "password"
+    },
+    {
+      "autocomplete": "off",
+      "id": "store-key-secret-af825d63-b64a-4f22-935c-7ed888ae7f3a",
+      "labelCount": 1,
+      "type": "password"
+    },
+    {
+      "autocomplete": "",
+      "id": "",
+      "labelCount": 1,
+      "type": "checkbox"
+    }
+  ],
+  "image": {
+    "height": 844,
+    "width": 350,
+    "format": "jpeg"
+  },
+  "cluster": 32,
+  "theme": "light",
+  "activeApp": [
+    "js/app.da7b8cc5.js"
+  ]
+}

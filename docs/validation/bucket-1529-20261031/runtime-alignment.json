@@ -1,0 +1,61 @@
+{
+  "31": {
+    "libraries": {
+      "cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+      "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+      "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+      "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+      "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+      "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+      "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+      "cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+      "cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "7bee8728fee1ad8b92e8b61bf45f1f226af8c42ffca3e482f03a80621ba1c0d0"
+    },
+    "indexSHA256": "19a33faefc4686ee0304840ebd3d0aa769e8e5c81065df6cc6f3f0a7df4fd50f",
+    "pid": "4159503",
+    "active": "active",
+    "http": 200,
+    "WEB-INF": true,
+    "META-INF": false,
+    "apiVersion": "4.23.0.0-Mold.Europa-202609222315",
+    "credentialRows": 0,
+    "remainingBuckets": []
+  },
+  "32": {
+    "libraries": {
+      "cloud-plugin-storage-volume-storpool-4.23.0.0-ABLESTACK.Mold.jar": "5bbad6954b6c1332f988e09c94722c634812b110fdf93359fc3670c5325f2c80",
+      "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+      "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+      "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+      "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+      "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+      "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5",
+      "cloud-plugin-storage-volume-linstor-4.23.0.0-ABLESTACK.Mold.jar": "2698cb8deb43a79be9be6f5067f5a2b49a6aad42eeb6cadb6d587a3db3b13b58",
+      "cloudstack-4.23.0.0-ABLESTACK.Mold.jar": "7bee8728fee1ad8b92e8b61bf45f1f226af8c42ffca3e482f03a80621ba1c0d0"
+    },
+    "indexSHA256": "19a33faefc4686ee0304840ebd3d0aa769e8e5c81065df6cc6f3f0a7df4fd50f",
+    "pid": "53260",
+    "active": "active",
+    "http": 200,
+    "WEB-INF": true,
+    "META-INF": false,
+    "apiVersion": "4.23.0.0-Mold.Europa-202609222315",
+    "credentialRows": 1,
+    "remainingBuckets": [
+      {
+        "name": "qa-bkt-1540-32-files",
+        "state": "Verified",
+        "checkedPresent": true
+      }
+    ]
+  },
+  "alignment": {
+    "all9ManagementLibrariesSame": true,
+    "sameFinalStaticIndex": true,
+    "bothApiVersionsSame": true,
+    "backendSource": "57e8fe086fd3ddd1c96b76605de898f166c91ffd",
+    "uiSource": "37a8aa5de7b",
+    "wholeCloudBuild": false,
+    "hostOrQemuDeployment": false
+  }
+}

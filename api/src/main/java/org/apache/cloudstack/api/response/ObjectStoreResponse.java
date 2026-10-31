@@ -54,6 +54,12 @@ public class ObjectStoreResponse extends BaseResponseWithAnnotations {
     @Param(description = "the object store currently used size")
     private Long storageUsed;
 
+    @SerializedName("storagereserved")
+    @Param(description = "bytes reserved by unfinished bucket quota operations")
+    private Long storageReserved;
+    public Long getStorageReserved() { return storageReserved; }
+    public void setStorageReserved(Long value) { storageReserved = value; }
+
     public ObjectStoreResponse() {
     }
 

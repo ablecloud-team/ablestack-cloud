@@ -1,0 +1,2802 @@
+[
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 764.4375,
+        "y": 259
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 764.4375,
+        "y": 364
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 881.796875,
+        "y": 364
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 982.4375,
+        "y": 364
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 1309.21875,
+        "y": 364
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 793.4375,
+        "y": 468
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 793.4375,
+        "y": 507
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1320.984375,
+        "y": 554
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1368.984375,
+        "y": 554
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 654,
+        "scroll": 654
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 764.4375,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 881.796875,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 982.4375,
+        "y": 364
+      }
+    ],
+    "browserWidth": 677.546875,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 268.015625,
+      "x": 1099.96875,
+      "y": 364
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 249.53125,
+        "y": 793.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 760.234375,
+        "y": 898.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 278.53125,
+        "y": 1002.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 278.53125,
+        "y": 1041.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 772,
+        "y": 1098.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 820,
+        "y": 1098.5
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 619,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 898.5
+      }
+    ],
+    "browserWidth": 643.46875,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 233.9375,
+      "x": 585.0625,
+      "y": 898.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 945.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 249.234375,
+        "y": 1164.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1268.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1307.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 261,
+        "y": 1364.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 309,
+        "y": 1364.5
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1120.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1164.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 967.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1102.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1102.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1142.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 219.234375,
+        "y": 1186.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1290.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1329.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 231,
+        "y": 1386.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 279,
+        "y": 1386.5
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1102.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1102.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1142.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1186.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 762.25,
+        "y": 259
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 762.25,
+        "y": 364
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 904.546875,
+        "y": 364
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1011.359375,
+        "y": 364
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 1293.84375,
+        "y": 364
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 791.25,
+        "y": 468
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 791.25,
+        "y": 507
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1320.984375,
+        "y": 554
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1368.984375,
+        "y": 554
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 656,
+        "scroll": 656
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 762.25,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 904.546875,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1011.359375,
+        "y": 364
+      }
+    ],
+    "browserWidth": 679.734375,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 244.90625,
+      "x": 1123.078125,
+      "y": 364
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 247.34375,
+        "y": 793.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 744.859375,
+        "y": 898.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 276.34375,
+        "y": 1002.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 276.34375,
+        "y": 1041.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 772,
+        "y": 1088.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 820,
+        "y": 1088.5
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 622,
+        "scroll": 622
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 898.5
+      }
+    ],
+    "browserWidth": 645.65625,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 210.828125,
+      "x": 608.171875,
+      "y": 898.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 923.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1058.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1058.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1098.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 233.859375,
+        "y": 1142.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1246.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1285.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 261,
+        "y": 1342.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 309,
+        "y": 1342.5
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1058.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1058.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1098.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1142.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "light",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(245, 247, 250)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 945.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(75, 85, 99)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 203.859375,
+        "y": 1164.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1268.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(9, 105, 218)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1307.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 231,
+        "y": 1364.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(0, 0, 0, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 279,
+        "y": 1364.5
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          255,
+          255,
+          255
+        ],
+        "color": "rgba(0, 0, 0, 0.65)",
+        "ratio": 6.977601437110393,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1120.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1164.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 764.4375,
+        "y": 259
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 764.4375,
+        "y": 364
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 881.796875,
+        "y": 364
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 982.4375,
+        "y": 364
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 1309.21875,
+        "y": 364
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 793.4375,
+        "y": 468
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 793.4375,
+        "y": 507
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1320.984375,
+        "y": 554
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1368.984375,
+        "y": 554
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 654,
+        "scroll": 654
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 764.4375,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 881.796875,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 982.4375,
+        "y": 364
+      }
+    ],
+    "browserWidth": 677.546875,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 268.015625,
+      "x": 1099.96875,
+      "y": 364
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 249.53125,
+        "y": 793.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 760.234375,
+        "y": 898.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 278.53125,
+        "y": 1002.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 278.53125,
+        "y": 1041.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 772,
+        "y": 1098.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 820,
+        "y": 1098.5
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 619,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 249.53125,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 366.890625,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 467.53125,
+        "y": 898.5
+      }
+    ],
+    "browserWidth": 643.46875,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 233.9375,
+      "x": 585.0625,
+      "y": 898.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 945.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 249.234375,
+        "y": 1164.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1268.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1307.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 261,
+        "y": 1364.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 309,
+        "y": 1364.5
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1120.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1164.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "ko",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 967.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1102.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1102.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1142.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "검색",
+        "width": 57.765625,
+        "x": 219.234375,
+        "y": 1186.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1290.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1329.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 231,
+        "y": 1386.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 279,
+        "y": 1386.5
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "검증 완료"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "폴더 생성",
+        "width": 109.359375,
+        "x": 62,
+        "y": 1102.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업로드",
+        "width": 92.640625,
+        "x": 179.359375,
+        "y": 1102.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "업데이트",
+        "width": 105.53125,
+        "x": 62,
+        "y": 1142.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1186.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 762.25,
+        "y": 259
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 762.25,
+        "y": 364
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 904.546875,
+        "y": 364
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1011.359375,
+        "y": 364
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 1293.84375,
+        "y": 364
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 791.25,
+        "y": 468
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 791.25,
+        "y": 507
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1320.984375,
+        "y": 554
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 1368.984375,
+        "y": 554
+      }
+    ],
+    "documentWidth": 1430,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 656,
+        "scroll": 656
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 762.25,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 904.546875,
+        "y": 364
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 1011.359375,
+        "y": 364
+      }
+    ],
+    "browserWidth": 679.734375,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 244.90625,
+      "x": 1123.078125,
+      "y": 364
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 247.34375,
+        "y": 793.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 898.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 744.859375,
+        "y": 898.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 276.34375,
+        "y": 1002.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 276.34375,
+        "y": 1041.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 772,
+        "y": 1088.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 820,
+        "y": 1088.5
+      }
+    ],
+    "documentWidth": 891,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 622,
+        "scroll": 622
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 901
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 247.34375,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 389.640625,
+        "y": 898.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 496.453125,
+        "y": 898.5
+      }
+    ],
+    "browserWidth": 645.65625,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 210.828125,
+      "x": 608.171875,
+      "y": 898.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 923.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1058.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1058.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1098.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 233.859375,
+        "y": 1142.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1246.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1285.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 261,
+        "y": 1342.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 309,
+        "y": 1342.5
+      }
+    ],
+    "documentWidth": 380,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 296,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1058.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 204.296875,
+        "y": 1058.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 62,
+        "y": 1098.5
+      }
+    ],
+    "browserWidth": 296,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 246,
+      "x": 62,
+      "y": 1142.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  },
+  {
+    "cluster": 31,
+    "phase": "healthy-final",
+    "theme": "dark",
+    "lang": "en",
+    "alerts": [],
+    "bodyBackground": "rgb(22, 27, 34)",
+    "buttons": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "/",
+        "width": 23.46875,
+        "x": 62,
+        "y": 945.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(39, 46, 54)",
+        "color": "rgb(197, 204, 212)",
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1120.5
+      },
+      {
+        "background": "rgb(24, 144, 255)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false,
+        "height": 32,
+        "radius": "0px 4px 4px 0px",
+        "text": "Search",
+        "width": 73.140625,
+        "x": 203.859375,
+        "y": 1164.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "qa-scoped-1529.txt",
+        "width": 120.109375,
+        "x": 91,
+        "y": 1268.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(105, 177, 255)",
+        "disabled": false,
+        "height": 22,
+        "radius": "0px",
+        "text": "scoped-1529",
+        "width": 98.03125,
+        "x": 91,
+        "y": 1307.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 231,
+        "y": 1364.5
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.25)",
+        "disabled": true,
+        "height": 24,
+        "radius": "4px",
+        "text": "",
+        "width": 24,
+        "x": 279,
+        "y": 1364.5
+      }
+    ],
+    "documentWidth": 350,
+    "scripts": [
+      "js/app.72c8473b.js"
+    ],
+    "status": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "color": "rgba(255, 255, 255, 0.65)",
+        "ratio": 7.128935659391724,
+        "text": "Verified"
+      }
+    ],
+    "tableScroll": [
+      {
+        "client": 266,
+        "scroll": 620
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/buckets/47436d73-6d86-46c5-8fe9-e1b4fa0ab42b?tab=browser&browserPath=",
+    "viewport": {
+      "height": 844,
+      "width": 360
+    },
+    "actions": [
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Create folder",
+        "width": 134.296875,
+        "x": 62,
+        "y": 1080.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Upload",
+        "width": 98.8125,
+        "x": 62,
+        "y": 1120.5
+      },
+      {
+        "disabled": false,
+        "height": 32,
+        "radius": "4px",
+        "text": "Refresh",
+        "width": 99.71875,
+        "x": 168.8125,
+        "y": 1120.5
+      }
+    ],
+    "browserWidth": 266,
+    "retryButton": null,
+    "search": {
+      "height": 32,
+      "width": 216,
+      "x": 62,
+      "y": 1164.5
+    },
+    "fileVisible": 1,
+    "errors": []
+  }
+]

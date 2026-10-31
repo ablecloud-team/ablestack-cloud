@@ -1,0 +1,92 @@
+{
+  "twoUiRequestsAndCapacityRejection": true,
+  "retryAfterCapacityReleaseSucceeded": true,
+  "finalQuotasGiB": [
+    2,
+    2
+  ],
+  "ledger": {
+    "stores": [
+      {
+        "name": "qa-bkt-1531-31-a",
+        "allocated": 4294967296,
+        "reserved": 0,
+        "createdQuotaBytes": 4294967296
+      },
+      {
+        "name": "qa-bkt-1531-31-b",
+        "allocated": 6442450944,
+        "reserved": 0,
+        "createdQuotaBytes": 6442450944
+      },
+      {
+        "name": "qa-bkt-1531-31-fault",
+        "allocated": 2147483648,
+        "reserved": 0,
+        "createdQuotaBytes": 2147483648
+      }
+    ],
+    "accountCounts": [
+      {
+        "accountId": 336,
+        "type": "bucket",
+        "actual": 3,
+        "expectedIncludingHolds": 3
+      },
+      {
+        "accountId": 336,
+        "type": "object_storage",
+        "actual": 6442450944,
+        "expectedIncludingHolds": 6442450944
+      },
+      {
+        "accountId": 337,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 337,
+        "type": "object_storage",
+        "actual": 2147483648,
+        "expectedIncludingHolds": 2147483648
+      },
+      {
+        "accountId": 338,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 338,
+        "type": "object_storage",
+        "actual": 2147483648,
+        "expectedIncludingHolds": 2147483648
+      },
+      {
+        "accountId": 339,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 339,
+        "type": "object_storage",
+        "actual": 1073741824,
+        "expectedIncludingHolds": 1073741824
+      },
+      {
+        "accountId": 340,
+        "type": "bucket",
+        "actual": 1,
+        "expectedIncludingHolds": 1
+      },
+      {
+        "accountId": 340,
+        "type": "object_storage",
+        "actual": 1073741824,
+        "expectedIncludingHolds": 1073741824
+      }
+    ]
+  }
+}

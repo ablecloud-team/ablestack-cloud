@@ -1,0 +1,30 @@
+{
+  "buttons": [
+    {
+      "height": 32,
+      "radius": "4px",
+      "text": "생성 및 연결"
+    },
+    {
+      "height": 32,
+      "radius": "4px",
+      "text": "기존 볼륨 연결"
+    },
+    {
+      "height": 32,
+      "radius": "4px",
+      "text": "업데이트"
+    }
+  ],
+  "search": {
+    "bottom": 354,
+    "height": 32,
+    "left": 942.984375,
+    "right": 1190.984375,
+    "top": 322,
+    "width": 248,
+    "x": 942.984375,
+    "y": 322
+  },
+  "url": "http://10.10.31.10:8080/client/#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b?tab=volumes"
+}

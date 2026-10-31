@@ -1,0 +1,22 @@
+{
+  "buckets": [
+    {
+      "bucket": "2b449a9e-903d-46eb-a0ee-335960f2e948",
+      "newKeyS3Status": 200,
+      "oldKeyS3Status": 403,
+      "revision": 2,
+      "phase": "Completed"
+    },
+    {
+      "bucket": "245907f4-7ef3-4113-8653-4dee5fff7e0c",
+      "newKeyS3Status": 200,
+      "oldKeyS3Status": 403,
+      "revision": 2,
+      "phase": "Completed"
+    }
+  ],
+  "recordedCandidateRecovered": false,
+  "exactlyOneProviderKey": true,
+  "iamAccountDetailsPreserved": true,
+  "objectSHA256Preserved": false
+}

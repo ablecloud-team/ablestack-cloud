@@ -16,6 +16,7 @@
 // under the License.
 
 import Cookies from 'js-cookie'
+import { clearBucketS3Sessions } from '@/utils/bucketCredentialMemory'
 import { axios, sourceToken } from '@/utils/request'
 import { message, notification } from 'ant-design-vue'
 import { vueProps } from '@/vue-app'
@@ -99,12 +100,14 @@ export function postAPI (command, data = {}, { preserveOnFailure = false, timeou
 }
 
 export function callAPI (command, args = {}) {
+  if (['getbucketcredentials', 'rotatebucketcredentials', 'addobjectstoragepool', 'updateobjectstoragepool'].includes(command.toLowerCase())) return postAPI(command, args)
   const isGetAPICommand = getAPICommandsRegex.test(command) || additionalGetAPICommandsList.includes(command.toLowerCase())
   const call = isGetAPICommand ? getAPI : postAPI
   return call(command, args)
 }
 
 export function login (arg) {
+  clearBucketS3Sessions()
   if (!sourceToken.checkExistSource()) {
     sourceToken.init()
   }
@@ -131,6 +134,7 @@ export function login (arg) {
 }
 
 export async function logout (sessionkey) {
+  clearBucketS3Sessions()
   if (!getSessionKey(sessionkey)) {
     sourceToken.cancel()
     message.destroy()

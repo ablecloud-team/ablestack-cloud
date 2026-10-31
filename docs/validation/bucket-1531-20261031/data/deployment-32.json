@@ -1,0 +1,70 @@
+{
+  "markers": {
+    "message.objectstore.credential.unverified": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "credentialstate": [
+      "js/chunk-41f39e4e.d11b783b.js",
+      "js/chunk-1a202a74.54c7dc6d.js",
+      "js/chunk-f146510e.2eff5915.js",
+      "js/app.6283616f.js",
+      "js/chunk-56ca565e.d96987a2.js"
+    ],
+    "message.objectstore.upload.success.summary": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "objectStoreRowKey": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "objectStoreFetchGeneration": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "objectStoreRouteMatchesResource": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "objectListScopeChanged": [
+      "js/chunk-f146510e.2eff5915.js"
+    ],
+    "blockingLoadingState": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "fetchSyncProgress": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "extractJobId": [
+      "js/chunk-0cc06130.6d1051f9.js"
+    ],
+    "bucket-quota-context": [
+      "js/chunk-231eeec4.601ad342.js",
+      "js/chunk-93f5395c.05b7aac8.js"
+    ],
+    "message.bucket.quota.pending": [
+      "js/chunk-231eeec4.601ad342.js"
+    ],
+    "quotaoperationstate": [
+      "js/app.6283616f.js",
+      "js/chunk-231eeec4.601ad342.js",
+      "js/chunk-93f5395c.05b7aac8.js"
+    ]
+  },
+  "before": {
+    "pid": "70790",
+    "active": "active",
+    "http": 200,
+    "webinf": true,
+    "index": "59ca0f6b66bce4b4df88e9d525b5065fe07780649cbdc3b2e447b6b6f7c6dc1d"
+  },
+  "after": {
+    "pid": "70790",
+    "active": "active",
+    "http": 200,
+    "webinf": true,
+    "index": "fd6431425c8e03771952edc8752f6b564c5f8f63333585625b4609f0ec8c21a2"
+  },
+  "protectedCount": 19,
+  "protectedUnchanged": true,
+  "manifestCount": 626,
+  "verifiedAllStaticHashes": true,
+  "changedCount": 7,
+  "backup": "/nfs/bucket-1531-ui-20261031-contrast/backup"
+}

@@ -1,0 +1,48 @@
+{
+  "31": {
+    "buckets": {
+      "listbucketsresponse": {}
+    },
+    "stores": {
+      "listobjectstoragepoolsresponse": {}
+    },
+    "account": {
+      "listaccountsresponse": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Unable to find account by id 332"
+      }
+    },
+    "originalIamMarkerRestoredBeforeDelete": true,
+    "remainingBuckets": [],
+    "remainingStoreCount": 0,
+    "accountLookupExpectedNotFound": true
+  },
+  "32": {
+    "retainedBucket": {
+      "id": "3e952d59-a311-4a2b-86fe-d66ed38f050c",
+      "name": "qa-bkt-1540-32-files"
+    },
+    "retainedStore": "23400b34-eaa2-45a6-b355-c23cf2263aa5",
+    "retainedAccount": "6af1b9e3-6326-43aa-945f-a442871f6960",
+    "retainedRgwAdmin": "qa-bkt-1540-admin",
+    "originalIamMarkerRestored": true,
+    "remainingBuckets": [
+      {
+        "id": "3e952d59-a311-4a2b-86fe-d66ed38f050c",
+        "name": "qa-bkt-1540-32-files"
+      }
+    ],
+    "remainingStoreCount": 1
+  },
+  "rgwBuckets": [
+    "qa-bkt-1540-32-files"
+  ],
+  "rgwUsers": [
+    "dashboard",
+    "6af1b9e3-6326-43aa-945f-a442871f6960",
+    "qa-bkt-1540-admin"
+  ],
+  "cephHealth": "HEALTH_OK"
+}

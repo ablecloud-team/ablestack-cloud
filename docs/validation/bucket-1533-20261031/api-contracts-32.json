@@ -1,0 +1,63 @@
+{
+  "ownerUserRoleAllowed": true,
+  "previewMasked": true,
+  "explicitRevealVerified": true,
+  "previewHeaders": {
+    "Cache-Control": "no-store, private, max-age=0",
+    "Pragma": "no-cache"
+  },
+  "getRequestsRejected": [
+    {
+      "command": "getBucketCredentials",
+      "status": 400,
+      "headers": {
+        "Cache-Control": "no-store, private, max-age=0",
+        "Pragma": "no-cache"
+      }
+    },
+    {
+      "command": "rotateBucketCredentials",
+      "status": 400,
+      "headers": {
+        "Cache-Control": "no-store, private, max-age=0",
+        "Pragma": "no-cache"
+      }
+    },
+    {
+      "command": "addObjectStoragePool",
+      "status": 400,
+      "headers": {
+        "Cache-Control": "no-store, private, max-age=0",
+        "Pragma": "no-cache"
+      }
+    },
+    {
+      "command": "updateObjectStoragePool",
+      "status": 400,
+      "headers": {
+        "Cache-Control": "no-store, private, max-age=0",
+        "Pragma": "no-cache"
+      }
+    }
+  ],
+  "nonOwnerRejected": [
+    {
+      "command": "getBucketCredentials",
+      "errorcode": 531,
+      "status": 531
+    },
+    {
+      "command": "rotateBucketCredentials",
+      "errorcode": 531,
+      "status": 531
+    }
+  ],
+  "ordinaryResponsesNoKeys": [
+    "listBuckets",
+    "syncBucketUsage"
+  ],
+  "lookupDoesNotIssueOrRotate": true,
+  "providerKeyCount": 2,
+  "affectedBucketCount": 2,
+  "preparedOperationPreserved": true
+}

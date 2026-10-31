@@ -1,0 +1,235 @@
+{
+  "alerts": [],
+  "bodyBackground": "rgb(22, 27, 34)",
+  "buttons": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "/",
+      "width": 23.46875,
+      "x": 590.1875,
+      "y": 213
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "폴더 생성",
+      "width": 109.359375,
+      "x": 590.1875,
+      "y": 318
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "업로드",
+      "width": 92.640625,
+      "x": 707.546875,
+      "y": 318
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "업데이트",
+      "width": 105.53125,
+      "x": 808.1875,
+      "y": 318
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "color": "rgb(255, 255, 255)",
+      "disabled": false,
+      "height": 32,
+      "radius": "0px 4px 4px 0px",
+      "text": "검색",
+      "width": 57.765625,
+      "x": 1139.21875,
+      "y": 318
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 66,
+      "radius": "0px",
+      "text": "long-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt",
+      "width": 428.46875,
+      "x": 619.1875,
+      "y": 444
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "root-file.txt",
+      "width": 69.0625,
+      "x": 619.1875,
+      "y": 538
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "ui-upload-1540-final.txt",
+      "width": 146.578125,
+      "x": 619.1875,
+      "y": 599
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "ui-upload-1540.txt",
+      "width": 114.765625,
+      "x": 619.1875,
+      "y": 660
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 44,
+      "radius": "0px",
+      "text": "긴이름-오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트오브젝트.txt",
+      "width": 428.46875,
+      "x": 619.1875,
+      "y": 710
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "folder",
+      "width": 54.25,
+      "x": 619.1875,
+      "y": 771
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "ui-folder-1540",
+      "width": 106.953125,
+      "x": 619.1875,
+      "y": 810
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(105, 177, 255)",
+      "disabled": false,
+      "height": 22,
+      "radius": "0px",
+      "text": "ui-folder-final-1540",
+      "width": 138.75,
+      "x": 619.1875,
+      "y": 849
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.25)",
+      "disabled": true,
+      "height": 24,
+      "radius": "4px",
+      "text": "",
+      "width": 24,
+      "x": 1150.984375,
+      "y": 896
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgba(255, 255, 255, 0.25)",
+      "disabled": true,
+      "height": 24,
+      "radius": "4px",
+      "text": "",
+      "width": 24,
+      "x": 1198.984375,
+      "y": 896
+    }
+  ],
+  "documentWidth": 1270,
+  "scripts": [
+    "js/app.72c8473b.js"
+  ],
+  "status": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "ratio": 7.128935659391724,
+      "text": "검증 완료"
+    }
+  ],
+  "tableScroll": [
+    {
+      "client": 658,
+      "scroll": 658
+    }
+  ],
+  "url": "http://10.10.32.10:8080/client/#/buckets/3e952d59-a311-4a2b-86fe-d66ed38f050c?tab=browser&browserPath=",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  },
+  "actions": [
+    {
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "폴더 생성",
+      "width": 109.359375,
+      "x": 590.1875,
+      "y": 318
+    },
+    {
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "업로드",
+      "width": 92.640625,
+      "x": 707.546875,
+      "y": 318
+    },
+    {
+      "disabled": false,
+      "height": 32,
+      "radius": "4px",
+      "text": "업데이트",
+      "width": 105.53125,
+      "x": 808.1875,
+      "y": 318
+    }
+  ],
+  "browserWidth": 681.796875,
+  "retryButton": null,
+  "search": {
+    "height": 32,
+    "width": 272.265625,
+    "x": 925.71875,
+    "y": 318
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "31": {
+    "buckets": {
+      "listbucketsresponse": {}
+    },
+    "stores": {
+      "listobjectstoragepoolsresponse": {}
+    },
+    "account": {
+      "listaccountsresponse": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Unable to find account by id 331"
+      }
+    },
+    "originalIamMarkerRestoredBeforeDelete": true
+  },
+  "32": {
+    "buckets": {
+      "listbucketsresponse": {}
+    },
+    "stores": {
+      "listobjectstoragepoolsresponse": {}
+    },
+    "account": {
+      "listaccountsresponse": {
+        "uuidList": [],
+        "errorcode": 431,
+        "cserrorcode": 4350,
+        "errortext": "Unable to find account by id 143"
+      }
+    },
+    "originalIamMarkerRestoredBeforeDelete": true
+  },
+  "rgwBuckets": [],
+  "rgwUsers": [
+    "dashboard"
+  ],
+  "cephHealth": "HEALTH_OK"
+}

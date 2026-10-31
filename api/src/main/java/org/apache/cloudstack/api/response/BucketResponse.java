@@ -30,6 +30,22 @@ import java.util.Set;
 @EntityReference(value = Bucket.class)
 @SuppressWarnings("unused")
 public class BucketResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse, ControlledEntityResponse {
+    @SerializedName("quotaoperationid")
+    @Param(description = "last quota operation reference")
+    private String quotaOperationId;
+    public void setQuotaOperationId(String value) { quotaOperationId = value; }
+    public String getQuotaOperationId() { return quotaOperationId; }
+    @SerializedName("quotaoperationstate")
+    @Param(description = "last quota operation state")
+    private String quotaOperationState;
+    public void setQuotaOperationState(String value) { quotaOperationState = value; }
+    public String getQuotaOperationState() { return quotaOperationState; }
+    @SerializedName("quotaoperationupdated")
+    @Param(description = "last quota operation update time")
+    private Date quotaOperationUpdated;
+    public void setQuotaOperationUpdated(Date value) { quotaOperationUpdated = value; }
+    public Date getQuotaOperationUpdated() { return quotaOperationUpdated; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the Bucket")
     private String id;
@@ -98,17 +114,26 @@ public class BucketResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "Bucket URL")
     private String bucketURL;
 
-    @SerializedName(ApiConstants.ACCESS_KEY)
-    @Param(description = "Bucket Access Key")
-    private String accessKey;
-
-    @SerializedName(ApiConstants.USER_SECRET_KEY)
-    @Param(description = "Bucket Secret Key")
-    private String secretKey;
+    @SerializedName("credentialrevision")
+    @Param(description = "Credential revision; key values require explicit getBucketCredentials POST")
+    private Long credentialRevision;
+    public void setCredentialRevision(long value) { credentialRevision = value; }
 
     @SerializedName(ApiConstants.PROVIDER)
     @Param(description = "Object storage provider")
     private String provider;
+
+    @SerializedName("credentialstate")
+    @Param(description = "Storage-scoped credential verification state")
+    private String credentialState;
+
+    @SerializedName("credentialchecked")
+    @Param(description = "Last credential verification time")
+    private Date credentialChecked;
+
+    public void setCredentialState(String value) { credentialState = value; }
+    public String getCredentialState() { return credentialState; }
+    public void setCredentialChecked(Date value) { credentialChecked = value; }
 
     public BucketResponse() {
         tags = new LinkedHashSet<ResourceTagResponse>();
@@ -261,19 +286,19 @@ public class BucketResponse extends BaseResponseWithTagInformation implements Co
     }
 
     public String getAccessKey() {
-        return accessKey;
+        return null;
     }
 
     public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
+        // Keys are available only from the explicit credentials API.
     }
 
     public String getSecretKey() {
-        return secretKey;
+        return null;
     }
 
     public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+        // Keys are available only from the explicit credentials API.
     }
 
     public void setState(Bucket.State state) {

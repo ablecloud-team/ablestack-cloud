@@ -16,6 +16,7 @@
 // under the License.
 package com.cloud.storage;
 
+import org.apache.cloudstack.storage.datastore.db.ObjectStoreAccountCredentialDao;
 import static com.cloud.configuration.ConfigurationManagerImpl.SystemVMUseLocalStorage;
 import static com.cloud.utils.NumbersUtil.toHumanReadableSize;
 
@@ -284,8 +285,14 @@ import com.google.common.collect.Sets;
 
 @Component
 public class StorageManagerImpl extends ManagerBase implements StorageManager, ClusterManagerListener, Configurable {
+    @Inject
+    private org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationDao bucketQuotaOperations;
+
 
     protected String _name;
+    @Inject
+    private ObjectStoreAccountCredentialDao objectStoreAccountCredentialDao;
+
     @Inject
     protected AgentManager _agentMgr;
     @Inject
@@ -4766,7 +4773,17 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_OBJECT_STORE_DELETE, eventDescription = "deleting object storage")
     public boolean deleteObjectStore(DeleteObjectStoragePoolCmd cmd) {
+        return org.apache.cloudstack.storage.object.BucketQuotaCoordinator.withStoreLock(cmd.getId(), () -> deleteObjectStoreLocked(cmd));
+    }
+
+    private boolean deleteObjectStoreLocked(DeleteObjectStoragePoolCmd cmd) {
         final long storeId = cmd.getId();
+        if (bucketQuotaOperations.hasActiveForStore(storeId)) {
+            throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before deleting object store");
+        }
+        if (pendingBucketCredentialRotation(storeId)) {
+            throw new InvalidParameterValueException("Complete pending bucket credential rotations before deleting object store");
+        }
         // Verify that object store exists
         ObjectStoreVO store = _objectStoreDao.findById(storeId);
         if (store == null) {
@@ -4784,6 +4801,7 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
                 _objectStoreDetailsDao.deleteDetails(storeId);
+                objectStoreAccountCredentialDao.removeByStore(storeId);
                 _objectStoreDao.remove(storeId);
             }
         });
@@ -4794,13 +4812,72 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_OBJECT_STORE_UPDATE, eventDescription = "update object storage")
     public ObjectStore updateObjectStore(Long id, UpdateObjectStoragePoolCmd cmd) {
+        return org.apache.cloudstack.storage.object.BucketQuotaCoordinator.withStoreLock(id, () -> updateObjectStoreLocked(id, cmd));
+    }
 
+    private boolean pendingBucketCredentialRotation(long storeId) {
+        return objectStoreAccountCredentialDao.listByStore(storeId).stream().anyMatch(row -> row.getRotationPhase() != null && !"Completed".equals(row.getRotationPhase()));
+    }
+
+    private ObjectStore updateObjectStoreLocked(Long id, UpdateObjectStoragePoolCmd cmd) {
         // Input validation
         ObjectStoreVO objectStoreVO = _objectStoreDao.findById(id);
         if (objectStoreVO == null) {
             throw new IllegalArgumentException("Unable to find object store with ID: " + id);
         }
 
+        if (cmd.getUrl() != null && !cmd.getUrl().equals(objectStoreVO.getUrl()) && pendingBucketCredentialRotation(id)) {
+            throw new InvalidParameterValueException("Complete pending bucket credential rotations before changing the endpoint");
+        }
+        Map<String, String> requestedCredentials = cmd.getDetails();
+        if (requestedCredentials != null && (!"Glue".equals(objectStoreVO.getProviderName()) ||
+                requestedCredentials.size() != 2 || !requestedCredentials.containsKey("accesskey") || !requestedCredentials.containsKey("secretkey") ||
+                requestedCredentials.get("accesskey") == null || requestedCredentials.get("accesskey").isBlank() ||
+                requestedCredentials.get("secretkey") == null || requestedCredentials.get("secretkey").isBlank())) {
+            throw new InvalidParameterValueException("Provide both nonempty Glue administrator keys together, or omit both");
+        }
+        if (requestedCredentials != null && bucketQuotaOperations.hasActiveForStore(id)) {
+            throw new InvalidParameterValueException("Reconcile pending quota operations before replacing administrator keys");
+        }
+        long reserved = bucketQuotaOperations.reservedBytesForStore(id);
+        if (cmd.getUrl() != null && !cmd.getUrl().equals(objectStoreVO.getUrl()) && bucketQuotaOperations.hasActiveForStore(id)) {
+            throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before changing object store endpoint");
+        }
+        if (cmd.getSize() != null) {
+            if (cmd.getSize() < 0) { throw new InvalidParameterValueException("Object store size must be nonnegative GiB"); }
+            long total = Math.multiplyExact(cmd.getSize().longValue(), ResourceType.bytesToGiB);
+            long occupied = Math.addExact(java.util.Objects.requireNonNullElse(objectStoreVO.getAllocatedSize(), 0L), reserved);
+            if (total > 0 && total < occupied) {
+                throw new InvalidParameterValueException("Object store size is below committed allocation and pending reservations");
+            }
+        }
+        if ("Glue".equals(objectStoreVO.getProviderName()) && (requestedCredentials != null || cmd.getUrl() != null)) {
+            String candidateUrl = cmd.getUrl() == null ? objectStoreVO.getUrl() : cmd.getUrl();
+            try {
+                java.net.URI uri = java.net.URI.create(candidateUrl);
+                if (!("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme())) ||
+                        uri.getHost() == null || uri.getUserInfo() != null || uri.getQuery() != null || uri.getFragment() != null) {
+                    throw new IllegalArgumentException();
+                }
+                Map<String, String> candidate = new java.util.HashMap<>(_objectStoreDetailsDao.getDetails(id));
+                if (requestedCredentials != null) candidate.putAll(requestedCredentials);
+                ((org.apache.cloudstack.engine.subsystem.api.storage.ObjectStoreCredentialProvider)
+                        _dataStoreMgr.getDataStore(id, DataStoreRole.Object).getDriver()).validateAdminCredentials(candidateUrl, candidate);
+                Transaction.execute(new TransactionCallbackNoReturn() {
+                    @Override public void doInTransactionWithoutResult(TransactionStatus status) {
+                        ObjectStoreVO update = _objectStoreDao.createForUpdate(id);
+                        if (cmd.getName() != null) update.setName(cmd.getName());
+                        if (cmd.getSize() != null) update.setTotalSize(Math.multiplyExact(cmd.getSize(), ResourceType.bytesToGiB));
+                        update.setUrl(candidateUrl);
+                        if (!_objectStoreDao.update(id, update)) throw new IllegalStateException();
+                        if (requestedCredentials != null) _objectStoreDetailsDao.update(id, candidate);
+                    }
+                });
+            } catch (RuntimeException failure) {
+                throw new InvalidParameterValueException("Unable to verify or save candidate object storage connection; previous URL and administrator credentials are retained");
+            }
+            return _objectStoreDao.findById(id);
+        }
         if(cmd.getUrl() != null ) {
             String url = cmd.getUrl();
             try {
@@ -4811,28 +4888,26 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             }
             ObjectStoreEntity objectStore = (ObjectStoreEntity)_dataStoreMgr.getDataStore(objectStoreVO.getId(), DataStoreRole.Object);
             String oldUrl = objectStoreVO.getUrl();
-            objectStoreVO.setUrl(url);
-            _objectStoreDao.update(id, objectStoreVO);
+            ObjectStoreVO endpoint = _objectStoreDao.createForUpdate(id);
+            endpoint.setUrl(url);
+            _objectStoreDao.update(id, endpoint);
             //Update URL and check access
             try {
                 objectStore.listBuckets();
             } catch (Exception e) {
                 //Revert to old URL on failure
-                objectStoreVO.setUrl(oldUrl);
-                _objectStoreDao.update(id, objectStoreVO);
+                ObjectStoreVO endpointRollback = _objectStoreDao.createForUpdate(id);
+                endpointRollback.setUrl(oldUrl);
+                _objectStoreDao.update(id, endpointRollback);
                 throw new IllegalArgumentException("Unable to access Object Storage with URL: " + cmd.getUrl());
             }
         }
 
-        if(cmd.getName() != null ) {
-            objectStoreVO.setName(cmd.getName());
-        }
-        if (cmd.getSize() != null) {
-            objectStoreVO.setTotalSize(cmd.getSize() * ResourceType.bytesToGiB);
-        }
-        _objectStoreDao.update(id, objectStoreVO);
-        logger.debug("Successfully updated object store: {}", objectStoreVO);
-        return objectStoreVO;
+        ObjectStoreVO update = _objectStoreDao.createForUpdate(id);
+        if(cmd.getName() != null ) { update.setName(cmd.getName()); }
+        if (cmd.getSize() != null) { update.setTotalSize(Math.multiplyExact(cmd.getSize().longValue(), ResourceType.bytesToGiB)); }
+        if (cmd.getName() != null || cmd.getSize() != null) { _objectStoreDao.update(id, update); }
+        return _objectStoreDao.findById(id);
     }
 
     @Override

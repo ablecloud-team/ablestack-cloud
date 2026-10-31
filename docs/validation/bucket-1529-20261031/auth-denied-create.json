@@ -1,0 +1,14 @@
+{
+  "31": {
+    "safeCreationError": true,
+    "noExternalUserCreatedOn403": true,
+    "noCloudBucketAllocated": true,
+    "accountDetailsUnchanged": true
+  },
+  "32": {
+    "safeCreationError": true,
+    "noExternalUserCreatedOn403": true,
+    "noCloudBucketAllocated": true,
+    "accountDetailsUnchanged": true
+  }
+}
