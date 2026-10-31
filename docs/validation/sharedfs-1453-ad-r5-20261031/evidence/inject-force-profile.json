@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"privateRoot\": \"/var/tmp/epic1453-force-conflict-r5\", \"liveDaemonReloaded\": false, \"profileFile\": \"/etc/samba/smb.conf\", \"beforeSha256\": \"cf0ece08e5b3dff32a77d1f2b3987428e961370c2717bae2720d096ffef023e8\"}\n",
+  "stderr": ""
+}
