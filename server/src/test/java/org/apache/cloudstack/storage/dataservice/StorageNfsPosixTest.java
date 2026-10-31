@@ -115,4 +115,18 @@ public class StorageNfsPosixTest {
         StorageNfsPosix.requireDeferredCapability(cmd,caps);
     }
 
+    @Test public void realSerializerKeepsLocalProbeIncompleteSeparateFromPolicyAndReadyState() throws Exception {
+        JsonObject probe=JsonParser.parseString("{\"externalclientrequired\":true,\"ports\":[{\"port\":2049,\"status\":\"EXTERNAL_CLIENT_REQUIRED\",\"reason\":\"LOCAL_ADDRESS_EXCLUDED_BY_ACL\"}]}").getAsJsonObject();
+        StorageNfsExportResponse row=new StorageNfsExportResponse();row.setId("share");row.setName("nested");
+        row.setState("Ready");row.setConfig("{\"rootSquash\":true}");row.setLocalProbe(probe);row.setObjectName("storagenfsexport");
+        ListResponse<StorageNfsExportResponse> list=new ListResponse<>();list.setResponses(java.util.List.of(row));list.setResponseName("liststoragenfsexportsresponse");
+        String json=com.cloud.api.response.ApiResponseSerializer.toSerializedString(list,"json");
+        JsonObject wire=JsonParser.parseString(json).getAsJsonObject();
+        JsonObject actual=wire.getAsJsonObject("liststoragenfsexportsresponse").getAsJsonArray("storagenfsexport").get(0).getAsJsonObject();
+        assertTrue(actual.get("config").isJsonPrimitive());assertEquals("Ready",actual.get("state").getAsString());
+        assertTrue(actual.getAsJsonObject("localprobe").get("externalclientrequired").getAsBoolean());
+        assertEquals(2049,actual.getAsJsonObject("localprobe").getAsJsonArray("ports").get(0).getAsJsonObject().get("port").getAsInt());
+        String fixture=System.getProperty("storage.nfs.localprobe.fixture");if(fixture!=null)Files.writeString(Path.of(fixture),json+"\n");
+    }
+
 }

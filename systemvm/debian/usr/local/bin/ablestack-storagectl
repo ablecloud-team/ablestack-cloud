@@ -1632,6 +1632,7 @@ print(json.dumps({
     "nfsExports": exports,
     "nfsidentitymapping": NfsIdentityMapping().inspect(),
     "nfsPosixObservations": nfs_posix,
+    "nfsLocalProbes": load_json("/etc/ablestack-storage/nfs-local-probes.json", {}),
     "smbParentInheritanceObservations": smb_inheritance,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,
@@ -4159,7 +4160,7 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
         proc = subprocess.run(["ip", "-4", "-o", "addr", "show", "scope", "global"], check=False, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
         addresses = []
         if proc.returncode != 0:
-            return addresses
+            raise RuntimeError("NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE")
         for line in proc.stdout.splitlines():
             parts = line.split()
             if "inet" not in parts:
@@ -4171,6 +4172,8 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                 continue
             if address not in addresses:
                 addresses.append(address)
+        if not addresses:
+            raise RuntimeError("NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE")
         return addresses
 
     def client_tokens(export):
@@ -4217,6 +4220,17 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
         clients = ", ".join(client_tokens(export)) or "none"
         return None, f"no local IPv4 address is allowed by export clients: {clients}"
 
+    def ip_clients_only(export):
+        tokens = client_tokens(export)
+        if not tokens:
+            return False
+        try:
+            for token in tokens:
+                ipaddress.ip_network(token, strict=False)
+            return True
+        except ValueError:
+            return False
+
     failures = []
     local_addresses = local_global_ipv4_addresses()
     for endpoint in runtime:
@@ -4226,6 +4240,7 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
         endpoint["probeSuccess"] = True
         endpoint["exportsVisible"] = True
         endpoint["probeResults"] = []
+        endpoint["probeComplete"] = True
         if not exports:
             continue
 
@@ -4265,6 +4280,17 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                 "success": True,
                 "probes": [],
             }
+            if host_error and ip_clients_only(export):
+                # Service identity/render/listener checks have already run. A server
+                # excluded by its own ACL cannot prove remote-client visibility.
+                # Do not grant it access or mistake this policy for a failed service.
+                export_result.update(success=None, status="EXTERNAL_CLIENT_REQUIRED",
+                                     reason="LOCAL_ADDRESS_EXCLUDED_BY_ACL")
+                export_result["probes"].append({"mode": "host-selection", "success": None,
+                    "status": "NOT_APPLICABLE_LOCAL_ACL", "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"})
+                endpoint["probeComplete"] = False
+                endpoint["probeResults"].append(export_result)
+                continue
             if host_error:
                 export_result["success"] = False
                 export_result["error"] = host_error
@@ -4319,13 +4345,14 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
                 finally:
                     shutil.rmtree(probe_dir, ignore_errors=True)
 
+            export_result["status"] = "MOUNT_VERIFIED" if export_result["success"] else "FAILED"
             endpoint["probeResults"].append(export_result)
             if not export_result["success"]:
                 endpoint_success = False
                 break
 
         endpoint["probeSuccess"] = endpoint_success
-        endpoint["exportsVisible"] = endpoint_success
+        endpoint["exportsVisible"] = endpoint_success if endpoint["probeComplete"] or not endpoint_success else None
         if not endpoint_success:
             failures.append(endpoint)
     return failures
@@ -4669,7 +4696,12 @@ with open(alias_state_path, "w", encoding="utf-8") as alias_fp:
 configs = write_ganesha_configs(endpoint_exports, default_port)
 needs_rpcbind = any(mode == "V3V4_DUAL" for _, _, _, _, mode in configs)
 runtime_endpoints = start_ganesha_endpoints(configs if enabled else [])
-runtime_probe_failures = probe_nfs_export_visibility(runtime_endpoints, endpoint_exports if enabled else {})
+try:
+    runtime_probe_failures = probe_nfs_export_visibility(runtime_endpoints, endpoint_exports if enabled else {})
+except RuntimeError:
+    print(json.dumps({"success": False, "code": "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE"}))
+    stop_ganesha_endpoints()
+    raise
 if runtime_probe_failures:
     stop_ganesha_endpoints()
     details = []
@@ -4681,8 +4713,27 @@ if runtime_probe_failures:
                 if not probe.get("success"):
                     target = probe.get("target") or "unknown"
                     details.append(f"{listen_ip}:{port} {export.get('exportName') or 'export'} {probe.get('mode') or 'probe'} -> {target}: {probe.get('error') or 'probe failed'}")
+    print(json.dumps({"success": False, "code": "NFS_EXPORT_VISIBILITY_FAILED",
+                      "failures": [{"listenIp": item.get("listenIp"), "port": item.get("port"),
+                                    "probeResults": item.get("probeResults", [])} for item in runtime_probe_failures]}))
     raise RuntimeError("nfs-ganesha export visibility probe failed: " + "; ".join(details))
 runtime_ready = (not enabled) or not configs or all(item.get("listening") and item.get("probeSuccess", True) for item in runtime_endpoints)
+# Observations are separate from desired policy and include no credential material.
+local_probes = {}
+for endpoint in runtime_endpoints:
+    for result in endpoint.get("probeResults", []):
+        local_probes.setdefault(result["exportUuid"], []).append({
+            "port": endpoint["port"], "status": result.get("status", "FAILED"),
+            "reason": result.get("reason"), "observedAt": time.time()})
+probe_fd, probe_temp = tempfile.mkstemp(prefix=".nfs-local-probes-", dir=quota_dir)
+try:
+    with os.fdopen(probe_fd, "w") as stream:
+        json.dump(local_probes, stream, sort_keys=True); stream.flush(); os.fsync(stream.fileno())
+    os.chmod(probe_temp, 0o600)
+    os.replace(probe_temp, os.path.join(quota_dir, "nfs-local-probes.json"))
+finally:
+    if os.path.exists(probe_temp): os.unlink(probe_temp)
+
 
 print(json.dumps({
     "success": True,
@@ -4692,6 +4743,7 @@ print(json.dumps({
     "runtimeReady": runtime_ready,
     "runtimeEndpoints": runtime_endpoints,
     "runtimeProbeSuccess": True,
+    "runtimeProbeComplete": all(item.get("probeComplete", True) for item in runtime_endpoints),
     "runtimeProbeFailures": [],
     "rpcbindRequired": needs_rpcbind,
     "rpcbindActive": rpcbind_active(),

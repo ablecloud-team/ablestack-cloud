@@ -10492,5 +10492,7 @@
   "label.storage.path.descendant": "하위 공유",
   "label.storage.path.absent": "없음 — 명시적으로 생성한 경우에만 생성",
   "message.storage.path.invalid": "상대 경로는 255자 이내여야 하며 빈 항목, 절대 경로, ., .., 역슬래시와 제어 문자는 사용할 수 없습니다.",
-  "label.storage.path.ancestor": "부모 공유"
+  "label.storage.path.ancestor": "부모 공유",
+  "message.storage.nfs.external.check": "ACL이 서버 자체 접속을 허용하지 않아 로컬 mount 점검은 제외했습니다. ACL을 변경하지 않았으며, 허용된 클라이언트에서 실제 접근을 확인하세요.",
+  "label.storage.nfs.external.check": "허용된 클라이언트에서 접속 확인 필요"
 }

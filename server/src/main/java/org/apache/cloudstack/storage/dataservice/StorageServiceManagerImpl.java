@@ -192,6 +192,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private String error;
         private final Map<String, JsonObject> observations = new LinkedHashMap<>();
         private final Map<String, JsonObject> pathBindings = new HashMap<>();
+        private final Map<String, JsonObject> nfsLocalProbes = new HashMap<>();
         final Map<String, JsonObject> nfsPosix = new LinkedHashMap<>();
 
         protected JsonObject observation(final String key) {
@@ -6959,6 +6960,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (runtimeObservation != null && runtimeObservation.has("nfsPosixObservation"))
             posix = runtimeObservation.getAsJsonObject("nfsPosixObservation");
         response.setPosixObservation(posix);
+        if (runtimeObservation != null && runtimeObservation.has("nfsLocalProbe"))
+            response.setLocalProbe(runtimeObservation.getAsJsonObject("nfsLocalProbe"));
         final boolean configValid = isJsonObjectConfigValid(share.getConfigJson());
         response.setConfigValid(configValid);
         if (!configValid) {
@@ -7058,6 +7061,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     if (item.isJsonObject()) snapshot.nfsPosix.put(getJsonString(item.getAsJsonObject(), "resourceuuid"), item.getAsJsonObject());
                 }
             }
+            if (inventory.has("nfsLocalProbes") && inventory.get("nfsLocalProbes").isJsonObject()) {
+                for (Map.Entry<String,JsonElement> entry:inventory.getAsJsonObject("nfsLocalProbes").entrySet()) {
+                    if (!entry.getValue().isJsonArray()) continue;
+                    JsonObject probe = new JsonObject(); probe.add("ports",entry.getValue());
+                    boolean required = entry.getValue().getAsJsonArray().asList().stream()
+                            .filter(JsonElement::isJsonObject).map(JsonElement::getAsJsonObject)
+                            .anyMatch(value -> "EXTERNAL_CLIENT_REQUIRED".equals(getJsonString(value,"status")));
+                    probe.addProperty("externalclientrequired",required);snapshot.nfsLocalProbes.put(entry.getKey(),probe);
+                }
+            }
             if (inventory.has("fileSharePaths") && inventory.get("fileSharePaths").isJsonObject())
                 for (Map.Entry<String,JsonElement> entry:inventory.getAsJsonObject("fileSharePaths").entrySet())
                     if (entry.getValue().isJsonObject()) snapshot.pathBindings.put(entry.getKey(),entry.getValue().getAsJsonObject());
@@ -7090,6 +7103,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (share.getProtocol() == StorageServiceInstance.Protocol.NFS) {
             observed = observed == null ? new JsonObject() : observed.deepCopy();
             if (snapshot.nfsPosix.containsKey(share.getUuid())) observed.add("nfsPosixObservation", snapshot.nfsPosix.get(share.getUuid()));
+            if (snapshot.nfsLocalProbes.containsKey(share.getUuid())) observed.add("nfsLocalProbe", snapshot.nfsLocalProbes.get(share.getUuid()));
         }
         if(snapshot.pathBindings.containsKey(share.getUuid())) {
             observed=observed==null?new JsonObject():observed.deepCopy();

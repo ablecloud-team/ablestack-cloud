@@ -34,6 +34,11 @@ public class StorageNfsExportResponse extends BaseResponse {
     public void setPathStatus(String value) { pathStatus=value; }
     public void setPathReason(String value) { pathReason=value; }
 
+    @SerializedName("localprobe")
+    @Param(description = "Per-port local mount observation; remote ACL exclusion requires verification by an authorized client")
+    private com.google.gson.JsonObject localProbe;
+    public void setLocalProbe(com.google.gson.JsonObject value) { localProbe = value; }
+
     @SerializedName("posixobservation")
     @Param(description = "Read-only current directory POSIX observation, independent of saved configuration")
     private com.google.gson.JsonObject posixObservation;

@@ -10527,5 +10527,7 @@
   "label.storage.path.descendant": "Child share",
   "label.storage.path.absent": "Absent — explicit creation required",
   "message.storage.path.invalid": "Use at most 255 characters without empty components, absolute paths, ., .., backslashes or control characters.",
-  "label.storage.path.ancestor": "Parent share"
+  "label.storage.path.ancestor": "Parent share",
+  "message.storage.nfs.external.check": "The ACL excludes the server itself, so the local mount check is not applicable. The ACL was preserved. Verify actual access from an authorized client.",
+  "label.storage.nfs.external.check": "Verify access from an authorized client"
 }

@@ -92,6 +92,7 @@
             </a-space>
           </div>
           <template v-if="storageService.instance">
+            <NfsLocalProbeNotice :shares="storageService.nfsExports" />
             <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <a-alert
               v-if="storageIdentityDrift"
@@ -2401,6 +2402,7 @@ import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageNfsIdentityPanel from '@/components/view/StorageNfsIdentityPanel'
+import NfsLocalProbeNotice from '@/components/storage/NfsLocalProbeNotice'
 import FileSharePathFields from '@/components/storage/FileSharePathFields'
 import { fileSharePathParameters, shareRelativePath, childShares, validRelativePath, relativePath } from '@/utils/fileSharePaths'
 import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPolicyPanel'
@@ -2629,6 +2631,7 @@ export default {
     StorageNfsIdentityPanel,
     StorageDirectoryPolicyPanel,
     FileSharePathFields,
+    NfsLocalProbeNotice,
     SmbParentInheritanceFields,
     SmbCreationPolicyDialog,
     AdDomainProgressPanel,

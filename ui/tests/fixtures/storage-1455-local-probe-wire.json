@@ -1,0 +1,1 @@
+{"liststoragenfsexportsresponse":{"count":1,"storagenfsexport":[{"localprobe":{"externalclientrequired":true,"ports":[{"port":2049,"status":"EXTERNAL_CLIENT_REQUIRED","reason":"LOCAL_ADDRESS_EXCLUDED_BY_ACL"}]},"id":"share","name":"nested","state":"Ready","config":"{\"rootSquash\":true}"}]}}

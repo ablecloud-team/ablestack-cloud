@@ -415,6 +415,10 @@ class Transaction:
                 # First failure is durable BEFORE compensation. Never expose raw subprocess output.
                 current.setdefault("originalfailure", {"code": getattr(error, "code", "CONFIGURATION_APPLY_FAILED"),
                                    "phase": current["phase"], "type": type(error).__name__})
+                original = load(private / "original-runner-result.json", {})
+                detail = original.get("result") or {}
+                if detail.get("code") in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE"):
+                    current["originalfailure"]["detail"] = {k: detail[k] for k in ("code", "failures") if k in detail}
                 if current["phase"] == "VALIDATING":
                     current.update(state="ROLLED_BACK", phase="COMPLETED", rollback={"state": "NOT_NEEDED"})
                     atomic_json(status_path, current)
@@ -1224,6 +1228,7 @@ class RuntimeAdapter:
                 paths.update(Path("/etc/ganesha/ablestack-storage").glob("*.conf"))
                 paths.update(Path("/etc/exports.d").glob("*ablestack*"))
                 paths.update(Path("/etc/ablestack-storage").glob("nfs*.json"))
+                paths.add(Path("/etc/ablestack-storage/nfs-local-probes.json"))
                 paths.add(Path("/etc/ablestack-storage/desired-state/nfs-export-apply.json"))
                 paths.add(Path("/etc/fstab"))
             if operation.startswith("smb"):
@@ -1423,6 +1428,10 @@ class RuntimeAdapter:
         if not result or result.get("observationUnknown"):
             raise Rejected("RESULT_OBSERVATION_UNAVAILABLE")
         if result["returncode"] != 0:
+            # Rollback uses the same runner path. Keep the first structured,
+            # already-redacted failure immutable before compensation can replace it.
+            original = self.private / "original-runner-result.json"
+            if not original.exists(): atomic_json(original, result)
             raise Rejected("PROTOCOL_APPLY_FAILED")
         return result
 

@@ -1,0 +1,212 @@
+{
+  "kind": "real SystemVM bind/two-port regression; not Mold UI acceptance",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "allowed local source retains actual two-port mount validation",
+      "passed": true,
+      "result": {
+        "runtime": [
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23049,
+            "probeSuccess": true,
+            "exportsVisible": true,
+            "probeResults": [
+              {
+                "exportUuid": "23049",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/shared",
+                "success": true,
+                "probes": [
+                  {
+                    "mode": "NFSv4",
+                    "mountType": "nfs4",
+                    "target": "192.0.2.52:/shared",
+                    "options": "vers=4.1,proto=tcp,port=23049,ro,soft,timeo=1,retrans=1",
+                    "success": true
+                  }
+                ],
+                "status": "MOUNT_VERIFIED"
+              }
+            ],
+            "probeComplete": true
+          },
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23050,
+            "probeSuccess": true,
+            "exportsVisible": true,
+            "probeResults": [
+              {
+                "exportUuid": "23050",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/shared",
+                "success": true,
+                "probes": [
+                  {
+                    "mode": "NFSv4",
+                    "mountType": "nfs4",
+                    "target": "192.0.2.52:/shared",
+                    "options": "vers=4.1,proto=tcp,port=23050,ro,soft,timeo=1,retrans=1",
+                    "success": true
+                  }
+                ],
+                "status": "MOUNT_VERIFIED"
+              }
+            ],
+            "probeComplete": true
+          }
+        ],
+        "failedPorts": [],
+        "mountCalls": 2
+      }
+    },
+    {
+      "name": "remote-only ACL is not expanded; local probe explicitly not applicable",
+      "passed": true,
+      "result": {
+        "runtime": [
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23049,
+            "probeSuccess": true,
+            "exportsVisible": null,
+            "probeResults": [
+              {
+                "exportUuid": "23049",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/shared",
+                "success": null,
+                "probes": [
+                  {
+                    "mode": "host-selection",
+                    "success": null,
+                    "status": "NOT_APPLICABLE_LOCAL_ACL",
+                    "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+                  }
+                ],
+                "status": "EXTERNAL_CLIENT_REQUIRED",
+                "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+              }
+            ],
+            "probeComplete": false
+          },
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23050,
+            "probeSuccess": true,
+            "exportsVisible": null,
+            "probeResults": [
+              {
+                "exportUuid": "23050",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/shared",
+                "success": null,
+                "probes": [
+                  {
+                    "mode": "host-selection",
+                    "success": null,
+                    "status": "NOT_APPLICABLE_LOCAL_ACL",
+                    "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+                  }
+                ],
+                "status": "EXTERNAL_CLIENT_REQUIRED",
+                "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+              }
+            ],
+            "probeComplete": false
+          }
+        ],
+        "failedPorts": [],
+        "mountCalls": 0
+      }
+    },
+    {
+      "name": "actual server denies or hides export from excluded source; no hidden ACL grant",
+      "passed": true,
+      "exitcode": 32,
+      "serverResult": "mount.nfs4: mounting 192.0.2.52:/shared failed, reason given by server: No such file or directory"
+    },
+    {
+      "name": "external-only first export cannot mask a genuine second-port mount failure",
+      "passed": true,
+      "result": {
+        "runtime": [
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23049,
+            "probeSuccess": true,
+            "exportsVisible": null,
+            "probeResults": [
+              {
+                "exportUuid": "23049",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/shared",
+                "success": null,
+                "probes": [
+                  {
+                    "mode": "host-selection",
+                    "success": null,
+                    "status": "NOT_APPLICABLE_LOCAL_ACL",
+                    "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+                  }
+                ],
+                "status": "EXTERNAL_CLIENT_REQUIRED",
+                "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+              }
+            ],
+            "probeComplete": false
+          },
+          {
+            "listenIp": "0.0.0.0",
+            "port": 23050,
+            "probeSuccess": false,
+            "exportsVisible": false,
+            "probeResults": [
+              {
+                "exportUuid": "23050",
+                "exportName": "shared",
+                "protocolMode": "V4_ONLY",
+                "targetPath": "/var/tmp/epic1452-bind-255dade94c/export-alias",
+                "pseudoPath": "/absent",
+                "success": false,
+                "probes": [
+                  {
+                    "mode": "NFSv4",
+                    "mountType": "nfs4",
+                    "target": "192.0.2.52:/absent",
+                    "options": "vers=4.1,proto=tcp,port=23050,ro,soft,timeo=1,retrans=1",
+                    "success": false,
+                    "error": "mount.nfs4: mounting 192.0.2.52:/absent failed, reason given by server: No such file or directory"
+                  }
+                ],
+                "error": "mount.nfs4: mounting 192.0.2.52:/absent failed, reason given by server: No such file or directory",
+                "status": "FAILED"
+              }
+            ],
+            "probeComplete": true
+          }
+        ],
+        "failedPorts": [
+          23050
+        ],
+        "mountCalls": 1
+      }
+    }
+  ],
+  "success": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true,
+  "productionFileCount": 14
+}
