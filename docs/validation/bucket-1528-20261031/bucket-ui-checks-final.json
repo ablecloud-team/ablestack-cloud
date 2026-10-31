@@ -1,0 +1,513 @@
+{
+  "implementation": "40a013a8996",
+  "checks": [
+    {
+      "cluster": 31,
+      "name": "final-initial-tab",
+      "time": "2026-10-31T03:17:03.875Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-initial-tab",
+      "time": "2026-10-31T03:17:05.899Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-empty-bucket-transition",
+      "time": "2026-10-31T03:17:12.571Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "데이터 없음"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/c54f18f7-1a21-49a7-8e31-84399094ac0f?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-files-bucket-transition",
+      "time": "2026-10-31T03:17:13.386Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-empty-bucket-transition",
+      "time": "2026-10-31T03:17:14.468Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "데이터 없음"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/4724b3bb-b226-45d0-b77a-ef16616c6efe?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-files-bucket-transition",
+      "time": "2026-10-31T03:17:15.264Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-error-403",
+      "time": "2026-10-31T03:17:24.868Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\nQA injected 403\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-visible-retry-button",
+      "time": "2026-10-31T03:17:48.073Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-error-404",
+      "time": "2026-10-31T03:17:49.252Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\nQA injected 404\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-visible-retry-button",
+      "time": "2026-10-31T03:17:50.173Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-folder-navigation",
+      "time": "2026-10-31T03:18:05.087Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tnested.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t deep\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/"
+    },
+    {
+      "cluster": 31,
+      "name": "final-prefix-search",
+      "time": "2026-10-31T03:18:06.779Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-search-clear",
+      "time": "2026-10-31T03:18:07.638Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-folder-navigation",
+      "time": "2026-10-31T03:18:08.475Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tnested.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t deep\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/"
+    },
+    {
+      "cluster": 32,
+      "name": "final-prefix-search",
+      "time": "2026-10-31T03:18:10.108Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-search-clear",
+      "time": "2026-10-31T03:18:11.011Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-timeout",
+      "time": "2026-10-31T03:18:44.880Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\n파일 목록 조회 시간이 초과되었습니다. 다시 시도하세요.\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-timeout-retry",
+      "time": "2026-10-31T03:18:45.737Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-timeout",
+      "time": "2026-10-31T03:18:46.300Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\n파일 목록 조회 시간이 초과되었습니다. 다시 시도하세요.\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-timeout-retry",
+      "time": "2026-10-31T03:18:47.149Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-cancel",
+      "time": "2026-10-31T03:19:04.005Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\n파일 목록 조회를 취소했습니다.\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-cancel-retry",
+      "time": "2026-10-31T03:19:04.840Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-late-folder-isolated",
+      "time": "2026-10-31T03:19:07.108Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-cancel",
+      "time": "2026-10-31T03:19:08.567Z",
+      "busy": 0,
+      "error": "파일 목록을 불러오지 못했습니다.\n\n파일 목록 조회를 취소했습니다.\n\n재시도",
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-cancel-retry",
+      "time": "2026-10-31T03:19:09.390Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-late-folder-isolated",
+      "time": "2026-10-31T03:19:11.787Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-deep-folder",
+      "time": "2026-10-31T03:19:24.031Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 32,
+      "name": "final-deep-folder",
+      "time": "2026-10-31T03:19:26.217Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 31,
+      "name": "final-deep-url-reload",
+      "time": "2026-10-31T03:19:27.732Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 31,
+      "name": "final-history-back",
+      "time": "2026-10-31T03:19:29.326Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 31,
+      "name": "final-history-forward",
+      "time": "2026-10-31T03:19:30.019Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-deep-url-reload",
+      "time": "2026-10-31T03:19:30.589Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 32,
+      "name": "final-history-back",
+      "time": "2026-10-31T03:19:32.040Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tdeep.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath=folder/deep/"
+    },
+    {
+      "cluster": 32,
+      "name": "final-history-forward",
+      "time": "2026-10-31T03:19:32.749Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-create-folder-refresh",
+      "time": "2026-10-31T03:19:48.138Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:17",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-final-folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 31,
+      "name": "final-upload-refresh",
+      "time": "2026-10-31T03:19:50.345Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:19:49",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:20",
+        "\t folder\t\t",
+        "\t ui-final-folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.31.10:8080/client/#/buckets/2b926371-9b7b-4789-8deb-549bec21868c?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-create-folder-refresh",
+      "time": "2026-10-31T03:19:51.865Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:02:19",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-final-folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    },
+    {
+      "cluster": 32,
+      "name": "final-upload-refresh",
+      "time": "2026-10-31T03:19:54.063Z",
+      "busy": 0,
+      "loading": 0,
+      "rows": [
+        "\tbucket-1528-ui-upload.txt\t0.04 KB\t2026. 10. 31. 오후 12:19:53",
+        "\troot-file.txt\t0.03 KB\t2026. 10. 31. 오전 11:42:35",
+        "\t folder\t\t",
+        "\t ui-final-folder\t\t",
+        "\t ui-folder\t\t"
+      ],
+      "url": "http://10.10.32.10:8080/client/#/buckets/bf76ccd0-c41f-4e0f-9a5e-7608e3976918?tab=browser&browserPath="
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "artifactSha256": "fa83f64af3a2b5c1ebe6e9474db989de03599acdbf9548efa1eb15524223564a",
+  "artifactBytes": 6358235,
+  "staticFiles": 626,
+  "indexSha256": "221b546eb456e279b04a01158da1f8344b6627d7891ea72060d67249c6b6aae2",
+  "colorLessSha256": "d4ff10b9e6dcf83d2dddf512c86c7fedc1e23b9f9544339cfe3fd32d0858c978",
+  "configPreserved": true,
+  "sourceMapsDeployed": false
+}

@@ -1,0 +1,266 @@
+[
+  {
+    "cluster": 31,
+    "buttons": [
+      {
+        "right": 1013.453125,
+        "text": "검색",
+        "x": 955.6875
+      },
+      {
+        "right": 1131.984375,
+        "text": "업데이트",
+        "x": 1024.453125
+      },
+      {
+        "right": 1253.34375,
+        "text": "폴더 생성",
+        "x": 1141.984375
+      },
+      {
+        "right": 1357.984375,
+        "text": "업로드",
+        "x": 1263.34375
+      }
+    ],
+    "dark": true,
+    "searchWidth": 144.25,
+    "toolbarScrollWidth": 614,
+    "toolbarWidth": 614,
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 31,
+    "buttons": [
+      {
+        "right": 464.46875,
+        "text": "검색",
+        "x": 406.703125
+      },
+      {
+        "right": 583,
+        "text": "업데이트",
+        "x": 475.46875
+      },
+      {
+        "right": 704.359375,
+        "text": "폴더 생성",
+        "x": 593
+      },
+      {
+        "right": 809,
+        "text": "업로드",
+        "x": 714.359375
+      }
+    ],
+    "dark": true,
+    "searchWidth": 110.171875,
+    "toolbarScrollWidth": 579,
+    "toolbarWidth": 579,
+    "viewport": {
+      "height": 844,
+      "width": 901
+    }
+  },
+  {
+    "cluster": 31,
+    "buttons": [
+      {
+        "right": 166.765625,
+        "text": "검색",
+        "x": 109
+      },
+      {
+        "right": 179.53125,
+        "text": "업데이트",
+        "x": 72
+      },
+      {
+        "right": 300.890625,
+        "text": "폴더 생성",
+        "x": 189.53125
+      },
+      {
+        "right": 405.53125,
+        "text": "업로드",
+        "x": 310.890625
+      }
+    ],
+    "dark": true,
+    "searchWidth": 0,
+    "toolbarScrollWidth": 364,
+    "toolbarWidth": 256,
+    "viewport": {
+      "height": 844,
+      "width": 390
+    }
+  },
+  {
+    "cluster": 31,
+    "buttons": [
+      {
+        "right": 166.765625,
+        "text": "검색",
+        "x": 109
+      },
+      {
+        "right": 179.53125,
+        "text": "업데이트",
+        "x": 72
+      },
+      {
+        "right": 300.890625,
+        "text": "폴더 생성",
+        "x": 189.53125
+      },
+      {
+        "right": 405.53125,
+        "text": "업로드",
+        "x": 310.890625
+      }
+    ],
+    "dark": true,
+    "searchWidth": 0,
+    "toolbarScrollWidth": 364,
+    "toolbarWidth": 226,
+    "viewport": {
+      "height": 844,
+      "width": 360
+    }
+  },
+  {
+    "cluster": 32,
+    "buttons": [
+      {
+        "right": 1013.453125,
+        "text": "검색",
+        "x": 955.6875
+      },
+      {
+        "right": 1131.984375,
+        "text": "업데이트",
+        "x": 1024.453125
+      },
+      {
+        "right": 1253.34375,
+        "text": "폴더 생성",
+        "x": 1141.984375
+      },
+      {
+        "right": 1357.984375,
+        "text": "업로드",
+        "x": 1263.34375
+      }
+    ],
+    "dark": true,
+    "searchWidth": 144.25,
+    "toolbarScrollWidth": 614,
+    "toolbarWidth": 614,
+    "viewport": {
+      "height": 844,
+      "width": 1440
+    }
+  },
+  {
+    "cluster": 32,
+    "buttons": [
+      {
+        "right": 464.46875,
+        "text": "검색",
+        "x": 406.703125
+      },
+      {
+        "right": 583,
+        "text": "업데이트",
+        "x": 475.46875
+      },
+      {
+        "right": 704.359375,
+        "text": "폴더 생성",
+        "x": 593
+      },
+      {
+        "right": 809,
+        "text": "업로드",
+        "x": 714.359375
+      }
+    ],
+    "dark": true,
+    "searchWidth": 110.171875,
+    "toolbarScrollWidth": 579,
+    "toolbarWidth": 579,
+    "viewport": {
+      "height": 844,
+      "width": 901
+    }
+  },
+  {
+    "cluster": 32,
+    "buttons": [
+      {
+        "right": 166.765625,
+        "text": "검색",
+        "x": 109
+      },
+      {
+        "right": 179.53125,
+        "text": "업데이트",
+        "x": 72
+      },
+      {
+        "right": 300.890625,
+        "text": "폴더 생성",
+        "x": 189.53125
+      },
+      {
+        "right": 405.53125,
+        "text": "업로드",
+        "x": 310.890625
+      }
+    ],
+    "dark": true,
+    "searchWidth": 0,
+    "toolbarScrollWidth": 364,
+    "toolbarWidth": 226,
+    "viewport": {
+      "height": 844,
+      "width": 360
+    }
+  },
+  {
+    "cluster": 32,
+    "buttons": [
+      {
+        "right": 166.765625,
+        "text": "검색",
+        "x": 109
+      },
+      {
+        "right": 179.53125,
+        "text": "업데이트",
+        "x": 72
+      },
+      {
+        "right": 300.890625,
+        "text": "폴더 생성",
+        "x": 189.53125
+      },
+      {
+        "right": 405.53125,
+        "text": "업로드",
+        "x": 310.890625
+      }
+    ],
+    "dark": true,
+    "searchWidth": 0,
+    "toolbarScrollWidth": 364,
+    "toolbarWidth": 256,
+    "viewport": {
+      "height": 844,
+      "width": 390
+    }
+  }
+]
