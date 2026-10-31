@@ -1,0 +1,27 @@
+{
+  "modal": [
+    {
+      "class": "ant-modal-header",
+      "overflowY": "visible",
+      "padding": "16px 24px",
+      "rect": {
+        "h": 55,
+        "w": 508,
+        "x": 381,
+        "y": 24
+      }
+    },
+    {
+      "class": "ant-modal-body",
+      "overflowY": "auto",
+      "padding": "24px",
+      "rect": {
+        "h": 617,
+        "w": 508,
+        "x": 381,
+        "y": 79
+      }
+    }
+  ],
+  "tabs": true
+}

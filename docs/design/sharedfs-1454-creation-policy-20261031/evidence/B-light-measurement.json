@@ -1,0 +1,138 @@
+{
+  "body": {
+    "bg": "rgb(255, 255, 255)",
+    "clientHeight": 534,
+    "color": "rgb(31, 41, 55)",
+    "font": "14px",
+    "gap": "normal",
+    "marginBottom": "0px",
+    "overflow": "auto",
+    "rect": {
+      "h": 529.8898315429688,
+      "w": 950.6264038085938,
+      "x": 164.68682861328125,
+      "y": 90.09356689453124
+    },
+    "scrollHeight": 736,
+    "scrollTop": 0
+  },
+  "field": {
+    "bg": "rgba(0, 0, 0, 0)",
+    "clientHeight": 110,
+    "color": "rgba(0, 0, 0, 0.85)",
+    "font": "14px",
+    "gap": "0px normal",
+    "marginBottom": "6px",
+    "overflow": "visible",
+    "rect": {
+      "h": 109.54093933105467,
+      "w": 434.6287841796875,
+      "x": 192.4713134765625,
+      "y": 236.34974670410156
+    },
+    "scrollHeight": 110,
+    "scrollTop": 0
+  },
+  "footer": {
+    "bg": "rgb(247, 249, 252)",
+    "clientHeight": 64,
+    "color": "rgb(75, 85, 99)",
+    "font": "14px",
+    "gap": "8px",
+    "marginBottom": "0px",
+    "overflow": "visible",
+    "rect": {
+      "h": 64.49969482421875,
+      "w": 950.6264038085938,
+      "x": 164.68682861328125,
+      "y": 619.9833984375
+    },
+    "scrollHeight": 64,
+    "scrollTop": 0
+  },
+  "header": {
+    "bg": "rgb(247, 249, 252)",
+    "clientHeight": 54,
+    "color": "rgb(75, 85, 99)",
+    "font": "14px",
+    "gap": "normal",
+    "marginBottom": "0px",
+    "overflow": "visible",
+    "rect": {
+      "h": 54.57666778564453,
+      "w": 950.6264038085938,
+      "x": 164.68682861328125,
+      "y": 35.51689910888672
+    },
+    "scrollHeight": 54,
+    "scrollTop": 0
+  },
+  "hint": {
+    "bg": "rgba(0, 0, 0, 0)",
+    "clientHeight": 20,
+    "color": "rgb(75, 85, 99)",
+    "font": "12px",
+    "gap": "normal",
+    "marginBottom": "0px",
+    "overflow": "visible",
+    "rect": {
+      "h": 20.233673095703125,
+      "w": 434.6287841796875,
+      "x": 192.4713134765625,
+      "y": 301.84173583984375
+    },
+    "scrollHeight": 20,
+    "scrollTop": 0
+  },
+  "label": {
+    "bg": "rgba(0, 0, 0, 0)",
+    "clientHeight": 22,
+    "color": "rgb(75, 85, 99)",
+    "font": "14px",
+    "gap": "normal",
+    "marginBottom": "0px",
+    "overflow": "visible",
+    "rect": {
+      "h": 21.83067321777344,
+      "w": 107.30828857421876,
+      "x": 192.4713134765625,
+      "y": 236.34974670410156
+    },
+    "scrollHeight": 22,
+    "scrollTop": 0
+  },
+  "primary": {
+    "bg": "rgb(9, 105, 218)",
+    "clientHeight": 30,
+    "color": "rgb(255, 255, 255)",
+    "font": "14px",
+    "gap": "normal",
+    "marginBottom": "0px",
+    "overflow": "visible",
+    "rect": {
+      "h": 31.75372314453125,
+      "w": 91.183349609375,
+      "x": 996.3453369140624,
+      "y": 636.8525390625
+    },
+    "scrollHeight": 30,
+    "scrollTop": 0
+  },
+  "toolbar": {
+    "bg": "rgba(0, 0, 0, 0)",
+    "clientHeight": 72,
+    "color": "rgb(75, 85, 99)",
+    "font": "14px",
+    "gap": "8px",
+    "marginBottom": "16px",
+    "overflow": "visible",
+    "rect": {
+      "h": 72,
+      "w": 526.515625,
+      "x": 702.46875,
+      "y": 208
+    },
+    "scrollHeight": 72,
+    "scrollTop": 0
+  }
+}
