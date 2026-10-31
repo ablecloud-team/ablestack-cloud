@@ -219,5 +219,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.form-layout { width: 100%; min-width: 0; }
+.form-layout {
+  width: 100%; min-width: 0;
+  :deep(.ant-input), :deep(.ant-input-affix-wrapper) {
+    color: var(--ui-text-primary) !important;
+    background: var(--ui-bg-input) !important;
+  }
+}
 </style>

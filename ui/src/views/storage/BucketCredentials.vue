@@ -22,7 +22,7 @@
     <a-spin :spinning="loading">
       <template v-if="metadata">
         <div class="credential-state">
-          <Status :text="metadata.recoveryrequired ? 'Alert' : 'Running'" :display-label="$t('state.bucket.credentials.' + (metadata.recoveryrequired ? 'recovery' : (metadata.rotationstate || 'ready')).toLowerCase())" display-text />
+          <Status :text="metadata.recoveryrequired ? 'Error' : ['Prepared', 'Retiring'].includes(metadata.rotationstate) ? 'Pending' : 'Running'" :display-label="$t('state.bucket.credentials.' + (metadata.recoveryrequired ? 'recovery' : (metadata.rotationstate || 'ready')).toLowerCase())" display-text />
           <span>{{ $t('label.bucket.credentials.revision') }}: {{ metadata.credentialrevision }}</span>
         </div>
         <a-form layout="vertical">
@@ -103,7 +103,7 @@ export default {
       try {
         const json = await postAPI('getBucketCredentials', { id: this.resource.id, reveal }, { preserveOnFailure: true })
         if (generation !== this.generation || context !== this.contextKey) return
-        const { accesskey, usersecretkey, ...metadata } = json.getbucketcredentialsresponse
+        const { accesskey, usersecretkey, ...metadata } = json.getbucketcredentialsresponse.bucketcredential || json.getbucketcredentialsresponse
         this.metadata = metadata
         if (reveal) {
           this.keys = { accesskey, usersecretkey }

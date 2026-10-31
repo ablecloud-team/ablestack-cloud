@@ -22,7 +22,7 @@ import Replace from '@/views/infra/ReplaceObjectStorageCredentials'
 import { postAPI } from '@/api'
 jest.mock('@/api', () => ({ postAPI: jest.fn() }))
 const meta = (extra = {}) => ({ id: 'bucket', url: 'http://store/bucket', accesskeyhint: '********CESS', credentialrevision: 1, credentialstate: 'Verified', affectedbuckets: [{ id: 'bucket', name: 'bucket' }], ...extra })
-const reply = extra => ({ getbucketcredentialsresponse: meta(extra) })
+const reply = extra => ({ getbucketcredentialsresponse: { bucketcredential: meta(extra) } })
 let view, store
 const open = async (component = Credentials) => {
   store = reactive({ getters: { apis: { rotateBucketCredentials: {} }, project: { id: 'project' }, userInfo: { id: 'user' } }, state: { user: { token: 'session' } } })

@@ -45,8 +45,8 @@ describe('bucket browser request lifecycle', () => {
   const open = async (query = { tab: 'browser' }, component = Harness, translate = key => key) => {
     streams = []
     postAPI.mockReset()
-    postAPI.mockImplementation((command, args) => Promise.resolve({ getbucketcredentialsresponse: { id: args.id,
-      url: `http://store:3333/bucket-${args.id}`, accesskey: `access-${args.id}`, usersecretkey: `secret-${args.id}` } }))
+    postAPI.mockImplementation((command, args) => Promise.resolve({ getbucketcredentialsresponse: { bucketcredential: { id: args.id,
+      url: `http://store:3333/bucket-${args.id}`, accesskey: `access-${args.id}`, usersecretkey: `secret-${args.id}` } } }))
     Minio.Client.mockReset()
     Minio.Client.mockImplementation(() => ({ extensions: { listObjectsV2WithMetadata: jest.fn(() => { const stream = new Stream(); streams.push(stream); return stream }) } }))
     route = reactive({ path: '/buckets/A', params: { id: 'A' }, query, fullPath: '/buckets/A?' + new URLSearchParams(query) })

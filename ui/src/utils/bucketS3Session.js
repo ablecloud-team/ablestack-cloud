@@ -32,7 +32,7 @@ export class BucketS3Session {
     if (this.client) return this.client
     if (!this.pending) {
       this.pending = this.loadCredentials().then(json => {
-        const data = json?.getbucketcredentialsresponse
+        const data = json?.getbucketcredentialsresponse?.bucketcredential || json?.getbucketcredentialsresponse
         if (this.disposed) throw new Error('message.bucket.credentials.context.changed')
         if (!data?.accesskey || !data?.usersecretkey || !data?.url) throw new Error('message.bucket.credentials.fetch.failed')
         const url = new URL(data.url)
