@@ -6,11 +6,11 @@
 
 `getBucketCredentials(id,reveal=false)`는 POST 전용이며 생성된 버킷의 기존 계정·프로젝트·관리자 ACL을 적용한다. 기본 응답은 마스킹 힌트, revision, 동일 계정/store 영향 버킷과 교체 상태다. reveal=true일 때만 현재 검증된 endpoint/key pair를 반환한다. 조회는 외부 키를 발급하거나 교체하지 않는다. no-store/Pragma, 감사 이벤트와 민감 필드 로그 마스킹을 적용한다.
 
-ObjectStoreBrowser는 resource key에 의존하지 않는다. 해당 화면의 S3 세션이 POST로 키를 받고 SDK에만 보관한다. local/session storage, Vuex, URL에는 저장하지 않는다. 계정·프로젝트·버킷·로그아웃·관측한 revision 변경에서 참조와 SDK 키를 폐기하며 늦은 조회 응답도 버린다. 인증 실패는 안전한 설명과 명시적 재시도로 처리한다. 키 관리 대화상자는 기본 마스킹, 명시적 조회 후 30초 숨김, 범위 변경/닫힘 시 메모리 폐기를 적용한다.
+ObjectStoreBrowser는 resource key에 의존하지 않는다. 해당 화면의 S3 세션이 POST로 키를 받고 SDK에만 보관한다. local/session storage, Vuex, URL에는 저장하지 않는다. 계정·프로젝트·버킷·로그아웃·관측한 revision 변경에서 참조와 SDK 키를 폐기하며 늦은 조회 응답도 버린다. 로그아웃 시작과 다른 탭의 Access-Token/CURRENT_PROJECT 변경도 메모리 registry를 통해 SDK·키 미리보기·관리자 입력을 즉시 폐기한다. 인증 실패는 안전한 설명과 명시적 재시도로 처리한다. 키 관리 대화상자는 기본 마스킹, 명시적 조회 후 30초 숨김, 범위 변경/닫힘 시 메모리 폐기를 적용한다.
 
 ## tenant 키 교체
 
-`rotateBucketCredentials(id,expectedrevision,action=rotate|retry|retire,rotationid,graceperiod)`는 POST, 기존 ACL, revision CAS 의미와 같은 작업 UUID 재시도를 사용한다. 기본 유예 300초, 허용 5~86400초다. 저장소→계정/store 분산 잠금 순서로 직렬화하고 미완료 quota 작업 중 새 회전을 차단한다.
+`rotateBucketCredentials(id,expectedrevision,action=rotate|retry|retire,rotationid,graceperiod)`는 POST, 기존 ACL, revision CAS 의미와 같은 작업 UUID 재시도를 사용한다. 기본 유예 300초, 허용 5~86400초다. 저장소→계정/store 분산 잠금 순서로 직렬화하고 미완료 quota 작업 중 새 회전을 차단한다. 진행 중 키 교체가 있는 저장소의 endpoint 변경/삭제도 차단하여 복구 경로를 보존한다.
 
 Prepared 전에 후보 access ID와 작업 UUID를 암호화 credential 행에 기록한다. Glue에는 후보 ID만 보내고 secret은 Glue가 생성한다. secret을 Admin Ops URL에 넣지 않는다. 응답 유실은 동일 ID를 사용자 키 목록에서 확인해 재개한다. 후보 secret을 암호화 저장하고 모든 대상 생성 버킷의 실제 S3 읽기를 검증한 후, 현재/이전 키·revision·bucket 호환 스냅샷·Grace 전환을 한 DB 트랜잭션으로 확정한다. 외부 통신 중 SQL 트랜잭션은 유지하지 않는다.
 

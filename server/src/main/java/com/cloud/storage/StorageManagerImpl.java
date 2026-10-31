@@ -4781,6 +4781,9 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
         if (bucketQuotaOperations.hasActiveForStore(storeId)) {
             throw new InvalidParameterValueException("Pending bucket quota operations must be reconciled before deleting object store");
         }
+        if (pendingBucketCredentialRotation(storeId)) {
+            throw new InvalidParameterValueException("Complete pending bucket credential rotations before deleting object store");
+        }
         // Verify that object store exists
         ObjectStoreVO store = _objectStoreDao.findById(storeId);
         if (store == null) {
@@ -4812,6 +4815,10 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
         return org.apache.cloudstack.storage.object.BucketQuotaCoordinator.withStoreLock(id, () -> updateObjectStoreLocked(id, cmd));
     }
 
+    private boolean pendingBucketCredentialRotation(long storeId) {
+        return objectStoreAccountCredentialDao.listByStore(storeId).stream().anyMatch(row -> row.getRotationPhase() != null && !"Completed".equals(row.getRotationPhase()));
+    }
+
     private ObjectStore updateObjectStoreLocked(Long id, UpdateObjectStoragePoolCmd cmd) {
         // Input validation
         ObjectStoreVO objectStoreVO = _objectStoreDao.findById(id);
@@ -4819,6 +4826,9 @@ public class StorageManagerImpl extends ManagerBase implements StorageManager, C
             throw new IllegalArgumentException("Unable to find object store with ID: " + id);
         }
 
+        if (cmd.getUrl() != null && !cmd.getUrl().equals(objectStoreVO.getUrl()) && pendingBucketCredentialRotation(id)) {
+            throw new InvalidParameterValueException("Complete pending bucket credential rotations before changing the endpoint");
+        }
         Map<String, String> requestedCredentials = cmd.getDetails();
         if (requestedCredentials != null && (!"Glue".equals(objectStoreVO.getProviderName()) ||
                 requestedCredentials.size() != 2 || !requestedCredentials.containsKey("accesskey") || !requestedCredentials.containsKey("secretkey") ||
