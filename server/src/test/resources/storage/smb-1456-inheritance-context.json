@@ -1,0 +1,24 @@
+{
+  "inheritancetarget": {
+    "uuid": "NEW",
+    "name": "NEW",
+    "config": {
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a",
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "directoryPolicyUuid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "inheritOwner": false
+    }
+  },
+  "inheritancepolicy": {
+    "uuid": "77262649-396b-35ca-85b2-ac72188c020d",
+    "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+    "canonicalpath": "epic1456/projects/team-a",
+    "owneruid": 7001,
+    "ownergid": 7002,
+    "mode": "0770",
+    "revision": 1,
+    "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+    "inode": 8388760
+  }
+}

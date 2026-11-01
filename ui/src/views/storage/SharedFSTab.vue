@@ -2410,9 +2410,10 @@ import StorageDirectoryPolicyPanel from '@/components/storage/StorageDirectoryPo
 import SmbParentInheritanceFields from '@/components/storage/SmbParentInheritanceFields'
 import AdDomainProgressPanel from '@/components/storage/AdDomainProgressPanel'
 import { adDomainProgress, adDomainApplied, adDomainBusy } from '@/utils/adDomainProgress'
-import { inheritOwnerParameters, setgidEnabled } from '@/utils/smbParentInheritance'
+import { setgidEnabled } from '@/utils/smbParentInheritance'
+import { smbSharePolicyParameters } from '@/utils/smbShareParameters'
 import SmbFileIdentityFields from '@/components/storage/SmbFileIdentityFields'
-import { smbFileIdentity, smbIdentityParameters, smbIdentityIntent, validateIdentity } from '@/utils/smbFileIdentity'
+import { smbFileIdentity, validateIdentity } from '@/utils/smbFileIdentity'
 import SmbCreationPolicyDialog from '@/components/storage/SmbCreationPolicyDialog'
 import { smbCreationModes, smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 import MoldDialog from '@/components/view/MoldDialog'
@@ -4709,14 +4710,6 @@ export default {
         value.posixchanges = nfsPermissionIntent(this.nfsPosixParameters)
         value.name = this.forms.nfsExport.name
         value.path = this.forms.nfsExport.path
-      }
-      if (value && ['smbShare', 'editSmbShare'].includes(this.actionModal.type)) {
-        const f = this.forms.smbShare
-        let patch = {}
-        try { patch = smbIdentityIntent(f.baseline?.fileidentity, f.fileidentity || { mode: 'AUTHENTICATED', uid: null, gid: null }) } catch { return null }
-        if (Object.keys(patch).length) { value.smbfileidentity = patch; value.smbfullapply = true }
-        value.guestok = f.guestok
-        value.smboptions = { ...(value.smboptions || {}), readOnly: f.readonly, browseable: f.browseable }
       }
       if (value && this.actionModal.type === 'smbAcl') value.shareid = this.forms.smbAcl.shareid
       return value
@@ -8455,16 +8448,7 @@ export default {
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),
         quotabytes: this.toCapacityBytes(this.forms.smbShare.quotaamount, this.forms.smbShare.quotaunit),
-        readonly: this.forms.smbShare.readonly,
-        browseable: this.forms.smbShare.browseable,
-        guestok: this.forms.smbShare.guestok,
-        createdirectory: this.forms.smbShare.createdirectory,
-        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
-        crossprotocol: this.forms.smbShare.crossprotocol,
-        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
-        ...inheritOwnerParameters(this.forms.smbShare),
-        ...smbIdentityParameters(this.forms.smbShare.baseline?.fileidentity, this.forms.smbShare.fileidentity || { mode: 'AUTHENTICATED', uid: null, gid: null }),
-        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode,
+        ...smbSharePolicyParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
         cleanupvolumeonfailure: this.forms.smbShare.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.smb.share'))
     },
@@ -8480,16 +8464,7 @@ export default {
         filesystem: this.forms.smbShare.filesystem,
         importmode: this.smbShareImportMode(),
         quotabytes: this.toCapacityBytes(this.forms.smbShare.quotaamount, this.forms.smbShare.quotaunit),
-        readonly: this.forms.smbShare.readonly,
-        browseable: this.forms.smbShare.browseable,
-        guestok: this.forms.smbShare.guestok,
-        createdirectory: this.forms.smbShare.createdirectory,
-        ...fileSharePathParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit')),
-        crossprotocol: this.forms.smbShare.crossprotocol,
-        directorypolicyid: this.forms.smbShare.directorypolicyid || undefined,
-        ...inheritOwnerParameters(this.forms.smbShare),
-        ...smbIdentityParameters(this.forms.smbShare.baseline?.fileidentity, this.forms.smbShare.fileidentity || { mode: 'AUTHENTICATED', uid: null, gid: null }),
-        directorymode: this.forms.smbShare.directorypolicyid ? undefined : this.forms.smbShare.directorymode
+        ...smbSharePolicyParameters(this.forms.smbShare, this.actionModal.type.startsWith('edit'))
       }, this.$t('label.storage.service.update.smb.share'))
     },
     createSmbAcl () {

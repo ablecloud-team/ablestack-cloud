@@ -80,10 +80,10 @@ describe('SMB inheritance actual API wire and component request contracts', () =
     wrapper = shallowMount(Fields, { props: { report: { checks: [{ code: 'SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED', blocking: true }] } }, global: { mocks: { $t: x => x } } })
     expect(wrapper.vm.failure).toBe('message.storage.inheritance.protection')
   })
-  test('public SMB preflight uses effective bool while actual unchanged edit omits only the write parameter', async () => {
+  test('public SMB preflight and unchanged edit both omit the optional boolean', async () => {
     const form = { inheritowner: false, inheritownerbaseline: false, directorypolicyid: 'policy', id: 'share', volumemode: 'CURRENT', volumeid: 'volume' }
     const intent = configurationModalIntent('editSmbShare', { smbShare: form }, { raw: { id: 'share' } })
-    expect(intent.smbinheritance).toEqual({ inheritOwner: false, directoryPolicyId: 'policy' })
+    expect(intent.smbinheritance).toEqual({ directoryPolicyId: 'policy' })
     const runStorageAction = jest.fn().mockResolvedValue()
     const ctx = { forms: { smbShare: form }, actionModal: { type: 'editSmbShare', context: { raw: { id: 'share' } } }, runStorageAction, smbShareImportMode: () => 'MOUNT_EXISTING', toCapacityBytes: () => undefined, $t: x => x }
     await SharedFSTab.methods.updateSmbShare.call(ctx)

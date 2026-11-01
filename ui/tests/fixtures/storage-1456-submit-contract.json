@@ -1,0 +1,185 @@
+[
+  {
+    "name": "fixed-create",
+    "api": "createStorageSmbShare",
+    "intent": {
+      "api": "createStorageSmbShare",
+      "protocol": "SMB",
+      "recursive": false,
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumemode": "CURRENT",
+      "smbinheritance": {
+        "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+      },
+      "smboptions": {
+        "readOnly": false,
+        "browseable": true
+      },
+      "guestok": false,
+      "smbfileidentity": {
+        "mode": "FIXED",
+        "uid": 7001,
+        "gid": 7002
+      },
+      "relativepath": "epic1456/projects/team-a",
+      "createdirectory": false,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d"
+    },
+    "request": {
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "contract1456",
+      "path": "/export/contract1456",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "importmode": "FORMAT_IF_EMPTY",
+      "readonly": false,
+      "browseable": true,
+      "guestok": false,
+      "createdirectory": false,
+      "relativepath": "epic1456/projects/team-a",
+      "crossprotocol": true,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "fileidentitymode": "FIXED",
+      "fixeduid": 7001,
+      "fixedgid": 7002,
+      "cleanupvolumeonfailure": false,
+      "requestid": "2b918f4f-5fe6-4e9b-ae04-a10ec5ae4b71",
+      "expectedrevision": 1,
+      "impactack": "fixture"
+    }
+  },
+  {
+    "name": "ordinary-create",
+    "api": "createStorageSmbShare",
+    "intent": {
+      "api": "createStorageSmbShare",
+      "protocol": "SMB",
+      "recursive": false,
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumemode": "CURRENT",
+      "smbinheritance": {
+        "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+      },
+      "smboptions": {
+        "readOnly": false,
+        "browseable": true
+      },
+      "guestok": false,
+      "relativepath": "epic1456/projects/team-a",
+      "createdirectory": false,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d"
+    },
+    "request": {
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "contract1456",
+      "path": "/export/contract1456",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "importmode": "FORMAT_IF_EMPTY",
+      "readonly": false,
+      "browseable": true,
+      "guestok": false,
+      "createdirectory": false,
+      "relativepath": "epic1456/projects/team-a",
+      "crossprotocol": true,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "cleanupvolumeonfailure": false,
+      "requestid": "c9b920a3-a29e-4e1c-9b7a-53a375a0e656",
+      "expectedrevision": 1,
+      "impactack": "fixture"
+    }
+  },
+  {
+    "name": "inherit-create",
+    "api": "createStorageSmbShare",
+    "intent": {
+      "api": "createStorageSmbShare",
+      "protocol": "SMB",
+      "recursive": false,
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumemode": "CURRENT",
+      "smbinheritance": {
+        "inheritOwner": true,
+        "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+      },
+      "smboptions": {
+        "readOnly": false,
+        "browseable": true
+      },
+      "guestok": false,
+      "relativepath": "epic1456/projects/team-a",
+      "createdirectory": false,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d"
+    },
+    "request": {
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "contract1456",
+      "path": "/export/contract1456",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "importmode": "FORMAT_IF_EMPTY",
+      "readonly": false,
+      "browseable": true,
+      "guestok": false,
+      "createdirectory": false,
+      "relativepath": "epic1456/projects/team-a",
+      "crossprotocol": true,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "inheritowner": true,
+      "cleanupvolumeonfailure": false,
+      "requestid": "9b1dff82-5bfe-4de8-90c4-9ec694f8501d",
+      "expectedrevision": 1,
+      "impactack": "fixture"
+    }
+  },
+  {
+    "name": "fixed-update",
+    "api": "updateStorageSmbShare",
+    "intent": {
+      "api": "updateStorageSmbShare",
+      "protocol": "SMB",
+      "recursive": false,
+      "resourceid": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumemode": "CURRENT",
+      "smbfullapply": true,
+      "smbinheritance": {
+        "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+      },
+      "smboptions": {
+        "readOnly": false,
+        "browseable": true
+      },
+      "guestok": false,
+      "smbfileidentity": {
+        "mode": "FIXED",
+        "uid": 7001,
+        "gid": 7002
+      },
+      "relativepath": "epic1456/projects/team-a",
+      "createdirectory": false,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d"
+    },
+    "request": {
+      "id": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "name": "contract1456",
+      "path": "/export/contract1456",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "importmode": "FORMAT_IF_EMPTY",
+      "readonly": false,
+      "browseable": true,
+      "guestok": false,
+      "createdirectory": false,
+      "relativepath": "epic1456/projects/team-a",
+      "crossprotocol": true,
+      "directorypolicyid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "fileidentitymode": "FIXED",
+      "fixeduid": 7001,
+      "fixedgid": 7002,
+      "requestid": "2ff5400d-4285-48b8-92ba-53cae37697b3",
+      "expectedrevision": 1,
+      "impactack": "fixture"
+    }
+  }
+]

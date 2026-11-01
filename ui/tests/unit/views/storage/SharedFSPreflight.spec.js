@@ -28,6 +28,7 @@ describe('mounted SharedFS preflight admission contract', () => {
   let status
   beforeEach(() => {
     global.crypto = require('crypto').webcrypto
+    global.TextEncoder = require('util').TextEncoder
     status = 'READY'; sessionStorage.clear()
     for (const method of ['fetchData', 'fetchStorageServiceData', 'fetchDiskOfferings', 'fetchStoragePools', 'refreshAfterStorageAction']) jest.spyOn(SharedFSTab.methods, method).mockResolvedValue()
     postAPI.mockReset(); getAPI.mockReset()
@@ -170,7 +171,7 @@ describe('mounted SharedFS preflight admission contract', () => {
     let finishPreflight
     postAPI.mockImplementationOnce(() => new Promise(resolve => { finishPreflight = resolve }))
     const pending = w.vm.checkConfigurationPreflight()
-    await w.vm.$nextTick()
+    await flushPromises()
     w.vm.storageService.instance = { id: 'other-instance', configurationrevision: 2 }
     await flushPromises()
     finishPreflight({ preflightstorageserviceconfigurationresponse: { configurationpreflight: report('READY') } })

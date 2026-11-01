@@ -2,7 +2,7 @@
 // contributor license agreements. See NOTICE. Apache License, Version 2.0.
 // http://www.apache.org/licenses/LICENSE-2.0
 import { fileSharePathParameters } from '@/utils/fileSharePaths'
-import { inheritanceIntent } from '@/utils/smbParentInheritance'
+import { smbSharePolicyParameters, smbSharePolicyIntent } from '@/utils/smbShareParameters'
 import { smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 const kinds = {
   nfsExport: ['NfsExport', 'NFS'],
@@ -55,8 +55,7 @@ export function configurationModalIntent (type, forms, context) {
     result.smbfullapply = true
   }
   if (key === 'smbShare' && action !== 'delete') {
-    const inheritance = inheritanceIntent(form)
-    if (inheritance) result.smbinheritance = inheritance
+    try { Object.assign(result, smbSharePolicyIntent(smbSharePolicyParameters(form, action === 'update'))) } catch { return null }
   }
   if (['nfsExport', 'smbShare'].includes(key) && action !== 'delete') {
     Object.assign(result, fileSharePathParameters(form, action === 'update'))
