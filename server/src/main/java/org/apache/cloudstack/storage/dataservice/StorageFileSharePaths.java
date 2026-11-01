@@ -157,7 +157,7 @@ final class StorageFileSharePaths {
                 }
         JsonObject snapshot=StorageServiceConfigurationCoordinator.parsed(op.getCandidateSnapshot());
         snapshot.add("tables",JsonParser.parseString(plan.snapshot()));
-        if(snapshot.has("response")) {
+        if(snapshot.has("response") && snapshot.get("response").isJsonObject()) {
             JsonObject response=snapshot.getAsJsonObject("response");
             for(StorageFileShareVO row:rows)if(row.getUuid().equals(op.getResourceUuid()) && response.has("config"))
                 response.addProperty("config",row.getConfigJson());

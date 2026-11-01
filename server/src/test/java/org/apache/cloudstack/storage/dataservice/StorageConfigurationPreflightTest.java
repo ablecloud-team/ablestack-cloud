@@ -88,7 +88,9 @@ public class StorageConfigurationPreflightTest {
         StorageServiceConfigurationPreflight service=new StorageServiceConfigurationPreflight(mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao.class),shares,targets,rules,volumes,upgrades,guest,v->{throw new AssertionError("unexpected volume");});
         JsonObject result=service.observe(instance,StorageServiceConfigurationPreflight.parseIntent("{\"api\":\"createStorageNfsExport\"}"),null);
         assertEquals("UNKNOWN",result.get("status").getAsString());
-        verify(shares).listByInstanceIdAndProtocol(1L,StorageServiceInstance.Protocol.NFS);
+        // Nested path protection also reads both protocols; all DAO interactions remain read-only.
+        verify(shares,org.mockito.Mockito.times(2)).listByInstanceIdAndProtocol(1L,StorageServiceInstance.Protocol.NFS);
+        verify(shares).listByInstanceIdAndProtocol(1L,StorageServiceInstance.Protocol.SMB);
         verify(targets).listByInstanceIdAndProtocol(1L,StorageServiceInstance.Protocol.NFS);
         verifyNoMoreInteractions(shares,targets,rules,volumes);
     }

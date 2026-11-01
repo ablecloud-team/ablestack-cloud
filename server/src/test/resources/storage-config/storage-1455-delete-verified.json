@@ -1,0 +1,39 @@
+{
+  "baseRevision": 36,
+  "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+  "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+  "pathbindings": {
+    "bindings": [
+      {
+        "pathIdentity": {
+          "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "inode": 8388756,
+          "volumeRootInode": 128
+        },
+        "relativepath": "epic1455/projects/team-b",
+        "resourceuuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+        "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+      },
+      {
+        "pathIdentity": {
+          "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "inode": 152,
+          "volumeRootInode": 128
+        },
+        "relativepath": "epic1455/projects",
+        "resourceuuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+        "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+      }
+    ],
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58"
+  },
+  "phase": "COMMITTING",
+  "requestHash": "fb07082b2ff51c323614cbdeecf6ae71ea7eccbc72385a3ab47bce25c9d59df0",
+  "rollback": {
+    "state": "NOT_NEEDED"
+  },
+  "state": "VERIFIED",
+  "targetRevision": 37,
+  "updated": 1793493078.0262787
+}

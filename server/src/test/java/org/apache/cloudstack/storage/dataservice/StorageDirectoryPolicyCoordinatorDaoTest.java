@@ -303,4 +303,122 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         assertEquals(1,shares.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).size());
     }
 
+
+    private void renderFileShares(StorageServiceConfigurationPlan value, StorageServiceInstance.Protocol protocol) {
+        JsonObject command=new JsonObject();com.google.gson.JsonArray rows=new com.google.gson.JsonArray();
+        for(StorageFileShareVO row:value.dao(StorageFileShareDao.class).listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+            JsonObject rendered=new JsonObject();rendered.addProperty("uuid",row.getUuid());rendered.addProperty("state",row.getState().name());
+            rendered.add("config",com.google.gson.JsonParser.parseString(row.getConfigJson()));rows.add(rendered);
+        }
+        command.add(protocol==StorageServiceInstance.Protocol.NFS?"exports":"shares",rows);
+        value.commands.put(protocol==StorageServiceInstance.Protocol.NFS?"nfs export apply":"smb share apply",command);
+    }
+    /** Real SystemVM VERIFIED receipt shape; only database/request identities are remapped for isolation. */
+    private void booleanDeleteRoundtrip(StorageServiceInstance.Protocol protocol, boolean last, String invalid, boolean resume) throws Exception {
+        instance.setVmId(195L);instances.update(instance.getId(),instance);
+        JsonObject nativeStatus;
+        try(java.io.InputStream in=getClass().getResourceAsStream("/storage-config/storage-1455-delete-verified.json")) {
+            assertNotNull(in);nativeStatus=com.google.gson.JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        JsonObject nativeReceipt=nativeStatus.getAsJsonObject("pathbindings");
+        java.util.Map<String,String> uuidMap=new java.util.HashMap<>();
+        if(!last)for(com.google.gson.JsonElement element:nativeReceipt.getAsJsonArray("bindings")) {
+            JsonObject binding=element.getAsJsonObject();String relative=binding.get("relativepath").getAsString();
+            JsonObject config=new JsonObject();config.addProperty("pathBindingVersion",1);config.addProperty("relativeSharePath",relative);
+            config.addProperty("volumeMountPath","/srv/ablestack-storage/volumes/"+binding.get("volumeuuid").getAsString());
+            config.addProperty("backingPath",config.get("volumeMountPath").getAsString()+"/"+relative);config.addProperty("keep","원본");
+            config.add("pathIdentity",binding.getAsJsonObject("pathIdentity").deepCopy());
+            StorageFileShareVO row=shares.persist(new StorageFileShareVO(instance.getId(),protocol,"peer-"+uuidMap.size(),"/export/peer-"+uuidMap.size(),
+                    77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,config.toString()));
+            uuidMap.put(binding.get("resourceuuid").getAsString(),row.getUuid());
+        }
+        StorageFileShareVO target=shares.persist(new StorageFileShareVO(instance.getId(),protocol,"delete-alias","/export/delete-alias",77L,"xfs",null,
+                StorageServiceInstance.ResourceState.Ready,"{\"pathBindingVersion\":1,\"relativeSharePath\":\"epic1455/projects/team-a\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects/team-a\"}"));
+        BaseStorageServiceConfigurationCmd cmd=protocol==StorageServiceInstance.Protocol.NFS
+                ?new org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageNfsExportCmd()
+                :new org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageSmbShareCmd();
+        field(cmd,cmd.getClass(),"id",target.getId());field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        final boolean[] good={invalid==null};
+        final int[] applyCount={0},ackCount={0};
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(invocation->{
+            StorageServiceGuestCommand request=invocation.getArgument(0);JsonObject result=new JsonObject();
+            if(request.getOperation().equals("configuration capability show")) {
+                for(String key:new String[]{"nfsPosixIntentVersion","configurationPreflightVersion","configurationTransactionVersion",
+                        "nestedFileSharePathVersion","nestedFileSharePathProtectionVersion"})result.addProperty(key,1);
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                result=nativeStatus.deepCopy();result.add("operationid",input.get("operationid"));
+                result.addProperty("baseRevision",3);result.addProperty("targetRevision",4);result.addProperty("instanceUuid",instance.getUuid());
+                JsonObject receipt=result.getAsJsonObject("pathbindings");receipt.add("operationid",input.get("operationid"));
+                receipt.addProperty("instanceUuid",instance.getUuid());com.google.gson.JsonArray bindings=new com.google.gson.JsonArray();
+                if(!last)for(com.google.gson.JsonElement item:nativeReceipt.getAsJsonArray("bindings")) {
+                    JsonObject binding=item.getAsJsonObject().deepCopy();binding.addProperty("resourceuuid",uuidMap.get(binding.get("resourceuuid").getAsString()));bindings.add(binding);
+                }
+                receipt.add("bindings",bindings);
+                if(!good[0]) {
+                    if("missing".equals(invalid))bindings.remove(0);
+                    else if("operation".equals(invalid))receipt.addProperty("operationid","wrong-operation");
+                    else if("volume".equals(invalid))bindings.get(0).getAsJsonObject().addProperty("volumeuuid","wrong-volume");
+                    else if("inode".equals(invalid))bindings.get(0).getAsJsonObject().getAsJsonObject("pathIdentity").addProperty("inode",99999);
+                }
+                if(request.getOperation().equals("configuration operation apply"))applyCount[0]++;
+                if(request.getOperation().equals("configuration operation commit")){ackCount[0]++;result.addProperty("state","COMMITTED");}
+            }
+            return new StorageServiceGuestCommandResult(true,"native-receipt-fixture",result.toString());
+        });
+        final long targetId=target.getId();
+        java.util.function.Supplier<Boolean> candidate=()->{
+            plan.get().dao(StorageFileShareDao.class).remove(targetId);renderFileShares(plan.get(),protocol);return true;
+        };
+        if(invalid==null)assertTrue(coordinator.execute(cmd,instance,protocol,Boolean.class,candidate,plan::set,()->{},null));
+        else {
+            try {coordinator.execute(cmd,instance,protocol,Boolean.class,candidate,plan::set,()->{},null);fail("bad receipt accepted");}
+            catch(com.cloud.exception.InvalidParameterValueException expected) {
+                assertTrue(expected.getMessage().startsWith("DIRECTORY_"));
+            }
+            assertNotNull(shares.findById(targetId));assertEquals(3,instances.findById(instance.getId()).getConfigurationRevision());
+            assertNotNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+            if(!resume)return;
+            good[0]=true;
+            // Reload the durable Boolean snapshot and recover this operation, without a second guest apply.
+            coordinator.resume(instances.findById(instance.getId()),operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()),
+                    value->renderFileShares(value,protocol));
+        }
+        StorageServiceConfigurationOperationVO op=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("COMMITTED",op.getState());assertEquals("COMPLETED",op.getPhase());
+        JsonObject saved=com.google.gson.JsonParser.parseString(op.getCandidateSnapshot()).getAsJsonObject();
+        assertTrue(saved.get("response").isJsonPrimitive());assertTrue(saved.get("response").getAsBoolean());
+        assertNull(shares.findById(targetId));assertEquals(last?0:2,shares.listByInstanceIdAndProtocol(instance.getId(),protocol).size());
+        assertEquals(4,instances.findById(instance.getId()).getConfigurationRevision());assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        for(StorageFileShareVO peer:shares.listByInstanceIdAndProtocol(instance.getId(),protocol)) {
+            JsonObject config=com.google.gson.JsonParser.parseString(peer.getConfigJson()).getAsJsonObject();
+            assertEquals("원본",config.get("keep").getAsString());assertTrue(config.has("pathIdentity"));
+        }
+        assertTrue(coordinator.execute(cmd,instances.findById(instance.getId()),protocol,Boolean.class,
+                ()->{throw new AssertionError("duplicate delete reapplied");},plan::set,()->{},null));
+        coordinator.resume(instances.findById(instance.getId()),operations.findById(op.getId()),value->{throw new AssertionError("completed recovery reapplied");});
+        assertEquals(1,applyCount[0]);assertEquals(1,ackCount[0]);assertEquals(1,operations.listByInstance(instance.getId()).size());
+    }
+    @Test public void booleanNfsDeleteCommitsWithActualVerifiedReceiptAndRemainingNestedPaths() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,null,false);
+    }
+    @Test public void booleanSmbDeletePreservesResultAndRemainingBindings() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.SMB,false,null,false);
+    }
+    @Test public void booleanLastBoundDeleteCommitsWithEmptyReceipt() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,true,null,false);
+    }
+    @Test public void booleanDeleteRejectsWrongOperationReceipt() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,"operation",false);
+    }
+    @Test public void booleanDeleteRejectsWrongVolumeReceipt() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,"volume",false);
+    }
+    @Test public void booleanDeleteRejectsChangedInodeReceipt() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,"inode",false);
+    }
+    @Test public void booleanDeleteRejectsMissingReceiptAndResumesSameDurableOperation() throws Exception {
+        booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,"missing",true);
+    }
+
 }
