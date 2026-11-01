@@ -43,12 +43,14 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 8
-MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420}
+UPDATER_VERSION = 9
+MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420, 'lib/ablestack-storage/shared_directory_policy.py': 420, 'lib/ablestack-storage/smb_file_identity.py': 420}
 DIRECTORY_HELPER = "lib/ablestack-storage/shared_directory_policy.py"
 def complete_managed_names(names):
     names=set(names)
-    return names==set(MANAGED_FILES) or names==set(MANAGED_FILES)-{DIRECTORY_HELPER}
+    current=set(MANAGED_FILES)
+    identity="lib/ablestack-storage/smb_file_identity.py"
+    return names in (current, current-{identity}, current-{identity,DIRECTORY_HELPER})
 
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -119,6 +121,23 @@ def require_smb_creation_compatibility(release, desired):
         version = 0
     if type(version) is not int or version != 1:
         raise RuntimeUpgradeError("SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "active SMB creation policies require a compatible target helper")
+
+
+def require_smb_file_identity_compatibility(release, desired, registry):
+    try:
+        value=json.loads(registry.read_text()) if registry.exists() else {}
+        rows=json.loads(desired.read_text()).get("shares",[]) if desired.exists() else []
+        owned=bool(value.get("identities"))
+        active=any((r.get("config") or {}).get("fileIdentity",{}).get("mode")=="FIXED" for r in rows)
+    except (OSError,ValueError,TypeError,AttributeError):
+        raise RuntimeUpgradeError("SMB_FIXED_IDENTITY_PROTECTED","file identity observation unavailable")
+    if not owned and not active:return
+    try:
+        tree=ast.parse((release/"lib/ablestack-storage/smb_file_identity.py").read_text())
+        version=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=="SMB_FILE_IDENTITY_VERSION" for t in n.targets))
+    except (OSError,SyntaxError,ValueError,StopIteration):version=0
+    if type(version) is not int or version!=1:
+        raise RuntimeUpgradeError("SMB_FIXED_IDENTITY_CAPABILITY_REQUIRED","owned identities require compatible protected runtime")
 
 
 def require_nested_paths_compatibility(release, registry):
@@ -780,6 +799,7 @@ class RuntimeUpdater:
         require_smb_inheritance_compatibility(release, registry.parent / "smb-share-apply.json")
         require_smb_creation_compatibility(release, registry.parent / "smb-share-apply.json")
         require_nested_paths_compatibility(release, registry)
+        require_smb_file_identity_compatibility(release,registry.parent/"smb-share-apply.json",Path("/var/lib/ablestack-storage/smb-fixed-identities.json"))
 
     def preflight(self, request):
         state = self.read_state(request)

@@ -128,6 +128,10 @@ final class StorageServiceConfigurationCoordinator {
                     throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
+                if(StorageSmbFileIdentity.fields(publicRequest(cmd)).size()>0 ||
+                        protocol==StorageServiceInstance.Protocol.SMB && StorageFileSharePaths.all(instance.getId(),shares).stream()
+                        .anyMatch(r->StorageSmbFileIdentity.fixed(StorageDirectoryPolicies.parsed(r.getConfigJson()))))
+                    StorageSmbFileIdentity.requireCapability(capability);
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
                 StorageSmbCreationPolicy.requireCapability(cmd, capability);
                 if((protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB)
@@ -190,7 +194,7 @@ final class StorageServiceConfigurationCoordinator {
                 nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
             }
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
-            if (StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
+            if (StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget") || admission.has("fileidentitytarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);

@@ -1272,6 +1272,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(null, cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
+        configJson = StorageSmbFileIdentity.merge(configJson, StorageSmbFileIdentity.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = configureFileSharePath(configJson,cmd.getRelativePath(),backingVolume,importMode,cmd.getCreateDirectory());
@@ -1369,6 +1370,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         String configJson = buildSmbConfigJson(share.getConfigJson(), cmd.getReadOnly(), cmd.getBrowseable(), cmd.getGuestOk(),
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
+        configJson = StorageSmbFileIdentity.merge(configJson, StorageSmbFileIdentity.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = configureFileSharePath(configJson,cmd.getRelativePath(),backingVolume,importMode,cmd.getCreateDirectory());

@@ -36,7 +36,9 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("directorypreview") @Param(description="Common directory values, references and NFS unit impact") private JsonObject directorypreview;
     @SerializedName("inheritancepreview") @Param(description="Observed parent and future SMB object ownership policy") private JsonObject inheritancepreview;
     @SerializedName("creationpreview") @Param(description="SMB new-object mode policy and reload impact") private JsonObject creationpreview;
+    @SerializedName("fileidentitypreview") @Param(description="Fixed file identity, POSIX readiness and publication state") private JsonObject fileidentitypreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        fileidentitypreview=report.has("fileidentitypreview")?report.getAsJsonObject("fileidentitypreview"):null;
         pathpreview=report.has("pathpreview")?report.getAsJsonObject("pathpreview"):null;
         creationpreview=report.has("creationpreview")?report.getAsJsonObject("creationpreview"):null;
         inheritancepreview=report.has("inheritancepreview")?report.getAsJsonObject("inheritancepreview"):null;

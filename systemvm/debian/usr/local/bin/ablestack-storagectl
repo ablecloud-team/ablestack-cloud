@@ -1609,6 +1609,12 @@ try:
 except ImportError:
     smb_inheritance = []
 
+try:
+    from smb_file_identity import FixedIdentities
+    fixed_observations = FixedIdentities().observations(load_json("/etc/ablestack-storage/desired-state/smb-share-apply.json", {}))
+except Exception:
+    fixed_observations = [{"status": "UNKNOWN", "code": "SMB_FIXED_IDENTITY_OBSERVATION_UNAVAILABLE"}]
+
 iscsi_targets = enrich_iscsi_targets(load_json("/etc/ablestack-storage/iscsi-targets.json", {}), iscsi_runtime_snapshot)
 nvmeof_subsystems = redact_sensitive(enrich_nvmeof_subsystems(load_json("/etc/ablestack-storage/nvmeof-subsystems.json", {})))
 nvmeof_ports = desired_nvmeof_ports(nvmeof_subsystems)
@@ -1634,6 +1640,7 @@ print(json.dumps({
     "nfsPosixObservations": nfs_posix,
     "nfsLocalProbes": load_json("/etc/ablestack-storage/nfs-local-probes.json", {}),
     "smbParentInheritanceObservations": smb_inheritance,
+    "smbFileIdentityObservations": fixed_observations,
     "nfsGaneshaExports": ganesha_exports,
     "nfsGaneshaRuntime": ganesha_runtime,
     "nfsQuotas": load_json("/etc/ablestack-storage/nfs-quotas.json", {}),
@@ -4871,6 +4878,8 @@ def smb_user(value):
     return smb_conf_quote(smb_identity(value))
 
 def ensure_local_group(group):
+    from smb_file_identity import reject_auth_identity
+    reject_auth_identity(group)
     if not group:
         return
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", group):
@@ -4881,6 +4890,8 @@ def ensure_local_group(group):
         run(["groupadd", group])
 
 def ensure_local_smb_user(user, password):
+    from smb_file_identity import reject_auth_identity
+    reject_auth_identity(user)
     if not user or not password:
         return
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", user):
@@ -5067,6 +5078,15 @@ for candidate_share in payload.get("shares", []):
 
 # Cold boot must establish AD NSS before ownership or ACL resolution.
 directory_policy_module.prepare_smb_ad_resolution(payload, netbios_name)
+from smb_file_identity import FixedIdentities, policy as file_identity_policy, render as render_file_identity
+file_identities=FixedIdentities()
+fixed_identities=file_identities.ensure(payload)
+owned_identities=file_identities.read()["identities"] if file_identities.registry.exists() else {}
+if owned_identities:
+    lines.append("   invalid users = " + " ".join(sorted({v["user"] for v in owned_identities.values()})))
+if fixed_identities:
+    lines.extend(["   log level = 1 auth_json_audit:3", "   max log size = 5000"])
+
 
 quota_state = {}
 access_state = {}
@@ -5106,6 +5126,8 @@ for share in payload.get("shares", []):
         principal = acl.get("principal")
         if not principal:
             continue
+        from smb_file_identity import reject_auth_identity
+        reject_auth_identity(principal)
         configured_acl_count += 1
         principal_type = acl.get("principalType")
         if principal_type == "LOCAL_USER":
@@ -5165,7 +5187,9 @@ for share in payload.get("shares", []):
         lines.append("   valid users = " + " ".join(valid_users))
     if write_list:
         lines.append("   write list = " + " ".join(write_list))
-    if admin_users:
+    if share.get("uuid") in fixed_identities:
+        lines.extend(render_file_identity(fixed_identities[share["uuid"]]))
+    elif admin_users:
         lines.append("   admin users = " + " ".join(admin_users))
     if share.get("quotaBytes") is not None:
         quota_state[str(share.get("uuid"))] = {

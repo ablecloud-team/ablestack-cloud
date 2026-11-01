@@ -39,6 +39,16 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
+    @Parameter(name="fileidentitymode", type=CommandType.STRING, length=16, description="AUTHENTICATED or FIXED; omitted preserves the current policy")
+    private String fileIdentityMode;
+    public String getFileIdentityMode() { return fileIdentityMode; }
+    @Parameter(name="fixeduid", type=CommandType.LONG, description="Owned non-login POSIX UID for FIXED file operations")
+    private Long fixedUid;
+    public Long getFixedUid() { return fixedUid; }
+    @Parameter(name="fixedgid", type=CommandType.LONG, description="Owned non-login POSIX GID for FIXED file operations")
+    private Long fixedGid;
+    public Long getFixedGid() { return fixedGid; }
+
     @Parameter(name="directorypolicyid",type=CommandType.UUID,entityType=org.apache.cloudstack.api.response.StorageDirectoryPolicyResponse.class,
             description="Common POSIX policy for the same canonical backing directory")
     private Long directoryPolicyId;

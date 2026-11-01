@@ -412,6 +412,9 @@ class DirectoryPolicies:
                   change.get("mode",observed["mode"]))
         if (policy["owneruid"],policy["ownergid"],policy["mode"]) != expected:
             raise PolicyError("DIRECTORY_POLICY_INVALID")
+        if any((r.get("config") or {}).get("fileIdentity", {}).get("mode") == "FIXED" for r in value.get("smbShares", [])):
+            from smb_file_identity import validate_directory_change
+            validate_directory_change(value)
         units = self.units(observed["path"])
         if value.get("units") != units:
             raise PolicyError("DIRECTORY_POLICY_STALE")

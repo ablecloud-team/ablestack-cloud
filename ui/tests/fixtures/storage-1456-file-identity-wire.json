@@ -1,0 +1,29 @@
+{
+  "preflightstorageserviceconfigurationresponse": {
+    "configurationpreflight": {
+      "status": "READY",
+      "revision": 1,
+      "observedat": "2080-11-28T15:13:20+0900",
+      "expiresat": "2080-11-28T15:13:50+0900",
+      "fingerprint": "fixture",
+      "checks": [],
+      "impact": {
+        "ackrequired": true
+      },
+      "profile": {},
+      "cancellationsupported": false,
+      "fileidentitypreview": {
+        "mode": "FIXED",
+        "uid": 7001,
+        "gid": 7002,
+        "publicationrequired": false,
+        "directory": {
+          "uid": 7001,
+          "gid": 7002,
+          "mode": "0770"
+        },
+        "existingobjectschange": false
+      }
+    }
+  }
+}

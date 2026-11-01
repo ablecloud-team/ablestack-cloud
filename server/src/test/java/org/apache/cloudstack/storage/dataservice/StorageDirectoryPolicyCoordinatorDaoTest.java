@@ -421,4 +421,24 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         booleanDeleteRoundtrip(StorageServiceInstance.Protocol.NFS,false,"missing",true);
     }
 
+    @Test public void fixedIdentityActualCommandCoordinatorDaoRoundtripKeepsAclAndLegacyFields() throws Exception {
+        var row=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+                "fixed","/export/fixed",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,"{\"keep\":true,\"createMask\":\"0640\"}"));
+        final long id=row.getId();
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd();
+        field(cmd,cmd.getClass(),"id",id);field(cmd,cmd.getClass(),"fileIdentityMode","FIXED");
+        field(cmd,cmd.getClass(),"fixedUid",7001L);field(cmd,cmd.getClass(),"fixedGid",7002L);
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        String result=coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,String.class,()->{
+            var staged=plan.get().dao(StorageFileShareDao.class).findById(id);
+            staged.setConfigJson(StorageSmbFileIdentity.merge(staged.getConfigJson(),StorageSmbFileIdentity.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd))));
+            plan.get().dao(StorageFileShareDao.class).update(id,staged);return staged.getUuid();
+        },plan::set,()->{},null);
+        var saved=com.google.gson.JsonParser.parseString(shares.findById(id).getConfigJson()).getAsJsonObject();
+        assertEquals(7001,saved.getAsJsonObject("fileIdentity").get("uid").getAsInt());assertTrue(saved.get("keep").getAsBoolean());
+        assertEquals("0640",saved.get("createMask").getAsString());
+        assertEquals("COMMITTED",operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()).getState());
+        assertEquals(result,coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,String.class,
+                ()->{throw new AssertionError("duplicate fixed policy");},plan::set,()->{},null));
+    }
 }

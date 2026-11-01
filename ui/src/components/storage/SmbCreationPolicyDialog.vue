@@ -9,8 +9,9 @@ http://www.apache.org/licenses/LICENSE-2.0 -->
         <a-descriptions-item :label="$t('label.storage.service.smb.share.name')">{{ row.name }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.storage.creation.scope')">{{ $t('message.storage.creation.new.only') }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.storage.creation.existing')">{{ $t('message.storage.creation.preserve') }}</a-descriptions-item>
-        <a-descriptions-item :label="$t('label.storage.creation.apply.mode')">{{ $t('label.storage.preflight.ONLINE_RELOAD') }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.storage.creation.apply.mode')">{{ $t(identityForm.mode !== identityBaseline.mode || identityForm.uid !== identityBaseline.uid || identityForm.gid !== identityBaseline.gid ? 'label.storage.file.identity.reconfigure' : 'label.storage.preflight.ONLINE_RELOAD') }}</a-descriptions-item>
       </a-descriptions>
+      <SmbFileIdentityFields v-model:value="identityForm" :disabled="busy || checking || guarded" :inherit-owner="config.inheritOwner===true" :guest-ok="config.guestOk===true" :preview="report?.fileidentitypreview" />
       <p class="help">{{ $t('message.storage.creation.input') }}</p>
       <a-row :gutter="16">
         <a-col v-for="key in fieldKeys" :key="key" :xs="24" :sm="12">
@@ -41,6 +42,8 @@ http://www.apache.org/licenses/LICENSE-2.0 -->
   </MoldDialog>
 </template>
 <script>
+import SmbFileIdentityFields from '@/components/storage/SmbFileIdentityFields'
+import { smbFileIdentity, smbIdentityParameters, smbIdentityIntent, validateIdentity } from '@/utils/smbFileIdentity'
 import { postAPI } from '@/api'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
@@ -50,25 +53,30 @@ import { smbModeDefaults, smbCreationModes, smbCreationDelta, smbCreationIntent 
 import { decodeConfigurationPreflight, preflightApplicable, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
 export default {
   name: 'SmbCreationPolicyDialog',
-  components: { MoldDialog, MoldDialogActions, StorageConfigurationPreflightPanel, StorageConfigurationOperationPanel },
+  components: { SmbFileIdentityFields, MoldDialog, MoldDialogActions, StorageConfigurationPreflightPanel, StorageConfigurationOperationPanel },
   props: { row: { type: Object, required: true }, instance: { type: Object, required: true }, guarded: Boolean, operation: Object, execute: { type: Function, required: true } },
   emits: ['close', 'done', 'refresh', 'resume'],
   data () {
     let baseline; let initialError = ''
     try { baseline = smbCreationModes(this.row.config) } catch (error) { baseline = { ...smbModeDefaults }; initialError = error.message }
-    return { baseline, form: { ...baseline }, initialError, fieldKeys: ['createMask', 'forceCreateMode', 'directoryMask', 'forceDirectoryMode'], report: null, ack: false, busy: false, checking: false, error: '', generation: 0, disposed: false, expiry: null }
+    let config = {}
+    try { config = typeof this.row.config === 'string' ? JSON.parse(this.row.config || '{}') : this.row.config || {} } catch (error) { initialError = error.message }
+    let identityBaseline
+    try { identityBaseline = smbFileIdentity(config) } catch (error) { identityBaseline = { mode: 'AUTHENTICATED', uid: null, gid: null }; initialError = error.message }
+    return { config, identityBaseline, identityForm: { ...identityBaseline }, baseline, form: { ...baseline }, initialError, fieldKeys: ['createMask', 'forceCreateMode', 'directoryMask', 'forceDirectoryMode'], report: null, ack: false, busy: false, checking: false, error: '', generation: 0, disposed: false, expiry: null }
   },
   computed: {
-    validationError () { if (this.initialError) return this.initialError; try { smbCreationModes(this.form); return '' } catch (error) { return error.message } },
-    dirty () { if (this.validationError) return false; return Object.keys(smbCreationDelta(this.baseline, this.form)).length > 0 },
+    validationError () { if (this.initialError) return this.initialError; try { smbCreationModes(this.form); validateIdentity(this.identityForm); if (this.identityForm.mode === 'FIXED' && (this.config.inheritOwner || this.config.guestOk)) throw new Error(this.config.inheritOwner ? 'SMB_PARENT_IDENTITY_CONFLICT' : 'SMB_FIXED_IDENTITY_GUEST_FORBIDDEN'); return '' } catch (error) { return error.message } },
+    dirty () { if (this.validationError) return false; return Object.keys({ ...smbCreationDelta(this.baseline, this.form), ...smbIdentityParameters(this.identityBaseline, this.identityForm) }).length > 0 },
     applicable () { return !this.validationError && preflightApplicable(this.report, this.ack) },
     preview () { return this.report?.creationpreview },
     executable () { return !this.validationError && !!(parseInt(this.form.createMask, 8) & 0o111) }
   },
-  watch: { form: { deep: true, handler () { if (!this.busy) { this.generation++; this.checking = false; this.invalidate() } } } },
+  watch: { identityForm: { deep: true, handler () { if (!this.busy) { this.generation++; this.checking = false; this.invalidate() } } }, form: { deep: true, handler () { if (!this.busy) { this.generation++; this.checking = false; this.invalidate() } } } },
   beforeUnmount () { this.disposed = true; this.generation++; clearTimeout(this.expiry) },
   methods: {
     reason (code) {
+      if (code === 'SMB_PARENT_IDENTITY_CONFLICT' || code?.startsWith('SMB_FIXED_IDENTITY_')) return this.$t('message.storage.file.identity.' + code)
       const known = ['SMB_CREATION_MODE_INVALID', 'SMB_FORCE_MODE_OUTSIDE_MASK', 'SMB_CREATION_POLICY_INHERIT_CONFLICT', 'SMB_CREATION_POLICY_PROTECTION_REQUIRED', 'SMB_CREATION_POLICY_CAPABILITY_REQUIRED', 'SMB_CREATION_POLICY_DRIFT']
       return known.includes(code) ? this.$t('message.storage.creation.' + code) : code
     },
@@ -78,7 +86,7 @@ export default {
       if (this.guarded || this.busy || this.checking || !this.dirty || this.validationError) return
       const generation = ++this.generation; this.checking = true; this.error = ''; this.invalidate()
       try {
-        const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid: this.instance.id, intent: JSON.stringify(smbCreationIntent(this.row, this.form)) }, { timeout: 30000, preserveOnFailure: true })
+        const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid: this.instance.id, intent: JSON.stringify({ ...smbCreationIntent(this.row, this.form), ...(Object.keys(smbIdentityIntent(this.identityBaseline, this.identityForm)).length ? { smbfileidentity: smbIdentityIntent(this.identityBaseline, this.identityForm), smbfullapply: true } : {}) }) }, { timeout: 30000, preserveOnFailure: true })
         if (this.disposed || generation !== this.generation) return
         this.report = decodeConfigurationPreflight(wire)
         if (!this.report) throw new Error('Invalid SMB creation preflight response')
@@ -93,7 +101,7 @@ export default {
       if (this.guarded || this.busy || !this.applicable || !this.dirty) return
       const generation = this.generation; this.busy = true
       try {
-        const result = await this.execute('updateStorageSmbShare', { id: this.row.id, ...smbCreationDelta(this.baseline, this.form) }, this.report)
+        const result = await this.execute('updateStorageSmbShare', { id: this.row.id, ...smbCreationDelta(this.baseline, this.form), ...smbIdentityParameters(this.identityBaseline, this.identityForm) }, this.report)
         if (this.disposed || generation !== this.generation) return
         if (result?.state === 'COMMITTED') this.$emit('done')
         else { this.error = this.reason(result?.originalfailure?.code || result?.state || 'CONFIGURATION_OBSERVATION_UNAVAILABLE'); this.invalidate() }

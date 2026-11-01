@@ -24,6 +24,8 @@ def fingerprint(intent):
         material.update(smbcreation=intent["smbcreation"], creationfingerprint=intent.get("creationfingerprint"), smboptionsonly=intent.get("smboptionsonly", False))
     if intent.get("pathtarget"):
         material.update(pathtarget=intent["pathtarget"], pathfingerprint=intent.get("pathfingerprint"), pathoperation=intent.get("pathoperation"))
+    if intent.get("fileidentitytarget"):
+        material.update(fileidentitytarget=intent["fileidentitytarget"], fileidentityfingerprint=intent.get("fileidentityfingerprint"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -179,7 +181,16 @@ def inspect(intent):
             from shared_directory_policy import SmbCreationPolicies
             creation = SmbCreationPolicies().preview(intent["smbcreationtarget"], intent["smbcreation"])
             intent["creationfingerprint"] = hashlib.sha256(json.dumps(creation, sort_keys=True).encode()).hexdigest()
+        file_identity = None
+        if intent.get("fileidentitytarget"):
+            from smb_file_identity import FixedIdentities
+            target = intent["fileidentitytarget"]
+            file_identity = FixedIdentities().preview(target, intent["instanceUuid"], target.get("publicationRequired", False), target.get("verifyCurrent", False))
+            intent["fileidentityfingerprint"] = hashlib.sha256(json.dumps(file_identity, sort_keys=True).encode()).hexdigest()
         report = evaluate(intent, sample(intent))
+        if file_identity is not None:
+            report["fileidentitypreview"] = file_identity
+
         if path_preview is not None:
             report["pathpreview"] = path_preview
             deleting = str(intent.get("pathoperation", "")).startswith("delete")

@@ -1068,7 +1068,7 @@ class RuntimeAdapter:
         if payload.get("preflight"):
             from configuration_preflight import inspect
             report = inspect(payload["preflight"])
-            if (self.smb_options_only(payload) or payload["preflight"].get("pathtarget")) and report.get("fingerprint") != payload["preflight"].get("expectedFingerprint"):
+            if (self.smb_options_only(payload) or payload["preflight"].get("pathtarget") or payload["preflight"].get("fileidentitytarget")) and report.get("fingerprint") != payload["preflight"].get("expectedFingerprint"):
                 raise Rejected("DIRECTORY_PATH_OBSERVATION_CHANGED" if payload["preflight"].get("pathtarget") else "SMB_OPTIONS_STALE_OBSERVATION")
             if report["status"] != "READY":
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
@@ -1283,6 +1283,11 @@ class RuntimeAdapter:
         import pwd
         paths, users, groups = (set(), set(), set()) if self.listener_only(payload) else self.directories(payload)
         snapshot = {"files": {}, "metadata": {}, "users": {}, "groups": {}, "network": []}
+        if "smb share apply" in payload["candidate"]:
+            from smb_file_identity import FixedIdentities, REGISTRY
+            if REGISTRY.exists() or any((r.get("config") or {}).get("fileIdentity") for r in payload["candidate"]["smb share apply"].get("shares", [])):
+                snapshot["fixedIdentities"] = FixedIdentities().read()
+
         for path in self.file_paths(payload):
             if path.is_file() and not path.is_symlink():
                 stat = path.stat()
@@ -1455,7 +1460,7 @@ class RuntimeAdapter:
             if load(self.private / "candidate-completed.json") != {"requestHash": public_hash(saved["candidate"])}:
                 return "FAILED"
             try:
-                self.smb_options_engine().verify(self.smb_options_snapshot())
+                self.verify(saved["candidate"])
                 return "VERIFIED"
             except Exception:
                 return "FAILED"
@@ -1527,6 +1532,8 @@ class RuntimeAdapter:
     def verify(self, commands):
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().verify(self.smb_options_snapshot())
+            from smb_file_identity import FixedIdentities
+            FixedIdentities().verify(commands["smb share apply"])
             return
         if self.directory_only({"candidate":commands}):
             from shared_directory_policy import DirectoryPolicies
@@ -1542,6 +1549,8 @@ class RuntimeAdapter:
         smb = commands.get("smb share apply", {})
         if smb.get("listenerOnly"):
             SmbListenerProfiles().verify(smb)
+            from smb_file_identity import FixedIdentities
+            FixedIdentities().verify(smb)
             return
         result = load(self.private / "runner-result.json")
         if not result or result["returncode"] != 0:
@@ -1549,6 +1558,9 @@ class RuntimeAdapter:
         output = result.get("result", {})
         if output.get("success") is False or output.get("runtimeReady") is False or output.get("listening") is False:
             raise Rejected("RUNTIME_VERIFICATION_FAILED")
+        if "smb share apply" in commands:
+            from smb_file_identity import FixedIdentities
+            FixedIdentities().verify(commands["smb share apply"])
         for operation, value in commands.items():
             if not value.get("enabled", True):
                 continue
@@ -2302,7 +2314,7 @@ def main(argv):
             ad_domain_protection=0
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
-                          "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
+                          "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbFileIdentityVersion": 1, "smbFileIdentityProtectionVersion": int(__import__("smb_file_identity").protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
         from configuration_preflight import inspect
