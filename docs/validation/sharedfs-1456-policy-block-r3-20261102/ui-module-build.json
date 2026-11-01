@@ -1,0 +1,33 @@
+{
+  "sourceCommit": "9f1b3b517a309b416db4134f21c68b58fabede86",
+  "archiveSha256": "5deeefe900f11b37078edef1fcc25f341231800d5c85ca30fd254230fc3159ed",
+  "beforeIndexSha256": "cc562918e0ded68ab29e2af4632f905c7859684e4d407fa73b38ee6bf3c7554a",
+  "files": {
+    "index.html": {
+      "sha256": "01b7adac8bbd8467b2bde4b2fec8442d1002566b9ddef77ad47c5e5e74307f63",
+      "bytes": 36227
+    },
+    "css/chunk-6f1fc546.c7f57545.css": {
+      "sha256": "4d88579354a3d699bbcdc92bbadd553a953e2c6af40c14440a3dd62a3790b2ca",
+      "bytes": 29076
+    },
+    "js/app.00004a88.js.map": {
+      "sha256": "a2dbfe9781d8c1dac1410cc62b9ddfd384f37708b39266ac0fd30a2b01552d7a",
+      "bytes": 3257876
+    },
+    "js/chunk-6f1fc546.30107bb5.js.map": {
+      "sha256": "8331530df84dc4042499a77ec41c6d49506273983b050876fb09a69a3709b0b5",
+      "bytes": 1219259
+    },
+    "js/app.00004a88.js": {
+      "sha256": "79a7f25891bd89c7b462074d3869c3b425edc0bf3279ad9365d631c67b07b861",
+      "bytes": 1630614
+    },
+    "js/chunk-6f1fc546.30107bb5.js": {
+      "sha256": "fa5b6ce435a8a25b72e1e1b06f129d692a33b57d61869f7131e5afe427044ef8",
+      "bytes": 704203
+    }
+  },
+  "unchangedAssets": 597,
+  "excludedUnrelatedMaps": 307
+}

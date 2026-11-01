@@ -1,0 +1,200 @@
+{
+  "objects": {
+    ".": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o775",
+      "inode": 156,
+      "acl": "user::rwx\ngroup::rwx\nother::r-x\n\n"
+    },
+    "team-a": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o770",
+      "inode": 8388760,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+    },
+    "team-a/nfs-c1.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388761,
+      "acl": "user::rw-\ngroup::rw-\nother::---\n\n",
+      "sha256": "bf44d10199b80332fa5b70ca22309c4b0d99e9f73821c48240d8850b17b241c5"
+    },
+    "team-a/local-c1-445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388762,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d"
+    },
+    "team-a/local-c1-1445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388763,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d"
+    },
+    "team-a/ad-c2-445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388764,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960"
+    },
+    "team-a/ad-c2-1445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388765,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960"
+    },
+    "team-a/posix-deny.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388766,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "2dbf56a817f85e302766938f86b9b3e169c90968c20ab033498dda773d18c4fa"
+    },
+    "team-a/after-mask.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388767,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d"
+    },
+    "team-a/after-rollback-local.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388768,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d"
+    },
+    "team-a/nfs-c2.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388769,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "69adecd8f82597d7d6b47311ea94df11059ab784906fc776317551e39178d5a9"
+    },
+    "team-a/after-rollback-ad.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388770,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960"
+    },
+    "team-a/after-online-session.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388771,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d"
+    },
+    "team-a/nfs-parent-c2.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388772,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "e8a249b79b7e03964555e4584c9278a8583fe4a1e4b6bb4865b4cdd20c742260"
+    },
+    "team-a/r3-c1-445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388773,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "d71b942df403ffa96c807054ba9cb968ad9a0a6d2c3dca3d5521f879ae94ac1d"
+    },
+    "team-a/r3-c1-1445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388774,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "d71b942df403ffa96c807054ba9cb968ad9a0a6d2c3dca3d5521f879ae94ac1d"
+    },
+    "team-a/r3-nfs-c1.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388775,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "f9c4f51df2663d99a5f027802f7a43187ead082a7d09b0594df806f34c5eccbc"
+    },
+    "team-a/r3-c2-445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388776,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "878eb443879a4c27cbae6dd704084893bef71a040671566134357a8c9ca1694c"
+    },
+    "team-a/r3-c2-1445.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660",
+      "inode": 8388777,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+      "sha256": "878eb443879a4c27cbae6dd704084893bef71a040671566134357a8c9ca1694c"
+    },
+    "team-a/r3-nfs-c2.txt": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o640",
+      "inode": 8388778,
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:10002:rwx\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---\n\n",
+      "sha256": "f479954164da9bd64c650912aea6fd3cf6dc42899ad7df16177c157154900d26"
+    },
+    "team-a/local-c1-445": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o770",
+      "inode": 16908422,
+      "acl": "user::rwx\nuser:1001:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+    },
+    "team-a/ad-c2-445": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o770",
+      "inode": 25165973,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+    }
+  },
+  "configHashes": {
+    "/etc/ablestack-storage/desired-state/smb-share-apply.json": "6a6794bcf39d7d9474e6793c6ab6fde9661a955b2d5cc27634b3ba093ef5c13d",
+    "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+    "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632"
+  },
+  "bootId": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+  "mac": "02:0d:00:cc:00:93",
+  "registry": {
+    "identities": {
+      "c1eca707-a554-4c42-85cd-1e9e9744d804:7001:7002": {
+        "gid": 7002,
+        "group": "asfs_g_c1eca707_7002",
+        "instance": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+        "key": "c1eca707-a554-4c42-85cd-1e9e9744d804:7001:7002",
+        "references": [
+          "0fcca935-d438-4c76-a32d-110b4593535b"
+        ],
+        "state": "ACTIVE",
+        "uid": 7001,
+        "user": "asfs_u_c1eca707_7001"
+      }
+    },
+    "version": 1
+  }
+}
