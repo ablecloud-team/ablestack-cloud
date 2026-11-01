@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"method\": \"operator module maintenance; existing trust signatures verified; no service/configuration reapply\", \"previousVersion\": \"1455.paths.2\", \"currentVersion\": \"1455.paths.3\", \"protectedBaseline\": 8, \"verifiedManagedFiles\": 10, \"manifestSha256\": \"01974ddc1899f35ef005fd5bb764f2c0c009267b4fcceab8959020d899ff23ba\", \"protectedModuleSha256\": \"516ca9674b58b7aecb46913b64d910812d198c8086c5fba825b91d663e92f329\", \"rollbackRoot\": \"/var/tmp/epic1455-paths-r3-before\"}\n",
+  "stderr": ""
+}

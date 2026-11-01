@@ -1,0 +1,25 @@
+{
+  "module-build.txt": [
+    "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.539 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyContractTest",
+    "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s - in org.apache.cloudstack.storage.dataservice.StorageFileSharePathsTest",
+    "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.254 s - in org.apache.cloudstack.storage.dataservice.StorageNfsPosixTest",
+    "[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ],
+  "ui-tests-final.txt": [
+    "PASS tests/unit/views/storage/SmbPublicationNotice.spec.js",
+    "PASS tests/unit/views/storage/SharedFSPaths.spec.js",
+    "PASS tests/unit/views/storage/NfsLocalProbeNotice.spec.js",
+    "PASS tests/unit/views/storage/SharedFSSmbParentInheritance.spec.js",
+    "Test Suites: 4 passed, 4 total",
+    "Tests:       23 passed, 23 total"
+  ],
+  "ui-build.txt": [
+    "Theme generated successfully",
+    " DONE  Build complete. The dist directory is ready to be deployed."
+  ],
+  "image-build.txt": [
+    "{\"sourceCommit\": \"e7323382510220e06daeac12620b4492a74c8d69\", \"baseCompressedSha256\": \"8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5\", \"image\": \"/root/work/epic1438-preparation/20261101/issue1455-unpublished-r3/systemvm-epic1455-paths-r3.qcow2\", \"compressed\": \"/root/work/epic1438-preparation/20261101/issue1455-unpublished-r3/systemvm-epic1455-paths-r3.qcow2.bz2\", \"compressedBytes\": 498399488, \"compressedSha256\": \"b5f20345ae8658b2347e3b51255b797b61a8f3c0f5f6f42deeea67b0889e64e7\", \"changedGuestPaths\": [\"etc/ablestack-storage/runtime-default/manifest.json\", \"etc/ablestack-storage/runtime-default/manifest.sig\", \"usr/local/bin/ablestack-storagectl\", \"usr/local/lib/ablestack-storage/configuration_preflight.py\", \"usr/local/lib/ablestack-storage/configuration_transaction.py\", \"usr/local/lib/ablestack-storage/runtime-baseline-profile.json\", \"usr/local/lib/ablestack-storage/runtime_updater.py\", \"usr/local/lib/ablestack-storage/shared_directory_policy.py\"], \"unchangedGuestPathsVerified\": 33929, \"hostAccountFilesUnchanged\": true, \"qemuImageCheck\": \"No errors were found on the image.\\n27445/80000 = 34.31% allocated, 0.02% fragmented, 0.00% compressed clusters\\nImage end offset: 1799553024\", \"managedFileCount\": 10}"
+  ],
+  "signed-build.txt": []
+}

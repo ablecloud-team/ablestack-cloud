@@ -1,0 +1,24 @@
+{
+  "originalObjects": 54,
+  "all54OriginalObjectsUnchanged": true,
+  "all8NewFileContentsMatchClientWrites": true,
+  "newFileChecks": {
+    "c1.txt": true,
+    "c2.txt": true,
+    "team-a/nfs-c1.txt": true,
+    "team-a/nfs-c2.txt": true,
+    "team-a/smb-c1-445.txt": true,
+    "team-a/smb-c2-1445.txt": true,
+    "team-b/sib-c1.txt": true,
+    "team-b/sib-c2.txt": true
+  },
+  "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs",
+  "childDirectory": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "2775",
+    "inode": 25165961,
+    "acl": "user::rwx\nuser:1001:rwx\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+  },
+  "runtimeVersion": "1455.paths.3"
+}

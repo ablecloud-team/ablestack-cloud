@@ -1,0 +1,124 @@
+{
+  "issue": 1455,
+  "epic": 1438,
+  "epicPr": 1470,
+  "status": "STOPPED_PRODUCT_ERROR",
+  "issueClosed": false,
+  "sourceCommit": "e7323382510220e06daeac12620b4492a74c8d69",
+  "requestedUnpublishedSmbFix": {
+    "implemented": true,
+    "systemVmPreflightPassed": true,
+    "twoSambaDaemonRegressionPassed": 6,
+    "guestTests": 101,
+    "javaApiTests": 22,
+    "uiTests": 23,
+    "uiLint": "PASS",
+    "moduleBuild": "PASS",
+    "cluster13Deployed": true,
+    "actualUiSetgid": "COMMITTED",
+    "crossProtocolTwoClientIo": "PASS"
+  },
+  "acceptance": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "INCOMPLETE",
+    "4": "PASS"
+  },
+  "operations": [
+    {
+      "kind": "setgid",
+      "operation": "f7e90951-6fc9-47b6-9fd4-7ca55443b46a",
+      "state": "COMMITTED",
+      "revision": 31
+    },
+    {
+      "kind": "smb_acl",
+      "operation": "3e56393b-da07-43f3-bd9f-900f45e9b1cd",
+      "state": "COMMITTED",
+      "revision": 32
+    },
+    {
+      "kind": "nfs_child_create",
+      "operation": "a6deca45-881f-44a8-a915-9ed980f58ebb",
+      "state": "COMMITTED",
+      "revision": 33
+    },
+    {
+      "kind": "nfs_child_acl",
+      "operation": "3d1809da-4f0a-431f-a17a-e92b4ab683b7",
+      "state": "COMMITTED",
+      "revision": 34
+    },
+    {
+      "kind": "nfs_sibling_create",
+      "operation": "e3a86986-e3dc-4b10-8b81-55cd3d3d3fce",
+      "state": "COMMITTED",
+      "revision": 35
+    },
+    {
+      "kind": "nfs_sibling_acl",
+      "operation": "598c7642-4240-44e8-b27a-b329e64d6cf6",
+      "state": "COMMITTED",
+      "revision": 36
+    }
+  ],
+  "failure": {
+    "operation": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+    "request": "caf503d6-4ade-4381-805e-9fbb57d80027",
+    "job": "68c207bc-84ea-4592-aa12-cbfab152021c",
+    "baseRevision": 36,
+    "targetRevision": 37,
+    "guestState": "VERIFIED",
+    "managementState": "RECOVERY_REQUIRED",
+    "phase": "COMMITTING",
+    "cause": "StorageFileSharePaths.applyBindings casts internal Boolean true response to JsonObject",
+    "file": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.java",
+    "line": 161,
+    "codeChangeAfterFailure": false,
+    "resumeAfterFailure": false,
+    "appliedFailureInjection": false
+  },
+  "preservation": {
+    "originalObjects": 54,
+    "all54OriginalObjectsUnchanged": true,
+    "all8NewFileContentsMatchClientWrites": true,
+    "newFileChecks": {
+      "c1.txt": true,
+      "c2.txt": true,
+      "team-a/nfs-c1.txt": true,
+      "team-a/nfs-c2.txt": true,
+      "team-a/smb-c1-445.txt": true,
+      "team-a/smb-c2-1445.txt": true,
+      "team-b/sib-c1.txt": true,
+      "team-b/sib-c2.txt": true
+    },
+    "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs",
+    "childDirectory": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "2775",
+      "inode": 25165961,
+      "acl": "user::rwx\nuser:1001:rwx\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "runtimeVersion": "1455.paths.3"
+  },
+  "resourcePreparation": {
+    "dataProvisioning": "SPARSE",
+    "dataGiB": 10,
+    "filesystem": "XFS",
+    "macChanges": 0,
+    "formatExecuted": false,
+    "actualResourceOperations": "Mold UI",
+    "clientIo": "Mold noVNC",
+    "nativeInjection": "private sandbox"
+  },
+  "remaining": [
+    "same operation SQL commit and guest finalize",
+    "settings-only delete preservation",
+    "intentional apply failure compensation",
+    "actual VM and management restart persistence"
+  ],
+  "imageBuilt": true,
+  "imageRegistered": false,
+  "newVmCreatedThisRound": false
+}
