@@ -1,0 +1,24 @@
+{
+  "newFixedRegistryAbsent": true,
+  "managedUserAbsent": true,
+  "accountFilesUnchanged": true,
+  "existing54ObjectsUnchanged": true,
+  "existing1455DataUnchanged": true,
+  "filesystemUnchanged": true,
+  "macUnchanged": true,
+  "oldSmbConfigHashesUnchanged": true,
+  "newNfsData": {
+    "nfs-c1.txt": {
+      "sha256": "bf44d10199b80332fa5b70ca22309c4b0d99e9f73821c48240d8850b17b241c5",
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0o660"
+    }
+  },
+  "newDirectory": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0o770",
+    "inode": 8388760
+  }
+}

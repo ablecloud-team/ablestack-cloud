@@ -1,0 +1,35 @@
+{
+  "uiFingerprint": "a59fe1e2415bb1b5846dcd77fdef880fa53344da3be9c336cbc1e8846499df05",
+  "serverFingerprint": "14984782a7b611cf9aac97ab95742be323bf5422e75a0667869d74f08e2e9ad2",
+  "uiReproduced": true,
+  "serverReproduced": true,
+  "intentDifferences": [
+    {
+      "path": "fileidentitytarget.config.inheritOwner",
+      "ui": false,
+      "apply": null
+    },
+    {
+      "path": "resourcesdigest",
+      "ui": "436123fca6542994497f3f1fa37339305f18334a9a349cce7e6b7478ec1e97f9",
+      "apply": "a59020ef9064eda48402447d9d012028de99a76d5f8ce66391f61c9dcb8dc22b"
+    },
+    {
+      "path": "smbcreation",
+      "ui": null,
+      "apply": {
+        "readOnly": false,
+        "browseable": true
+      }
+    }
+  ],
+  "uiPayloadInheritance": {
+    "inheritOwner": false,
+    "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+  },
+  "applyHasInheritOwner": false,
+  "observedImpactSame": true,
+  "observedPathSame": true,
+  "observedFixedIdentitySame": true,
+  "observedInheritanceSame": true
+}
