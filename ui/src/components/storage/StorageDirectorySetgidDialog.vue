@@ -17,6 +17,7 @@ http://www.apache.org/licenses/LICENSE-2.0 -->
         <a-descriptions-item :label="$t('label.storage.directory.after')">{{ parent.owneruid }}:{{ parent.ownergid }} / {{ afterMode }} · inode {{ parent.inode }}</a-descriptions-item>
       </a-descriptions>
       <a-alert class="spaced" type="info" show-icon :message="$t('message.storage.inheritance.setgid.only')" :description="$t('message.storage.inheritance.children')" />
+      <SmbPublicationNotice :report="report" />
       <StorageConfigurationPreflightPanel v-if="report" :report="report" :loading="checking" :acknowledged="ack" @refresh="check" @acknowledge="ack=$event" />
       <a-alert v-if="error" type="error" show-icon :message="error" />
     </a-form>
@@ -28,6 +29,7 @@ http://www.apache.org/licenses/LICENSE-2.0 -->
 </template>
 <script>
 import { postAPI } from '@/api'
+import SmbPublicationNotice from '@/components/storage/SmbPublicationNotice'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
@@ -35,7 +37,7 @@ import { setgidEnabled, setgidParameters, setgidIntent } from '@/utils/smbParent
 import { decodeConfigurationPreflight, preflightApplicable, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
 export default {
   name: 'StorageDirectorySetgidDialog',
-  components: { MoldDialog, MoldDialogActions, StorageConfigurationPreflightPanel },
+  components: { SmbPublicationNotice, MoldDialog, MoldDialogActions, StorageConfigurationPreflightPanel },
   props: { row: { type: Object, required: true }, instance: { type: Object, required: true }, guarded: Boolean, execute: { type: Function, required: true } },
   emits: ['close', 'done'],
   data () { return { enabled: setgidEnabled(this.row.observation?.mode), report: null, ack: false, checking: false, busy: false, error: '', generation: 0, disposed: false, expiry: null } },

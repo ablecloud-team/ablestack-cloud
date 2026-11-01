@@ -10529,5 +10529,10 @@
   "message.storage.path.invalid": "Use at most 255 characters without empty components, absolute paths, ., .., backslashes or control characters.",
   "label.storage.path.ancestor": "Parent share",
   "message.storage.nfs.external.check": "The ACL excludes the server itself, so the local mount check is not applicable. The ACL was preserved. Verify actual access from an authorized client.",
-  "label.storage.nfs.external.check": "Verify access from an authorized client"
+  "label.storage.nfs.external.check": "Verify access from an authorized client",
+  "message.storage.smb.published.section.missing": "A published SMB share is missing from a listener configuration. Check the SMB service and configuration.",
+  "message.storage.smb.waiting.acl": "This SMB share is not published because it has no access entries. This change applies only to directory permissions and does not publish the share or grant access. Configure its ACL in the SMB tab, then verify client access.",
+  "message.storage.smb.publication.mismatch": "The SMB publication record does not match its listener configurations. Check the SMB service state.",
+  "message.storage.smb.publication.unavailable": "The SMB publication state could not be verified. Check its state before trying again.",
+  "label.storage.smb.waiting.acl": "Waiting for SMB ACL · Not published"
 }

@@ -85,7 +85,7 @@ describe('SMB inheritance actual API wire and component request contracts', () =
     const intent = configurationModalIntent('editSmbShare', { smbShare: form }, { raw: { id: 'share' } })
     expect(intent.smbinheritance).toEqual({ inheritOwner: false, directoryPolicyId: 'policy' })
     const runStorageAction = jest.fn().mockResolvedValue()
-    const ctx = { forms: { smbShare: form }, actionModal: { context: { raw: { id: 'share' } } }, runStorageAction, smbShareImportMode: () => 'MOUNT_EXISTING', toCapacityBytes: () => undefined, $t: x => x }
+    const ctx = { forms: { smbShare: form }, actionModal: { type: 'editSmbShare', context: { raw: { id: 'share' } } }, runStorageAction, smbShareImportMode: () => 'MOUNT_EXISTING', toCapacityBytes: () => undefined, $t: x => x }
     await SharedFSTab.methods.updateSmbShare.call(ctx)
     const params = runStorageAction.mock.calls[0][2]
     expect(params.directorypolicyid).toBe('policy')

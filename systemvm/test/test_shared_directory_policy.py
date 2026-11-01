@@ -92,13 +92,13 @@ class PosixTransactions(unittest.TestCase):
         value=self.value("UPDATE",{**self.p,"revision":2,"mode":"2770"},{"mode":"2770"})
         value["smbShares"]=[{"name":"team","state":"Ready","config":self.row["config"]}]
         original=(self.path.stat().st_uid,self.path.stat().st_gid,self.path.stat().st_mode,self.path.stat().st_ino)
-        with patch.object(policy,"smb_runtime_settings",return_value=[{"forceGroup":"out-of-band"}]) as reader:
+        with patch.object(policy,"smb_publication_state",return_value={"name":"team","uuid":"fixture","state":"PUBLISHED","listeners":1,"runtime":[{"forceGroup":"out-of-band"}]}) as reader:
             with self.assertRaisesRegex(policy.PolicyError,"SMB_PARENT_IDENTITY_CONFLICT"):
                 self.engine.snapshot(value)
-            reader.assert_called_once_with("team")
+            reader.assert_called_once_with(value["smbShares"][0],self.engine.desired/"smb-share-apply.json")
         self.assertEqual(original,(self.path.stat().st_uid,self.path.stat().st_gid,self.path.stat().st_mode,self.path.stat().st_ino))
         self.assertEqual(b"preserve",self.child.read_bytes())
-        with patch.object(policy,"smb_runtime_settings",return_value=[{"forceUser":"","forceGroup":""}]):
+        with patch.object(policy,"smb_publication_state",return_value={"name":"team","uuid":"fixture","state":"PUBLISHED","listeners":1,"runtime":[{"forceUser":"","forceGroup":""}]}):
             before=self.engine.snapshot(value)
             self.engine.apply(value,before)
             self.engine.verify(value,before)

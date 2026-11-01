@@ -369,6 +369,7 @@ class DirectoryPolicies:
 
     def prepare(self, value):
         policy = dict(value["policy"])
+        self.smb_publication = []
         change = fields(value.get("changes") or {})
         row = {"config": {"volumeMountPath": str(self.managed / policy["volumeuuid"]),
                           "backingPath": str(self.managed / policy["volumeuuid"] / policy["canonicalpath"]),
@@ -399,7 +400,9 @@ class DirectoryPolicies:
                         continue
                     if str(Path(config.get("backingPath") or row.get("path") or "/").resolve()) == observed["path"]:
                         inheritance_conflict(config,policy["mode"])
-                        for actual in smb_runtime_settings(row["name"]):
+                        publication = smb_publication_state(row, self.desired / "smb-share-apply.json")
+                        self.smb_publication.append({k: publication[k] for k in ("name", "uuid", "state", "listeners")})
+                        for actual in publication["runtime"]:
                             inheritance_conflict(actual,policy["mode"])
             self.compatible(self.requirements(value.get("smbShares", []), observed["path"]),
                             policy["owneruid"], int(policy["mode"], 8))
@@ -449,6 +452,7 @@ class DirectoryPolicies:
                  "registryExisted": self.registry.exists(), "action": value["action"]}
         if len(json.dumps(value).encode()) > LIMIT:
             raise PolicyError("DIRECTORY_SNAPSHOT_LIMIT")
+        value["smbpublication"] = self.smb_publication
         value["treefingerprint"]=canonical_hash(json.dumps(entries,sort_keys=True))
         if value.get("action")=="UPDATE" and value.get("policy") and value["entries"]:
             expected=original.get("expectedTreeFingerprint") if original else None
@@ -700,6 +704,7 @@ def main():
         result={"success":True,"entrycount":len(before["entries"]),"snapshotbytes":len(json.dumps(before).encode()),
                 "units":value.get("units",[]),"references":value.get("references",[]),
                 "treefingerprint":before["treefingerprint"],"aclimpact":engine.acl_impact(value,before),
+                "smbpublication":before.get("smbpublication",[]),
                 "before":{"owneruid":before["entries"][0]["uid"],"ownergid":before["entries"][0]["gid"],
                           "mode":format(before["entries"][0]["mode"],"04o")},"after":value["policy"]}
     print(json.dumps(result))
@@ -735,10 +740,8 @@ def inheritance_protection_version(updater=None, minimum=5):
         return 0
 
 
-def smb_runtime_settings(name, sources=None):
-    """Read only owned daemon configurations; optional sources support private native fixtures."""
-    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(name)):
-        raise PolicyError("SMB_INHERITANCE_NAME_INVALID")
+def smb_owned_sources(sources=None):
+    """Keep process/configuration identity checks before any publication decision."""
     if sources is None:
         from configuration_transaction import SmbListenerProfiles
         profiles = SmbListenerProfiles()
@@ -771,13 +774,81 @@ def smb_runtime_settings(name, sources=None):
                 raise ValueError()
         except (OSError, ValueError):
             raise PolicyError("SMB_INHERITANCE_OBSERVATION_UNAVAILABLE")
-        values = {}
-        for parameter, key in (("inherit owner", "inheritowner"), ("force user", "forceUser"), ("force group", "forceGroup")):
-            output = checked(["testparm", "-s", "--section-name=" + name, "--parameter-name=" + parameter, str(source)]).decode().strip()
-            values[key] = output[:256]
-        values.update(pid=pid, config=str(source))
-        result.append(values)
+        result.append((source, pid))
+    if not result:
+        raise PolicyError("SMB_INHERITANCE_OBSERVATION_UNAVAILABLE")
     return result
+
+
+def smb_sections(source):
+    parsed = checked(["testparm", "-s", str(source)])
+    if len(parsed) > LIMIT:
+        raise PolicyError("SMB_PUBLICATION_OBSERVATION_UNAVAILABLE")
+    return {line.strip()[1:-1].casefold() for line in parsed.decode().splitlines()
+            if line.strip().startswith("[") and line.strip().endswith("]")}
+
+
+def smb_parameter_settings(source, pid, name=None):
+    values = {}
+    for parameter, key in (("inherit owner", "inheritowner"), ("force user", "forceUser"), ("force group", "forceGroup")):
+        args = ["testparm", "-s"]
+        if name is not None:
+            args.append("--section-name=" + name)
+        args += ["--parameter-name=" + parameter, str(source)]
+        values[key] = checked(args).decode().strip()[:256]
+    values.update(pid=pid, config=str(source))
+    return values
+
+
+def smb_runtime_settings(name, sources=None):
+    """Published shares must have their section on every owned listener."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(name)):
+        raise PolicyError("SMB_INHERITANCE_NAME_INVALID")
+    sources = smb_owned_sources(sources)
+    if any(str(name).casefold() not in smb_sections(source) for source, _ in sources):
+        raise PolicyError("SMB_PUBLISHED_SECTION_MISSING")
+    return [smb_parameter_settings(source, pid, name) for source, pid in sources]
+
+
+def smb_waiting_for_acl(row):
+    config = row.get("config") or {}
+    return (row.get("state") not in ("Disabled", "Destroyed", "Error")
+            and config.get("pathBindingVersion") == 1
+            and config.get("guestOk", False) is False
+            and not any(a.get("state") not in ("Disabled", "Destroyed", "Error") for a in row.get("acls", [])))
+
+
+def smb_publication_state(row, desired_path=Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"), sources=None):
+    """Only a proven pre-ACL new-mode share may lack a runtime section."""
+    name = row.get("name")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", str(name)):
+        raise PolicyError("SMB_INHERITANCE_NAME_INVALID")
+    sources = smb_owned_sources(sources)
+    present = [str(name).casefold() in smb_sections(source) for source, _ in sources]
+    if smb_waiting_for_acl(row):
+        try:
+            raw, _ = SmbCreationPolicies.read_file(Path(desired_path))
+            desired = json.loads(raw)
+            matches = [r for r in desired.get("shares", []) if r.get("uuid") == row.get("uuid")]
+        except (OSError, ValueError, TypeError):
+            raise PolicyError("SMB_PUBLICATION_OBSERVATION_UNAVAILABLE")
+        if desired.get("enabled", True) is not True or len(matches) != 1 or not smb_waiting_for_acl(matches[0]):
+            raise PolicyError("SMB_PUBLICATION_OBSERVATION_UNAVAILABLE")
+        saved = matches[0]
+        wanted, actual = row.get("config") or {}, saved.get("config") or {}
+        identity = ("pathBindingVersion", "volumeMountPath", "backingPath", "relativeSharePath", "pathIdentity")
+        if saved.get("name") != name or any(key not in wanted or wanted[key] != actual.get(key) for key in identity):
+            raise PolicyError("SMB_PUBLICATION_OBSERVATION_UNAVAILABLE")
+        if any(present):
+            raise PolicyError("SMB_PUBLICATION_STATE_MISMATCH")
+        # Defaults can still force ownership when this share is later published.
+        values = [smb_parameter_settings(source, pid) for source, pid in sources]
+        return {"name": name, "uuid": row["uuid"], "state": "UNPUBLISHED_WAITING_ACL",
+                "listeners": len(sources), "runtime": values}
+    if not all(present):
+        raise PolicyError("SMB_PUBLISHED_SECTION_MISSING")
+    return {"name": name, "uuid": row.get("uuid"), "state": "PUBLISHED", "listeners": len(sources),
+            "runtime": [smb_parameter_settings(source, pid, name) for source, pid in sources]}
 
 
 def inheritance_preview(target, policy, requested, sources=None):

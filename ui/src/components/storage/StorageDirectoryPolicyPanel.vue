@@ -66,6 +66,7 @@ focus-guard
             <a-table :columns="aclColumns" :data-source="report.directorypreview.aclimpact.changes" :row-key="r=>r.path+':'+r.principal" :pagination="false" size="small" />
             <p v-if="report.directorypreview.aclimpact.truncated">{{ $t('message.storage.directory.acl.truncated') }}</p>
           </template>
+          <SmbPublicationNotice :report="report" />
           <StorageConfigurationPreflightPanel class="spaced" :report="report" :loading="checking" :acknowledged="ack" @refresh="check" @acknowledge="ack=$event" />
         </template>
         <a-alert v-if="modalError" class="spaced" type="error" show-icon :message="modalError" />
@@ -82,6 +83,7 @@ focus-guard
 <script>
 import { getAPI, postAPI } from '@/api'
 import { PlusOutlined, ReloadOutlined, EditOutlined } from '@ant-design/icons-vue'
+import SmbPublicationNotice from '@/components/storage/SmbPublicationNotice'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -92,7 +94,7 @@ import { setgidEnabled } from '@/utils/smbParentInheritance'
 import StorageDirectorySetgidDialog from '@/components/storage/StorageDirectorySetgidDialog'
 export default {
   name: 'StorageDirectoryPolicyPanel',
-  components: { StorageDirectorySetgidDialog, PlusOutlined, ReloadOutlined, EditOutlined, MoldDialog, MoldDialogActions, StorageConfigurationOperationPanel, StorageConfigurationPreflightPanel },
+  components: { SmbPublicationNotice, StorageDirectorySetgidDialog, PlusOutlined, ReloadOutlined, EditOutlined, MoldDialog, MoldDialogActions, StorageConfigurationOperationPanel, StorageConfigurationPreflightPanel },
   props: { instance: { type: Object, required: true }, execute: { type: Function, required: true }, guarded: Boolean, operation: Object, refreshToken: Number },
   emits: ['loaded', 'resume'],
   data () { return { rows: [], sgidSelected: null, loading: false, error: '', selected: null, draft: {}, report: null, ack: false, checking: false, busy: false, modalError: '', read: 0, generation: 0, expiry: null, disposed: false } },

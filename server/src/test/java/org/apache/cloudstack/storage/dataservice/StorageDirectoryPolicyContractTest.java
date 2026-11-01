@@ -108,4 +108,19 @@ public class StorageDirectoryPolicyContractTest {
         assertEquals("/srv/ablestack-storage/volumes/volume/export/team",saved.get("backingPath").getAsString());
         assertFalse(saved.get("createDirectory").getAsBoolean());
     }
+    @Test public void realSerializerKeepsVerifiedPublicationStateAndListenerCountTyped() throws Exception {
+        JsonObject report=JsonParser.parseString("{\"status\":\"READY\",\"revision\":30,\"observedat\":1793464664,\"expiresat\":1793464694,\"fingerprint\":\"publication-verified\",\"checks\":[],\"impact\":{\"ackrequired\":true},\"directorypreview\":{\"entrycount\":1,\"after\":{\"owneruid\":65534,\"ownergid\":65534,\"mode\":\"2775\"},\"smbpublication\":[{\"name\":\"s1455-child\",\"uuid\":\"share\",\"state\":\"UNPUBLISHED_WAITING_ACL\",\"listeners\":2}]}}").getAsJsonObject();
+        StorageServiceConfigurationPreflightResponse response=new StorageServiceConfigurationPreflightResponse(report);
+        response.setResponseName("preflightstorageserviceconfigurationresponse");
+        String wire=com.cloud.api.response.ApiResponseSerializer.toSerializedString(response,"json");
+        JsonObject decoded=JsonParser.parseString(wire).getAsJsonObject().getAsJsonObject("preflightstorageserviceconfigurationresponse")
+                .getAsJsonObject("configurationpreflight").getAsJsonObject("directorypreview");
+        JsonObject publication=decoded.getAsJsonArray("smbpublication").get(0).getAsJsonObject();
+        assertEquals("UNPUBLISHED_WAITING_ACL",publication.get("state").getAsString());
+        assertEquals(2,publication.get("listeners").getAsInt());
+        assertEquals("2775",decoded.getAsJsonObject("after").get("mode").getAsString());
+        String path=System.getProperty("storage.smb.publication.fixture");
+        if(path!=null)Files.writeString(Path.of(path),wire+"\n");
+    }
+
 }

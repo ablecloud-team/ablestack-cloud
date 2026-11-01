@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "actualSetgidPreflight": "PASS",
+  "publication": [
+    {
+      "name": "s1455-child",
+      "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+      "state": "UNPUBLISHED_WAITING_ACL",
+      "listeners": 2
+    }
+  ],
+  "publishedListenersVerified": 2,
+  "missingPublishedSectionRejected": true,
+  "configurationAndMetadataUnchanged": true,
+  "applyExecuted": false
+}
