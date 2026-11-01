@@ -1,0 +1,667 @@
+{
+  "sourceRawSha256": "b80615bf86d78004681c1f7677c825e495a23d7ed6c730ea95da5065dcf69011",
+  "rawBytes": 85854595,
+  "rawRecords": 1288,
+  "publication": "Business requests, preflight results and deduplicated response contracts; large candidates and unrelated monitor/session payloads omitted. Original retained locally.",
+  "requestCounts": {
+    "readyForShutdown": 223,
+    "getWallAlertAvailability": 18,
+    "listWallAlertRules": 19,
+    "listWallAlertSilences": 18,
+    "listHostsMetrics": 21,
+    "listOauthProvider": 1,
+    "listZones": 1,
+    "listApis": 1,
+    "listNetworks": 1,
+    "listVPCs": 1,
+    "listUsers": 2,
+    "listCapabilities": 1,
+    "listGuiThemes": 4,
+    "listHSMProfiles": 1,
+    "listNetworkServiceProviders": 1,
+    "listLdapConfigurations": 1,
+    "cloudianIsEnabled": 1,
+    "listConfigurations": 3,
+    "listSharedFileSystems": 22,
+    "listProjects": 1,
+    "listVirtualMachines": 6,
+    "listVolumes": 32,
+    "listDiskOfferings": 4,
+    "listStoragePools": 4,
+    "listStorageServiceInstances": 15,
+    "listResourceIcon": 6,
+    "listAccounts": 3,
+    "getStorageNfsIdentityMapping": 13,
+    "listStorageServiceProtocols": 13,
+    "listStorageServiceHealth": 13,
+    "listStorageNfsExports": 13,
+    "listStorageSmbShares": 13,
+    "listStorageIscsiTargets": 13,
+    "listStorageServiceDomainStatus": 13,
+    "listStorageServiceInventory": 13,
+    "listStorageServiceSessions": 13,
+    "listStorageNvmeOfSubsystems": 13,
+    "listStorageNvmeOfNamespaces": 13,
+    "listStorageServiceConfigurationOperations": 10,
+    "listStorageNfsAcls": 13,
+    "listStorageSmbAcls": 39,
+    "resumeStorageServiceConfigurationOperation": 1,
+    "queryAsyncJobResult": 54,
+    "getStorageServiceConfigurationOperation": 1,
+    "listStorageDirectoryPolicies": 1,
+    "preflightStorageServiceConfiguration": 2,
+    "updateStorageNfsExport": 1,
+    "restartSharedFileSystem": 1
+  },
+  "records": [
+    {
+      "kind": "request",
+      "command": "resumeStorageServiceConfigurationOperation",
+      "parameters": {
+        "command": "resumeStorageServiceConfigurationOperation",
+        "response": "json",
+        "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+        "id": "18dc6b50-841f-4980-8eab-2c1a6409fa58"
+      }
+    },
+    {
+      "kind": "response",
+      "command": "resumeStorageServiceConfigurationOperation",
+      "result": {
+        "resumestorageserviceconfigurationoperationresponse": {
+          "jobid": "fdb855d5-7964-4e60-a61e-991c67cc3ff2"
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "created": "2026-11-01T13:06:31+0900",
+          "jobid": "fdb855d5-7964-4e60-a61e-991c67cc3ff2",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "configurationoperation": {
+              "id": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+              "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+              "requestid": "caf503d6-4ade-4381-805e-9fbb57d80027",
+              "state": "COMMITTED",
+              "phase": "COMPLETED",
+              "protocol": "NFS",
+              "resourceid": "b32c297a-cf16-4b05-bbfa-674275797c71",
+              "baserevision": 36,
+              "targetrevision": 37,
+              "canresume": false,
+              "created": "2026-11-01T09:31:13+0900",
+              "updated": "2026-11-01T13:06:32+0900",
+              "completed": "2026-11-01T13:06:32+0900",
+              "result": true,
+              "originalfailure": {},
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "observation": {
+                "baseRevision": 36,
+                "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+                "pathbindings": {
+                  "bindings": [
+                    {
+                      "pathIdentity": {
+                        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+                        "inode": 8388756,
+                        "volumeRootInode": 128
+                      },
+                      "relativepath": "epic1455/projects/team-b",
+                      "resourceuuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+                      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+                    },
+                    {
+                      "pathIdentity": {
+                        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+                        "inode": 152,
+                        "volumeRootInode": 128
+                      },
+                      "relativepath": "epic1455/projects",
+                      "resourceuuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+                    }
+                  ],
+                  "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+                  "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58"
+                },
+                "phase": "COMMITTING",
+                "rollback": {
+                  "state": "NOT_NEEDED"
+                },
+                "state": "VERIFIED",
+                "targetRevision": 37,
+                "workerActive": false
+              }
+            }
+          },
+          "created": "2026-11-01T13:06:31+0900",
+          "completed": "2026-11-01T13:06:33+0900",
+          "jobid": "fdb855d5-7964-4e60-a61e-991c67cc3ff2",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "getStorageServiceConfigurationOperation",
+      "result": {
+        "getstorageserviceconfigurationoperationresponse": {
+          "configurationoperation": {
+            "id": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "requestid": "caf503d6-4ade-4381-805e-9fbb57d80027",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "NFS",
+            "resourceid": "b32c297a-cf16-4b05-bbfa-674275797c71",
+            "baserevision": 36,
+            "targetrevision": 37,
+            "canresume": false,
+            "created": "2026-11-01T09:31:13+0900",
+            "updated": "2026-11-01T13:06:32+0900",
+            "completed": "2026-11-01T13:06:32+0900",
+            "result": true,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 36,
+              "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+              "pathbindings": {
+                "bindings": [
+                  {
+                    "pathIdentity": {
+                      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+                      "inode": 8388756,
+                      "volumeRootInode": 128
+                    },
+                    "relativepath": "epic1455/projects/team-b",
+                    "resourceuuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+                    "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+                  },
+                  {
+                    "pathIdentity": {
+                      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+                      "inode": 152,
+                      "volumeRootInode": 128
+                    },
+                    "relativepath": "epic1455/projects",
+                    "resourceuuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                    "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+                  }
+                ],
+                "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+                "operationid": "18dc6b50-841f-4980-8eab-2c1a6409fa58"
+              },
+              "phase": "COMMITTING",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 37,
+              "workerActive": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "preflightStorageServiceConfiguration",
+      "result": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "pathpreview": {
+              "relativepath": "epic1455/projects/team-b",
+              "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects/team-b",
+              "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "rootinode": 128,
+              "mountid": 99,
+              "exists": true,
+              "missing": [],
+              "parents": [
+                {
+                  "path": "",
+                  "inode": 128
+                },
+                {
+                  "path": "epic1455",
+                  "inode": 25165960
+                },
+                {
+                  "path": "epic1455/projects",
+                  "inode": 152
+                }
+              ],
+              "inode": 8388756,
+              "owneruid": 65534,
+              "ownergid": 65534,
+              "mode": "0775",
+              "acl": "user::rwx\ngroup::rwx\nother::r-x\n\n",
+              "resources": [
+                {
+                  "uuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+                  "name": "common1453r5",
+                  "protocol": "NFS",
+                  "relativepath": "export/common1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+                  "name": "ad1453r5",
+                  "protocol": "NFS",
+                  "relativepath": "export/ad1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                  "name": "p1455-parent",
+                  "protocol": "NFS",
+                  "relativepath": "epic1455/projects",
+                  "relation": "ANCESTOR"
+                },
+                {
+                  "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+                  "name": "common1453r5",
+                  "protocol": "SMB",
+                  "relativepath": "export/common1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+                  "name": "ad1453r5",
+                  "protocol": "SMB",
+                  "relativepath": "export/ad1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+                  "name": "s1455-child",
+                  "protocol": "SMB",
+                  "relativepath": "epic1455/projects/team-a",
+                  "relation": "SIBLING"
+                }
+              ],
+              "parentaccesswarning": true
+            },
+            "status": "READY",
+            "revision": 37,
+            "observedat": "2026-11-01T13:08:51+0900",
+            "expiresat": "2026-11-01T13:09:21+0900",
+            "fingerprint": "81322548dd6070bb9a9318183494b1db51b63df697c08e160b2413d57e34a798",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3764760576,
+                "requiredbytes": 218286912
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2554515456,
+                "requiredbytes": 83931856,
+                "readonly": false,
+                "freeinodes": 229976
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              },
+              {
+                "code": "DIRECTORY_PARENT_ACCESS",
+                "blocking": false,
+                "severity": "WARNING"
+              }
+            ],
+            "impact": {
+              "class": "DRAIN_REQUIRED",
+              "affectedcount": 4,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": true
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false,
+            "posixobservation": {
+              "resourceuuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+              "status": "OBSERVED",
+              "observedat": 1793506131.3900828,
+              "owneruid": 65534,
+              "ownergid": 65534,
+              "mode": "0775",
+              "fingerprint": "aea9c5ba577d8f8d1e07086c1fd2a90ffe42351e7151fe900d6b1135c1be5770"
+            },
+            "posixchanges": {}
+          }
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "preflightStorageServiceConfiguration",
+      "result": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "pathpreview": {
+              "relativepath": "epic1455/projects/team-b",
+              "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects/team-b",
+              "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "rootinode": 128,
+              "mountid": 99,
+              "exists": true,
+              "missing": [],
+              "parents": [
+                {
+                  "path": "",
+                  "inode": 128
+                },
+                {
+                  "path": "epic1455",
+                  "inode": 25165960
+                },
+                {
+                  "path": "epic1455/projects",
+                  "inode": 152
+                }
+              ],
+              "inode": 8388756,
+              "owneruid": 65534,
+              "ownergid": 65534,
+              "mode": "0775",
+              "acl": "user::rwx\ngroup::rwx\nother::r-x\n\n",
+              "resources": [
+                {
+                  "uuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+                  "name": "common1453r5",
+                  "protocol": "NFS",
+                  "relativepath": "export/common1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+                  "name": "ad1453r5",
+                  "protocol": "NFS",
+                  "relativepath": "export/ad1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                  "name": "p1455-parent",
+                  "protocol": "NFS",
+                  "relativepath": "epic1455/projects",
+                  "relation": "ANCESTOR"
+                },
+                {
+                  "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+                  "name": "common1453r5",
+                  "protocol": "SMB",
+                  "relativepath": "export/common1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+                  "name": "ad1453r5",
+                  "protocol": "SMB",
+                  "relativepath": "export/ad1453r5",
+                  "relation": "SIBLING"
+                },
+                {
+                  "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+                  "name": "s1455-child",
+                  "protocol": "SMB",
+                  "relativepath": "epic1455/projects/team-a",
+                  "relation": "SIBLING"
+                }
+              ],
+              "parentaccesswarning": true
+            },
+            "status": "READY",
+            "revision": 37,
+            "observedat": "2026-11-01T13:10:00+0900",
+            "expiresat": "2026-11-01T13:10:30+0900",
+            "fingerprint": "81322548dd6070bb9a9318183494b1db51b63df697c08e160b2413d57e34a798",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3763535872,
+                "requiredbytes": 218286912
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2554478592,
+                "requiredbytes": 83931856,
+                "readonly": false,
+                "freeinodes": 229976
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              },
+              {
+                "code": "DIRECTORY_PARENT_ACCESS",
+                "blocking": false,
+                "severity": "WARNING"
+              }
+            ],
+            "impact": {
+              "class": "DRAIN_REQUIRED",
+              "affectedcount": 4,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": true
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false,
+            "posixobservation": {
+              "resourceuuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+              "status": "OBSERVED",
+              "observedat": 1793506200.1856527,
+              "owneruid": 65534,
+              "ownergid": 65534,
+              "mode": "0775",
+              "fingerprint": "aea9c5ba577d8f8d1e07086c1fd2a90ffe42351e7151fe900d6b1135c1be5770"
+            },
+            "posixchanges": {}
+          }
+        }
+      }
+    },
+    {
+      "kind": "request",
+      "command": "updateStorageNfsExport",
+      "parameters": {
+        "command": "updateStorageNfsExport",
+        "response": "json",
+        "id": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+        "name": "p1455-sibling",
+        "path": "/export/p1455-sibling",
+        "createdirectory": true,
+        "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+        "filesystem": "xfs",
+        "protocolmode": "V4_ONLY",
+        "importmode": "MOUNT_EXISTING",
+        "readonly": true,
+        "rootsquash": true,
+        "allsquash": false,
+        "sync": true,
+        "secure": false,
+        "endpointmode": "LISTENER_GROUP",
+        "listenerports": 2049,
+        "requestid": "f6d4a043-47e6-4393-ba51-97983b15f037",
+        "expectedrevision": 37,
+        "impactack": "81322548dd6070bb9a9318183494b1db51b63df697c08e160b2413d57e34a798"
+      }
+    },
+    {
+      "kind": "response",
+      "command": "updateStorageNfsExport",
+      "result": {
+        "updatestoragenfsexportresponse": {
+          "jobid": "1d7e35ba-64e8-4282-89ef-f27ec7763de1"
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsExportCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "created": "2026-11-01T13:10:12+0900",
+          "jobid": "1d7e35ba-64e8-4282-89ef-f27ec7763de1",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsExportCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "Configuration be1417ba-c346-479f-b5e6-f838ad8d28a4 ended as ROLLED_BACK; inspect the preserved failure and rollback result"
+          },
+          "created": "2026-11-01T13:10:12+0900",
+          "completed": "2026-11-01T13:10:25+0900",
+          "jobid": "1d7e35ba-64e8-4282-89ef-f27ec7763de1",
+          "jobstatus": 2
+        }
+      }
+    },
+    {
+      "kind": "request",
+      "command": "restartSharedFileSystem",
+      "parameters": {
+        "command": "restartSharedFileSystem",
+        "response": "json",
+        "id": "3f0056db-4dfe-4f13-908d-b809dd565d34"
+      }
+    },
+    {
+      "kind": "response",
+      "command": "restartSharedFileSystem",
+      "result": {
+        "restartsharedfilesystemresponse": {
+          "jobid": "0ff86afc-efbb-474a-baf3-e1c09398cd65"
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "created": "2026-11-01T13:13:25+0900",
+          "jobid": "0ff86afc-efbb-474a-baf3-e1c09398cd65",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "kind": "response",
+      "command": "queryAsyncJobResult",
+      "result": {
+        "queryasyncjobresultresponse": {
+          "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "sharedfs": {
+              "id": "3f0056db-4dfe-4f13-908d-b809dd565d34",
+              "name": "epic1438-1453-ad-20261030-r5",
+              "virtualmachineid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+              "ipaddress": "10.10.13.220",
+              "state": "Ready"
+            }
+          },
+          "created": "2026-11-01T13:13:25+0900",
+          "completed": "2026-11-01T13:15:51+0900",
+          "jobid": "0ff86afc-efbb-474a-baf3-e1c09398cd65",
+          "jobstatus": 1
+        }
+      }
+    }
+  ]
+}

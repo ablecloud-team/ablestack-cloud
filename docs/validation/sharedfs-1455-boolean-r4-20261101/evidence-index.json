@@ -1,0 +1,178 @@
+{
+  "README.md": {
+    "bytes": 12701,
+    "sha256": "29c642eb0439db239391405957e4eff1ba691f7faa763cb267a2b17e42e2f9c1"
+  },
+  "result.json": {
+    "bytes": 3345,
+    "sha256": "b27b08612026602591d500bf1dace5c38cca6728965074345cd89f197cf1c547"
+  },
+  "evidence/module-build.json": {
+    "bytes": 236,
+    "sha256": "7481690a131b909777d93e36e9028e83288fbd7139c9f8b7a1172d570ce7d360"
+  },
+  "evidence/after-fault-rollback.json": {
+    "bytes": 22068,
+    "sha256": "c54acbc2a7df1583ba9cfb744cf1e82641709b0a32e83299d86419d4fbf37f5c"
+  },
+  "evidence/final-state.json": {
+    "bytes": 25168,
+    "sha256": "534c3155d654b6ec55c6efc8cbc57e05dc729048b46f7f6b50878fea06a1b116"
+  },
+  "evidence/before-reboot.json": {
+    "bytes": 23871,
+    "sha256": "4da0ccf177e563764ab70203b0089fff667b2161e488c9da530214bcbe78d650"
+  },
+  "evidence/final-runtime.py": {
+    "bytes": 1306,
+    "sha256": "df8f13661bc180558e47bcc71dd80e82b808820b06e318816949add49fb91467"
+  },
+  "evidence/data-before.json": {
+    "bytes": 22068,
+    "sha256": "c54acbc2a7df1583ba9cfb744cf1e82641709b0a32e83299d86419d4fbf37f5c"
+  },
+  "evidence/management-restart.json": {
+    "bytes": 163,
+    "sha256": "ac7d79919fd4a33b462f35869c716761c951040db3d91805802fc9d37dd16f11"
+  },
+  "evidence/capture-state.py": {
+    "bytes": 2532,
+    "sha256": "2bffa445d56edae06541f6b5a8ceeed6e9ea85e739129530f2e0b2e06d422d79"
+  },
+  "evidence/management-deployment.json": {
+    "bytes": 561,
+    "sha256": "6e2bbcbd50ed81f35e6ec41cf40c609c517881890d2f80bce08491175dbe5d97"
+  },
+  "evidence/history-before-management-restart.json": {
+    "bytes": 139036,
+    "sha256": "1722cd2108c50961e64543bc599e0452cbb999c9feac92b928adf60ff7e90bbb"
+  },
+  "evidence/reboot-preservation.json": {
+    "bytes": 668,
+    "sha256": "e9c004c8cff97f58867fd6dad359af47fa9b0b5e2f659bc26d017d441fd1c2f1"
+  },
+  "evidence/fault-removed.json": {
+    "bytes": 706,
+    "sha256": "4f721a87a88363be105263294f91b6dfa9ed84c9d3cc066330193a757843dbf4"
+  },
+  "evidence/test-results.json": {
+    "bytes": 4066,
+    "sha256": "9db0f3858d167992523b45e8314797858975de23bc7d15d601a49388f993d3d3"
+  },
+  "evidence/history-comparison.json": {
+    "bytes": 39825,
+    "sha256": "230e5d72ca33dfaf75624cd5c806713f4007e57aeae0d05bc40b852366e22c0d"
+  },
+  "evidence/install-one-shot-fault.py": {
+    "bytes": 1061,
+    "sha256": "1ec263870a3b1cfb064e742e4ce9b03114a285101ba0fd8fd89f53ea8213e68f"
+  },
+  "evidence/remove-one-shot-fault.py": {
+    "bytes": 1057,
+    "sha256": "8267a02cd57fad1a4b15de7ac6e636b4b53d0a666fded55c27ee281077d779ac"
+  },
+  "evidence/after-resume.json": {
+    "bytes": 22068,
+    "sha256": "c54acbc2a7df1583ba9cfb744cf1e82641709b0a32e83299d86419d4fbf37f5c"
+  },
+  "evidence/fault-installed.json": {
+    "bytes": 384,
+    "sha256": "9b7ac9aed7075718a30fd55028286471ec3bcaaf7076f469302ec1d2409d998a"
+  },
+  "evidence/source-sync.json": {
+    "bytes": 125,
+    "sha256": "733d2a553b3dae92ebe30911451e24105c0b884ef858cac4695806883720fad3"
+  },
+  "evidence/red-error.txt": {
+    "bytes": 1209,
+    "sha256": "29ab698479f42cd4f441bea12d81fba4241ba8ada5a67de2c911687fc380f26f"
+  },
+  "evidence/history-after-management-restart.json": {
+    "bytes": 139036,
+    "sha256": "1722cd2108c50961e64543bc599e0452cbb999c9feac92b928adf60ff7e90bbb"
+  },
+  "evidence/native-regression.json": {
+    "bytes": 633,
+    "sha256": "bc8047fa2af350252d8150440ffbfa8bf9475eeeaddf42b129354ec44f637520"
+  },
+  "evidence/final-preservation.json": {
+    "bytes": 895,
+    "sha256": "fe2875295992893791df96d7230452378a786faeaa55a3553410f7537cd468dd"
+  },
+  "evidence/api-ui-results.json": {
+    "bytes": 23923,
+    "sha256": "f8b44d72a1879fe4063134e83b7d60508ecf73229f970e6377f4fc6ec4994806"
+  },
+  "evidence/after-ui-reboot.json": {
+    "bytes": 23871,
+    "sha256": "a528c515f663452c1b3bba8d3dd8e666985fa55a3dd3c7f05aecb31b6e7ae912"
+  },
+  "evidence/readonly-preflight.json": {
+    "bytes": 2832,
+    "sha256": "3fc9ef01f482f334533093bef5b9800c384543cdd6cf9c384b09d5d312d14336"
+  },
+  "evidence/build-log-summary.json": {
+    "bytes": 3115,
+    "sha256": "322053f0b0a4ca37c347e69c95cebd484fe07434668d09a35cc0642215baa698"
+  },
+  "evidence/red-command.json": {
+    "bytes": 488,
+    "sha256": "96430c5cd05ad12355775b2ca23c2963764107f8ec140aa76b2d81b3eeb32eee"
+  },
+  "evidence/green-command.json": {
+    "bytes": 574,
+    "sha256": "5b4e5f6decb26a242b433a2d9a9f42950dfdb0eb644817c6df1868ae3a9be230"
+  },
+  "evidence/final-runtime.json": {
+    "bytes": 1245,
+    "sha256": "d874921de9dbc76c0043d816eaacb54380d6165c9fd87e87f26b6aade6c76029"
+  },
+  "screenshots/rollback-nfs-smb-cross-write.png": {
+    "bytes": 109609,
+    "sha256": "fa777323c5d234477913f500fbe3421fc2619f2e8c2ac615ff2b03581671eccd"
+  },
+  "screenshots/final-smb-paths-dark.png": {
+    "bytes": 98023,
+    "sha256": "b4e7323b1d80f3bcd36c142fc3c74601e8117738f939a0d7fdc1c1d25751ccbd"
+  },
+  "screenshots/same-operation-delete-committed-dark.png": {
+    "bytes": 73330,
+    "sha256": "b04848536632251cc7f316898dfae189c3cbc9af6bcadd89e362318b82b2dc7d"
+  },
+  "screenshots/delete-preserves-nfs-smb-clients.png": {
+    "bytes": 96701,
+    "sha256": "e7cc24b7b6e24cdd690e059502a0ab76325fcc56abc91f864a66bf702a07afb3"
+  },
+  "screenshots/final-history-dark.png": {
+    "bytes": 79933,
+    "sha256": "8a3351ad31a2aa587306f1cc8102bf37698463fbd7ed135d5aa43233b7d83a9a"
+  },
+  "screenshots/vm-reboot-client2-nfs-smb-both-ports.png": {
+    "bytes": 103548,
+    "sha256": "e3de27302b8e47ad10732df27f20be44b5983271e31d3d68e8de1e6341c1e8b8"
+  },
+  "screenshots/vm-reboot-client1-cross-read.png": {
+    "bytes": 110043,
+    "sha256": "ca0ca3939529947e2cd99f86800b707dcd267e4c2559a0b1fb55b6549b011c5e"
+  },
+  "screenshots/diagnostic-preserved-after-management-restart-dark.png": {
+    "bytes": 72707,
+    "sha256": "0a914a9402fe0b8e0234481504ff2aeea7b56daa16b90d08f396cc4f1c6462de"
+  },
+  "screenshots/nfs-one-shot-failure-rolled-back-dark.png": {
+    "bytes": 76360,
+    "sha256": "4b3b73ffa8e4c63a3cb063ba5d6400ce722717d792b87cce71227dcaa5f58d8c"
+  },
+  "screenshots/management-restart-client1-nfs-smb.png": {
+    "bytes": 99143,
+    "sha256": "7302c7d973878f885f00f66a57093046dcbb3459b2c04afa3c9f3321abaea0aa"
+  },
+  "screenshots/vm-restarted-history-dark.png": {
+    "bytes": 80472,
+    "sha256": "3d870c6637d00c72b77be92c3af9806b77663df910b34892df40013e860cd262"
+  },
+  "screenshots/management-restart-client2-nfs-smb.png": {
+    "bytes": 97555,
+    "sha256": "96bc3f118fca5d7f3aef0a4820272fc1568369c3f18abbdf693c8fe627d48c74"
+  }
+}

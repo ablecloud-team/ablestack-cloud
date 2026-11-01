@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "e4de8529e57cb1f09ccdbfbc0841c3cd8abf059d",
+  "classSha256": "06858c7e59b6de8eec30ac7fc8f741a7700ce5f35a762643a9b6f65782c8e677",
+  "classBytes": 17574,
+  "major": 55,
+  "tests": 46,
+  "skipped": 0,
+  "modules": 26
+}
