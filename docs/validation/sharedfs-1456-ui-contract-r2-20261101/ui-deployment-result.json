@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "7364cd24859e548d013c798e12e94b300b703488",
+  "indexSha256": "cc562918e0ded68ab29e2af4632f905c7859684e4d407fa73b38ee6bf3c7554a",
+  "changedAssets": 8,
+  "operatorConfigPreserved": true,
+  "unchangedComparedAssets": 595,
+  "unrelatedDebugMapsNotDeployed": 307,
+  "managementJarChanged": false,
+  "guestChanged": false,
+  "rollbackPath": "/var/tmp/epic1456-r2-ui-before"
+}

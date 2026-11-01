@@ -5,6 +5,7 @@ import { shallowMount, flushPromises } from '@vue/test-utils'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import { getAPI, postAPI } from '@/api'
 import wire from '../../../fixtures/storage-1456-file-identity-wire.json'
+import submittedWire from '../../../fixtures/storage-1456-submit-contract.json'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 const instance = 'c1eca707-a554-4c42-85cd-1e9e9744d804'
 const volume = 'e070a0aa-dbf5-48c0-83e0-09f874446277'
@@ -109,6 +110,10 @@ describe('mounted SMB preflight and actual API submit contract', () => {
     expect(request).not.toHaveProperty('owneruid')
     expect(request).not.toHaveProperty('ownergid')
     expect(request).not.toHaveProperty('mode')
+    const recorded = submittedWire.find(item => item.name === name)
+    expect(intent).toEqual(recorded.intent)
+    const stableRequest = value => Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'requestid'))
+    expect(stableRequest(request)).toEqual(stableRequest(recorded.request))
     captures.push({ name, api: expectedApi, intent, request })
   })
 })

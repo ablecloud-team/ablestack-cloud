@@ -1,0 +1,14 @@
+{
+  "objectsIdentical": true,
+  "objectCount": 11,
+  "configHashesIdentical": true,
+  "accountsIdentical": true,
+  "macSame": true,
+  "bootSame": true,
+  "fault": {
+    "removed": true,
+    "faultConsumed": true,
+    "listenerStatus": "active",
+    "serviceRestartedByCleanup": false
+  }
+}

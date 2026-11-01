@@ -1,0 +1,61 @@
+{
+  "runtime": "1456.identity.1",
+  "managed": {
+    "name": "asfs_u_c1eca707_7001",
+    "uid": 7001,
+    "gid": 7002,
+    "shell": "/usr/sbin/nologin",
+    "homeExists": false,
+    "passwordLocked": true
+  },
+  "authUserUid": 1001,
+  "passdbManagedAbsent": true,
+  "sources": [
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+      "pid": 525075,
+      "unit": "ablestack-smb-4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.service",
+      "ports": "1445",
+      "log": "",
+      "force user": "asfs_u_c1eca707_7001",
+      "force group": "asfs_g_c1eca707_7002",
+      "admin users": "",
+      "guest ok": "No",
+      "inherit owner": "no",
+      "vfs objects": "full_audit"
+    },
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+      "pid": 525062,
+      "unit": "ablestack-smb-bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.service",
+      "ports": "445",
+      "log": "",
+      "force user": "asfs_u_c1eca707_7001",
+      "force group": "asfs_g_c1eca707_7002",
+      "admin users": "",
+      "guest ok": "No",
+      "inherit owner": "no",
+      "vfs objects": "full_audit"
+    }
+  ],
+  "acl": [
+    {
+      "principal": "epic1453rw",
+      "principalType": "LOCAL_USER",
+      "permission": "READ_WRITE",
+      "state": "Ready"
+    },
+    {
+      "principal": "ABLESTACK\\Administrator",
+      "principalType": "AD_USER",
+      "permission": "ADMIN",
+      "state": "Ready"
+    }
+  ],
+  "audit": [
+    "UNIX USER|administrator|asfs_u_c1eca707_7001|asfs_g_c1eca707_7002|s1456-fixed|10.10.254.223|529981|openat|ok|r|/run/ablestack-storage/file-shares/0fcca935-d438-4c76-a32d-110b4593535b-e83d78a4883ed1ca8b805999/posix-deny.txt",
+    "UNIX USER|epic1453rw|asfs_u_c1eca707_7001|asfs_g_c1eca707_7002|s1456-fixed|10.10.254.224|530292|openat|ok|r|/run/ablestack-storage/file-shares/0fcca935-d438-4c76-a32d-110b4593535b-e83d78a4883ed1ca8b805999/posix-deny.txt",
+    "UNIX USER|administrator|asfs_u_c1eca707_7001|asfs_g_c1eca707_7002|s1456-fixed|10.10.254.223|530827|openat|ok|r|/run/ablestack-storage/file-shares/0fcca935-d438-4c76-a32d-110b4593535b-e83d78a4883ed1ca8b805999/posix-deny.txt",
+    "UNIX USER|administrator|asfs_u_c1eca707_7001|asfs_g_c1eca707_7002|s1456-fixed|10.10.254.223|530827|openat|ok|r|/run/ablestack-storage/file-shares/0fcca935-d438-4c76-a32d-110b4593535b-e83d78a4883ed1ca8b805999/posix-deny.txt"
+  ]
+}

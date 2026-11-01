@@ -1,0 +1,14 @@
+{
+  "exitcode": 0,
+  "result": {
+    "actualApiInputDispatch": true,
+    "productionGuestQueriesEqual": true,
+    "actualSystemVmStatus": [
+      "READY",
+      "READY"
+    ],
+    "fingerprint": "4b2d52f51fb68942eee1b3ce2fece89a6a84a5370656299c0e40f8c5ef1442c8",
+    "accountFilesUnchanged": true,
+    "registryAbsent": true
+  }
+}
