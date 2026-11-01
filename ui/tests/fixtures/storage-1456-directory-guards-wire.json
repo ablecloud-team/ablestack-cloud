@@ -1,0 +1,149 @@
+{
+  "SMB_PARENT_IDENTITY_CONFLICT": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "BLOCKED",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "SMB_PARENT_IDENTITY_CONFLICT",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "SMB_FIXED_IDENTITY_PERMISSION_DENIED": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "BLOCKED",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "SMB_FIXED_IDENTITY_PERMISSION_DENIED",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "DIRECTORY_ACL_MASK_CONFLICT": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "BLOCKED",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_ACL_MASK_CONFLICT",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "TRANSPORT": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "UNKNOWN",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "NULL_RESULT": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "UNKNOWN",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "NO_CODE": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "UNKNOWN",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "SMB_UNRECOGNIZED_GUARD": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "UNKNOWN",
+        "revision": 47,
+        "observedat": "2026-11-02T00:05:05+0900",
+        "expiresat": "2026-11-02T00:05:35+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  }
+}

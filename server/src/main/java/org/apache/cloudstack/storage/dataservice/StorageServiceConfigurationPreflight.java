@@ -207,7 +207,7 @@ final class StorageServiceConfigurationPreflight {
             try { return directoryObserver.observe(instance,intent,owner); }
             catch (CloudRuntimeException error) {
                 JsonObject report=new JsonObject();String message=error.getMessage();
-                String code=message!=null && message.matches("DIRECTORY_[A-Z0-9_]+")?message:"DIRECTORY_OBSERVATION_UNAVAILABLE";
+                String code=message!=null && (message.matches("DIRECTORY_[A-Z0-9_]+") || Arrays.asList("SMB_PARENT_IDENTITY_CONFLICT","SMB_FIXED_IDENTITY_PERMISSION_DENIED").contains(message))?message:"DIRECTORY_OBSERVATION_UNAVAILABLE";
                 report.addProperty("status",code.contains("UNAVAILABLE")?"UNKNOWN":"BLOCKED");
                 report.addProperty("revision",instance.getConfigurationRevision());
                 report.addProperty("observedat",System.currentTimeMillis()/1000.0);

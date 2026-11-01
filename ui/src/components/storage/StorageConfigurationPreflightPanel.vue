@@ -16,6 +16,7 @@ show-icon
     <div v-for="(check, index) in report.checks" :key="index" class="check">
       <a-tag :color="check.blocking ? 'red' : check.severity === 'WARNING' ? 'orange' : 'green'">{{ check.code }}</a-tag>
       <span v-if="check.message" class="check-message">{{ check.httpstatus ? 'HTTP ' + check.httpstatus + ' · ' : '' }}{{ check.message }}</span>
+      <span v-else-if="policyBlockMessage(check)" class="check-message">{{ policyBlockMessage(check) }}</span>
       <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
       <span v-if="check.connections !== undefined"> · {{ check.connections }} TCP</span>
     </div>
@@ -71,7 +72,13 @@ export default {
       return `${c.ownerUid ?? p.owneruid ?? '-'}:${c.ownerGid ?? p.ownergid ?? '-'} / ${c.mode || p.mode || '-'}`
     }
   },
-  methods: { mib (value) { return Math.ceil(Number(value || 0) / 1048576) } }
+  methods: {
+    mib (value) { return Math.ceil(Number(value || 0) / 1048576) },
+    policyBlockMessage (check) {
+      if (this.report.status !== 'BLOCKED' || !check.blocking || !['SMB_PARENT_IDENTITY_CONFLICT', 'SMB_FIXED_IDENTITY_PERMISSION_DENIED'].includes(check.code)) return ''
+      return this.$t('message.storage.file.identity.' + check.code)
+    }
+  }
 }
 </script>
 <style scoped>
