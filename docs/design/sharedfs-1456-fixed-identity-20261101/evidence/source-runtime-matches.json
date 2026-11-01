@@ -1,0 +1,5 @@
+{
+  "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class": true,
+  "org/apache/cloudstack/storage/dataservice/StorageSmbParentInheritance.class": true,
+  "org/apache/cloudstack/storage/dataservice/StorageSmbCreationPolicy.class": true
+}

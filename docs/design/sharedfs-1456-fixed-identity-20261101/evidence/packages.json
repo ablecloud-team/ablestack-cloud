@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"packages\": {\"rc\": 0, \"stdout\": \"samba 2:4.17.12+dfsg-0+deb12u4\\nsamba-libs 2:4.17.12+dfsg-0+deb12u4\\nsamba-vfs-modules \\n\", \"stderr\": \"\"}, \"vfsPackage\": {\"rc\": 0, \"stdout\": \"\", \"stderr\": \"\"}, \"vfsPolicy\": {\"rc\": 0, \"stdout\": \"samba-vfs-modules:\\n  Installed: (none)\\n  Candidate: (none)\\n  Version table:\\n\", \"stderr\": \"\"}, \"idmap\": {\"rc\": 0, \"stdout\": \"10000-999999\\n\", \"stderr\": \"Load smb config files from /etc/samba/smb.conf\\nLoaded services file OK.\\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\\n\\n\"}}\n",
+  "stderr": ""
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "wrapperKeys": [
+      "liststoragesmbsharesresponse"
+    ],
+    "rowKeys": [
+      "count",
+      "storagesmbshare"
+    ],
+    "configTypes": [
+      {
+        "name": "common1453r5",
+        "type": "string"
+      },
+      {
+        "name": "ad1453r5",
+        "type": "string",
+        "inheritOwner": true
+      },
+      {
+        "name": "s1455-child",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "wrapperKeys": [
+      "liststoragesmbsharesresponse"
+    ],
+    "rowKeys": [
+      "count",
+      "storagesmbshare"
+    ],
+    "configTypes": [
+      {
+        "name": "common1453r5",
+        "type": "string"
+      },
+      {
+        "name": "ad1453r5",
+        "type": "string",
+        "inheritOwner": true
+      },
+      {
+        "name": "s1455-child",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "wrapperKeys": [
+      "liststoragesmbsharesresponse"
+    ],
+    "rowKeys": [
+      "count",
+      "storagesmbshare"
+    ],
+    "configTypes": [
+      {
+        "name": "common1453r5",
+        "type": "string"
+      },
+      {
+        "name": "ad1453r5",
+        "type": "string",
+        "inheritOwner": true
+      },
+      {
+        "name": "s1455-child",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "wrapperKeys": [
+      "liststoragesmbsharesresponse"
+    ],
+    "rowKeys": [
+      "count",
+      "storagesmbshare"
+    ],
+    "configTypes": [
+      {
+        "name": "common1453r5",
+        "type": "string"
+      },
+      {
+        "name": "ad1453r5",
+        "type": "string",
+        "inheritOwner": true
+      },
+      {
+        "name": "s1455-child",
+        "type": "string"
+      }
+    ]
+  }
+]

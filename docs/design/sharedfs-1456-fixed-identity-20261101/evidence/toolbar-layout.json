@@ -1,0 +1,31 @@
+{
+  "buttons": [
+    {
+      "primary": true,
+      "text": "SMB 공유 생성",
+      "x": 702.46875
+    },
+    {
+      "primary": false,
+      "text": "엔드포인트 추가",
+      "x": 858.59375
+    },
+    {
+      "primary": false,
+      "text": "AD 상태 확인",
+      "x": 1022.484375
+    },
+    {
+      "primary": false,
+      "text": "업데이트",
+      "x": 702.46875
+    },
+    {
+      "primary": false,
+      "text": "넓게 보기",
+      "x": 820.46875
+    }
+  ],
+  "gap": "8px",
+  "tabPosition": "ant-tabs ant-tabs-left"
+}

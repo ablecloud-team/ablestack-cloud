@@ -1,0 +1,7 @@
+{
+  "text": 13.35,
+  "helpText": 9.18,
+  "errorText": 9.33,
+  "threshold": 4.5,
+  "scope": "new mock dialog text/help/error only; existing VM button theme unchanged"
+}

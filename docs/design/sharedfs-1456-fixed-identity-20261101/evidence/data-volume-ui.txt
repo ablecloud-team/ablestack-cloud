@@ -1,0 +1,13 @@
+ic: "1"
+      - strong: 크기
+      - generic: 10.00 GiB
+      - strong: 프로비저닝 유형
+      - generic: sparse
+      - strong: Write-Cache 유형
+      - generic: none
+      - strong: 디스크 파일시스템 사용량
+      - img "question-circle":
+      - generic: 0.81 GiB
+      - strong: 압축/중복제거
+      - generic: "false"
+      - strong: 압축

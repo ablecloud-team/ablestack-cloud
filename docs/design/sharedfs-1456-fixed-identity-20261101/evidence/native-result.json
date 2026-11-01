@@ -1,0 +1,5 @@
+{
+  "exitcode": 1,
+  "stdout": "\n\n/var/tmp/epic1456-injection-oojruvhm/native-prototype.py:44: DeprecationWarning: 'spwd' is deprecated and slated for removal in Python 3.13\n  import spwd\nTraceback (most recent call last):\n  File \"/var/tmp/epic1456-injection-oojruvhm/native-prototype.py\", line 139, in <module>\n    if __name__=='__main__':raise SystemExit(main())\n                                             ^^^^^^\n  File \"/var/tmp/epic1456-injection-oojruvhm/native-prototype.py\", line 101, in main\n    assert q.returncode==0 and path.exists() and directory.exists(),q.stdout+q.stderr\n           ^^^^^^^^^^^^^^^\nAssertionError: tree connect failed: NT_STATUS_BAD_NETWORK_NAME\n\n\n\n",
+  "stderr": ""
+}

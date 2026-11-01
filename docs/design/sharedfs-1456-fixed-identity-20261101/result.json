@@ -1,0 +1,61 @@
+{
+  "issue": 1456,
+  "epic": 1438,
+  "status": "DESIGN_COMPLETE_IMPLEMENTATION_PENDING",
+  "sourceCommit": "cc67ac7656a9230ce0e238862a6932897f40e281",
+  "productImplementation": false,
+  "productionDeployment": false,
+  "nativePrivateChecks": 24,
+  "actualExistingGuardChecks": 3,
+  "nativeTestDataProvisioning": "SPARSE",
+  "newDisks": 0,
+  "actualNewFeatureAdAuthenticationTested": false,
+  "actualExistingAdNssVerified": true,
+  "newNativeAuditDependencyRequired": true,
+  "scope": {
+    "newMutationApi": false,
+    "newSqlSchema": false,
+    "existingConfigurationTransactionReused": true,
+    "ordinaryModePreserved": true,
+    "fixedIdentityNoAutomaticChown": true,
+    "fixedAdminNoRootBypass": true,
+    "guestForbidden": true,
+    "managedIdentityNoLoginHomePassdb": true
+  },
+  "ui": {
+    "mockup": "Vue3 + AntD + actual Mold/Breadcrumb/ResourceLayout components",
+    "actualCurrentAndVmReferenceCaptured": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "verticalTabs": true,
+    "fixedHeaderFooterBodyScroll": true,
+    "newTextContrastRatios": [
+      13.35,
+      9.18,
+      9.33
+    ],
+    "apiConnected": false
+  },
+  "preservation": {
+    "systemVmAccountsUnchanged": true,
+    "activeCliUnchanged": true,
+    "activeHelperUnchanged": true,
+    "productionListenerSettingsAndPidsUnchanged": true,
+    "auditModuleStillNotInstalled": true,
+    "productionDataObjectsUnchanged": true,
+    "original54Unchanged": true,
+    "productionConfigHashesUnchanged": true,
+    "filesystemUnchanged": true,
+    "productionOsBootUnchanged": true
+  },
+  "futureAcceptance": [
+    "real API dispatcher/serializer/coordinator/DAO",
+    "actual UI creation and fixed mode transition",
+    "local and AD/ADMIN users on both ports",
+    "rollback/concurrency and retired identity safeguards",
+    "actual VM and management restart",
+    "signed runtime baseline/bootstrap/downgrade protection"
+  ]
+}

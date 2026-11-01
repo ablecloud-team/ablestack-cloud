@@ -1,0 +1,12 @@
+{
+  "source": "https://snapshot.debian.org/file/bfc535fdda3a72e71acf3189a3b45e8384850389",
+  "package": "samba-vfs-modules",
+  "version": "2:4.17.12+dfsg-0+deb12u4",
+  "architecture": "amd64",
+  "snapshotSha1Verified": "bfc535fdda3a72e71acf3189a3b45e8384850389",
+  "debSha256": "584588aa53ff1780cfd601b63410c6633ac2217a0af74e7ac74d68d6dbfb7141",
+  "modulePath": "./usr/lib/x86_64-linux-gnu/samba/vfs/full_audit.so",
+  "moduleBytes": 64472,
+  "moduleSha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675",
+  "globalInstallation": false
+}

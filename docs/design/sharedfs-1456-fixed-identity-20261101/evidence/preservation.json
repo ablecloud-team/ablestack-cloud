@@ -1,0 +1,12 @@
+{
+  "systemVmAccountsUnchanged": true,
+  "activeCliUnchanged": true,
+  "activeHelperUnchanged": true,
+  "productionListenerSettingsAndPidsUnchanged": true,
+  "auditModuleStillNotInstalled": true,
+  "productionDataObjectsUnchanged": true,
+  "original54Unchanged": true,
+  "productionConfigHashesUnchanged": true,
+  "filesystemUnchanged": true,
+  "productionOsBootUnchanged": true
+}
