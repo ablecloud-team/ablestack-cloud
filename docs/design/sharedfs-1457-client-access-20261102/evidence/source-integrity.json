@@ -1,0 +1,26 @@
+{
+  "runtime_updater.py": {
+    "sha256": "5ad3f6711e718a7e3f79486cda30fa51b9c3bed7d6d6f0ea4f0e6b9c65d6c8de",
+    "sourceMatches": true
+  },
+  "ablestack-storagectl": {
+    "sha256": "7208455c929e9855255fea8d6737887fbb2e2f2bc0431b06b4c87c04071fc813",
+    "sourceMatches": true
+  },
+  "configuration_transaction.py": {
+    "sha256": "23cf53083376f4491bd587400ef1fe840d721d03e979d96beeffd17c8f8fe2f7",
+    "sourceMatches": true
+  },
+  "configuration_preflight.py": {
+    "sha256": "6b0c2ff6e35fc260123632d922238f356f79fb985a2fd08f0e01b4b88bbba9e3",
+    "sourceMatches": true
+  },
+  "shared_directory_policy.py": {
+    "sha256": "9e3ef4816b8d30ba3a236e3c352fa6a823c887762d4e0e67cb8ad5970222f6aa",
+    "sourceMatches": true
+  },
+  "smb_file_identity.py": {
+    "sha256": "fd96a02b4c559eef71eca84f8f5dfaf11d0b82be2973144b5c4579642fe568ce",
+    "sourceMatches": true
+  }
+}

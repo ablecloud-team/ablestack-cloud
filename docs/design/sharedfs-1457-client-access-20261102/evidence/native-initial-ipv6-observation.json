@@ -1,0 +1,5 @@
+{
+  "exitcode": 1,
+  "stdout": "\n{\"productionFilesUnchanged\": true, \"namespaceIsolation\": \"private mount+network, RAM /etc and Samba state\", \"productionApply\": false}\n\nTraceback (most recent call last):\n  File \"/run/epic1457-design-ygmnp242.py\", line 184, in <module>\n    if __name__=='__main__':raise SystemExit(main())\n                                             ^^^^^^\n  File \"/run/epic1457-design-ygmnp242.py\", line 164, in main\n    must_allow(1,'target','native-ipv6-allow',v6=True);must_deny(2,'target','native-ipv6-deny',v6=True)\n                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/run/epic1457-design-ygmnp242.py\", line 120, in must_deny\n    assert not allowed(r),(label,r.stdout,r.stderr);assert not (data/share/('should-not-exist-'+label)).exists()\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('native-ipv6-deny', '', 'putting file /var/tmp/epic1457-native-48pe89p3/source as \\\\should-not-exist-native-ipv6-deny (19.5 kb/s) (average 19.5 kb/s)\\n')\n\n\n",
+  "stderr": ""
+}

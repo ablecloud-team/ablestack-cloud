@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "e52dd63248e014cffafe7ebd99e0e2cd0c5813c9",
+  "baseCommit": "1c5b169cd6283da23cc3e155d4b6d14e39e42793",
+  "baseUpstreamDivergence": "0\t0",
+  "branch": "epic/1438-sharedfs",
+  "issue": 1457,
+  "parent": 1438,
+  "stage": "DESIGN_ONLY",
+  "productFilesModified": false,
+  "productDeployment": false
+}

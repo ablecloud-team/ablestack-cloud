@@ -1,0 +1,36 @@
+{
+  "scenarios": [
+    {
+      "name": "B-last-rule-dark",
+      "submitEnabled": false,
+      "hasLastConfirmation": true,
+      "hasUnknown": false,
+      "hasInvalid": false
+    },
+    {
+      "name": "B-invalid-dark",
+      "submitEnabled": false,
+      "hasLastConfirmation": false,
+      "hasUnknown": false,
+      "hasInvalid": true
+    },
+    {
+      "name": "B-unknown-dark",
+      "submitEnabled": false,
+      "hasLastConfirmation": false,
+      "hasUnknown": true,
+      "hasInvalid": false
+    },
+    {
+      "name": "B-rollback-dark",
+      "submitEnabled": true,
+      "hasLastConfirmation": false,
+      "hasUnknown": false,
+      "hasInvalid": false
+    }
+  ],
+  "normalizationPreviewCorrect": true,
+  "duplicateAfterNormalizationBlocked": true,
+  "newCreateDefaultAnySource": true,
+  "newCreatePreflightEnabled": true
+}

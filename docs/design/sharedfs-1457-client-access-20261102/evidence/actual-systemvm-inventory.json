@@ -1,0 +1,197 @@
+{
+  "runtime": "1456.identity.1",
+  "files": {
+    "/usr/local/lib/ablestack-storage/runtime_updater.py": "5ad3f6711e718a7e3f79486cda30fa51b9c3bed7d6d6f0ea4f0e6b9c65d6c8de",
+    "/opt/ablestack/storage-runtime/releases/1456.identity.1/ablestack-storagectl": "7208455c929e9855255fea8d6737887fbb2e2f2bc0431b06b4c87c04071fc813",
+    "/opt/ablestack/storage-runtime/releases/1456.identity.1/lib/ablestack-storage/configuration_transaction.py": "23cf53083376f4491bd587400ef1fe840d721d03e979d96beeffd17c8f8fe2f7",
+    "/opt/ablestack/storage-runtime/releases/1456.identity.1/lib/ablestack-storage/configuration_preflight.py": "6b0c2ff6e35fc260123632d922238f356f79fb985a2fd08f0e01b4b88bbba9e3",
+    "/opt/ablestack/storage-runtime/releases/1456.identity.1/lib/ablestack-storage/shared_directory_policy.py": "9e3ef4816b8d30ba3a236e3c352fa6a823c887762d4e0e67cb8ad5970222f6aa",
+    "/opt/ablestack/storage-runtime/releases/1456.identity.1/lib/ablestack-storage/smb_file_identity.py": "fd96a02b4c559eef71eca84f8f5dfaf11d0b82be2973144b5c4579642fe568ce"
+  },
+  "samba": "Version 4.17.12-Debian",
+  "sources": [
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+      "pid": 1854,
+      "sha256": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f",
+      "settings": {
+        "global": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": "1445",
+          "interfaces": "10.10.13.220",
+          "valid users": "",
+          "force user": "",
+          "force group": "",
+          "admin users": ""
+        },
+        "common1453r5": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": null,
+          "interfaces": null,
+          "valid users": "STORC1ECA707A5\\epic1453rw STORC1ECA707A5\\epic1453ro",
+          "force user": "",
+          "force group": "",
+          "admin users": ""
+        },
+        "s1456-fixed": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": null,
+          "interfaces": null,
+          "valid users": "STORC1ECA707A5\\epic1453rw ABLESTACK\\Administrator",
+          "force user": "asfs_u_c1eca707_7001",
+          "force group": "asfs_g_c1eca707_7002",
+          "admin users": ""
+        }
+      }
+    },
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+      "pid": 1839,
+      "sha256": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632",
+      "settings": {
+        "global": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": "445",
+          "interfaces": "10.10.13.220",
+          "valid users": "",
+          "force user": "",
+          "force group": "",
+          "admin users": ""
+        },
+        "common1453r5": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": null,
+          "interfaces": null,
+          "valid users": "STORC1ECA707A5\\epic1453rw STORC1ECA707A5\\epic1453ro",
+          "force user": "",
+          "force group": "",
+          "admin users": ""
+        },
+        "s1456-fixed": {
+          "hosts allow": "",
+          "hosts deny": "",
+          "smb ports": null,
+          "interfaces": null,
+          "valid users": "STORC1ECA707A5\\epic1453rw ABLESTACK\\Administrator",
+          "force user": "asfs_u_c1eca707_7001",
+          "force group": "asfs_g_c1eca707_7002",
+          "admin users": ""
+        }
+      }
+    }
+  ],
+  "shares": [
+    {
+      "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "name": "common1453r5",
+      "config": {
+        "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5",
+        "browseable": true,
+        "createDirectory": false,
+        "createMask": "0660",
+        "crossProtocol": true,
+        "directoryMask": "0770",
+        "directoryMode": "0770",
+        "directoryPolicyUuid": "3f2bd382-d612-35cd-a9bf-e2fe90b14b0b",
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "forceCreateMode": "0000",
+        "forceDirectoryMode": "0000",
+        "guestOk": false,
+        "readOnly": false,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+      },
+      "aclCount": 2
+    },
+    {
+      "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+      "name": "ad1453r5",
+      "config": {
+        "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5",
+        "browseable": true,
+        "createDirectory": false,
+        "createMask": "0770",
+        "crossProtocol": true,
+        "directoryMode": "0770",
+        "directoryPolicyUuid": "a144428b-5327-3d9e-94b6-87e0fbc963d6",
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "forceCreateMode": "0010",
+        "forceDirectoryMode": "0020",
+        "guestOk": false,
+        "inheritOwner": true,
+        "readOnly": false,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+      },
+      "aclCount": 2
+    },
+    {
+      "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+      "name": "s1455-child",
+      "config": {
+        "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects/team-a",
+        "browseable": true,
+        "createDirectory": true,
+        "crossProtocol": false,
+        "directoryMode": "0770",
+        "directoryPolicyUuid": "ae3942e2-aa6a-3a88-ac1f-878c69d3ea31",
+        "guestOk": false,
+        "pathBindingVersion": 1,
+        "pathIdentity": {
+          "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "inode": 25165961,
+          "volumeRootInode": 128
+        },
+        "readOnly": false,
+        "relativeSharePath": "epic1455/projects/team-a",
+        "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+      },
+      "aclCount": 1
+    },
+    {
+      "uuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+      "name": "s1456-fixed",
+      "config": {
+        "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a",
+        "browseable": true,
+        "createDirectory": false,
+        "createMask": "0660",
+        "crossProtocol": true,
+        "directoryMode": "0770",
+        "directoryPolicyUuid": "77262649-396b-35ca-85b2-ac72188c020d",
+        "fileIdentity": {
+          "gid": 7002,
+          "mode": "FIXED",
+          "uid": 7001,
+          "version": 1
+        },
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "guestOk": false,
+        "pathBindingVersion": 1,
+        "pathIdentity": {
+          "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "inode": 8388760,
+          "volumeRootInode": 128
+        },
+        "readOnly": false,
+        "relativeSharePath": "epic1456/projects/team-a",
+        "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+      },
+      "aclCount": 2
+    }
+  ],
+  "bootId": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+  "mac": "02:0d:00:cc:00:93",
+  "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs",
+  "tools": {
+    "ip": "/usr/sbin/ip",
+    "nsenter": "/usr/bin/nsenter",
+    "unshare": "/usr/bin/unshare",
+    "smbclient": "/usr/bin/smbclient",
+    "smbcontrol": "/usr/bin/smbcontrol",
+    "testparm": "/usr/bin/testparm"
+  }
+}

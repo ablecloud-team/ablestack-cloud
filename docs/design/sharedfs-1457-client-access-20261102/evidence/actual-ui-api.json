@@ -1,0 +1,172 @@
+[
+  {
+    "command": "listStorageServiceProtocols",
+    "status": 200,
+    "body": {
+      "liststorageserviceprotocolsresponse": {
+        "count": 3,
+        "storageserviceprotocol": [
+          {
+            "id": "22e5a773-3d23-49e4-b559-f878da2b7a02",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "protocol": "NFS",
+            "enabled": true,
+            "port": 2049,
+            "state": "Ready",
+            "protocolmode": "V4_ONLY",
+            "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}],\"nfs4IdentityMappingMode\":\"NUMERIC\",\"nfs4IdentityPolicyRevision\":4}",
+            "listenertype": "WILDCARD",
+            "primaryip": "10.10.13.220",
+            "runtimeprimaryip": "10.10.13.220",
+            "identitystatus": "CONSISTENT",
+            "effectiveendpoints": [
+              {
+                "ipaddress": "10.10.13.220",
+                "port": 2049,
+                "role": "PRIMARY"
+              }
+            ],
+            "runtimestate": "READY",
+            "linkedresourcecount": 6
+          },
+          {
+            "id": "bb7897d3-6702-4849-9472-1cf9229ad967",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "protocol": "SMB",
+            "enabled": true,
+            "listenip": "10.10.13.220",
+            "port": 445,
+            "state": "Ready",
+            "listenertype": "DEDICATED",
+            "primaryip": "10.10.13.220",
+            "runtimeprimaryip": "10.10.13.220",
+            "identitystatus": "CONSISTENT",
+            "effectiveendpoints": [
+              {
+                "ipaddress": "10.10.13.220",
+                "port": 445,
+                "role": "DEDICATED"
+              }
+            ],
+            "runtimestate": "READY",
+            "linkedresourcecount": 4,
+            "observedat": "2026-11-01T21:13:15Z"
+          },
+          {
+            "id": "4f04f7ac-0330-4a9d-b9b7-7c37a3010e46",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "protocol": "SMB",
+            "enabled": true,
+            "listenip": "10.10.13.220",
+            "port": 1445,
+            "state": "Ready",
+            "listenertype": "DEDICATED",
+            "primaryip": "10.10.13.220",
+            "runtimeprimaryip": "10.10.13.220",
+            "identitystatus": "CONSISTENT",
+            "effectiveendpoints": [
+              {
+                "ipaddress": "10.10.13.220",
+                "port": 1445,
+                "role": "DEDICATED"
+              }
+            ],
+            "runtimestate": "READY",
+            "linkedresourcecount": 4,
+            "observedat": "2026-11-01T21:13:15Z"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "command": "listStorageSmbShares",
+    "status": 200,
+    "body": {
+      "liststoragesmbsharesresponse": {
+        "count": 4,
+        "storagesmbshare": [
+          {
+            "relativepath": "export/common1453r5",
+            "pathstatus": "LEGACY",
+            "id": "bab4b234-633d-4389-961e-fa257e9b413c",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "name": "common1453r5",
+            "path": "/export/common1453r5",
+            "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "runtimedevicepath": "/dev/sda",
+            "runtimeobservedat": "2026-11-01T21:13:16Z",
+            "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/common1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"3f2bd382-d612-35cd-a9bf-e2fe90b14b0b\",\"createMask\":\"0660\",\"directoryMask\":\"0770\",\"forceCreateMode\":\"0000\",\"forceDirectoryMode\":\"0000\"}"
+          },
+          {
+            "relativepath": "export/ad1453r5",
+            "pathstatus": "LEGACY",
+            "id": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "name": "ad1453r5",
+            "path": "/export/ad1453r5",
+            "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "runtimedevicepath": "/dev/sda",
+            "runtimeobservedat": "2026-11-01T21:13:16Z",
+            "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/export/ad1453r5\",\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"a144428b-5327-3d9e-94b6-87e0fbc963d6\",\"inheritOwner\":true,\"createMask\":\"0770\",\"forceCreateMode\":\"0010\",\"forceDirectoryMode\":\"0020\"}"
+          },
+          {
+            "relativepath": "epic1455/projects/team-a",
+            "pathstatus": "VERIFIED",
+            "id": "20112217-8f9c-4eea-8363-521e7028740b",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "name": "s1455-child",
+            "path": "/export/s1455-child",
+            "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "runtimedevicepath": "/dev/sda",
+            "runtimeobservedat": "2026-11-01T21:13:16Z",
+            "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":true,\"crossProtocol\":false,\"directoryMode\":\"0770\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"pathBindingVersion\":1,\"relativeSharePath\":\"epic1455/projects/team-a\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects/team-a\",\"pathIdentity\":{\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"inode\":25165961,\"volumeRootInode\":128},\"directoryPolicyUuid\":\"ae3942e2-aa6a-3a88-ac1f-878c69d3ea31\"}"
+          },
+          {
+            "relativepath": "epic1456/projects/team-a",
+            "pathstatus": "VERIFIED",
+            "id": "0fcca935-d438-4c76-a32d-110b4593535b",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "name": "s1456-fixed",
+            "path": "/export/s1456-fixed",
+            "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "runtimedevicepath": "/dev/sda",
+            "runtimeobservedat": "2026-11-01T21:13:16Z",
+            "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"fileIdentity\":{\"version\":1,\"mode\":\"FIXED\",\"uid\":7001,\"gid\":7002},\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"pathBindingVersion\":1,\"relativeSharePath\":\"epic1456/projects/team-a\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a\",\"pathIdentity\":{\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"inode\":8388760,\"volumeRootInode\":128},\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"77262649-396b-35ca-85b2-ac72188c020d\",\"createMask\":\"0660\"}"
+          }
+        ]
+      }
+    }
+  }
+]
