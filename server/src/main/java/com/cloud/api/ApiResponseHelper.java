@@ -469,7 +469,6 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 import sun.security.x509.X509CertImpl;
 
 public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
-    @Inject private org.apache.cloudstack.storage.sharedfs.SharedFSCapacityService sharedFSCapacityService;
 
 
     protected Logger logger = LogManager.getLogger(ApiResponseHelper.class);
@@ -5793,7 +5792,6 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
         SharedFSJoinVO sharedFSView = ApiDBUtils.newSharedFSView(sharedFS);
         SharedFSResponse response = ApiDBUtils.newSharedFSResponse(view, sharedFSView);
         response.setCreation(sharedFS);
-        if (sharedFSCapacityService != null) sharedFSCapacityService.enrich(response, sharedFSView);
         return response;
     }
 protected Map<String, ResourceIcon> getResourceIconsUsingOsCategory(List<TemplateResponse> responses) {
