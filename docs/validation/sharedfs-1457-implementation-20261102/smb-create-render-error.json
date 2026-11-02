@@ -1,0 +1,10 @@
+{
+  "first": {
+    "level": "error",
+    "message": "TypeError: i.isModal is not a function\n    at http://10.10.13.10:8080/client/js/chunk-872353a6.327fbe38.js:1:221492\n    at Object.i [as default] (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:42875)\n    at Proxy.<anonymous> (http://10.10.13.10:8080/client/js/vendors.b4136470.js:145:144179)\n    at v0 (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:43179)\n    at o1.e [as fn] (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:78283)\n    at o1.run (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:28772)\n    at Object.update (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:79003)\n    at U (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:78022)\n    at I (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:77686)\n    at y (http://10.10.13.10:8080/client/js/vendors.b4136470.js:156:74517)",
+    "timestamp": "2026-11-02T01:22:01.776Z",
+    "url": "http://10.10.13.10:8080/client/js/vendors.b4136470.js"
+  },
+  "sameExceptionCount": 18,
+  "singleModalEntry": true
+}

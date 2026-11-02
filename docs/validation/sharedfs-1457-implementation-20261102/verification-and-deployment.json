@@ -1,0 +1,32 @@
+{
+  "sourceCommit": "0c4411ab8ccd92a4ef3c93e9b27afd43ac3bc6ce",
+  "javaTests": {
+    "passed": 43,
+    "skipped": 0
+  },
+  "guestTests": {
+    "passed": 46
+  },
+  "vueTests": {
+    "passed": 37,
+    "suites": 5
+  },
+  "nativeNewEngineChecks": 31,
+  "mavenReactorModules": 26,
+  "moduleBuild": "PASS",
+  "uiBuild": "PASS",
+  "uiLint": "PASS",
+  "managementJarSha256": "d98002dbfa7a0cf915175b4f688e6a5151ed9187423a1115fa498b3399f26273",
+  "managementChangedEntries": 13,
+  "managementUnchangedEntries": 92546,
+  "uiIndexSha256": "092a4db8c59235e7cd6039c4dc90d03887237d36a1ec3d2a57d72eedd307687c",
+  "uiChangedAssets": 10,
+  "guestRuntime": "1457.sources.1",
+  "observedProtectedBaseline": 10,
+  "guestManagedFiles": 12,
+  "operatorReceiptStaleBaselineLiteral": 9,
+  "operatorReceiptExplanation": "A reused operator receipt printed the old constant 9. Actual updater AST and profile were read at 10. This test metadata was corrected in the report without reapplying software.",
+  "stage": "STOPPED_UI_PRODUCT_REGRESSION",
+  "issueClosed": false,
+  "sourcePolicyUiClientAcceptance": false
+}
