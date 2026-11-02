@@ -128,6 +128,7 @@ export default {
         if (scsiDevices?.vmallocations) {
           for (const [deviceName, vmId] of Object.entries(scsiDevices.vmallocations)) {
             if (vmId) {
+              allocatedVmIds.add(vmId.toString())
               try {
                 // VM이 실제로 존재하는지 확인
                 const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
@@ -135,8 +136,8 @@ export default {
 
                 if (vm && vm.state !== 'Expunging') {
                   allocatedVmIds.add(vmId.toString())
-                } else {
-                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                } else if (vm?.state === 'Expunging') {
+                  // Only release an allocation after confirming VM deletion.
                   try {
                     // 실제 디바이스 정보 조회
                     const deviceIndex = scsiDevices.hostdevicesname?.indexOf(deviceName)
@@ -155,23 +156,7 @@ export default {
                   }
                 }
               } catch (error) {
-                // VM 조회 실패 시에도 할당 해제 시도
-                try {
-                  // 실제 디바이스 정보 조회
-                  const deviceIndex = scsiDevices.hostdevicesname?.indexOf(deviceName)
-                  const deviceText = deviceIndex !== -1 ? scsiDevices.hostdevicestext?.[deviceIndex] : ''
-                  const xmlConfig = await this.generateXmlConfig(deviceName, deviceText)
-                  await api('updateHostScsiDevices', {
-                    hostid: this.resource.id,
-                    hostdevicesname: deviceName,
-                    virtualmachineid: null,
-                    currentvmid: vmId,
-                    xmlconfig: xmlConfig,
-                    isattach: false
-                  })
-                } catch (detachError) {
-                  // Failed to automatically deallocate SCSI device after error
-                }
+                // Preserve the allocation when the VM lookup fails.
               }
             }
           }
@@ -183,7 +168,7 @@ export default {
         // 모든 VM을 표시 (할당된 VM도 포함)
         this.virtualmachines = vms.map(vm => ({
           ...vm,
-          isAllocated: allocatedVmIds.has(vm.instanceId?.toString())
+          isAllocated: allocatedVmIds.has(vm.id?.toString()) || allocatedVmIds.has(vm.instanceId?.toString())
         }))
         await this.detectAllocationState()
       } catch (error) {

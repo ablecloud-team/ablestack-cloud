@@ -5109,6 +5109,7 @@
 "label.no.devices": "No devices",
 "label.vhba.devices": "vHBA devices",
 "message.warning.host.device": "You must set enable.additional.vm.configuration to true in global settings.",
+"message.warning.lun.device.partitions": "The selected device has partitions. Assigning it to a virtual machine may change or cause loss of existing data. Check the device and its data before proceeding.",
 "label.alert.state": "evaluation status",
 "label.silenceperiod.select": "Select Silence Period",
 "label.silence.duration.minutes": "Mute for {0} minutes",

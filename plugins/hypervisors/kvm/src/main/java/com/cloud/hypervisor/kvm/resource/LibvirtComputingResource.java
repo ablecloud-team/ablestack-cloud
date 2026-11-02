@@ -3509,11 +3509,15 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 }
             }
 
-            // 디바이스 XML이 있으면 하나의 <devices> 블록으로 감싸서 추가
+            // Keep additional devices in the domain's existing devices block.
             String deviceConfig = deviceConfigBuilder.toString().trim();
             if (StringUtils.isNotBlank(deviceConfig)) {
-                String wrappedDeviceConfig = "<devices>\n" + deviceConfig + "\n</devices>";
-                vm.addComp(wrappedDeviceConfig);
+                DevicesDef devices = vm.getDevices();
+                if (devices == null) {
+                    devices = new DevicesDef();
+                    vm.addComp(devices);
+                }
+                devices.addDevice(deviceConfig);
             }
 
             // 기타 설정은 그대로 추가

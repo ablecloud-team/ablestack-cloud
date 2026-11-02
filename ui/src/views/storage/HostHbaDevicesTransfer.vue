@@ -140,6 +140,7 @@ export default {
 
         for (const [deviceName, vmId] of Object.entries(vmAllocations)) {
           if (vmId && !processedDevices.has(deviceName)) {
+            allocatedVmIds.add(vmId.toString())
             try {
               // VM이 실제로 존재하는지 확인
               const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
@@ -147,8 +148,8 @@ export default {
 
               if (vm && vm.state !== 'Expunging') {
                 allocatedVmIds.add(vmId.toString())
-              } else {
-                // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+              } else if (vm?.state === 'Expunging') {
+                // Only release an allocation after confirming VM deletion.
                 try {
                   const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
                   await api('updateHostHbaDevices', {
@@ -164,21 +165,7 @@ export default {
                 }
               }
             } catch (error) {
-              console.error(`Error checking VM ${vmId} for device ${deviceName}:`, error)
-              // VM 조회 실패 시에도 할당 해제 시도
-              try {
-                const xmlConfig = this.generateHbaDeallocationXmlConfig(deviceName)
-                await api('updateHostHbaDevices', {
-                  hostid: this.resource.id,
-                  hostdevicesname: deviceName,
-                  virtualmachineid: null,
-                  xmlconfig: xmlConfig,
-                  isattach: false
-                })
-                // console.log(`Automatically deallocated HBA device ${deviceName} after VM check error`)
-              } catch (detachError) {
-                console.error(`Failed to automatically deallocate HBA device ${deviceName} after error:`, detachError)
-              }
+              // Preserve the allocation when the VM lookup fails.
             }
             processedDevices.add(deviceName)
           }

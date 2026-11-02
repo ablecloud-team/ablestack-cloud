@@ -4139,10 +4139,6 @@ public abstract class ServerResourceBase implements ServerResource {
                 return "디바이스가 스왑으로 사용 중이어 할당할 수 없습니다: " + devicePath;
             }
 
-            if (hasPartitionTable(devicePath)) {
-                return "디스크에 파티션 테이블이 있어 할당할 수 없습니다. 파티션을 삭제한 후 시도해주세요: " + devicePath;
-            }
-
             if (isDeviceReadOnly(devicePath)) {
                 return "디바이스가 읽기 전용이어 할당할 수 없습니다: " + devicePath;
             }
@@ -4287,18 +4283,6 @@ public abstract class ServerResourceBase implements ServerResource {
             swapCommand.add("swapon --show | grep -q '" + devicePath + "'");
             String result = swapCommand.execute(null);
             return result == null; // 명령어가 성공하면 스왑으로 사용 중
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean hasPartitionTable(String devicePath) {
-        try {
-            Script partCommand = new Script("/bin/bash");
-            partCommand.add("-c");
-            partCommand.add("fdisk -l " + devicePath + " 2>/dev/null | grep -q 'Disklabel type:'");
-            String result = partCommand.execute(null);
-            return result == null; // 명령어가 성공하면 파티션 테이블 존재
         } catch (Exception e) {
             return false;
         }
