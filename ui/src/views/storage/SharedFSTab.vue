@@ -1987,7 +1987,7 @@ class="storage-service-inline-alert"
             <a-checkbox v-model:checked="forms.smbShare.browseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.guestok">{{ $t('label.storage.service.guest.access') }}</a-checkbox>
           </a-space>
-          <SmbClientAccessFields v-if="isModal('smbShare')" v-model:value="forms.smbShare.clientaccess" :disabled="actionModal.loading || configurationProtected" />
+          <SmbClientAccessFields v-if="actionModal.type === 'smbShare'" v-model:value="forms.smbShare.clientaccess" :disabled="actionModal.loading || configurationProtected" />
           <SmbFileIdentityFields v-model:value="forms.smbShare.fileidentity" :disabled="actionModal.loading || configurationProtected" :inherit-owner="forms.smbShare.inheritowner" :guest-ok="forms.smbShare.guestok" :preview="configurationPreflight?.fileidentitypreview" />
         <SmbParentInheritanceFields v-model:value="forms.smbShare.inheritowner" :policy="selectedDirectoryPolicy('smbShare')" :report="configurationPreflight" :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading" @manage="viewDirectoryPolicy" />
         </div>
