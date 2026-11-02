@@ -121,7 +121,8 @@ final class StorageFileSharePaths {
     static void applyBindings(StorageServiceConfigurationPlan plan,StorageServiceConfigurationOperationVO op,JsonObject observation) {
         if(!observation.has("pathbindings")) {
             JsonObject saved=StorageServiceConfigurationCoordinator.parsed(op.getCandidateSnapshot());
-            boolean simple=saved.has("onlineSmbOptions") && saved.get("onlineSmbOptions").getAsBoolean();
+            boolean simple=StorageSmbClientAccessPolicy.pathPreservingCommit(op,plan)
+                    || saved.has("onlineSmbOptions") && saved.get("onlineSmbOptions").getAsBoolean();
             if(!simple)for(JsonObject value:plan.commands.values())for(String key:Arrays.asList("exports","shares"))
                 if(value.has(key))for(JsonElement e:value.getAsJsonArray(key))
                     if(bound(e.getAsJsonObject().getAsJsonObject("config")) && !Arrays.asList("Disabled","Destroyed","Error").contains(e.getAsJsonObject().get("state").getAsString()))throw new InvalidParameterValueException("DIRECTORY_BINDING_RECEIPT_MISSING");

@@ -304,6 +304,97 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
     }
 
 
+
+    /** Live #1457 SystemVM request/VERIFIED shape with real bound share + actual coordinator/SQL commit. */
+    private void sourcePolicyRoundtrip(boolean resume, boolean pathChange) throws Exception {
+        instance.setVmId(195L);instances.update(instance.getId(),instance);
+        JsonObject nativeFixture;
+        try(java.io.InputStream in=getClass().getResourceAsStream("/storage-config/storage-1457-source-verified.json")) {
+            assertNotNull(in);nativeFixture=com.google.gson.JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        JsonObject oldConfig=nativeFixture.getAsJsonObject("beforeShare").getAsJsonObject("config").deepCopy();
+        StorageFileShareVO target=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+                "source-bound","/export/source-bound",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,oldConfig.toString()));
+        StorageFileShareVO peer=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+                "peer","/export/peer",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,"{\"keep\":true}"));
+        final long targetId=target.getId();final String peerConfig=peer.getConfigJson();
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd();
+        field(cmd,cmd.getClass(),"id",targetId);
+        if(pathChange)field(cmd,cmd.getClass(),"relativePath","projects/different");
+        else field(cmd,cmd.getClass(),"clientCidrs","[\"10.10.254.0/24\"]");
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        final int[] applies={0},acks={0};final boolean[] badReceipt={resume};
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(invocation->{
+            StorageServiceGuestCommand request=invocation.getArgument(0);JsonObject value=new JsonObject();
+            if(request.getOperation().equals("configuration capability show")) {
+                value=nativeFixture.getAsJsonObject("capability").deepCopy();
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                value=nativeFixture.getAsJsonObject("observation").deepCopy();
+                value.add("operationid",input.get("operationid"));value.addProperty("instanceUuid",instance.getUuid());
+                value.addProperty("baseRevision",3);value.addProperty("targetRevision",4);
+                if(request.getOperation().equals("configuration operation apply")) {
+                    applies[0]++;
+                    if(!pathChange)assertTrue(input.get("onlineSmbClientAccess").getAsBoolean());
+                }
+                if(badReceipt[0]) {
+                    JsonObject binding=new JsonObject();binding.addProperty("operationid","wrong-operation");
+                    value.add("pathbindings",binding);
+                }
+                if(request.getOperation().equals("configuration operation commit")) {acks[0]++;value.addProperty("state","COMMITTED");}
+            }
+            return new StorageServiceGuestCommandResult(true,"live-source-receipt",value.toString());
+        });
+        java.util.function.Supplier<JsonObject> candidate=()->{
+            StorageFileShareVO staged=plan.get().dao(StorageFileShareDao.class).findById(targetId);
+            JsonObject changed=oldConfig.deepCopy();
+            if(pathChange)changed.addProperty("relativeSharePath","projects/different");
+            else changed=com.google.gson.JsonParser.parseString(StorageSmbClientAccessPolicy.merge(staged.getConfigJson(),
+                    StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)))).getAsJsonObject();
+            staged.setConfigJson(changed.toString());plan.get().dao(StorageFileShareDao.class).update(targetId,staged);
+            renderFileShares(plan.get(),StorageServiceInstance.Protocol.SMB);
+            JsonObject response=new JsonObject();response.addProperty("id",staged.getUuid());response.addProperty("config",staged.getConfigJson());return response;
+        };
+        if(resume || pathChange) {
+            try {
+                coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,JsonObject.class,candidate,plan::set,
+                        ()->renderFileShares(plan.get(),StorageServiceInstance.Protocol.SMB),null);
+                fail("invalid/missing path receipt accepted");
+            } catch(com.cloud.exception.InvalidParameterValueException expected) {
+                assertEquals(resume?"DIRECTORY_BINDING_RECEIPT_MISMATCH":"DIRECTORY_BINDING_RECEIPT_MISSING",expected.getMessage());
+            }
+            assertEquals(oldConfig,com.google.gson.JsonParser.parseString(shares.findById(targetId).getConfigJson()));
+            assertEquals(3,instances.findById(instance.getId()).getConfigurationRevision());
+            assertNotNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+            if(pathChange)return;
+            badReceipt[0]=false;
+            coordinator.resume(instances.findById(instance.getId()),operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()),
+                    value->renderFileShares(value,StorageServiceInstance.Protocol.SMB));
+        } else coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,JsonObject.class,candidate,plan::set,
+                ()->renderFileShares(plan.get(),StorageServiceInstance.Protocol.SMB),null);
+        JsonObject expected=oldConfig.deepCopy();expected.add("clientAccess",nativeFixture.getAsJsonObject("afterShare").getAsJsonObject("config").get("clientAccess"));
+        assertEquals(expected,com.google.gson.JsonParser.parseString(shares.findById(targetId).getConfigJson()));
+        assertEquals("/export/source-bound",shares.findById(targetId).getPath());assertEquals(Long.valueOf(77),shares.findById(targetId).getVolumeId());
+        assertEquals(peerConfig,shares.findById(peer.getId()).getConfigJson());
+        var operation=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("COMMITTED",operation.getState());assertEquals(4,instances.findById(instance.getId()).getConfigurationRevision());
+        assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,JsonObject.class,
+                ()->{throw new AssertionError("duplicate source update reapplied");},plan::set,()->{},null);
+        coordinator.resume(instances.findById(instance.getId()),operations.findById(operation.getId()),
+                value->{throw new AssertionError("completed source recovery reapplied");});
+        assertEquals(1,applies[0]);assertEquals(1,acks[0]);assertEquals(1,operations.listByInstance(instance.getId()).size());
+    }
+    @Test public void sourceOnlyVerifiedWithoutPathReceiptCommitsRealBoundShareAndDaoReload() throws Exception {
+        sourcePolicyRoundtrip(false,false);
+    }
+    @Test public void sourceOnlyDurableResumeCommitsSameBoundShareWithoutSecondGuestApply() throws Exception {
+        sourcePolicyRoundtrip(true,false);
+    }
+    @Test public void ordinaryBoundPathChangeStillRequiresReceipt() throws Exception {
+        sourcePolicyRoundtrip(false,true);
+    }
+
     private void renderFileShares(StorageServiceConfigurationPlan value, StorageServiceInstance.Protocol protocol) {
         JsonObject command=new JsonObject();com.google.gson.JsonArray rows=new com.google.gson.JsonArray();
         for(StorageFileShareVO row:value.dao(StorageFileShareDao.class).listByInstanceIdAndProtocol(instance.getId(),protocol)) {

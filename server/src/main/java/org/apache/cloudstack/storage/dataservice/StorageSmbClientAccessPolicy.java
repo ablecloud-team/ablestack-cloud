@@ -71,11 +71,52 @@ final class StorageSmbClientAccessPolicy {
     }
     static boolean only(BaseStorageServiceConfigurationCmd cmd) {
         if(!(cmd instanceof UpdateStorageSmbShareCmd))return false;
-        Map<String,Object> values=StorageServiceConfigurationCoordinator.publicRequest(cmd);
-        if(values.get("clientcidrs")==null)return false;
+        return onlyRequest(StorageServiceConfigurationCoordinator.publicRequest(cmd));
+    }
+    private static boolean onlyRequest(Map<String,Object> values) {
+        if(values==null || !UpdateStorageSmbShareCmd.class.getSimpleName().equals(values.get("api")) || values.get("clientcidrs")==null)return false;
         Set<String> allowed=new HashSet<>(Arrays.asList("api","id","clientcidrs","confirmanysource","expectedrevision","impactack","requestid"));
         for(Map.Entry<String,Object> e:values.entrySet())if(e.getValue()!=null && !allowed.contains(e.getKey()))invalid("SEPARATE_REQUEST_REQUIRED");
         fields(values);return true;
+    }
+
+    /** Only the validated source-only durable request may commit without a new path receipt. */
+    static boolean pathPreservingCommit(StorageServiceConfigurationOperationVO operation,StorageServiceConfigurationPlan plan) {
+        JsonObject saved=StorageServiceConfigurationCoordinator.parsed(operation.getCandidateSnapshot());
+        JsonElement flag=saved.get("onlineSmbClientAccess");
+        if(flag==null || flag.isJsonNull() || flag.isJsonPrimitive() && flag.getAsJsonPrimitive().isBoolean() && !flag.getAsBoolean())return false;
+        try {
+            if(!flag.isJsonPrimitive() || !flag.getAsJsonPrimitive().isBoolean() || !flag.getAsBoolean()
+                    || saved.has("onlineSmbOptions") && saved.get("onlineSmbOptions").getAsBoolean()
+                    || !"SMB".equals(operation.getProtocol()) || !"UPDATE".equals(operation.getAction())
+                    || !UpdateStorageSmbShareCmd.class.getSimpleName().equals(operation.getResourceType()))invalid("INVALID_INTENT");
+            JsonObject request=saved.getAsJsonObject("publicRequest");
+            @SuppressWarnings("unchecked") Map<String,Object> values=new Gson().fromJson(request,Map.class);
+            if(!onlyRequest(values))invalid("INVALID_INTENT");
+            JsonObject before=StorageServiceConfigurationCoordinator.parsed(operation.getBeforeSnapshot());
+            JsonObject after=JsonParser.parseString(plan.snapshot()).getAsJsonObject();
+            JsonObject oldRow=commitTarget(before,operation.getResourceUuid()),newRow=commitTarget(after,operation.getResourceUuid());
+            if(request.get("id").getAsLong()!=oldRow.get("id").getAsLong())invalid("INVALID_INTENT");
+            JsonObject expected=JsonParser.parseString(merge(oldRow.get("configJson").getAsString(),fields(values))).getAsJsonObject();
+            if(!expected.equals(JsonParser.parseString(newRow.get("configJson").getAsString())))invalid("INVALID_INTENT");
+            // The policy is the only permitted delta, including all peer and ACL tables.
+            newRow.add("configJson",oldRow.get("configJson").deepCopy());
+            if(!before.equals(after))invalid("INVALID_INTENT");
+            return true;
+        } catch(InvalidParameterValueException e) { throw e; }
+        catch(RuntimeException e) { invalid("INVALID_INTENT");return false; }
+    }
+    private static JsonObject commitTarget(JsonObject tables,String uuid) {
+        JsonObject result=null;
+        for(JsonElement item:tables.getAsJsonArray("StorageFileShareVO")) {
+            JsonObject row=item.getAsJsonObject();
+            if(uuid.equals(row.get("uuid").getAsString())) {
+                if(result!=null)invalid("INVALID_INTENT");
+                result=row;
+            }
+        }
+        if(result==null)invalid("INVALID_INTENT");
+        return result;
     }
     static void requireCapability(JsonObject capability) {
         for(String name:Arrays.asList("smbClientAccessPolicyVersion","smbClientAccessPolicyProtectionVersion"))
