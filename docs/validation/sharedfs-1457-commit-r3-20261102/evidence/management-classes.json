@@ -1,0 +1,10 @@
+{
+  "commit": "cc8bc5aa0390eb38034d7f63e5ce1e8eae73d868",
+  "base": "e3aaec913ff35e92124434235eef8a76534b4c2c",
+  "oldJarSha256": "d98002dbfa7a0cf915175b4f688e6a5151ed9187423a1115fa498b3399f26273",
+  "classes": {
+    "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class": "7a7c3a4e602f66a46a4b97729535e0463918b75bcdd47e05be45845cc04dd185",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbClientAccessPolicy.class": "37080a4bf6100b6d87ba78ea303026da7e14b80afecd272e143371111b737e18"
+  },
+  "payloadSha256": "4e0ccba079bbdfd64b25e16bf5467b8795f84cf7c27fea5580ef0af4dc2d0f98"
+}

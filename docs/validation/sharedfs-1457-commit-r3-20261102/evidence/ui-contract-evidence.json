@@ -1,0 +1,784 @@
+[
+  {
+    "command": "resumeStorageServiceConfigurationOperation",
+    "params": {
+      "command": "resumeStorageServiceConfigurationOperation",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "id": "6f3fd76b-7a26-4f09-bede-1e741310705c"
+    },
+    "response": {
+      "resumestorageserviceconfigurationoperationresponse": {
+        "jobid": "1931f5ea-fcbf-411f-bc4f-b62d7e490bd9"
+      }
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobid": "1931f5ea-fcbf-411f-bc4f-b62d7e490bd9",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "configurationoperation": {
+            "id": "6f3fd76b-7a26-4f09-bede-1e741310705c",
+            "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+            "requestid": "a28f8de6-9991-48c7-979b-46bf3bbebe05",
+            "state": "COMMITTED",
+            "phase": "COMPLETED",
+            "protocol": "SMB",
+            "resourceid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+            "baserevision": 57,
+            "targetrevision": 58,
+            "canresume": false,
+            "originalfailure": {},
+            "rollback": {
+              "state": "NOT_NEEDED"
+            },
+            "observation": {
+              "baseRevision": 57,
+              "cancellationSupported": false,
+              "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+              "operationid": "6f3fd76b-7a26-4f09-bede-1e741310705c",
+              "phase": "COMMITTING",
+              "requestHash": "338e78a24b5b99e2878a2e27cc81d0639a19535816f89dc75aa7474ef5e67ed2",
+              "rollback": {
+                "state": "NOT_NEEDED"
+              },
+              "smbOptions": {
+                "phase": "RELOADED",
+                "pid": 990047,
+                "ports": "445"
+              },
+              "state": "VERIFIED",
+              "targetRevision": 58,
+              "updated": 1793590653.1398568,
+              "workerActive": false
+            },
+            "created": "2026-11-02T12:37:26+0900",
+            "updated": "2026-11-02T13:29:01+0900",
+            "completed": "2026-11-02T13:29:01+0900",
+            "result": {
+              "clientaccess": {
+                "applyscope": "NEW_CONNECTIONS",
+                "cidrs": [
+                  "10.10.254.224/32"
+                ],
+                "mode": "RESTRICTED",
+                "profiles": [
+                  {
+                    "port": "1445",
+                    "status": "CONFIG_VERIFIED"
+                  },
+                  {
+                    "port": "445",
+                    "status": "CONFIG_VERIFIED"
+                  }
+                ],
+                "status": "CONFIG_VERIFIED"
+              },
+              "relativepath": "epic1457/projects/team-a",
+              "pathstatus": "VERIFIED",
+              "id": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+              "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+              "name": "s1457-restricted",
+              "path": "/export/s1457-restricted",
+              "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "runtimedevicepath": "/dev/sda",
+              "runtimeobservedat": "2026-11-02T03:37:28Z",
+              "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+              "runtimematchedby": "VOLUME_SERIAL",
+              "mappingstatus": "EXACT",
+              "filesystem": "xfs",
+              "state": "Ready",
+              "config": "{\"readOnly\": false, \"browseable\": true, \"guestOk\": false, \"createDirectory\": false, \"crossProtocol\": true, \"directoryMode\": \"0770\", \"fileIdentity\": {\"version\": 1, \"mode\": \"FIXED\", \"uid\": 7001, \"gid\": 7002}, \"clientAccess\": {\"version\": 1, \"cidrs\": [\"10.10.254.0/24\"]}, \"volumeMountPath\": \"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\", \"pathBindingVersion\": 1, \"relativeSharePath\": \"epic1457/projects/team-a\", \"backingPath\": \"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a\", \"pathIdentity\": {\"filesystemUuid\": \"9c8ddfe9-3e23-46f0-9476-5c794b004841\", \"inode\": 16908423, \"volumeRootInode\": 128}, \"filesystemUuid\": \"9c8ddfe9-3e23-46f0-9476-5c794b004841\", \"directoryPolicyUuid\": \"268ec90c-b74a-3b0d-9f5d-8982bb4b6c06\"}"
+            },
+            "candidate": {
+              "api": "UpdateStorageSmbShareCmd",
+              "clientcidrs": "[\"10.10.254.0/24\"]",
+              "expectedrevision": 57,
+              "id": 456,
+              "impactack": "2946937d1da717edb2f4da291bfc1f8d1fa4c2327de7a93e59a6102188ccd63d"
+            }
+          }
+        },
+        "created": "2026-11-02T13:29:00+0900",
+        "completed": "2026-11-02T13:29:02+0900",
+        "jobid": "1931f5ea-fcbf-411f-bc4f-b62d7e490bd9",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "params": {
+      "command": "preflightStorageServiceConfiguration",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "intent": "{\"api\": \"updateStorageSmbShare\", \"protocol\": \"SMB\", \"resourceid\": \"fb7e2b3e-baa7-4774-af08-3f102fb1c504\", \"smbclientaccess\": {\"cidrs\": [\"10.10.254.223/32\"]}}"
+    },
+    "response": {
+      "preflightstorageserviceconfigurationresponse": {
+        "configurationpreflight": {
+          "pathpreview": {
+            "relativepath": "epic1457/projects/team-a",
+            "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "rootinode": 128,
+            "mountid": 99,
+            "exists": true,
+            "missing": [],
+            "parents": [
+              {
+                "path": "",
+                "inode": 128
+              },
+              {
+                "path": "epic1457",
+                "inode": 157
+              },
+              {
+                "path": "epic1457/projects",
+                "inode": 8388779
+              }
+            ],
+            "inode": 16908423,
+            "owneruid": 7001,
+            "ownergid": 7002,
+            "mode": "0770",
+            "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n",
+            "resources": [
+              {
+                "uuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+                "name": "common1453r5",
+                "protocol": "NFS",
+                "relativepath": "export/common1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+                "name": "ad1453r5",
+                "protocol": "NFS",
+                "relativepath": "export/ad1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                "name": "p1455-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1455/projects",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+                "name": "p1455-sibling",
+                "protocol": "NFS",
+                "relativepath": "epic1455/projects/team-b",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "03575162-1534-4847-b07e-e75d7e90cd62",
+                "name": "p1456-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1456/projects",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "d4696c71-fdb9-4324-b8b2-229e2344f59e",
+                "name": "p1456-child",
+                "protocol": "NFS",
+                "relativepath": "epic1456/projects/team-a",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "ca96e9dd-f4d1-45fa-b61d-1837f66a0766",
+                "name": "p1457-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1457/projects",
+                "relation": "ANCESTOR"
+              },
+              {
+                "uuid": "27515d7a-bb71-4cba-b429-2cae3ab4ade9",
+                "name": "p1457-child",
+                "protocol": "NFS",
+                "relativepath": "epic1457/projects/team-a",
+                "relation": "EXACT_ALIAS"
+              },
+              {
+                "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+                "name": "common1453r5",
+                "protocol": "SMB",
+                "relativepath": "export/common1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+                "name": "ad1453r5",
+                "protocol": "SMB",
+                "relativepath": "export/ad1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+                "name": "s1455-child",
+                "protocol": "SMB",
+                "relativepath": "epic1455/projects/team-a",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+                "name": "s1456-fixed",
+                "protocol": "SMB",
+                "relativepath": "epic1456/projects/team-a",
+                "relation": "SIBLING"
+              }
+            ],
+            "parentaccesswarning": true
+          },
+          "status": "READY",
+          "revision": 58,
+          "observedat": "2026-11-02T13:36:30+0900",
+          "expiresat": "2026-11-02T13:37:00+0900",
+          "fingerprint": "b061914f8e0f49db44494a1216abe99c70fe7b64858450c19903d077534e436f",
+          "checks": [
+            {
+              "code": "MEMORY_AVAILABLE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 3747082240,
+              "requiredbytes": 218401136
+            },
+            {
+              "code": "FILESYSTEM_SPACE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 2486681600,
+              "requiredbytes": 83960412,
+              "readonly": false,
+              "freeinodes": 229662
+            },
+            {
+              "code": "VOLUME_PREPARATION_ACTIVE",
+              "blocking": false,
+              "severity": "INFO",
+              "count": 0
+            },
+            {
+              "code": "RUNTIME_WRITER_ACTIVE",
+              "blocking": false,
+              "severity": "INFO"
+            },
+            {
+              "code": "DRAIN_REQUIRED",
+              "blocking": false,
+              "severity": "INFO",
+              "connections": 2
+            },
+            {
+              "code": "DIRECTORY_PARENT_ACCESS",
+              "blocking": false,
+              "severity": "WARNING"
+            }
+          ],
+          "impact": {
+            "class": "ONLINE_RELOAD",
+            "affectedcount": 5,
+            "connections": 2,
+            "confidence": "ENDPOINT_TCP_CONNECTIONS",
+            "ackrequired": true,
+            "drainrequired": false
+          },
+          "profile": {
+            "name": "CONFIGURATION",
+            "softdeadlineseconds": 300,
+            "pollintervalseconds": 2,
+            "observationseconds": 600
+          },
+          "cancellationsupported": false,
+          "fileidentitypreview": {
+            "mode": "FIXED",
+            "uid": 7001,
+            "gid": 7002,
+            "identity": {
+              "key": "c1eca707-a554-4c42-85cd-1e9e9744d804:7001:7002",
+              "user": "asfs_u_c1eca707_7001",
+              "group": "asfs_g_c1eca707_7002",
+              "uid": 7001,
+              "gid": 7002,
+              "exists": true,
+              "owned": true
+            },
+            "audit": {
+              "ready": true,
+              "packageVersion": "2:4.17.12+dfsg-0+deb12u4",
+              "sha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675"
+            },
+            "existingobjectschange": false,
+            "publicationrequired": true,
+            "status": "READY",
+            "path": {
+              "relativepath": "epic1457/projects/team-a",
+              "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+              "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "rootinode": 128,
+              "mountid": 99,
+              "exists": true,
+              "missing": [],
+              "parents": [
+                {
+                  "path": "",
+                  "inode": 128
+                },
+                {
+                  "path": "epic1457",
+                  "inode": 157
+                },
+                {
+                  "path": "epic1457/projects",
+                  "inode": 8388779
+                }
+              ],
+              "inode": 16908423,
+              "owneruid": 7001,
+              "ownergid": 7002,
+              "mode": "0770",
+              "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+            },
+            "directory": {
+              "uid": 7001,
+              "gid": 7002,
+              "mode": "0770",
+              "inode": 16908423
+            },
+            "treefingerprint": "525983ff4afdd315f41471dd13b1b04a8d5a0a4ea65d7823513f5a11075cfb82",
+            "currentRuntime": [
+              {
+                "inheritowner": "no",
+                "forceUser": "asfs_u_c1eca707_7001",
+                "forceGroup": "asfs_g_c1eca707_7002",
+                "pid": 990062,
+                "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf"
+              },
+              {
+                "inheritowner": "no",
+                "forceUser": "asfs_u_c1eca707_7001",
+                "forceGroup": "asfs_g_c1eca707_7002",
+                "pid": 990047,
+                "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf"
+              }
+            ]
+          },
+          "clientaccesspreview": {
+            "before": [
+              "10.10.254.0/24"
+            ],
+            "after": [
+              "10.10.254.223/32"
+            ],
+            "current": {
+              "mode": "RESTRICTED",
+              "cidrs": [
+                "10.10.254.0/24"
+              ],
+              "status": "CONFIG_VERIFIED",
+              "applyscope": "NEW_CONNECTIONS",
+              "profiles": [
+                {
+                  "port": "1445",
+                  "status": "CONFIG_VERIFIED"
+                },
+                {
+                  "port": "445",
+                  "status": "CONFIG_VERIFIED"
+                }
+              ]
+            },
+            "profiles": [
+              {
+                "ports": "1445",
+                "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+                "pid": 990062,
+                "starttime": "4373699",
+                "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f"
+              },
+              {
+                "ports": "445",
+                "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+                "pid": 990047,
+                "starttime": "4373679",
+                "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632"
+              }
+            ],
+            "configurationhash": "8561952a81aa080f6985f869cfe89d30bfa31130beaa298ce4616b6c4b1ff44d",
+            "applyscope": "NEW_CONNECTIONS",
+            "existingobjectschange": false
+          }
+        }
+      }
+    }
+  },
+  {
+    "command": "updateStorageSmbShare",
+    "params": {
+      "command": "updateStorageSmbShare",
+      "response": "json",
+      "id": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+      "clientcidrs": "[\"10.10.254.223/32\"]",
+      "requestid": "765fc768-ca09-4484-915c-d1c54c955f87",
+      "expectedrevision": "58",
+      "impactack": "b061914f8e0f49db44494a1216abe99c70fe7b64858450c19903d077534e436f"
+    },
+    "response": {
+      "updatestoragesmbshareresponse": {
+        "jobid": "b9508ded-2862-458e-96d2-9e7e722251b5"
+      }
+    }
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "params": {
+      "command": "preflightStorageServiceConfiguration",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "intent": "{\"api\": \"updateStorageSmbShare\", \"protocol\": \"SMB\", \"resourceid\": \"fb7e2b3e-baa7-4774-af08-3f102fb1c504\", \"smbclientaccess\": {\"cidrs\": [], \"confirmAnySource\": true}}"
+    },
+    "response": {
+      "preflightstorageserviceconfigurationresponse": {
+        "configurationpreflight": {
+          "pathpreview": {
+            "relativepath": "epic1457/projects/team-a",
+            "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+            "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+            "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "rootinode": 128,
+            "mountid": 99,
+            "exists": true,
+            "missing": [],
+            "parents": [
+              {
+                "path": "",
+                "inode": 128
+              },
+              {
+                "path": "epic1457",
+                "inode": 157
+              },
+              {
+                "path": "epic1457/projects",
+                "inode": 8388779
+              }
+            ],
+            "inode": 16908423,
+            "owneruid": 7001,
+            "ownergid": 7002,
+            "mode": "0770",
+            "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n",
+            "resources": [
+              {
+                "uuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+                "name": "common1453r5",
+                "protocol": "NFS",
+                "relativepath": "export/common1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+                "name": "ad1453r5",
+                "protocol": "NFS",
+                "relativepath": "export/ad1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+                "name": "p1455-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1455/projects",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+                "name": "p1455-sibling",
+                "protocol": "NFS",
+                "relativepath": "epic1455/projects/team-b",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "03575162-1534-4847-b07e-e75d7e90cd62",
+                "name": "p1456-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1456/projects",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "d4696c71-fdb9-4324-b8b2-229e2344f59e",
+                "name": "p1456-child",
+                "protocol": "NFS",
+                "relativepath": "epic1456/projects/team-a",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "ca96e9dd-f4d1-45fa-b61d-1837f66a0766",
+                "name": "p1457-parent",
+                "protocol": "NFS",
+                "relativepath": "epic1457/projects",
+                "relation": "ANCESTOR"
+              },
+              {
+                "uuid": "27515d7a-bb71-4cba-b429-2cae3ab4ade9",
+                "name": "p1457-child",
+                "protocol": "NFS",
+                "relativepath": "epic1457/projects/team-a",
+                "relation": "EXACT_ALIAS"
+              },
+              {
+                "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+                "name": "common1453r5",
+                "protocol": "SMB",
+                "relativepath": "export/common1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+                "name": "ad1453r5",
+                "protocol": "SMB",
+                "relativepath": "export/ad1453r5",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+                "name": "s1455-child",
+                "protocol": "SMB",
+                "relativepath": "epic1455/projects/team-a",
+                "relation": "SIBLING"
+              },
+              {
+                "uuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+                "name": "s1456-fixed",
+                "protocol": "SMB",
+                "relativepath": "epic1456/projects/team-a",
+                "relation": "SIBLING"
+              }
+            ],
+            "parentaccesswarning": true
+          },
+          "status": "READY",
+          "revision": 59,
+          "observedat": "2026-11-02T13:38:48+0900",
+          "expiresat": "2026-11-02T13:39:18+0900",
+          "fingerprint": "41b339e542437a52457bc18f54377ee2b49561f5ee570ca586284161f57dad26",
+          "checks": [
+            {
+              "code": "MEMORY_AVAILABLE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 3763507200,
+              "requiredbytes": 218401200
+            },
+            {
+              "code": "FILESYSTEM_SPACE",
+              "blocking": false,
+              "severity": "INFO",
+              "availablebytes": 2486452224,
+              "requiredbytes": 83960428,
+              "readonly": false,
+              "freeinodes": 229656
+            },
+            {
+              "code": "VOLUME_PREPARATION_ACTIVE",
+              "blocking": false,
+              "severity": "INFO",
+              "count": 0
+            },
+            {
+              "code": "RUNTIME_WRITER_ACTIVE",
+              "blocking": false,
+              "severity": "INFO"
+            },
+            {
+              "code": "DRAIN_REQUIRED",
+              "blocking": false,
+              "severity": "INFO",
+              "connections": 2
+            },
+            {
+              "code": "DIRECTORY_PARENT_ACCESS",
+              "blocking": false,
+              "severity": "WARNING"
+            }
+          ],
+          "impact": {
+            "class": "ONLINE_RELOAD",
+            "affectedcount": 5,
+            "connections": 2,
+            "confidence": "ENDPOINT_TCP_CONNECTIONS",
+            "ackrequired": true,
+            "drainrequired": false
+          },
+          "profile": {
+            "name": "CONFIGURATION",
+            "softdeadlineseconds": 300,
+            "pollintervalseconds": 2,
+            "observationseconds": 600
+          },
+          "cancellationsupported": false,
+          "fileidentitypreview": {
+            "mode": "FIXED",
+            "uid": 7001,
+            "gid": 7002,
+            "identity": {
+              "key": "c1eca707-a554-4c42-85cd-1e9e9744d804:7001:7002",
+              "user": "asfs_u_c1eca707_7001",
+              "group": "asfs_g_c1eca707_7002",
+              "uid": 7001,
+              "gid": 7002,
+              "exists": true,
+              "owned": true
+            },
+            "audit": {
+              "ready": true,
+              "packageVersion": "2:4.17.12+dfsg-0+deb12u4",
+              "sha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675"
+            },
+            "existingobjectschange": false,
+            "publicationrequired": true,
+            "status": "READY",
+            "path": {
+              "relativepath": "epic1457/projects/team-a",
+              "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+              "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "rootinode": 128,
+              "mountid": 99,
+              "exists": true,
+              "missing": [],
+              "parents": [
+                {
+                  "path": "",
+                  "inode": 128
+                },
+                {
+                  "path": "epic1457",
+                  "inode": 157
+                },
+                {
+                  "path": "epic1457/projects",
+                  "inode": 8388779
+                }
+              ],
+              "inode": 16908423,
+              "owneruid": 7001,
+              "ownergid": 7002,
+              "mode": "0770",
+              "acl": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+            },
+            "directory": {
+              "uid": 7001,
+              "gid": 7002,
+              "mode": "0770",
+              "inode": 16908423
+            },
+            "treefingerprint": "525983ff4afdd315f41471dd13b1b04a8d5a0a4ea65d7823513f5a11075cfb82",
+            "currentRuntime": [
+              {
+                "inheritowner": "no",
+                "forceUser": "asfs_u_c1eca707_7001",
+                "forceGroup": "asfs_g_c1eca707_7002",
+                "pid": 990062,
+                "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf"
+              },
+              {
+                "inheritowner": "no",
+                "forceUser": "asfs_u_c1eca707_7001",
+                "forceGroup": "asfs_g_c1eca707_7002",
+                "pid": 990047,
+                "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf"
+              }
+            ]
+          },
+          "clientaccesspreview": {
+            "before": [
+              "10.10.254.223/32"
+            ],
+            "after": [],
+            "current": {
+              "mode": "RESTRICTED",
+              "cidrs": [
+                "10.10.254.223/32"
+              ],
+              "status": "CONFIG_VERIFIED",
+              "applyscope": "NEW_CONNECTIONS",
+              "profiles": [
+                {
+                  "port": "1445",
+                  "status": "CONFIG_VERIFIED"
+                },
+                {
+                  "port": "445",
+                  "status": "CONFIG_VERIFIED"
+                }
+              ]
+            },
+            "profiles": [
+              {
+                "ports": "1445",
+                "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+                "pid": 990062,
+                "starttime": "4373699",
+                "overlayhash": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f"
+              },
+              {
+                "ports": "445",
+                "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+                "pid": 990047,
+                "starttime": "4373679",
+                "overlayhash": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632"
+              }
+            ],
+            "configurationhash": "2ef091b5d3262f7f31b7b24ae0f9b82671ab2882ef1bebadde0688dbfb3cbed7",
+            "applyscope": "NEW_CONNECTIONS",
+            "existingobjectschange": false
+          }
+        }
+      }
+    }
+  },
+  {
+    "command": "updateStorageSmbShare",
+    "params": {
+      "command": "updateStorageSmbShare",
+      "response": "json",
+      "id": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+      "clientcidrs": "[]",
+      "confirmanysource": "true",
+      "requestid": "fa8969f8-427f-472e-9ca6-cf83da5d6ea0",
+      "expectedrevision": "59",
+      "impactack": "41b339e542437a52457bc18f54377ee2b49561f5ee570ca586284161f57dad26"
+    },
+    "response": {
+      "updatestoragesmbshareresponse": {
+        "jobid": "f4cb9d6b-0c52-42c3-b299-dfaacd6ec323"
+      }
+    }
+  }
+]

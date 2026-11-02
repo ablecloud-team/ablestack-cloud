@@ -1,0 +1,13 @@
+{
+  "commit": "cc8bc5aa0390eb38034d7f63e5ce1e8eae73d868",
+  "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610261326.jar",
+  "beforeSha256": "d98002dbfa7a0cf915175b4f688e6a5151ed9187423a1115fa498b3399f26273",
+  "afterSha256": "c34b3ec27fe163b6b2246ec46d4f835907d3bf71f12c16d5299f32134250a458",
+  "changed": [
+    "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbClientAccessPolicy.class"
+  ],
+  "unchangedEntries": 92557,
+  "uiHttp200": true,
+  "service": "active"
+}

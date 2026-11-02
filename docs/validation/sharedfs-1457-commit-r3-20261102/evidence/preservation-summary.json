@@ -1,0 +1,44 @@
+{
+  "beforeObjects": 109,
+  "beforeRebootObjects": 117,
+  "finalObjects": 119,
+  "changedExisting": {},
+  "newObjects": [
+    "epic1457/projects/team-a/c2-only-1445.txt",
+    "epic1457/projects/team-a/c2-only-445.txt",
+    "epic1457/projects/team-a/held-c1-1445.txt",
+    "epic1457/projects/team-a/held-c1-445.txt",
+    "epic1457/projects/team-a/post-reboot-1445.txt",
+    "epic1457/projects/team-a/post-reboot-445.txt",
+    "epic1457/projects/team-a/r3-c1-1445.txt",
+    "epic1457/projects/team-a/r3-c1-445.txt",
+    "epic1457/projects/team-a/r3-c2-1445.txt",
+    "epic1457/projects/team-a/r3-c2-445.txt"
+  ],
+  "sameFilesystemIdentity": true,
+  "deviceBefore": "/dev/sda",
+  "deviceAfter": "/dev/sdb",
+  "bootChanged": true,
+  "macPreserved": true,
+  "ipPreserved": true,
+  "accountDiff": {
+    "passwd": [],
+    "group": [],
+    "shadow": [
+      "cloud"
+    ],
+    "gshadow": []
+  },
+  "passdbPreserved": true,
+  "effectiveAllSectionsPreservedAcrossReboot": true,
+  "sourcePoliciesBeforeAfterReboot": [
+    [
+      "10.10.254.224/32 127.0.0.1/32",
+      "10.10.254.224/32 127.0.0.1/32"
+    ],
+    [
+      "10.10.254.224/32 127.0.0.1/32",
+      "10.10.254.224/32 127.0.0.1/32"
+    ]
+  ]
+}
