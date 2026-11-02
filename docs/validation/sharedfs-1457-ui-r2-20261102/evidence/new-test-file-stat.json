@@ -1,0 +1,65 @@
+{
+  "epic1457/projects/team-a/ad-c1-1445.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908430,
+    "kind": 32768,
+    "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+    "sha256": "a9d6cd663c4a3fb110aff540cc10f7779770db6d39c718a6a5105df894b1f9c6"
+  },
+  "epic1457/projects/team-a/ad-c1-445.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908429,
+    "kind": 32768,
+    "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+    "sha256": "a9d6cd663c4a3fb110aff540cc10f7779770db6d39c718a6a5105df894b1f9c6"
+  },
+  "epic1457/projects/team-a/nfs-c1.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908424,
+    "kind": 32768,
+    "acl": "user::rw-\ngroup::rw-\nother::---\n\n",
+    "sha256": "7f25557f80c53fc7b4d394e29142574a3e473097c672edf4ee44047742e40d3b"
+  },
+  "epic1457/projects/team-a/nfs-c2.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908425,
+    "kind": 32768,
+    "acl": "user::rw-\ngroup::rw-\nother::---\n\n",
+    "sha256": "6a62eb6968ca2a2dabc5e6bfed96479f6ad68d7a7f42e6b96dfeec30ec84c198"
+  },
+  "epic1457/projects/team-a/posix-deny.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908428,
+    "kind": 32768,
+    "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:10002:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+    "sha256": "3e201bfb4cae633bb3ce5ff070474b088bd427f895d5c2cda93acaa002419580"
+  },
+  "epic1457/projects/team-a/smb-c1-1445.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908427,
+    "kind": 32768,
+    "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+    "sha256": "a9d6cd663c4a3fb110aff540cc10f7779770db6d39c718a6a5105df894b1f9c6"
+  },
+  "epic1457/projects/team-a/smb-c1-445.txt": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0660",
+    "inode": 16908426,
+    "kind": 32768,
+    "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---\n\n",
+    "sha256": "a9d6cd663c4a3fb110aff540cc10f7779770db6d39c718a6a5105df894b1f9c6"
+  }
+}

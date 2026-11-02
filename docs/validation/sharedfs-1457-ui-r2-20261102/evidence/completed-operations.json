@@ -1,0 +1,287 @@
+[
+  {
+    "id": "c24e2a45-2546-46f8-9da2-4c8eaebdfd2d",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "b81f6841-09e2-4ef0-95ab-2609f96f13d4",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+    "baserevision": 54,
+    "targetrevision": 55,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 54,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "c24e2a45-2546-46f8-9da2-4c8eaebdfd2d",
+      "pathbindings": {
+        "bindings": [
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 8388760,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1456/projects/team-a",
+            "resourceuuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 25165961,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1455/projects/team-a",
+            "resourceuuid": "20112217-8f9c-4eea-8363-521e7028740b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 16908423,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1457/projects/team-a",
+            "resourceuuid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          }
+        ],
+        "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+        "operationid": "c24e2a45-2546-46f8-9da2-4c8eaebdfd2d"
+      },
+      "phase": "COMMITTING",
+      "requestHash": "a3705ccc05be6147961aa9bef742d116d4f7c6573c5c5f0987612e9675713985",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 55,
+      "updated": 1793590005.8242302
+    },
+    "created": "2026-11-02T12:26:36+0900",
+    "updated": "2026-11-02T12:26:49+0900",
+    "completed": "2026-11-02T12:26:49+0900",
+    "result": {
+      "relativepath": "epic1457/projects/team-a",
+      "pathstatus": "UNAVAILABLE",
+      "id": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "s1457-restricted",
+      "path": "/export/s1457-restricted",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "runtimedevicepath": "/dev/sda",
+      "runtimeobservedat": "2026-11-02T03:26:39Z",
+      "runtimebootid": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+      "runtimematchedby": "VOLUME_SERIAL",
+      "mappingstatus": "EXACT",
+      "filesystem": "xfs",
+      "state": "Ready",
+      "config": "{\"readOnly\":false,\"browseable\":true,\"guestOk\":false,\"createDirectory\":false,\"crossProtocol\":true,\"directoryMode\":\"0770\",\"fileIdentity\":{\"version\":1,\"mode\":\"FIXED\",\"uid\":7001,\"gid\":7002},\"clientAccess\":{\"version\":1,\"cidrs\":[\"10.10.254.224/32\"]},\"volumeMountPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277\",\"pathBindingVersion\":1,\"relativeSharePath\":\"epic1457/projects/team-a\",\"backingPath\":\"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a\",\"pathIdentity\":{\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"inode\":16908423,\"volumeRootInode\":128},\"filesystemUuid\":\"9c8ddfe9-3e23-46f0-9476-5c794b004841\",\"directoryPolicyUuid\":\"268ec90c-b74a-3b0d-9f5d-8982bb4b6c06\"}"
+    },
+    "candidate": {
+      "api": "CreateStorageSmbShareCmd",
+      "browseable": true,
+      "cleanupvolumeonfailure": false,
+      "clientcidrs": "[\"10.10.254.224/32\"]",
+      "createdirectory": false,
+      "crossprotocol": true,
+      "directorypolicyid": 10,
+      "expectedrevision": 54,
+      "fileidentitymode": "FIXED",
+      "filesystem": "xfs",
+      "fixedgid": 7002,
+      "fixeduid": 7001,
+      "guestok": false,
+      "impactack": "69a584b746cb218ae51eef5adeda5a15c39f89e0a7f1477aa395cbbd4739e133",
+      "importmode": "MOUNT_EXISTING",
+      "instanceid": 91,
+      "name": "s1457-restricted",
+      "path": "/export/s1457-restricted",
+      "readonly": false,
+      "relativepath": "epic1457/projects/team-a",
+      "volumeid": 355
+    }
+  },
+  {
+    "id": "e328a9e0-fa38-4dcc-9ab2-77ecece6a799",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "2d8fa8a0-4d5d-4dd1-aa42-02e07209507a",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "e8c6e6ec-e3a2-4b65-b97d-2f3ee4ab1bd1",
+    "baserevision": 55,
+    "targetrevision": 56,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 55,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "e328a9e0-fa38-4dcc-9ab2-77ecece6a799",
+      "pathbindings": {
+        "bindings": [
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 8388760,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1456/projects/team-a",
+            "resourceuuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 25165961,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1455/projects/team-a",
+            "resourceuuid": "20112217-8f9c-4eea-8363-521e7028740b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 16908423,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1457/projects/team-a",
+            "resourceuuid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          }
+        ],
+        "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+        "operationid": "e328a9e0-fa38-4dcc-9ab2-77ecece6a799"
+      },
+      "phase": "COMMITTING",
+      "requestHash": "a0ec2f929e61f75ae018298f92cac5d31cd5c6d54ff311dd2d6c3a9788f067c1",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 56,
+      "updated": 1793590229.9285893
+    },
+    "created": "2026-11-02T12:30:25+0900",
+    "updated": "2026-11-02T12:30:33+0900",
+    "completed": "2026-11-02T12:30:33+0900",
+    "result": {
+      "id": "e8c6e6ec-e3a2-4b65-b97d-2f3ee4ab1bd1",
+      "resourcetype": "FILE_SHARE",
+      "resourceid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+      "principaltype": "LOCAL_USER",
+      "principal": "epic1453rw",
+      "permission": "READ_WRITE",
+      "state": "Ready",
+      "config": "{\"localAccount\":true}"
+    },
+    "candidate": {
+      "api": "CreateStorageSmbAclCmd",
+      "expectedrevision": 55,
+      "impactack": "0dc9af7339b79fbb249c78a0b02418d6f9a8831b7f90c1dbe2da4bcd7275171c",
+      "permission": "READ_WRITE",
+      "principal": "epic1453rw",
+      "principaltype": "LOCAL_USER",
+      "shareid": 456
+    }
+  },
+  {
+    "id": "cde16c57-f091-4510-a087-889a48ee92b9",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "requestid": "fd00a0f3-7fbe-42da-ae81-e6eded45d703",
+    "state": "COMMITTED",
+    "phase": "COMPLETED",
+    "protocol": "SMB",
+    "resourceid": "4c01165e-860f-4b7f-9304-e33f45df5774",
+    "baserevision": 56,
+    "targetrevision": 57,
+    "canresume": false,
+    "originalfailure": {},
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "observation": {
+      "baseRevision": 56,
+      "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "operationid": "cde16c57-f091-4510-a087-889a48ee92b9",
+      "pathbindings": {
+        "bindings": [
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 8388760,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1456/projects/team-a",
+            "resourceuuid": "0fcca935-d438-4c76-a32d-110b4593535b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 25165961,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1455/projects/team-a",
+            "resourceuuid": "20112217-8f9c-4eea-8363-521e7028740b",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          },
+          {
+            "pathIdentity": {
+              "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "inode": 16908423,
+              "volumeRootInode": 128
+            },
+            "relativepath": "epic1457/projects/team-a",
+            "resourceuuid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+            "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+          }
+        ],
+        "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+        "operationid": "cde16c57-f091-4510-a087-889a48ee92b9"
+      },
+      "phase": "COMMITTING",
+      "requestHash": "aca87a69331485c7bbfdf800b1ae5e13f9ce1f8dd27298bcca5905c447007240",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "VERIFIED",
+      "targetRevision": 57,
+      "updated": 1793590377.424349
+    },
+    "created": "2026-11-02T12:32:53+0900",
+    "updated": "2026-11-02T12:33:01+0900",
+    "completed": "2026-11-02T12:33:01+0900",
+    "result": {
+      "id": "4c01165e-860f-4b7f-9304-e33f45df5774",
+      "resourcetype": "FILE_SHARE",
+      "resourceid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+      "principaltype": "AD_USER",
+      "principal": "ABLESTACK\\Administrator",
+      "permission": "READ_WRITE",
+      "state": "Ready",
+      "config": "{\"localAccount\":false}"
+    },
+    "candidate": {
+      "api": "CreateStorageSmbAclCmd",
+      "expectedrevision": 56,
+      "impactack": "46211b3c692b01ead8c4e3c530d6231ede941bc600c0983e05d4c50df6aeb4f5",
+      "permission": "READ_WRITE",
+      "principal": "ABLESTACK\\Administrator",
+      "principaltype": "AD_USER",
+      "shareid": 456
+    }
+  }
+]

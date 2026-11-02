@@ -1,0 +1,28 @@
+{
+  "paths": [
+    "index.html",
+    "css/chunk-719036b0.119c4973.css",
+    "js/chunk-719036b0.511758ff.js.map",
+    "js/chunk-719036b0.511758ff.js",
+    "js/app.3827be93.js.map",
+    "js/app.3827be93.js"
+  ],
+  "before": {
+    "index.html": "092a4db8c59235e7cd6039c4dc90d03887237d36a1ec3d2a57d72eedd307687c",
+    "css/chunk-719036b0.119c4973.css": null,
+    "js/chunk-719036b0.511758ff.js.map": null,
+    "js/chunk-719036b0.511758ff.js": null,
+    "js/app.3827be93.js.map": null,
+    "js/app.3827be93.js": null
+  },
+  "after": {
+    "index.html": "f68719a8d5e9984218d813b367227b177c1a977b6b1df9583cdb85ef8f14b95e",
+    "css/chunk-719036b0.119c4973.css": "40f5f7376a6b9c45ef6e8b40134b892cccd8aa7d9e004e7c6837a802405daa90",
+    "js/chunk-719036b0.511758ff.js.map": "194585ddad5e27ec1208c71211b022155df3d5c93e7c64473b2ef8beec6a4d37",
+    "js/chunk-719036b0.511758ff.js": "8696a5dca62f741bddd6dd7ff4430634302a4d96f4778b50a929de0a78122c65",
+    "js/app.3827be93.js.map": "400b9ee2983b5a9fcd3e7eb780d8b0987bfdd1eace2648ab4b171440d05119bc",
+    "js/app.3827be93.js": "257081e33f5311f104e834c529777423b6b31b1da3414a6ef81e92d559f8b310"
+  },
+  "config": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+  "color": "eaeb8ac7e9b4391576b1e39e2b8edd88b565e6b012b4dcd04a1c5e3983dc9624"
+}

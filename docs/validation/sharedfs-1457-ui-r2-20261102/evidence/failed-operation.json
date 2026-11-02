@@ -1,0 +1,45 @@
+{
+  "id": "6f3fd76b-7a26-4f09-bede-1e741310705c",
+  "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+  "requestid": "a28f8de6-9991-48c7-979b-46bf3bbebe05",
+  "state": "RECOVERY_REQUIRED",
+  "phase": "COMMITTING",
+  "protocol": "SMB",
+  "resourceid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+  "baserevision": 57,
+  "targetrevision": 58,
+  "canresume": true,
+  "originalfailure": {},
+  "rollback": {
+    "state": "NOT_NEEDED"
+  },
+  "observation": {
+    "baseRevision": 57,
+    "cancellationSupported": false,
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "operationid": "6f3fd76b-7a26-4f09-bede-1e741310705c",
+    "phase": "COMMITTING",
+    "requestHash": "338e78a24b5b99e2878a2e27cc81d0639a19535816f89dc75aa7474ef5e67ed2",
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "smbOptions": {
+      "phase": "RELOADED",
+      "pid": 990047,
+      "ports": "445"
+    },
+    "state": "VERIFIED",
+    "targetRevision": 58,
+    "updated": 1793590653.1398568,
+    "workerActive": false
+  },
+  "created": "2026-11-02T12:37:26+0900",
+  "updated": "2026-11-02T12:37:37+0900",
+  "candidate": {
+    "api": "UpdateStorageSmbShareCmd",
+    "clientcidrs": "[\"10.10.254.0/24\"]",
+    "expectedrevision": 57,
+    "id": 456,
+    "impactack": "2946937d1da717edb2f4da291bfc1f8d1fa4c2327de7a93e59a6102188ccd63d"
+  }
+}

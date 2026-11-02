@@ -1,0 +1,13 @@
+{
+  "log": [
+    "2026-11-02 12:37:37,128 DEBUG [c.c.u.d.T.Transaction] (API-Job-Executor-11:[ctx-cf2e0d60, job-4531, ctx-423d3552]) (logid:fa64f872) Rolling back the transaction: Time = 1 Name =  API-Job-Executor-11; called by -TransactionLegacy.rollback:919-TransactionLegacy.removeUpTo:862-TransactionLegacy.close:686-Transaction.execute:36-Transaction.execute:45-StorageServiceConfigurationCoordinator.commit:352-StorageServiceConfigurationCoordinator.execute:224-StorageServiceManagerImpl.runConfiguration:323-StorageServiceManagerImpl.updateStorageSmbShare:1320-UpdateStorageSmbShareCmd.execute:199-ApiDispatcher.dispatch:173-ApiAsyncJobDispatcher.runJob:111",
+    "2026-11-02 12:37:37,134 DEBUG [o.a.c.f.j.i.AsyncJobManagerImpl] (API-Job-Executor-11:[ctx-cf2e0d60, job-4531]) (logid:fa64f872) Complete async job-4531, jobStatus: FAILED, resultCode: 431, result: org.apache.cloudstack.api.response.ExceptionResponse/null/{\"uuidList\":[],\"errorcode\":\"431\",\"errortext\":\"DIRECTORY_BINDING_RECEIPT_MISSING\"}"
+  ],
+  "jarSha256": "d98002dbfa7a0cf915175b4f688e6a5151ed9187423a1115fa498b3399f26273",
+  "pathBindingClass": {
+    "entry": "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class",
+    "sha256": "06858c7e59b6de8eec30ac7fc8f741a7700ce5f35a762643a9b6f65782c8e677",
+    "hasOldOnlineFlag": true,
+    "hasNewOnlineFlag": false
+  }
+}
