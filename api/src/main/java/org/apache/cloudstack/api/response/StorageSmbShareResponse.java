@@ -27,6 +27,10 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageSmbShareResponse extends BaseResponse {
+    @SerializedName("clientaccess") @Param(description="Share source policy observation, not an end-to-end client test")
+    private com.google.gson.JsonObject clientAccess;
+    public void setClientAccess(com.google.gson.JsonObject value) { clientAccess=value; }
+
     @SerializedName("relativepath") @Param(description="Physical directory relative to the backing volume") private String relativePath;
     @SerializedName("pathstatus") @Param(description="Read-only path binding observation") private String pathStatus;
     @SerializedName("pathreason") @Param(description="Safe path observation reason") private String pathReason;

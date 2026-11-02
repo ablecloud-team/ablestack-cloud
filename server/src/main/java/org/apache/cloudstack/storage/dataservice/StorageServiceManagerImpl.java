@@ -194,6 +194,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         private final Map<String, JsonObject> pathBindings = new HashMap<>();
         private final Map<String, JsonObject> nfsLocalProbes = new HashMap<>();
         final Map<String, JsonObject> nfsPosix = new LinkedHashMap<>();
+        final Map<String, JsonObject> smbClientAccess = new LinkedHashMap<>();
 
         protected JsonObject observation(final String key) {
             return StringUtils.isBlank(key) ? null : observations.get(key);
@@ -1273,6 +1274,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
         configJson = StorageSmbFileIdentity.merge(configJson, StorageSmbFileIdentity.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
+        configJson = StorageSmbClientAccessPolicy.merge(configJson, StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = configureFileSharePath(configJson,cmd.getRelativePath(),backingVolume,importMode,cmd.getCreateDirectory());
@@ -1325,6 +1327,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || cmd.getVolumeId()!=null && !Objects.equals(share.getVolumeId(),cmd.getVolumeId()))
             StorageFileSharePaths.requireNoChildren(share,StorageFileSharePaths.all(instance.getId(),storageFileShareDaoView()));
 
+        if (StorageSmbClientAccessPolicy.only(cmd)) {
+            share.setConfigJson(StorageSmbClientAccessPolicy.merge(share.getConfigJson(),
+                    StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd))));
+            share.setState(StorageServiceInstance.ResourceState.Updating);
+            storageFileShareDaoView().update(share.getId(), share);
+            applySmbDesiredState(instance);
+            share.setState(instance.getVmId()==null?StorageServiceInstance.ResourceState.Allocated:StorageServiceInstance.ResourceState.Ready);
+            storageFileShareDaoView().update(share.getId(), share);
+            return createSmbShareResponse(share);
+        }
+
         if (StorageSmbCreationPolicy.optionsOnly(cmd)) {
             JsonObject optionsConfig = parseJsonObject(share.getConfigJson());
             if (cmd.getReadOnly()!=null) optionsConfig.addProperty("readOnly",cmd.getReadOnly());
@@ -1371,6 +1384,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 cmd.getCreateDirectory(), cmd.getCrossProtocol(), cmd.getDirectoryMode());
         configJson = StorageSmbParentInheritance.merge(configJson,cmd.getInheritOwner());
         configJson = StorageSmbFileIdentity.merge(configJson, StorageSmbFileIdentity.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
+        configJson = StorageSmbClientAccessPolicy.merge(configJson, StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = StorageSmbCreationPolicy.merge(configJson, StorageSmbCreationPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
         configJson = buildFileShareDirectoryConfigJson(configJson, backingVolume, importMode, cmd.getCreateDirectory());
         configJson = configureFileSharePath(configJson,cmd.getRelativePath(),backingVolume,importMode,cmd.getCreateDirectory());
@@ -3038,6 +3052,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             shares.add(smbShare);
         }
         payload.add("shares", shares);
+        StorageSmbClientAccessPolicy.validateListeners(payload);
 
         return payload;
     }
@@ -5239,6 +5254,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 validateSmbWildcardRemoval(instance, selected, null, null);
             }
         } else {
+            JsonObject sourceCheck=new JsonObject();com.google.gson.JsonArray sourceShares=new com.google.gson.JsonArray();
+            for(StorageFileShareVO row:storageFileShareDaoView().listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB)) {
+                JsonObject share=new JsonObject();share.add("config",parseJsonObject(row.getConfigJson()));sourceShares.add(share);
+            }
+            sourceCheck.add("shares",sourceShares);com.google.gson.JsonArray sourceListeners=new com.google.gson.JsonArray();
+            JsonObject sourceEndpoint=new JsonObject();
+            sourceEndpoint.addProperty("listenIp",StringUtils.defaultIfBlank(ip,selected==null?"0.0.0.0":selected.getListenIp()));
+            sourceListeners.add(sourceEndpoint);sourceCheck.add("listeners",sourceListeners);
+            StorageSmbClientAccessPolicy.validateListeners(sourceCheck);
             resolveProtocolListenAddress(instance, ip);
             StorageServiceProtocolVO existing = findProtocolEndpoint(instance.getId(), StorageServiceInstance.Protocol.SMB, ip, port);
             if (selected != null && existing != null && selected.getId() != existing.getId())
@@ -7025,6 +7049,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setQuotaBytes(share.getQuotaBytes());
         response.setState(share.getState().name());
         response.setConfig(share.getConfigJson());
+        if(runtimeObservation!=null && runtimeObservation.has("clientAccess"))response.setClientAccess(runtimeObservation.getAsJsonObject("clientAccess"));
         try {
             response.setRelativePath(StorageFileSharePaths.relative(share));
             JsonObject path=runtimeObservation!=null && runtimeObservation.has("pathBinding")?runtimeObservation.getAsJsonObject("pathBinding"):null;
@@ -7073,6 +7098,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     probe.addProperty("externalclientrequired",required);snapshot.nfsLocalProbes.put(entry.getKey(),probe);
                 }
             }
+            if (inventory.has("smbClientAccessObservations") && inventory.get("smbClientAccessObservations").isJsonObject())
+                for (Map.Entry<String,JsonElement> entry:inventory.getAsJsonObject("smbClientAccessObservations").entrySet())
+                    if(entry.getValue().isJsonObject())snapshot.smbClientAccess.put(entry.getKey(),entry.getValue().getAsJsonObject());
             if (inventory.has("fileSharePaths") && inventory.get("fileSharePaths").isJsonObject())
                 for (Map.Entry<String,JsonElement> entry:inventory.getAsJsonObject("fileSharePaths").entrySet())
                     if (entry.getValue().isJsonObject()) snapshot.pathBindings.put(entry.getKey(),entry.getValue().getAsJsonObject());
@@ -7106,6 +7134,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             observed = observed == null ? new JsonObject() : observed.deepCopy();
             if (snapshot.nfsPosix.containsKey(share.getUuid())) observed.add("nfsPosixObservation", snapshot.nfsPosix.get(share.getUuid()));
             if (snapshot.nfsLocalProbes.containsKey(share.getUuid())) observed.add("nfsLocalProbe", snapshot.nfsLocalProbes.get(share.getUuid()));
+        }
+        if(snapshot.smbClientAccess.containsKey(share.getUuid())) {
+            observed=observed==null?new JsonObject():observed.deepCopy();
+            observed.add("clientAccess",snapshot.smbClientAccess.get(share.getUuid()));
         }
         if(snapshot.pathBindings.containsKey(share.getUuid())) {
             observed=observed==null?new JsonObject():observed.deepCopy();

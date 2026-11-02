@@ -39,6 +39,13 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateStorageSmbShareCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
+    @Parameter(name="clientcidrs", type=CommandType.STRING, length=1024, description="JSON array of literal IPv4 sources; omitted preserves the existing policy")
+    private String clientCidrs;
+    public String getClientCidrs() { return clientCidrs; }
+    @Parameter(name="confirmanysource", type=CommandType.BOOLEAN, description="Explicitly confirm removal of the final source restriction")
+    private Boolean confirmAnySource;
+    public Boolean getConfirmAnySource() { return confirmAnySource; }
+
     @Parameter(name="fileidentitymode", type=CommandType.STRING, length=16, description="AUTHENTICATED or FIXED; omitted preserves the current policy")
     private String fileIdentityMode;
     public String getFileIdentityMode() { return fileIdentityMode; }

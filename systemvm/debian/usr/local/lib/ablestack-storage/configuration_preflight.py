@@ -24,6 +24,8 @@ def fingerprint(intent):
         material.update(smbcreation=intent["smbcreation"], creationfingerprint=intent.get("creationfingerprint"), smboptionsonly=intent.get("smboptionsonly", False))
     if intent.get("pathtarget"):
         material.update(pathtarget=intent["pathtarget"], pathfingerprint=intent.get("pathfingerprint"), pathoperation=intent.get("pathoperation"))
+    if intent.get("smbclientaccesstarget"):
+        material.update(smbclientaccess=intent["smbclientaccess"], clientaccessfingerprint=intent.get("clientaccessfingerprint"))
     if intent.get("fileidentitytarget"):
         material.update(fileidentitytarget=intent["fileidentitytarget"], fileidentityfingerprint=intent.get("fileidentityfingerprint"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -181,6 +183,11 @@ def inspect(intent):
             from shared_directory_policy import SmbCreationPolicies
             creation = SmbCreationPolicies().preview(intent["smbcreationtarget"], intent["smbcreation"])
             intent["creationfingerprint"] = hashlib.sha256(json.dumps(creation, sort_keys=True).encode()).hexdigest()
+        client_access = None
+        if intent.get("smbclientaccesstarget"):
+            from smb_client_access import SmbClientAccessPolicies
+            client_access = SmbClientAccessPolicies().preview(intent["smbclientaccesstarget"], intent["smbclientaccess"])
+            intent["clientaccessfingerprint"] = hashlib.sha256(json.dumps(client_access, sort_keys=True).encode()).hexdigest()
         file_identity = None
         if intent.get("fileidentitytarget"):
             from smb_file_identity import FixedIdentities
@@ -188,6 +195,9 @@ def inspect(intent):
             file_identity = FixedIdentities().preview(target, intent["instanceUuid"], target.get("publicationRequired", False), target.get("verifyCurrent", False))
             intent["fileidentityfingerprint"] = hashlib.sha256(json.dumps(file_identity, sort_keys=True).encode()).hexdigest()
         report = evaluate(intent, sample(intent))
+        if client_access is not None:
+            report["clientaccesspreview"] = client_access
+            report["impact"]["class"] = "ONLINE_RELOAD"
         if file_identity is not None:
             report["fileidentitypreview"] = file_identity
 

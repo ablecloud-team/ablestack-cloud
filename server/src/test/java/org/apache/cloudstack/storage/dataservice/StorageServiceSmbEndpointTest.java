@@ -31,6 +31,7 @@ import static org.junit.Assert.*;
 public class StorageServiceSmbEndpointTest {
     static class Harness extends StorageServiceManagerImpl {
         final List<StorageServiceProtocolVO> rows = new ArrayList<>();
+        final List<StorageFileShareVO> sourceShares = new ArrayList<>();
         final StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);
         final NicVO nic = Mockito.mock(NicVO.class);
         boolean fail;
@@ -48,6 +49,9 @@ public class StorageServiceSmbEndpointTest {
             });
             Mockito.when(dao.remove(Mockito.anyLong())).thenAnswer(i -> rows.removeIf(v -> v.getId() == (Long)i.getArgument(0)));
             ReflectionTestUtils.setField(this, "storageServiceProtocolDao", dao);
+            var shareDao=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+            Mockito.when(shareDao.listByInstanceIdAndProtocol(8L,StorageServiceInstance.Protocol.SMB)).thenAnswer(i->new ArrayList<>(sourceShares));
+            ReflectionTestUtils.setField(this,"storageFileShareDao",shareDao);
         }
         @Override protected StorageServiceInstanceVO requireInstance(Long id) { return instance; }
         @Override protected NicVO resolveProtocolListenAddress(StorageServiceInstanceVO i, String ip) { return nic; }
@@ -157,4 +161,17 @@ public class StorageServiceSmbEndpointTest {
         assertEquals(1445, intent.get("port").getAsInt()); assertTrue(intent.has("endpointid")); assertTrue(intent.has("listenip"));
         StorageServiceConfigurationPreflight.parseIntent(intent.toString());
     }
+
+    @Test public void sourceRestrictionBlocksWildcardEndpointDuringPreflightAndPreservesLegacyAnySource() {
+        Harness h=new Harness();
+        h.sourceShares.add(new StorageFileShareVO(8,StorageServiceInstance.Protocol.SMB,"restricted","/export/restricted",77L,"xfs",null,
+                StorageServiceInstance.ResourceState.Ready,"{\"clientAccess\":{\"version\":1,\"cidrs\":[\"10.0.0.1/32\"]}}"));
+        JsonObject intent=new JsonObject();intent.addProperty("api","enableStorageServiceProtocol");intent.addProperty("listenip","0.0.0.0");intent.addProperty("port",445);
+        try {h.validateSmbEndpointIntent(h.instance,intent);fail("restricted share allowed wildcard");}
+        catch(InvalidParameterValueException expected) {assertEquals("SMB_CLIENT_ACCESS_LISTENER_FAMILY_UNSUPPORTED",expected.getMessage());}
+        assertTrue(h.rows.isEmpty());
+        intent.addProperty("listenip","192.0.2.10");h.validateSmbEndpointIntent(h.instance,intent);assertTrue(h.rows.isEmpty());
+        h.sourceShares.clear();intent.addProperty("listenip","0.0.0.0");h.validateSmbEndpointIntent(h.instance,intent);assertTrue(h.rows.isEmpty());
+    }
+
 }

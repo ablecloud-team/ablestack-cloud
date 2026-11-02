@@ -37,7 +37,9 @@ public class StorageServiceConfigurationPreflightResponse extends BaseResponse {
     @SerializedName("inheritancepreview") @Param(description="Observed parent and future SMB object ownership policy") private JsonObject inheritancepreview;
     @SerializedName("creationpreview") @Param(description="SMB new-object mode policy and reload impact") private JsonObject creationpreview;
     @SerializedName("fileidentitypreview") @Param(description="Fixed file identity, POSIX readiness and publication state") private JsonObject fileidentitypreview;
+    @SerializedName("clientaccesspreview") @Param(description="Share client source policy and owned listener observation") private JsonObject clientaccesspreview;
     public StorageServiceConfigurationPreflightResponse(JsonObject report) {
+        clientaccesspreview=report.has("clientaccesspreview")?report.getAsJsonObject("clientaccesspreview"):null;
         fileidentitypreview=report.has("fileidentitypreview")?report.getAsJsonObject("fileidentitypreview"):null;
         pathpreview=report.has("pathpreview")?report.getAsJsonObject("pathpreview"):null;
         creationpreview=report.has("creationpreview")?report.getAsJsonObject("creationpreview"):null;

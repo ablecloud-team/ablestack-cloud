@@ -1044,13 +1044,19 @@ class RuntimeAdapter:
         self.child_path = self.private / "runner.json"
 
     def preflight(self, payload):
-        if payload.get("onlineSmbOptions") is True and not self.smb_options_only(payload):
+        if payload.get("onlineSmbOptions") is True and payload.get("onlineSmbClientAccess") is True:
+            raise Rejected("SMB_CLIENT_ACCESS_INVALID_INTENT")
+        if (payload.get("onlineSmbOptions") is True or payload.get("onlineSmbClientAccess") is True) and not self.smb_options_only(payload):
             raise Rejected("INVALID_SMB_OPTIONS_INTENT")
         if payload.get("vmUuid"):
             observed = Path("/sys/class/dmi/id/product_uuid").read_text().strip().lower()
             if observed != token(payload["vmUuid"]):
                 raise Rejected("VM_IDENTITY_MISMATCH")
         for operation, value in payload["candidate"].items():
+            if operation == "smb share apply":
+                from smb_client_access import validate_payload
+                current = load(Path("/etc/ablestack-storage/desired-state/smb-share-apply.json"), {}) if value.get("listenerOnly") else {}
+                validate_payload({**value, "shares":value.get("shares", current.get("shares", []))})
             if operation not in OPERATIONS or not isinstance(value, dict):
                 raise Rejected("UNSUPPORTED_OPERATION")
             if value.get("instanceUuid") not in (None, payload["instanceUuid"]):
@@ -1074,7 +1080,7 @@ class RuntimeAdapter:
                 blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
                 raise Rejected(blocked)
         if self.smb_options_only(payload):
-            self.smb_options_engine().snapshot(payload)
+            self.smb_options_engine(payload).snapshot(payload)
         if self.directory_only(payload):
             from shared_directory_policy import DirectoryPolicies
             DirectoryPolicies().prepare(payload["candidate"]["directory policy apply"])
@@ -1103,11 +1109,15 @@ class RuntimeAdapter:
     @staticmethod
     def smb_options_only(payload):
 
-        return (payload or {}).get("onlineSmbOptions") is True and set((payload or {}).get("candidate", {})) == {"smb share apply"}
+        return ((payload or {}).get("onlineSmbOptions") is True or (payload or {}).get("onlineSmbClientAccess") is True) and set((payload or {}).get("candidate", {})) == {"smb share apply"}
 
-    def smb_options_engine(self):
+    def smb_options_engine(self, payload=None):
         from shared_directory_policy import SmbCreationPolicies
-        engine = SmbCreationPolicies()
+        if (payload if payload is not None else load(self.payload_path, {})).get("onlineSmbClientAccess") is True:
+            from smb_client_access import SmbClientAccessPolicies
+            engine = SmbClientAccessPolicies()
+        else:
+            engine = SmbCreationPolicies()
         engine.progress = lambda value: atomic_json(self.private / "smb-options-progress.json", value)
         return engine
 
@@ -1271,7 +1281,7 @@ class RuntimeAdapter:
 
     def snapshot(self, payload):
         if self.smb_options_only(payload):
-            atomic_json(self.snapshot_path, {"smbOptions": self.smb_options_engine().snapshot(payload)})
+            atomic_json(self.snapshot_path, {"smbOptions": self.smb_options_engine(payload).snapshot(payload)})
             return
         if self.directory_only(payload):
             from shared_directory_policy import DirectoryPolicies
@@ -1534,6 +1544,8 @@ class RuntimeAdapter:
             self.smb_options_engine().verify(self.smb_options_snapshot())
             from smb_file_identity import FixedIdentities
             FixedIdentities().verify(commands["smb share apply"])
+            from smb_client_access import verify_payload
+            verify_payload(commands["smb share apply"])
             return
         if self.directory_only({"candidate":commands}):
             from shared_directory_policy import DirectoryPolicies
@@ -1561,6 +1573,8 @@ class RuntimeAdapter:
         if "smb share apply" in commands:
             from smb_file_identity import FixedIdentities
             FixedIdentities().verify(commands["smb share apply"])
+            from smb_client_access import verify_payload
+            verify_payload(commands["smb share apply"])
         for operation, value in commands.items():
             if not value.get("enabled", True):
                 continue
@@ -2312,7 +2326,8 @@ def main(argv):
             inheritance_version=inheritance_protection=ad_domain_protection=0
         except TypeError:
             ad_domain_protection=0
-        print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
+        from smb_client_access import protected as client_access_protected
+        print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1, "smbClientAccessPolicyVersion": 1, "smbClientAccessPolicyProtectionVersion": int(client_access_protected()), "smbClientAccessAddressFamilies": ["IPv4"],
                           "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
                           "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbFileIdentityVersion": 1, "smbFileIdentityProtectionVersion": int(__import__("smb_file_identity").protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0

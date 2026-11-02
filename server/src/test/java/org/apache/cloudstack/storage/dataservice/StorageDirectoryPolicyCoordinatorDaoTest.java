@@ -441,4 +441,29 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         assertEquals(result,coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,String.class,
                 ()->{throw new AssertionError("duplicate fixed policy");},plan::set,()->{},null));
     }
+
+    @Test public void clientSourcePolicyActualCoordinatorDaoRoundtripPreservesLargeExistingConfiguration() throws Exception {
+        String original="{\"keep\":\""+ "보존".repeat(2400)+"\",\"fileIdentity\":{\"version\":1,\"mode\":\"FIXED\",\"uid\":7001,\"gid\":7002},\"directoryMode\":\"0770\"}";
+        var row=shares.persist(new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.SMB,
+                "source-policy","/export/source-policy",77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,original));
+        final long id=row.getId();
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd();
+        field(cmd,cmd.getClass(),"id",id);field(cmd,cmd.getClass(),"clientCidrs","[\"10.10.254.224\",\"10.10.13.22/24\"]");
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        String expected=StorageSmbClientAccessPolicy.merge(original,StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd)));
+        String result=coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,String.class,()->{
+            var staged=plan.get().dao(StorageFileShareDao.class).findById(id);
+            staged.setConfigJson(StorageSmbClientAccessPolicy.merge(staged.getConfigJson(),StorageSmbClientAccessPolicy.fields(StorageServiceConfigurationCoordinator.publicRequest(cmd))));
+            plan.get().dao(StorageFileShareDao.class).update(id,staged);return staged.getUuid();
+        },plan::set,()->{},null);
+        assertEquals(expected,shares.findById(id).getConfigJson());
+        var saved=com.google.gson.JsonParser.parseString(shares.findById(id).getConfigJson()).getAsJsonObject();
+        assertEquals(7001,saved.getAsJsonObject("fileIdentity").get("uid").getAsInt());
+        assertEquals("0770",saved.get("directoryMode").getAsString());
+        assertEquals("COMMITTED",operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()).getState());
+        assertEquals(result,coordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.SMB,String.class,
+                ()->{throw new AssertionError("duplicate source policy");},plan::set,()->{},null));
+        assertEquals(1,operations.listByInstance(instance.getId()).size());
+    }
+
 }

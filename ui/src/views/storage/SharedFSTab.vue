@@ -503,7 +503,11 @@
                         <template #icon><EditOutlined /></template>
                         {{ $t('label.edit') }}
                       </a-button>
-                      <a-button size="small" @click="openSmbCreationPolicy(record)">
+                      <a-button size="small" :disabled="!!configurationProtected" @click="openSmbClientAccess(record)">
+                         <template #icon><SafetyCertificateOutlined /></template>
+                         {{ $t('label.storage.client.policy') }}
+                       </a-button>
+                       <a-button size="small" @click="openSmbCreationPolicy(record)">
                         <template #icon><SafetyCertificateOutlined /></template>
                         {{ $t('label.storage.creation.settings') }}
                       </a-button>
@@ -1348,6 +1352,19 @@ key="configurationoperations">
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis"><events-tab :resource="resource" resourceType="SharedFS" :loading="loading" /></a-tab-pane>
     </a-tabs>
 
+    <SmbClientAccessDialog
+      v-if="smbClientAccessRow && storageService.instance"
+      :key="smbClientAccessRow.id"
+      :row="smbClientAccessRow"
+      :instance="storageService.instance"
+      :guarded="!!configurationProtected"
+      :operation="configurationDisplayOperation"
+      :execute="executeSmbClientAccess"
+      @close="smbClientAccessRow=null"
+      @done="smbClientAccessRow=null"
+      @refresh="refreshConfigurationOperation"
+      @resume="resumeConfigurationOperation" />
+
     <SmbCreationPolicyDialog
       v-if="smbCreationRow && storageService.instance"
       :key="smbCreationRow.id"
@@ -1970,6 +1987,7 @@ class="storage-service-inline-alert"
             <a-checkbox v-model:checked="forms.smbShare.browseable">{{ $t('label.storage.service.browseable') }}</a-checkbox>
             <a-checkbox v-model:checked="forms.smbShare.guestok">{{ $t('label.storage.service.guest.access') }}</a-checkbox>
           </a-space>
+          <SmbClientAccessFields v-if="isModal('smbShare')" v-model:value="forms.smbShare.clientaccess" :disabled="actionModal.loading || configurationProtected" />
           <SmbFileIdentityFields v-model:value="forms.smbShare.fileidentity" :disabled="actionModal.loading || configurationProtected" :inherit-owner="forms.smbShare.inheritowner" :guest-ok="forms.smbShare.guestok" :preview="configurationPreflight?.fileidentitypreview" />
         <SmbParentInheritanceFields v-model:value="forms.smbShare.inheritowner" :policy="selectedDirectoryPolicy('smbShare')" :report="configurationPreflight" :guarded="actionModal.loading || configurationProtected || configurationPreflightLoading" @manage="viewDirectoryPolicy" />
         </div>
@@ -2415,6 +2433,9 @@ import { smbSharePolicyParameters } from '@/utils/smbShareParameters'
 import SmbFileIdentityFields from '@/components/storage/SmbFileIdentityFields'
 import { smbFileIdentity, validateIdentity } from '@/utils/smbFileIdentity'
 import SmbCreationPolicyDialog from '@/components/storage/SmbCreationPolicyDialog'
+import SmbClientAccessDialog from '@/components/storage/SmbClientAccessDialog'
+import SmbClientAccessFields from '@/components/storage/SmbClientAccessFields'
+import { smbClientSources } from '@/utils/smbClientAccess'
 import { smbCreationModes, smbSimpleOptionPatch } from '@/utils/smbCreationPolicy'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
@@ -2638,6 +2659,8 @@ export default {
     NfsLocalProbeNotice,
     SmbParentInheritanceFields,
     SmbCreationPolicyDialog,
+    SmbClientAccessDialog,
+    SmbClientAccessFields,
     SmbFileIdentityFields,
     AdDomainProgressPanel,
     MoldDialogActions,
@@ -2737,6 +2760,7 @@ export default {
       nfsPosixObserved: { status: 'UNAVAILABLE' },
       nfsAclMappingBaseline: {},
       smbCreationRow: null,
+      smbClientAccessRow: null,
       configurationPreflight: null,
       configurationPreflightLoading: false,
       configurationPreflightRead: 0,
@@ -2843,6 +2867,7 @@ export default {
           crossprotocol: false,
           directorymode: '0770',
           fileidentity: { mode: 'AUTHENTICATED', uid: null, gid: null },
+          clientaccess: { mode: 'ANY_SOURCE', input: '', confirmed: false },
           inheritowner: false,
           inheritownerbaseline: false
         },
@@ -3920,6 +3945,8 @@ export default {
     smbShareColumns () {
       return [
         { title: this.$t('label.storage.service.smb.share.name'), dataIndex: 'name', key: 'name', fixed: 'left', width: 190, code: true },
+        { title: this.$t('label.storage.client.source'), dataIndex: 'clientSources', key: 'clientSources', width: 240 },
+        { title: this.$t('label.storage.client.observation'), dataIndex: 'clientAccessStatus', key: 'clientAccessStatus', width: 180 },
         { title: this.$t('label.storage.creation.summary'), dataIndex: 'creationMasks', key: 'creationMasks', width: 180, code: true },
         { title: this.$t('label.storage.inheritance.new.uid'), dataIndex: 'inheritOwner', key: 'inheritOwner', width: 150 },
         { title: this.$t('label.storage.inheritance.group'), dataIndex: 'inheritGroup', key: 'inheritGroup', width: 160 },
@@ -4121,6 +4148,8 @@ export default {
           name,
           clientPath: this.smbClientPathForShare(name),
           creationMasks: this.smbCreationSummary(config),
+          clientSources: this.smbClientSourceSummary(share.config || config),
+          clientAccessStatus: this.$t('label.storage.client.' + (share.clientaccess?.status || 'UNKNOWN')),
           inheritOwner: config.fileIdentity?.mode === 'FIXED' ? this.$t('label.storage.file.identity.fixed') + ' ' + config.fileIdentity.uid + ':' + config.fileIdentity.gid : this.$t(config.inheritOwner === true ? 'label.storage.inheritance.parent.uid' : 'label.storage.inheritance.creator.uid'),
           inheritGroup: config.fileIdentity?.mode === 'FIXED' ? String(config.fileIdentity.gid) : this.$t(group === null ? 'label.unknown' : group ? 'label.storage.inheritance.enabled' : 'label.storage.inheritance.disabled'),
           fileIdentityObserved: config.fileIdentity?.mode === 'FIXED' ? (fileIdentityObserved?.observeduid != null && fileIdentityObserved?.observedgid != null ? fileIdentityObserved.observeduid + ':' + fileIdentityObserved.observedgid : this.$t('label.unknown')) : '-',
@@ -4862,7 +4891,7 @@ export default {
   },
   watch: {
 
-    'resource.id' () { this.smbCreationRow = null },
+    'resource.id' () { this.smbCreationRow = null; this.smbClientAccessRow = null },
     forms: {
       deep: true,
       handler () {
@@ -5758,6 +5787,19 @@ export default {
     smbCreationSummary (config) {
       try { const m = smbCreationModes(config); return m.createMask + ' / ' + m.directoryMask } catch { return '?' }
     },
+    smbClientSourceSummary (config) {
+      try { const sources = smbClientSources(config); return sources.length ? sources.join(', ') : this.$t('label.storage.client.any') } catch { return this.$t('label.unknown') }
+    },
+    async openSmbClientAccess (record) {
+      this.smbClientAccessRow = record.raw || record
+      await this.refreshConfigurationProtection(true)
+    },
+    async executeSmbClientAccess (api, params, report) {
+      if (!this.storageService.instance || this.configurationProtected) return
+      if (terminalConfigurationState(this.configurationOperation?.state)) this.configurationRequest = null
+      this.configurationAcceptedPreflight = { ...report, scope: this.storageReadScope, instanceid: this.storageService.instance.id }
+      return this.runConfigurationAction('smbClientAccess', api, params)
+    },
     async openSmbCreationPolicy (record) {
       this.smbCreationRow = record.raw || record
       await this.refreshConfigurationProtection(true)
@@ -6119,7 +6161,7 @@ export default {
           await this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport')
           await this.fetchAccessRules()
           await this.fetchBackingVolumes()
-        } else if (['smbCreation', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
+        } else if (['smbClientAccess', 'smbCreation', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl', 'adJoin', 'adRejoin', 'adLeave'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageServiceDomainStatus', 'domains', 'storageidentitydomain'),
             this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare')
@@ -7749,6 +7791,7 @@ export default {
         crossprotocol: false,
         directorymode: '0770',
         fileidentity: { mode: 'AUTHENTICATED', uid: null, gid: null },
+        clientaccess: { mode: 'ANY_SOURCE', input: '', confirmed: false },
         inheritowner: false,
         inheritownerbaseline: false
       })

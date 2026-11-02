@@ -90,9 +90,13 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid","smbclientaccess"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
+            if(value.has("smbclientaccess")) {
+                if(!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()))throw new IllegalArgumentException();
+                StorageSmbClientAccessPolicy.validatePatch(value.getAsJsonObject("smbclientaccess"));
+            }
             if(value.has("smbfileidentity")) {
                 if(!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()))throw new IllegalArgumentException();
                 StorageSmbFileIdentity.validatePatch(value.getAsJsonObject("smbfileidentity"));
@@ -136,7 +140,10 @@ final class StorageServiceConfigurationPreflight {
             if (value.has("smbfullapply") && (!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()) || !value.get("smbfullapply").isJsonPrimitive() || !value.getAsJsonPrimitive("smbfullapply").isBoolean())) throw new IllegalArgumentException();
             if (value.has("smbcreation") || value.has("smboptions")) StorageSmbCreationPolicy.validateIntent(value);
             return value;
-        } catch (RuntimeException error) { throw new InvalidParameterValueException("Invalid public configuration intent"); }
+        } catch (RuntimeException error) {
+            if(error instanceof InvalidParameterValueException && error.getMessage().startsWith(StorageSmbClientAccessPolicy.PREFIX))throw error;
+            throw new InvalidParameterValueException("Invalid public configuration intent");
+        }
     }
     static JsonObject commandIntent(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd cmd) {
         JsonObject value=new JsonObject(); value.addProperty("api",api(cmd.getClass().getSimpleName()));
@@ -164,6 +171,8 @@ final class StorageServiceConfigurationPreflight {
             value.add("smbinheritance",inheritance);
         }
         if (StorageSmbParentInheritance.shareApi(value.get("api").getAsString())) {
+            JsonObject clientAccess=StorageSmbClientAccessPolicy.fields(request);
+            if(clientAccess.size()>0)value.add("smbclientaccess",clientAccess);
             JsonObject fileIdentity=StorageSmbFileIdentity.fields(request);
             if(fileIdentity.size()>0)value.add("smbfileidentity",fileIdentity);
             if(request.get("guestok")!=null)value.add("guestok",new Gson().toJsonTree(request.get("guestok")));
@@ -176,7 +185,7 @@ final class StorageServiceConfigurationPreflight {
             if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageSmbShareCmd) {
                 JsonObject options = StorageSmbCreationPolicy.options(request);
                 if (options.size()>0) value.add("smboptions",options);
-                if (!StorageSmbCreationPolicy.optionsOnly(cmd)) value.addProperty("smbfullapply",true);
+                if (!StorageSmbClientAccessPolicy.only(cmd) && !StorageSmbCreationPolicy.optionsOnly(cmd)) value.addProperty("smbfullapply",true);
             }
         }
         for(String key:Arrays.asList("relativepath","createdirectory","directorypolicyid"))
@@ -329,6 +338,7 @@ final class StorageServiceConfigurationPreflight {
                     identityPath.getAsJsonObject("pathtarget").getAsJsonObject("config").add("directoryPolicyUuid",inherited.get("directoryPolicyUuid"));
             }
             StorageSmbFileIdentity.query(selectedFile,intent,identityPath,hasAcl).entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
+            StorageSmbClientAccessPolicy.query(selectedFile,intent,hasAcl && smbEnabled).entrySet().forEach(e->query.add(e.getKey(),e.getValue()));
             if(!smbEnabled && query.has("fileidentitytarget")) {
                 query.getAsJsonObject("fileidentitytarget").addProperty("publicationRequired",false);
                 query.getAsJsonObject("fileidentitytarget").addProperty("verifyCurrent",false);
@@ -352,6 +362,7 @@ final class StorageServiceConfigurationPreflight {
             });
             identityDigest = "\nNFS_IDENTITY:" + StorageNfsIdentityMapping.valid(intent.get("idmappingmode").getAsString()) + ":" + vector;
         }
+        if(query.has("smbclientaccess"))identityDigest += "\nSMB_CLIENT_ACCESS:"+query.get("smbclientaccess");
         query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
                 (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest + (query.has("smbcreation") ? "\nSMB_CREATION:"+query.get("smbcreation") : "") + (query.has("smbinheritance") ? "\\nSMB_INHERITANCE:"+query.get("smbinheritance") : "")));
         query.addProperty("ackrequired",(protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB) && (!refs.isEmpty() || query.has("posixchanges") && query.getAsJsonObject("posixchanges").size()>0));
@@ -372,6 +383,7 @@ final class StorageServiceConfigurationPreflight {
                 if (smbEndpoint && (!capability.has("smbListenerProfilesVersion") || capability.get("smbListenerProfilesVersion").getAsInt()!=1))
                     throw new CloudRuntimeException("SMB_LISTENER_CAPABILITY_REQUIRED");
                 if(query.has("fileidentitytarget")) StorageSmbFileIdentity.requireCapability(capability);
+                if(query.has("smbclientaccesstarget") || protocol==StorageServiceInstance.Protocol.SMB && fs.stream().anyMatch(row->StorageSmbClientAccessPolicy.restricted(StorageDirectoryPolicies.parsed(row.getConfigJson()))))StorageSmbClientAccessPolicy.requireCapability(capability);
                 if(query.has("pathtarget")) StorageFileSharePaths.requireCapability(capability);
                 if (query.has("smbcreation")) {
                     if (!capability.has("smbCreationPolicyVersion") || capability.get("smbCreationPolicyVersion").getAsInt()!=1)

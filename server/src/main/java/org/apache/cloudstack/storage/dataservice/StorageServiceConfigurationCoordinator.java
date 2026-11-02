@@ -134,6 +134,9 @@ final class StorageServiceConfigurationCoordinator {
                     StorageSmbFileIdentity.requireCapability(capability);
                 StorageNfsPosix.requireDeferredCapability(cmd, capability);
                 StorageSmbCreationPolicy.requireCapability(cmd, capability);
+                if(StorageSmbClientAccessPolicy.fields(publicRequest(cmd)).size()>0 || protocol==StorageServiceInstance.Protocol.SMB &&
+                        StorageFileSharePaths.all(instance.getId(),shares).stream().anyMatch(r->StorageSmbClientAccessPolicy.restricted(StorageDirectoryPolicies.parsed(r.getConfigJson()))))
+                    StorageSmbClientAccessPolicy.requireCapability(capability);
                 if((protocol==StorageServiceInstance.Protocol.NFS || protocol==StorageServiceInstance.Protocol.SMB)
                         && (publicRequest(cmd).get("relativepath")!=null || StorageFileSharePaths.all(instance.getId(),shares).stream().anyMatch(r->StorageFileSharePaths.bound(StorageFileSharePaths.config(r.getConfigJson())))))
                     StorageFileSharePaths.requireCapability(capability);
@@ -176,6 +179,7 @@ final class StorageServiceConfigurationCoordinator {
             JsonObject snapshot = new JsonObject();
             snapshot.add("tables", JsonParser.parseString(plan.snapshot()));
             snapshot.addProperty("onlineSmbOptions",StorageSmbCreationPolicy.optionsOnly(cmd));
+            snapshot.addProperty("onlineSmbClientAccess",StorageSmbClientAccessPolicy.only(cmd));
             snapshot.add("response", JSON.toJsonTree(response, responseType));
             snapshot.add("publicRequest", JSON.toJsonTree(publicRequest(cmd)));
             snapshot.add("networkChanges", JSON.toJsonTree(plan.networkChanges));
@@ -188,13 +192,14 @@ final class StorageServiceConfigurationCoordinator {
             if (vmUuid != null) payload.addProperty("vmUuid", vmUuid);
             payload.add("before", beforeCommands); payload.add("candidate", commandJson(plan.commands));
             if (StorageSmbCreationPolicy.optionsOnly(cmd)) payload.addProperty("onlineSmbOptions", true);
+            if (StorageSmbClientAccessPolicy.only(cmd)) payload.addProperty("onlineSmbClientAccess", true);
             if (!StorageDirectoryPolicies.command(cmd) && protocol == StorageServiceInstance.Protocol.NFS && payload.getAsJsonObject("candidate").has("nfs export apply")) {
                 JsonObject nfs = payload.getAsJsonObject("candidate").getAsJsonObject("nfs export apply");
                 nfs.addProperty("configurationOperationId", op.getUuid());
                 nfs.add("posixIntent", StorageNfsPosix.intent(cmd, op, report));
             }
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
-            if (StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget") || admission.has("fileidentitytarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
+            if (StorageSmbClientAccessPolicy.only(cmd) || StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget") || admission.has("fileidentitytarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);

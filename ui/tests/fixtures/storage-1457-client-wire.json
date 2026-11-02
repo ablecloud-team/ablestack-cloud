@@ -1,0 +1,1 @@
+{"updatestoragesmbshareresponse":{"storagesmbshare":{"clientaccess":{"status":"CONFIG_VERIFIED","mode":"RESTRICTED","cidrs":["10.0.0.1/32"],"applyscope":"NEW_CONNECTIONS"},"id":"share","config":"{\"clientAccess\":{\"version\":1,\"cidrs\":[\"10.0.0.1/32\"]}}","jobid":"job"}}}

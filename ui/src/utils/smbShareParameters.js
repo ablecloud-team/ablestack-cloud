@@ -3,11 +3,13 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 import { fileSharePathParameters } from '@/utils/fileSharePaths'
 import { inheritOwnerParameters } from '@/utils/smbParentInheritance'
+import { clientAccessParameters, clientAccessIntent } from '@/utils/smbClientAccess'
 import { smbIdentityParameters } from '@/utils/smbFileIdentity'
 
 // Optional booleans and identity deltas have one contract for preview and submit.
 export function smbSharePolicyParameters (form, edit = false) {
   return {
+    ...(!edit && form.clientaccess ? clientAccessParameters([], form.clientaccess) : {}),
     readonly: form.readonly,
     browseable: form.browseable,
     guestok: form.guestok,
@@ -21,7 +23,7 @@ export function smbSharePolicyParameters (form, edit = false) {
   }
 }
 export function smbSharePolicyIntent (params) {
-  const result = {}; const inheritance = {}; const options = {}; const identity = {}
+  const result = { ...clientAccessIntent(params) }; const inheritance = {}; const options = {}; const identity = {}
   if (params.inheritowner !== undefined) inheritance.inheritOwner = params.inheritowner
   if (params.directorypolicyid !== undefined) inheritance.directoryPolicyId = params.directorypolicyid
   if (Object.keys(inheritance).length) result.smbinheritance = inheritance
