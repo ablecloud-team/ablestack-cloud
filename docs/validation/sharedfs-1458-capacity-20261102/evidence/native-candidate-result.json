@@ -1,0 +1,5 @@
+{
+  "exitcode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 28, in <module>\nAssertionError: {'bootId': 'e92456e6-cce5-4cb8-bab7-d8ffa2961c2d', 'capacitySnapshotVersion': 1, 'observations': [{'filesystems': [], 'mappingStatus': 'UNMAPPED', 'status': 'UNAVAILABLE', 'volumeUuid': 'e070a0aa-dbf5-48c0-83e0-09f874446277'}], 'observedAt': '2026-11-02T13:18:56Z', 'status': 'CURRENT', 'success': True}\n"
+}

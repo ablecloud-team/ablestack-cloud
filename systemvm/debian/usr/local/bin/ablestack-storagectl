@@ -876,6 +876,75 @@ print(json.dumps({
 PY
 }
 
+# Optional SharedFS-only inventory projection. Never mounts, formats, or falls back to a live scan.
+runtime_capacity_inventory() {
+  python3 - "$1" "$MONITOR_CACHE_DIR" <<'PY'
+import json, os, sys, time
+sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
+from volume_identity import resolve_volume_device, VolumeIdentityError, flatten_devices, size_matches
+
+def emit(status, **fields):
+    print(json.dumps(dict(success=True, capacitySnapshotVersion=1, status=status, **fields), sort_keys=True))
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as handle:
+        request = json.load(handle)
+    volumes = request.get("volumes")
+    if request.get("capacityOnly") is not True or not isinstance(volumes, list) or len(volumes) > 1024:
+        raise ValueError("Invalid bounded capacity request")
+    path = os.path.join(sys.argv[2], "capacity.json")
+    if os.path.getsize(path) > 8 * 1024 * 1024:
+        raise ValueError("Capacity cache is too large")
+    with open(path, encoding="utf-8") as handle:
+        cache = json.load(handle)
+except (OSError, ValueError, TypeError):
+    emit("UNAVAILABLE", observations=[])
+    raise SystemExit()
+if cache.get("capacitySnapshotVersion") != 1:
+    emit("UNSUPPORTED", observations=[])
+    raise SystemExit()
+try:
+    generated = float(cache["generatedEpoch"])
+    if generated <= 0 or generated > time.time() + 30:
+        raise ValueError("Invalid cache time")
+    with open("/proc/sys/kernel/random/boot_id", encoding="ascii") as handle:
+        if handle.read().strip() != cache.get("bootId"):
+            raise ValueError("Cache belongs to another boot")
+    status = "STALE" if time.time() - generated > int(cache.get("staleAfterSeconds") or 30) else "CURRENT"
+    devices = cache["blockDevices"]
+    flat = list(flatten_devices(devices))
+    observations = []
+    seen = set()
+    for volume in volumes:
+        uuid = volume.get("uuid")
+        if not isinstance(uuid, str) or not uuid or uuid in seen:
+            raise ValueError("Invalid capacity volume identity")
+        seen.add(uuid)
+        item = {"volumeUuid": uuid, "mappingStatus": "UNMAPPED", "status": "UNAVAILABLE", "filesystems": []}
+        try:
+            device = resolve_volume_device(devices, volume_uuid=uuid,
+                expected_size=int(volume["size"]), allow_blank_size_fallback=False)
+            disk = next((x for x in flat if x.get("path") == device["diskPath"]), None)
+            if disk is None or not size_matches(disk, volume["size"]):
+                item["mappingStatus"] = "SIZE_MISMATCH"
+                status = "TRANSITION"
+            else:
+                item["mappingStatus"] = "EXACT"
+                matches = [fs for fs in cache.get("fileSystems", [])
+                    if fs.get("devicePath") == os.path.realpath(device["devicePath"])
+                    and fs.get("uuid") == device.get("filesystemUuid")]
+                item["filesystems"] = [{key: fs[key] for key in
+                    ("identity", "uuid", "device", "filesystem", "totalBytes", "usedBytes", "availableBytes")} for fs in matches]
+                item["status"] = "CURRENT" if matches else "UNAVAILABLE" if device.get("filesystem") else "UNSUPPORTED"
+        except VolumeIdentityError:
+            pass
+        observations.append(item)
+    emit(status, observedAt=cache.get("generatedAt"), bootId=cache.get("bootId"), observations=observations)
+except (OSError, ValueError, TypeError, KeyError, StopIteration):
+    emit("UNAVAILABLE", observations=[])
+PY
+}
+
 runtime_inventory() {
   emit_cached_runtime "inventory" && return 0
   python3 - <<'PY'
@@ -6980,8 +7049,13 @@ case "$command" in
     runtime_health
     ;;
   inventory)
-    log_command "$command" ""
-    runtime_inventory
+    payload="${2:-}"
+    if [[ -n "$payload" && "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("capacityOnly") is True)' "$payload" 2>/dev/null || true)" == "True" ]]; then
+      runtime_capacity_inventory "$payload"
+    else
+      log_command "$command" ""
+      runtime_inventory
+    fi
     ;;
   sessions)
     payload="${2:-}"

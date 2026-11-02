@@ -187,6 +187,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     VolumeDao volumeDao;
 
     @Inject
+    SharedFSCapacityService capacityService;
+
+    @Inject
     PrimaryDataStoreDao storagePoolDao;
 
     @Inject
@@ -1263,6 +1266,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         if (sharedFSRespons != null) for (SharedFSResponse item : sharedFSRespons)
             item.setCreation(sharedFSDao.findByUuid(item.getId()));
+        capacityService.enrich(sharedFSRespons, result.first(), cmd.isIncludeCapacityDetails());
         response.setResponses(sharedFSRespons, result.second());
         return response;
     }

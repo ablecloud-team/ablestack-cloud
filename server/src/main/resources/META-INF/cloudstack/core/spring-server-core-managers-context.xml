@@ -429,6 +429,8 @@
 
     <bean id="BGPServiceImpl" class="com.cloud.bgp.BGPServiceImpl" />
 
+    <bean id="sharedFSCapacityService" class="org.apache.cloudstack.storage.sharedfs.SharedFSCapacityService" />
+
     <bean id="sharedFSServiceImpl" class="org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl">
         <property name="sharedFSProviders" value="#{sharedFSProvidersRegistry.registered}" />
     </bean>

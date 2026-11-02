@@ -86,98 +86,72 @@ collect_scope() {
 
 collect_capacity() {
   python3 - <<'PY' | write_json capacity
-import json
-import os
-import subprocess
+import json, os, subprocess, math
 
-def run(args):
-    try:
-        return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=8)
-    except Exception as exc:
-        return type("Result", (), {"returncode": 1, "stdout": "", "stderr": str(exc)})()
+def read_json(args):
+    result = subprocess.run(args, capture_output=True, text=True, timeout=8, check=True)
+    return json.loads(result.stdout)
 
-mounts = []
-metadata = {}
-
-def add_target(path, role=None, export_name=None, peer_path=None):
-    if not path or not os.path.exists(path):
-        return
-    metadata.setdefault(path, {})
-    if role:
-        metadata[path]["role"] = role
-    if export_name:
-        metadata[path]["exportName"] = export_name
-    if peer_path:
-        metadata[path]["peerPath"] = peer_path
-
-def flatten_mounts(items):
+def flatten(items):
     for item in items or []:
         yield item
-        for child in flatten_mounts(item.get("children") or []):
-            yield child
+        yield from flatten(item.get("children") or [])
 
-for root in ("/srv/ablestack-storage", "/export"):
-    add_target(root, "root")
-    result = run(["findmnt", "-J", "-R", root])
-    if result.returncode == 0 and result.stdout.strip():
-        try:
-            mounts.extend(flatten_mounts(json.loads(result.stdout).get("filesystems", [])))
-        except Exception:
-            pass
-
-alias_state_path = "/etc/ablestack-storage/nfs-export-aliases.json"
+# One device snapshot and one mount snapshot; no process or statvfs per alias.
+devices = read_json(["lsblk", "-b", "-J", "-o", "NAME,PATH,TYPE,SIZE,SERIAL,WWN,FSTYPE,UUID,MAJ:MIN,PKNAME,MOUNTPOINT"]).get("blockdevices", [])
+mounts = list(flatten(read_json(["findmnt", "-J", "-l", "-o", "TARGET,SOURCE,FSTYPE,UUID,FSROOT,MAJ:MIN"]).get("filesystems", [])))
+metadata = {}
 try:
-    with open(alias_state_path, "r", encoding="utf-8") as alias_fp:
-        aliases = json.load(alias_fp)
-except Exception:
+    with open("/etc/ablestack-storage/nfs-export-aliases.json", encoding="utf-8") as handle:
+        aliases = json.load(handle)
+except (OSError, ValueError):
     aliases = {}
-
 for alias in aliases.values() if isinstance(aliases, dict) else []:
     if not isinstance(alias, dict):
         continue
-    alias_path = alias.get("aliasPath")
-    backing_path = alias.get("backingPath")
-    export_name = alias.get("name")
-    add_target(backing_path, "backing", export_name, alias_path)
-    add_target(alias_path, "alias", export_name, backing_path)
-    for target in (backing_path, alias_path):
-        if not target or not os.path.exists(target):
-            continue
-        result = run(["findmnt", "-J", "--mountpoint", target])
-        if result.returncode == 0 and result.stdout.strip():
-            try:
-                mounts.extend(flatten_mounts(json.loads(result.stdout).get("filesystems", [])))
-            except Exception:
-                pass
+    for path, role, peer in ((alias.get("backingPath"), "backing", alias.get("aliasPath")),
+                              (alias.get("aliasPath"), "alias", alias.get("backingPath"))):
+        if path:
+            metadata[path] = {"role": role, "exportName": alias.get("name"), "peerPath": peer}
 
-usage = []
-seen_targets = set()
+samples, identities, usage = {}, {}, []
 for mount in mounts:
     target = mount.get("target")
-    if not target or target in seen_targets:
+    if not target or mount.get("fstype") not in ("xfs", "ext4"):
         continue
-    seen_targets.add(target)
-    df = run(["df", "-B1", "--output=source,size,used,avail,pcent,target", target])
-    lines = [line for line in df.stdout.splitlines() if line.strip()]
-    if len(lines) >= 2:
-        parts = lines[-1].split()
-        if len(parts) >= 6:
-            item = {
-                "source": parts[0],
-                "sizeBytes": int(parts[1]),
-                "usedBytes": int(parts[2]),
-                "availableBytes": int(parts[3]),
-                "usedPercent": parts[4],
-                "target": parts[5],
-            }
+    try:
+        info = os.stat(target)
+        identity = str(mount.get("uuid") or "") + ":" + str(info.st_dev)
+        if not mount.get("uuid"):
+            continue  # No guessed identity or alias total.
+        if identity not in samples:
+            fs = os.statvfs(target)
+            total = fs.f_blocks * fs.f_frsize
+            used = (fs.f_blocks - fs.f_bfree) * fs.f_frsize
+            available = fs.f_bavail * fs.f_frsize
+            source = str(mount.get("source") or "").split("[", 1)[0]
+            samples[identity] = {"identity": identity, "uuid": mount["uuid"], "device": info.st_dev,
+                "devicePath": os.path.realpath(source), "filesystem": mount["fstype"],
+                "totalBytes": total, "usedBytes": used, "availableBytes": available, "mounts": []}
+        sample = samples[identity]
+        sample["mounts"].append({"target": target, "fsroot": mount.get("fsroot"), "inode": info.st_ino})
+        identities[target] = identity
+        if any(target == root or target.startswith(root + "/") for root in ("/srv/ablestack-storage", "/export")):
+            percent = math.ceil(100 * sample["usedBytes"] / max(1, sample["usedBytes"] + sample["availableBytes"]))
+            item = {"source": str(mount.get("source") or "").split("[", 1)[0],
+                "runtimeSource": mount.get("source"), "sizeBytes": sample["totalBytes"], "usedBytes": sample["usedBytes"],
+                "availableBytes": sample["availableBytes"], "usedPercent": str(percent) + "%",
+                "target": target, "filesystem": mount["fstype"]}
             item.update(metadata.get(target, {}))
-            if mount.get("source"):
-                item["runtimeSource"] = mount.get("source")
-            if mount.get("fstype"):
-                item["filesystem"] = mount.get("fstype")
             usage.append(item)
-
-print(json.dumps({"success": True, "status": "ok", "capacity": usage, "count": len(usage)}, sort_keys=True))
+    except OSError:
+        # A disappearing mount is an unobserved filesystem, never fabricated zero.
+        continue
+with open("/proc/sys/kernel/random/boot_id", encoding="ascii") as handle:
+    boot_id = handle.read().strip()
+print(json.dumps({"success": True, "status": "ok", "capacity": usage, "count": len(usage),
+    "capacitySnapshotVersion": 1, "bootId": boot_id, "blockDevices": devices,
+    "fileSystems": list(samples.values())}, sort_keys=True))
 PY
 }
 

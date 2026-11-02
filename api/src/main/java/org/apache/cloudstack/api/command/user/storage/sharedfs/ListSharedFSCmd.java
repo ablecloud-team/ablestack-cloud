@@ -57,6 +57,10 @@ public class ListSharedFSCmd extends BaseListRetrieveOnlyResourceCountCmd implem
     @Parameter(name = ApiConstants.ID, type = CommandType.UUID, entityType = SharedFSResponse.class, description = "the ID of the shared filesystem")
     private Long id;
 
+    @Parameter(name = "includecapacitydetails", type = CommandType.BOOLEAN, description = "Include backing DATA capacity details for a single SharedFS id")
+    private Boolean includeCapacityDetails;
+    public boolean isIncludeCapacityDetails() { return Boolean.TRUE.equals(includeCapacityDetails); }
+
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "the name of the shared filesystem")
     private String name;
 
@@ -110,6 +114,9 @@ public class ListSharedFSCmd extends BaseListRetrieveOnlyResourceCountCmd implem
 
     @Override
     public void execute() {
+        if (isIncludeCapacityDetails() && id == null) {
+            throw new com.cloud.exception.InvalidParameterValueException("includecapacitydetails requires a single SharedFS id");
+        }
         ListResponse<SharedFSResponse> response = sharedFSService.searchForSharedFS(getResponseView(), this);
         response.setResponseName(getCommandName());
         setResponseObject(response);

@@ -1,0 +1,52 @@
+{
+  "success": true,
+  "diagnosisOnly": true,
+  "device": {
+    "path": "/dev/sdb",
+    "serial": "e070a0aadbf548c083e0",
+    "fstype": "xfs",
+    "uuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+    "mountpoint": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+    "size": 10737418240
+  },
+  "withMountpointAndNoSource": {
+    "result": "REJECTED",
+    "error": "Unable to identify the exact attached Storage Service volume device for e070a0aa-dbf5-48c0-83e0-09f874446277"
+  },
+  "withActualSource": {
+    "result": "RESOLVED",
+    "device": {
+      "devicePath": "/dev/sdb",
+      "diskPath": "/dev/sdb",
+      "diskName": "sdb",
+      "filesystem": "xfs",
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "serial": "e070a0aadbf548c083e0",
+      "matchedBy": "VOLUME_SERIAL"
+    }
+  },
+  "wrongIdentity": {
+    "result": "REJECTED",
+    "error": "Mounted source does not match the expected ABLESTACK volume identity: /dev/sdb"
+  },
+  "withoutMountpointField": {
+    "result": "RESOLVED",
+    "device": {
+      "devicePath": "/dev/sdb",
+      "diskPath": "/dev/sdb",
+      "diskName": "sdb",
+      "filesystem": "xfs",
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "serial": "e070a0aadbf548c083e0",
+      "matchedBy": "VOLUME_SERIAL"
+    }
+  },
+  "rootBlocked": {
+    "result": "REJECTED",
+    "error": "Unable to identify the exact attached Storage Service volume device for 42dcf2e2c14f448aa886"
+  },
+  "activeHashes": {
+    "/opt/ablestack/storage-runtime/current/ablestack-storagectl": "3854f98631ad075698e67c0068c3ca5ca002f4ffe2038342a26e6159b8718995",
+    "/opt/ablestack/storage-runtime/current/ablestack-storage-monitor": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+  }
+}

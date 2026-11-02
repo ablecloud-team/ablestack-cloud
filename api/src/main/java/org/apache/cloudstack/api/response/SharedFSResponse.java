@@ -77,6 +77,11 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     @Param(description = "ID of the storage pool hosting the data volume")
     private String storagePoolId;
 
+    @SerializedName("capacity")
+    @Param(description = "Unique attached DATA provisioning and observed filesystem usage")
+    private SharedFSCapacityResponse capacity;
+    public void setCapacity(SharedFSCapacityResponse value) { capacity = value; }
+
     @SerializedName(ApiConstants.SIZE)
     @Param(description = "size of the shared filesystem")
     private Long size;
