@@ -1,0 +1,2592 @@
+[
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 0,
+    "capacity": {
+      "version": 1,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "listall": "true"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 10737418240,
+      "volumecount": 1,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 1,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108343296,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:32:28Z",
+      "collectedat": "2026-11-02T17:32:37.181528760Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 32768,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 1
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108310528,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108343296,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:32:28Z",
+      "collectedat": "2026-11-02T17:32:37.181528760Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 32768,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 1
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108310528,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108343296,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:32:28Z",
+      "collectedat": "2026-11-02T17:32:37.181528760Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 32768,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108310528,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:32:28Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:33:44Z",
+      "collectedat": "2026-11-02T17:33:47.195935607Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:33:44Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:33:44Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:33:44Z",
+      "collectedat": "2026-11-02T17:33:47.195935607Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:33:44Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:33:44Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:34:49Z",
+      "collectedat": "2026-11-02T17:34:57.210514487Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:34:49Z",
+      "collectedat": "2026-11-02T17:34:57.210514487Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:34:49Z",
+      "collectedat": "2026-11-02T17:34:57.210514487Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:34:49Z",
+      "collectedat": "2026-11-02T17:34:57.210514487Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:34:49Z",
+      "collectedat": "2026-11-02T17:34:57.210514487Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:34:49Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:36:00Z",
+      "collectedat": "2026-11-02T17:36:07.265318070Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:36:00Z",
+      "collectedat": "2026-11-02T17:36:07.265318070Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:36:00Z",
+      "collectedat": "2026-11-02T17:36:07.265318070Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:36:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108351488,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:37:06Z",
+      "collectedat": "2026-11-02T17:37:17.280298392Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:37:06Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108314624,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:37:06Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:38:27.292102659Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z"
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "STALE",
+      "observedat": "2026-11-02T17:38:00Z",
+      "collectedat": "2026-11-02T17:39:37.308323752Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "STALE",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "STALE",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:38:00Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemcount": 0,
+      "observedvolumecount": 0,
+      "unsupportedvolumecount": 0,
+      "unobservedvolumecount": 3,
+      "usagestatus": "UNAVAILABLE",
+      "reason": "NOT_OBSERVED",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNAVAILABLE",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNAVAILABLE",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNAVAILABLE",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:42:15Z",
+      "collectedat": "2026-11-02T17:42:21.670615082Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:42:15Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:42:15Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:42:15Z",
+      "collectedat": "2026-11-02T17:42:21.670615082Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:42:15Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:42:15Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:43:21Z",
+      "collectedat": "2026-11-02T17:43:31.494348437Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:43:21Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:43:21Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  },
+  {
+    "request": {
+      "listall": "true",
+      "id": "92caf1a7-535c-4cd5-8fb5-6a8e0d514993",
+      "includecapacitydetails": "true",
+      "page": "1",
+      "pagesize": "20"
+    },
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "capacity": {
+      "version": 1,
+      "initialvolumebytes": 10737418240,
+      "provisionedbytes": 18253611008,
+      "volumecount": 3,
+      "provisioningstatus": "CURRENT",
+      "filesystemusedbytes": 108355584,
+      "filesystemtotalbytes": 15866691584,
+      "filesystemcount": 2,
+      "observedvolumecount": 2,
+      "unsupportedvolumecount": 1,
+      "unobservedvolumecount": 0,
+      "usagestatus": "PARTIAL",
+      "observedat": "2026-11-02T17:43:21Z",
+      "collectedat": "2026-11-02T17:43:31.494348437Z",
+      "volumes": [
+        {
+          "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+          "name": "cap1458-file-ext4",
+          "size": 5368709120,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "ext4",
+          "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+          "usedbytes": 36864,
+          "totalbytes": 5196382208,
+          "observedat": "2026-11-02T17:43:21Z",
+          "nfsreferences": 1,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+          "name": "cap1458-raw-attached",
+          "size": 2147483648,
+          "state": "Ready",
+          "hidden": false,
+          "status": "UNSUPPORTED",
+          "nfsreferences": 0,
+          "smbreferences": 0,
+          "blockreferences": 0
+        },
+        {
+          "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+          "name": "sharedfs-DATA-199",
+          "size": 10737418240,
+          "state": "Ready",
+          "hidden": false,
+          "status": "CURRENT",
+          "filesystem": "xfs",
+          "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+          "usedbytes": 108318720,
+          "totalbytes": 10670309376,
+          "observedat": "2026-11-02T17:43:21Z",
+          "nfsreferences": 2,
+          "smbreferences": 1,
+          "blockreferences": 0
+        }
+      ]
+    }
+  }
+]

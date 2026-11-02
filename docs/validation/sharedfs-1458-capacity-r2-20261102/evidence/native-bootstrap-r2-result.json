@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"phases\": [\"BOOTSTRAPPED\", \"BOOTSTRAPPED\", \"BOOTSTRAPPED\"], \"integrityFiles\": 12, \"signatureVerified\": true, \"activeReleaseChanged\": false}\n",
+  "stderr": ""
+}

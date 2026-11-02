@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"sourceCommit\": \"689a1ba47810ab037e8336e786a2bbbb4592c508\", \"previousVersion\": \"1457.sources.1\", \"currentVersion\": \"1458.capacity.1\", \"baseline\": 10, \"managedFiles\": 12, \"nativeAuditReady\": true, \"accountFilesUnchanged\": true, \"serviceConfigurationReapplied\": false, \"rollbackRoot\": \"/var/tmp/epic1458-capacity-before\", \"manifestSha256\": \"7c83fbfe995374932118c9dee346f9c6d052bfc45e4d05bfd669fa4a5d9efd7a\"}\n\n\n",
+  "stderr": ""
+}

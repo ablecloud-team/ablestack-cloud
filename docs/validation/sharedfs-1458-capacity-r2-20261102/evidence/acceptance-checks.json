@@ -1,0 +1,90 @@
+{
+  "checks": {
+    "provisioned17GiB": true,
+    "initial10GiBPreserved": true,
+    "data3fs2unsupported1": true,
+    "uniqueFsStatvfsExact": true,
+    "unreferencedRawIncluded": true,
+    "staleRetainsValueAndTime": true,
+    "unavailableDoesNotInventZero": true,
+    "monitorAutoResumed": true
+  },
+  "apiSnapshotCount": 68,
+  "finalCapacity": {
+    "version": 1,
+    "initialvolumebytes": 10737418240,
+    "provisionedbytes": 18253611008,
+    "volumecount": 3,
+    "provisioningstatus": "CURRENT",
+    "filesystemusedbytes": 108355584,
+    "filesystemtotalbytes": 15866691584,
+    "filesystemcount": 2,
+    "observedvolumecount": 2,
+    "unsupportedvolumecount": 1,
+    "unobservedvolumecount": 0,
+    "usagestatus": "PARTIAL",
+    "observedat": "2026-11-02T17:43:21Z",
+    "collectedat": "2026-11-02T17:43:31.494348437Z",
+    "volumes": [
+      {
+        "id": "8b6d602a-e6b9-494c-9431-e30a34560348",
+        "name": "cap1458-file-ext4",
+        "size": 5368709120,
+        "state": "Ready",
+        "hidden": false,
+        "status": "CURRENT",
+        "filesystem": "ext4",
+        "filesystemuuid": "5c9b863d-b9cc-41ec-a678-3c717334a995",
+        "usedbytes": 36864,
+        "totalbytes": 5196382208,
+        "observedat": "2026-11-02T17:43:21Z",
+        "nfsreferences": 1,
+        "smbreferences": 0,
+        "blockreferences": 0
+      },
+      {
+        "id": "cedb6d3a-3173-4936-8825-7bb9a7ea174a",
+        "name": "cap1458-raw-attached",
+        "size": 2147483648,
+        "state": "Ready",
+        "hidden": false,
+        "status": "UNSUPPORTED",
+        "nfsreferences": 0,
+        "smbreferences": 0,
+        "blockreferences": 0
+      },
+      {
+        "id": "f79e348b-a3db-45c1-bd68-77302df8041f",
+        "name": "sharedfs-DATA-199",
+        "size": 10737418240,
+        "state": "Ready",
+        "hidden": false,
+        "status": "CURRENT",
+        "filesystem": "xfs",
+        "filesystemuuid": "d2f71eb4-45cb-44ef-8893-3b5d032ddb27",
+        "usedbytes": 108318720,
+        "totalbytes": 10670309376,
+        "observedat": "2026-11-02T17:43:21Z",
+        "nfsreferences": 2,
+        "smbreferences": 1,
+        "blockreferences": 0
+      }
+    ]
+  },
+  "actualUniqueFilesystemSamples": [
+    {
+      "path": "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root",
+      "device": 2096,
+      "used": 108318720,
+      "total": 10670309376
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348",
+      "device": 2064,
+      "used": 36864,
+      "total": 5196382208
+    }
+  ],
+  "realLargeInstallationLimit": "UI actual 36 services paginated; 100-service one-batch/no-RPC verified by Java regression, not a production load test",
+  "realHiddenAndDetachedLimit": "real DAO roundtrip regression; no new UI control or background resource preparation"
+}

@@ -1,0 +1,184 @@
+{
+  "monitorService": "active",
+  "checks": {
+    "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root": {
+      "uid": true,
+      "gid": true,
+      "mode": true,
+      "inode": true
+    },
+    "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team": {
+      "uid": true,
+      "gid": true,
+      "mode": true,
+      "inode": true
+    },
+    "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/nfs-seed": {
+      "uid": true,
+      "gid": true,
+      "mode": true,
+      "inode": true,
+      "bytes": true,
+      "sha256": true
+    },
+    "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/smb-seed": {
+      "uid": true,
+      "gid": true,
+      "mode": true,
+      "inode": true,
+      "bytes": true,
+      "sha256": true
+    },
+    "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348/export/cap1458-ext4/ext4-seed": {
+      "uid": true,
+      "gid": true,
+      "mode": true,
+      "inode": true,
+      "bytes": true,
+      "sha256": true
+    }
+  },
+  "directorySizeChangedByIntentionalRestartIo": true,
+  "deviceNumbersMayChangeAfterBoot": true,
+  "before": {
+    "bootId": "41295047-9b50-41d7-bc91-1083ad8bc21a",
+    "runtime": "1458.capacity.1",
+    "metadata": {
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o775",
+        "inode": 8388736,
+        "device": 2064,
+        "bytes": 18
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o2777",
+        "inode": 16908416,
+        "device": 2064,
+        "bytes": 38
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/nfs-seed": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644",
+        "inode": 16908417,
+        "device": 2064,
+        "bytes": 16,
+        "sha256": "09e206cf9e8bdabaf5cf3fd5d2d74492a3235bd60d283bc50307528826dd8cf5"
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/smb-seed": {
+        "uid": 1001,
+        "gid": 65534,
+        "mode": "0o660",
+        "inode": 16908418,
+        "device": 2064,
+        "bytes": 16,
+        "sha256": "ab20afefdba85eefd07a33c8fbe3b2b5e856f11cab15f19f8c06e997cc77c4c4"
+      },
+      "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348/export/cap1458-ext4/ext4-seed": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644",
+        "inode": 131075,
+        "device": 2096,
+        "bytes": 17,
+        "sha256": "24af8b28aec7995362842d5428b5e4c76f0bdc763ec698c515f7d5545630a85b"
+      }
+    },
+    "mount": "{\n   \"filesystems\": [\n      {\n         \"source\": \"/dev/sdb\",\n         \"target\": \"/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f\",\n         \"fstype\": \"xfs\",\n         \"uuid\": \"d2f71eb4-45cb-44ef-8893-3b5d032ddb27\",\n         \"fsroot\": \"/\",\n         \"maj:min\": \"8:16\"\n      }\n   ]\n}\n",
+    "filesystemSamples": [
+      {
+        "path": "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root",
+        "device": 2064,
+        "used": 108314624,
+        "total": 10670309376
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348",
+        "device": 2096,
+        "used": 36864,
+        "total": 5196382208
+      }
+    ],
+    "localUser": [
+      "cap1458",
+      "x",
+      "1001",
+      "1001"
+    ]
+  },
+  "final": {
+    "bootId": "48a27f8d-1be7-4c36-a726-4751bc1afb69",
+    "runtime": "1458.capacity.1",
+    "metadata": {
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o775",
+        "inode": 8388736,
+        "device": 2096,
+        "bytes": 18
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o2777",
+        "inode": 16908416,
+        "device": 2096,
+        "bytes": 56
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/nfs-seed": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644",
+        "inode": 16908417,
+        "device": 2096,
+        "bytes": 16,
+        "sha256": "09e206cf9e8bdabaf5cf3fd5d2d74492a3235bd60d283bc50307528826dd8cf5"
+      },
+      "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team/smb-seed": {
+        "uid": 1001,
+        "gid": 65534,
+        "mode": "0o660",
+        "inode": 16908418,
+        "device": 2096,
+        "bytes": 16,
+        "sha256": "ab20afefdba85eefd07a33c8fbe3b2b5e856f11cab15f19f8c06e997cc77c4c4"
+      },
+      "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348/export/cap1458-ext4/ext4-seed": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644",
+        "inode": 131075,
+        "device": 2064,
+        "bytes": 17,
+        "sha256": "24af8b28aec7995362842d5428b5e4c76f0bdc763ec698c515f7d5545630a85b"
+      }
+    },
+    "mount": "{\n   \"filesystems\": [\n      {\n         \"source\": \"/dev/sdd\",\n         \"target\": \"/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f\",\n         \"fstype\": \"xfs\",\n         \"uuid\": \"d2f71eb4-45cb-44ef-8893-3b5d032ddb27\",\n         \"fsroot\": \"/\",\n         \"maj:min\": \"8:48\"\n      }\n   ]\n}\n",
+    "filesystemSamples": [
+      {
+        "path": "/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root",
+        "device": 2096,
+        "used": 108318720,
+        "total": 10670309376
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/8b6d602a-e6b9-494c-9431-e30a34560348",
+        "device": 2064,
+        "used": 36864,
+        "total": 5196382208
+      }
+    ],
+    "monitorService": "active",
+    "localUser": [
+      "cap1458",
+      "x",
+      "1001",
+      "1001"
+    ]
+  }
+}
