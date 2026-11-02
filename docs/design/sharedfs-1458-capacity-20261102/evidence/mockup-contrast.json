@@ -1,0 +1,63 @@
+{
+  "designOnly": true,
+  "scope": "Rendered mockup samples; not a full application accessibility audit",
+  "theme": "dark",
+  "minimumForOrdinaryText": 4.5,
+  "samples": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgb(240, 243, 246)",
+      "name": "primary",
+      "ratio": 13.35,
+      "text": "104 GiB · 고유 DATA 3개"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgb(197, 204, 212)",
+      "name": "secondary",
+      "ratio": 9.18,
+      "text": "· 관측 완료"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgb(197, 204, 212)",
+      "name": "hint",
+      "ratio": 9.18,
+      "text": "같은 파일시스템의 NFS·SMB 참조와 bind 별칭은 한 번만 집계합니다. raw block 미지원·미관측"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "color": "rgb(105, 177, 255)",
+      "name": "link",
+      "ratio": 6.61,
+      "text": "기본 DATA"
+    },
+    {
+      "background": [
+        67,
+        67,
+        67
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "name": "tag",
+      "ratio": 5.28,
+      "text": "관측 완료"
+    }
+  ]
+}

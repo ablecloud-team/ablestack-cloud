@@ -1,0 +1,47 @@
+{
+  "success": true,
+  "count": 5,
+  "checks": [
+    {
+      "name": "existing empty inventory payload stays on original cached code path",
+      "passed": true
+    },
+    {
+      "name": "optional capacityOnly payload reaches proposed read-only branch through existing inventory argv",
+      "passed": true
+    },
+    {
+      "name": "old runtime safely ignores optional payload and can be detected as unsupported",
+      "passed": true
+    },
+    {
+      "name": "capacity-only read retains stale status without live inventory fallback",
+      "passed": true
+    },
+    {
+      "name": "measured zero stays numeric zero instead of becoming missing or physical usage",
+      "passed": true
+    }
+  ],
+  "wire": {
+    "success": true,
+    "status": "CURRENT",
+    "capacitySnapshotVersion": 1,
+    "observedAt": "design-observation",
+    "bootId": "e92456e6-cce5-4cb8-bab7-d8ffa2961c2d",
+    "observations": [
+      {
+        "volumeUuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+        "mappingStatus": "EXACT",
+        "filesystem": {
+          "uuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "devicePath": "/dev/sdb",
+          "usedBytes": 108703744,
+          "totalBytes": 10670309376
+        }
+      }
+    ]
+  },
+  "productCodeChanged": false,
+  "copiesOnly": true
+}

@@ -1,0 +1,45 @@
+{
+  "sourceChecks": [
+    {
+      "remote": "/opt/ablestack/storage-runtime/current/ablestack-storagectl",
+      "source": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "sha256": "3854f98631ad075698e67c0068c3ca5ca002f4ffe2038342a26e6159b8718995",
+      "matchesDeployed": true
+    },
+    {
+      "remote": "/opt/ablestack/storage-runtime/current/ablestack-storage-monitor",
+      "source": "systemvm/debian/usr/local/bin/ablestack-storage-monitor",
+      "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+      "matchesDeployed": true
+    },
+    {
+      "remote": "/usr/local/lib/ablestack-storage/volume_identity.py",
+      "source": "systemvm/debian/usr/local/lib/ablestack-storage/volume_identity.py",
+      "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "matchesDeployed": true
+    },
+    {
+      "remote": "/usr/local/lib/ablestack-storage/shared_directory_policy.py",
+      "source": "systemvm/debian/usr/local/lib/ablestack-storage/shared_directory_policy.py",
+      "sha256": "9e3ef4816b8d30ba3a236e3c352fa6a823c887762d4e0e67cb8ad5970222f6aa",
+      "matchesDeployed": true
+    }
+  ],
+  "statvfs": {
+    "totalBytes": 10670309376,
+    "usedBytes": 108703744,
+    "availableBytes": 10561605632,
+    "device": 2064,
+    "inode": 128
+  },
+  "device": {
+    "devicePath": "/dev/sdb",
+    "diskPath": "/dev/sdb",
+    "diskName": "sdb",
+    "filesystem": "xfs",
+    "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+    "serial": "e070a0aadbf548c083e0",
+    "matchedBy": "VOLUME_SERIAL"
+  },
+  "legacyCapacityEntryCount": 8
+}
