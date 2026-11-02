@@ -1,0 +1,59 @@
+{
+  "listsharedfilesystemsresponse": {
+    "count": 1,
+    "sharedfs": [
+      {
+        "id": "sharedfs-capacity-wire",
+        "capacity": {
+          "version": 1,
+          "initialvolumebytes": 10737418240,
+          "provisionedbytes": 23622320128,
+          "volumecount": 3,
+          "provisioningstatus": "CURRENT",
+          "filesystemusedbytes": 108703744,
+          "filesystemtotalbytes": 10670309376,
+          "filesystemcount": 1,
+          "observedvolumecount": 1,
+          "unsupportedvolumecount": 1,
+          "unobservedvolumecount": 1,
+          "usagestatus": "PARTIAL",
+          "observedat": "2026-11-02T13:58:11Z",
+          "collectedat": "2026-11-02T13:58:16Z",
+          "volumes": [
+            {
+              "id": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+              "name": "data-1",
+              "size": 10737418240,
+              "state": "Ready",
+              "hidden": true,
+              "status": "CURRENT",
+              "filesystem": "xfs",
+              "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+              "usedbytes": 108703744,
+              "totalbytes": 10670309376,
+              "observedat": "2026-11-02T13:58:11Z"
+            },
+            {
+              "id": "raw",
+              "name": "data-2",
+              "size": 4294967296,
+              "state": "Ready",
+              "hidden": false,
+              "status": "UNSUPPORTED"
+            },
+            {
+              "id": "unreferenced",
+              "name": "data-3",
+              "size": 8589934592,
+              "state": "Ready",
+              "hidden": false,
+              "status": "UNAVAILABLE"
+            }
+          ]
+        },
+        "size": 10737418240,
+        "sizegb": "10.00 GiB"
+      }
+    ]
+  }
+}

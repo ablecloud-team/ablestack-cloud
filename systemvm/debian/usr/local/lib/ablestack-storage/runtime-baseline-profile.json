@@ -9,12 +9,12 @@
     {
       "path": "ablestack-storage-monitor",
       "mode": 493,
-      "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+      "sha256": "bbff97a73cd2e772d30d95d894658a1e454ff1c2d4bef825dfca9a7a60c09f18"
     },
     {
       "path": "ablestack-storagectl",
       "mode": 493,
-      "sha256": "3854f98631ad075698e67c0068c3ca5ca002f4ffe2038342a26e6159b8718995"
+      "sha256": "a3f7fbc71b23a68d7f627369bdb731fefbd73173c5037e8652f324c6c758d9dd"
     },
     {
       "path": "lib/ablestack-storage/configuration_preflight.py",

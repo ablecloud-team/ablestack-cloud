@@ -881,10 +881,46 @@ runtime_capacity_inventory() {
   python3 - "$1" "$MONITOR_CACHE_DIR" <<'PY'
 import json, os, sys, time
 sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
-from volume_identity import resolve_volume_device, VolumeIdentityError, flatten_devices, size_matches
+from volume_identity import resolve_volume_device, VolumeIdentityError, flatten_devices, size_matches, token_matches, compact
 
 def emit(status, **fields):
     print(json.dumps(dict(success=True, capacitySnapshotVersion=1, status=status, **fields), sort_keys=True))
+
+def verified_mount_source(flat, cache, volume_uuid):
+    """A mounted candidate needs an observed source; never erase its mountpoint protection."""
+    sources = set()
+    for fs in cache.get("fileSystems", []):
+        for dev in flat:
+            path = dev.get("path")
+            disk = dev.get("_parentDisk") or dev
+            if not path or os.path.realpath(path) != fs.get("devicePath"):
+                continue
+            if not token_matches(dev.get("serial") or disk.get("serial"), [compact(volume_uuid)]):
+                continue
+            if dev.get("fstype") not in ("xfs", "ext4") or fs.get("filesystem") != dev.get("fstype"):
+                continue
+            if not dev.get("uuid") or fs.get("uuid") != dev.get("uuid"):
+                continue
+            major_minor = str(dev.get("maj:min") or "")
+            parts = major_minor.split(":")
+            if len(parts) != 2 or not all(p.isdigit() for p in parts):
+                continue
+            device = os.makedev(int(parts[0]), int(parts[1]))
+            if fs.get("majorMinor") != major_minor or fs.get("device") != device:
+                continue
+            if fs.get("identity") != str(dev["uuid"]) + ":" + str(device):
+                continue
+            mountpoint = dev.get("mountpoint")
+            if not mountpoint:
+                continue
+            if not any(m.get("target") == mountpoint and str(m.get("fsroot") or "").startswith("/")
+                       and isinstance(m.get("inode"), int) and m["inode"] > 0 for m in fs.get("mounts", [])):
+                continue
+            sources.add(path)
+    if len(sources) > 1:
+        raise VolumeIdentityError("Ambiguous observed mounted DATA source")
+    return next(iter(sources), None)
+
 
 try:
     with open(sys.argv[1], encoding="utf-8") as handle:
@@ -922,7 +958,8 @@ try:
         seen.add(uuid)
         item = {"volumeUuid": uuid, "mappingStatus": "UNMAPPED", "status": "UNAVAILABLE", "filesystems": []}
         try:
-            device = resolve_volume_device(devices, volume_uuid=uuid,
+            source = verified_mount_source(flat, cache, uuid)
+            device = resolve_volume_device(devices, volume_uuid=uuid, mount_source=source,
                 expected_size=int(volume["size"]), allow_blank_size_fallback=False)
             disk = next((x for x in flat if x.get("path") == device["diskPath"]), None)
             if disk is None or not size_matches(disk, volume["size"]):

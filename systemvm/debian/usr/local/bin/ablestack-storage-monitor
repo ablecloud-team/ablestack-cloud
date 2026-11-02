@@ -131,7 +131,8 @@ for mount in mounts:
             available = fs.f_bavail * fs.f_frsize
             source = str(mount.get("source") or "").split("[", 1)[0]
             samples[identity] = {"identity": identity, "uuid": mount["uuid"], "device": info.st_dev,
-                "devicePath": os.path.realpath(source), "filesystem": mount["fstype"],
+                "devicePath": os.path.realpath(source), "majorMinor": str(os.major(info.st_dev)) + ":" + str(os.minor(info.st_dev)),
+                "filesystem": mount["fstype"],
                 "totalBytes": total, "usedBytes": used, "availableBytes": available, "mounts": []}
         sample = samples[identity]
         sample["mounts"].append({"target": target, "fsroot": mount.get("fsroot"), "inode": info.st_ino})

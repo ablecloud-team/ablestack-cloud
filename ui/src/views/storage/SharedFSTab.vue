@@ -42,6 +42,7 @@
       @change="handleChangeTab">
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
+        <SharedFSCapacitySummary :resource="resource" class="storage-service" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -65,6 +66,10 @@
             </dl>
           </template>
         </div>
+      </a-tab-pane>
+
+      <a-tab-pane :tab="$t('label.storage.capacity.tab')" key="capacity">
+        <SharedFSCapacityTab :resource="resource" :loading="loading" @refresh="parentFetchData({ irefresh: true })" />
       </a-tab-pane>
 
       <a-tab-pane v-if="hasDirectoryPolicyApi && storageService.instance" :tab="$t('label.storage.directory.tab')" key="directory">
@@ -2411,6 +2416,8 @@ import { getAPI, postAPI } from '@/api'
 import { mixinDevice } from '@/utils/mixin.js'
 import Status from '@/components/widgets/Status'
 import DetailsTab from '@/components/view/DetailsTab'
+import SharedFSCapacityTab from './SharedFSCapacityTab.vue'
+import SharedFSCapacitySummary from './SharedFSCapacitySummary.vue'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
 import NicsTab from '@/views/network/NicsTab.vue'
@@ -2667,6 +2674,8 @@ export default {
     StorageConfigurationOperationPanel,
     StorageConfigurationPreflightPanel,
     DetailsTab,
+    SharedFSCapacityTab,
+    SharedFSCapacitySummary,
     StatsTab,
     EventsTab,
     NicsTab,

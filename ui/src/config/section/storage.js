@@ -872,7 +872,7 @@ export default {
       permission: ['listSharedFileSystems'],
       resourceType: 'SharedFS',
       columns: () => {
-        const fields = ['name', 'state', 'sizegb']
+        const fields = ['name', 'state', 'capacity']
         const metricsFields = ['diskkbsread', 'diskkbswrite', 'utilization', 'physicalsize']
 
         if (store.getters.metrics) {
@@ -891,7 +891,8 @@ export default {
 
         return fields
       },
-      details: ['id', 'name', 'description', 'state', 'filesystem', 'diskofferingdisplaytext', 'ipaddress', 'sizegb', 'provider', 'protocol', 'provisioningtype', 'utilization', 'diskkbsread', 'diskkbswrite', 'diskioread', 'diskiowrite', 'account', 'domain', 'created'],
+      optionalColumns: ['sizegb'],
+      details: ['id', 'name', 'description', 'state', 'filesystem', 'diskofferingdisplaytext', 'ipaddress', 'provider', 'protocol', 'provisioningtype', 'utilization', 'diskkbsread', 'diskkbswrite', 'diskioread', 'diskiowrite', 'account', 'domain', 'created'],
       tabs: [{
         component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSTab.vue')))
       }],
