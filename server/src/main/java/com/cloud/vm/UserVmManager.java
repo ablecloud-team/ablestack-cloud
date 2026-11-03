@@ -48,6 +48,13 @@ import static com.cloud.user.ResourceLimitService.ResourceLimitHostTags;
  *
  */
 public interface UserVmManager extends UserVmService {
+    boolean isSharedMountPointClonePowerAllowed(long vmId);
+
+    // Called within the VM work queue, before and after the actual power operation.
+    String prepareSharedMountPointClonePower(long vmId, String operation);
+
+    void completeSharedMountPointClonePower(long vmId, String token, String operation, boolean succeeded);
+
     String EnableDynamicallyScaleVmCK = "enable.dynamic.scale.vm";
     String AllowDiskOfferingChangeDuringScaleVmCK = "allow.diskoffering.change.during.scale.vm";
     String AllowUserExpungeRecoverVmCK ="allow.user.expunge.recover.vm";

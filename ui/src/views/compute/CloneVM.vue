@@ -17,6 +17,12 @@
 
 <template>
   <a-spin :spinning="loading">
+    <a-alert
+      v-if="extraConfigDiskAttached"
+      type="warning"
+      show-icon
+      :message="$t('message.clone.extraconfig.disk.blocked')"
+      style="margin-bottom: 16px" />
     <a-form
       class="form-layout"
       layout="vertical"
@@ -51,13 +57,13 @@
         </template>
         <a-switch v-model:checked="form.startvm" />
       </a-form-item>
-      <a-form-item :label="$t('label.deploy.vm.number')" name="vmNumber" ref="vmNumber">
+      <a-form-item :label="$t('label.deploy.vm.number')" name="count" ref="vmNumber">
         <a-input-number :min=1 :max=50 :maxlength="2" v-model:value="form.count" />
       </a-form-item>
 
       <div :span="24" class="action-button">
         <a-button :loading="loading" @click="closeAction">{{ $t('label.cancel') }}</a-button>
-        <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button :loading="loading" :disabled="extraConfigDiskAttached" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
   </a-spin>
@@ -65,6 +71,7 @@
 <script>
 import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
+import { hasExtraConfigDisk } from '@/utils/vmClone'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
@@ -83,6 +90,18 @@ export default {
       loading: false
     }
   },
+  computed: {
+    extraConfigDiskAttached () {
+      return hasExtraConfigDisk(this.resource)
+    }
+  },
+  watch: {
+    'form.count' () {
+      if (this.form.name && this.formRef.value) {
+        this.formRef.value.validateFields(['name']).catch(() => {})
+      }
+    }
+  },
   beforeCreate () {
     this.apiParams = this.$getApiParams('cloneVirtualMachine')
   },
@@ -98,13 +117,29 @@ export default {
         count: 1
       })
       this.rules = reactive({
-        name: [{ required: true, message: `${this.$t('label.required')}` }]
+        name: [
+          { required: true, message: this.$t('label.required') },
+          { validator: this.validateCloneName }
+        ],
+        count: [{ required: true, type: 'integer', min: 1, max: 50, message: this.$t('message.clone.count.invalid') }]
       })
     },
+    async validateCloneName (rule, value) {
+      if (!value) return
+      if (!/^[a-zA-Z]/.test(value) || /[^a-zA-Z0-9-]/.test(value) || value.endsWith('-')) {
+        throw new Error(this.$t('message.clone.name.invalid'))
+      }
+      const count = this.form.count
+      const suffix = Number.isInteger(count) && count > 1 ? `-${count}` : ''
+      if (value.length + suffix.length > 63) {
+        throw new Error(this.$t('message.clone.name.length', { max: 63 - suffix.length }))
+      }
+    },
     handleSubmit (e) {
-      e.preventDefault()
-      if (this.loading) return
+      if (e) e.preventDefault()
+      if (this.loading || this.extraConfigDiskAttached) return
       this.formRef.value.validate().then(() => {
+        if (this.extraConfigDiskAttached) return
         const values = toRaw(this.form)
 
         this.loading = true

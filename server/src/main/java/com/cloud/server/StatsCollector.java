@@ -1450,11 +1450,7 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
         }
 
         final String currentPrimary = nic.getIPv4Address();
-        if (StringUtils.isNotBlank(currentPrimary)) {
-            if (!observed.contains(currentPrimary)) {
-                logger.warn("Observed IPv4 addresses [{}] for NIC [{}] do not contain its persisted primary IPv4 [{}]; preserving the DB identity",
-                        observed, nic.getUuid(), currentPrimary);
-            }
+        if (StringUtils.isNotBlank(currentPrimary) && observed.contains(currentPrimary)) {
             return;
         }
 
@@ -1471,7 +1467,7 @@ public class StatsCollector extends ManagerBase implements ComponentMethodInterc
             return;
         }
         if (!_nicDao.updatePrimaryIpAddress(nic.getId(), primaryCandidates.get(0), currentPrimary)) {
-            logger.warn("NIC [{}] changed while populating its initially empty primary IPv4; skipping stale observation [{}]",
+            logger.warn("NIC [{}] changed while reconciling its primary IPv4; skipping stale observation [{}]",
                     nic.getUuid(), primaryCandidates.get(0));
         }
     }

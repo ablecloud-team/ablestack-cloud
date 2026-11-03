@@ -25,7 +25,7 @@
       :rules="rules"
       v-ctrl-enter="handleSubmit"
       @finish="handleSubmit">
-      <a-alert style="margin-bottom: 5px" type="warning" show-icon>
+      <a-alert v-if="!cloneEditRestricted" style="margin-bottom: 5px" type="warning" show-icon>
         <template #message>
           <span v-html="$t('message.restart.vm.to.update.settings')" />
         </template>
@@ -38,7 +38,7 @@
           v-model:value="form.displayname"
           v-focus="true" />
       </a-form-item>
-      <a-form-item name="ostypeid" ref="ostypeid">
+      <a-form-item v-if="!cloneEditRestricted" name="ostypeid" ref="ostypeid">
         <template #label>
           <tooltip-label :title="$t('label.ostypeid')" :tooltip="apiParams.ostypeid.description"/>
         </template>
@@ -55,13 +55,13 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="isdynamicallyscalable" ref="isdynamicallyscalable">
+      <a-form-item v-if="!cloneEditRestricted" name="isdynamicallyscalable" ref="isdynamicallyscalable">
         <template #label>
           <tooltip-label :title="$t('label.isdynamicallyscalable')" :tooltip="apiParams.isdynamicallyscalable.description"/>
         </template>
         <a-switch v-model:checked="form.isdynamicallyscalable" />
       </a-form-item>
-      <a-form-item name="haenable" ref="haenable" v-if="serviceOffering ? serviceOffering.offerha : false">
+      <a-form-item name="haenable" ref="haenable" v-if="!cloneEditRestricted && serviceOffering?.offerha">
         <template #label>
           <tooltip-label :title="$t('label.haenable')" :tooltip="apiParams.haenable.description"/>
         </template>
@@ -78,14 +78,14 @@
           }"
           :options="groups.opts" />
       </a-form-item>
-      <a-form-item v-if="userDataEnabled">
+      <a-form-item v-if="!cloneEditRestricted && userDataEnabled">
         <template #label>
           <tooltip-label :title="$t('label.userdata')" :tooltip="apiParams.userdata.description"/>
         </template>
         <a-textarea v-model:value="form.userdata">
         </a-textarea>
       </a-form-item>
-      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="securityGroupNetworkProviderUseThisVM">
+      <a-form-item ref="securitygroupids" name="securitygroupids" :label="$t('label.security.groups')" v-if="!cloneEditRestricted && securityGroupNetworkProviderUseThisVM">
         <a-select
           mode="multiple"
           v-model:value="form.securitygroupids"
@@ -123,6 +123,7 @@
 import { ref, reactive, toRaw } from 'vue'
 import { api } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import { getFastClonePhase } from '@/utils/fastClone'
 
 export default {
   name: 'EditVM',
@@ -168,6 +169,14 @@ export default {
   created () {
     this.initForm()
     this.fetchData()
+  },
+  computed: {
+    cloneEditRestricted () {
+      const details = this.resource.details || {}
+      const status = String(this.resource.clonefaststatus || details['clone.fast.status'] || '').toLowerCase()
+      return !!getFastClonePhase(this.resource) || !!details['clone.fast.source.phase'] ||
+        !!details['clone.fast.clone.phase'] || ['pending', 'running'].includes(status)
+    }
   },
   methods: {
     initForm () {
@@ -378,6 +387,10 @@ export default {
         }
         if (values.userdata && values.userdata.length > 0) {
           params.userdata = this.$toBase64AndURIEncoded(values.userdata)
+        }
+        if (this.cloneEditRestricted) {
+          const allowed = ['id', 'displayname', 'group', 'deleteprotection']
+          Object.keys(params).filter(key => !allowed.includes(key)).forEach(key => delete params[key])
         }
         this.loading = true
 
