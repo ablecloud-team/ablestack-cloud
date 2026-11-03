@@ -30,6 +30,15 @@
       </a-alert>
       <br>
 
+      <template v-if="resource.hasPartitions">
+        <a-alert
+          type="warning"
+          show-icon
+          :message="$t('message.warning.lun.device.partitions')"
+        />
+        <br>
+      </template>
+
       <a-form-item :label="$t('label.virtualmachine')" name="virtualmachineid" ref="virtualmachineid">
         <a-select
           v-focus="true"
@@ -141,6 +150,7 @@ export default {
         if (lunDevices?.vmallocations) {
           for (const [deviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
             if (vmId) {
+              allocatedVmIds.add(vmId.toString())
               try {
                 // VM이 실제로 존재하는지 확인
                 const vmResponse = await api('listVirtualMachines', { id: vmId, listall: true })
@@ -148,8 +158,8 @@ export default {
 
                 if (vm && vm.state !== 'Expunging') {
                   allocatedVmIds.add(vmId.toString())
-                } else {
-                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                } else if (vm?.state === 'Expunging') {
+                  // 삭제 중인 VM으로 확인된 경우에만 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateXmlConfig(deviceName)
                     await api('updateHostLunDevices', {
@@ -164,19 +174,8 @@ export default {
                   }
                 }
               } catch (error) {
-                // VM 조회 실패 시에도 할당 해제 시도
-                try {
-                  const xmlConfig = this.generateXmlConfig(deviceName)
-                  await api('updateHostLunDevices', {
-                    hostid: this.resource.id,
-                    hostdevicesname: deviceName,
-                    virtualmachineid: null,
-                    xmlconfig: xmlConfig,
-                    isattach: false
-                  })
-                } catch (detachError) {
-                  // Failed to automatically deallocate LUN device after error
-                }
+                // Keep the allocation when the VM cannot be queried during reboot.
+                allocatedVmIds.add(vmId.toString())
               }
             }
           }
@@ -195,7 +194,7 @@ export default {
             return {
               ...detailedVm,
               instanceId: vm.instanceId,
-              isAllocated: allocatedVmIds.has(vm.instanceId?.toString())
+              isAllocated: allocatedVmIds.has(vm.id?.toString()) || allocatedVmIds.has(vm.instanceId?.toString())
             }
           })
         }))

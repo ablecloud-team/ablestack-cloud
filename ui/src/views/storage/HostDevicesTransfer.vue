@@ -54,6 +54,7 @@
 <script>
 import { reactive } from 'vue'
 import { api } from '@/api'
+import { generatePciDeviceXml } from '@/utils/util'
 
 export default {
   name: 'HostDevicesTransfer',
@@ -158,7 +159,7 @@ export default {
       return this.refreshVMList()
     },
 
-    handleSubmit () {
+    async handleSubmit () {
       if (!this.resource || !this.resource.id) {
         this.$notifyError(this.$t('message.error.invalid.resource'))
         return
@@ -170,120 +171,28 @@ export default {
       }
 
       this.loading = true
-      const hostDevicesName = this.resource.hostDevicesName
-
-      api('listVirtualMachines', {
-        id: this.form.virtualmachineid,
-        details: 'all'
-      }).then(response => {
-        const vm = response?.listvirtualmachinesresponse?.virtualmachine?.[0]
-        const details = vm?.details || {}
-
-        // VM 이벤트 리스너 등록
-        this.registerVMEventListener(vm.id, hostDevicesName)
-
-        let nextConfigNum = 1
-        let lastXmlConfig = 0
-
-        // XML 설정이 있는 마지막 extraconfig 번호 찾기
-        Object.entries(details).forEach(([key, value]) => {
-          if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
-            const num = parseInt(key.split('-')[1])
-            lastXmlConfig = Math.max(lastXmlConfig, num)
-          }
+      try {
+        const xmlConfig = this.generateXmlConfig(this.resource.hostDevicesName)
+        await api('updateHostDevices', {
+          hostid: this.resource.id,
+          hostdevicesname: this.resource.hostDevicesName,
+          hostdevicestext: this.resource.hostDevicesText || '',
+          virtualmachineid: this.form.virtualmachineid,
+          xmlconfig: xmlConfig
         })
-
-        nextConfigNum = lastXmlConfig + 1
-        const xmlConfig = this.generateXmlConfig(hostDevicesName)
-        const params = {
-          id: vm.id,
-          [`details[0].extraconfig-${nextConfigNum}`]: xmlConfig
-        }
-
-        Object.entries(details).forEach(([key, value]) => {
-          if (key.startsWith('extraconfig-') && value.includes('<hostdev')) {
-            params[`details[0].${key}`] = value
-          } else if (!key.startsWith('extraconfig-')) {
-            params[`details[0].${key}`] = value
-          }
-        })
-
-        return api('updateVirtualMachine', params)
-          .then(() => {
-            return api('updateHostDevices', {
-              hostid: this.resource.id,
-              hostdevicesname: hostDevicesName,
-              hostdevicestext: this.resource.hostDevicesText || '',
-              virtualmachineid: this.form.virtualmachineid
-            })
-          })
-      }).then(() => {
         this.$message.success(this.$t('message.success.allocate.device'))
         this.$emit('device-allocated')
         this.$emit('allocation-completed')
         this.$emit('close-action')
-      }).catch(error => {
+      } catch (error) {
         this.$notifyError(error)
-        this.formRef.value.scrollToField('virtualmachineid')
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
-    },
-
-    registerVMEventListener (vmId, hostDevicesName) {
-      const eventTypes = ['DestroyVM', 'ExpungeVM', 'UpdateVirtualMachine']
-
-      eventTypes.forEach(eventType => {
-        this.$store.dispatch('event/subscribe', {
-          eventType: eventType,
-          resourceId: vmId,
-          callback: async () => {
-            try {
-              if (eventType === 'UpdateVirtualMachine') {
-                // VM의 현재 상태 확인
-                const response = await api('listVirtualMachines', {
-                  id: vmId,
-                  details: 'all'
-                })
-
-                const vm = response?.listvirtualmachinesresponse?.virtualmachine?.[0]
-                const details = vm?.details || {}
-                const hasDeviceConfig = Object.values(details).some(value =>
-                  value.includes('<hostdev') && value.includes(hostDevicesName)
-                )
-                if (hasDeviceConfig) {
-                  return
-                }
-              }
-
-              // 디비에서 호스트 디바이스 할당 정보 삭제
-              await api('updateHostDevices', {
-                hostid: this.resource.id,
-                hostdevicesname: hostDevicesName,
-                virtualmachineid: vmId
-              })
-            } catch (error) {
-              console.error('Failed to delete host device allocation:', error)
-            }
-          }
-        })
-      })
+      }
     },
 
     generateXmlConfig (hostDeviceName) {
-      const [pciAddress] = hostDeviceName.split(' ')
-      const [bus, slotFunction] = pciAddress.split(':')
-      const [slot, func] = slotFunction.split('.')
-
-      return `
-      <devices>
-      <hostdev mode='subsystem' type='pci' managed='yes'>
-        <source>
-          <address domain='0x0000' bus='0x${bus}' slot='0x${slot}' function='0x${func}'/>
-        </source>
-      </hostdev>
-      </devices>
-      `.trim()
+      return generatePciDeviceXml(hostDeviceName)
     },
 
     closeAction () {

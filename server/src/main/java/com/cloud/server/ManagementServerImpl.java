@@ -3679,12 +3679,7 @@ public class ManagementServerImpl extends ManagerBase implements ManagementServe
                 }
 
                 String xmlToStore = lunAnswer.getXmlConfig() != null ? lunAnswer.getXmlConfig() : xmlConfig;
-                boolean invalidLunTarget = xmlToStore != null && xmlToStore.contains("device='lun'")
-                    && (xmlToStore.contains("dev='mapper/") || xmlToStore.contains("dev=\"mapper/")
-                        || (xmlToStore.contains("mpath") && xmlToStore.contains("<target")));
-                if (invalidLunTarget) {
-                    xmlToStore = null;
-                }
+                // Persist the XML accepted by the agent, including multipath source paths.
                 if (xmlToStore != null) {
                     addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlToStore);
                 }
