@@ -308,6 +308,26 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
     @Param(description = "SharedMountPoint fast clone flatten status of the virtual machine.")
     private String cloneFastStatus;
 
+    @SerializedName("clonefastsourcepowerallowed")
+    @Param(description = "whether the SharedMountPoint clone source is ready for power operations.")
+    private Boolean cloneFastSourcePowerAllowed;
+
+    @SerializedName("clonefastpowerallowed")
+    @Param(description = "whether the SharedMountPoint clone VM permits coordinated power operations.")
+    private Boolean cloneFastPowerAllowed;
+
+    @SerializedName("clonefastphase")
+    @Param(description = "role-qualified SharedMountPoint clone phase, including preparation, pause and recovery-required states.")
+    private String cloneFastPhase;
+
+    @SerializedName("clonefastflattenbandwidth")
+    @Param(description = "Configured per-disk clone flatten bandwidth limit in MiB/s. Zero means unlimited.")
+    private Integer cloneFastFlattenBandwidth;
+
+    @SerializedName("clonefastflattenbandwidthstatus")
+    @Param(description = "Result of the latest bandwidth request: applying, applied, pending or failed.")
+    private String cloneFastFlattenBandwidthStatus;
+
     @SerializedName("clonefastflattenprogress")
     @Param(description = "SharedMountPoint fast clone flatten progress percentage of the virtual machine.")
     private String cloneFastFlattenProgress;
@@ -1017,6 +1037,46 @@ public class UserVmResponse extends BaseResponseWithTagInformation implements Co
 
     public void setCloneFastStatus(String cloneFastStatus) {
         this.cloneFastStatus = cloneFastStatus;
+    }
+
+    public void setCloneFastSourcePowerAllowed(Boolean allowed) {
+        this.cloneFastSourcePowerAllowed = allowed;
+    }
+
+    public Boolean getCloneFastSourcePowerAllowed() {
+        return cloneFastSourcePowerAllowed;
+    }
+
+    public void setCloneFastPowerAllowed(Boolean allowed) {
+        this.cloneFastPowerAllowed = allowed;
+    }
+
+    public Boolean getCloneFastPowerAllowed() {
+        return cloneFastPowerAllowed;
+    }
+
+    public void setCloneFastPhase(String phase) {
+        this.cloneFastPhase = phase;
+    }
+
+    public String getCloneFastPhase() {
+        return cloneFastPhase;
+    }
+
+    public Integer getCloneFastFlattenBandwidth() {
+        return cloneFastFlattenBandwidth;
+    }
+
+    public void setCloneFastFlattenBandwidth(Integer bandwidth) {
+        this.cloneFastFlattenBandwidth = bandwidth;
+    }
+
+    public String getCloneFastFlattenBandwidthStatus() {
+        return cloneFastFlattenBandwidthStatus;
+    }
+
+    public void setCloneFastFlattenBandwidthStatus(String status) {
+        this.cloneFastFlattenBandwidthStatus = status;
     }
 
     public void setCloneFastFlattenProgress(String cloneFastFlattenProgress) {
