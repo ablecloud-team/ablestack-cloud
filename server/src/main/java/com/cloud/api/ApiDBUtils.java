@@ -1317,31 +1317,34 @@ public class ApiDBUtils {
                 type = HypervisorType.Hyperv;
             }
         } if (format == ImageFormat.RAW) {
-            // Currently, KVM only supports RBD, PowerFlex, and FiberChannel images of type RAW.
-            // This results in a weird collision with OVM volumes which
-            // can only be raw, thus making KVM RBD volumes show up as OVM
-            // rather than RBD. This block of code can (hopefully) by checking to
-            // see if the pool is using either RBD or NFS. However, it isn't
-            // quite clear what to do if both storage types are used. If the image
-            // format is RAW, it narrows the hypervisor choice down to OVM and KVM / RBD or KVM / CLVM
-            // This would be better implemented at a cluster level.
-            List<StoragePoolVO> pools = s_storagePoolDao.listByDataCenterId(dcId);
-            ListIterator<StoragePoolVO> itr = pools.listIterator();
-            while(itr.hasNext()) {
-                StoragePoolVO pool = itr.next();
+            // RAW is a generic format and is used by multiple hypervisors.
+            // Prefer the hypervisor that is actually supported in the zone so
+            // KVM shared volumes are not misclassified as OVM volumes.
+            final List<HypervisorType> supportedHypervisorTypesInZone = s_resourceMgr.getSupportedHypervisorTypes(dcId, false, null);
+            if (supportedHypervisorTypesInZone.contains(HypervisorType.KVM)) {
+                type = HypervisorType.KVM;
+            } else if (supportedHypervisorTypesInZone.contains(HypervisorType.Ovm3)) {
+                type = HypervisorType.Ovm3;
+            } else if (supportedHypervisorTypesInZone.contains(HypervisorType.Ovm)) {
+                type = HypervisorType.Ovm;
+            } else {
+                List<StoragePoolVO> pools = s_storagePoolDao.listByDataCenterId(dcId);
+                ListIterator<StoragePoolVO> itr = pools.listIterator();
+                while (itr.hasNext()) {
+                    StoragePoolVO pool = itr.next();
 
-                if(List.of(StoragePoolType.RBD,
-                           StoragePoolType.PowerFlex,
-                           StoragePoolType.CLVM,
-                           StoragePoolType.Linstor,
-                           StoragePoolType.FiberChannel).contains(pool.getPoolType())) {
-                  // This case will note the presence of non-qcow2 primary stores, suggesting KVM without NFS. Otherwse,
-                  // If this check is not passed, the hypervisor type will remain OVM.
-                  type = HypervisorType.KVM;
-                  break;
-                } else if (pool.getHypervisor() == HypervisorType.Custom) {
-                    type = HypervisorType.Custom;
-                    break;
+                    if (List.of(StoragePoolType.RBD,
+                                StoragePoolType.PowerFlex,
+                                StoragePoolType.CLVM,
+                                StoragePoolType.Linstor,
+                                StoragePoolType.FiberChannel).contains(pool.getPoolType())) {
+                        // This case notes the presence of non-qcow2 primary stores, suggesting KVM without NFS.
+                        type = HypervisorType.KVM;
+                        break;
+                    } else if (pool.getHypervisor() == HypervisorType.Custom) {
+                        type = HypervisorType.Custom;
+                        break;
+                    }
                 }
             }
         }

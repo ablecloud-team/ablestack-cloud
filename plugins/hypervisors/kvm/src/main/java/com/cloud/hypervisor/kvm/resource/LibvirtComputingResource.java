@@ -3694,6 +3694,7 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
 
             final DiskDef disk = new DiskDef();
             int devId = volume.getDiskSeq().intValue();
+            final boolean isShareableVolume = data instanceof VolumeObjectTO && ((VolumeObjectTO) data).getShareable();
             if (volume.getType() == Volume.Type.ISO) {
                 final DiskDef.DiskType diskType = getDiskType(physicalDisk);
                 disk.defISODisk(volPath, devId, isUefiEnabled, diskType);
@@ -3810,6 +3811,10 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         //     disk.defFileBasedDisk(physicalDisk.getPath(), devId, diskBusType, DiskDef.DiskFmtType.QCOW2);
                         // }
                     }
+                }
+                if (isShareableVolume) {
+                    disk.setDiskFormatType(DiskDef.DiskFmtType.RAW);
+                    disk.setSharable();
                 }
                 pool.customizeLibvirtDiskDef(disk);
             }

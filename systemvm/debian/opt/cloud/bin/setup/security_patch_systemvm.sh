@@ -42,8 +42,6 @@ set -o pipefail
 ###############################################################################
 
 HOSTNAME_NOW="$(hostname -s 2>/dev/null || hostname)"
-CMDLINE_FILE="/var/cache/cloud/cmdline"
-SYSTEMVM_TYPE=""
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 
 BACKUP_DIR="/root/pam_security_backup_$(date +%Y%m%d_%H%M%S)"
@@ -51,14 +49,25 @@ BACKUP_DIR="/root/pam_security_backup_$(date +%Y%m%d_%H%M%S)"
 LOGIN_DEFS="/etc/login.defs"
 PWQUALITY_CONF="/etc/security/pwquality.conf"
 FAILLOCK_CONF="/etc/security/faillock.conf"
-SYSTEMVM_PACKAGE_DIR="/usr/share/ablestack/systemvm"
 
 COMMON_AUTH="/etc/pam.d/common-auth"
 COMMON_ACCOUNT="/etc/pam.d/common-account"
 COMMON_PASSWORD="/etc/pam.d/common-password"
-SSHD_CONFIG="/etc/pam.d/sshd"
+SSHD_CONFIG="/etc/ssh/sshd_config"
+PAM_SSHD_CONFIG="/etc/pam.d/sshd"
 
 PROFILE_FILE="/etc/profile"
+MOTD_FILE="/etc/motd"
+ISSUE_FILE="/etc/issue"
+ISSUE_NET_FILE="/etc/issue.net"
+
+WARNING_MSG='********************************************************************************
+WARNING: Authorized access only.
+
+This system is restricted to authorized users only.
+Unauthorized access is prohibited.
+All activities may be monitored and recorded.
+********************************************************************************'
 
 ###############################################################################
 # Root check
@@ -78,21 +87,6 @@ if [ ! -f /etc/debian_version ]; then
     exit 1
 fi
 
-###############################################################################
-# SystemVM type detection
-###############################################################################
-
-if [ -f "$CMDLINE_FILE" ]; then
-    SYSTEMVM_TYPE="$(grep -Po 'type=\K[a-zA-Z]*' "$CMDLINE_FILE" 2>/dev/null || true)"
-fi
-
-IS_SYSTEMVM="false"
-case "$SYSTEMVM_TYPE" in
-    consoleproxy|secstorage)
-        IS_SYSTEMVM="true"
-        ;;
-esac
-
 echo "======================================="
 echo "SystemVM 보안 정책 설정"
 echo "======================================="
@@ -106,18 +100,7 @@ if [ -f /etc/os-release ]; then
 fi
 
 echo "  Hostname : $HOSTNAME_NOW"
-
-echo "  Type     : ${SYSTEMVM_TYPE:-Unknown}"
-echo "  SystemVM : $IS_SYSTEMVM"
-
-if [ "$IS_SYSTEMVM" != "true" ]; then
-    echo
-    echo "[INFO] 이 스크립트는 consoleproxy/secstorage 타입에서만 적용됩니다."
-    echo "[INFO] 감지된 타입: ${SYSTEMVM_TYPE:-unknown}"
-    exit 0
-fi
-
-echo "  Scope    : consoleproxy/secstorage 전용"
+echo "  Scope    : SystemVM 템플릿 및 런타임"
 
 ###############################################################################
 # Backup directory
@@ -144,89 +127,6 @@ backup_file()
         echo "[BACKUP] $FILE"
         echo "         -> $BACKUP_DIR/$(basename "$FILE").bak"
     fi
-}
-
-install_local_debs()
-{
-    local DEB_FILES=()
-    local DEB_FILE
-    local PACKAGE_NAME
-
-    # 패키지 디렉터리 확인
-    if [ ! -d "$SYSTEMVM_PACKAGE_DIR" ]; then
-        echo "[ ERROR ] 패키지 디렉터리가 없습니다."
-        echo "         $SYSTEMVM_PACKAGE_DIR"
-        exit 1
-    fi
-
-    # .deb 파일 검색
-    while IFS= read -r -d '' DEB_FILE; do
-        DEB_FILES+=("$DEB_FILE")
-    done < <(
-        find "$SYSTEMVM_PACKAGE_DIR" \
-            -maxdepth 1 \
-            -type f \
-            -name '*.deb' \
-            -print0 |
-        sort -z
-    )
-
-    # .deb 존재 여부 확인
-    if [ "${#DEB_FILES[@]}" -eq 0 ]; then
-        echo "[ ERROR ] 설치할 .deb 패키지가 없습니다."
-        echo "         $SYSTEMVM_PACKAGE_DIR"
-        exit 1
-    fi
-
-    echo "[INFO] 로컬 .deb 패키지 ${#DEB_FILES[@]}개 발견"
-
-    for DEB_FILE in "${DEB_FILES[@]}"; do
-        echo "       $(basename "$DEB_FILE")"
-    done
-
-    echo
-    echo "[INFO] 모든 로컬 .deb 패키지 설치"
-
-    # 모든 .deb 설치
-    if ! dpkg -i "${DEB_FILES[@]}"; then
-        echo
-        echo "[WARN] dpkg 설치 중 의존성 문제가 발생했습니다."
-        echo "[INFO] apt-get -f install 실행"
-
-        if ! apt-get -f install -y; then
-            echo "[ ERROR ] 패키지 의존성 복구 실패"
-            exit 1
-        fi
-    fi
-
-    echo
-    echo "[INFO] 패키지 설치 결과 확인"
-
-    # 설치 결과 확인
-    for DEB_FILE in "${DEB_FILES[@]}"; do
-
-        PACKAGE_NAME="$(dpkg-deb -f "$DEB_FILE" Package 2>/dev/null || true)"
-
-        if [ -z "$PACKAGE_NAME" ]; then
-            echo "[ ERROR ] 유효하지 않은 .deb 파일:"
-            echo "          $(basename "$DEB_FILE")"
-            exit 1
-        fi
-
-        if dpkg-query -W -f='${Status}' "$PACKAGE_NAME" 2>/dev/null |
-            grep -q "install ok installed"; then
-
-            echo "[ OK ] $PACKAGE_NAME"
-
-        else
-            echo "[ ERROR ] $PACKAGE_NAME 설치 확인 실패"
-            exit 1
-        fi
-
-    done
-
-    echo
-    echo "[ OK ] 모든 로컬 .deb 패키지 설치 완료"
 }
 
 ###############################################################################
@@ -279,6 +179,7 @@ backup_file "$COMMON_AUTH"
 backup_file "$COMMON_ACCOUNT"
 backup_file "$COMMON_PASSWORD"
 backup_file "$SSHD_CONFIG"
+backup_file "$PAM_SSHD_CONFIG"
 
 ###############################################################################
 # [3] PAM package check
@@ -289,11 +190,24 @@ echo "======================================="
 echo "[3] PAM 패키지 확인"
 echo "======================================="
 
-export DEBIAN_FRONTEND=noninteractive
-
-echo "[INFO] SYSTEMVM_PACKAGE_DIR의 모든 .deb 패키지를 확인합니다."
-
-install_local_debs
+for PACKAGE_NAME in \
+    libpam-modules-bin \
+    libpam-modules \
+    libpam-pwquality \
+    libpam-runtime \
+    libpam-systemd \
+    libpam0g \
+    libpwquality-common \
+    libpwquality1
+do
+    if dpkg-query -W -f='${Status}' "$PACKAGE_NAME" 2>/dev/null |
+        grep -q "install ok installed"; then
+        echo "[ OK ] $PACKAGE_NAME 설치 확인"
+    else
+        echo "[ ERROR ] $PACKAGE_NAME 가 설치되어 있지 않습니다."
+        exit 1
+    fi
+done
 
 ###############################################################################
 # faillock command check
@@ -355,28 +269,31 @@ set_login_defs()
     local KEY="$1"
     local VALUE="$2"
 
-    if grep -Eq "^[[:space:]]*${KEY}[[:space:]]+" "$LOGIN_DEFS"; then
+    # 기존 활성/주석 설정과 중복 설정을 모두 제거한 뒤 정책값을 하나만 추가
+    sed -ri \
+        "/^[[:space:]]*#?[[:space:]]*${KEY}[[:space:]]+.*/d" \
+        "$LOGIN_DEFS"
 
-        sed -ri \
-            "s|^[[:space:]]*${KEY}[[:space:]]+.*|${KEY}    ${VALUE}|" \
-            "$LOGIN_DEFS"
-
-    elif grep -Eq "^[[:space:]]*#[[:space:]]*${KEY}[[:space:]]+" "$LOGIN_DEFS"; then
-
-        sed -ri \
-            "s|^[[:space:]]*#[[:space:]]*${KEY}[[:space:]]+.*|${KEY}    ${VALUE}|" \
-            "$LOGIN_DEFS"
-
-    else
-
-        echo "${KEY}    ${VALUE}" >> "$LOGIN_DEFS"
-
-    fi
+    printf '%s    %s\n' "$KEY" "$VALUE" >> "$LOGIN_DEFS"
 }
 
 set_login_defs PASS_MAX_DAYS 90
 set_login_defs PASS_MIN_DAYS 1
 set_login_defs PASS_WARN_AGE 7
+
+for POLICY in \
+    "PASS_MAX_DAYS 90" \
+    "PASS_MIN_DAYS 1" \
+    "PASS_WARN_AGE 7"
+do
+    POLICY_KEY="${POLICY%% *}"
+    POLICY_VALUE="${POLICY#* }"
+
+    if ! grep -Eq "^[[:space:]]*${POLICY_KEY}[[:space:]]+${POLICY_VALUE}[[:space:]]*$" "$LOGIN_DEFS"; then
+        echo "[ ERROR ] login.defs 정책 적용 실패: $POLICY"
+        exit 1
+    fi
+done
 
 echo "[ OK ] login.defs 설정 완료"
 
@@ -434,23 +351,12 @@ set_pwquality()
     local KEY="$1"
     local VALUE="$2"
 
-    if grep -Eq "^[[:space:]]*${KEY}[[:space:]]*=" "$PWQUALITY_CONF"; then
+    # 기존 활성/주석 설정과 중복 설정을 모두 제거한 뒤 정책값을 하나만 추가
+    sed -ri \
+        "/^[[:space:]]*#?[[:space:]]*${KEY}[[:space:]]*=.*/d" \
+        "$PWQUALITY_CONF"
 
-        sed -ri \
-            "s|^[[:space:]]*${KEY}[[:space:]]*=.*|${KEY} = ${VALUE}|" \
-            "$PWQUALITY_CONF"
-
-    elif grep -Eq "^[[:space:]]*#[[:space:]]*${KEY}[[:space:]]*=" "$PWQUALITY_CONF"; then
-
-        sed -ri \
-            "s|^[[:space:]]*#[[:space:]]*${KEY}[[:space:]]*=.*|${KEY} = ${VALUE}|" \
-            "$PWQUALITY_CONF"
-
-    else
-
-        echo "${KEY} = ${VALUE}" >> "$PWQUALITY_CONF"
-
-    fi
+    printf '%s = %s\n' "$KEY" "$VALUE" >> "$PWQUALITY_CONF"
 }
 
 set_pwquality difok 1
@@ -459,6 +365,20 @@ set_pwquality dcredit -1
 set_pwquality ucredit -1
 set_pwquality lcredit -1
 set_pwquality ocredit -1
+
+for POLICY in \
+    "difok = 1" \
+    "minlen = 9" \
+    "dcredit = -1" \
+    "ucredit = -1" \
+    "lcredit = -1" \
+    "ocredit = -1"
+do
+    if ! grep -Fxq "$POLICY" "$PWQUALITY_CONF"; then
+        echo "[ ERROR ] pwquality 정책 적용 실패: $POLICY"
+        exit 1
+    fi
+done
 
 # root password 변경 시 pwquality 강제 옵션 제거
 sed -i \
@@ -535,10 +455,10 @@ echo
 echo "--- common-password ---"
 cat "$COMMON_PASSWORD"
 
-if [ -f "$SSHD_CONFIG" ]; then
+if [ -f "$PAM_SSHD_CONFIG" ]; then
     echo
     echo "--- sshd PAM ---"
-    cat "$SSHD_CONFIG"
+    cat "$PAM_SSHD_CONFIG"
 fi
 
 ###############################################################################
@@ -562,17 +482,23 @@ if grep -Eq \
     'pam_sss\.so|pam_ldap\.so|pam_winbind\.so|pam_pkcs11\.so|pam_ecryptfs\.so' \
     "$COMMON_AUTH"; then
 
-    echo
-    echo "[ ERROR ]"
-    echo "common-auth에 SSSD/LDAP/Winbind/PKCS11/eCryptfs 관련 PAM 모듈이"
-    echo "존재합니다."
-    echo
-    echo "인증 체계를 보존하기 위해 common-auth 자동 덮어쓰기를 중단합니다."
-    echo
-    echo "백업 위치:"
-    echo "  $BACKUP_DIR"
-    echo
-    exit 1
+    if [ "${SECURITY_PATCH_FORCE:-false}" = "true" ]; then
+        echo "[WARN] common-auth에 SSSD/LDAP/Winbind/PKCS11/eCryptfs 관련 PAM 모듈이 존재합니다."
+        echo "[WARN] 템플릿 생성 강제 적용 모드: common-auth를 보안 정책으로 덮어씁니다."
+        echo "[INFO] 기존 설정 백업 위치: $BACKUP_DIR"
+    else
+        echo
+        echo "[ ERROR ]"
+        echo "common-auth에 SSSD/LDAP/Winbind/PKCS11/eCryptfs 관련 PAM 모듈이"
+        echo "존재합니다."
+        echo
+        echo "인증 체계를 보존하기 위해 common-auth 자동 덮어쓰기를 중단합니다."
+        echo
+        echo "백업 위치:"
+        echo "  $BACKUP_DIR"
+        echo
+        exit 1
+    fi
 fi
 
 ###############################################################################
@@ -735,13 +661,71 @@ echo "[root faillock]"
 
 faillock --user root 2>/dev/null || true
 
+
 ###############################################################################
-# [16] Backup
+# [16] Warning Message
 ###############################################################################
 
 echo
 echo "======================================="
-echo "[16] 백업 정보"
+echo "[16] 로그인 경고문 설정"
+echo "======================================="
+
+configure_warning_message()
+{
+    local FILE
+
+    for FILE in "$MOTD_FILE" "$ISSUE_FILE" "$ISSUE_NET_FILE"; do
+        backup_file "$FILE"
+        printf '%s\n' "$WARNING_MSG" > "$FILE"
+        chown root:root "$FILE"
+        chmod 644 "$FILE"
+        echo "[ OK ] $FILE 설정 완료"
+    done
+
+    if [ -f "$SSHD_CONFIG" ]; then
+        backup_file "$SSHD_CONFIG"
+
+        sed -i -E '/^[[:space:]]*#?[[:space:]]*Banner[[:space:]]+/d' "$SSHD_CONFIG"
+        printf '%s\n' 'Banner /etc/issue.net' >> "$SSHD_CONFIG"
+        echo "[ OK ] SSH Banner 설정 완료"
+    else
+        echo "[WARN] SSH 설정 파일이 없습니다: $SSHD_CONFIG"
+    fi
+
+    if [ -d /etc/update-motd.d ]; then
+        for FILE in /etc/update-motd.d/*; do
+            if [ -f "$FILE" ]; then
+                chmod -x "$FILE"
+            fi
+        done
+        echo "[ OK ] Dynamic MOTD 비활성화 완료"
+    fi
+
+    if [ -f "$PAM_SSHD_CONFIG" ]; then
+        backup_file "$PAM_SSHD_CONFIG"
+        sed -i -E \
+            's|^[[:space:]]*session[[:space:]]+.*pam_motd\.so.*motd=/run/motd\.dynamic.*$|session optional pam_motd.so|' \
+            "$PAM_SSHD_CONFIG"
+        echo "[ OK ] PAM MOTD 설정 확인 완료"
+    fi
+
+    if systemctl restart ssh 2>/dev/null || systemctl restart sshd 2>/dev/null; then
+        echo "[ OK ] SSH 서비스 재시작 완료"
+    else
+        echo "[WARN] SSH 서비스 재시작 실패"
+    fi
+}
+
+configure_warning_message
+
+###############################################################################
+# [17] Backup
+###############################################################################
+
+echo
+echo "======================================="
+echo "[17] 백업 정보"
 echo "======================================="
 
 echo
@@ -752,6 +736,7 @@ echo
 echo "백업 파일:"
 
 ls -la "$BACKUP_DIR" 2>/dev/null || true
+
 
 ###############################################################################
 # Final
