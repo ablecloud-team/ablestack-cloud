@@ -1,0 +1,13 @@
+{
+  "jarSha256": "0bb54b0715b535a87301def3d059509216d25497959e170d172cbdf2d679a8b9",
+  "entries": {
+    "sharedfs-network/etc/systemd/system/ablestack-storage-reconcile.service": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "7ac6e3bed09d3c49e699d776727cd5286dcecd9e1db4e1a168e1ecfc3350fc1c",
+    "org/apache/cloudstack/api/response/StorageServiceRuntimeResponse.class": "5fc1b29b0b7aad7c3919def195f121936f0dfc9633d6c7f4c6a0304c132aea3c"
+  },
+  "localTargetMatches": {
+    "sharedfs-network/etc/systemd/system/ablestack-storage-reconcile.service": true,
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": true,
+    "org/apache/cloudstack/api/response/StorageServiceRuntimeResponse.class": true
+  }
+}

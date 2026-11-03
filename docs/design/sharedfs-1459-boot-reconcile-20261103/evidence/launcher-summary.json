@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "kind": "transient worker admission feasibility, not boot implementation",
+  "launcherElapsedSeconds": 0.029,
+  "workerStillRunningAfterLauncher": {
+    "state": "RUNNING"
+  },
+  "workerFinal": {
+    "state": "READY"
+  },
+  "properties": "Type=exec\nRuntimeMaxUSec=6s\nKillMode=control-group\n",
+  "existingUnitUnchanged": true
+}
