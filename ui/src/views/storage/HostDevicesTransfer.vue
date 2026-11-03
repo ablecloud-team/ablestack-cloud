@@ -54,7 +54,7 @@
 <script>
 import { reactive } from 'vue'
 import { api } from '@/api'
-import { generatePciDeviceXml } from '@/utils/pci'
+import { generatePciDeviceXml } from '@/utils/util'
 
 export default {
   name: 'HostDevicesTransfer',

@@ -555,7 +555,7 @@
 
 <script>
 import { api } from '@/api'
-import { generatePciDeviceXml, matchesPciDeviceXml } from '@/utils/pci'
+import { generatePciDeviceXml, matchesPciDeviceXml } from '@/utils/util'
 import eventBus from '@/config/eventBus'
 import { IdcardOutlined, PlusOutlined, DeleteOutlined, FormOutlined, MinusOutlined } from '@ant-design/icons-vue'
 import HostDevicesTransfer from '@/views/storage/HostDevicesTransfer'

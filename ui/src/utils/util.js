@@ -102,3 +102,43 @@ export function toCsv ({ keys = null, data = null, columnDelimiter = ',', lineDe
 
   return result
 }
+
+export function parsePciAddress (deviceName) {
+  const match = typeof deviceName === 'string' && deviceName.trim().match(/^(?:([0-9a-f]{1,4}):)?([0-9a-f]{1,2}):([0-9a-f]{1,2})\.([0-7])(?=\s|:|$)/i)
+  if (!match || parseInt(match[3], 16) > 0x1f) return null
+
+  return {
+    domain: '0x' + (match[1] || '0000').toLowerCase().padStart(4, '0'),
+    bus: '0x' + match[2].toLowerCase().padStart(2, '0'),
+    slot: '0x' + match[3].toLowerCase().padStart(2, '0'),
+    func: '0x' + match[4]
+  }
+}
+
+export function generatePciDeviceXml (deviceName) {
+  const address = parsePciAddress(deviceName)
+  if (!address) throw new Error('Invalid PCI address: ' + deviceName)
+  const { domain, bus, slot, func } = address
+
+  return `<hostdev mode='subsystem' type='pci' managed='yes'>
+  <source>
+    <address domain='${domain}' bus='${bus}' slot='${slot}' function='${func}'/>
+  </source>
+</hostdev>`
+}
+
+export function matchesPciDeviceXml (xml, deviceName) {
+  const address = parsePciAddress(deviceName)
+  if (!address || typeof xml !== 'string') return false
+
+  const document = new DOMParser().parseFromString(`<config>${xml}</config>`, 'text/xml')
+  if (document.querySelector('parsererror')) return false
+
+  return Array.from(document.querySelectorAll('hostdev[type="pci"] > source > address')).some(source =>
+    ['domain', 'bus', 'slot', 'function'].every(field => {
+      const actual = source.getAttribute(field) || (field === 'domain' ? '0' : '')
+      const expected = address[field === 'function' ? 'func' : field]
+      return actual !== '' && Number(actual) === Number(expected)
+    })
+  )
+}
