@@ -164,6 +164,9 @@ public interface StorageService {
 
     ListResponse<StorageServiceRuntimeResponse> listStorageServiceInventory(ListStorageServiceInventoryCmd cmd);
 
+    StorageServiceRuntimeResponse resumeStorageServiceBootRecovery(
+        org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceBootRecoveryCmd cmd);
+
     ListResponse<StorageServiceRuntimeResponse> listStorageServiceSessions(ListStorageServiceSessionsCmd cmd);
 
     StorageServiceRuntimeResponse disconnectStorageServiceSession(DisconnectStorageServiceSessionCmd cmd);

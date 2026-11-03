@@ -891,7 +891,7 @@ export default {
 
         return fields
       },
-      optionalColumns: ['sizegb'],
+      optionalColumns: ['sizegb', 'bootrecovery'],
       details: ['id', 'name', 'description', 'state', 'filesystem', 'diskofferingdisplaytext', 'ipaddress', 'provider', 'protocol', 'provisioningtype', 'utilization', 'diskkbsread', 'diskkbswrite', 'diskioread', 'diskiowrite', 'account', 'domain', 'created'],
       tabs: [{
         component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSTab.vue')))

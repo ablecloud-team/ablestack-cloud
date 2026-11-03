@@ -1,10 +1,10 @@
 {
-  "baselineVersion": 10,
+  "baselineVersion": 11,
   "files": [
     {
       "path": "ablestack-storage-boot-reconcile",
       "mode": 493,
-      "sha256": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277"
+      "sha256": "d39bb13dfd11ea9437831348351c5ab4645013cbe5caa01a09fcaf137e0342e8"
     },
     {
       "path": "ablestack-storage-monitor",
@@ -14,7 +14,12 @@
     {
       "path": "ablestack-storagectl",
       "mode": 493,
-      "sha256": "a3f7fbc71b23a68d7f627369bdb731fefbd73173c5037e8652f324c6c758d9dd"
+      "sha256": "6639c2abaf55b18785783298723544afd5a1b432959c6721914ae4b9cb43d03d"
+    },
+    {
+      "path": "lib/ablestack-storage/boot_reconcile.py",
+      "mode": 420,
+      "sha256": "f1776c05138d14109e56a64b6c7c99ec4c3cd5df312cc7baf1be30faca7781c9"
     },
     {
       "path": "lib/ablestack-storage/configuration_preflight.py",
@@ -24,7 +29,7 @@
     {
       "path": "lib/ablestack-storage/configuration_transaction.py",
       "mode": 420,
-      "sha256": "273c54b768f641fe6a31ccb9bf7a76faa6bbd71fac85744e9499bdabb9579bda"
+      "sha256": "8e1095c11a7081ba925d944b26e8f7e1bbb36644c4ab7058292228cf08035b8b"
     },
     {
       "path": "lib/ablestack-storage/nvmeof_identity.py",

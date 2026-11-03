@@ -43,6 +43,7 @@
       <a-tab-pane :tab="$t('label.details')" key="details">
         <DetailsTab :resource="dataResource" :loading="loading" />
         <SharedFSCapacitySummary :resource="resource" class="storage-service" />
+        <SharedFSBootRecoverySummary :resource="resource" />
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
@@ -1334,6 +1335,16 @@
       <a-tab-pane v-if="'getStorageServiceRuntimeUpgradeCapabilities' in $store.getters.apis" tab="런타임" key="runtime">
         <StorageServiceRuntimeUpgrade v-if="currentTab === 'runtime'" :resource="resource" />
       </a-tab-pane>
+      <a-tab-pane v-if="storageService.instance" :tab="$t('label.storage.boot.tab')" key="bootrecovery">
+        <SharedFSBootRecoveryTab
+          v-if="currentTab === 'bootrecovery'"
+:instance="storageService.instance"
+          :inventory="storageService.inventory"
+:unavailable="!!storageReadErrors.inventory"
+          :guarded="!!configurationProtected"
+:loading="storageService.refreshing"
+          @refresh="refreshBootRecovery" />
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis">
         <SharedFSNetworkStatus
           :resource="resource"
@@ -2417,6 +2428,8 @@ import { mixinDevice } from '@/utils/mixin.js'
 import Status from '@/components/widgets/Status'
 import DetailsTab from '@/components/view/DetailsTab'
 import SharedFSCapacityTab from './SharedFSCapacityTab.vue'
+import SharedFSBootRecoveryTab from './SharedFSBootRecoveryTab.vue'
+import SharedFSBootRecoverySummary from './SharedFSBootRecoverySummary.vue'
 import SharedFSCapacitySummary from './SharedFSCapacitySummary.vue'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
@@ -2675,6 +2688,8 @@ export default {
     StorageConfigurationPreflightPanel,
     DetailsTab,
     SharedFSCapacityTab,
+    SharedFSBootRecoveryTab,
+    SharedFSBootRecoverySummary,
     SharedFSCapacitySummary,
     StatsTab,
     EventsTab,
@@ -5458,6 +5473,18 @@ export default {
       this.storageService.iscsiAcls = []
       this.storageService.nvmeHostAcls = []
       this.storageService.backingVolumes = []
+    },
+    async refreshBootRecovery () {
+      const instanceid = this.storageService.instance?.id
+      const scope = this.storageReadScope
+      if (!instanceid) return
+      const current = () => !this.listRefreshDisposed && scope === this.storageReadScope && instanceid === this.storageService.instance?.id
+      try {
+        const rows = await this.listApi('listStorageServiceInventory', { instanceid }, 'storageserviceruntime')
+        if (!current()) return
+        this.storageService.inventory = rows
+        delete this.storageReadErrors.inventory
+      } catch (_) { if (current()) this.storageReadErrors.inventory = true }
     },
     async fetchRuntime (api, key) {
       this.storageService[key] = await this.listApi(api, { instanceid: this.storageService.instance.id }, 'storageserviceruntime')

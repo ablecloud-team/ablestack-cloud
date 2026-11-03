@@ -489,6 +489,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(ListStorageServiceDomainStatusCmd.class);
         commands.add(ListStorageServiceHealthCmd.class);
         commands.add(ListStorageServiceInventoryCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceBootRecoveryCmd.class);
         commands.add(ListStorageServiceProtocolsCmd.class);
         commands.add(ListStorageServiceSessionsCmd.class);
         commands.add(DisconnectStorageServiceSessionCmd.class);
@@ -1753,6 +1754,35 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Override
     public ListResponse<StorageServiceRuntimeResponse> listStorageServiceInventory(final ListStorageServiceInventoryCmd cmd) {
         return listRuntimeOperation(cmd.getInstanceId(), "inventory");
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse resumeStorageServiceBootRecovery(
+            final org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceBootRecoveryCmd cmd) {
+        final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        if (instance.getVmId() == null || instance.getActiveConfigurationOperationId() != null) {
+            throw new InvalidParameterValueException("BOOT_CONFIGURATION_PROTECTED");
+        }
+        final String boot;
+        try { boot = java.util.UUID.fromString(cmd.getBootId()).toString(); }
+        catch (RuntimeException invalid) { throw new InvalidParameterValueException("BOOT_IDENTITY_INVALID"); }
+        if (!"NFS".equals(cmd.getProtocol()) || cmd.getExpectedDesiredHash() == null
+                || !cmd.getExpectedDesiredHash().matches("[a-f0-9]{64}")) {
+            throw new InvalidParameterValueException("BOOT_REQUEST_INVALID");
+        }
+        final JsonObject payload = new JsonObject();
+        payload.addProperty("instanceUuid", instance.getUuid());
+        payload.addProperty("bootId", boot);
+        payload.addProperty("expectedDesiredHash", cmd.getExpectedDesiredHash());
+        payload.addProperty("protocol", "NFS");
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                instance.getVmId(), "boot-reconcile resume", GSON.toJson(payload), 15, Collections.emptySet()));
+        if (!result.isSuccess()) {
+            final JsonObject wire = parseJsonObject(result.getResultJson());
+            throw new CloudRuntimeException(wire.has("code") ? wire.get("code").getAsString() : "BOOT_OBSERVATION_UNAVAILABLE");
+        }
+        return createRuntimeResponse(instance, "boot-reconcile resume", true, "ACCEPTED", "Pending boot observation admitted",
+                result.getResultJson());
     }
 
     @Override

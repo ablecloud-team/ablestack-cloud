@@ -2328,7 +2328,7 @@ def main(argv):
             ad_domain_protection=0
         from smb_client_access import protected as client_access_protected
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1, "smbClientAccessPolicyVersion": 1, "smbClientAccessPolicyProtectionVersion": int(client_access_protected()), "smbClientAccessAddressFamilies": ["IPv4"],
-                          "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
+                          "bootRecoveryVersion": 1, "bootRecoveryProtectionVersion": __import__("boot_reconcile").protection_version(), "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
                           "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbFileIdentityVersion": 1, "smbFileIdentityProtectionVersion": int(__import__("smb_file_identity").protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:

@@ -168,6 +168,15 @@ public class SharedFSCapacityService extends ManagerBase implements Configurable
                 view.getSize(), data, cache.get(view.getInstanceId()), details, Instant.now(), Math.max(15, STALE.value()));
             if (details && capacity.volumes != null) addReferences(view.getInstanceId(), capacity, data);
             response.setCapacity(capacity);
+            Snapshot observed = cache.get(view.getInstanceId());
+            if (observed != null && observed.data.has("bootReconcile") && observed.data.get("bootReconcile").isJsonObject()) {
+                JsonObject summary = new JsonObject();
+                JsonObject boot = observed.data.getAsJsonObject("bootReconcile");
+                for (String key : List.of("schemaVersion", "state", "phase", "observedAt", "bootId"))
+                    if (boot.has(key) && boot.get(key).isJsonPrimitive()) summary.add(key, boot.get(key));
+                summary.addProperty("stale", observed.collectedAt.isBefore(Instant.now().minusSeconds(Math.max(15, STALE.value()))));
+                response.setBootRecovery(summary);
+            }
         }
     }
     public void enrich(SharedFSResponse response, SharedFSJoinVO view) {

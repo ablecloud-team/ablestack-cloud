@@ -55,6 +55,7 @@
     </template>
     <template #bodyCell="{ column, text, record }">
       <SharedFSCapacitySummary v-if="$route.name === 'sharedfs' && column.key === 'capacity'" :resource="record" mode="list" />
+      <SharedFSBootRecoverySummary v-else-if="$route.name === 'sharedfs' && column.key === 'bootrecovery'" :resource="record" mode="list" />
       <span v-else-if="$route.name === 'snapshot' && column.key === 'copy'">{{ $t(record.copy?.role === 'Primary' ? 'label.primary.storage' : record.copy?.role === 'Image' ? 'label.secondary.storage' : 'label.unknown') }}</span>
       <span v-else-if="$route.name === 'snapshot' && column.key === 'datastorename'">{{ record.datastorename || $t('message.snapshot.search.store.unavailable') }}</span>
       <AffinityGroupPolicy v-else-if="$route.meta?.name === 'affinitygroup' && column.key === 'type'" :type="record.type" compact />
@@ -1231,11 +1232,13 @@ import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
 import { FileTextOutlined } from '@ant-design/icons-vue'
 import SharedFSCapacitySummary from '@/views/storage/SharedFSCapacitySummary.vue'
+import SharedFSBootRecoverySummary from '@/views/storage/SharedFSBootRecoverySummary.vue'
 
 export default {
   name: 'ListView',
   components: {
     SharedFSCapacitySummary,
+    SharedFSBootRecoverySummary,
     LinkedDiskOffering,
     AffinityGroupPolicy,
     AutoScaleListCell,

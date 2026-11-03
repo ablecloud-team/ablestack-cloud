@@ -31,6 +31,11 @@ import java.util.List;
 
 @EntityReference(value = SharedFS.class)
 public class SharedFSResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse {
+    @SerializedName("bootrecovery")
+    @Param(description = "Cached boot recovery summary; open the recovery tab for current observations")
+    private com.google.gson.JsonObject bootRecovery;
+    public void setBootRecovery(com.google.gson.JsonObject value) { bootRecovery = value; }
+
 
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the shared filesystem")

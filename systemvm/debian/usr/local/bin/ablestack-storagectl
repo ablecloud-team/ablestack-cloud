@@ -194,6 +194,10 @@ if generated <= 0 or time.time() - generated > stale_after:
     sys.exit(1)
 
 cached["cached"] = True
+if scope == "inventory":
+    sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
+    from boot_reconcile import read_status
+    cached["bootReconcile"] = read_status()
 if scope == "sessions":
     payload = load_payload(payload_file)
     sessions = [session for session in cached.get("sessions", []) if matches(session, payload)]
@@ -884,7 +888,10 @@ sys.path.insert(0, os.environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from volume_identity import resolve_volume_device, VolumeIdentityError, flatten_devices, size_matches, token_matches, compact
 
 def emit(status, **fields):
-    print(json.dumps(dict(success=True, capacitySnapshotVersion=1, status=status, **fields), sort_keys=True))
+    from boot_reconcile import read_status
+    value = read_status()
+    summary = {key: value.get(key) for key in ("schemaVersion", "state", "phase", "observedAt", "bootId")}
+    print(json.dumps(dict(success=True, capacitySnapshotVersion=1, status=status, bootReconcile=summary, **fields), sort_keys=True))
 
 def verified_mount_source(flat, cache, volume_uuid):
     """A mounted candidate needs an observed source; never erase its mountpoint protection."""
@@ -1751,6 +1758,7 @@ print(json.dumps({
     "nfsidentitymapping": NfsIdentityMapping().inspect(),
     "nfsPosixObservations": nfs_posix,
     "nfsLocalProbes": load_json("/etc/ablestack-storage/nfs-local-probes.json", {}),
+    "bootReconcile": __import__("boot_reconcile").read_status(),
     "smbParentInheritanceObservations": smb_inheritance,
     "smbFileIdentityObservations": fixed_observations,
     "smbClientAccessObservations": client_access_observations,
@@ -3572,6 +3580,7 @@ PY
 
 apply_nfs_exports() {
   local payload_file="$1"
+  local recovery_mode="${2:-online}"
 
   if command -v systemctl >/dev/null 2>&1; then
     systemctl disable --now nfs-server >/dev/null 2>&1 || systemctl disable --now nfs-kernel-server >/dev/null 2>&1 || true
@@ -3580,7 +3589,7 @@ apply_nfs_exports() {
   fi
   exportfs -ua >/dev/null 2>&1 || true
 
-  python3 - "$payload_file" <<'PY'
+  python3 - "$payload_file" "$recovery_mode" <<'PY'
 import json
 import ipaddress
 import os
@@ -3596,6 +3605,7 @@ import zlib
 sys.path.insert(0, os.environ.get("ABLESTACK_STORAGE_HELPER_ROOT", "/usr/local/lib/ablestack-storage"))
 from configuration_transaction import nfs_posix_apply_config, NfsIdentityMapping
 payload_path = sys.argv[1]
+boot_recovery = len(sys.argv) > 2 and sys.argv[2] == "boot"
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
@@ -3613,6 +3623,13 @@ os.makedirs(ganesha_conf_dir, exist_ok=True)
 os.makedirs(ganesha_run_dir, exist_ok=True)
 os.makedirs(ganesha_default_run_dir, exist_ok=True)
 os.makedirs(nfs_probe_root, exist_ok=True)
+previous_config_hashes = {}
+if boot_recovery:
+    import hashlib
+    for name in os.listdir(ganesha_conf_dir):
+        path = os.path.join(ganesha_conf_dir, name)
+        if name.endswith(".conf") and os.path.isfile(path) and not os.path.islink(path):
+            previous_config_hashes[path] = hashlib.sha256(open(path,"rb").read()).hexdigest()
 
 def remove_legacy_root_export():
     exports_path = "/etc/exports"
@@ -4142,6 +4159,16 @@ def start_ganesha_endpoints(configs):
     for key, conf_path, ip, port, mode in configs:
         log_path = os.path.join(ganesha_run_dir, f"{key}.log")
         pid_path = os.path.join(ganesha_run_dir, f"{key}.pid")
+        if boot_recovery and previous_config_hashes.get(conf_path) == hashlib.sha256(open(conf_path, "rb").read()).hexdigest():
+            try:
+                old_pid = int(open(pid_path).read().strip())
+                candidate_ip = "127.0.0.1" if ip in ("0.0.0.0", "::") else ip
+                if managed_ganesha_process(old_pid):
+                    with socket.create_connection((candidate_ip, int(port)), timeout=1):
+                        started.append((key, conf_path, ip, int(port), mode, old_pid, log_path))
+                        continue
+            except (OSError, ValueError):
+                pass
         try:
             if os.path.exists(pid_path):
                 os.unlink(pid_path)
@@ -4186,6 +4213,7 @@ def start_ganesha_endpoints(configs):
     runtime = []
     deadline = time.time() + 15
     for key, conf_path, ip, port, mode, pid, log_path in started:
+        if boot_recovery: deadline = time.monotonic() + 15
         item = {
             "key": key,
             "listenIp": ip,
@@ -4200,7 +4228,7 @@ def start_ganesha_endpoints(configs):
         if candidate_ip in ("0.0.0.0", "::"):
             candidate_ip = "127.0.0.1"
         last_error = ""
-        while time.time() < deadline:
+        while (time.monotonic() if boot_recovery else time.time()) < deadline:
             item["processRunning"] = managed_ganesha_process(pid) if pid else False
             if pid and not process_exists(pid):
                 item["error"] = "managed ganesha process exited"
@@ -4708,7 +4736,7 @@ for export in payload.get("exports", []):
             "backingPath": backing_path,
             "name": export.get("name"),
         }
-        if not nested or directory_created:
+        if not boot_recovery and (not nested or directory_created):
             apply_posix_permissions(nested["anchor"] if nested else backing_path,
                                     nfs_posix_apply_config(dict(export, config=export_config), payload, directory_created))
         rendered_acl_keys = set()
@@ -4816,6 +4844,11 @@ with open(alias_state_path, "w", encoding="utf-8") as alias_fp:
 configs = write_ganesha_configs(endpoint_exports, default_port)
 needs_rpcbind = any(mode == "V3V4_DUAL" for _, _, _, _, mode in configs)
 runtime_endpoints = start_ganesha_endpoints(configs if enabled else [])
+if boot_recovery:
+    from boot_reconcile import rendered_probe_plan
+    print(json.dumps({"success": True, "runtimeEndpoints": runtime_endpoints,
+                      "bootProbePlan": rendered_probe_plan(runtime_endpoints, endpoint_exports)}))
+    raise SystemExit(0)
 try:
     runtime_probe_failures = probe_nfs_export_visibility(runtime_endpoints, endpoint_exports if enabled else {})
 except RuntimeError:
@@ -4871,6 +4904,7 @@ print(json.dumps({
 }, sort_keys=True))
 PY
 
+  if [[ "$recovery_mode" == "boot" ]]; then return 0; fi
   persist_nfs_desired_state "$payload_file"
 
   local nfs_port
@@ -7049,6 +7083,10 @@ action="${3:-}"
 payload="${4:-}"
 
 case "$command" in
+  boot-reconcile)
+    if [[ ! "$subcommand" =~ ^(status|resume)$ ]]; then emit_error "Invalid boot recovery operation"; exit 2; fi
+    exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/boot_reconcile.py" "$subcommand" "${3:-}"
+    ;;
   directory)
     if [[ "$subcommand" != "policy" || ! "$action" =~ ^(inspect|preview)$ || ! -r "$payload" ]]; then
       emit_error "Invalid directory observation."
@@ -7176,7 +7214,7 @@ case "$command" in
     filesystem_resize "$payload"
     ;;
   nfs)
-    if [[ "$subcommand" != "export" || "$action" != "apply" ]]; then
+    if [[ "$subcommand" != "export" || ! "$action" =~ ^(apply|boot-prepare)$ ]]; then
       emit_error "Unsupported nfs operation: ${subcommand:-<empty>} ${action:-<empty>}"
       exit 2
     fi
@@ -7185,7 +7223,7 @@ case "$command" in
       exit 2
     fi
     log_command "$command $subcommand $action" "$payload"
-    apply_nfs_exports "$payload"
+    if [[ "$action" == "boot-prepare" ]]; then apply_nfs_exports "$payload" boot; else apply_nfs_exports "$payload"; fi
     ;;
   smb)
     if [[ -z "$payload" || ! -r "$payload" ]]; then
