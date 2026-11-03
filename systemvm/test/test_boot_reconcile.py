@@ -179,4 +179,78 @@ class BootRecovery(unittest.TestCase):
         self.assertEqual("READY",done["state"])
         self.assertEqual(200,done["protocols"]["NFS"]["completed"])
         self.assertEqual(4,len(self.runtime.applies));self.assertLessEqual(self.runtime.peak,4)
+
+    def nvme_observation(self):
+        value = json.loads((ROOT / "test/fixtures/boot_nvme_apply_observation.json").read_text())
+        for key in ("before", "after"):
+            value[key]["instanceUuid"] = INSTANCE
+        return value
+
+    def test_nvme_observed_device_path_is_not_desired_and_snapshot_keeps_original_payload(self):
+        observed = self.nvme_observation()
+        self.paths["NVMEOF"].write_text(json.dumps(observed["before"]))
+        before = self.engine.snapshot()
+        expected = copy.deepcopy(before["states"])
+        self.paths["NVMEOF"].write_text(json.dumps(observed["after"]))
+        after = self.engine.snapshot()
+        self.assertEqual(before["desiredHash"], after["desiredHash"])
+        self.assertEqual(expected, before["states"])
+        self.assertNotEqual(before["states"]["NVMEOF"], after["states"]["NVMEOF"])
+        # The same-named key elsewhere is still desired; do not strip recursively.
+        nfs = after["states"]["NFS"]
+        nfs["runtime"] = {"backingPath": "/dev/requested"}
+        self.paths["NFS"].write_text(json.dumps(nfs))
+        self.assertNotEqual(after["desiredHash"], self.engine.snapshot()["desiredHash"])
+
+    def test_nvme_desired_uuid_size_path_acl_and_backing_type_remain_protected(self):
+        observed = self.nvme_observation()["after"]
+        self.paths["NVMEOF"].write_text(json.dumps(observed))
+        original = self.engine.snapshot()["desiredHash"]
+        variants = [
+            ("volumeUuid", lambda v: v["subsystems"][0]["namespaces"][0].update(volumeUuid=str(uuid.uuid4()))),
+            ("namespaceUuid", lambda v: v["subsystems"][0]["namespaces"][0].update(uuid=str(uuid.uuid4()))),
+            ("size", lambda v: v["subsystems"][0]["namespaces"][0].update(volumeSizeBytes=2147483648)),
+            ("configuredPath", lambda v: v["subsystems"][0]["namespaces"][0].setdefault("config", {}).update(backingPath="/dev/requested")),
+            ("ACL", lambda v: v["subsystems"][0]["hosts"][0].update(principal="nqn.other")),
+            ("authentication", lambda v: v["subsystems"][0]["hosts"][0]["config"].update(dhChapEnabled=True)),
+            ("backingType", lambda v: v["subsystems"][0]["namespaces"][0]["runtime"].update(backingType="file")),
+        ]
+        for name, mutate in variants:
+            with self.subTest(name=name):
+                candidate = copy.deepcopy(observed)
+                mutate(candidate)
+                self.paths["NVMEOF"].write_text(json.dumps(candidate))
+                self.assertNotEqual(original, self.engine.snapshot()["desiredHash"])
+
+    def test_worker_reloads_real_cli_saved_nvme_observation_after_all_protocol_applies(self):
+        observed = self.nvme_observation()
+        self.paths["NVMEOF"].write_text(json.dumps(observed["before"]))
+        native_saved = observed["after"]
+        test = self
+        class ReloadSavedApply(Runtime):
+            def prepare(self, protocol, path, seconds):
+                value = super().prepare(protocol, path, seconds)
+                if protocol == "NVMEOF":
+                    test.paths[protocol].write_text(json.dumps(native_saved))
+                return value
+        runtime = ReloadSavedApply()
+        runtime.fail_once = False
+        self.engine.runtime = runtime
+        self.engine.start()
+        result = self.engine.work()
+        self.assertEqual("READY", result["state"])
+        self.assertEqual(["NFS", "SMB", "ISCSI", "NVMEOF"], runtime.applies)
+        self.assertEqual(20, result["protocols"]["NFS"]["completed"])
+        self.assertIsNone(result["firstFailure"])
+        # A real ACL change in the same persisted result must still block.
+        self.engine.root = self.root / "changed-journal"
+        self.paths["NVMEOF"].write_text(json.dumps(observed["before"]))
+        mutated = copy.deepcopy(native_saved)
+        mutated["subsystems"][0]["hosts"][0]["principal"] = "nqn.other"
+        native_saved = mutated
+        self.engine.start()
+        denied = self.engine.work()
+        self.assertEqual("BLOCKED", denied["state"])
+        self.assertEqual("BOOT_OBSERVATION_CHANGED", denied["firstFailure"]["code"])
+
 if __name__=="__main__":unittest.main()

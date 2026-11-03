@@ -5,6 +5,7 @@
 """Boot-only, bounded protocol recovery. Never formats DATA or edits desired policy."""
 import concurrent.futures
 import contextlib
+import copy
 import fcntl
 import hashlib
 import ipaddress
@@ -159,6 +160,22 @@ def active_rows(value, key):
         return []
     return [row for row in value.get(key, []) if row.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")]
 
+def desired_projection(protocol, value):
+    projected = copy.deepcopy(value)
+    projected.pop("lastApply", None)
+    if protocol == "NVMEOF":
+        for subsystem in projected.get("subsystems", []):
+            for namespace in subsystem.get("namespaces", []):
+                observed = namespace.get("runtime")
+                if isinstance(observed, dict):
+                    # A resolved /dev name is an observation, not a requested path.
+                    # Keep backingType and all desired UUID/size/config/ACL fields.
+                    observed.pop("backingPath", None)
+                    if not observed:
+                        namespace.pop("runtime")
+    return projected
+
+
 def desired_snapshot(paths=DESIRED):
     states = {name: read_json(path, {}) for name, path in paths.items()}
     ids = {identifier(v["instanceUuid"]) for v in states.values() if v.get("instanceUuid")}
@@ -166,10 +183,7 @@ def desired_snapshot(paths=DESIRED):
         return None
     if len(ids) != 1:
         raise RecoveryError("BOOT_INSTANCE_IDENTITY_MISMATCH")
-    def canonical(value):
-        # Only an existing runtime observation, never an ACL or identity field.
-        return {key: item for key, item in value.items() if key != "lastApply"}
-    return {"instanceUuid": ids.pop(), "desiredHash": digest({p: canonical(v) for p, v in states.items()}), "states": states}
+    return {"instanceUuid": ids.pop(), "desiredHash": digest({p: desired_projection(p, v) for p, v in states.items()}), "states": states}
 
 def rendered_probe_plan(endpoints, exports):
     """Use the same local-IP/ACL contract as the ordinary visibility probe."""
