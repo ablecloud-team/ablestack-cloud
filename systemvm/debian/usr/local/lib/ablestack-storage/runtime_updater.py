@@ -33,6 +33,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import uuid
 
 
 RUNTIME_ABI_VERSION = "1"
@@ -836,6 +837,14 @@ class RuntimeUpdater:
                                  availableBytes=available, requiredBytes=required, verifiedFiles=manifest["files"])
         return {"success": True, **state}
 
+    @staticmethod
+    def snapshot_operation_id(request):
+        instance = require_identifier(request.get("instanceUuid"), "instanceUuid")
+        transaction = require_identifier(request.get("transactionId"), "transactionId")
+        # The same runtime transaction always owns the same path-binding journal.
+        return str(uuid.uuid5(uuid.NAMESPACE_URL,
+                             "ablestack-storage-runtime/snapshot/" + instance + "/" + transaction))
+
     def configuration_snapshot(self, request):
         if self.runtime_root != Path("/opt/ablestack/storage-runtime"):
             return
@@ -852,6 +861,7 @@ class RuntimeUpdater:
         private = self.transaction_dir(request) / "configuration-before"
         private.mkdir(mode=0o700, exist_ok=False)
         payload = {"instanceUuid": require_identifier(request.get("instanceUuid"), "instanceUuid"),
+                   "operationid": self.snapshot_operation_id(request),
                    "candidate": commands, "before": commands}
         adapter = RuntimeAdapter(private)
         adapter.preflight(payload)
@@ -927,9 +937,12 @@ class RuntimeUpdater:
         try:
             self.configuration_snapshot(request)
         except Exception as error:
+            code = getattr(error, "code", "BASELINE_SNAPSHOT_FAILED")
             self.write_state(request,state,"REJECTED",previousVersion=previous_version,currentVersion=previous_version,
-                             errorCode=getattr(error,"code","BASELINE_SNAPSHOT_FAILED"))
-            raise
+                             errorCode=code)
+            if isinstance(error, RuntimeUpgradeError):
+                raise
+            raise RuntimeUpgradeError(code, "configuration snapshot failed before runtime activation") from error
         atomic_symlink(previous_target, self.previous)
         atomic_symlink(target, self.current)
         try:

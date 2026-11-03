@@ -501,6 +501,93 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         with self.assertRaisesRegex(module.RuntimeUpgradeError, "unsafe archive path"):
             updater.extract_release(transaction, manifest, declared)
 
+    def load_updater_module(self):
+        spec = importlib.util.spec_from_file_location("snapshot_updater", UPDATER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_snapshot_operation_uuid_is_stable_and_scoped_to_instance_and_transaction(self):
+        import uuid
+        module = self.load_updater_module()
+        request = {"transactionId":"runtime-009668c2-5d64-4201-9099-53bc36ecf14e",
+                   "instanceUuid":"cc7d7185-d19c-46ac-8596-fc3848ffba10"}
+        value = module.RuntimeUpdater.snapshot_operation_id(request)
+        self.assertEqual(value, str(uuid.UUID(value)))
+        self.assertEqual(value, module.RuntimeUpdater.snapshot_operation_id(dict(request)))
+        for changed in (dict(request, transactionId="runtime-another"),
+                        dict(request, instanceUuid="another-instance")):
+            self.assertNotEqual(value, module.RuntimeUpdater.snapshot_operation_id(changed))
+        with self.assertRaises(module.RuntimeUpgradeError):
+            module.RuntimeUpdater.snapshot_operation_id(dict(request, transactionId="../outside"))
+
+    def test_activate_passes_operation_uuid_through_real_snapshot_method_to_path_journal(self):
+        import uuid
+        from unittest.mock import patch
+        self.run_updater("bootstrap")
+        request = dict(self.stage_transaction(), instanceUuid=str(uuid.uuid4()))
+        module = self.load_updater_module()
+        sys = __import__("sys")
+        sys.path.insert(0, str(ROOT / "debian/usr/local/lib/ablestack-storage"))
+        from shared_directory_policy import FileSharePathBindings
+        fixture = self.temp / "nfs.json"
+        row = {"uuid":str(uuid.uuid4()), "config":{"pathBindingVersion":1}}
+        fixture.write_text(json.dumps({"exports":[row]}))
+        desired = {
+            "/etc/ablestack-storage/desired-state/nfs-export-apply.json": fixture,
+            "/etc/ablestack-storage/desired-state/smb-share-apply.json": self.temp/"absent-smb",
+            "/etc/ablestack-storage/iscsi-targets.json": self.temp/"absent-iscsi",
+            "/etc/ablestack-storage/nvmeof-subsystems.json": self.temp/"absent-nvme",
+        }
+        class PathJournalAdapter:
+            def __init__(self, private):
+                self.journal = private / "pathbindings.json"
+            def preflight(self, payload):
+                pass
+            def snapshot(self, payload):
+                engine = FileSharePathBindings(journal=self.journal)
+                # The journal writer is real; native integration validates physical paths.
+                with patch.object(engine, "inspect", return_value={"inode":42}), patch.object(engine, "registered", return_value={}):
+                    engine.begin(payload)
+        original_path = Path
+        original_run = subprocess.run
+        def run(command, **kwargs):
+            if command[-1:] == ["health"]:
+                return subprocess.CompletedProcess(command, 0, '{"listenPorts":{}}', "")
+            return original_run(command, **kwargs)
+        with patch.dict(os.environ, self.env):
+            updater = module.RuntimeUpdater()
+            updater.runtime_root = Path("/opt/ablestack/storage-runtime")
+            with patch.object(module, "Path", side_effect=lambda *parts:desired.get(str(parts[0]), original_path(*parts)) if len(parts)==1 else original_path(*parts)), \
+                 patch("configuration_transaction.RuntimeAdapter", PathJournalAdapter), \
+                 patch.object(module.subprocess, "run", side_effect=run), \
+                 patch.object(updater, "refresh_monitor"):
+                result = updater.activate(request)
+        self.assertEqual("ACTIVATED", result["phase"])
+        private = self.state_root/request["transactionId"]/"configuration-before"
+        journal = json.loads((private/"pathbindings.json").read_text())
+        self.assertEqual(module.RuntimeUpdater.snapshot_operation_id(request), journal["operationid"])
+        self.assertEqual(request["instanceUuid"], journal["instanceUuid"])
+        self.assertEqual([row["uuid"]], list(journal["plans"]))
+
+    def test_snapshot_exception_is_typed_rejection_before_any_pointer_switch(self):
+        from unittest.mock import patch
+        before = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        module = self.load_updater_module()
+        with patch.dict(os.environ, self.env):
+            updater = module.RuntimeUpdater()
+            old_previous = updater.current_version(updater.previous)
+            with patch.object(updater, "configuration_snapshot", side_effect=KeyError("operationid")):
+                with self.assertRaises(module.RuntimeUpgradeError) as rejected:
+                    updater.activate(request)
+            self.assertEqual("BASELINE_SNAPSHOT_FAILED", rejected.exception.code)
+            self.assertEqual(before, updater.current_version())
+            self.assertEqual(old_previous, updater.current_version(updater.previous))
+            state = updater.read_state(request)
+            self.assertEqual("REJECTED", state["phase"])
+            self.assertEqual("BASELINE_SNAPSHOT_FAILED", state["errorCode"])
+
 
 if __name__ == "__main__":
     unittest.main()
