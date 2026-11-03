@@ -6647,7 +6647,7 @@
   "label.storage.service.smb.dialect": "SMB dialect",
   "label.storage.service.tree.session.id": "Tree/session ID",
   "label.storage.service.cidr": "CIDR",
-  "message.storage.service.nfs.connection.generic": "Use the service IP with the export name shown in the exports table. Each export name is exposed as the client-visible root path. When NFSv3 compatibility is enabled, legacy clients can also use /export/<name> on the same endpoint.",
+  "message.storage.service.nfs.connection.generic": "Use the service IP with the export name shown in the exports table. The client-visible root is /<name>; NFSv3 compatibility uses the same path. Use showmount -e to confirm the published NFSv3 paths.",
   "message.storage.service.nfs.exports.table": "Export names are the client-visible NFS roots. Internal paths are shown only for operation and troubleshooting.",
   "message.storage.service.nfs.acls.table": "Access allow entries applied to NFS exports.",
   "message.storage.service.nfs.volumes.table": "Backing volumes used by NFS exports and their ABLESTACK volume information.",

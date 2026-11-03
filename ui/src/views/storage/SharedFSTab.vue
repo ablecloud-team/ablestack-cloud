@@ -3663,7 +3663,7 @@ export default {
       const mountPath = `<${this.$t('label.storage.service.local.mount.path.placeholder')}>`
       const commands = [`mount -t nfs4 -o vers=4.1,proto=tcp,port=${endpointPort} ${endpointIp}:/${exportName} ${mountPath}`]
       if (runtimeMode === 'V3V4_DUAL') {
-        commands.push(`mount -t nfs -o vers=3,proto=tcp,port=${endpointPort} ${endpointIp}:/export/${exportName} ${mountPath}`)
+        commands.push(`mount -t nfs -o vers=3,proto=tcp,port=${endpointPort} ${endpointIp}:/${exportName} ${mountPath}`)
         commands.push(`showmount -e ${endpointIp}`)
       }
       return commands
