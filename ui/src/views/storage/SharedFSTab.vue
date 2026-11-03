@@ -2800,6 +2800,8 @@ export default {
       configurationProtectionUnavailable: false,
       configurationRequest: null,
       configurationResult: null,
+      configurationActionOwners: {},
+      configurationActionSequence: 0,
       actionLoading: {},
       identityRepair: {
         visible: false,
@@ -6013,6 +6015,7 @@ export default {
       this.configurationResult = null
       this.configurationProtectionLoading = false
       this.configurationProtectionUnavailable = false
+      this.configurationActionOwners = {}
       this.actionLoading = {}
     },
     async refreshConfigurationProtection (refreshInstance = false) {
@@ -6077,25 +6080,28 @@ export default {
       const current = () => generation === this.configurationGeneration && scope === this.storageReadScope
       if (!this.configurationRequest || configurationRetryAllowed(this.configurationOperation)) this.configurationRequest = configurationRequestId()
       const requestid = this.configurationRequest
+      // Modal generations own observations; a request token owns its execution latch.
+      const owner = JSON.stringify([scope, instanceid, key, requestid, ++this.configurationActionSequence])
+      this.configurationActionOwners[key] = owner
       this.actionLoading[key] = true
       this.configurationOperation = { instanceid, requestid, state: 'QUEUED', phase: 'PREPARING' }
-      let jobid
       try {
-        const response = await postAPI(api, this.cleanParams({
-          ...params,
-          requestid,
-          expectedrevision: this.storageService.instance.configurationrevision,
-          impactack: this.configurationAcceptedPreflight.fingerprint
-        }))
-        if (!current()) return
-        jobid = response[api.toLowerCase() + 'response']?.jobid
-      } catch (error) {
-        if (!current()) return
-        // A lost POST response does not prove that the operation failed. Keep the same key.
-        this.configurationOperation = { instanceid, requestid, state: 'SUBMISSION_UNCONFIRMED', phase: 'OBSERVING' }
-        this.$notifyError(error)
-      }
-      try {
+        let jobid
+        try {
+          const response = await postAPI(api, this.cleanParams({
+            ...params,
+            requestid,
+            expectedrevision: this.storageService.instance.configurationrevision,
+            impactack: this.configurationAcceptedPreflight.fingerprint
+          }))
+          if (!current()) return
+          jobid = response[api.toLowerCase() + 'response']?.jobid
+        } catch (error) {
+          if (!current()) return
+          // A lost POST response does not prove that the operation failed. Keep the same key.
+          this.configurationOperation = { instanceid, requestid, state: 'SUBMISSION_UNCONFIRMED', phase: 'OBSERVING' }
+          this.$notifyError(error)
+        }
         const operation = await observeConfigurationOperation({
           get: getAPI,
           instanceid,
@@ -6113,10 +6119,16 @@ export default {
         if (operation?.state === 'COMMITTED') {
           this.clearPreparedConfigurationVolumes()
           await this.refreshAfterStorageAction(key)
+          if (!current()) return
         }
         if (terminalConfigurationState(operation?.state)) this.invalidateConfigurationPreflight()
         return operation
-      } finally { if (current()) this.actionLoading[key] = false }
+      } finally {
+        if (this.configurationActionOwners[key] === owner) {
+          delete this.configurationActionOwners[key]
+          this.actionLoading[key] = false
+        }
+      }
     },
     async refreshConfigurationOperation () {
       await this.refreshConfigurationProtection(true)

@@ -166,4 +166,88 @@ describe('mounted SharedFS instance configuration protection', () => {
     expect(wrapper.vm.configurationOperation?.id).not.toBe(original.id)
     expect(postAPI).not.toHaveBeenCalled()
   })
+  test.each([
+    ['nfsExport', 'createStorageNfsExport'], ['smbShare', 'createStorageSmbShare'],
+    ['iscsiTarget', 'createStorageIscsiTarget'], ['nvmeSubsystem', 'createStorageNvmeOfSubsystem']
+  ])('closing COMMITTED %s during refresh releases only its request latch and preserves the next preflight', async (key, api) => {
+    await render(false)
+    await open(key)
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: instance.id, fingerprint: 'first' }
+    let finishRefresh
+    wrapper.vm.refreshAfterStorageAction = jest.fn(() => new Promise(resolve => { finishRefresh = resolve }))
+    wrapper.vm.actionModal.loading = true
+    const first = wrapper.vm.runConfigurationAction(key, api, { name: 'first' })
+    await flushPromises()
+    expect(wrapper.vm.configurationResult.state).toBe('COMMITTED')
+    expect(wrapper.vm.configurationProtected).toBe(false)
+    expect(wrapper.vm.actionLoading[key]).toBe(true)
+    wrapper.vm.closeActionModal()
+    await flushPromises()
+    await open(key)
+    const nextPreflight = { status: 'READY', fingerprint: 'next', checks: [], expiresat: '2099-01-01T00:00:00Z' }
+    wrapper.vm.configurationPreflight = nextPreflight
+    wrapper.vm.configurationImpactAcknowledged = true
+    finishRefresh()
+    await first
+    expect(wrapper.vm.actionLoading[key]).toBe(false)
+    expect(wrapper.vm.configurationPreflight).toEqual(nextPreflight)
+    expect(wrapper.vm.configurationImpactAcknowledged).toBe(true)
+    wrapper.vm.configurationAcceptedPreflight = { ...nextPreflight, scope: wrapper.vm.storageReadScope, instanceid: instance.id }
+    wrapper.vm.refreshAfterStorageAction.mockResolvedValue()
+    await wrapper.vm.runConfigurationAction(key, api, { name: 'second' })
+    expect(postAPI).toHaveBeenCalledTimes(2)
+    expect(postAPI.mock.calls[1][1].requestid).not.toBe(postAPI.mock.calls[0][1].requestid)
+    expect(wrapper.vm.actionLoading[key]).toBe(false)
+  })
+
+  test('an old POST completion cannot clear a newer instance request latch or overwrite its operation', async () => {
+    await render(false)
+    await open('nfsExport')
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: instance.id, fingerprint: 'first' }
+    let finishOld, finishNew
+    postAPI.mockImplementationOnce(() => new Promise(resolve => { finishOld = resolve }))
+    const first = wrapper.vm.runConfigurationAction('nfsExport', 'createStorageNfsExport', { name: 'old' })
+    await flushPromises()
+    const next = { ...copy(server), id: 'next-instance', virtualmachineid: 'next-vm' }
+    server = next
+    await wrapper.setProps({ resource: { id: 'next-sharedfs', zoneid: next.zoneid, virtualmachineid: next.virtualmachineid, volumeid: 'next-data' } })
+    wrapper.vm.storageService.instance = copy(next)
+    await flushPromises()
+    await open('nfsExport')
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: next.id, fingerprint: 'second' }
+    postAPI.mockImplementationOnce((api, params) => {
+      row = { ...copy(original), id: 'next-operation', instanceid: next.id, requestid: params.requestid, state: 'COMMITTED', canresume: false, result: {} }
+      return new Promise(resolve => { finishNew = resolve })
+    })
+    const second = wrapper.vm.runConfigurationAction('nfsExport', 'createStorageNfsExport', { name: 'new' })
+    await flushPromises()
+    const pendingNew = copy(wrapper.vm.configurationOperation)
+    finishOld({ createstoragenfsexportresponse: { jobid: 'old-job' } })
+    await first
+    expect(wrapper.vm.actionLoading.nfsExport).toBe(true)
+    expect(wrapper.vm.configurationOperation).toEqual(pendingNew)
+    finishNew({ createstoragenfsexportresponse: { jobid: 'new-job' } })
+    await second
+    expect(wrapper.vm.actionLoading.nfsExport).toBe(false)
+    expect(wrapper.vm.configurationResult.id).toBe('next-operation')
+    expect(wrapper.vm.configurationResult.instanceid).toBe(next.id)
+  })
+
+  test('lost POST response still protects a server recovery operation after the execution latch is released', async () => {
+    await render(false)
+    await open('nfsExport')
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: instance.id, fingerprint: 'first' }
+    postAPI.mockImplementation(async (api, params) => {
+      row = { ...copy(original), requestid: params.requestid, state: 'RECOVERY_REQUIRED', canresume: true }
+      throw new Error('POST response lost')
+    })
+    await wrapper.vm.runConfigurationAction('nfsExport', 'createStorageNfsExport', { name: 'uncertain' })
+    expect(wrapper.vm.actionLoading.nfsExport).toBe(false)
+    expect(wrapper.vm.configurationProtected).toBe(true)
+    expect(wrapper.vm.configurationOperation.originalfailure).toEqual(original.originalfailure)
+    wrapper.vm.closeActionModal()
+    await open('nfsExport')
+    await wrapper.vm.runConfigurationAction('nfsExport', 'createStorageNfsExport', { name: 'duplicate' })
+    expect(postAPI).toHaveBeenCalledTimes(1)
+  })
 })
