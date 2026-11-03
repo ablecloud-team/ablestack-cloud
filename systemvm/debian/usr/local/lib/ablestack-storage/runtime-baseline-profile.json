@@ -19,7 +19,7 @@
     {
       "path": "lib/ablestack-storage/boot_reconcile.py",
       "mode": 420,
-      "sha256": "cdf749d2b9ad629094c3158bf86c1378d9f5210ae116b14cabe3894a7728d2d0"
+      "sha256": "03fd617e478a304c3bfbce565812c65d81afb5b56de0cac6ff5ce3d9f35d852a"
     },
     {
       "path": "lib/ablestack-storage/configuration_preflight.py",
@@ -74,5 +74,5 @@
       "sha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675"
     }
   },
-  "sourcePayloadSha256": "4b434383faaef6814e5546a51f13b5650e931c01fd51f3510939d543c38fca60"
+  "sourcePayloadSha256": "96a8134100c257e2852f2c9a73abbd0402432203366369b8770b2bb142f98e8e"
 }
