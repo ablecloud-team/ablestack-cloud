@@ -251,6 +251,15 @@ class Runtime:
             if result["returncode"]:
                 raise RecoveryError(phase + "_PENDING")
 
+    def eligibility(self, instance, root=Path("/var/lib/ablestack-storage/configuration-operations")):
+        directory = root / identifier(instance)
+        if directory.is_symlink(): raise RecoveryError("BOOT_CONFIGURATION_PROTECTED")
+        if not directory.exists(): return
+        for path in directory.glob("*/status.json"):
+            value = read_json(path, {})
+            if value.get("state") not in ("COMMITTED", "ROLLED_BACK"):
+                raise RecoveryError("BOOT_CONFIGURATION_PROTECTED")
+
     def data(self, snapshot):
         # Reuse the existing non-formatting mount and binding identity guards.
         result = self.run(["mount", "-a"], 20)
@@ -291,7 +300,9 @@ class Runtime:
         if protocol == "NVMEOF":
             self.run(["modprobe", "nvmet-tcp"], 5)
             self.run(["mount", "-t", "configfs", "configfs", "/sys/kernel/config"], 5)
-        value = self.run([CLI, *operation, str(path)], seconds)
+        command = [CLI, *operation, str(path)]
+        if protocol == "ISCSI": command = ["env", "ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD=1", *command]
+        value = self.run(command, seconds)
         if value["timedOut"]:
             raise RecoveryError(protocol + "_PREPARATION_PENDING")
         if value["returncode"]:
@@ -392,6 +403,8 @@ class BootReconciler:
         if not value:
             return {"schemaVersion": VERSION, "bootId": self.boot, "desiredHash": snapshot["desiredHash"],
                     "state": "NOT_OBSERVED", "canResume": False}
+        if value.get("bootId") != self.boot or value.get("instanceUuid") != snapshot["instanceUuid"]:
+            raise RecoveryError("BOOT_JOURNAL_IDENTITY_CHANGED")
         result = {k: v for k, v in value.items() if k not in ("plan", "results", "workerIdentity", "heartbeatEpoch", "unit")}
         result["updatedAt"] = value.get("observedAt")
         result["observedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -488,6 +501,8 @@ class BootReconciler:
             state.update(state="RUNNING", workerPid=os.getpid(), workerIdentity=process_identity(os.getpid()))
             begin = time.monotonic()
             try:
+                if hasattr(self.runtime, "eligibility"):
+                    self.runtime.eligibility(snapshot["instanceUuid"])
                 nfs = snapshot["states"]["NFS"]
                 listeners = max(1, len(nfs.get("listeners") or []))
                 probes = len(active_rows(nfs, "exports")) * listeners * (2 if nfs.get("protocolMode") == "V3V4_DUAL" else 1)

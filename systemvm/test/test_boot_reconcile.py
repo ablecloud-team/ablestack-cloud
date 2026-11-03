@@ -129,6 +129,31 @@ class BootRecovery(unittest.TestCase):
         self.assertTrue(updater.complete_managed_names(current-{"lib/ablestack-storage/boot_reconcile.py"}))
         self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/volume_identity.py"}))
         self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/smb_client_access.py"}))
+    def test_unresolved_configuration_is_protected_without_committing_or_rolling_back(self):
+        directory=self.root/"transactions"/INSTANCE/str(uuid.uuid4());directory.mkdir(parents=True)
+        state=directory/"status.json";state.write_text(json.dumps({"state":"VERIFIED"}))
+        before=state.read_bytes()
+        with self.assertRaisesRegex(boot.RecoveryError,"BOOT_CONFIGURATION_PROTECTED"):
+            boot.Runtime().eligibility(INSTANCE,self.root/"transactions")
+        self.assertEqual(before,state.read_bytes())
+        state.write_text(json.dumps({"state":"COMMITTED"}))
+        boot.Runtime().eligibility(INSTANCE,self.root/"transactions")
+    def test_journal_from_another_boot_is_never_displayed_as_ready(self):
+        self.engine.start();snapshot=self.engine.snapshot();directory=self.engine.locate(snapshot)
+        value=json.loads((directory/"status.json").read_text());value["bootId"]=str(uuid.uuid4())
+        (directory/"status.json").write_text(json.dumps(value))
+        with self.assertRaisesRegex(boot.RecoveryError,"BOOT_JOURNAL_IDENTITY_CHANGED"):self.engine.status()
+    def test_existing_iscsi_boot_rebuild_and_online_nfs_boundary_are_retained(self):
+        class Recorded(boot.Runtime):
+            def __init__(self): self.commands=[]
+            def run(self,args,seconds=30):
+                self.commands.append(args)
+                return {"returncode":0,"stdout":'{"success":true}',"timedOut":False}
+        runtime=Recorded()
+        runtime.prepare("ISCSI",Path("/committed/iscsi.json"),20)
+        self.assertEqual(["env","ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD=1",boot.CLI,"iscsi","target","apply","/committed/iscsi.json"],runtime.commands[-1])
+        runtime.prepare("NFS",Path("/committed/nfs.json"),20)
+        self.assertEqual([boot.CLI,"nfs","export","boot-prepare","/committed/nfs.json"],runtime.commands[-1])
     def test_read_has_no_launch_apply_or_writing_side_effects(self):
         self.assertEqual("NOT_OBSERVED",self.engine.status()["state"])
         self.assertFalse(self.engine.root.exists())
