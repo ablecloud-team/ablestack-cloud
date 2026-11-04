@@ -31,6 +31,7 @@ class PolicyError(Exception):
 
 
 def canonical(value, policy=False):
+    """Comparison projection only: export and CLIENT list order is semantic."""
     value = copy.deepcopy(value)
     for key in META:
         value.pop(key, None)
@@ -45,8 +46,14 @@ def canonical(value, policy=False):
             for rule in row.get("acls", []):
                 if rule.get("state") == "Updating":
                     rule["state"] = "Ready"
-            row["acls"] = sorted(row.get("acls", []), key=lambda r: str(r.get("uuid", r.get("id", ""))))
-    value["exports"] = sorted(value.get("exports", []), key=lambda r: r["uuid"])
+    return value
+
+
+def stored_desired(value):
+    """Match legacy persistence: remove transport fields, keep ordered policy data."""
+    value = copy.deepcopy(value)
+    value.pop("configurationOperationId", None)
+    value.pop("posixIntent", None)
     return value
 
 
@@ -351,7 +358,7 @@ class ClientPolicies:
         progress.update(phase="VERIFYING")
         self.save(progress)
         observations = self.observe(snapshot)
-        desired = canonical(snapshot["value"])
+        desired = stored_desired(snapshot["value"])
         write_file(self.desired, json.dumps(desired, sort_keys=True).encode())
         write_file(self.probes, json.dumps(observations, sort_keys=True).encode())
         progress.update(phase="APPLIED", endpoints=[{"port": r["port"], "process": r["process"],
@@ -372,7 +379,7 @@ class ClientPolicies:
             raise PolicyError("NFS_CLIENT_DIRECTORY_IDENTITY_CHANGED")
         if not restored:
             desired = json.loads(contents(read_file(self.desired)))
-            if canonical(desired) != canonical(snapshot["value"]):
+            if desired != stored_desired(snapshot["value"]):
                 raise PolicyError("NFS_CLIENT_DESIRED_CHANGED")
 
     def restore(self, snapshot):

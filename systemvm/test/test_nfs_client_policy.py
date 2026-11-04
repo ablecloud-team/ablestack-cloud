@@ -15,6 +15,8 @@ import uuid
 from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "debian/usr/local/lib/ablestack-storage"))
+if os.environ.get("NFS_CLIENT_POLICY_CANDIDATE"):
+    sys.path.insert(0, os.environ["NFS_CLIENT_POLICY_CANDIDATE"])
 import configuration_transaction as tx
 import nfs_client_policy_runtime as policy
 import nfs_ganesha_render as render
@@ -232,6 +234,84 @@ class EngineAndTransaction(unittest.TestCase):
     def test_rolled_back_before_new_journal_is_safe_and_validated(self):
         self.engine.restore(self.snapshot)
         self.engine.verify(self.snapshot, True)
+        self.assertEqual([], self.engine.calls)
+
+
+    def ordered_request(self):
+        request = payload()
+        # Creation order deliberately differs from UUID order, including CLIENT precedence.
+        request["before"][policy.OP]["exports"].reverse()
+        rules = [
+            {"uuid": "z-broad-first", "principalType": "CIDR", "principal": "192.0.2.0/24",
+             "permission": "READ_ONLY", "state": "Ready", "config": {"rootSquash": True}},
+            {"uuid": "a-specific-second", "principalType": "CIDR", "principal": "192.0.2.12/32",
+             "permission": "READ_WRITE", "state": "Ready", "config": {"rootSquash": True}}
+        ]
+        request["before"][policy.OP]["exports"][0]["acls"] = rules
+        request["candidate"][policy.OP] = copy.deepcopy(request["before"][policy.OP])
+        request["candidate"][policy.OP]["exports"][0]["acls"][1]["config"]["allSquash"] = True
+        request["candidate"][policy.OP]["configurationOperationId"] = request["operationid"]
+        request["candidate"][policy.OP]["posixIntent"] = {"create": False, "fields": {}}
+        policy.write_file(self.engine.desired, json.dumps(request["before"][policy.OP]).encode())
+        for (ip, port), text in self.engine.rendered(request["before"][policy.OP]).items():
+            policy.write_file(self.engine.config / (policy.endpoint_key(ip, port) + ".conf"), text.encode(), 0o644)
+        return request
+
+    def test_save_reload_real_boot_renderer_followup_and_rollback_keep_order(self):
+        request = self.ordered_request()
+        transaction = tx.Transaction(self.root / "transactions", self.adapter)
+        result = transaction.execute("apply", request)
+        self.assertEqual("VERIFIED", result["state"], result)
+        transaction.execute("commit", request)
+        saved = json.loads(self.engine.desired.read_text())
+        wanted = copy.deepcopy(request["candidate"][policy.OP])
+        wanted.pop("configurationOperationId"); wanted.pop("posixIntent")
+        self.assertEqual(wanted["exports"], saved["exports"])
+        # This is the renderer imported by the real CLI boot-prepare path.
+        boot_configs = render.render_configurations(render.payload_exports(saved), tx.NfsIdentityMapping.lines(saved))
+        self.assertEqual(self.engine.rendered(wanted), boot_configs)
+        for (ip, port), text in boot_configs.items():
+            policy.write_file(self.engine.config / (policy.endpoint_key(ip, port) + ".conf"), text.encode(), 0o644)
+        process = self.engine.process
+        self.engine.process = lambda key, path, port: {**process(key, path, port), "boot": "after-restart", "start": "2"}
+        follow = {**request, "operationid": str(uuid.uuid4()), "baseRevision": 1, "targetRevision": 2,
+                  "before": {policy.OP: wanted}, "candidate": {policy.OP: copy.deepcopy(wanted)}}
+        follow["candidate"][policy.OP]["exports"][0]["acls"][1]["permission"] = "READ_ONLY"
+        result = transaction.execute("apply", follow)
+        self.assertEqual("VERIFIED", result["state"], result)
+        transaction.execute("commit", follow)
+        committed = self.engine.desired.read_bytes()
+        failed = {**follow, "operationid": str(uuid.uuid4()), "baseRevision": 2, "targetRevision": 3,
+                  "before": copy.deepcopy(follow["candidate"]), "candidate": copy.deepcopy(follow["candidate"])}
+        failed["candidate"][policy.OP]["exports"][0]["acls"][1]["permission"] = "READ_WRITE"
+        self.engine.fail_second = True
+        result = transaction.execute("apply", failed)
+        self.assertEqual("ROLLED_BACK", result["state"], result)
+        self.assertEqual("SUCCEEDED", result["rollback"]["state"])
+        self.assertEqual(committed, self.engine.desired.read_bytes())
+
+    def test_verify_detects_sorted_acl_tampering_even_if_unordered_values_match(self):
+        request = self.ordered_request()
+        snapshot = self.engine.snapshot(request)
+        self.engine.apply(snapshot)
+        saved = json.loads(self.engine.desired.read_text())
+        saved["exports"][0]["acls"].reverse()
+        policy.write_file(self.engine.desired, json.dumps(saved).encode())
+        with self.assertRaisesRegex(policy.PolicyError, "NFS_CLIENT_DESIRED_CHANGED"):
+            self.engine.verify(snapshot)
+
+    def test_validation_keeps_safe_original_port_and_stage(self):
+        request = self.ordered_request()
+        path = self.engine.config / "0.0.0.0_2049.conf"
+        path.write_text("foreign content")
+        before = path.read_bytes()
+        result = tx.Transaction(self.root / "transactions", self.adapter).execute("apply", request)
+        self.assertEqual("ROLLED_BACK", result["state"])
+        self.assertEqual("NOT_NEEDED", result["rollback"]["state"])
+        self.assertEqual("NFS_CLIENT_CONFIG_CHANGED", result["originalfailure"]["code"])
+        self.assertEqual(2049, result["originalfailure"]["detail"]["port"])
+        self.assertEqual("NFS_CLIENT_POLICY", result["originalfailure"]["detail"]["stage"])
+        self.assertEqual(before, path.read_bytes())
         self.assertEqual([], self.engine.calls)
 
 

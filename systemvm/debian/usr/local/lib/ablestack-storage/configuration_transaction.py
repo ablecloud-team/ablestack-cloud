@@ -423,6 +423,14 @@ class Transaction:
                 # First failure is durable BEFORE compensation. Never expose raw subprocess output.
                 current.setdefault("originalfailure", {"code": getattr(error, "code", "CONFIGURATION_APPLY_FAILED"),
                                    "phase": current["phase"], "type": type(error).__name__})
+                detail = getattr(error, "detail", None)
+                if (str(getattr(error, "code", "")).startswith("NFS_CLIENT_") and isinstance(detail, dict)
+                        and detail.get("code") == error.code and detail.get("stage") == "NFS_CLIENT_POLICY"):
+                    safe = {"code": error.code, "stage": "NFS_CLIENT_POLICY"}
+                    port = detail.get("port")
+                    if isinstance(port, int) and not isinstance(port, bool) and 1 <= port <= 65535:
+                        safe["port"] = port
+                    current["originalfailure"]["detail"] = safe
                 original = load(private / "original-runner-result.json", {})
                 detail = original.get("result") or {}
                 if detail.get("code") in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE") or str(detail.get("code", "")).startswith("NFS_CLIENT_"):
