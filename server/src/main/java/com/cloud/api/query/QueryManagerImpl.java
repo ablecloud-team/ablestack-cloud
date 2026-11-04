@@ -1501,7 +1501,9 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         userVmSearchBuilder.and("stateNIN", userVmSearchBuilder.entity().getState(), Op.NIN);
 
         if (hostId != null) {
-            userVmSearchBuilder.and("hostId", userVmSearchBuilder.entity().getHostId(), Op.EQ);
+            // Stopped VMs have no current host; PCI allocation uses their last host.
+            userVmSearchBuilder.and("hostId", VirtualMachine.State.Stopped.toString().equalsIgnoreCase(state)
+                    ? userVmSearchBuilder.entity().getLastHostId() : userVmSearchBuilder.entity().getHostId(), Op.EQ);
         }
 
         if (zoneId != null) {

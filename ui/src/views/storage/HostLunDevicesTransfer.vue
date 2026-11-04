@@ -30,6 +30,18 @@
       </a-alert>
       <br>
 
+      <template v-if="resource.hasPartitions">
+        <a-alert
+          type="warning"
+          show-icon
+          :message="$t('message.warning.lun.device.partitions')"
+        />
+        <a-checkbox v-model:checked="form.acknowledgepartitionrisk">
+          {{ $t('message.confirm.lun.device.partitions') }}
+        </a-checkbox>
+        <br>
+      </template>
+
       <a-form-item :label="$t('label.virtualmachine')" name="virtualmachineid" ref="virtualmachineid">
         <a-select
           v-focus="true"
@@ -45,7 +57,7 @@
         </a-select>
         <div class="actions">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          <a-button type="primary" ref="submit" :disabled="resource.hasPartitions && !form.acknowledgepartitionrisk" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
         </div>
       </a-form-item>
     </a-form>
@@ -68,7 +80,7 @@ export default {
     return {
       virtualmachines: [],
       loading: true,
-      form: reactive({ virtualmachineid: null }),
+      form: reactive({ virtualmachineid: null, acknowledgepartitionrisk: false }),
       resourceType: 'UserVm',
       currentVmDevices: new Set(),
       currentScsiAddresses: new Set(),
@@ -141,6 +153,7 @@ export default {
         if (lunDevices?.vmallocations) {
           for (const [deviceName, vmId] of Object.entries(lunDevices.vmallocations)) {
             if (vmId) {
+              allocatedVmIds.add(vmId.toString())
               try {
                 // VM이 실제로 존재하는지 확인
                 const vmResponse = await getAPI('listVirtualMachines', { id: vmId, listall: true })
@@ -148,8 +161,8 @@ export default {
 
                 if (vm && vm.state !== 'Expunging') {
                   allocatedVmIds.add(vmId.toString())
-                } else {
-                  // VM이 존재하지 않거나 Expunging 상태면 자동으로 할당 해제
+                } else if (vm?.state === 'Expunging') {
+                  // 삭제 중인 VM으로 확인된 경우에만 자동으로 할당 해제
                   try {
                     const xmlConfig = this.generateXmlConfig(deviceName)
                     await postAPI('updateHostLunDevices', {
@@ -164,19 +177,8 @@ export default {
                   }
                 }
               } catch (error) {
-                // VM 조회 실패 시에도 할당 해제 시도
-                try {
-                  const xmlConfig = this.generateXmlConfig(deviceName)
-                  await postAPI('updateHostLunDevices', {
-                    hostid: this.resource.id,
-                    hostdevicesname: deviceName,
-                    virtualmachineid: null,
-                    xmlconfig: xmlConfig,
-                    isattach: false
-                  })
-                } catch (detachError) {
-                  // Failed to automatically deallocate LUN device after error
-                }
+                // Keep the allocation when the VM cannot be queried during reboot.
+                allocatedVmIds.add(vmId.toString())
               }
             }
           }
@@ -195,7 +197,7 @@ export default {
             return {
               ...detailedVm,
               instanceId: vm.instanceId,
-              isAllocated: allocatedVmIds.has(vm.instanceId?.toString())
+              isAllocated: allocatedVmIds.has(vm.id?.toString()) || allocatedVmIds.has(vm.instanceId?.toString())
             }
           })
         }))
@@ -212,6 +214,7 @@ export default {
 
     fetchVMs () {
       this.form.virtualmachineid = undefined
+      this.form.acknowledgepartitionrisk = false
       if (!this.resource || !this.resource.id) {
         return
       }
@@ -223,6 +226,14 @@ export default {
         this.$notification.error({
           message: this.$t('message.error'),
           description: this.$t('message.please.select.vm')
+        })
+        return
+      }
+
+      if (this.resource.hasPartitions && !this.form.acknowledgepartitionrisk) {
+        this.$notification.error({
+          message: this.$t('message.error'),
+          description: this.$t('message.confirm.lun.device.partitions')
         })
         return
       }
@@ -245,6 +256,7 @@ export default {
           hostdevicesname: this.resource.hostDevicesName,
           hostdevicestext: this.resource.hostDevicesText || '',
           virtualmachineid: this.form.virtualmachineid,
+          acknowledgepartitionrisk: this.resource.hasPartitions === true && this.form.acknowledgepartitionrisk === true,
           xmlconfig: xmlConfig,
           isattach: true
         })
@@ -409,17 +421,17 @@ export default {
           throw new Error('No VM allocation found for this device')
         }
 
-        // VM 상태 확인 - 실행 중인 경우 할당 해제 불가
+        // Non-PCI device operations require a running VM on the server.
         const vmResponse = await getAPI('listVirtualMachines', {
           id: vmId,
           listall: true
         })
         const vm = vmResponse?.listvirtualmachinesresponse?.virtualmachine?.[0]
 
-        if (vm && vm.state === 'Running') {
+        if (!vm || vm.state !== 'Running') {
           this.$notification.warning({
             message: this.$t('label.warning'),
-            description: this.$t('message.cannot.remove.device.vm.running')
+            description: this.$t('label.vmdevice.runningRequired')
           })
           this.loading = false
           return

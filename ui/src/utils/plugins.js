@@ -152,16 +152,15 @@ export const notifierPlugin = {
         if (error.response.status) {
           msg = `${i18n.global.t('message.request.failed')} (${error.response.status})`
         }
-        if (error.response.headers?.['x-description']) {
-          desc = error.response.headers['x-description']
-        } else if (error.response.data) {
+        if (error.response.data) {
           const responseKey = _.findKey(error.response.data, 'errortext')
           if (responseKey) {
             desc = error.response.data[responseKey].errortext
-          } else if (typeof error.response.data === 'string') {
-            desc = error.response.data
           }
         }
+        // HTTP headers can lose non-ASCII characters; the JSON body preserves them.
+        if (!desc) desc = error.response.headers?.['x-description'] || ''
+        if (!desc && typeof error.response.data === 'string') desc = error.response.data
         if (!desc && error.message) {
           desc = error.message
         }

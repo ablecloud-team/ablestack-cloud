@@ -4216,8 +4216,11 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                         continue;
                     }
 
-                    // 디바이스 관련 XML인지 확인 (hostdev, disk 등)
-                    if (isDeviceSnippet(snippet)) {
+                    String trimmed = snippet.trim();
+                    if (trimmed.startsWith("<devices>") && trimmed.endsWith("</devices>")) {
+                        // Older device allocations persisted an entire devices wrapper.
+                        deviceConfigBuilder.append(trimmed, "<devices>".length(), trimmed.length() - "</devices>".length()).append("\n");
+                    } else if (isDeviceSnippet(snippet)) {
                         deviceConfigBuilder.append(snippet).append("\n");
                     } else {
                         otherConfigBuilder.append(snippet);
@@ -4225,11 +4228,14 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
                 }
             }
 
-            // 디바이스 XML이 있으면 하나의 <devices> 블록으로 감싸서 추가
             String deviceConfig = deviceConfigBuilder.toString().trim();
             if (StringUtils.isNotBlank(deviceConfig)) {
-                String wrappedDeviceConfig = "<devices>\n" + deviceConfig + "\n</devices>";
-                vm.addComp(wrappedDeviceConfig);
+                DevicesDef devices = vm.getDevices();
+                if (devices == null) {
+                    devices = new DevicesDef();
+                    vm.addComp(devices);
+                }
+                devices.addDevice(deviceConfig);
             }
 
             // 기타 설정은 그대로 추가

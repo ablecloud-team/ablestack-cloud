@@ -3044,8 +3044,13 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         if (host == null || host.getStatus() != Status.Up) {
             throw new CloudRuntimeException("Device host is unavailable");
         }
-        if (pci ? vm.getState() != State.Stopped : vm.getState() != State.Running) {
-            throw new CloudRuntimeException(pci ? "Stop the VM before changing PCI allocation settings"
+        boolean validState = pci
+                ? vm.getState() == State.Stopped || (vmId != null && vm.getState() == State.Running)
+                : vm.getState() == State.Running;
+        if (!validState) {
+            throw new CloudRuntimeException(pci
+                    ? (vmId != null ? "VM must be Running or Stopped to save PCI allocation settings"
+                            : "Stop the VM before releasing PCI allocation settings")
                     : "VM must be Running for this device operation");
         }
         if (!deviceVmSnapshotDao.findByVm(vm.getId()).isEmpty()) {
@@ -3921,12 +3926,6 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
                 }
 
                 String xmlToStore = lunAnswer.getXmlConfig() != null ? lunAnswer.getXmlConfig() : xmlConfig;
-                boolean invalidLunTarget = xmlToStore != null && xmlToStore.contains("device='lun'")
-                    && (xmlToStore.contains("dev='mapper/") || xmlToStore.contains("dev=\"mapper/")
-                        || (xmlToStore.contains("mpath") && xmlToStore.contains("<target")));
-                if (invalidLunTarget) {
-                    xmlToStore = null;
-                }
                 if (xmlToStore != null) {
                     addDeviceToVmExtraConfig(vmId, hostDeviceName, xmlToStore);
                 }

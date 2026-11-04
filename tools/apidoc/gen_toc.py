@@ -293,6 +293,7 @@ known_categories = {
     'deleteRbdImage': 'Object Store',
     'deleteObjectStoragePool': 'Object Store',
     'updateObjectStoragePool': 'Object Store',
+    'Bucket': 'Object Store',
     'createBucket': 'Object Store',
     'updateBucket': 'Object Store',
     'deleteBucket': 'Object Store',

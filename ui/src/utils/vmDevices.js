@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { generatePciDeviceXml, parsePciAddress } from '@/utils/util'
+
 export const deviceTypes = {
   pci: ['listHostDevices', 'updateHostDevices'],
   usb: ['listHostUsbDevices', 'updateHostUsbDevices'],
@@ -55,8 +57,7 @@ export function deviceXml (device) {
   const text = device.text || device.hostdevicestext || ''
   const type = device.type || device.devicetype
   if (type === 'pci') {
-    const m = name.match(/^(?:([0-9a-f]{4}):)?([0-9a-f]{2}):([0-9a-f]{2})\.([0-7])(?:\s|$)/i)
-    if (m) return `<devices><hostdev mode='subsystem' type='pci' managed='yes'><source><address domain='0x${m[1] || '0000'}' bus='0x${m[2]}' slot='0x${m[3]}' function='0x${m[4]}'/></source></hostdev></devices>`
+    if (parsePciAddress(name)) return generatePciDeviceXml(name)
   } else if (type === 'usb') {
     const m = name.match(/(?:Bus\s*)?(\d+)(?:\s+Device\s+|[:.])(\d+)/i)
     if (m) return `<hostdev mode='subsystem' type='usb' managed='yes'><source><address bus='${Number(m[1])}' device='${Number(m[2])}'/></source></hostdev>`

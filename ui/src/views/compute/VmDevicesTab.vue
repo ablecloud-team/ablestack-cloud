@@ -60,6 +60,7 @@ wrap-class-name="vm-device-dialog"
           <a-form-item v-if="mode === 'existing'" :label="d('type')"><a-select v-model:value="type" :disabled="submitting" @change="fetchCandidates"><a-select-option v-for="t in types.filter(allowed)" :key="t" :value="t">{{ typeLabel(t) }}</a-select-option></a-select></a-form-item>
           <a-form-item v-if="type === 'lun' && mode === 'existing'" :label="d('pathMode')"><a-select v-model:value="pathMode" :disabled="submitting" @change="fetchCandidates"><a-select-option value="single">{{ d('single') }}</a-select-option><a-select-option value="multipath">{{ d('multipath') }}</a-select-option></a-select></a-form-item>
           <a-alert v-if="operationReason" type="warning" show-icon :message="operationReason" />
+          <a-alert v-if="mode === 'existing' && type === 'pci'" type="warning" show-icon :message="d('pciApplyAfterStart')" />
           <a-form-item :label="mode === 'create' ? d('parentHba') : d('device')"><a-select v-model:value="choice" :loading="candidateLoading" :disabled="busy || !hostId" show-search option-filter-prop="label" option-label-prop="label"><a-select-option v-for="item in candidates" :key="item.name" :value="item.name" :label="['scsi', 'lun'].includes(item.type) ? deviceSummary(item) + ' · ' + item.name : item.name + ' — ' + item.text" :disabled="deviceBlocked(item)"><a-tooltip :title="candidateLabel(item)" placement="topLeft" overlay-class-name="vm-device-option-tooltip"><span><span class="vm-device-option-label">{{ ['scsi', 'lun'].includes(item.type) ? deviceSummary(item) : item.name + ' — ' + item.text }}</span><small v-if="['scsi', 'lun'].includes(item.type) || candidateReason(item)" class="vm-device-option-meta">{{ ['scsi', 'lun'].includes(item.type) ? item.name : '' }}<span v-if="candidateReason(item)"> · {{ candidateReason(item) }}</span></small></span></a-tooltip></a-select-option></a-select><p class="device-help">{{ d(type === 'scsi' ? 'diskHelp' : type === 'lun' ? 'lunHelp' : 'candidateHelp') }}</p></a-form-item>
           <a-button v-if="mode === 'existing' && type === 'vhba' && choice && api('deleteVhbaDevice')" :disabled="submitting" @click="openDeleteCandidate">{{ d('deleteVhba') }}</a-button>
           <a-form-item v-if="mode === 'create'" :label="d('vhbaName')"><a-input v-model:value="vhbaName" :maxlength="80" :disabled="submitting" /><p class="device-help">{{ d('vhbaHelp') }}</p></a-form-item>
@@ -166,7 +167,7 @@ export default {
     reason (type, row) {
       if (this.blockReason) return this.blockReason
       if (!this.allowed(type)) return this.d('permission')
-      if (type === 'pci' ? this.vm.state !== 'Stopped' : this.vm.state !== 'Running') return this.d(type === 'pci' ? 'stopPci' : 'runningRequired')
+      if (type === 'pci' ? (row && this.vm.state !== 'Stopped') : this.vm.state !== 'Running') return this.d(type === 'pci' ? 'stopPci' : 'runningRequired')
       if (row && (!row.hostuuid || (this.vm.hostid && row.hostuuid !== this.vm.hostid))) return this.d('hostBlocked')
       return ''
     },
@@ -189,7 +190,7 @@ export default {
       } catch (e) { if (version === this.revision) { this.error = this.d('loadFailed'); this.snapshots = null } } finally { if (version === this.revision) this.loading = false }
     },
     async openAllocate () {
-      this.selected = null; this.mode = 'existing'; this.type = this.vm.state === 'Stopped' ? 'pci' : this.types.find(t => t !== 'pci' && this.allowed(t)); this.dialog = 'allocate'; this.dialogError = ''; this.ack = false; this.createdDevice = ''; this.hostId = this.vm.hostid
+      this.selected = null; this.mode = 'existing'; this.type = this.vm.state === 'Stopped' ? 'pci' : (this.types.find(t => t !== 'pci' && this.allowed(t)) || this.types.find(this.allowed)); this.dialog = 'allocate'; this.dialogError = ''; this.ack = false; this.createdDevice = ''; this.hostId = this.vm.hostid
       if (!this.hostId) {
         try { const r = await getAPI('listHosts', { zoneid: this.vm.zoneid, type: 'Routing' }, { preserveOnFailure: true }); this.hosts = asArray(r.listhostsresponse?.host).filter(h => h.hypervisor === 'KVM' && h.state === 'Up'); this.hostId = this.rows.find(r => r.hostuuid)?.hostuuid } catch (e) { this.dialogError = this.d('loadFailed') }
       }
@@ -289,7 +290,7 @@ export default {
           const detail = ['hba', 'vhba'].includes(this.type) ? `SCSI_Address: [${this.address}] ${device.text}` : device.text
           if (this.resource.id !== vmId) throw new Error(this.d('verifyFirst'))
           await postAPI(deviceTypes[this.type][1], { hostid: hostId, hostdevicesname: device.name, hostdevicestext: detail, virtualmachineid: vmId, xmlconfig: xml, ...(['lun', 'scsi', 'hba', 'vhba'].includes(this.type) ? { acknowledgepartitionrisk: medium.hasPartitions === true && this.ack } : {}) })
-          this.dialog = ''; this.$message.success(this.d('complete'))
+          this.dialog = ''; this.$message.success(this.d(this.type === 'pci' ? 'pciSaved' : 'complete'))
         }
       } catch (e) {
         this.dialogError = e.message === 'device-address-unverified' ? this.d('addressUnverified') : (Object.values(e.response?.data || {}).find(v => v?.errortext)?.errortext || e.message || this.d('failed'))
