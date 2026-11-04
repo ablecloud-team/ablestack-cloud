@@ -2824,13 +2824,10 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
 
             // reload the volume from db
             newVolumeOnPrimaryStorage = volFactory.getVolume(newVolumeOnPrimaryStorage.getId());
-            DiskOfferingVO volumeDiskOffering = _diskOfferingDao.findById(newVolumeOnPrimaryStorage.getDiskOfferingId());
-            boolean shareableVolume = volumeDiskOffering != null && volumeDiskOffering.getShareable();
-            // Keep shareable volumes on their current pool; moving one can replace its shared path with a new volume path.
-            boolean moveVolumeNeeded = !shareableVolume && needMoveVolume(existingVolumeOfVm, newVolumeOnPrimaryStorage);
+            boolean moveVolumeNeeded = needMoveVolume(existingVolumeOfVm, newVolumeOnPrimaryStorage);
             if (logger.isTraceEnabled()) {
                 logger.trace(String.format("is this a new volume: %s == %s ?", volumeToAttach, newVolumeOnPrimaryStorage));
-                logger.trace(String.format("is it needed to move the volume: %b? (shareable: %b)", moveVolumeNeeded, shareableVolume));
+                logger.trace(String.format("is it needed to move the volume: %b?", moveVolumeNeeded));
             }
 
             // Check if CLVM lock transfer is needed (even if moveVolumeNeeded is false)
@@ -5441,12 +5438,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         AttachAnswer answer = null;
         HypervisorType rootDiskHyperType = vm.getHypervisorType();
         StoragePoolVO volumeToAttachStoragePool = _storagePoolDao.findById(volumeToAttach.getPoolId());
-        String sharedMountPointPath = volumeToAttach.getPath();
-        DiskOfferingVO diskOffering = _diskOfferingDao.findById(volumeToAttach.getDiskOfferingId());
-        boolean preserveSharedMountPointPath = volumeToAttachStoragePool != null
-                && volumeToAttachStoragePool.getPoolType() == Storage.StoragePoolType.SharedMountPoint
-                && diskOffering != null && diskOffering.getShareable()
-                && sharedMountPointPath != null;
         if (HypervisorType.External.equals(rootDiskHyperType)) {
             throw new InvalidParameterValueException("Volume operations are not allowed for External hypervisor type");
         }
@@ -5502,11 +5493,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
             }
 
             if (sendCommand) {
-                if (preserveSharedMountPointPath && !Objects.equals(sharedMountPointPath, volumeToAttach.getPath())) {
-                    volumeToAttach.setPath(sharedMountPointPath);
-                    _volsDao.update(volumeToAttach.getId(), volumeToAttach);
-                }
-
                 if (host != null && host.getHypervisorType() == HypervisorType.KVM && volumeToAttachStoragePool.isManaged() && volumeToAttach.getPath() == null) {
                     volumeToAttach.setPath(volumeToAttach.get_iScsiName());
 
@@ -5626,11 +5612,6 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                         // Unmap the volume on PowerFlex/ScaleIO pool for stopped VM
                         volService.revokeAccess(volFactory.getVolume(volumeToAttach.getId()), host, dataStore);
                     }
-                }
-
-                if (preserveSharedMountPointPath && !Objects.equals(sharedMountPointPath, volumeToAttach.getPath())) {
-                    volumeToAttach.setPath(sharedMountPointPath);
-                    _volsDao.update(volumeToAttach.getId(), volumeToAttach);
                 }
 
                 // insert record for disk I/O statistics
