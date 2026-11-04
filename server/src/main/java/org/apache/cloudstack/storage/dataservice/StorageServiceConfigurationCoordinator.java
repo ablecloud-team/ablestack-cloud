@@ -206,7 +206,7 @@ final class StorageServiceConfigurationCoordinator {
             StorageServiceGuestCommandResult result = guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                     "configuration operation apply", JSON.toJson(payload), 20,
                     new HashSet<>(Arrays.asList("password", "secrets", "chapSecret", "mutualChapSecret", "dhChapKey", "dhChapCtrlKey"))));
-            JsonObject observation = parsed(result.getResultJson());
+            JsonObject observation = dispatchObservation(op, instance, result);
             observation = observeUntilDecision(instance, op, observation, report.getAsJsonObject("profile").get("observationseconds").getAsInt());
             if (!matches(op, observation)) {
                 op.setPhase("OBSERVING"); op.setState("RECOVERY_REQUIRED"); op.setGuestObservationJson("{\"code\":\"RESPONSE_UNCONFIRMED\"}"); save(op);
@@ -419,6 +419,34 @@ final class StorageServiceConfigurationCoordinator {
         JsonObject p = new JsonObject(); p.addProperty("operationid", op.getUuid()); p.addProperty("instanceUuid", instance.getUuid());
         p.addProperty("baseRevision", op.getBaseRevision()); p.addProperty("targetRevision", op.getTargetRevision()); return p;
     }
+    static JsonObject dispatchObservation(StorageServiceConfigurationOperationVO op, StorageServiceInstanceVO instance,
+            StorageServiceGuestCommandResult result) {
+        JsonObject observed = parsed(result.getResultJson());
+        String code = null;
+        if (!result.isSuccess() && observed.has("dispatch") && observed.get("dispatch").isJsonObject()) {
+            JsonObject dispatch = observed.getAsJsonObject("dispatch");
+            if (dispatch.has("state") && "NOT_STARTED".equals(dispatch.get("state").getAsString()) && dispatch.has("code")) {
+                String candidate = dispatch.get("code").getAsString();
+                if (Arrays.asList("QGA_STDIN_TRANSFER_FAILED", "QGA_EXEC_REJECTED", "QGA_EXEC_ARGUMENT_TOO_LARGE",
+                        "QGA_VM_UNAVAILABLE", "QGA_VM_NOT_RUNNING").contains(candidate)) code = candidate;
+            }
+        }
+        // Rolling deployment compatibility: an explicit execve failure is definite; a timeout/lost reply is not.
+        if (!result.isSuccess() && code == null && result.getDetails() != null
+                && result.getDetails().startsWith("Failed to execute Storage Service QGA command:")
+                && result.getDetails().contains("Failed to execute child process")) {
+            code = result.getDetails().contains("Argument list too long") ? "QGA_EXEC_ARGUMENT_TOO_LARGE" : "QGA_EXEC_REJECTED";
+        }
+        if (code == null) return observed;
+        JsonObject failure = new JsonObject(); failure.addProperty("code", code);
+        failure.addProperty("phase", "DISPATCH"); failure.addProperty("started", false);
+        JsonObject rollback = new JsonObject(); rollback.addProperty("state", "NOT_NEEDED");
+        JsonObject rejected = identity(op, instance);
+        rejected.addProperty("state", "ROLLED_BACK"); rejected.addProperty("workerActive", false);
+        rejected.add("originalfailure", failure); rejected.add("rollback", rollback);
+        return rejected;
+    }
+
     private JsonObject observeUntilDecision(StorageServiceInstanceVO instance, StorageServiceConfigurationOperationVO op,
             JsonObject first, int seconds) {
         JsonObject value = first;

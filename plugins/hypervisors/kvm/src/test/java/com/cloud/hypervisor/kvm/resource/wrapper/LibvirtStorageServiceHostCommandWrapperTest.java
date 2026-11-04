@@ -18,6 +18,26 @@
 package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import java.util.Collections;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.io.ByteArrayOutputStream;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.libvirt.Domain;
+import org.libvirt.DomainInfo;
+import org.libvirt.DomainInfo.DomainState;
+import org.libvirt.Connect;
+import org.libvirt.LibvirtException;
+import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.StorageServiceHostAnswer;
+import static org.mockito.Mockito.*;
+
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -161,6 +181,129 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertTrue(shell.indexOf("--validate") < shell.indexOf("mv /etc/ablestack-storage/sharedfs-network.json.tmp"));
         Assert.assertTrue(shell.indexOf("mv /etc/ablestack-storage/sharedfs-network.json.tmp") < shell.indexOf(wrapper.buildSharedFsBootstrapGuard()));
         Assert.assertTrue(shell.contains("dhclient-enter-hooks.d/ablestack-sharedfs"));
+    }
+
+
+    private StorageServiceHostCommand command(String payload) {
+        return new StorageServiceHostCommand("test", "configuration capability show", payload, 20, Collections.emptySet());
+    }
+
+    private Domain recordingDomain(List<JsonObject> executions) throws Exception {
+        Domain domain = mock(Domain.class);
+        AtomicLong pid = new AtomicLong(10);
+        when(domain.qemuAgentCommand(anyString(), anyInt(), anyInt())).thenAnswer(call -> {
+            JsonObject request = JsonParser.parseString(call.getArgument(0)).getAsJsonObject();
+            if ("guest-exec".equals(request.get("execute").getAsString())) {
+                executions.add(request);
+                return "{\"return\":{\"pid\":" + pid.incrementAndGet() + "}}";
+            }
+            return "{\"return\":{\"exited\":true,\"exitcode\":0}}";
+        });
+        return domain;
+    }
+
+    @Test public void smallAndEmptyPayloadUseStdinAndPreserveBytesWithoutShellInterpolation() throws Exception {
+        List<JsonObject> requests = new ArrayList<>();
+        for (String payload : new String[] {"", "{\"label\":\"한글😀 $(touch never) ' \\u003d\"}"}) {
+            JsonObject request = JsonParser.parseString(wrapper.buildGuestExecCommand(command(payload))).getAsJsonObject();
+            requests.add(request);
+            JsonObject args = request.getAsJsonObject("arguments");
+            Assert.assertArrayEquals(payload.getBytes(StandardCharsets.UTF_8),
+                    Base64.getDecoder().decode(args.get("input-data").getAsString()));
+            String shell = args.getAsJsonArray("arg").get(1).getAsString();
+            Assert.assertTrue(shell.length() < 1024);
+            Assert.assertTrue(shell.contains("cat >"));
+            Assert.assertTrue(shell.contains("trap"));
+            Assert.assertFalse(shell.contains("touch never"));
+        }
+        String output = System.getProperty("sharedfs.stdin.requests.output");
+        if (output != null) Files.writeString(Path.of(output + ".small.json"), requests.toString());
+    }
+
+    @Test public void staticAndDhcpNetworkDispatchKeepTheExistingDedicatedContract() {
+        JsonObject args = JsonParser.parseString(wrapper.buildGuestExecCommand(
+                new StorageServiceHostCommand("test", "configure-sharedfs-static-network",
+                        "{\"mode\":\"DHCP\"}", 60, Collections.emptySet())))
+                .getAsJsonObject().getAsJsonObject("arguments");
+        Assert.assertFalse(args.has("input-data"));
+        Assert.assertTrue(args.getAsJsonArray("arg").get(1).getAsString().contains("sharedfs-network.json"));
+        Assert.assertFalse(args.getAsJsonArray("arg").get(1).getAsString().contains("cat >"));
+    }
+
+    @Test public void actualFailed49ExportPayloadAndOneMiBHaveBoundedArgumentsAndExactStdinChunks() throws Exception {
+        String actual = Files.readString(Path.of("src/test/resources/sharedfs/configuration-49-stdin.json"));
+        Assert.assertEquals(98346, actual.getBytes(StandardCharsets.UTF_8).length);
+        for (String payload : new String[] {actual, "{\"x\":\"" + "x".repeat(1024 * 1024 - 8) + "\"}",
+                "{\"unicode\":\"" + "한글😀".repeat(18000) + "\"}"}) {
+            List<JsonObject> executions = new ArrayList<>();
+            wrapper.executeGuestCommand(recordingDomain(executions), command(payload));
+            ByteArrayOutputStream received = new ByteArrayOutputStream();
+            for (JsonObject execution : executions) {
+                JsonObject args = execution.getAsJsonObject("arguments");
+                for (var arg : args.getAsJsonArray("arg")) Assert.assertTrue(arg.getAsString().getBytes(StandardCharsets.UTF_8).length < 4096);
+                if (args.has("input-data")) {
+                    byte[] chunk = Base64.getDecoder().decode(args.get("input-data").getAsString());
+                    Assert.assertTrue(chunk.length <= LibvirtStorageServiceHostCommandWrapper.STDIN_CHUNK_BYTES);
+                    received.write(chunk);
+                }
+            }
+            Assert.assertArrayEquals(payload.getBytes(StandardCharsets.UTF_8), received.toByteArray());
+            JsonObject last = executions.get(executions.size() - 1).getAsJsonObject("arguments");
+            Assert.assertEquals("/bin/bash", last.get("path").getAsString());
+            Assert.assertTrue(last.getAsJsonArray("arg").get(1).getAsString().contains("configuration capability show"));
+            Assert.assertTrue(last.getAsJsonArray("arg").get(1).getAsString().contains("trap"));
+            Assert.assertFalse(last.has("input-data"));
+            String export = System.getProperty("sharedfs.stdin.requests.output");
+            if (export != null && payload.equals(actual)) Files.writeString(Path.of(export), executions.toString());
+            if (export != null && payload.getBytes(StandardCharsets.UTF_8).length == 1024 * 1024)
+                Files.writeString(Path.of(export + ".1m.json"), executions.toString());
+        }
+    }
+
+    @Test public void stagingFailureCleansOnlyItsPrivateFileAndNeverStartsStorageCtl() throws Exception {
+        List<JsonObject> executions = new ArrayList<>();
+        Domain domain = mock(Domain.class);
+        when(domain.qemuAgentCommand(anyString(), anyInt(), anyInt())).thenAnswer(call -> {
+            JsonObject request = JsonParser.parseString(call.getArgument(0)).getAsJsonObject();
+            if ("guest-exec".equals(request.get("execute").getAsString())) {
+                executions.add(request);
+                if (request.getAsJsonObject("arguments").has("input-data")) throw libvirtFailure("transport failed while staging");
+                return "{\"return\":{\"pid\":42}}";
+            }
+            return "{\"return\":{\"exited\":true,\"exitcode\":0}}";
+        });
+        try { wrapper.executeGuestCommand(domain, command("x".repeat(98346))); Assert.fail(); }
+        catch (LibvirtStorageServiceHostCommandWrapper.PayloadTransferException expected) { }
+        Assert.assertEquals(2, executions.size());
+        Assert.assertTrue(executions.get(1).toString().contains("unlink"));
+        Assert.assertFalse(executions.stream().anyMatch(x -> x.toString().contains("/usr/local/bin/ablestack-storagectl")));
+    }
+
+    @Test public void actualSpawnFailureAnswerIsTypedButLostReplyRemainsUnconfirmed() throws Exception {
+        for (String message : new String[] {"guest agent command failed: Failed to execute child process /bin/bash (Argument list too long)",
+                "guest agent command timed out"}) {
+            Domain domain = mock(Domain.class); DomainInfo info = new DomainInfo(); info.state = DomainState.VIR_DOMAIN_RUNNING;
+            when(domain.getInfo()).thenReturn(info);
+            LibvirtException failure = libvirtFailure(message);
+            when(domain.qemuAgentCommand(anyString(), anyInt(), anyInt())).thenThrow(failure);
+            LibvirtComputingResource resource = mock(LibvirtComputingResource.class);
+            LibvirtUtilitiesHelper helper = mock(LibvirtUtilitiesHelper.class); Connect connection = mock(Connect.class);
+            when(resource.getLibvirtUtilitiesHelper()).thenReturn(helper); when(helper.getConnection()).thenReturn(connection);
+            when(resource.getDomain(connection, "test")).thenReturn(domain);
+            StorageServiceHostAnswer answer = (StorageServiceHostAnswer)wrapper.execute(command("{}"), resource);
+            Assert.assertFalse(answer.getResult());
+            if (message.contains("Argument list too long")) {
+                JsonObject dispatch = JsonParser.parseString(answer.getResultJson()).getAsJsonObject().getAsJsonObject("dispatch");
+                Assert.assertEquals("NOT_STARTED", dispatch.get("state").getAsString());
+                Assert.assertEquals("QGA_EXEC_ARGUMENT_TOO_LARGE", dispatch.get("code").getAsString());
+            } else Assert.assertNull(answer.getResultJson());
+        }
+    }
+
+    private LibvirtException libvirtFailure(String message) {
+        LibvirtException failure = mock(LibvirtException.class);
+        when(failure.getMessage()).thenReturn(message);
+        return failure;
     }
 
 }

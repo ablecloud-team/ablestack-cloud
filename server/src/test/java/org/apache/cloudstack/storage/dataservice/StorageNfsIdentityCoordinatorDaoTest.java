@@ -171,4 +171,111 @@ public class StorageNfsIdentityCoordinatorDaoTest {
             assertTrue(StorageServiceConfigurationCoordinator.smbEndpointOperation(op));
         }
     }
+
+    private java.util.concurrent.atomic.AtomicReference<StorageServiceConfigurationPlan> prepareDispatch() {
+        StorageServiceConfigurationPreflight preflight = mock(StorageServiceConfigurationPreflight.class);
+        com.google.gson.JsonObject report = new com.google.gson.JsonObject();
+        report.addProperty("status", "READY"); report.addProperty("fingerprint", "fixture");
+        report.add("checks", new com.google.gson.JsonArray()); report.add("intent", new com.google.gson.JsonObject());
+        com.google.gson.JsonObject profile = new com.google.gson.JsonObject(); profile.addProperty("observationseconds", 600);
+        report.add("profile", profile);
+        org.mockito.Mockito.when(preflight.observe(any(), any(), any())).thenReturn(report);
+        coordinator = new StorageServiceConfigurationCoordinator(instances, operations,
+                mock(StorageServiceProtocolDao.class), mock(StorageFileShareDao.class),
+                mock(StorageBlockTargetDao.class), mock(StorageAccessRuleDao.class), guest, preflight,
+                mock(StorageServiceRuntimeUpgradeDao.class));
+        return new java.util.concurrent.atomic.AtomicReference<>();
+    }
+
+    private void runDispatch(UpdateStorageNfsIdentityMappingCmd cmd,
+            java.util.concurrent.atomic.AtomicReference<StorageServiceConfigurationPlan> plan) {
+        coordinator.execute(cmd, instance, StorageServiceInstance.Protocol.NFS, String.class,
+                () -> { plan.get().commands.put("nfs identity apply", new com.google.gson.JsonObject()); return "candidate"; },
+                plan::set, () -> plan.get().commands.put("nfs identity apply", new com.google.gson.JsonObject()), "vm-fixture");
+    }
+
+    private StorageServiceGuestCommandResult capability() {
+        return new StorageServiceGuestCommandResult(true, "ready",
+                "{\"nfsPosixIntentVersion\":1,\"nfsIdentityMappingVersion\":1,\"configurationPreflightVersion\":1,\"configurationTransactionVersion\":1}");
+    }
+
+    @Test public void actualCoordinatorDaoPersistsPreExecFailureWithoutPollingOrRevisionAdvance() throws Exception {
+        for (boolean legacy : new boolean[] {false, true}) {
+            UpdateStorageNfsIdentityMappingCmd cmd = command();
+            var plan = prepareDispatch();
+            doAnswer(call -> {
+                StorageServiceGuestCommand command = call.getArgument(0);
+                if ("configuration capability show".equals(command.getOperation())) return capability();
+                assertEquals("configuration operation apply", command.getOperation());
+                return legacy ? new StorageServiceGuestCommandResult(false,
+                        "Failed to execute Storage Service QGA command: guest-exec: Failed to execute child process /bin/bash (Argument list too long)", null)
+                        : new StorageServiceGuestCommandResult(false, "QGA_EXEC_ARGUMENT_TOO_LARGE",
+                        "{\"dispatch\":{\"state\":\"NOT_STARTED\",\"code\":\"QGA_EXEC_ARGUMENT_TOO_LARGE\"}}");
+            }).when(guest).dispatch(any());
+            try { runDispatch(cmd, plan); fail("Dispatch must fail without a guest apply"); }
+            catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("ROLLED_BACK")); }
+            var stored = operations.findByRequest(instance.getId(), cmd.getConfigurationRequestId());
+            assertEquals("ROLLED_BACK", stored.getState());
+            assertEquals("COMPLETED", stored.getPhase());
+            assertEquals(3, instances.findById(instance.getId()).getConfigurationRevision());
+            assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+            var failure = StorageServiceConfigurationCoordinator.parsed(stored.getOriginalFailureJson());
+            assertEquals("QGA_EXEC_ARGUMENT_TOO_LARGE", failure.get("code").getAsString());
+            assertEquals("DISPATCH", failure.get("phase").getAsString()); assertTrue(!failure.get("started").getAsBoolean());
+            assertEquals("NOT_NEEDED", StorageServiceConfigurationCoordinator.parsed(stored.getRollbackResultJson()).get("state").getAsString());
+            verify(guest, times(legacy ? 4 : 2)).dispatch(any());
+            String id = stored.getUuid();
+            try { runDispatch(cmd, plan); fail("The same failed request may not send another apply"); }
+            catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("no duplicate apply")); }
+            assertEquals(id, operations.findByRequest(instance.getId(), cmd.getConfigurationRequestId()).getUuid());
+            var response = new org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse();
+            response.setResponseName("getstorageserviceconfigurationoperationresponse");
+            response.setObjectName("configurationoperation"); response.setId(stored.getUuid()); response.setInstanceid(instance.getUuid());
+            response.setRequestid(stored.getRequestId()); response.setState(stored.getState()); response.setPhase(stored.getPhase());
+            response.setOriginalfailure(failure); response.setRollback(StorageServiceConfigurationCoordinator.parsed(stored.getRollbackResultJson()));
+            response.setCanresume(false);
+            String wire = com.cloud.api.response.ApiResponseSerializer.toSerializedString(response, "json");
+            assertTrue(com.google.gson.JsonParser.parseString(wire).getAsJsonObject().has("getstorageserviceconfigurationoperationresponse"));
+            String output = System.getProperty("sharedfs.dispatch.wire.output");
+            if (output != null && !legacy) java.nio.file.Files.writeString(java.nio.file.Path.of(output), wire);
+        }
+    }
+
+    @Test public void lostReplyRetainsReservationAndDoesNotBecomeNeverStarted() throws Exception {
+        var cmd = command(); var plan = prepareDispatch();
+        doAnswer(call -> {
+            StorageServiceGuestCommand command = call.getArgument(0);
+            if ("configuration capability show".equals(command.getOperation())) return capability();
+            if ("configuration operation apply".equals(command.getOperation()))
+                return new StorageServiceGuestCommandResult(false, "Timed out waiting for Storage Service QGA command", null);
+            assertEquals("configuration operation show", command.getOperation());
+            throw new CloudRuntimeException("temporary observation unavailable");
+        }).when(guest).dispatch(any());
+        try { runDispatch(cmd, plan); fail("Unknown reply must keep recovery protection"); }
+        catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("unconfirmed")); }
+        var stored = operations.findByRequest(instance.getId(), cmd.getConfigurationRequestId());
+        assertEquals("RECOVERY_REQUIRED", stored.getState());
+        assertEquals(Long.valueOf(stored.getId()), instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        assertEquals(3, instances.findById(instance.getId()).getConfigurationRevision());
+        assertNull(stored.getOriginalFailureJson());
+        assertEquals("RESPONSE_UNCONFIRMED", StorageServiceConfigurationCoordinator.parsed(stored.getGuestObservationJson()).get("code").getAsString());
+        String id = stored.getUuid();
+        try { runDispatch(cmd, plan); fail(); }
+        catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("no duplicate apply")); }
+        assertEquals(id, operations.findByRequest(instance.getId(), cmd.getConfigurationRequestId()).getUuid());
+        verify(guest, times(5)).dispatch(any());
+    }
+
+    @Test public void configurationByteLimitAndUnknownDispatchCodesKeepTheirProtection() {
+        try { StorageServiceConfigurationPlan.bounded("x".repeat(1024 * 1024 + 1)); fail(); }
+        catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("1 MiB")); }
+        var op = new StorageServiceConfigurationOperationVO();
+        op.setInstanceId(instance.getId());
+        var value = StorageServiceConfigurationCoordinator.dispatchObservation(op, instance,
+                new StorageServiceGuestCommandResult(false, "unknown",
+                "{\"dispatch\":{\"state\":\"NOT_STARTED\",\"code\":\"UNTRUSTED_CODE\"}}"));
+        assertTrue(!value.has("state"));
+        assertTrue(!value.has("rollback"));
+    }
+
 }

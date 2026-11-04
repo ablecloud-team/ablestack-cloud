@@ -71,6 +71,7 @@ export default {
     alertType () { return this.operation?.state === 'COMMITTED' ? 'success' : this.operation?.state === 'ROLLED_BACK' ? 'warning' : 'info' },
     descriptionKey () {
       if (this.operation?.originalfailure?.phase === 'PREFLIGHT') return 'preflight.blocked'
+      if (this.operation?.originalfailure?.phase === 'DISPATCH' && this.operation.originalfailure.started === false) return 'dispatch.not.started'
       if (this.operation?.state === 'ROLLED_BACK') return 'rolled.back'
       if (this.operation?.state === 'COMMITTED') return 'committed'
       if (['RECOVERY_REQUIRED', 'OBSERVATION_UNAVAILABLE', 'SUBMISSION_UNCONFIRMED'].includes(this.operation?.state)) return 'recovery.required'

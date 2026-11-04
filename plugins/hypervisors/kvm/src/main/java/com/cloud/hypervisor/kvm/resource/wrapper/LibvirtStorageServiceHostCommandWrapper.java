@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Arrays;
+import java.util.UUID;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import org.libvirt.Connect;
 import org.libvirt.Domain;
@@ -43,6 +46,23 @@ import com.google.gson.JsonPrimitive;
 @ResourceWrapper(handles = StorageServiceHostCommand.class)
 public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrapper<StorageServiceHostCommand, Answer, LibvirtComputingResource> {
     private static final int QGA_POLL_INTERVAL_MILLIS = 1000;
+    static final int STDIN_CHUNK_BYTES = 48 * 1024;
+    private static final String STAGING_WRITER = String.join("\n",
+            "import os,stat,sys",
+            "path,offset,count=sys.argv[1],int(sys.argv[2]),int(sys.argv[3])",
+            "flags=os.O_WRONLY|os.O_NOFOLLOW",
+            "flags |= (os.O_CREAT|os.O_EXCL) if offset == 0 else os.O_APPEND",
+            "fd=os.open(path,flags,0o600)",
+            "try:",
+            " s=os.fstat(fd)",
+            " assert stat.S_ISREG(s.st_mode) and s.st_uid==os.geteuid() and stat.S_IMODE(s.st_mode)==0o600 and s.st_nlink==1 and s.st_size==offset",
+            " data=sys.stdin.buffer.read(49153)",
+            " assert len(data)==count and count<=49152",
+            " view=memoryview(data)",
+            " while view:",
+            "  written=os.write(fd,view);view=view[written:]",
+            "finally: os.close(fd)");
+
     private static final String CONFIGURE_SHAREDFS_STATIC_NETWORK = "configure-sharedfs-static-network";
     private static final String SHAREDFS_NETWORK_STATE = "/etc/ablestack-storage/sharedfs-network.json";
     private static final String SHAREDFS_NETWORK_HELPER = "/usr/local/sbin/ablestack-sharedfs-network";
@@ -128,17 +148,23 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             final Connect connect = libvirtUtilitiesHelper.getConnection();
             domain = libvirtComputingResource.getDomain(connect, command.getVmName());
             if (domain == null) {
-                return new StorageServiceHostAnswer(command, false, "Storage Service System VM was not found: " + command.getVmName(), null);
+                return notStarted(command, "QGA_VM_UNAVAILABLE");
             }
             if (domain.getInfo().state != DomainState.VIR_DOMAIN_RUNNING) {
-                return new StorageServiceHostAnswer(command, false, "Storage Service System VM is not running: " + command.getVmName(), null);
+                return notStarted(command, "QGA_VM_NOT_RUNNING");
             }
 
             final long pid = executeGuestCommand(domain, command);
             return waitForGuestCommand(command, domain, pid);
+        } catch (final PayloadTransferException e) {
+            return notStarted(command, "QGA_STDIN_TRANSFER_FAILED");
         } catch (final RuntimeException e) {
             return new StorageServiceHostAnswer(command, false, e.getMessage(), null);
         } catch (final LibvirtException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Failed to execute child process")) {
+                return notStarted(command, e.getMessage().contains("Argument list too long")
+                        ? "QGA_EXEC_ARGUMENT_TOO_LARGE" : "QGA_EXEC_REJECTED");
+            }
             return new StorageServiceHostAnswer(command, false, "Failed to execute Storage Service QGA command: " + e.getMessage(), null);
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -155,8 +181,14 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     }
 
     protected long executeGuestCommand(final Domain domain, final StorageServiceHostCommand command) throws LibvirtException {
-        final String qgaCommand = buildGuestExecCommand(command);
-        final String result = domain.qemuAgentCommand(qgaCommand, command.getTimeoutSeconds(), 0);
+        if (!CONFIGURE_SHAREDFS_STATIC_NETWORK.equals(command.getOperation()) && payloadBytes(command).length > STDIN_CHUNK_BYTES) {
+            return executeStagedGuestCommand(domain, command);
+        }
+        return launch(domain, buildGuestExecCommand(command), command.getTimeoutSeconds());
+    }
+
+    private long launch(final Domain domain, final String qgaCommand, final int seconds) throws LibvirtException {
+        final String result = domain.qemuAgentCommand(qgaCommand, seconds, 0);
         final JsonObject response = new JsonParser().parse(result).getAsJsonObject();
         if (!response.has("return") || !response.getAsJsonObject("return").has("pid")) {
             throw new IllegalStateException("QGA guest-exec did not return a pid: " + result);
@@ -197,6 +229,9 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         args.add(new JsonPrimitive("-lc"));
         args.add(new JsonPrimitive(buildStorageCtlShell(command)));
         arguments.add("arg", args);
+        if (!CONFIGURE_SHAREDFS_STATIC_NETWORK.equals(command.getOperation())) {
+            arguments.addProperty("input-data", Base64.getEncoder().encodeToString(payloadBytes(command)));
+        }
         arguments.addProperty("capture-output", true);
         qgaCommand.add("arguments", arguments);
         return qgaCommand.toString();
@@ -206,12 +241,116 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         if (CONFIGURE_SHAREDFS_STATIC_NETWORK.equals(command.getOperation())) {
             return buildSharedFsStaticNetworkShell(command);
         }
-        final String payload = command.getPayload() == null ? "" : command.getPayload();
-        final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
-        return "payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); " +
-                "printf '%s' '" + encodedPayload + "' | base64 -d > \"$payload\"; " +
-                "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " \"$payload\"; " +
-                "rc=$?; rm -f \"$payload\"; exit $rc";
+        return "umask 077; payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json) || exit; " +
+                "trap 'rm -f \"$payload\"' EXIT; cat > \"$payload\" || exit; " +
+                "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " \"$payload\"";
+    }
+
+    private static byte[] payloadBytes(final StorageServiceHostCommand command) {
+        return (command.getPayload() == null ? "" : command.getPayload()).getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static StorageServiceHostAnswer notStarted(final StorageServiceHostCommand command, final String code) {
+        JsonObject dispatch = new JsonObject();
+        dispatch.addProperty("state", "NOT_STARTED");
+        dispatch.addProperty("code", code);
+        JsonObject result = new JsonObject();
+        result.add("dispatch", dispatch);
+        return new StorageServiceHostAnswer(command, false, code, result.toString());
+    }
+
+    static final class PayloadTransferException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        PayloadTransferException(Throwable cause) { super("QGA stdin staging failed before command start", cause); }
+    }
+
+    private long executeStagedGuestCommand(final Domain domain, final StorageServiceHostCommand command)
+            throws LibvirtException {
+        byte[] bytes = payloadBytes(command);
+        String path = "/tmp/ablestack-storage-" + UUID.randomUUID() + ".json";
+        long deadline = System.currentTimeMillis() + command.getTimeoutSeconds() * 1000L;
+        try {
+            for (int offset = 0; offset < bytes.length; offset += STDIN_CHUNK_BYTES) {
+                int count = Math.min(STDIN_CHUNK_BYTES, bytes.length - offset);
+                JsonObject request = new JsonObject();
+                request.addProperty("execute", "guest-exec");
+                JsonObject arguments = new JsonObject();
+                arguments.addProperty("path", "/usr/bin/python3");
+                JsonArray args = new JsonArray();
+                for (String arg : new String[] {"-c", STAGING_WRITER, path, String.valueOf(offset), String.valueOf(count)}) args.add(arg);
+                arguments.add("arg", args);
+                arguments.addProperty("input-data", Base64.getEncoder().encodeToString(Arrays.copyOfRange(bytes, offset, offset + count)));
+                arguments.addProperty("capture-output", true);
+                request.add("arguments", arguments);
+                long pid = launch(domain, request.toString(), remainingSeconds(deadline));
+                waitForStaging(domain, pid, deadline);
+            }
+            String verify = "import hashlib,os,stat,sys; f=os.open(sys.argv[1],os.O_RDONLY|os.O_NOFOLLOW); " +
+                    "s=os.fstat(f); assert stat.S_ISREG(s.st_mode) and s.st_uid==os.geteuid() and stat.S_IMODE(s.st_mode)==0o600 and s.st_nlink==1; " +
+                    "b=os.fdopen(f,'rb').read(); assert len(b)==int(sys.argv[2]) and hashlib.sha256(b).hexdigest()==sys.argv[3]";
+            JsonObject check = new JsonObject(); check.addProperty("execute", "guest-exec");
+            JsonObject checkArgs = new JsonObject(); checkArgs.addProperty("path", "/usr/bin/python3");
+            JsonArray checkArgv = new JsonArray(); checkArgv.add("-c"); checkArgv.add(verify);
+            checkArgv.add(path); checkArgv.add(String.valueOf(bytes.length)); checkArgv.add(DigestUtils.sha256Hex(bytes));
+            checkArgs.add("arg", checkArgv); checkArgs.addProperty("capture-output", true); check.add("arguments", checkArgs);
+            waitForStaging(domain, launch(domain, check.toString(), remainingSeconds(deadline)), deadline);
+        } catch (Exception error) {
+            // Only the private staging file can have changed; storagectl has not been launched.
+            cleanupStaging(domain, path);
+            if (error instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new PayloadTransferException(error);
+        }
+        // After this boundary a lost reply is ambiguous. The guest owns cleanup and the coordinator keeps its reservation.
+        String shell = "payload='" + path + "'; trap 'rm -f \"$payload\"' EXIT; " +
+                "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " \"$payload\"";
+        JsonObject request = new JsonObject();
+        request.addProperty("execute", "guest-exec");
+        JsonObject arguments = new JsonObject();
+        arguments.addProperty("path", "/bin/bash");
+        JsonArray args = new JsonArray(); args.add("-lc"); args.add(shell);
+        arguments.add("arg", args); arguments.addProperty("capture-output", true); request.add("arguments", arguments);
+        try {
+            return launch(domain, request.toString(), command.getTimeoutSeconds());
+        } catch (LibvirtException error) {
+            if (error.getMessage() != null && error.getMessage().contains("Failed to execute child process")) cleanupStaging(domain, path);
+            throw error;
+        }
+    }
+
+    private static int remainingSeconds(long deadline) {
+        long remaining = deadline - System.currentTimeMillis();
+        if (remaining <= 0) throw new IllegalStateException("QGA stdin staging deadline exceeded");
+        return (int)Math.max(1, (remaining + 999) / 1000);
+    }
+
+    private void waitForStaging(Domain domain, long pid, long deadline) throws LibvirtException, InterruptedException {
+        while (true) {
+            JsonObject request = new JsonObject(); request.addProperty("execute", "guest-exec-status");
+            JsonObject args = new JsonObject(); args.addProperty("pid", pid); request.add("arguments", args);
+            JsonObject result = JsonParser.parseString(domain.qemuAgentCommand(request.toString(), remainingSeconds(deadline), 0))
+                    .getAsJsonObject().getAsJsonObject("return");
+            if (result != null && result.has("exited") && result.get("exited").getAsBoolean()) {
+                if (!result.has("exitcode") || result.get("exitcode").getAsInt() != 0)
+                    throw new IllegalStateException("QGA stdin staging writer failed");
+                return;
+            }
+            Thread.sleep(50);
+        }
+    }
+
+    private void cleanupStaging(Domain domain, String path) {
+        try {
+            JsonObject request = new JsonObject(); request.addProperty("execute", "guest-exec");
+            JsonObject arguments = new JsonObject(); arguments.addProperty("path", "/usr/bin/python3");
+            JsonArray args = new JsonArray(); args.add("-c");
+            args.add("import pathlib,sys;pathlib.Path(sys.argv[1]).unlink(missing_ok=True)"); args.add(path);
+            arguments.add("arg", args); arguments.addProperty("capture-output", true); request.add("arguments", arguments);
+            long pid = launch(domain, request.toString(), 5);
+            waitForStaging(domain, pid, System.currentTimeMillis() + 5000);
+        } catch (Exception ignored) {
+            // A lost QGA connection must not turn staging cleanup into an unsafe command retry.
+            if (ignored instanceof InterruptedException) Thread.currentThread().interrupt();
+        }
     }
 
     protected String buildSharedFsStaticNetworkShell(final StorageServiceHostCommand command) {
