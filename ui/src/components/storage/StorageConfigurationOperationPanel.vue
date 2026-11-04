@@ -21,7 +21,7 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
       </MoldDialog>
     </template>
     <template v-else-if="operation">
-      <a-alert :type="alertType" show-icon :message="operation.originalfailure?.phase === 'PREFLIGHT' ? $t('label.storage.preflight.blocked') : stateLabel(operation.state)" :description="$t('message.storage.configuration.' + descriptionKey)" />
+      <a-alert :type="alertType" show-icon :message="alertMessage" :description="$t('message.storage.configuration.' + descriptionKey)" />
       <a-descriptions bordered size="small" :column="1" class="storage-configuration-operation__summary">
         <a-descriptions-item :label="$t('label.storage.configuration.request')"><code>{{ operation.requestid || '-' }}</code></a-descriptions-item>
         <a-descriptions-item :label="$t('label.storage.configuration.phase')">{{ phaseLabel(operation.phase) }}</a-descriptions-item>
@@ -30,6 +30,8 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
         <a-descriptions-item v-if="operation.originalfailure?.code" :label="$t('label.storage.configuration.first.failure')">
           <code>{{ operation.originalfailure.code }}</code> · {{ phaseLabel(operation.originalfailure.phase) }}
         </a-descriptions-item>
+        <a-descriptions-item v-if="operation.originalfailure?.stage" :label="$t('label.storage.configuration.failure.stage')"><code>{{ operation.originalfailure.stage }}</code></a-descriptions-item>
+        <a-descriptions-item v-if="operation.originalfailure?.reason" :label="$t('label.storage.configuration.failure.reason')"><code>{{ operation.originalfailure.reason }}</code></a-descriptions-item>
         <a-descriptions-item v-if="operation.rollback?.state" :label="$t('label.storage.configuration.rollback')">
           {{ $t('label.storage.configuration.rollback.' + operation.rollback.state.toLowerCase()) }}
           <code v-if="operation.rollback.code">{{ operation.rollback.code }}</code>
@@ -69,7 +71,13 @@ export default {
       ]
     },
     alertType () { return this.operation?.state === 'COMMITTED' ? 'success' : this.operation?.state === 'ROLLED_BACK' ? 'warning' : 'info' },
+    directoryPreparationFailed () { return this.operation?.originalfailure?.phase === 'VALIDATING' && this.operation.originalfailure.stage === 'DIRECTORY_POLICY_INSPECT' },
+    alertMessage () {
+      if (this.directoryPreparationFailed) return this.$t('label.storage.configuration.preparation.failed')
+      return this.operation?.originalfailure?.phase === 'PREFLIGHT' ? this.$t('label.storage.preflight.blocked') : this.stateLabel(this.operation?.state)
+    },
     descriptionKey () {
+      if (this.directoryPreparationFailed) return 'preparation.failed'
       if (this.operation?.originalfailure?.phase === 'PREFLIGHT') return 'preflight.blocked'
       if (this.operation?.originalfailure?.phase === 'DISPATCH' && this.operation.originalfailure.started === false) return 'dispatch.not.started'
       if (this.operation?.state === 'ROLLED_BACK') return 'rolled.back'

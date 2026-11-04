@@ -33,11 +33,41 @@ final class StorageDirectoryPolicies {
         return cmd instanceof CreateStorageDirectoryPolicyCmd || cmd instanceof UpdateStorageDirectoryPolicyCmd;
     }
     static JsonObject parsed(String s) { return StorageServiceConfigurationCoordinator.parsed(s); }
+
+    /** Public diagnostics from the read-only preparation boundary, never an apply acknowledgement. */
+    static final class ObservationFailure extends CloudRuntimeException {
+        private static final long serialVersionUID = 1L;
+        private final String publicCode;
+        private final String reason;
+        ObservationFailure(String code, String reason) {
+            super(code); this.publicCode = code; this.reason = reason;
+        }
+        JsonObject diagnostic() {
+            JsonObject value = new JsonObject();
+            value.addProperty("code", publicCode); value.addProperty("phase", "VALIDATING");
+            value.addProperty("stage", "DIRECTORY_POLICY_INSPECT"); value.addProperty("reason", reason);
+            return value;
+        }
+    }
+    private static ObservationFailure inspectionFailure(StorageServiceGuestCommandResult result, JsonObject data) {
+        String code = data.has("code") && data.get("code").isJsonPrimitive() ? data.get("code").getAsString() : "";
+        if (!code.matches("DIRECTORY_[A-Z0-9_]{1,64}") && !"PAYLOAD_LIMIT".equals(code))
+            code = "DIRECTORY_OBSERVATION_UNAVAILABLE";
+        String reason = result != null && "Timed out waiting for Storage Service QGA command".equals(result.getDetails())
+                ? "QGA_COMMAND_TIMEOUT" : data.has("code") ? "GUEST_OBSERVATION_REJECTED" : "GUEST_OBSERVATION_UNCONFIRMED";
+        return new ObservationFailure(code, reason);
+    }
     private JsonObject rpc(StorageServiceInstanceVO instance,String name,JsonObject value) {
-        if (instance.getVmId()==null) throw new CloudRuntimeException("DIRECTORY_OBSERVATION_UNAVAILABLE");
+        if (instance.getVmId()==null) {
+            if ("directory policy inspect".equals(name)) throw new ObservationFailure("DIRECTORY_OBSERVATION_UNAVAILABLE", "SYSTEM_VM_UNAVAILABLE");
+            throw new CloudRuntimeException("DIRECTORY_OBSERVATION_UNAVAILABLE");
+        }
         StorageServiceGuestCommandResult r=guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),name,value.toString(),20,Collections.emptySet()));
         JsonObject data=parsed(r==null?null:r.getResultJson());
-        if (r==null || !r.isSuccess() || data.has("error")) throw new CloudRuntimeException(data.has("code")?data.get("code").getAsString():"DIRECTORY_OBSERVATION_UNAVAILABLE");
+        if (r==null || !r.isSuccess() || data.has("error")) {
+            if ("directory policy inspect".equals(name)) throw inspectionFailure(r, data);
+            throw new CloudRuntimeException(data.has("code")?data.get("code").getAsString():"DIRECTORY_OBSERVATION_UNAVAILABLE");
+        }
         return data;
     }
     private List<StorageFileShareVO> all(long instance) {

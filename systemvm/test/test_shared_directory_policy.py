@@ -169,6 +169,61 @@ class PosixTransactions(unittest.TestCase):
         with patch.object(transaction.SmbListenerProfiles,"show",side_effect=AssertionError("disabled SMB must not be started or required")):
             self.engine.verify_protocols(value)
 
+    def inspection_rows(self, count):
+        return [{**self.row, "uuid": "ref-" + str(n), "name": "alias-" + str(n), "protocol": "NFS"} for n in range(count)]
+
+    def test_request_reuses_units_only_after_each_row_identity_and_acl_observation(self):
+        before = (self.child.read_bytes(), self.path.stat(), self.child.stat())
+        ports = [{"port": "2049"}, {"port": "2050"}]
+        with patch.object(self.engine, "units", return_value=ports) as units, \
+             patch.object(self.engine, "observe", wraps=self.engine.observe) as observe:
+            result = self.engine.inspect(self.inspection_rows(100))
+            self.assertEqual(100, observe.call_count)
+            self.assertEqual(1, units.call_count)
+            self.assertEqual(100, len(result[0]["references"]))
+            self.assertEqual(ports, result[0]["units"])
+            self.engine.inspect(self.inspection_rows(100))
+            self.assertEqual(2, units.call_count)  # a new request always observes aliases again
+        self.assertEqual(before, (self.child.read_bytes(), self.path.stat(), self.child.stat()))
+
+    def test_invalid_filesystem_reference_does_not_inherit_verified_group(self):
+        rows = self.inspection_rows(2)
+        rows[1]["config"] = {**rows[1]["config"], "filesystemUuid": "untrusted-filesystem"}
+        with patch.object(self.engine, "units", return_value=[]) as units:
+            result = self.engine.inspect(rows)
+        self.assertEqual(1, units.call_count)
+        self.assertEqual(2, len(result))
+        self.assertEqual("UNAVAILABLE", next(x for x in result if x["resourceuuid"] == "ref-1")["status"])
+
+    def test_different_physical_paths_are_independently_observed(self):
+        other = self.mount / "another"; other.mkdir()
+        rows = self.inspection_rows(2)
+        rows[1]["config"] = {**rows[1]["config"], "backingPath": str(other)}
+        with patch.object(self.engine, "units", return_value=[]) as units:
+            self.assertEqual(2, len(self.engine.inspect(rows)))
+        self.assertEqual(2, units.call_count)
+
+    def test_replaced_inode_between_references_is_rejected_before_reusing_units(self):
+        def replace(path):
+            self.path.rename(self.mount / "original")
+            self.path.mkdir(mode=0o770)
+            return []
+        with patch.object(self.engine, "units", side_effect=replace) as units:
+            with self.assertRaisesRegex(policy.PolicyError, "DIRECTORY_IDENTITY_CHANGED"):
+                self.engine.inspect(self.inspection_rows(2))
+        self.assertEqual(1, units.call_count)
+        self.assertEqual(b"preserve", (self.mount / "original/child").read_bytes())
+
+    def test_acl_change_between_references_is_rejected_before_reusing_units(self):
+        def change(path):
+            self.real_run(["setfacl", "-m", "u:65534:r--", str(self.path)], check=True)
+            return []
+        with patch.object(self.engine, "units", side_effect=change) as units:
+            with self.assertRaisesRegex(policy.PolicyError, "DIRECTORY_POLICY_STALE"):
+                self.engine.inspect(self.inspection_rows(2))
+        self.assertEqual(1, units.call_count)
+        self.assertEqual(b"preserve", self.child.read_bytes())
+
     def test_actual_runtime_adapter_reopen_and_duplicate_use_one_apply(self):
         value=self.value("UPDATE",{**self.p,"revision":2,"mode":"0777"},{"mode":"0777"})
         calls=[]

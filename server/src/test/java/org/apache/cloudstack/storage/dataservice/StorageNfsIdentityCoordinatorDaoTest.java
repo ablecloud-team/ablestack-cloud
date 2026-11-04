@@ -278,4 +278,62 @@ public class StorageNfsIdentityCoordinatorDaoTest {
         assertTrue(!value.has("rollback"));
     }
 
+    @Test public void directoryInspectionTimeoutKeepsOriginalCauseThroughCoordinatorDaoAndApi() throws Exception {
+        var cmd = new org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd();
+        field(cmd, cmd.getClass(), "instanceId", instance.getId());
+        field(cmd, cmd.getClass(), "name", "boot095");
+        field(cmd, cmd.getClass(), "path", "/export/boot095");
+        field(cmd, BaseStorageServiceConfigurationCmd.class, "expectedRevision", 3L);
+        var plan = prepareDispatch();
+        var inspection = new StorageDirectoryPolicies(mock(org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao.class),
+                mock(StorageFileShareDao.class), mock(StorageAccessRuleDao.class),
+                mock(com.cloud.storage.dao.VolumeDao.class), guest, volume -> { });
+        var calls = new java.util.concurrent.atomic.AtomicInteger();
+        doAnswer(call -> {
+            StorageServiceGuestCommand command = call.getArgument(0);
+            if ("configuration capability show".equals(command.getOperation())) return capability();
+            assertEquals("directory policy inspect", command.getOperation());
+            assertEquals(20, command.getTimeoutSeconds());
+            assertEquals(95, com.google.gson.JsonParser.parseString(command.getPayload()).getAsJsonObject().getAsJsonArray("shares").size());
+            calls.incrementAndGet();
+            return new StorageServiceGuestCommandResult(false, "Timed out waiting for Storage Service QGA command", null);
+        }).when(guest).dispatch(any());
+        java.util.function.Supplier<String> candidate = () -> {
+            var rows = new java.util.ArrayList<StorageFileShareVO>();
+            for (int n = 1; n <= 95; n++) rows.add(new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS,
+                    String.format("boot%03d", n), String.format("/export/boot%03d", n), 77L, "xfs", null,
+                    StorageServiceInstance.ResourceState.Ready,
+                    "{\"volumeMountPath\":\"/srv/ablestack-storage/volumes/volume\",\"backingPath\":\"/srv/ablestack-storage/volumes/volume/export/team\"}"));
+            inspection.observations(instance, rows);
+            throw new AssertionError("Failed observation must not return a candidate");
+        };
+        try { coordinator.execute(cmd, instance, StorageServiceInstance.Protocol.NFS, String.class, candidate,
+                plan::set, () -> { }, "vm-fixture"); fail("Inspection must reject"); }
+        catch (StorageDirectoryPolicies.ObservationFailure expected) { assertEquals("DIRECTORY_OBSERVATION_UNAVAILABLE", expected.getMessage()); }
+        var stored = operations.findByRequest(instance.getId(), cmd.getConfigurationRequestId());
+        var failure = StorageServiceConfigurationCoordinator.parsed(stored.getOriginalFailureJson());
+        assertEquals("ROLLED_BACK", stored.getState()); assertEquals("COMPLETED", stored.getPhase());
+        assertEquals("DIRECTORY_OBSERVATION_UNAVAILABLE", failure.get("code").getAsString());
+        assertEquals("VALIDATING", failure.get("phase").getAsString());
+        assertEquals("DIRECTORY_POLICY_INSPECT", failure.get("stage").getAsString());
+        assertEquals("QGA_COMMAND_TIMEOUT", failure.get("reason").getAsString());
+        assertTrue(!failure.has("started")); // a read-only command did start; no false never-started claim
+        assertEquals(3, instances.findById(instance.getId()).getConfigurationRevision());
+        assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        assertEquals("NOT_NEEDED", StorageServiceConfigurationCoordinator.parsed(stored.getRollbackResultJson()).get("state").getAsString());
+        try { coordinator.execute(cmd, instance, StorageServiceInstance.Protocol.NFS, String.class, candidate,
+                plan::set, () -> { }, "vm-fixture"); fail("Duplicate failed request may not run the inspection again"); }
+        catch (CloudRuntimeException expected) { assertTrue(expected.getMessage().contains("no duplicate apply")); }
+        assertEquals(1, calls.get());
+        var response = new org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse();
+        response.setResponseName("getstorageserviceconfigurationoperationresponse"); response.setObjectName("configurationoperation");
+        response.setId(stored.getUuid()); response.setInstanceid(instance.getUuid()); response.setRequestid(stored.getRequestId());
+        response.setState(stored.getState()); response.setPhase(stored.getPhase()); response.setCanresume(false);
+        response.setOriginalfailure(failure); response.setRollback(StorageServiceConfigurationCoordinator.parsed(stored.getRollbackResultJson()));
+        String wire = com.cloud.api.response.ApiResponseSerializer.toSerializedString(response, "json");
+        assertTrue(wire.contains("DIRECTORY_OBSERVATION_UNAVAILABLE")); assertTrue(wire.contains("QGA_COMMAND_TIMEOUT"));
+        String output = System.getProperty("sharedfs.preparation.wire.output");
+        if (output != null) java.nio.file.Files.writeString(java.nio.file.Path.of(output), wire);
+    }
+
 }

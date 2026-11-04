@@ -10637,5 +10637,9 @@
   "label.storage.boot.state.verifying": "접속 점검 중",
   "label.storage.boot.state.waiting": "준비 대기",
   "label.storage.configuration.phase.dispatch": "실행 전달",
-  "message.storage.configuration.dispatch.not.started": "게스트 명령이 실행되기 전에 전달이 실패했습니다. 공유 설정은 적용되지 않았으며 최초 실패 코드를 보존했습니다. 내용을 확인한 뒤 새 요청을 시작하세요."
+  "message.storage.configuration.dispatch.not.started": "게스트 명령이 실행되기 전에 전달이 실패했습니다. 공유 설정은 적용되지 않았으며 최초 실패 코드를 보존했습니다. 내용을 확인한 뒤 새 요청을 시작하세요.",
+  "label.storage.configuration.preparation.failed": "구성 적용 전 검사 실패",
+  "label.storage.configuration.failure.stage": "실패 검사 단계",
+  "label.storage.configuration.failure.reason": "원인 상세",
+  "message.storage.configuration.preparation.failed": "구성 적용 전 공유 경로 상태 조회에 실패했습니다. 공유 생성과 권한 변경은 적용되지 않았으며 기존 설정을 유지했습니다. 최초 실패 코드와 원인 상세를 확인하세요."
 }

@@ -123,4 +123,26 @@ public class StorageDirectoryPolicyContractTest {
         if(path!=null)Files.writeString(Path.of(path),wire+"\n");
     }
 
+    @Test public void inspectionFailurePreservesOnlySafeCodesAndDoesNotChangeOtherRpcContracts() {
+        var guest=org.mockito.Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        var engine=new StorageDirectoryPolicies(
+                org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageDirectoryPolicyDao.class),
+                org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class),
+                org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDao.class),
+                org.mockito.Mockito.mock(com.cloud.storage.dao.VolumeDao.class),guest,v->{});
+        var instance=new StorageServiceInstanceVO("fixture",null,1,2,13,1L,"SYSTEM_VM");instance.setVmId(174L);
+        for(String code:new String[]{"DIRECTORY_IDENTITY_CHANGED","PAYLOAD_LIMIT","secret token with spaces"}) {
+            JsonObject failure=new JsonObject();failure.addProperty("error",true);failure.addProperty("code",code);
+            org.mockito.Mockito.when(guest.dispatch(org.mockito.Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(false,"private diagnostic text",failure.toString()));
+            try {engine.observations(instance,java.util.Collections.emptyList());fail("Observation must reject");}
+            catch(StorageDirectoryPolicies.ObservationFailure expected) {
+                JsonObject d=expected.diagnostic();
+                assertEquals(code.contains(" ")? "DIRECTORY_OBSERVATION_UNAVAILABLE":code,d.get("code").getAsString());
+                assertEquals("GUEST_OBSERVATION_REJECTED",d.get("reason").getAsString());
+                assertFalse(d.toString().contains("private diagnostic"));
+                assertFalse(d.toString().contains("secret token"));
+            }
+        }
+    }
+
 }

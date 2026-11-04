@@ -5,6 +5,7 @@ import { shallowMount } from '@vue/test-utils'
 import Panel from '@/components/storage/StorageConfigurationOperationPanel.vue'
 import { decodeConfigurationOperation } from '@/utils/storageConfigOperation'
 import wire from '../fixtures/storage-1459-dispatch-wire.json'
+import preparationWire from '../fixtures/storage-1459-preparation-wire.json'
 import ko from '../../public/locales/ko_KR.json'
 import en from '../../public/locales/en.json'
 
@@ -52,6 +53,27 @@ describe('actual coordinator DAO/API dispatch rejection guidance', () => {
     for (const locale of [ko, en]) {
       expect(locale['label.storage.configuration.phase.dispatch']).toBeTruthy()
       expect(locale['message.storage.configuration.dispatch.not.started']).toBeTruthy()
+      expect(locale['message.storage.configuration.preparation.failed']).toBeTruthy()
+      expect(locale['label.storage.configuration.preparation.failed']).toBeTruthy()
     }
+  })
+  test('actual DAO/API preparation failure keeps its original code and read-only inspection cause', () => {
+    const operation = decodeConfigurationOperation(preparationWire)
+    expect(operation.originalfailure).toMatchObject({
+      code: 'DIRECTORY_OBSERVATION_UNAVAILABLE',
+      phase: 'VALIDATING',
+      stage: 'DIRECTORY_POLICY_INSPECT',
+      reason: 'QGA_COMMAND_TIMEOUT'
+    })
+    const wrapper = render(operation)
+    expect(wrapper.text()).toContain('DIRECTORY_OBSERVATION_UNAVAILABLE')
+    expect(wrapper.text()).toContain('QGA_COMMAND_TIMEOUT')
+    expect(wrapper.text()).toContain('DIRECTORY_POLICY_INSPECT')
+    expect(wrapper.text()).toContain('label.storage.configuration.preparation.failed')
+    expect(wrapper.text()).toContain('message.storage.configuration.preparation.failed')
+    expect(wrapper.text()).not.toContain('message.storage.configuration.dispatch.not.started')
+    expect(wrapper.text()).not.toContain('message.storage.configuration.rolled.back')
+    expect(wrapper.emitted('resume')).toBeUndefined()
+    wrapper.unmount()
   })
 })

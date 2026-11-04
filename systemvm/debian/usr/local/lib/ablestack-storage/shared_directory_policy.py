@@ -169,12 +169,22 @@ class DirectoryPolicies:
                 key = "unavailable:" + str(row.get("uuid"))
             else:
                 key = observed["volumeuuid"] + ":" + observed["canonicalpath"]
-            if observed["status"]!="OBSERVED":
-                config=row.get("config") or {}
-                observed["path"]=config.get("backingPath") or row.get("path")
-                if config.get("volumeMountPath"): observed["volumeuuid"]=Path(config["volumeMountPath"]).name
-            entry = groups.setdefault(key, {**observed, "references": []})
-            if observed.get("status") == "OBSERVED": entry["units"] = self.units(observed["path"])
+            if observed["status"] != "OBSERVED":
+                config = row.get("config") or {}
+                observed["path"] = config.get("backingPath") or row.get("path")
+                if config.get("volumeMountPath"):
+                    observed["volumeuuid"] = Path(config["volumeMountPath"]).name
+            entry = groups.get(key)
+            if entry is None:
+                entry = groups[key] = {**observed, "references": []}
+                if observed["status"] == "OBSERVED":
+                    entry["units"] = self.units(observed["path"])
+            elif observed["status"] == "OBSERVED":
+                if any(observed.get(k) != entry.get(k) for k in ("filesystemuuid", "inode")):
+                    raise PolicyError("DIRECTORY_IDENTITY_CHANGED")
+                # The fingerprint includes device, inode, owner/mode and the POSIX ACL.
+                if observed.get("fingerprint") != entry.get("fingerprint") or observed.get("acl") != entry.get("acl"):
+                    raise PolicyError("DIRECTORY_POLICY_STALE")
             entry["references"].append({k: row.get(k) for k in ("uuid", "protocol", "name")})
         registry = self.read()
         for item in groups.values():

@@ -10672,5 +10672,9 @@
   "label.storage.boot.state.verifying": "Verifying",
   "label.storage.boot.state.waiting": "Waiting",
   "label.storage.configuration.phase.dispatch": "Command dispatch",
-  "message.storage.configuration.dispatch.not.started": "Dispatch failed before the guest command started. The shared configuration was not applied, and the original failure code is preserved. Review the cause before submitting a new request."
+  "message.storage.configuration.dispatch.not.started": "Dispatch failed before the guest command started. The shared configuration was not applied, and the original failure code is preserved. Review the cause before submitting a new request.",
+  "label.storage.configuration.preparation.failed": "Preparation check failed before configuration apply",
+  "label.storage.configuration.failure.stage": "Failed preparation stage",
+  "label.storage.configuration.failure.reason": "Failure reason",
+  "message.storage.configuration.preparation.failed": "The shared-directory observation failed before configuration apply. The share creation and permission change were not applied; the previous configuration is retained. Check the original failure code and reason."
 }

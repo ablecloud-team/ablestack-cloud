@@ -232,6 +232,21 @@ class Probe:
         row = {"uuid": "private-nfs", "name": "private-nfs", "protocol": "NFS",
                "config": {"volumeMountPath": str(self.volume), "backingPath": str(self.shared)}}
         observed = engine.observe(row)
+
+        inspection_rows = [{**row, "uuid": "private-" + str(n), "name": "alias-" + str(n)} for n in range(100)]
+        stamp = (metadata(self.shared), metadata(self.seed))
+        with patch.object(engine, "units", wraps=engine.units) as reader:
+            started = time.monotonic()
+            inspected = engine.inspect(inspection_rows)
+            elapsed = time.monotonic() - started
+            assert len(inspected) == 1 and len(inspected[0]["references"]) == 100
+            assert {int(x["port"]) for x in inspected[0]["units"]} == {23049, 23050}
+            assert reader.call_count == 1
+            engine.inspect(inspection_rows)
+            assert reader.call_count == 2
+        assert stamp == (metadata(self.shared), metadata(self.seed))
+        self.record("100 references reuse one verified bind/two-port mapping per request; metadata and fresh-request observation preserved",
+                    elapsedSeconds=elapsed, references=100, unitsPerRequest=1)
         policy = {k: observed[k] for k in ("volumeuuid", "canonicalpath", "filesystemuuid", "inode", "owneruid", "ownergid", "mode")}
         policy.update(uuid=str(uuid.uuid4()), revision=1)
         smb_rows = [{"state": "Ready", "config": row["config"],

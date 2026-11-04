@@ -241,6 +241,8 @@ final class StorageServiceConfigurationCoordinator {
                         .filter(c -> c.has("blocking") && c.get("blocking").getAsBoolean()).map(c -> c.has("code") ? c.get("code").getAsString() : "RESOURCE_OBSERVATION_UNAVAILABLE")
                         .findFirst().orElse("RESOURCE_OBSERVATION_UNAVAILABLE"));
                     op.setOriginalFailureJson(failure.toString());
+                } else if (error instanceof StorageDirectoryPolicies.ObservationFailure) {
+                    op.setOriginalFailureJson(((StorageDirectoryPolicies.ObservationFailure) error).diagnostic().toString());
                 } else op.setOriginalFailureJson("{\"code\":\"PREPARATION_REJECTED\",\"phase\":\"VALIDATING\",\"type\":\"" + error.getClass().getSimpleName() + "\"}");
                 op.setRollbackResultJson("{\"state\":\"NOT_NEEDED\"}");
                 if (plan != null) plan.discardReservations(); finish(op, "ROLLED_BACK", true);
