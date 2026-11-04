@@ -1,5 +1,5 @@
 {
-  "baselineVersion": 11,
+  "baselineVersion": 12,
   "files": [
     {
       "path": "ablestack-storage-boot-reconcile",
@@ -14,7 +14,7 @@
     {
       "path": "ablestack-storagectl",
       "mode": 493,
-      "sha256": "6639c2abaf55b18785783298723544afd5a1b432959c6721914ae4b9cb43d03d"
+      "sha256": "c09a749ef83294cdb0dd544d7c61a5502873ce4a5cf612c927b6b6313330a3ef"
     },
     {
       "path": "lib/ablestack-storage/boot_reconcile.py",
@@ -29,7 +29,17 @@
     {
       "path": "lib/ablestack-storage/configuration_transaction.py",
       "mode": 420,
-      "sha256": "8e1095c11a7081ba925d944b26e8f7e1bbb36644c4ab7058292228cf08035b8b"
+      "sha256": "56559b511da69d24e288a639b79ec3bd8f199317e0ea1c879fedca3bd4bb49d7"
+    },
+    {
+      "path": "lib/ablestack-storage/nfs_client_policy_runtime.py",
+      "mode": 420,
+      "sha256": "85a74c41e8ec1602ca6291dfcec5ac7d639b39f976b4c9ec62d336fc605de287"
+    },
+    {
+      "path": "lib/ablestack-storage/nfs_ganesha_render.py",
+      "mode": 420,
+      "sha256": "02703aafe31e25956018051589b06a7adab15093526ccb9ecd5fd0d2f0c9215f"
     },
     {
       "path": "lib/ablestack-storage/nvmeof_identity.py",
@@ -44,7 +54,7 @@
     {
       "path": "lib/ablestack-storage/shared_directory_policy.py",
       "mode": 420,
-      "sha256": "9e3ef4816b8d30ba3a236e3c352fa6a823c887762d4e0e67cb8ad5970222f6aa"
+      "sha256": "83dca5104d21dbd94408e3cdebda5de2ad975971a6dbd38eb4bcbe6482d89f76"
     },
     {
       "path": "lib/ablestack-storage/smb_client_access.py",
@@ -74,5 +84,5 @@
       "sha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675"
     }
   },
-  "sourcePayloadSha256": "96a8134100c257e2852f2c9a73abbd0402432203366369b8770b2bb142f98e8e"
+  "sourcePayloadSha256": "3493ea26ccf188082d85da7cb55059c80b84cea149bbfd5f8e41c78d4be5c718"
 }

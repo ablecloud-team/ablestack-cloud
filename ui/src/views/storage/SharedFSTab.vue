@@ -98,7 +98,7 @@
             </a-space>
           </div>
           <template v-if="storageService.instance">
-            <NfsLocalProbeNotice :shares="storageService.nfsExports" />
+            <NfsLocalProbeNotice :shares="storageService.nfsExports" :unavailable="!!storageReadErrors.inventory || !!storageReadErrors.nfsExports" />
             <StorageNfsIdentityPanel :report="nfsIdentity.report" :loading="nfsIdentity.loading" :error="nfsIdentity.error" :mode="nfsIdentity.report?.mode || 'NAME_DOMAIN'" />
             <a-alert
               v-if="storageIdentityDrift"
@@ -1822,6 +1822,12 @@ class="storage-service-inline-alert"
             type="warning"
             show-icon
             :message="$t('message.storage.service.delete.warning')" />
+          <a-alert
+            v-if="lastNfsAclDeletion"
+            class="storage-action-delete-alert"
+            type="warning"
+            show-icon
+            :message="$t('message.storage.nfs.acl.last.delete')" />
           <div class="storage-action-summary-box">
             <div class="storage-action-summary-row">
               <span>{{ $t('label.type') }}</span>
@@ -3927,6 +3933,12 @@ export default {
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 110 },
         { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 310, align: 'right', className: 'storage-table-actions-column' }
       ]
+    },
+    lastNfsAclDeletion () {
+      if (this.actionModal.type !== 'deleteConfirm' || this.forms.deleteConfirm.resourceType !== 'nfsAcl') return false
+      const raw = this.actionModal.context?.raw || {}
+      const resource = raw.resourceid || raw.resourceId || raw.exportid
+      return !!resource && this.storageService.nfsAcls.filter(row => (row.resourceid || row.resourceId || row.exportid) === resource).length === 1
     },
     nfsAclColumns () {
       return [

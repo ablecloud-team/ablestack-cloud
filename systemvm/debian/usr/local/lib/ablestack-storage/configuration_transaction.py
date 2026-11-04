@@ -295,6 +295,9 @@ class Transaction:
             value["pathbindings"] = {k: receipt[k] for k in ("operationid", "instanceUuid")}
             value["pathbindings"]["bindings"] = list(receipt.get("bindings", {}).values())
             if receipt.get("retained"): value["pathbindings"]["retained"] = receipt["retained"]
+        policy = load(private / "nfs-client-policy.json", {})
+        if policy:
+            value["nfsClientPolicy"] = {k: policy[k] for k in ("operationid", "phase", "endpoints") if k in policy}
         return value
 
     def show(self, payload):
@@ -407,6 +410,11 @@ class Transaction:
             except BaseException as error:
                 progress = load(private / "smb-options-progress.json")
                 if progress: current["smbOptions"] = progress
+                if getattr(error, "code", None) == "NFS_CLIENT_RELOAD_UNCONFIRMED":
+                    current.setdefault("originalfailure", {"code": error.code, "phase": current["phase"], "detail": error.detail})
+                    current.update(state="RECOVERY_REQUIRED", phase="OBSERVING", rollback={"state": "UNKNOWN"})
+                    atomic_json(status_path, current)
+                    return current
                 if getattr(error, "code", None) in ("APPLY_STILL_RUNNING", "RESULT_OBSERVATION_UNAVAILABLE"):
                     current.update(state="RECOVERY_REQUIRED", phase="OBSERVING", rollback={"state": "UNKNOWN"},
                                    observationCode=getattr(error, "code", "OBSERVATION_UNAVAILABLE"))
@@ -417,8 +425,8 @@ class Transaction:
                                    "phase": current["phase"], "type": type(error).__name__})
                 original = load(private / "original-runner-result.json", {})
                 detail = original.get("result") or {}
-                if detail.get("code") in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE"):
-                    current["originalfailure"]["detail"] = {k: detail[k] for k in ("code", "failures") if k in detail}
+                if detail.get("code") in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE") or str(detail.get("code", "")).startswith("NFS_CLIENT_"):
+                    current["originalfailure"]["detail"] = {k: detail[k] for k in ("code", "failures", "port", "stage") if k in detail}
                 if current["phase"] == "VALIDATING":
                     current.update(state="ROLLED_BACK", phase="COMPLETED", rollback={"state": "NOT_NEEDED"})
                     atomic_json(status_path, current)
@@ -1125,6 +1133,18 @@ class RuntimeAdapter:
         return load(self.snapshot_path)["smbOptions"]
 
     @staticmethod
+    def nfs_client_policy_only(payload):
+        from nfs_client_policy_runtime import policy_only
+        return policy_only(payload)
+
+    def nfs_client_policy_engine(self):
+        from nfs_client_policy_runtime import ClientPolicies
+        return ClientPolicies(self.private)
+
+    def nfs_client_policy_snapshot(self):
+        return load(self.snapshot_path)["nfsClientPolicy"]
+
+    @staticmethod
     def nfs_posix_only(payload):
         commands = (payload or {}).get("candidate", {})
         return set(commands) == {"nfs export apply"} and commands["nfs export apply"].get("posixOnly") is True
@@ -1280,6 +1300,9 @@ class RuntimeAdapter:
         return set((payload or {}).get("candidate",{})) == {"directory policy apply"}
 
     def snapshot(self, payload):
+        if self.nfs_client_policy_only(payload):
+            atomic_json(self.snapshot_path, {"nfsClientPolicy": self.nfs_client_policy_engine().snapshot(payload)})
+            return
         if self.smb_options_only(payload):
             atomic_json(self.snapshot_path, {"smbOptions": self.smb_options_engine(payload).snapshot(payload)})
             return
@@ -1466,6 +1489,12 @@ class RuntimeAdapter:
 
     def observe_completed(self):
         saved = load(self.payload_path, {})
+        if self.nfs_client_policy_only(saved):
+            try:
+                self.verify(saved["candidate"])
+                return "VERIFIED"
+            except Exception:
+                return "UNKNOWN"
         if self.smb_options_only(saved):
             if load(self.private / "candidate-completed.json") != {"requestHash": public_hash(saved["candidate"])}:
                 return "FAILED"
@@ -1512,6 +1541,17 @@ class RuntimeAdapter:
         return "FAILED" if result.get("operation") in operations else "UNKNOWN"
 
     def apply(self, commands):
+        if self.nfs_client_policy_only(load(self.payload_path, {})):
+            try:
+                self.nfs_client_policy_engine().apply(self.nfs_client_policy_snapshot())
+            except Exception as error:
+                original = self.private / "original-runner-result.json"
+                if not original.exists():
+                    atomic_json(original, {"returncode": 1, "operation": "nfs export apply",
+                        "result": getattr(error, "detail", {"code": "NFS_CLIENT_POLICY_FAILED"})})
+                raise
+            atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
+            return
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().apply(self.smb_options_snapshot(), commands["smb share apply"])
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
@@ -1540,6 +1580,9 @@ class RuntimeAdapter:
             atomic_json(self.private / "candidate-completed.json", {"requestHash": public_hash(commands)})
 
     def verify(self, commands):
+        if self.nfs_client_policy_only(load(self.payload_path, {})):
+            self.nfs_client_policy_engine().verify(self.nfs_client_policy_snapshot())
+            return
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().verify(self.smb_options_snapshot())
             from smb_file_identity import FixedIdentities
@@ -1657,6 +1700,9 @@ class RuntimeAdapter:
                     os.unlink(temporary)
 
     def restore(self):
+        if self.nfs_client_policy_only(load(self.payload_path, {})):
+            self.nfs_client_policy_engine().restore(self.nfs_client_policy_snapshot())
+            return
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().restore(self.smb_options_snapshot())
             return
@@ -1939,6 +1985,9 @@ class RuntimeAdapter:
             Path(directory).rmdir()
 
     def verify_restored(self):
+        if self.nfs_client_policy_only(load(self.payload_path, {})):
+            self.nfs_client_policy_engine().verify(self.nfs_client_policy_snapshot(), restored=True)
+            return
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().verify(self.smb_options_snapshot(), restored=True)
             return
@@ -2328,7 +2377,7 @@ def main(argv):
             ad_domain_protection=0
         from smb_client_access import protected as client_access_protected
         print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1, "smbClientAccessPolicyVersion": 1, "smbClientAccessPolicyProtectionVersion": int(client_access_protected()), "smbClientAccessAddressFamilies": ["IPv4"],
-                          "bootRecoveryVersion": 1, "bootRecoveryProtectionVersion": __import__("boot_reconcile").protection_version(), "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
+                          "nfsClientPolicyVersion": 1, "bootRecoveryVersion": 1, "bootRecoveryProtectionVersion": __import__("boot_reconcile").protection_version(), "configurationObservationVersion": 1, "smbListenerProfilesVersion": SmbListenerProfiles.VERSION, "nfsPosixIntentVersion": NFS_POSIX_VERSION, "nfsDeferredPosixVersion": 1,
                           "nestedFileSharePathVersion": 1, "nestedFileSharePathProtectionVersion": int(__import__("shared_directory_policy").nested_path_protected()), "smbFileIdentityVersion": 1, "smbFileIdentityProtectionVersion": int(__import__("smb_file_identity").protected()), "smbCreationPolicyVersion": 1, "smbCreationPolicyProtectionVersion": int(__import__("shared_directory_policy").smb_creation_protected()), "sharedDirectoryPolicyVersion": 1, "adDomainTransactionVersion": ad_domain_protection, "smbParentInheritanceVersion": inheritance_version, "smbParentInheritanceProtectionVersion": inheritance_protection, "nfsIdentityMappingVersion": 1, "nfsidentitymapping": NfsIdentityMapping().inspect()}))
         return 0
     if len(argv) == 3 and argv[:2] == ["preflight", "show"]:

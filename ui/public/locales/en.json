@@ -10676,5 +10676,20 @@
   "label.storage.configuration.preparation.failed": "Preparation check failed before configuration apply",
   "label.storage.configuration.failure.stage": "Failed preparation stage",
   "label.storage.configuration.failure.reason": "Failure reason",
-  "message.storage.configuration.preparation.failed": "The shared-directory observation failed before configuration apply. The share creation and permission change were not applied; the previous configuration is retained. Check the original failure code and reason."
+  "message.storage.configuration.preparation.failed": "The shared-directory observation failed before configuration apply. The share creation and permission change were not applied; the previous configuration is retained. Check the original failure code and reason.",
+  "label.storage.nfs.probe.unknown": "Observation unavailable",
+  "message.storage.nfs.probe.unknown": "Showing the previous observation and timestamp. A communication failure is neither an ACL exclusion nor a new configuration failure.",
+  "label.storage.nfs.probe.details": "NFS access inspection",
+  "message.storage.nfs.probe.preserve": "Configuration application and access checks are separate. The server address is never automatically added to the ACL. Verify access from an allowed client.",
+  "label.storage.nfs.probe.configuration": "Configuration",
+  "label.storage.nfs.probe.local": "Local access check",
+  "label.storage.nfs.probe.external.column": "External access",
+  "label.storage.nfs.probe.external": "Verify from an allowed client",
+  "label.storage.nfs.probe.method": "Apply method",
+  "label.storage.nfs.probe.operation": "Configuration operation",
+  "label.storage.nfs.probe.excluded": "Excluded by ACL · not checked",
+  "label.storage.nfs.probe.verified": "Mount verified",
+  "label.storage.nfs.probe.failed": "Check failed",
+  "label.storage.nfs.probe.applied": "Applied",
+  "message.storage.nfs.acl.last.delete": "This is the export's last access rule. Deleting it restores the existing allow-all default; it does not revoke all access."
 }

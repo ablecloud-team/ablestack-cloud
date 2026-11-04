@@ -186,7 +186,8 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
             import io
             archive=original(version)
             manifest=json.loads((self.output/"manifest.json").read_text())
-            optional={"lib/ablestack-storage/boot_reconcile.py", "lib/ablestack-storage/smb_client_access.py",
+            optional={"lib/ablestack-storage/nfs_ganesha_render.py", "lib/ablestack-storage/nfs_client_policy_runtime.py",
+                      "lib/ablestack-storage/boot_reconcile.py", "lib/ablestack-storage/smb_client_access.py",
                       "lib/ablestack-storage/smb_file_identity.py", "lib/ablestack-storage/shared_directory_policy.py"}
             manifest["files"]=[f for f in manifest["files"] if f["path"] not in optional]
             with tarfile.open(archive,"r:gz") as tf:
@@ -273,7 +274,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
     def test_actual_assembled_signed_payload_first_and_repeated_bootstrap(self):
         image = self.assembled_actual_template("actual-template")
         verified = self.template_verifier().verify(image)
-        self.assertEqual(13, len(verified["managedFilesVerified"]))
+        self.assertEqual(15, len(verified["managedFilesVerified"]))
         self.assertTrue(verified["signatureVerified"])
         first = self.run_updater("bootstrap")
         current = self.runtime_root / "current"
@@ -384,12 +385,12 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.assertEqual("PREVIOUS_RUNTIME_INTEGRITY_MISMATCH", self.run_updater("rollback", request, success=False)["errorCode"])
         self.assertEqual("v2", self.run_updater("capabilities")["currentVersion"])
 
-    def test_payload_contains_ten_helpers_and_exact_modes(self):
+    def test_payload_contains_twelve_helpers_and_exact_modes(self):
         self.build_bundle()
         manifest = json.loads((self.output / "manifest.json").read_text())
         self.assertEqual(2, manifest["payloadLayout"])
-        self.assertEqual(13, len(manifest["files"]))
-        self.assertEqual(10, sum(x["mode"]=="0644" for x in manifest["files"]))
+        self.assertEqual(15, len(manifest["files"]))
+        self.assertEqual(12, sum(x["mode"]=="0644" for x in manifest["files"]))
         self.assertIn("lib/ablestack-storage/shared_directory_policy.py",{x["path"] for x in manifest["files"]})
         self.assertIn("lib/ablestack-storage/boot_reconcile.py",{x["path"] for x in manifest["files"]})
         with tarfile.open(self.output / "ablestack-storage-runtime-v2.tar.gz") as archive:

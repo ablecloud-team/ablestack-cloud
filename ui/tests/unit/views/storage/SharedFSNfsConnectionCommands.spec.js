@@ -78,3 +78,20 @@ test.each([['ko', ko], ['en', en]])('%s description documents the published path
   expect(text).toContain('showmount -e')
   expect(text).not.toContain('/export/')
 })
+
+test('last ACL deletion warns about default allow-all while preserving typed confirmation', async () => {
+  await render()
+  const rule = { id: 'acl-1', resourceid: 'share-1', principal: '192.0.2.12/32' }
+  wrapper.vm.storageService.nfsAcls = [rule]
+  wrapper.vm.openDeleteModal('nfsAcl', rule)
+  await flushPromises()
+  expect(wrapper.vm.lastNfsAclDeletion).toBe(true)
+  expect(wrapper.vm.forms.deleteConfirm.confirmation).toBe('')
+  expect(wrapper.vm.forms.deleteConfirm.command).toBe('deleteStorageNfsAcl')
+  wrapper.vm.storageService.nfsAcls.push({ id: 'acl-2', resourceid: 'share-1', principal: '192.0.2.11/32' })
+  await flushPromises()
+  expect(wrapper.vm.lastNfsAclDeletion).toBe(false)
+  expect(wrapper.vm.forms.deleteConfirm.confirmation).toBe('')
+  expect(ko['message.storage.nfs.acl.last.delete']).toContain('전체 허용')
+  expect(en['message.storage.nfs.acl.last.delete']).toContain('allow-all')
+})

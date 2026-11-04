@@ -336,4 +336,70 @@ public class StorageNfsIdentityCoordinatorDaoTest {
         if (output != null) java.nio.file.Files.writeString(java.nio.file.Path.of(output), wire);
     }
 
+
+    private void clientPolicyRoundTrip(String state) throws Exception {
+        var cmd = new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsAclCmd();
+        field(cmd, cmd.getClass(), "id", 77L);field(cmd, cmd.getClass(), "permission", "READ_ONLY");
+        field(cmd, BaseStorageServiceConfigurationCmd.class, "expectedRevision", 3L);
+        var plan = prepareDispatch();var applies = new java.util.concurrent.atomic.AtomicInteger();
+        doAnswer(call -> {
+            StorageServiceGuestCommand command = call.getArgument(0);
+            if ("configuration capability show".equals(command.getOperation())) return capability();
+            var value=com.google.gson.JsonParser.parseString(command.getPayload()).getAsJsonObject();
+            if ("configuration operation commit".equals(command.getOperation())) {
+                value.addProperty("state","COMMITTED");
+                return new StorageServiceGuestCommandResult(true,"committed",value.toString());
+            }
+            assertEquals("configuration operation apply",command.getOperation());applies.incrementAndGet();
+            assertTrue(value.getAsJsonObject("before").has("nfs export apply"));
+            assertTrue(value.getAsJsonObject("candidate").has("nfs export apply"));
+            var result=new com.google.gson.JsonObject();
+            for(String key:new String[]{"operationid","instanceUuid","baseRevision","targetRevision"})result.add(key,value.get(key));
+            result.addProperty("state",state);result.addProperty("phase","VERIFIED".equals(state)?"COMMITTING":"COMPLETED");
+            result.add("nfsClientPolicy",com.google.gson.JsonParser.parseString(
+                "{\"phase\":\"APPLIED\",\"endpoints\":[{\"port\":2049,\"changed\":true}]}"));
+            if(!"VERIFIED".equals(state)) {
+                result.add("originalfailure",com.google.gson.JsonParser.parseString(
+                    "{\"code\":\"NFS_CLIENT_RELOAD_REJECTED\",\"phase\":\"APPLYING\",\"detail\":{\"port\":2050,\"stage\":\"NFS_CLIENT_POLICY\"}}"));
+                result.add("rollback",com.google.gson.JsonParser.parseString(
+                    "ROLLED_BACK".equals(state)?"{\"state\":\"SUCCEEDED\"}":"{\"state\":\"UNKNOWN\"}"));
+            }
+            return new StorageServiceGuestCommandResult(true,"observed",result.toString());
+        }).when(guest).dispatch(any());
+        var before=com.google.gson.JsonParser.parseString("{\"instanceUuid\":\""+instance.getUuid()+"\",\"exports\":[]}").getAsJsonObject();
+        java.util.function.Supplier<String> candidate=()->{plan.get().commands.put("nfs export apply",before.deepCopy());return "candidate";};
+        try {
+            coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,String.class,candidate,
+                plan::set,()->plan.get().commands.put("nfs export apply",before.deepCopy()),"vm-fixture");
+            assertEquals("VERIFIED",state);
+        } catch(CloudRuntimeException failure) {assertTrue(!"VERIFIED".equals(state));}
+        var stored=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("VERIFIED".equals(state)?"COMMITTED":state,stored.getState());
+        assertEquals("APPLIED",StorageServiceConfigurationCoordinator.parsed(stored.getGuestObservationJson()).getAsJsonObject("nfsClientPolicy").get("phase").getAsString());
+        if("VERIFIED".equals(state))assertEquals(4,instances.findById(instance.getId()).getConfigurationRevision());
+        else {
+            assertEquals(3,instances.findById(instance.getId()).getConfigurationRevision());
+            assertEquals("NFS_CLIENT_RELOAD_REJECTED",StorageServiceConfigurationCoordinator.parsed(stored.getOriginalFailureJson()).get("code").getAsString());
+        }
+        assertEquals("RECOVERY_REQUIRED".equals(state),instances.findById(instance.getId()).getActiveConfigurationOperationId()!=null);
+        var response=new org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse();
+        response.setId(stored.getUuid());response.setState(stored.getState());response.setPhase(stored.getPhase());
+        response.setRequestid(stored.getRequestId());response.setObservation(StorageServiceConfigurationCoordinator.parsed(stored.getGuestObservationJson()));
+        response.setOriginalfailure(StorageServiceConfigurationCoordinator.parsed(stored.getOriginalFailureJson()));
+        response.setRollback(StorageServiceConfigurationCoordinator.parsed(stored.getRollbackResultJson()));
+        response.setResponseName("getstorageserviceconfigurationoperationresponse");response.setObjectName("configurationoperation");
+        String wire=com.cloud.api.response.ApiResponseSerializer.toSerializedString(response,"json");
+        assertTrue(wire.contains("nfsClientPolicy"));assertTrue(wire.contains("2049"));
+        String dir=System.getProperty("sharedfs.nfs.policy.wire.dir");
+        if(dir!=null)java.nio.file.Files.writeString(java.nio.file.Path.of(dir,state+".json"),wire);
+        if(!"VERIFIED".equals(state)){
+            try {coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,String.class,candidate,
+                plan::set,()->{},"vm-fixture");fail("same failed/unknown operation must not apply again");}
+            catch(CloudRuntimeException expected){assertTrue(expected.getMessage().contains("no duplicate apply"));}
+        }
+        assertEquals(1,applies.get());
+    }
+    @Test public void clientPolicyVerifiedReceiptSurvivesRealCoordinatorDaoReload() throws Exception {clientPolicyRoundTrip("VERIFIED");}
+    @Test public void clientPolicyRollbackCauseSurvivesRealCoordinatorDaoReload() throws Exception {clientPolicyRoundTrip("ROLLED_BACK");}
+    @Test public void clientPolicyUnknownKeepsActualReservationAndNoDuplicateApply() throws Exception {clientPolicyRoundTrip("RECOVERY_REQUIRED");}
 }

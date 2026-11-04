@@ -125,8 +125,12 @@ class BootRecovery(unittest.TestCase):
     def test_previous_signed_layout_is_accepted_but_partial_new_layout_is_not(self):
         import runtime_updater as updater
         current=set(updater.MANAGED_FILES)
-        self.assertEqual(13,len(current))
-        self.assertTrue(updater.complete_managed_names(current-{"lib/ablestack-storage/boot_reconcile.py"}))
+        self.assertEqual(15,len(current))
+        previous=current-{"lib/ablestack-storage/nfs_ganesha_render.py", "lib/ablestack-storage/nfs_client_policy_runtime.py"}
+        self.assertTrue(updater.complete_managed_names(previous))
+        self.assertTrue(updater.complete_managed_names(previous-{"lib/ablestack-storage/boot_reconcile.py"}))
+        self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/nfs_client_policy_runtime.py"}))
+        self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/boot_reconcile.py"}))
         self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/volume_identity.py"}))
         self.assertFalse(updater.complete_managed_names(current-{"lib/ablestack-storage/smb_client_access.py"}))
     def test_unresolved_configuration_is_protected_without_committing_or_rolling_back(self):

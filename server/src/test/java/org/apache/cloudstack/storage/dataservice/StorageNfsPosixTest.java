@@ -129,4 +129,25 @@ public class StorageNfsPosixTest {
         String fixture=System.getProperty("storage.nfs.localprobe.fixture");if(fixture!=null)Files.writeString(Path.of(fixture),json+"\n");
     }
 
+
+    @Test public void realSerializerKeepsClientPolicyReceiptAndUnknownSeparate() throws Exception {
+        JsonObject probe=JsonParser.parseString("{\"externalclientrequired\":true,\"ports\":[" +
+            "{\"port\":2049,\"status\":\"EXTERNAL_CLIENT_REQUIRED\",\"reason\":\"LOCAL_ADDRESS_EXCLUDED_BY_ACL\",\"observedAt\":1793790000," +
+            "\"configurationState\":\"APPLIED\",\"applyMethod\":\"RELOAD\",\"operationid\":\"00000000-0000-0000-0000-000000001460\",\"bootId\":\"same-boot\"}," +
+            "{\"port\":2050,\"status\":\"UNKNOWN\",\"previousStatus\":\"MOUNT_VERIFIED\",\"reason\":\"NFS_CLIENT_OBSERVATION_STALE\",\"configurationState\":\"UNKNOWN\",\"observedAt\":1793780000}]}").getAsJsonObject();
+        StorageNfsExportResponse row=new StorageNfsExportResponse();row.setId("policy-share");row.setName("team");
+        row.setState("Ready");row.setConfig("{\"rootSquash\":true}");row.setLocalProbe(probe);row.setObjectName("storagenfsexport");
+        ListResponse<StorageNfsExportResponse> list=new ListResponse<>();list.setResponses(java.util.List.of(row));list.setResponseName("liststoragenfsexportsresponse");
+        String json=com.cloud.api.response.ApiResponseSerializer.toSerializedString(list,"json");
+        JsonObject actual=JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("liststoragenfsexportsresponse")
+            .getAsJsonArray("storagenfsexport").get(0).getAsJsonObject();
+        assertEquals("Ready",actual.get("state").getAsString());assertTrue(actual.get("config").isJsonPrimitive());
+        var ports=actual.getAsJsonObject("localprobe").getAsJsonArray("ports");
+        assertEquals("APPLIED",ports.get(0).getAsJsonObject().get("configurationState").getAsString());
+        assertEquals("RELOAD",ports.get(0).getAsJsonObject().get("applyMethod").getAsString());
+        assertEquals(2049,ports.get(0).getAsJsonObject().get("port").getAsInt());
+        assertEquals("UNKNOWN",ports.get(1).getAsJsonObject().get("status").getAsString());
+        String fixture=System.getProperty("storage.nfs.clientpolicy.fixture");
+        if(fixture!=null)Files.writeString(Path.of(fixture),json+"\n");
+    }
 }
