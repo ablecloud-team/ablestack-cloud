@@ -1,0 +1,20 @@
+{
+  "watcher": {
+    "injected": true,
+    "target": {
+      "pid": 1981421,
+      "start": "1915247",
+      "candidate": "f8efd2a5-9c49-474a-bd8d-ce23cfeaabb6",
+      "name": "diag1459-inspect-001"
+    },
+    "kind": "read-only directory inspection only",
+    "pausedAt": 1793786425.132188,
+    "resumed": true,
+    "resumedAt": 1793786448.1656451
+  },
+  "allProtectedFilesDataAndPidsUnchanged": true,
+  "exports": 100,
+  "diagnosticShareNotPublished": true,
+  "watcherState": "exited",
+  "seedSha": "2f884cdfd4d3c30d01aa1e1e0795bf35f888e73533c8a588ead1167f8a24666f"
+}

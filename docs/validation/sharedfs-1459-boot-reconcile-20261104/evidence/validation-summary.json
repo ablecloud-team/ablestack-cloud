@@ -1,0 +1,47 @@
+{
+  "productCommit": "4ad6414a063abc5f7d9ac87570f3f66176ca6465",
+  "localBuildOnly": true,
+  "actionsRuns": 0,
+  "python": {
+    "passed": 17,
+    "skipped": 0
+  },
+  "serverDaoAndContract": {
+    "passed": 13,
+    "skipped": 0
+  },
+  "ui": {
+    "suites": 6,
+    "passed": 32,
+    "lint": "PASS",
+    "productionBuild": "PASS"
+  },
+  "mavenManagementReactor": 26,
+  "mavenKvmReactor": 38,
+  "runtimeHostWrapperTests": 6,
+  "nativePhysicalBindChecks": 7,
+  "sourceAndTemporaryResourcesPreserved": true,
+  "modes": {
+    "v4": {
+      "bootId": "0d731205-f377-4556-b486-2a9ff34c8e52",
+      "completed": 200,
+      "total": 200,
+      "elapsedSeconds": 47.98,
+      "budgetSeconds": 235,
+      "clientChecks": 200,
+      "clientRc": 0,
+      "postManagementRestartReadWriteRc": 0
+    },
+    "dual": {
+      "bootId": "55a0a341-df15-44e3-895f-910f1c222994",
+      "completed": 200,
+      "total": 200,
+      "elapsedSeconds": 47.57,
+      "budgetSeconds": 215,
+      "clientChecks": 200,
+      "clientRc": 0,
+      "postManagementRestartReadWriteRc": 0
+    }
+  },
+  "actualPlannedFailurePreservedAfterManagementRestart": true
+}

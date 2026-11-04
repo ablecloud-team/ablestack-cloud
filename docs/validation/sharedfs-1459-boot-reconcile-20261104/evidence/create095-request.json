@@ -1,0 +1,11 @@
+[
+  {
+    "command": "createStorageNfsExport",
+    "name": "boot095",
+    "requestid": "84f75b53-c322-4d71-be5c-36fe60eb7eb1",
+    "listenerports": "2049,2050",
+    "directorypolicyid": "08b2841c-f63a-3d48-9855-20647d0b35ea",
+    "posixFieldsSubmitted": [],
+    "method": "POST"
+  }
+]

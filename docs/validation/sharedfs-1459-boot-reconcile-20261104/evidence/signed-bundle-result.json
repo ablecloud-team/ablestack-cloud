@@ -1,0 +1,15 @@
+{
+  "version": "1459.directory.1",
+  "buildCommit": "4ad6414a063abc5f7d9ac87570f3f66176ca6465",
+  "keyId": "ablestack-runtime-cluster13",
+  "signatureVerified": true,
+  "plaintextPrivateKeyWritten": false,
+  "changedManagedFiles": [
+    "lib/ablestack-storage/shared_directory_policy.py"
+  ],
+  "files": {
+    "ablestack-storage-runtime-1459.directory.1.tar.gz": "142cfe1bfd6c338129fc0c734e6f8fbbb0f0e465ff380cb9e076bf5f194c76c3",
+    "manifest.json": "57febf64fd64a5a361997c72dfd87f91c6a270ee01d5e10cf27831a8055c5543",
+    "manifest.sig": "b77f703e1b78379d56b45d134d59fb8c3cec6dd63033782ba3a33a9e9900a059"
+  }
+}
