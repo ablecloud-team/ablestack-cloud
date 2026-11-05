@@ -219,7 +219,6 @@ export default {
       const vlanRange = this.rangeLimits[this.isolationMethod] ? this.rangeLimits[this.isolationMethod] : this.rangeLimits.VLAN
       switch (true) {
         case ((fromVal === null) || (toVal === null)):
-        case fromVal === toVal:
         case fromVal > toVal:
         case toVal > vlanRange.max:
         case fromVal < vlanRange.min:
