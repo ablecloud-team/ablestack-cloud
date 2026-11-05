@@ -1,0 +1,210 @@
+[
+  {
+    "liststorageserviceconfigurationoperationsresponse": {
+      "count": 1,
+      "configurationoperation": [
+        {
+          "id": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+          "instanceid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+          "requestid": "b17e47d6-3c51-44a4-94b0-273a7acd3d33",
+          "state": "PENDING",
+          "phase": "PREPARING",
+          "protocol": "NFS",
+          "baserevision": 15,
+          "targetrevision": 16,
+          "canresume": false,
+          "originalfailure": {},
+          "rollback": {},
+          "observation": {
+            "cancellationSupported": false,
+            "operationid": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+            "state": "NOT_FOUND",
+            "workerActive": false
+          },
+          "created": "2026-11-05T12:24:06+0900",
+          "updated": "2026-11-05T12:24:06+0900"
+        }
+      ]
+    }
+  },
+  {
+    "liststorageserviceconfigurationoperationsresponse": {
+      "count": 1,
+      "configurationoperation": [
+        {
+          "id": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+          "instanceid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+          "requestid": "b17e47d6-3c51-44a4-94b0-273a7acd3d33",
+          "state": "RUNNING",
+          "phase": "COMPLETED",
+          "protocol": "NFS",
+          "resourceid": "28d5feb2-df32-4539-a2ab-dff97ee60f8b",
+          "baserevision": 15,
+          "targetrevision": 16,
+          "canresume": true,
+          "originalfailure": {
+            "code": "NFS_CLIENT_RELOAD_REJECTED",
+            "detail": {
+              "code": "NFS_CLIENT_RELOAD_REJECTED",
+              "port": 2049,
+              "stage": "NFS_CLIENT_POLICY"
+            },
+            "phase": "APPLYING",
+            "type": "PolicyError"
+          },
+          "rollback": {
+            "state": "SUCCEEDED"
+          },
+          "observation": {
+            "baseRevision": 15,
+            "instanceUuid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+            "nfsClientPolicy": {
+              "operationid": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+              "phase": "RESTORED"
+            },
+            "operationid": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+            "originalfailure": {
+              "code": "NFS_CLIENT_RELOAD_REJECTED",
+              "detail": {
+                "code": "NFS_CLIENT_RELOAD_REJECTED",
+                "port": 2049,
+                "stage": "NFS_CLIENT_POLICY"
+              },
+              "phase": "APPLYING",
+              "type": "PolicyError"
+            },
+            "pathbindings": {
+              "bindings": [
+                {
+                  "pathIdentity": {
+                    "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                    "inode": 16908416,
+                    "volumeRootInode": 128
+                  },
+                  "relativepath": "export/ordered-sibling",
+                  "resourceuuid": "31bf00b8-1dd8-476e-a4d8-6fcaea0cf607",
+                  "volumeuuid": "d959448c-04dd-4be9-a411-82abcb8cb5da"
+                }
+              ],
+              "instanceUuid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+              "operationid": "4620719a-eed1-4704-a2f3-c871c519a9a4"
+            },
+            "phase": "COMPLETED",
+            "requestHash": "32f9cd05a11544781699656430a3669d0381b0538c15252f2d1a007fc2e6ee1e",
+            "rollback": {
+              "state": "SUCCEEDED"
+            },
+            "state": "ROLLED_BACK",
+            "targetRevision": 16,
+            "updated": 1793849050.8992093
+          },
+          "created": "2026-11-05T12:24:06+0900",
+          "updated": "2026-11-05T12:24:10+0900",
+          "candidate": {
+            "allsquash": false,
+            "api": "UpdateStorageNfsAclCmd",
+            "expectedrevision": 15,
+            "id": 510,
+            "impactack": "fe54254a1e121c59e71478fc69c0a7f3d9837233407f4ab52955722603ed75dd",
+            "permission": "READ_WRITE",
+            "principal": "999.0.0.1/32",
+            "rootsquash": true,
+            "secure": false,
+            "sync": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "queryasyncjobresultresponse": {
+      "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "domainpath": "ROOT",
+      "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+      "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsAclCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 530,
+      "jobresulttype": "object",
+      "jobresult": {
+        "errorcode": 530,
+        "errortext": "Configuration 4620719a-eed1-4704-a2f3-c871c519a9a4 ended as ROLLED_BACK; inspect the preserved failure and rollback result"
+      },
+      "created": "2026-11-05T12:24:06+0900",
+      "completed": "2026-11-05T12:24:11+0900",
+      "jobid": "b177a2d6-9d5c-451b-9407-db3a80e6b91d",
+      "jobstatus": 2
+    }
+  },
+  {
+    "liststorageserviceconfigurationoperationsresponse": {
+      "count": 1,
+      "configurationoperation": [
+        {
+          "id": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+          "instanceid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+          "requestid": "b17e47d6-3c51-44a4-94b0-273a7acd3d33",
+          "state": "ROLLED_BACK",
+          "phase": "COMPLETED",
+          "protocol": "NFS",
+          "resourceid": "28d5feb2-df32-4539-a2ab-dff97ee60f8b",
+          "baserevision": 15,
+          "targetrevision": 16,
+          "canresume": false,
+          "originalfailure": {
+            "code": "NFS_CLIENT_RELOAD_REJECTED",
+            "detail": {
+              "code": "NFS_CLIENT_RELOAD_REJECTED",
+              "port": 2049,
+              "stage": "NFS_CLIENT_POLICY"
+            },
+            "phase": "APPLYING",
+            "type": "PolicyError"
+          },
+          "rollback": {
+            "state": "SUCCEEDED"
+          },
+          "observation": {
+            "baseRevision": 15,
+            "instanceUuid": "ff7aa816-cd83-4507-b9d3-feec13f48432",
+            "operationid": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+            "originalfailure": {
+              "code": "NFS_CLIENT_RELOAD_REJECTED",
+              "detail": {
+                "code": "NFS_CLIENT_RELOAD_REJECTED",
+                "port": 2049,
+                "stage": "NFS_CLIENT_POLICY"
+              },
+              "phase": "APPLYING",
+              "type": "PolicyError"
+            },
+            "phase": "COMPLETED",
+            "requestHash": "32f9cd05a11544781699656430a3669d0381b0538c15252f2d1a007fc2e6ee1e",
+            "rollback": {
+              "state": "SUCCEEDED"
+            },
+            "state": "ROLLED_BACK",
+            "targetRevision": 16,
+            "updated": 1793849050.8992093
+          },
+          "created": "2026-11-05T12:24:06+0900",
+          "updated": "2026-11-05T12:24:11+0900",
+          "completed": "2026-11-05T12:24:11+0900",
+          "candidate": {
+            "allsquash": false,
+            "api": "UpdateStorageNfsAclCmd",
+            "expectedrevision": 15,
+            "id": 510,
+            "impactack": "fe54254a1e121c59e71478fc69c0a7f3d9837233407f4ab52955722603ed75dd",
+            "permission": "READ_WRITE",
+            "principal": "999.0.0.1/32",
+            "rootsquash": true,
+            "secure": false,
+            "sync": true
+          }
+        }
+      ]
+    }
+  }
+]

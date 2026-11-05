@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+  "baseCompressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+  "image": "/root/work/epic1438-preparation/20261105/issue1460-online-preflight/systemvm-epic1460-client4.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261105/issue1460-online-preflight/systemvm-epic1460-client4.qcow2.bz2",
+  "compressedBytes": 498414488,
+  "compressedSha256": "50b14623d9b57cf39576be57ee3094c32ec1a03f43244acf523bd59128bb6ad5",
+  "changedGuestPaths": [
+    "etc/ablestack-storage/runtime-default/manifest.json",
+    "etc/ablestack-storage/runtime-default/manifest.sig",
+    "usr/lib/x86_64-linux-gnu/samba/vfs",
+    "usr/lib/x86_64-linux-gnu/samba/vfs/full_audit.so",
+    "usr/local/bin/ablestack-storage-boot-reconcile",
+    "usr/local/bin/ablestack-storage-monitor",
+    "usr/local/bin/ablestack-storagectl",
+    "usr/local/lib/ablestack-storage/boot_reconcile.py",
+    "usr/local/lib/ablestack-storage/configuration_preflight.py",
+    "usr/local/lib/ablestack-storage/configuration_transaction.py",
+    "usr/local/lib/ablestack-storage/nfs_client_policy_runtime.py",
+    "usr/local/lib/ablestack-storage/nfs_ganesha_render.py",
+    "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+    "usr/local/lib/ablestack-storage/runtime_updater.py",
+    "usr/local/lib/ablestack-storage/shared_directory_policy.py",
+    "usr/local/lib/ablestack-storage/smb_client_access.py",
+    "usr/local/lib/ablestack-storage/smb_file_identity.py"
+  ],
+  "unchangedGuestPathsVerified": 33920,
+  "hostAccountFilesUnchanged": true,
+  "qemuImageCheck": "No errors were found on the image.\n27450/80000 = 34.31% allocated, 0.04% fragmented, 0.00% compressed clusters\nImage end offset: 1799880704",
+  "managedFileCount": 15
+}

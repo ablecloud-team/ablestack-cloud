@@ -1,0 +1,19 @@
+{
+  "sourceCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+  "beforeIndexSha256": "ba00e672d5320fd4ced4171b9079d370977825830935e8b2e338dcd1b655922e",
+  "afterIndexSha256": "330784f765854c1e7ddc8be0ab5e8b65c3044e388f72f2f5015ffb2d4014b6b2",
+  "archiveSha256": "72dd14c5175104dfa07b0b387c72aca58d3452f9179d7e1e6b2c5b2ffec49e8e",
+  "changed": [
+    "index.html",
+    "locales/ko_KR.json",
+    "locales/en.json"
+  ],
+  "added": [
+    "css/chunk-e811f7a4.b41f7eb4.css",
+    "js/app.b51306de.js",
+    "js/chunk-e811f7a4.16259538.js"
+  ],
+  "unchanged": 647,
+  "configAndColorPreserved": true,
+  "oldAssetsRetained": true
+}

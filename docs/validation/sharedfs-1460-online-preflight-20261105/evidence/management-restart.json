@@ -1,0 +1,7 @@
+{
+  "action": "management JVM/service restart, not OS reboot",
+  "before": "MainPID=1191924\nActiveState=active\nActiveEnterTimestamp=Thu 2026-11-05 11:54:27 KST\n",
+  "exit": 0,
+  "stderr": "",
+  "after": "MainPID=1197976\nActiveState=active\nActiveEnterTimestamp=Thu 2026-11-05 12:47:12 KST\n"
+}

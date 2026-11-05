@@ -1,0 +1,43 @@
+{
+  "server": [
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageNfsClientPolicyTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest",
+      "tests": "25",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageNfsPosixTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "nfsPython": 69,
+  "boot": 18,
+  "runtime": 23,
+  "uiSuites": 6,
+  "uiTests": 57,
+  "uiLint": true,
+  "mavenModules": 26,
+  "mavenBuild": true,
+  "uiProductionBuild": true,
+  "actionsExecuted": 0,
+  "checkstyleSkippedKnownBaselineErrors": 25
+}

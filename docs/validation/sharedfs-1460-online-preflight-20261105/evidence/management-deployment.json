@@ -1,0 +1,15 @@
+{
+  "sourceCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+  "beforeSha256": "28132d489805e39af48d33d67f869b51a821cb6f0a7512e60e77b3e775c60af2",
+  "afterSha256": "49fa4bcefe132a4356944a2a9699154f195ee8d934857b4e78432e68aeb6c95c",
+  "changedEntries": [
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class"
+  ],
+  "addedEntries": [
+    "org/apache/cloudstack/storage/dataservice/StorageNfsClientPolicy.class"
+  ],
+  "unchangedEntries": 92563,
+  "schemaMigration": false
+}

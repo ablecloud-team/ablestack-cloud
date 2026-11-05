@@ -1,0 +1,206 @@
+[
+  {
+    "domain": "i-2-211-VM",
+    "vmUuid": "5d82a2a4-2900-3586-a080-e3aaaef1e512",
+    "disks": [
+      {
+        "target": "sda",
+        "source": "/mnt/glue-gfs/2a60b693-247f-4dba-bb80-c022301f0cb8",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1692012544,
+        "format": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 5243928576,
+                "filename": "/mnt/glue-gfs/2a60b693-247f-4dba-bb80-c022301f0cb8",
+                "format": "file",
+                "actual-size": 1692012544,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 5242880000,
+          "filename": "/mnt/glue-gfs/2a60b693-247f-4dba-bb80-c022301f0cb8",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 1692012544,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        }
+      },
+      {
+        "target": "sdb",
+        "source": "/mnt/glue-gfs/d959448c-04dd-4be9-a411-82abcb8cb5da",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "fileBytes": 10739318784,
+        "allocatedBytes": 69812224,
+        "format": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 10739318784,
+                "filename": "/mnt/glue-gfs/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                "format": "file",
+                "actual-size": 69812224,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 10737418240,
+          "filename": "/mnt/glue-gfs/d959448c-04dd-4be9-a411-82abcb8cb5da",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 69812224,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        }
+      }
+    ]
+  },
+  {
+    "domain": "i-2-214-VM",
+    "vmUuid": "23ccd807-af30-360b-a8ef-c2c29b9bb833",
+    "disks": [
+      {
+        "target": "sda",
+        "source": "/mnt/glue-gfs/1260c843-68d0-4335-92c7-ba7f3226eb19",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1644806144,
+        "format": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 5243928576,
+                "filename": "/mnt/glue-gfs/1260c843-68d0-4335-92c7-ba7f3226eb19",
+                "format": "file",
+                "actual-size": 1644806144,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 5242880000,
+          "filename": "/mnt/glue-gfs/1260c843-68d0-4335-92c7-ba7f3226eb19",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 1644806144,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        }
+      },
+      {
+        "target": "sdb",
+        "source": "/mnt/glue-gfs/76827053-fe54-4a8d-a613-ad13bc57580a",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "fileBytes": 10739318784,
+        "allocatedBytes": 9465856,
+        "format": {
+          "children": [
+            {
+              "name": "file",
+              "info": {
+                "children": [],
+                "virtual-size": 10739318784,
+                "filename": "/mnt/glue-gfs/76827053-fe54-4a8d-a613-ad13bc57580a",
+                "format": "file",
+                "actual-size": 9465856,
+                "format-specific": {
+                  "type": "file",
+                  "data": {}
+                },
+                "dirty-flag": false
+              }
+            }
+          ],
+          "virtual-size": 10737418240,
+          "filename": "/mnt/glue-gfs/76827053-fe54-4a8d-a613-ad13bc57580a",
+          "cluster-size": 65536,
+          "format": "qcow2",
+          "actual-size": 9465856,
+          "format-specific": {
+            "type": "qcow2",
+            "data": {
+              "compat": "1.1",
+              "compression-type": "zlib",
+              "lazy-refcounts": false,
+              "refcount-bits": 16,
+              "corrupt": false,
+              "extended-l2": false
+            }
+          },
+          "dirty-flag": false
+        }
+      }
+    ]
+  }
+]

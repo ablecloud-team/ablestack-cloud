@@ -1,0 +1,12 @@
+{
+  "runtime": "1460.client.4",
+  "bootId": "71079a6b-8d25-4529-b8a4-4da79ca0e981",
+  "pid": "1451 /usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2049.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2049.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2049.conf\n",
+  "sha": "2255cbe52a66dda890ad4277dd12abc8db6e23b8d7eefd2ddbb801a7e43f1e76",
+  "uid": 65534,
+  "gid": 65534,
+  "mode": "0o644",
+  "inode": 8388737,
+  "dirInode": 8388736,
+  "findmnt": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/76827053-fe54-4a8d-a613-ad13bc57580a\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"xfs\",\n         \"uuid\": \"f887b8ec-6601-4bc6-83d7-dba7e247186d\",\n         \"fsroot\": \"/\"\n      }\n   ]\n}\n"
+}
