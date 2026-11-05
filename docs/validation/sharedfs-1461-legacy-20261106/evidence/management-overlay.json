@@ -1,0 +1,38 @@
+{
+  "baselineSha256": "261be24bf808c21cb588c7b86dabadafcf2dc5c9ef730c820f8766f593060efc",
+  "outputSha256": "d32af98ba8006efc08718bf51eb6e5b4150d86886edd7c4400983829f4b62043",
+  "changedClassCount": 6,
+  "entries": [
+    {
+      "entry": "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class",
+      "before": "9094d0b4d781a0ac11cb6e14e6a76ebaf764d0ad61bb1b389e5b1ea95b7b287a",
+      "after": "9558f1751616195ee104e1f6e3b69b378d97d6f04afe77e27da3af22370272e6"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class",
+      "before": "69faaa772eb50aa8db6aa3571f2b5459ccc3af9ad81d418a2c690387b99207e3",
+      "after": "5e4c1aaa72112b5708090a20ac58a31d47cc18660aac281dc2f85d884cc51394"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class",
+      "before": "b3401deffc9d7b6b96afb9f4776e7465aeabbd2755af40e4dd5c1dcc31ac4a1c",
+      "after": "712c86fac1bd3a59588ca1f8d22b353cde43d81f1791742faaa4729a3f836ee3"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+      "before": "0159682fdb8279d1537066b244fc0cfa4488cdf42d4927fad34d5f29a0ebe312",
+      "after": "b0a72049e38bbab567952d5449d9e98f95940931b206f9d17a2a1cf9fc1f86ac"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "before": "454c61787adef1e8d060d66d0408b44e14e57b41686e2cd96413c37bb6aa846b",
+      "after": "2a6d240998213d4c0f58cdd3e5125639ed7365dbf16357ae0f346b3ba5d50ee8"
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+      "before": "4d11c3c0d8a8124c77f292f0195e2f1fc49482029f9991b85f1968f678fdae7b",
+      "after": "339b867eab6fc75d9729c1c4684c16d654cc71c44ed2174b80c56da21b13a54a"
+    }
+  ],
+  "unrelatedEntriesUnchanged": true
+}

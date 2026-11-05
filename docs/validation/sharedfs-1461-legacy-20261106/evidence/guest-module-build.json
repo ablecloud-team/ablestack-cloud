@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "49d6f516528018c09ebe175858973e52aa359c99",
+  "runtimeVersion": "1461.legacy.2",
+  "compressed": "/root/work/epic1438-preparation/20261105/issue1461-smb-legacy-fix/systemvm-epic1461-legacy2.qcow2.bz2",
+  "compressedBytes": 498534598,
+  "compressedSha256": "034ae73e221dca57a691a23b44d69427bfaa95671d0d1302afbb66dbce307167",
+  "hostAccountFilesUnchanged": true,
+  "qemuImageCheck": "No errors were found on the image.\n27461/80000 = 34.33% allocated, 0.03% fragmented, 0.00% compressed clusters\nImage end offset: 1800601600",
+  "signedBaselineMatchesPayload": true
+}

@@ -1,0 +1,7 @@
+{
+  "chunk_id": "0ffa0c",
+  "wall_time_seconds": 1.5111516,
+  "exit_code": 0,
+  "original_token_count": 119,
+  "output": "{\"exit\": 0, \"stdout\": \"{\\\"pid\\\": 116397, \\\"exit\\\": 0, \\\"stdout\\\": \\\"{\\\\\\\"reproduced\\\\\\\": true, \\\\\\\"inheritedUmask\\\\\\\": \\\\\\\"0077\\\\\\\", \\\\\\\"createdParentMode\\\\\\\": \\\\\\\"0o700\\\\\\\", \\\\\\\"leafUid\\\\\\\": 1001, \\\\\\\"leafGid\\\\\\\": 1001, \\\\\\\"leafMode\\\\\\\": \\\\\\\"0770\\\\\\\", \\\\\\\"beforeParentTraverseAllowed\\\\\\\": false, \\\\\\\"afterDisposableParentTraverseAllowed\\\\\\\": true, \\\\\\\"productionParentChanged\\\\\\\": false, \\\\\\\"testDirectoryRemovedOnExit\\\\\\\": true}\\\\n\\\", \\\"stderr\\\": \\\"\\\"}\\n\", \"stderr\": \"\"}\n"
+}

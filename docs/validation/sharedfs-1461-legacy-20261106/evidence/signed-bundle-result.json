@@ -1,0 +1,16 @@
+{
+  "version": "1461.legacy.1",
+  "buildCommit": "6bca4fd150322596d721aea614d0c244abb6c044",
+  "keyId": "ablestack-runtime-cluster13",
+  "signatureVerified": true,
+  "plaintextPrivateKeyWritten": false,
+  "changedManagedFiles": [
+    "lib/ablestack-storage/configuration_transaction.py",
+    "lib/ablestack-storage/configuration_preflight.py"
+  ],
+  "files": {
+    "ablestack-storage-runtime-1461.legacy.1.tar.gz": "fbe32e02edcd0ccad00f49774809c71be15b10af63d4e562ea2563758e9fef38",
+    "manifest.json": "eb650d437cdbd77332664dfa6de30416c618c03c143154932f79d6fa106f45d5",
+    "manifest.sig": "da1b8f54a8519c913ff5b7407615b610c5d6be85303554724bcbfb04dd9fd8c2"
+  }
+}
