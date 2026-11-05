@@ -18,10 +18,13 @@
 //
 
 package com.cloud.hypervisor.kvm.resource.wrapper;
-import com.cloud.agent.api.*;
+import com.cloud.agent.api.Answer;
+import com.cloud.agent.api.CheckCloneVolumeAbsentAnswer;
+import com.cloud.agent.api.CheckCloneVolumeAbsentCommand;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.hypervisor.kvm.storage.*;
-import com.cloud.resource.*;
+import com.cloud.hypervisor.kvm.storage.CloneVolumeAbsence;
+import com.cloud.resource.CommandWrapper;
+import com.cloud.resource.ResourceWrapper;
 @ResourceWrapper(handles=CheckCloneVolumeAbsentCommand.class)
 public class LibvirtCheckCloneVolumeAbsentCommandWrapper extends CommandWrapper<CheckCloneVolumeAbsentCommand,Answer,LibvirtComputingResource> {
     @Override public Answer execute(CheckCloneVolumeAbsentCommand cmd,LibvirtComputingResource resource) {

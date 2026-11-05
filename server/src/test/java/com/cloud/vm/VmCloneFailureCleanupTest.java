@@ -15,16 +15,31 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.vm;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import org.junit.*;
-import java.util.*;
-import com.cloud.storage.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import java.util.Date;
+import java.util.Map;
+import com.cloud.storage.Storage;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeAllocationClone;
+import com.cloud.storage.VolumeVO;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
-import com.cloud.storage.dao.*;
-import com.cloud.vm.dao.*;
-import com.cloud.user.*;
-import org.apache.cloudstack.storage.datastore.db.*;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.vm.dao.UserVmDao;
+import com.cloud.user.AccountManager;
+import com.cloud.user.AccountVO;
+import com.cloud.user.UserVO;
+import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.VolumeDataStoreDao;
+import org.apache.cloudstack.storage.datastore.db.VolumeDataStoreVO;
 public class VmCloneFailureCleanupTest {
     static class Manager extends VmCloneBatchManager {
         boolean unavailable, committed;int probes;

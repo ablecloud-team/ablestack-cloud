@@ -37,9 +37,10 @@
           </a-breadcrumb>
           </a-col>
           <a-divider/>
-          <template v-if="resourceType === 'PrimaryStorage'">
-          <a-col flex="75%">
+          <a-col :span="24" class="storage-browser-toolbar">
             <a-input-search
+              v-if="resourceType === 'PrimaryStorage'"
+              class="storage-browser-search"
               allowClear
               size="medium"
               v-model:value="keyword"
@@ -47,14 +48,11 @@
               :loading="loading"
               @search="fetchData()"
               :enter-button="$t('label.search')"/>
-          </a-col>
-        </template>
-          <a-col>
-            <a-button v-if="resourceType === 'PrimaryStorage' && resource.hypervisor === 'KVM' && ['SharedMountPoint', 'RBD', 'NetworkFilesystem'].includes(resource.type) && 'importVolume' in $store.getters.apis" type="primary" style="margin-left: 12px" @click="openVolumeImport('')">{{ $t('label.creation.source.import') }}</a-button>
+            <a-button v-if="resourceType === 'PrimaryStorage' && resource.hypervisor === 'KVM' && ['SharedMountPoint', 'RBD', 'NetworkFilesystem'].includes(resource.type) && 'importVolume' in $store.getters.apis" class="storage-browser-action" type="primary" @click="openVolumeImport('')">{{ $t('label.creation.source.import') }}</a-button>
             <a-tooltip placement="bottom">
               <template #title>{{ $t('label.refresh') }}</template>
               <a-button
-                style="margin-top: 1px; left: 10px;"
+                class="storage-browser-action"
                 :loading="loading"
                 shape="round"
                 size="medium"
@@ -67,7 +65,7 @@
             <template v-if="resource.type === 'RBD'">
               <a-button
                 type="primary"
-                style="width: auto%; margin-top: 1px; left: 20px;"
+                class="storage-browser-action"
                 shape="round"
                 @click="showAddVolModal"
                 :loading="loading"
@@ -276,7 +274,14 @@ import CreateRbdImage from '@/views/storage/CreateRbdImage'
 import ImportStorageVolume from '@/views/storage/ImportStorageVolume'
 
 export default {
-  mixins: [listRefreshMixin(['fetchImageStoreObjects', 'fetchPrimaryStoreObjects'], { interval: 60000, select: vm => vm.resourceType === 'ImageStore' ? ['fetchImageStoreObjects'] : vm.resourceType === 'PrimaryStorage' ? ['fetchPrimaryStoreObjects'] : [] })],
+  mixins: [listRefreshMixin(['fetchImageStoreObjects', 'fetchPrimaryStoreObjects'], {
+    interval: 60000,
+    select: vm => vm.resourceType === 'ImageStore' ? ['fetchImageStoreObjects'] : vm.resourceType === 'PrimaryStorage' ? ['fetchPrimaryStoreObjects'] : [],
+    // URL normalization must not invalidate a response for the same listing.
+    scopeKey: vm => [vm.$route?.path, vm.$store?.state?.user?.token,
+      vm.$store?.getters.userInfo?.id, vm.$store?.getters.project?.id,
+      vm.resourceType, vm.resource.id, vm.browserPath, vm.page, vm.pageSize, vm.keyword]
+  })],
   name: 'StorageBrowser',
   components: {
     InfoCard,
@@ -457,8 +462,8 @@ export default {
       }).then(json => {
         if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
 
-        this.dataSource = json.listimagestoreobjectsresponse.datastoreobject
-        this.total = json.listimagestoreobjectsresponse.count
+        this.dataSource = json.listimagestoreobjectsresponse.datastoreobject || []
+        this.total = json.listimagestoreobjectsresponse.count || 0
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchImageStoreObjects', listRequest)) return
 
@@ -485,8 +490,8 @@ export default {
       }).then(json => {
         if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
 
-        this.dataSource = json.liststoragepoolobjectsresponse.datastoreobject
-        this.total = json.liststoragepoolobjectsresponse.count
+        this.dataSource = json.liststoragepoolobjectsresponse.datastoreobject || []
+        this.total = json.liststoragepoolobjectsresponse.count || 0
       }).finally(() => {
         if (!this.isListRequestCurrent('fetchPrimaryStoreObjects', listRequest)) return
 
@@ -526,7 +531,7 @@ export default {
             ...this.$route.query,
             browserPath: this.browserPath,
             browserPage: this.page,
-            browserPageSize: this.browserPageSize
+            browserPageSize: this.pageSize
           }
         }
       )
@@ -605,3 +610,21 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.storage-browser-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.storage-browser-search {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.storage-browser-action {
+  flex-shrink: 0;
+}
+</style>

@@ -87,8 +87,11 @@ body .autoscale-screen, body .autoscale-create, body .autoscale-dialog {
   .form__required, .error-text { color: var(--ui-error-text) !important; }
 }
 
-body .autoscale-screen .ant-breadcrumb, body .autoscale-screen .ant-breadcrumb a,
-body .autoscale-screen .ant-breadcrumb span { color: var(--ui-text-secondary) !important; }
+body .autoscale-screen {
+  .ant-breadcrumb, .ant-breadcrumb-separator, .ant-breadcrumb-link,
+  .ant-breadcrumb-link > a, .ant-breadcrumb-link > a > span,
+  .ant-breadcrumb-link > span { color: var(--ui-text-secondary) !important; }
+}
 
 body .autoscale-create, body .autoscale-dialog, body .autoscale-screen {
   .ant-form-item-explain-error, .ant-form-item-label > label.ant-form-item-required::before { color: var(--ui-error-text) !important; }
@@ -112,22 +115,6 @@ body .autoscale-screen, body .autoscale-create, body .autoscale-dialog {
   .ant-pagination-item a { color: var(--ui-text-primary) !important; }
   .ant-pagination-item-active { border-color: var(--ui-link) !important; }
   .ant-pagination-item-active a { color: var(--ui-link) !important; }
-}
-
-// Keep the project scope switch readable in both themes without changing other resources.
-body .autoscale-screen .ant-switch {
-  &:not(.ant-switch-checked) {
-    background-color: var(--ui-bg-elevated) !important;
-    border: 1px solid var(--ui-text-muted);
-    .ant-switch-inner { color: var(--ui-text-primary) !important; }
-    .ant-switch-handle::before { background-color: var(--ui-text-primary) !important; }
-  }
-  &.ant-switch-checked {
-    background-color: var(--ui-action-primary-bg) !important;
-    .ant-switch-inner { color: var(--ui-action-primary-text) !important; }
-    .ant-switch-handle::before { background-color: var(--ui-action-primary-text) !important; }
-  }
-  &:focus-visible { outline: 2px solid var(--ui-link); outline-offset: 2px; }
 }
 
 // Existing tab actions follow the VM toolbar. No global/shared tab styles.

@@ -16,7 +16,8 @@
 // under the License.
 package org.apache.cloudstack.api.command.user.vm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

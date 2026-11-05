@@ -85,9 +85,16 @@
             </a-table>
             <br/>
             <h3>{{ $t('label.response') }} {{ $t('label.params') }}:</h3>
+            <a-alert v-if="responseError" type="error" :message="responseError" show-icon>
+              <template #action>
+                <a-button size="small" @click="showApi(selectedApi)">{{ $t('label.retry') }}</a-button>
+              </template>
+            </a-alert>
             <a-table
               :columns="[{title: $t('label.name'), dataIndex: 'name'}, {title: $t('label.type'), dataIndex: 'type'}, {title: $t('label.description'), dataIndex: 'description'}]"
               :data-source="selectedResponse"
+              :loading="loadingResponse"
+              row-key="name"
               :pagination="false"
               size="small" />
           </span>
@@ -159,6 +166,8 @@ import { getAPI } from '@/api'
 import ResourceLayout from '@/layouts/ResourceLayout'
 import TooltipButton from '@/components/widgets/TooltipButton'
 
+const documentedFields = fields => Array.isArray(fields) ? fields.filter(field => field?.name) : []
+
 export default {
   name: 'ApiDocsPlugin',
   components: {
@@ -171,6 +180,10 @@ export default {
       selectedApi: '',
       selectedParams: [],
       selectedResponse: [],
+      loadingResponse: false,
+      responseError: '',
+      responseRequestId: 0,
+      responseCache: {},
       showKeys: false,
       userkeys: {},
       options: [
@@ -197,6 +210,26 @@ export default {
       ]
     }
   },
+  computed: {
+    documentationContext () {
+      return JSON.stringify([this.$store.state?.user?.token, this.$store.state?.user?.discoveryGeneration,
+        this.$store.getters.userInfo?.id, this.$store.getters.project?.id])
+    }
+  },
+  watch: {
+    documentationContext () {
+      this.responseRequestId += 1
+      this.selectedApi = ''
+      this.selectedParams = []
+      this.selectedResponse = []
+      this.loadingResponse = false
+      this.responseError = ''
+      this.responseCache = {}
+    }
+  },
+  beforeUnmount () {
+    this.responseRequestId += 1
+  },
   created () {
     if (!('getUserKeys' in this.$store.getters.apis)) {
       return
@@ -209,13 +242,43 @@ export default {
     })
   },
   methods: {
-    showApi (api) {
+    isCurrentResponse (api, requestId, context) {
+      return requestId === this.responseRequestId && context === this.documentationContext &&
+        this.selectedApi === api && Object.prototype.hasOwnProperty.call(this.$store.getters.apis, api)
+    },
+    async showApi (api) {
+      const requestId = ++this.responseRequestId
+      const context = this.documentationContext
+      const metadata = this.$store.getters.apis[api]
       this.selectedApi = api
-      this.selectedParams = this.$store.getters.apis[api].params
-        .sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-        .sort((a, b) => (a.required > b.required) ? -1 : ((b.required > a.required) ? 1 : 0))
-        .filter(value => Object.keys(value).length > 0)
-      this.selectedResponse = this.$store.getters.apis[api].response.filter(value => Object.keys(value).length > 0)
+      this.selectedParams = []
+      this.selectedResponse = []
+      this.loadingResponse = false
+      this.responseError = ''
+      if (!metadata) return
+      this.selectedParams = documentedFields(metadata.params).slice()
+        .sort((a, b) => Number(b.required === true) - Number(a.required === true) || a.name.localeCompare(b.name))
+      const cachedResponse = Array.isArray(metadata.response) ? metadata.response : this.responseCache[api]
+      if (Array.isArray(cachedResponse)) {
+        this.selectedResponse = documentedFields(cachedResponse)
+        return
+      }
+      // Login stores request metadata only; load response documentation on selection.
+      this.loadingResponse = true
+      try {
+        const json = await getAPI('listApis', { name: api }, { preserveOnFailure: true, timeout: 15000 })
+        if (!this.isCurrentResponse(api, requestId, context)) return
+        const definition = json.listapisresponse?.api?.find(item => item.name === api)
+        if (!definition) throw new Error(this.$t('error.fetching.data'))
+        const fields = documentedFields(definition.response)
+        this.responseCache[api] = fields
+        this.selectedResponse = fields
+      } catch (error) {
+        if (!this.isCurrentResponse(api, requestId, context)) return
+        this.responseError = error.response?.data?.listapisresponse?.errortext || error.message || this.$t('error.fetching.data')
+      } finally {
+        if (this.isCurrentResponse(api, requestId, context)) this.loadingResponse = false
+      }
     }
   }
 }

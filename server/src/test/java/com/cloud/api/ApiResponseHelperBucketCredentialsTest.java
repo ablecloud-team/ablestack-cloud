@@ -16,8 +16,13 @@
 // under the License.
 package com.cloud.api;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import java.lang.reflect.Field;
 import java.util.Date;
 import com.cloud.storage.BucketVO;

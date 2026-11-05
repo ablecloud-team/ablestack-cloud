@@ -16,7 +16,11 @@
 // under the License.
 package com.cloud.vm;
 
-import com.cloud.exception.*;
+import com.cloud.exception.InsufficientCapacityException;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.exception.PermissionDeniedException;
+import com.cloud.exception.ResourceAllocationException;
+import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.storage.Volume;
 import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
@@ -32,7 +36,8 @@ import com.cloud.vm.dao.VMInstanceDetailsDao;
 import com.cloud.vm.dao.VmCloneBatchDao;
 import com.google.gson.Gson;
 
-import org.apache.cloudstack.api.*;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.ApiServerService.AsyncCmdResult;
 import org.apache.cloudstack.api.command.user.vm.CloneVMCmd;
 import org.apache.cloudstack.api.command.user.vm.QueryVMCloneBatchCmd;
@@ -43,7 +48,17 @@ import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 

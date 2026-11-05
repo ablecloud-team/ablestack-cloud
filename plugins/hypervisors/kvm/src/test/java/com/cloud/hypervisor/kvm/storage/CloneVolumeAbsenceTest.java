@@ -16,11 +16,20 @@
 // under the License.
 package com.cloud.hypervisor.kvm.storage;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import java.nio.file.*;
-import java.util.*;
-import com.cloud.storage.Storage;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 public class CloneVolumeAbsenceTest {
     static final String ID="11111111-1111-4111-8111-111111111111";
     KVMStoragePool pool() { KVMStoragePool p=mock(KVMStoragePool.class);when(p.getSourceDir()).thenReturn("rbd");when(p.getAuthUserName()).thenReturn("admin");when(p.getAuthSecret()).thenReturn("YWJjZA==");when(p.getSourceHost()).thenReturn("scvm1,scvm2");return p; }

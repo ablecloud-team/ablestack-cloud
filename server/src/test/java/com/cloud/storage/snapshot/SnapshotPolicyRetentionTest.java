@@ -8,7 +8,8 @@ package com.cloud.storage.snapshot;
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.utils.DateUtil.IntervalType;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SnapshotPolicyRetentionTest {
     @Test public void retentionUsesSuppliedRuntimeMaximum() {

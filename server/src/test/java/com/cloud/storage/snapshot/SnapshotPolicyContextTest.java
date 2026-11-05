@@ -18,7 +18,16 @@ import org.apache.cloudstack.jobs.JobInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SnapshotPolicyContextTest {
     SnapshotPolicy policy; VolumeVO volume; SnapshotScheduleVO schedule; SnapshotDao snapshots;

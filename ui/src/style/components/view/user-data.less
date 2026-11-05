@@ -20,7 +20,6 @@ body .userdata-library, body .userdata-selection, body .userdata-usage,
 body .userdata-content, body .userdata-versions,
 body .userdata-registration-dialog, body .userdata-delete-dialog,
 body .userdata-reset-dialog, body .vm-userdata-dialog, body .image-userdata-dialog {
-  --userdata-switch-bg: var(--ui-text-muted);
   --ui-text-placeholder: var(--ui-text-muted);
   --ui-text-disabled: var(--ui-text-secondary);
   --ui-border-strong: var(--ui-text-muted);
@@ -42,7 +41,7 @@ body .userdata-reset-dialog, body .vm-userdata-dialog, body .image-userdata-dial
   .ant-btn-primary.ant-btn-dangerous:not(:disabled) { background: var(--ui-action-danger-bg); border-color: var(--ui-action-danger-bg); }
   .ant-btn:disabled { background: var(--ui-bg-disabled) !important; color: var(--ui-text-secondary) !important; border-color: var(--ui-border-strong) !important; }
   .ant-btn:disabled > span, .ant-btn:disabled .anticon { color: var(--ui-text-secondary) !important; }
-  .ant-btn:focus-visible, summary:focus-visible, a:focus-visible, .ant-switch:focus-visible,
+  .ant-btn:focus-visible, summary:focus-visible, a:focus-visible,
   .ant-radio-input:focus-visible + .ant-radio-inner,
   .ant-radio-button-wrapper:has(input:focus-visible) { outline: 2px solid var(--ui-link); outline-offset: 2px; }
   // The legacy dark-mode :not(:hover, :focus) selector otherwise wins over
@@ -52,16 +51,25 @@ body .userdata-reset-dialog, body .vm-userdata-dialog, body .image-userdata-dial
   .ant-checkbox-checked .ant-checkbox-inner::after { border-color: var(--ui-action-primary-text) !important; }
   .ant-checkbox-indeterminate .ant-checkbox-inner::after { background: var(--ui-action-primary-bg); }
   .ant-checkbox-input:focus-visible + .ant-checkbox-inner { outline: 2px solid var(--ui-link); outline-offset: 2px; }
-  .ant-switch:not(.ant-switch-checked) { background: var(--userdata-switch-bg) !important; border-color: var(--ui-text-muted) !important; }
-  .ant-switch-checked { background: var(--ui-action-primary-bg) !important; border-color: var(--ui-link) !important; }
-  .ant-switch-inner { color: var(--ui-action-primary-text) !important; }
-  .ant-switch-disabled { opacity: 1; }
   .ant-radio-inner { background: var(--ui-bg-input) !important; border-color: var(--ui-border-strong) !important; }
   .ant-radio-checked .ant-radio-inner { border-color: var(--ui-link) !important; }
   .ant-radio-inner::after { background-color: var(--ui-link) !important; }
 }
 
-body.dark-mode .userdata-library, body.dark-mode .userdata-reset-dialog, body.dark-mode .image-userdata-dialog { --userdata-switch-bg: var(--ui-bg-disabled); }
+// Keep form switch styling separate from the library's standard project switch.
+body .userdata-selection, body .userdata-usage,
+body .userdata-content, body .userdata-versions,
+body .userdata-registration-dialog, body .userdata-delete-dialog,
+body .userdata-reset-dialog, body .vm-userdata-dialog, body .image-userdata-dialog {
+  --userdata-switch-bg: var(--ui-text-muted);
+  .ant-switch:focus-visible { outline: 2px solid var(--ui-link); outline-offset: 2px; }
+  .ant-switch:not(.ant-switch-checked) { background: var(--userdata-switch-bg) !important; border-color: var(--ui-text-muted) !important; }
+  .ant-switch-checked { background: var(--ui-action-primary-bg) !important; border-color: var(--ui-link) !important; }
+  .ant-switch-inner { color: var(--ui-action-primary-text) !important; }
+  .ant-switch-disabled { opacity: 1; }
+}
+
+body.dark-mode .userdata-reset-dialog, body.dark-mode .image-userdata-dialog { --userdata-switch-bg: var(--ui-bg-disabled); }
 
 // The workbench content has 12px side padding. The legacy 24px full-bleed
 // breadcrumb margin otherwise adds a page-level horizontal scrollbar.
