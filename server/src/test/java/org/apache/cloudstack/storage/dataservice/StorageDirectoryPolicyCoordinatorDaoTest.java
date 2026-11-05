@@ -670,4 +670,113 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
     @Test public void actualNfsClientReceiptWrongInodeStillBlocksSqlCommit() throws Exception {nfsClientBindingRoundtrip("inode",false);}
     @Test public void actualNfsClientVerifiedRecoveryRevalidatesReceiptWithoutSecondApply() throws Exception {nfsClientBindingRoundtrip("missing",true);}
 
+
+    /** Real native preflight->VERIFIED result, real admission/coordinator and real SQL state. */
+    private void onlineNfsDeleteNativeRoundtrip(boolean staleAck) throws Exception {
+        JsonObject fixture;
+        try(var in=getClass().getResourceAsStream("/storage-config/storage-1460-online-native.json")) {
+            assertNotNull(in);fixture=com.google.gson.JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        JsonObject nativeRequest=fixture.getAsJsonObject("request");
+        JsonObject nativeQuery=nativeRequest.getAsJsonObject("preflight");
+        JsonObject nativeReply=fixture.getAsJsonObject("response");
+        instance=new StorageServiceInstanceVO("native-online-coordinator-test",null,1,2,13,1L,"SYSTEM_VM");
+        field(instance,StorageServiceInstanceVO.class,"uuid",nativeRequest.get("instanceUuid").getAsString());
+        instance.setVmId(211L);instance.setConfigurationRevision(0);instance=instances.persist(instance);
+        JsonObject before=nativeRequest.getAsJsonObject("before").getAsJsonObject("nfs export apply");
+        JsonObject after=nativeRequest.getAsJsonObject("candidate").getAsJsonObject("nfs export apply");
+        var realRules=new org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl();
+        Long selectedRuleId=null;
+        for(com.google.gson.JsonElement element:before.getAsJsonArray("exports")) {
+            JsonObject item=element.getAsJsonObject();
+            var row=new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.NFS,item.get("name").getAsString(),
+                    item.get("path").getAsString(),77L,"xfs",null,StorageServiceInstance.ResourceState.Ready,item.get("config").toString());
+            field(row,StorageFileShareVO.class,"uuid",item.get("uuid").getAsString());row=shares.persist(row);
+            for(com.google.gson.JsonElement acl:item.getAsJsonArray("acls")) {
+                JsonObject a=acl.getAsJsonObject();
+                var rule=new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,row.getId(),
+                        StorageServiceInstance.PrincipalType.CIDR,a.get("principal").getAsString(),
+                        StorageServiceInstance.Permission.valueOf(a.get("permission").getAsString()),
+                        StorageServiceInstance.ResourceState.Ready,a.get("config").toString());
+                field(rule,StorageAccessRuleVO.class,"uuid",a.get("uuid").getAsString());rule=realRules.persist(rule);
+                if(rule.getUuid().equals(nativeQuery.getAsJsonObject("nfsclientpolicy").get("ruleuuid").getAsString()))selectedRuleId=rule.getId();
+            }
+        }
+        assertNotNull(selectedRuleId);final long ruleId=selectedRuleId;
+        var protocolDao=mock(StorageServiceProtocolDao.class);
+        java.util.List<StorageServiceProtocolVO> listeners=new java.util.ArrayList<>();
+        for(com.google.gson.JsonElement number:nativeQuery.getAsJsonArray("ports")) {
+            var listener=new StorageServiceProtocolVO(instance.getId(),StorageServiceInstance.Protocol.NFS,true,null,number.getAsInt());
+            field(listener,StorageServiceProtocolVO.class,"id",1000L+number.getAsInt());
+            listener.setConfigJson("{}");listeners.add(listener);
+        }
+        org.mockito.Mockito.when(protocolDao.listByInstanceId(instance.getId())).thenReturn(listeners);
+        var volumeDao=mock(com.cloud.storage.dao.VolumeDao.class);
+        var volume=mock(com.cloud.storage.VolumeVO.class);
+        org.mockito.Mockito.when(volume.getUuid()).thenReturn(nativeQuery.getAsJsonArray("volumeuuids").get(0).getAsString());
+        org.mockito.Mockito.when(volumeDao.findById(77L)).thenReturn(volume);
+        var runtimeUpgrades=mock(StorageServiceRuntimeUpgradeDao.class);
+        var admission=new StorageServiceConfigurationPreflight(protocolDao,shares,mock(StorageBlockTargetDao.class),realRules,
+                volumeDao,runtimeUpgrades,guest,v->{});
+        var exactCoordinator=new StorageServiceConfigurationCoordinator(instances,operations,protocolDao,shares,
+                mock(StorageBlockTargetDao.class),realRules,guest,admission,runtimeUpgrades).withDirectoryPolicies(policies);
+        final int[] calls={0,0};
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(invocation->{
+            StorageServiceGuestCommand request=invocation.getArgument(0);
+            JsonObject result;
+            if(request.getOperation().equals("configuration capability show")) {
+                result=new JsonObject();
+                for(String key:new String[]{"configurationPreflightVersion","configurationTransactionVersion","nfsPosixIntentVersion",
+                        "nestedFileSharePathVersion","nestedFileSharePathProtectionVersion","nfsClientPolicyVersion","nfsClientPolicyPreflightVersion"})
+                    result.addProperty(key,1);
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                if(request.getOperation().equals("configuration preflight show")) {
+                    for(String key:new String[]{"instanceUuid","revision","protocol","action","resourceids","resourcesdigest","resourcecount",
+                            "drainrequired","recursive","nfsclientpolicy"})
+                        assertEquals("actual UI/API planning query "+key,nativeQuery.get(key),input.get(key));
+                    result=fixture.getAsJsonObject("preflight").deepCopy();
+                } else {
+                    result=nativeReply.deepCopy();result.add("operationid",input.get("operationid"));
+                    result.getAsJsonObject("nfsClientPolicy").add("operationid",input.get("operationid"));
+                    result.getAsJsonObject("pathbindings").add("operationid",input.get("operationid"));
+                    if(request.getOperation().equals("configuration operation apply")) {
+                        calls[0]++;assertTrue(input.get("requireNfsClientPolicy").getAsBoolean());
+                        assertEquals(fixture.getAsJsonObject("preflight").get("fingerprint"),
+                                input.getAsJsonObject("preflight").get("expectedFingerprint"));
+                    }
+                    if(request.getOperation().equals("configuration operation commit")){calls[1]++;result.addProperty("state","COMMITTED");}
+                }
+            }
+            return new StorageServiceGuestCommandResult(true,"actual-online-native-fixture",result.toString());
+        });
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageNfsAclCmd();
+        field(cmd,cmd.getClass(),"id",ruleId);
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",0L);
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"impactAck",staleAck?"stale":fixture.getAsJsonObject("preflight").get("fingerprint").getAsString());
+        java.util.function.Supplier<Boolean> candidate=()->{
+            plan.get().dao(StorageAccessRuleDao.class).remove(ruleId);
+            plan.get().commands.put("nfs export apply",after.deepCopy());return true;
+        };
+        if(staleAck) {
+            try {exactCoordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,Boolean.class,candidate,plan::set,
+                    ()->plan.get().commands.put("nfs export apply",before.deepCopy()),null);fail("stale UI approval accepted");}
+            catch(StorageServiceConfigurationPreflight.Rejected expected) { }
+            assertNotNull(realRules.findById(ruleId));assertEquals(0,calls[0]);
+            assertEquals(0,instances.findById(instance.getId()).getConfigurationRevision());
+        } else {
+            assertTrue(exactCoordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,Boolean.class,candidate,plan::set,
+                    ()->plan.get().commands.put("nfs export apply",before.deepCopy()),null));
+            assertNull(realRules.findById(ruleId));assertEquals(1,calls[0]);assertEquals(1,calls[1]);
+            var op=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+            assertEquals("COMMITTED",op.getState());assertEquals(1,instances.findById(instance.getId()).getConfigurationRevision());
+            assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+            exactCoordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.NFS,Boolean.class,
+                    ()->{throw new AssertionError("duplicate online delete reapplied");},plan::set,()->{},null);
+            assertEquals(1,calls[0]);
+        }
+    }
+    @Test public void nativeOnlinePreflightAndActualGuestReplyCommitAclDeleteThroughRealDaos() throws Exception {onlineNfsDeleteNativeRoundtrip(false);}
+    @Test public void nativeOnlinePreflightStillRejectsStaleUiFingerprintBeforeGuestApply() throws Exception {onlineNfsDeleteNativeRoundtrip(true);}
+
 }

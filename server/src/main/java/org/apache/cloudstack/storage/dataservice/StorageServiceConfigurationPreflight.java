@@ -90,9 +90,13 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid","smbclientaccess"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid","smbclientaccess","exportid","nfsclientpolicy"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
+            if (value.has("nfsclientpolicy")) {
+                if (!StorageNfsClientPolicy.aclApi(api(value.get("api").getAsString()))) throw new IllegalArgumentException();
+                value.add("nfsclientpolicy",StorageNfsClientPolicy.patch(value.getAsJsonObject("nfsclientpolicy")));
+            }
             if(value.has("smbclientaccess")) {
                 if(!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()))throw new IllegalArgumentException();
                 StorageSmbClientAccessPolicy.validatePatch(value.getAsJsonObject("smbclientaccess"));
@@ -105,7 +109,7 @@ final class StorageServiceConfigurationPreflight {
                 if(value.has(key) && (!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()) || !value.get(key).isJsonPrimitive() || !value.getAsJsonPrimitive(key).isBoolean()))throw new IllegalArgumentException();
             if(value.has("relativepath")) StorageFileSharePaths.normalize(value.get("relativepath").getAsString());
             if(value.has("createdirectory") && (!value.get("createdirectory").isJsonPrimitive() || !value.getAsJsonPrimitive("createdirectory").isBoolean()))throw new IllegalArgumentException();
-            for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip","shareid"))
+            for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip","shareid","exportid"))
                 if (value.has(k) && !value.get(k).isJsonPrimitive()) throw new IllegalArgumentException();
             if (value.has("recursive") && (!value.get("recursive").isJsonPrimitive() || !value.getAsJsonPrimitive("recursive").isBoolean())) throw new IllegalArgumentException();
             if (value.has("newvolume")) {
@@ -191,6 +195,10 @@ final class StorageServiceConfigurationPreflight {
         for(String key:Arrays.asList("relativepath","createdirectory","directorypolicyid"))
             if(request.get(key)!=null && (value.get("api").getAsString().endsWith("StorageNfsExport") || value.get("api").getAsString().endsWith("StorageSmbShare")))
                 value.add(key,new Gson().toJsonTree(request.get(key)));
+        if (StorageNfsClientPolicy.aclApi(value.get("api").getAsString())) {
+            value.add("nfsclientpolicy",StorageNfsClientPolicy.fields(request));
+            if (request.get("exportid")!=null) value.add("exportid",new Gson().toJsonTree(request.get("exportid")));
+        }
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbAclCmd)
             value.add("shareid", new Gson().toJsonTree(request.get("shareid")));
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
@@ -247,6 +255,11 @@ final class StorageServiceConfigurationPreflight {
             if (selectedFile==null && selectedBlock==null || selectedFile!=null && (selectedFile.getInstanceId()!=instance.getId() || selectedFile.getProtocol()!=protocol)
                     || selectedBlock!=null && (selectedBlock.getInstanceId()!=instance.getId() || selectedBlock.getProtocol()!=protocol))
                 throw new InvalidParameterValueException("Configuration resource is outside this instance/protocol");
+        }
+        if(name.equals("createStorageNfsAcl") && intent.has("exportid")) {
+            selectedFile=share(intent.get("exportid"));
+            if(selectedFile==null || selectedFile.getInstanceId()!=instance.getId() || selectedFile.getProtocol()!=StorageServiceInstance.Protocol.NFS)
+                throw new InvalidParameterValueException("NFS export is outside this instance");
         }
         if(name.equals("createStorageSmbAcl") && intent.has("shareid")) {
             selectedFile=share(intent.get("shareid"));
@@ -347,6 +360,9 @@ final class StorageServiceConfigurationPreflight {
         for(Map.Entry<String,JsonElement> entry:pathQuery.entrySet()) query.add(entry.getKey(),entry.getValue());
         if(pathQuery.has("pathtarget") && query.has("posixtarget"))
             query.add("posixtarget",pathQuery.get("pathtarget"));
+        JsonObject nfsClient=StorageNfsClientPolicy.query(name,intent,selectedFile,
+                name.equals("createStorageNfsAcl") || !StorageNfsClientPolicy.aclApi(name)?null:rule(ref));
+        if(nfsClient!=null)query.add("nfsclientpolicy",nfsClient);
         query.add("volumeuuids",volumeUuids);
         query.add("resourceids",ids); query.addProperty("resourcecount",refs.size());
         String identityDigest = "";
@@ -362,6 +378,7 @@ final class StorageServiceConfigurationPreflight {
             });
             identityDigest = "\nNFS_IDENTITY:" + StorageNfsIdentityMapping.valid(intent.get("idmappingmode").getAsString()) + ":" + vector;
         }
+        if(query.has("nfsclientpolicy"))identityDigest += "\nNFS_CLIENT_POLICY:"+query.get("nfsclientpolicy");
         if(query.has("smbclientaccess"))identityDigest += "\nSMB_CLIENT_ACCESS:"+query.get("smbclientaccess");
         query.addProperty("resourcesdigest",org.apache.commons.codec.digest.DigestUtils.sha256Hex(String.join("\n",refs) +
                 (smbEndpoint ? "\nSMB_ENDPOINT:" + intent.toString() : "") + identityDigest + (query.has("smbcreation") ? "\nSMB_CREATION:"+query.get("smbcreation") : "") + (query.has("smbinheritance") ? "\\nSMB_INHERITANCE:"+query.get("smbinheritance") : "")));

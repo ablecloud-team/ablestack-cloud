@@ -1539,8 +1539,8 @@ class FileSharePathBindings:
         except (PolicyError, OSError, ValueError) as error:
             return {"status": "UNAVAILABLE", "reason": getattr(error, "code", "DIRECTORY_OBSERVATION_UNAVAILABLE")}
 
-    def retain_existing(self, payload, commands):
-        """Receipt for existing verified bindings only; never creates or repins paths."""
+    def existing_bindings(self, commands):
+        """Read-only existing binding proof; never creates or repins paths."""
         registered = self.registered()
         bindings = {}
         for row in self.rows(commands):
@@ -1559,6 +1559,10 @@ class FileSharePathBindings:
                 raise PolicyError(observed["reason"])
             bindings[row["uuid"]] = {key: entry[key] for key in
                 ("resourceuuid", "volumeuuid", "relativepath", "pathIdentity")}
+        return bindings
+
+    def retain_existing(self, payload, commands):
+        bindings = self.existing_bindings(commands)
         receipt = {"version": 1, "operationid": payload["operationid"],
                    "instanceUuid": payload["instanceUuid"], "existingOnly": True, "bindings": bindings}
         previous = self.journal_value()

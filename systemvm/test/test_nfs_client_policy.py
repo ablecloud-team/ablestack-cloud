@@ -345,6 +345,77 @@ class EngineAndTransaction(unittest.TestCase):
         self.assertEqual(calls,self.engine.calls)
 
 
+    def online_query(self):
+        row = self.req["before"][policy.OP]["exports"][0]
+        rule = row["acls"][0]
+        return {"instanceUuid": self.req["instanceUuid"], "revision": 0, "protocol": "NFS", "action": "UPDATE",
+            "drainrequired": True, "recursive": False, "resourceids": [r["uuid"] for r in self.req["before"][policy.OP]["exports"]],
+            "resourcesdigest": "fixture", "resourcecount": 2, "ackrequired": True,
+            "nfsclientpolicy": {"api": "updateStorageNfsAcl", "resourceuuid": row["uuid"], "ruleuuid": rule["uuid"],
+                "patch": {"principal": self.req["candidate"][policy.OP]["exports"][0]["acls"][0]["principal"]}}}
+
+    def online_mocks(self):
+        import contextlib
+        import configuration_preflight as admission
+        stack = contextlib.ExitStack()
+        stack.enter_context(patch.object(policy, "ClientPolicies", return_value=self.engine))
+        stack.enter_context(patch.object(FileSharePathBindings, "existing_bindings", return_value={}))
+        measured = {"memoryavailablebytes": 1024**3, "filesystems": [{"device": 1, "freebytes": 2*1024**3,
+            "freeinodes": 10000, "readonly": False}], "snapshotbytes": 4096, "connections": 3,
+            "busyvolumes": [], "runtimebusy": False, "cpucount": 2, "load1": 0, "observedat": 1}
+        stack.enter_context(patch.object(admission, "sample", return_value=measured))
+        return stack
+
+    def test_online_admission_uses_same_classifier_and_preserves_true_drain(self):
+        import configuration_preflight as admission
+        query = self.online_query()
+        with self.online_mocks():
+            report = admission.inspect(query)
+            self.assertEqual("READY", report["status"], report)
+            self.assertEqual("NFS_CLIENT_RELOAD", report["impact"]["method"])
+            self.assertFalse(report["impact"]["drainrequired"])
+            self.assertEqual(3, report["impact"]["connections"])
+            self.assertEqual(report["fingerprint"], admission.inspect(query)["fingerprint"])
+            for field in ("recursive", "posixchanges"):
+                bad = {**query, field: True if field == "recursive" else {"mode": "0700"}}
+                self.assertEqual("BLOCKED", admission.inspect(bad)["status"])
+            legacy = dict(query); legacy.pop("nfsclientpolicy")
+            self.assertEqual("BLOCKED", admission.inspect(legacy)["status"])
+
+    def test_preview_and_actual_effect_match_without_mutation_and_reject_other_client(self):
+        query = self.online_query()
+        request = copy.deepcopy(self.req);request["preflight"] = query;request["requireNfsClientPolicy"] = True
+        before = self.engine.desired.read_bytes()
+        with self.online_mocks():
+            policy.require_client_intent(request, self.engine)
+            request["candidate"][policy.OP]["exports"][0]["acls"][0]["principal"] = "192.0.2.99/32"
+            with self.assertRaisesRegex(policy.PolicyError,"NFS_CLIENT_INTENT_MISMATCH"):
+                policy.require_client_intent(request,self.engine)
+        self.assertEqual(before,self.engine.desired.read_bytes())
+        self.assertEqual([],self.engine.calls)
+
+    def test_online_fingerprint_covers_patch_and_rejects_unknown_or_mixed_policy(self):
+        import configuration_preflight as admission
+        query = self.online_query()
+        with self.online_mocks():
+            first = admission.inspect(query)
+            changed = copy.deepcopy(query);changed["nfsclientpolicy"]["patch"]["permission"]="READ_ONLY"
+            self.assertNotEqual(first["fingerprint"],admission.inspect(changed)["fingerprint"])
+            bad = copy.deepcopy(query);bad["nfsclientpolicy"]["patch"]["owneruid"]=0
+            self.assertEqual("BLOCKED",admission.inspect(bad)["status"])
+            request = copy.deepcopy(self.req);request["requireNfsClientPolicy"]=True;request["preflight"]=query
+            request["candidate"]["smb share apply"]={}
+            with self.assertRaisesRegex(policy.PolicyError,"NFS_CLIENT_POLICY_STRUCTURE_CHANGED"):
+                policy.require_client_intent(request,self.engine)
+
+
+    def test_metadata_only_snapshots_keep_complete_legacy_snapshot_path(self):
+        metadata = {key: value for key, value in self.req.items() if key not in ("baseRevision", "targetRevision")}
+        self.assertTrue(policy.policy_only(metadata))
+        self.assertFalse(tx.RuntimeAdapter.nfs_client_policy_only(metadata))
+        self.assertTrue(tx.RuntimeAdapter.nfs_client_policy_only(self.req))
+
+
 class ExistingBindingReceipts(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

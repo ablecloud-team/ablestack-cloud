@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import uuid
 import stat
 import tempfile
 import time
@@ -70,13 +71,127 @@ def policy_only(payload):
     for value in (old, new):
         for row in value.get("exports", []):
             for rule in row.get("acls", []):
-                if (rule.get("principalType") not in ("IP", "CIDR") or
+                if (rule.get("principalType") not in ("IP", "CIDR", "IP_ADDRESS") or
                         set(rule.get("config") or {}) - ACL_CONFIG):
                     return False
     try:
         return canonical(old, True) == canonical(new, True)
     except (KeyError, TypeError, ValueError):
         return False
+
+
+
+CLIENT_API_FIELDS = {"principal", "principals", "principaltype", "permission", "rootsquash",
+                     "allsquash", "anonuid", "anongid", "sync", "secure", "inheritpolicy"}
+CLIENT_CONFIG_FIELDS = {"rootsquash": "rootSquash", "allsquash": "allSquash",
+                        "anonuid": "anonUid", "anongid": "anonGid", "sync": "sync", "secure": "secure"}
+
+
+def preview_client_intent(intent, engine=None):
+    """Read-only preview of the existing ACL APIs using the real renderer/classifier."""
+    query = intent.get("nfsclientpolicy")
+    if not query or intent.get("protocol") != "NFS":
+        return None
+    if set(query) - {"api", "resourceuuid", "ruleuuid", "patch"}:
+        raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    if intent.get("recursive") or intent.get("posixchanges") or intent.get("directorytarget"):
+        return None
+    api = query.get("api")
+    expected_action = "CREATE" if str(api).startswith("create") else "UPDATE" if str(api).startswith("update") else "DELETE"
+    if intent.get("action") != expected_action:
+        raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    if api not in ("createStorageNfsAcl", "updateStorageNfsAcl", "deleteStorageNfsAcl"):
+        raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    patch = query.get("patch", {})
+    if not isinstance(patch, dict) or set(patch) - CLIENT_API_FIELDS:
+        raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    for key in ("rootsquash", "allsquash", "sync", "secure", "inheritpolicy"):
+        if key in patch and not isinstance(patch[key], bool):
+            raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    for key in ("anonuid", "anongid"):
+        if key in patch and (type(patch[key]) is not int or not 0 <= patch[key] <= 65535):
+            raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    for key in ("principal", "principals", "principaltype", "permission"):
+        if key in patch and not isinstance(patch[key], str):
+            raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    if "permission" in patch and patch["permission"].upper() not in ("READ_ONLY", "READ_WRITE"):
+        raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+    engine = engine or ClientPolicies(None)
+    old = json.loads(contents(read_file(engine.desired)))
+    if old.get("instanceUuid") != intent.get("instanceUuid"):
+        raise PolicyError("NFS_CLIENT_INSTANCE_MISMATCH")
+    new = copy.deepcopy(old)
+    rows = [r for r in new.get("exports", []) if r.get("uuid") == query.get("resourceuuid")
+            and r.get("state") not in ("Disabled", "Destroyed", "Error")]
+    if len(rows) != 1:
+        raise PolicyError("NFS_CLIENT_TARGET_CHANGED")
+    row = rows[0]; rules = row.setdefault("acls", [])
+    def update(rule):
+        if "principal" in patch:
+            rule["principal"] = patch["principal"]
+        if "permission" in patch:
+            rule["permission"] = patch["permission"].upper()
+        config = rule.setdefault("config", {})
+        for field, name in CLIENT_CONFIG_FIELDS.items():
+            if field in patch:
+                config[name] = patch[field]
+        if patch.get("inheritpolicy") is True:
+            for name in ("rootSquash", "allSquash", "anonUid", "anonGid"):
+                config.pop(name, None)
+    if api == "createStorageNfsAcl":
+        kind = (patch.get("principaltype") or "CIDR").upper()
+        if kind not in ("CIDR", "IP_ADDRESS"):
+            raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+        principals = list(dict.fromkeys(v.strip() for v in (patch.get("principals") or patch.get("principal") or "").split(",") if v.strip()))
+        if not principals or "permission" not in patch or any(any(c.isspace() for c in v) for v in principals):
+            raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+        for principal in principals:
+            matched = [r for r in rules if r.get("principalType") == kind and r.get("principal") == principal]
+            rule = matched[0] if matched else {"uuid": str(uuid.uuid5(uuid.NAMESPACE_URL, row["uuid"] + principal)),
+                "principalType": kind, "principal": principal, "state": "Ready", "config": {}}
+            if not matched:
+                rules.append(rule)
+            for duplicate in matched[1:]:
+                rules.remove(duplicate)
+            update(rule); rule["principal"] = principal
+    else:
+        matched = [r for r in rules if r.get("uuid") == query.get("ruleuuid")]
+        if len(matched) != 1:
+            raise PolicyError("NFS_CLIENT_TARGET_CHANGED")
+        if api == "deleteStorageNfsAcl":
+            if patch: raise PolicyError("NFS_CLIENT_INVALID_INTENT")
+            rules.remove(matched[0])
+        else:
+            update(matched[0])
+    payload = {"instanceUuid": intent["instanceUuid"], "operationid": str(uuid.UUID(int=0)),
+               "before": {OP: old}, "candidate": {OP: new}}
+    if not policy_only(payload):
+        return None  # Preserve the legacy admission path for unsupported/hybrid layouts.
+    snapshot = engine.snapshot(payload)
+    from shared_directory_policy import FileSharePathBindings
+    FileSharePathBindings().existing_bindings({OP: snapshot["value"]})
+    configs = engine.rendered(snapshot["value"])
+    proof = {"desiredHash": digest(json.dumps(canonical(old), sort_keys=True).encode()),
+             "intent": query, "directories": snapshot["directories"],
+             "endpoints": [{"port": r["port"], "process": r["process"],
+                 "before": r["before"]["hash"], "after": digest(r["after"].encode())} for r in snapshot["rows"]]}
+    return {"fingerprint": digest(json.dumps(proof, sort_keys=True).encode()), "configs": configs}
+
+
+def require_client_intent(payload, engine=None):
+    """A verified online admission must never fall through to disruptive full apply."""
+    intent = payload.get("preflight") or {}
+    if not payload.get("requireNfsClientPolicy"):
+        if intent.get("nfsclientpolicy"):
+            # Old runtimes can retain legacy admission, but cannot assert a verified online mode.
+            return
+        return
+    if not policy_only(payload) or not intent.get("nfsclientpolicy"):
+        raise PolicyError("NFS_CLIENT_POLICY_STRUCTURE_CHANGED")
+    engine = engine or ClientPolicies(None)
+    planned = preview_client_intent(intent, engine)
+    if planned is None or engine.rendered(payload["candidate"][OP]) != planned["configs"]:
+        raise PolicyError("NFS_CLIENT_INTENT_MISMATCH")
 
 
 def digest(raw):

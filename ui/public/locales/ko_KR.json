@@ -10656,5 +10656,8 @@
   "label.storage.nfs.probe.verified": "마운트 점검 완료",
   "label.storage.nfs.probe.failed": "점검 실패",
   "label.storage.nfs.probe.applied": "적용됨",
-  "message.storage.nfs.acl.last.delete": "이 내보내기의 마지막 접근 규칙입니다. 삭제하면 기존 정책에 따라 기본 전체 허용으로 돌아갑니다. 모든 접근을 철회하는 작업이 아닙니다."
+  "message.storage.nfs.acl.last.delete": "이 내보내기의 마지막 접근 규칙입니다. 삭제하면 기존 정책에 따라 기본 전체 허용으로 돌아갑니다. 모든 접근을 철회하는 작업이 아닙니다.",
+  "message.storage.nfs.client.online": "NFS 접근 정책을 다시 읽습니다. 기존 프로세스와 계속 허용된 클라이언트 연결은 유지되며, 철회된 클라이언트는 다음 요청부터 거부됩니다.",
+  "message.storage.nfs.client.ack": "연결을 유지하는 접근 정책 변경과 철회 대상의 접근 중단을 확인했습니다.",
+  "label.storage.nfs.client.online.check": "연결 유지 점검"
 }

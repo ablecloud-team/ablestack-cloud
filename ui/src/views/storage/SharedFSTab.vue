@@ -2468,6 +2468,7 @@ import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
 import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
 import { nfsSquashPolicy, nfsSquashFlags, nfsPosixRecommendation, nfsPermissionDelta, nfsMappingDelta, nfsPermissionIntent, nfsPosixObservation } from '@/utils/nfsPosixPolicy'
+import { nfsAclRequestParameters, nfsClientPolicyFields } from '@/utils/nfsClientPolicy'
 import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey, configurationPreflightFailure } from '@/utils/storageConfigPreflight'
 import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
@@ -4778,6 +4779,12 @@ export default {
         value.name = this.forms.nfsExport.name
         value.path = this.forms.nfsExport.path
       }
+      if (value && ['nfsAcl', 'editNfsAcl'].includes(this.actionModal.type)) {
+        const params = this.nfsAclRequestParameters(this.actionModal.type === 'editNfsAcl')
+        value.nfsclientpolicy = nfsClientPolicyFields(params)
+        if (this.actionModal.type === 'nfsAcl') value.exportid = params.exportid
+      }
+      if (value && this.actionModal.type === 'deleteConfirm' && this.forms.deleteConfirm.resourceType === 'nfsAcl') value.nfsclientpolicy = {}
       if (value && this.actionModal.type === 'smbAcl') value.shareid = this.forms.smbAcl.shareid
       return value
     },
@@ -8391,22 +8398,17 @@ export default {
       await this.waitVolumeAttachable(id)
       return id
     },
+    nfsAclRequestParameters (editing, principals = this.nfsAclPrincipals()) {
+      const context = this.actionModal.context?.raw || this.actionModal.context || {}
+      return nfsAclRequestParameters(this.forms.nfsAcl, this.nfsAclPolicyParameters, principals, editing, context.id || this.actionModal.context?.id)
+    },
     createNfsAcl () {
       const principals = this.nfsAclPrincipals()
       if (!principals.length) {
         this.$message.error(this.$t('message.storage.service.nfs.acl.required'))
         return Promise.resolve()
       }
-      return this.runStorageAction('nfsAcl', 'createStorageNfsAcl', {
-        exportid: this.forms.nfsAcl.exportid,
-        principaltype: this.forms.nfsAcl.principaltype,
-        principal: principals[0],
-        principals: principals.join(','),
-        permission: this.forms.nfsAcl.permission,
-        ...this.nfsAclPolicyParameters,
-        sync: this.forms.nfsAcl.sync,
-        secure: this.forms.nfsAcl.secure
-      }, this.$t('label.storage.service.create.nfs.acl'))
+      return this.runStorageAction('nfsAcl', 'createStorageNfsAcl', this.nfsAclRequestParameters(false, principals), this.$t('label.storage.service.create.nfs.acl'))
     },
     updateNfsExport () {
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
@@ -8445,20 +8447,12 @@ export default {
       }, this.$t('label.storage.service.update.nfs.export'))
     },
     updateNfsAcl () {
-      const context = this.actionModal.context?.raw || this.actionModal.context || {}
       const principals = this.nfsAclPrincipals()
       if (principals.length !== 1) {
         this.$message.error(this.$t('message.storage.service.nfs.acl.edit.single.required'))
         return Promise.resolve()
       }
-      return this.runStorageAction('editNfsAcl', 'updateStorageNfsAcl', {
-        id: context.id || this.actionModal.context?.id,
-        principal: principals[0],
-        permission: this.forms.nfsAcl.permission,
-        ...this.nfsAclPolicyParameters,
-        sync: this.forms.nfsAcl.sync,
-        secure: this.forms.nfsAcl.secure
-      }, this.$t('label.storage.service.update.nfs.acl'))
+      return this.runStorageAction('editNfsAcl', 'updateStorageNfsAcl', this.nfsAclRequestParameters(true, principals), this.$t('label.storage.service.update.nfs.acl'))
     },
     deleteStorageResource () {
       if (!this.deleteConfirmationMatched) {

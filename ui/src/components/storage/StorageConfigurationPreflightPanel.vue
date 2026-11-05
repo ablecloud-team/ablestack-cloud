@@ -14,7 +14,7 @@ show-icon
       <a-descriptions-item v-if="report.impact?.connections !== undefined" :label="$t('label.storage.preflight.connections')">{{ report.impact.connections }} TCP</a-descriptions-item>
     </a-descriptions>
     <div v-for="(check, index) in report.checks" :key="index" class="check">
-      <a-tag :color="check.blocking ? 'red' : check.severity === 'WARNING' ? 'orange' : 'green'">{{ check.code }}</a-tag>
+      <a-tag :color="check.blocking ? 'red' : check.severity === 'WARNING' ? 'orange' : 'green'">{{ check.code === 'DRAIN_REQUIRED' && report.impact?.method === 'NFS_CLIENT_RELOAD' ? $t('label.storage.nfs.client.online.check') : check.code }}</a-tag>
       <span v-if="check.message" class="check-message">{{ check.httpstatus ? 'HTTP ' + check.httpstatus + ' · ' : '' }}{{ check.message }}</span>
       <span v-else-if="policyBlockMessage(check)" class="check-message">{{ policyBlockMessage(check) }}</span>
       <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
@@ -36,13 +36,13 @@ show-icon
       </a-table>
       <a-alert v-if="report.pathpreview.parentaccesswarning" type="warning" show-icon :message="$t('message.storage.path.parent.access')" />
     </section>
-    <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t(report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.online' : 'message.storage.preflight.interruption')" />
+    <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t(report.impact?.method === 'NFS_CLIENT_RELOAD' ? 'message.storage.nfs.client.online' : report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.online' : 'message.storage.preflight.interruption')" />
     <a-checkbox
 v-if="report.impact?.ackrequired"
 :checked="acknowledged"
 :disabled="report.status !== 'READY'"
       class="ack"
-@change="$emit('acknowledge', $event.target.checked)">{{ $t(report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.ack' : 'message.storage.preflight.acknowledge') }}</a-checkbox>
+@change="$emit('acknowledge', $event.target.checked)">{{ $t(report.impact?.method === 'NFS_CLIENT_RELOAD' ? 'message.storage.nfs.client.ack' : report.impact?.class === 'ONLINE_RELOAD' ? 'message.storage.creation.ack' : 'message.storage.preflight.acknowledge') }}</a-checkbox>
     <p>{{ $t('message.storage.preflight.not.cancel') }}</p>
     <a-button :loading="loading" @click="$emit('refresh')"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.preflight.check') }}</a-button>
   </section>

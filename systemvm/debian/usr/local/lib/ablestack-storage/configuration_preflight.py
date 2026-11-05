@@ -16,6 +16,8 @@ DEFAULT_PORTS = {"NFS": 2049, "SMB": 445, "ISCSI": 3260, "NVME_OF": 4420}
 
 def fingerprint(intent):
     material = {k: intent.get(k) for k in ("instanceUuid", "revision", "protocol", "action", "resourceids", "resourcesdigest", "resourcecount", "drainrequired", "recursive")}
+    if intent.get("nfsclientpolicy"):
+        material.update(nfsclientpolicy=intent["nfsclientpolicy"], nfsclientfingerprint=intent.get("nfsclientfingerprint"))
     if intent.get("protocol") == "NFS" and intent.get("posixchanges"):
         material.update(posixchanges=intent["posixchanges"], posixfingerprint=intent.get("posixfingerprint"))
     if intent.get("smbinheritance"):
@@ -157,6 +159,13 @@ def inspect(intent):
         raise ValueError("INVALID_PREFLIGHT_INTENT")
     try:
         intent = dict(intent)
+        nfs_client = None
+        if intent.get("nfsclientpolicy"):
+            from nfs_client_policy_runtime import preview_client_intent
+            nfs_client = preview_client_intent(intent)
+            if nfs_client is not None:
+                intent["nfsclientfingerprint"] = nfs_client["fingerprint"]
+                intent["drainrequired"] = False
         observed = None
         path_preview = None
         if intent.get("pathtarget"):
@@ -195,6 +204,8 @@ def inspect(intent):
             file_identity = FixedIdentities().preview(target, intent["instanceUuid"], target.get("publicationRequired", False), target.get("verifyCurrent", False))
             intent["fileidentityfingerprint"] = hashlib.sha256(json.dumps(file_identity, sort_keys=True).encode()).hexdigest()
         report = evaluate(intent, sample(intent))
+        if nfs_client is not None:
+            report["impact"].update({"class": "ONLINE_RELOAD", "method": "NFS_CLIENT_RELOAD", "drainrequired": False})
         if client_access is not None:
             report["clientaccesspreview"] = client_access
             report["impact"]["class"] = "ONLINE_RELOAD"
@@ -232,7 +243,7 @@ def inspect(intent):
         return report
     except Exception as error:
         code=getattr(error,"code","RESOURCE_OBSERVATION_UNAVAILABLE")
-        status="BLOCKED" if code.startswith(("SMB_","DIRECTORY_")) and "UNAVAILABLE" not in code else "UNKNOWN"
+        status="BLOCKED" if code.startswith(("SMB_","DIRECTORY_","NFS_CLIENT_")) and not any(v in code for v in ("UNAVAILABLE", "UNCONFIRMED")) else "UNKNOWN"
         return {"status": status, "revision": intent.get("revision"), "fingerprint": fingerprint(intent),
                 "observedat": time.time(), "expiresat": time.time(),
                 "checks": [{"code": getattr(error,"code","RESOURCE_OBSERVATION_UNAVAILABLE"), "blocking": True, "severity": "ERROR"}],

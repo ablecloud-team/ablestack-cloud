@@ -10691,5 +10691,8 @@
   "label.storage.nfs.probe.verified": "Mount verified",
   "label.storage.nfs.probe.failed": "Check failed",
   "label.storage.nfs.probe.applied": "Applied",
-  "message.storage.nfs.acl.last.delete": "This is the export's last access rule. Deleting it restores the existing allow-all default; it does not revoke all access."
+  "message.storage.nfs.acl.last.delete": "This is the export's last access rule. Deleting it restores the existing allow-all default; it does not revoke all access.",
+  "message.storage.nfs.client.online": "NFS access policy is reloaded. Existing processes and continuously allowed client connections remain active; revoked clients are denied on their next request.",
+  "message.storage.nfs.client.ack": "I acknowledge the online policy change and access revocation for the selected clients.",
+  "label.storage.nfs.client.online.check": "Connection continuity check"
 }
