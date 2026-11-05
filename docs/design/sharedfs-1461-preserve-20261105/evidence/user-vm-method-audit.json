@@ -1,0 +1,30 @@
+{
+  "fullClassBytesDiffer": true,
+  "methods": {
+    "public boolean expunge(com.cloud.vm.UserVmVO)": {
+      "match": true,
+      "deployedSha256": "a528feb412b712f31c17334ff5f02610d3e255bdf8731e162bdda1a961bc2452",
+      "localSha256": "a528feb412b712f31c17334ff5f02610d3e255bdf8731e162bdda1a961bc2452"
+    },
+    "public com.cloud.uservm.UserVm destroyVm(org.apache.cloudstack.api.command.user.vm.DestroyVMCmd, boolean) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.ConcurrentOperationException": {
+      "match": true,
+      "deployedSha256": "839be22eca377c399009565e87b56a8c7aa39d7b4ceedd94fe8e920c4a44655e",
+      "localSha256": "839be22eca377c399009565e87b56a8c7aa39d7b4ceedd94fe8e920c4a44655e"
+    },
+    "public com.cloud.uservm.UserVm destroyVm(long, boolean) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.ConcurrentOperationException": {
+      "match": true,
+      "deployedSha256": "3ed49360027721ff5b6e1f848a197a6df2bcb65e7448affdbadceea700d3df72",
+      "localSha256": "3ed49360027721ff5b6e1f848a197a6df2bcb65e7448affdbadceea700d3df72"
+    },
+    "private void detachVolumesFromVm(com.cloud.uservm.UserVm, java.util.List<com.cloud.storage.VolumeVO>)": {
+      "match": true,
+      "deployedSha256": "7114669eeae9bd43b71f5338789176821beae15fdc406e0c3538a8f0a16de082",
+      "localSha256": "7114669eeae9bd43b71f5338789176821beae15fdc406e0c3538a8f0a16de082"
+    },
+    "private void destroyVolumeInContext(com.cloud.vm.UserVmVO, boolean, com.cloud.storage.VolumeVO)": {
+      "match": true,
+      "deployedSha256": "f070d0c4ba08313e1ac54b85683aeb7851a53ba0deb438616855d8cd361b10be",
+      "localSha256": "f070d0c4ba08313e1ac54b85683aeb7851a53ba0deb438616855d8cd361b10be"
+    }
+  }
+}
