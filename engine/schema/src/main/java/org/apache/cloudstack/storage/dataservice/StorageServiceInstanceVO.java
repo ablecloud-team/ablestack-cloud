@@ -105,6 +105,10 @@ public class StorageServiceInstanceVO implements StorageServiceInstance {
     @Column(name = GenericDao.REMOVED_COLUMN)
     private Date removed;
 
+    @Column(name="active_lifecycle_operation_uuid") private String activeLifecycleOperationUuid;
+    public String getActiveLifecycleOperationUuid(){return activeLifecycleOperationUuid;}
+    public void setActiveLifecycleOperationUuid(String value){activeLifecycleOperationUuid=value;}
+
     public StorageServiceInstanceVO() {
     }
 

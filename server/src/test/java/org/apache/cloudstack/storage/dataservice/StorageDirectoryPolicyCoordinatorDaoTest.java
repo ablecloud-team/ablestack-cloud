@@ -89,6 +89,7 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
                     "previous_runtime_bundle_id BIGINT UNSIGNED NULL", "runtime_state VARCHAR(32) NULL", "runtime_verified_at DATETIME NULL"})
                 s.execute("ALTER TABLE storage_service_instance ADD COLUMN IF NOT EXISTS " + column);
             EuropaStorageConfigurationUpgrade.migrate(c);
+            com.cloud.upgrade.dao.EuropaSharedFSDeletionUpgrade.migrate(c);
             int fs=schema.indexOf("CREATE TABLE IF NOT EXISTS "+quote+"cloud"+quote+"."+quote+"storage_file_share"+quote);
             assertTrue(fs>=0);s.execute(schema.substring(fs,schema.indexOf(';',fs)+1));
             String ddl;
@@ -778,5 +779,16 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
     }
     @Test public void nativeOnlinePreflightAndActualGuestReplyCommitAclDeleteThroughRealDaos() throws Exception {onlineNfsDeleteNativeRoundtrip(false);}
     @Test public void nativeOnlinePreflightStillRejectsStaleUiFingerprintBeforeGuestApply() throws Exception {onlineNfsDeleteNativeRoundtrip(true);}
+
+    @Test public void lifecycleReservationBlocksConfigurationBeforeCandidateOrGuestMutation() {
+        instance.setActiveLifecycleOperationUuid("11111111-1461-4000-8000-000000000001");instances.update(instance.getId(),instance);
+        CreateStorageDirectoryPolicyCmd cmd=new CreateStorageDirectoryPolicyCmd();
+        try {
+            coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,JsonObject.class,()->{throw new AssertionError("candidate must not run");},p->{},()->{},"vm");
+            fail("lifecycle reservation must block configuration");
+        } catch(com.cloud.utils.exception.CloudRuntimeException expected){assertTrue(expected.getMessage().contains("SHAREDFS_DELETION_ACTIVE"));}
+        assertTrue(operations.listByInstance(instance.getId()).isEmpty());
+        org.mockito.Mockito.verifyNoInteractions(guest);
+    }
 
 }

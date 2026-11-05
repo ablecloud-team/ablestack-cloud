@@ -53,6 +53,8 @@ public interface SharedFSLifeCycle {
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);
 
     boolean deleteSharedFS(SharedFS sharedFS);
+    default boolean supportsDataPreservingDelete(){return false;}
+    default void cleanupDetachedSharedFSVm(SharedFS fs,String expectedVmUuid){throw new UnsupportedOperationException("Provider does not support DATA preservation");}
 
     boolean reDeploySharedFS(SharedFS sharedFS) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 

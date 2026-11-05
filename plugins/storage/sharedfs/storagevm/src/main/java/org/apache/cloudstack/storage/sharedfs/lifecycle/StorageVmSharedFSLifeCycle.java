@@ -464,6 +464,22 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     @Override
+    public boolean supportsDataPreservingDelete(){return true;}
+
+    @Override
+    public void cleanupDetachedSharedFSVm(SharedFS fs,String expectedVmUuid) {
+        if(fs.getVmId()==null)return;
+        UserVmVO vm=userVmDao.findById(fs.getVmId());
+        if(vm==null||!expectedVmUuid.equals(vm.getUuid())||vm.getState()!=com.cloud.vm.VirtualMachine.State.Stopped)
+            throw new CloudRuntimeException("VM_IDENTITY_OR_STOP_CHANGED");
+        if(volumeDao.findByInstance(fs.getVmId()).stream().anyMatch(v->v.getVolumeType()!=Volume.Type.ROOT))
+            throw new CloudRuntimeException("DATA must be detached before ROOT-only cleanup");
+        if(volumeDao.findByInstance(fs.getVmId()).stream().anyMatch(VolumeVO::isDeleteProtection))
+            throw new CloudRuntimeException("ROOT_DELETE_PROTECTED");
+        expungeVm(fs.getVmId());
+    }
+
+    @Override
     public boolean deleteSharedFS(SharedFS sharedFS) {
         org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
         if (c != null && c.existing && !c.cancelled)

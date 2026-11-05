@@ -141,6 +141,9 @@ public class SharedFSServiceImplTest {
     @Mock
     private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
 
+    @Mock private org.apache.cloudstack.storage.sharedfs.dao.SharedFSDeletionOperationDao deletionDao;
+    @Mock private SharedFSCapacityService capacityService;
+
     @Spy
     @InjectMocks
     private SharedFSServiceImpl sharedFSServiceImpl;
@@ -695,18 +698,13 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
-    public void testDestroySharedFS() throws NoTransitionException {
-        DestroySharedFSCmd cmd = mock(DestroySharedFSCmd.class);
-        when(cmd.getId()).thenReturn(s_sharedFSId);
-        when(cmd.isExpunge()).thenReturn(false);
-
-        SharedFSVO sharedFS = getMockSharedFS();
-        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
-        ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Stopped);
-
-        Assert.assertEquals(sharedFSServiceImpl.destroySharedFS(cmd), true);
-        verify(lifeCycle, never()).deleteSharedFS(any());
-        verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.DestroyRequested, null, sharedFSDao);
+    public void testDestroySharedFS() {
+        DestroySharedFSCmd cmd=mock(DestroySharedFSCmd.class);
+        com.google.gson.JsonObject result=new com.google.gson.JsonObject();result.addProperty("success",true);
+        Mockito.doReturn(result).when(sharedFSServiceImpl).deleteSharedFS(cmd,false);
+        Assert.assertTrue(sharedFSServiceImpl.destroySharedFS(cmd));
+        verify(lifeCycle,never()).deleteSharedFS(any());
+        verify(sharedFSServiceImpl).deleteSharedFS(cmd,false);
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -725,11 +723,16 @@ public class SharedFSServiceImplTest {
 
     @Test
     public void testRecoverSharedFS() throws NoTransitionException {
-        SharedFSVO sharedFS = getMockSharedFS();
-        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
-        ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
-        Assert.assertEquals(sharedFSServiceImpl.recoverSharedFS(s_sharedFSId), sharedFS);
-        verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.RecoveryRequested, null, sharedFSDao);
+        SharedFSVO sharedFS = getMockSharedFS();when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
+        ReflectionTestUtils.setField(sharedFS,"state",SharedFS.State.Destroyed);
+        when(_stateMachine.transitTo(sharedFS,SharedFS.Event.RecoveryRequested,null,sharedFSDao)).thenReturn(true);
+        com.cloud.utils.db.GlobalLock lock=mock(com.cloud.utils.db.GlobalLock.class);when(lock.lock(1)).thenReturn(true);
+        try(MockedStatic<com.cloud.utils.db.GlobalLock> locks=mockStatic(com.cloud.utils.db.GlobalLock.class)) {
+            locks.when(()->com.cloud.utils.db.GlobalLock.getInternLock("sharedfs-deletion-"+s_sharedFSId)).thenReturn(lock);
+            Assert.assertEquals(sharedFSServiceImpl.recoverSharedFS(s_sharedFSId),sharedFS);
+            verify(_stateMachine).transitTo(sharedFS,SharedFS.Event.RecoveryRequested,null,sharedFSDao);
+            verify(lock).unlock();verify(lock).releaseRef();
+        }
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -742,21 +745,24 @@ public class SharedFSServiceImplTest {
 
     @Test
     public void testDeleteSharedFS() throws NoTransitionException {
-        SharedFSVO sharedFS = getMockSharedFS();
-        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
-        ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
+        SharedFSVO fs=getMockSharedFS();when(sharedFSDao.findById(s_sharedFSId)).thenReturn(fs);
+        ReflectionTestUtils.setField(fs,"state",SharedFS.State.Destroyed);
+        Mockito.doReturn(new com.google.gson.JsonObject()).when(sharedFSServiceImpl).beginDefaultPreserveDeletion(fs);
         sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
-        verify(lifeCycle, Mockito.times(1)).deleteSharedFS(any());
-        verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
+        verify(sharedFSServiceImpl).beginDefaultPreserveDeletion(fs);
+        verify(lifeCycle,never()).deleteSharedFS(any());
+        verify(_stateMachine,never()).transitTo(fs,SharedFS.Event.ExpungeOperation,null,sharedFSDao);
     }
 
-    @Test (expected = CloudRuntimeException.class)
+    @Test
     public void testDeleteSharedFSTransitionException() throws NoTransitionException {
-        SharedFSVO sharedFS = getMockSharedFS();
-        when(sharedFSDao.findById(s_sharedFSId)).thenReturn(sharedFS);
-        ReflectionTestUtils.setField(sharedFS, "state", SharedFS.State.Destroyed);
-        when(_stateMachine.transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao)).thenThrow(new NoTransitionException(""));
-        sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);
+        // A caller must not advance to Expunging before a durable preservation plan exists.
+        SharedFSVO fs=getMockSharedFS();when(sharedFSDao.findById(s_sharedFSId)).thenReturn(fs);
+        ReflectionTestUtils.setField(fs,"state",SharedFS.State.Destroyed);
+        doThrow(new CloudRuntimeException("PLAN_PERSIST_FAILED")).when(sharedFSServiceImpl).beginDefaultPreserveDeletion(fs);
+        try {sharedFSServiceImpl.deleteSharedFS(s_sharedFSId);Assert.fail("plan failure expected");} catch(CloudRuntimeException expected) { }
+        verify(lifeCycle,never()).deleteSharedFS(any());
+        verify(_stateMachine,never()).transitTo(fs,SharedFS.Event.ExpungeOperation,null,sharedFSDao);
     }
 
     @Test(expected = InvalidParameterValueException.class)
@@ -833,8 +839,8 @@ public class SharedFSServiceImplTest {
             when(GlobalLock.getInternLock("sharedfsservice.cleanup")).thenReturn(scanlock);
             when(scanlock.lock(30)).thenReturn(true);
             sharedFSServiceImpl.cleanupSharedFS(true);
-            verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
-            verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
+            verify(_stateMachine, never()).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
+            verify(_stateMachine, never()).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
         }
     }
 
@@ -848,8 +854,8 @@ public class SharedFSServiceImplTest {
             when(GlobalLock.getInternLock("sharedfsservice.cleanup")).thenReturn(scanlock);
             when(scanlock.lock(30)).thenReturn(true);
             sharedFSServiceImpl.cleanupSharedFS(true);
-            verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
-            verify(_stateMachine, times(1)).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
+            verify(_stateMachine, never()).transitTo(sharedFS, SharedFS.Event.ExpungeOperation, null, sharedFSDao);
+            verify(_stateMachine, never()).transitTo(sharedFS, SharedFS.Event.OperationFailed, null, sharedFSDao);
         }
     }
 }

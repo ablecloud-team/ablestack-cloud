@@ -36,14 +36,14 @@ import javax.inject.Inject;
 import com.cloud.event.EventTypes;
 
 @APICommand(name = "destroySharedFileSystem",
-        responseObject= SuccessResponse.class,
+        responseObject= org.apache.cloudstack.api.response.SharedFSDeletionResponse.class,
         description = "Destroy a Shared FileSystem by id",
         responseView = ResponseObject.ResponseView.Restricted,
         entityType = SharedFS.class,
         requestHasSensitiveInfo = false,
         since = "4.20.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class DestroySharedFSCmd extends BaseAsyncCmd implements UserCmd {
+public class DestroySharedFSCmd extends BaseSharedFSDeletionCmd {
 
     @Inject
     SharedFSService sharedFSService;
@@ -105,12 +105,7 @@ public class DestroySharedFSCmd extends BaseAsyncCmd implements UserCmd {
 
     @Override
     public void execute() {
-        Boolean result = sharedFSService.destroySharedFS(this);
-        if (result) {
-            SuccessResponse response = new SuccessResponse(getCommandName());
-            setResponseObject(response);
-        } else {
-            throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to destroy Shared FileSystem");
-        }
+        org.apache.cloudstack.api.response.SharedFSDeletionResponse response=new org.apache.cloudstack.api.response.SharedFSDeletionResponse(sharedFSService.deleteSharedFS(this,isExpunge()));
+        response.setResponseName(getCommandName());setResponseObject(response);
     }
 }

@@ -999,9 +999,11 @@ export default {
           message: 'message.action.destroy.sharedfs',
           dataView: true,
           popup: true,
+          standardDialogSize: 'xl',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSDeletion.vue'))),
           groupAction: true,
           groupMap: (selection, values) => { return selection.map(x => { return { id: x, expunge: values.expunge, forced: values.forced } }) },
-          args: ['expunge', 'forced'],
+          args: [],
           show: (record) => { return !['Destroyed', 'Expunging', 'Error'].includes(record.state) }
         },
         {
@@ -1021,7 +1023,19 @@ export default {
           message: 'message.action.expunge.sharedfs',
           dataView: true,
           popup: true,
+          standardDialogSize: 'xl',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSDeletion.vue'))),
           show: (record) => { return ['Destroyed', 'Expunging', 'Error'].includes(record.state) }
+        },
+        {
+          api: 'listSharedFileSystemDeletionOperations',
+          listView: true,
+          icon: 'history-outlined',
+          label: 'label.sharedfs.delete.history',
+          dataView: false,
+          popup: true,
+          standardDialogSize: 'xl',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSDeletionHistory.vue')))
         }
       ]
     }

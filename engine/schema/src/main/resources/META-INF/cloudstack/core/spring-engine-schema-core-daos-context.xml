@@ -353,4 +353,5 @@
   <bean id="bucketQuotaOperationDaoImpl" class="org.apache.cloudstack.storage.datastore.db.BucketQuotaOperationDaoImpl" />
     <bean id="storageServiceRuntimeBundleValidationDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleValidationDaoImpl" />
     <bean id="storageServiceRuntimeBundleEventDao" class="org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleEventDaoImpl" />
+  <bean id="SharedFSDeletionOperationDaoImpl" class="org.apache.cloudstack.storage.sharedfs.dao.SharedFSDeletionOperationDaoImpl" />
 </beans>

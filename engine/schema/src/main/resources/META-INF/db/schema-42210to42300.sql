@@ -1653,3 +1653,21 @@ CALL add_runtime_catalog_column('storage_service_runtime_upgrade','catalog_polic
 DROP PROCEDURE add_runtime_catalog_column;
 UPDATE storage_service_runtime_bundle SET state='DRAFT',validation_status='UNKNOWN' WHERE state='AVAILABLE';
 UPDATE storage_service_runtime_bundle SET state='SUSPENDED',validation_status='UNKNOWN' WHERE state='DISABLED';
+
+-- SharedFS durable deletion journal; lifecycle guard column is applied by EuropaSharedFSDeletionUpgrade.
+CREATE TABLE IF NOT EXISTS cloud.sharedfs_deletion_operation (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ uuid CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ sharedfs_id BIGINT UNSIGNED NOT NULL, sharedfs_uuid CHAR(36) NOT NULL,
+ instance_uuid CHAR(36) NULL, vm_uuid CHAR(36) NULL,
+ account_id BIGINT UNSIGNED NOT NULL, domain_id BIGINT UNSIGNED NOT NULL,
+ request_id VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ request_hash CHAR(64) NOT NULL, plan_fingerprint CHAR(64) NOT NULL,
+ state VARCHAR(32) NOT NULL, phase VARCHAR(32) NOT NULL,
+ plan_json MEDIUMTEXT NOT NULL, result_json MEDIUMTEXT,
+ original_failure_json TEXT, job_id BIGINT UNSIGNED NULL,
+ created DATETIME NOT NULL, updated DATETIME NOT NULL, completed DATETIME NULL,
+ UNIQUE KEY uk_sharedfs_del_uuid(uuid),
+ UNIQUE KEY uk_sharedfs_del_request(account_id,sharedfs_id,request_id),
+ KEY idx_sharedfs_del_state(sharedfs_id,state)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

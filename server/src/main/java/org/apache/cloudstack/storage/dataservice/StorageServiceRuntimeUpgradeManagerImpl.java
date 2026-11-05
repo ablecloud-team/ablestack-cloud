@@ -133,7 +133,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final StorageServiceRuntimeUpgradeVO upgrade = com.cloud.utils.db.Transaction.execute(
                 (com.cloud.utils.db.TransactionCallback<StorageServiceRuntimeUpgradeVO>) ignored -> {
             catalog.requireDestination(bundleDao.lockRow(bundle.getId(), true), false);
-            instanceDao.lockRow(instance.getId(), true);
+            if(instanceDao.lockRow(instance.getId(), true).getActiveLifecycleOperationUuid()!=null) throw new CloudRuntimeException("SHAREDFS_DELETION_ACTIVE");
             final StorageServiceRuntimeUpgradeVO same = upgradeDao.findByTransactionId(transactionId);
             if (same != null) {
                 if (same.getInstanceId()!=instance.getId() || same.getBundleId()!=bundle.getId())
@@ -288,6 +288,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             policy.addProperty("revision",destination.getStateRevision());policy.addProperty("kind",phase);
             upgrade.setCatalogPolicyJson(policy.toString());
             StorageServiceInstanceVO locked=instanceDao.lockRow(instance.getId(),true);
+            if (locked.getActiveLifecycleOperationUuid()!=null) throw new CloudRuntimeException("SHAREDFS_DELETION_ACTIVE");
             if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
             StorageServiceRuntimeUpgradeVO other=upgradeDao.findActiveByInstanceId(instance.getId());
             if (other!=null && other.getId()!=upgrade.getId()) throw new CloudRuntimeException("RUNTIME_WRITER_ACTIVE");

@@ -4231,6 +4231,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (instance == null) {
             throw new InvalidParameterValueException("Unable to find Storage Service instance with id " + id);
         }
+        if (instance.getActiveLifecycleOperationUuid() != null) {
+            String api = org.apache.cloudstack.context.CallContext.current().getApiName();
+            if (api != null && !api.toLowerCase(java.util.Locale.ROOT).matches("^(get|list|preflight|inspect|check).*")) {
+                throw new InvalidParameterValueException("SHAREDFS_DELETION_ACTIVE");
+            }
+        }
         return instance;
     }
 
@@ -6687,7 +6693,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setProvider(instance.getProvider());
         response.setState(instance.getState().name());
         response.setConfigurationRevision(instance.getConfigurationRevision());
-        response.setConfigurationProtection(instance.getActiveConfigurationOperationId() != null);
+        response.setConfigurationProtection(instance.getActiveConfigurationOperationId() != null || instance.getActiveLifecycleOperationUuid() != null);
         response.setObjectName("storageserviceinstance");
         return response;
     }

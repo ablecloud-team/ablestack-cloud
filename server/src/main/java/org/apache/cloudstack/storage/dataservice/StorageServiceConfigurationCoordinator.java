@@ -100,6 +100,7 @@ final class StorageServiceConfigurationCoordinator {
             }
             if (StorageServiceConfigurationPreflight.runtimeWriting(upgrades.findActiveByInstanceId(instance.getId())))
                 throw new CloudRuntimeException("RUNTIME_WRITER_ACTIVE");
+            if (locked.getActiveLifecycleOperationUuid() != null) throw new CloudRuntimeException("SHAREDFS_DELETION_ACTIVE");
             if (locked.getActiveConfigurationOperationId() != null) throw new CloudRuntimeException("Configuration recovery is pending; inspect the active operation before a new change");
             if (cmd.getExpectedRevision() != null && cmd.getExpectedRevision() != locked.getConfigurationRevision())
                 throw new CloudRuntimeException("Configuration revision changed; update the form before submitting");
