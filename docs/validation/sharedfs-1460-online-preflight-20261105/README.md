@@ -33,7 +33,7 @@ Ready NFS ACL의 검증된 CLIENT-only 변경만 **읽기 전용 UI 사전 점�
 
 수치는 위 최종 원문을 기준으로 한다. 진행 코멘트의 native I/O 각2,137이라는 중간 수치는 최종 native-unique fixture의 2,129/2,131로 정정한다. 실제 UI I/O 수치는 아래 별도 값이다.
 
-**빌드는 전부 로컬, Actions 실행0.** 범위 밖 기존 Checkstyle25개로 `checkstyle.skip=true` 및 기존 `rat.skip=true`를 사용했다. 전체 저장소 정적 검사나 전체 CI가 통과했다는 의미가 아니다.
+**빌드는 전부 로컬, 빌드 Actions 실행0.** PR 갱신 시 GitHub가 자동 실행하는 빌드 없는 **PR Merge Conflict Check** 메타 검사는 이 수치와 구분한다. 수동 workflow dispatch는 하지 않았다. 범위 밖 기존 Checkstyle25개로 `checkstyle.skip=true` 및 기존 `rat.skip=true`를 사용했다. 전체 저장소 정적 검사나 전체 CI가 통과했다는 의미가 아니다.
 
 ## 13번 배포
 

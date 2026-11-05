@@ -31,6 +31,8 @@
   "osReboots": 0,
   "manualMacChanges": 0,
   "thinCreated": 0,
-  "actionsExecuted": 0,
-  "uiCacheOldTabExcluded": true
+  "uiCacheOldTabExcluded": true,
+  "buildActionsExecuted": 0,
+  "manualWorkflowDispatches": 0,
+  "automaticMetadataCheck": "PR Merge Conflict Check, no build"
 }

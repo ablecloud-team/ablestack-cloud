@@ -38,6 +38,8 @@
   "mavenModules": 26,
   "mavenBuild": true,
   "uiProductionBuild": true,
-  "actionsExecuted": 0,
-  "checkstyleSkippedKnownBaselineErrors": 25
+  "checkstyleSkippedKnownBaselineErrors": 25,
+  "buildActionsExecuted": 0,
+  "manualWorkflowDispatches": 0,
+  "automaticMetadataCheck": "PR Merge Conflict Check, no build"
 }
