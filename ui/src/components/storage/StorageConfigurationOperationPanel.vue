@@ -30,6 +30,7 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
         <a-descriptions-item v-if="operation.originalfailure?.code" :label="$t('label.storage.configuration.first.failure')">
           <code>{{ operation.originalfailure.code }}</code> · {{ phaseLabel(operation.originalfailure.phase) }}
         </a-descriptions-item>
+        <a-descriptions-item v-if="firstChildCode" :label="$t('label.storage.configuration.first.failure.detail')"><code>{{ firstChildCode }}</code></a-descriptions-item>
         <a-descriptions-item v-if="operation.originalfailure?.stage" :label="$t('label.storage.configuration.failure.stage')"><code>{{ operation.originalfailure.stage }}</code></a-descriptions-item>
         <a-descriptions-item v-if="operation.originalfailure?.reason" :label="$t('label.storage.configuration.failure.reason')"><code>{{ operation.originalfailure.reason }}</code></a-descriptions-item>
         <a-descriptions-item v-if="operation.rollback?.state" :label="$t('label.storage.configuration.rollback')">
@@ -62,6 +63,10 @@ export default {
   emits: ['refresh', 'resume'],
   data () { return { rows: [], loading: false, readFailed: false, selected: null, generation: 0 } },
   computed: {
+    firstChildCode () {
+      const code = this.operation?.originalfailure?.detail?.code
+      return typeof code === 'string' && /^[A-Z][A-Z0-9_]{1,127}$/.test(code) ? code : ''
+    },
     columns () {
       return [
         { title: this.$t('label.created'), dataIndex: 'created', key: 'created' },

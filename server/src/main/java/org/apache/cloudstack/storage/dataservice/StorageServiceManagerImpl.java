@@ -353,6 +353,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         throw new InvalidParameterValueException("Configuration operation was not found for this instance");
     }
+    private static JsonObject configurationFirstFailure(JsonObject first, JsonObject observed) {
+        if (first.size() == 0) return observed.deepCopy();
+        JsonObject result = first.deepCopy();
+        if (!result.has("detail") && java.util.Objects.equals(result.get("code"), observed.get("code"))
+                && java.util.Objects.equals(result.get("phase"), observed.get("phase"))
+                && observed.has("detail") && observed.get("detail").isJsonObject()) {
+            JsonObject detail = observed.getAsJsonObject("detail");
+            if (detail.has("code") && detail.get("code").isJsonPrimitive()
+                    && detail.get("code").getAsString().matches("SMB_[A-Z0-9_]{1,120}")) {
+                JsonObject safe = new JsonObject(); safe.add("code", detail.get("code").deepCopy());
+                result.add("detail", safe);
+            }
+        }
+        return result;
+    }
     private org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse configurationResponse(
             final StorageServiceInstanceVO instance, final StorageServiceConfigurationOperationVO op) {
         org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse response =
@@ -361,7 +376,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setRequestid(op.getRequestId()); response.setProtocol(op.getProtocol()); response.setResourceid(op.getResourceUuid());
         response.setState(op.getState()); response.setPhase(op.getPhase()); response.setBaserevision(op.getBaseRevision());
         response.setTargetrevision(op.getTargetRevision()); response.setCreated(op.getCreated()); response.setUpdated(op.getUpdated()); response.setCompleted(op.getCompleted());
-        response.setOriginalfailure(StorageServiceConfigurationCoordinator.parsed(op.getOriginalFailureJson()));
+        JsonObject previousObservation = StorageServiceConfigurationCoordinator.parsed(op.getGuestObservationJson());
+        JsonObject diagnostic = configurationFirstFailure(StorageServiceConfigurationCoordinator.parsed(op.getOriginalFailureJson()),
+                previousObservation.has("originalfailure") && previousObservation.get("originalfailure").isJsonObject()
+                        ? previousObservation.getAsJsonObject("originalfailure") : new JsonObject());
+        response.setOriginalfailure(diagnostic);
         response.setRollback(StorageServiceConfigurationCoordinator.parsed(op.getRollbackResultJson()));
         response.setObservation(StorageServiceConfigurationCoordinator.parsed(op.getGuestObservationJson()));
         JsonObject candidate = StorageServiceConfigurationCoordinator.parsed(op.getCandidateSnapshot());
@@ -391,7 +410,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (observed.has("workerActive") && observed.get("workerActive").getAsBoolean()
                         && !java.util.Arrays.asList("COMMITTED","ROLLED_BACK").contains(op.getState())) response.setState("RUNNING");
                 if (!smbFinalizing && observed.has("phase") && !"COMMITTED".equals(op.getState()) && !"ROLLED_BACK".equals(op.getState())) response.setPhase(observed.get("phase").getAsString());
-                if (op.getOriginalFailureJson() == null && observed.has("originalfailure")) response.setOriginalfailure(observed.getAsJsonObject("originalfailure"));
+                if (observed.has("originalfailure") && observed.get("originalfailure").isJsonObject())
+                    response.setOriginalfailure(configurationFirstFailure(diagnostic, observed.getAsJsonObject("originalfailure")));
                 if (observed.has("rollback")) response.setRollback(observed.getAsJsonObject("rollback"));
                 String state = observed.has("state") ? observed.get("state").getAsString() : "UNKNOWN";
                 recoverableGuest = (java.util.Arrays.asList("VERIFIED", "ROLLED_BACK", "RECOVERY_REQUIRED").contains(state)

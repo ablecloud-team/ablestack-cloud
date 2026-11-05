@@ -10704,5 +10704,10 @@
   "label.sharedfs.delete.history": "제거 작업 내역",
   "label.sharedfs.delete.state.CANCELLED": "복구로 제거 취소",
   "label.sharedfs.delete.state.REJECTED": "변경 전 거부 · 계획 재확인 필요",
-  "label.sharedfs.delete.reapprove": "새 계획 점검 후 다시 확인"
+  "label.sharedfs.delete.reapprove": "새 계획 점검 후 다시 확인",
+  "label.storage.smb.legacy.handoff": "기본 SMB 리스너 전환",
+  "label.storage.smb.legacy.bindings": "현재 기본 리스너",
+  "label.storage.smb.legacy.requested": "요청한 관리 엔드포인트",
+  "message.storage.smb.legacy.handoff": "기존 연결을 정리한 뒤 기본 Samba 리스너를 관리 엔드포인트로 전환합니다. 공유·인증·ACL·디렉터리 권한은 유지하며 연결 정리 조건을 우회할 수 없습니다.",
+  "label.storage.configuration.first.failure.detail": "최초 하위 원인"
 }

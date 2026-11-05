@@ -201,7 +201,7 @@ final class StorageServiceConfigurationCoordinator {
             }
             if (StorageNfsClientPolicy.online(report)) payload.addProperty("requireNfsClientPolicy",true);
             JsonObject admission = report.getAsJsonObject("intent").deepCopy();
-            if (StorageNfsClientPolicy.online(report) || StorageSmbClientAccessPolicy.only(cmd) || StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget") || admission.has("fileidentitytarget")) admission.add("expectedFingerprint", report.get("fingerprint"));
+            if (StorageNfsClientPolicy.online(report) || StorageSmbClientAccessPolicy.only(cmd) || StorageSmbCreationPolicy.optionsOnly(cmd) || admission.has("pathtarget") || admission.has("fileidentitytarget") || admission.has("smblistenerchange")) admission.add("expectedFingerprint", report.get("fingerprint"));
             admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
             payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);

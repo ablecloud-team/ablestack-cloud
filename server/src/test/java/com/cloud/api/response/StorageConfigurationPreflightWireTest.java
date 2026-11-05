@@ -23,6 +23,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 public class StorageConfigurationPreflightWireTest {
+    @Test public void actualNativeLegacyPreviewSurvivesApiSerialization() throws Exception {
+        JsonObject fixture;
+        try (java.io.InputStream in=getClass().getResourceAsStream("/storage-config/smb-implicit-legacy-actual.json")) {
+            org.junit.Assert.assertNotNull(in);fixture=JsonParser.parseString(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        StorageServiceConfigurationPreflightResponse response=new StorageServiceConfigurationPreflightResponse(fixture.getAsJsonObject("preflight"));
+        response.setResponseName("preflightstorageserviceconfigurationresponse");
+        String wire=ApiResponseSerializer.toSerializedString(response,"json");
+        JsonObject body=JsonParser.parseString(wire).getAsJsonObject().getAsJsonObject("preflightstorageserviceconfigurationresponse").getAsJsonObject("configurationpreflight");
+        assertEquals(2,body.getAsJsonObject("smblegacypreview").getAsJsonArray("bindings").size());
+        assertTrue(body.getAsJsonObject("impact").get("drainrequired").getAsBoolean());
+        String out=System.getProperty("configuration.legacy.preflight.wire");
+        if(out!=null){java.nio.file.Path path=java.nio.file.Path.of(out);assertTrue(path.toString().startsWith("/root/work/epic1438-preparation/"));java.nio.file.Files.writeString(path,wire);}
+    }
     @Test public void preflightUsesNamedScalarAndRealDateSerialization() throws Exception {
         JsonObject sample=JsonParser.parseString("{\"status\":\"READY\",\"revision\":2,\"observedat\":1792829254,\"expiresat\":1792829284,\"fingerprint\":\"impact\",\"checks\":[{\"code\":\"MEMORY_AVAILABLE\",\"blocking\":false}],\"impact\":{\"ackrequired\":true}}").getAsJsonObject();
         StorageServiceConfigurationPreflightResponse response=new StorageServiceConfigurationPreflightResponse(sample);

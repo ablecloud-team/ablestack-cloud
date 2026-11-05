@@ -295,6 +295,13 @@ final class StorageServiceConfigurationPreflight {
         query.addProperty("revision",instance.getConfigurationRevision()); query.addProperty("protocol",protocol.name());
         query.addProperty("action",name.startsWith("delete")?"DELETE":name.startsWith("update")?"UPDATE":"CREATE");
         query.addProperty("drainrequired",drain);
+        if (smbEndpoint) {
+            query.addProperty("smblistenerchange", true);
+            JsonObject endpoint = new JsonObject();
+            for (String key : Arrays.asList("endpointid", "listenip", "port"))
+                if (intent.has(key)) endpoint.add(key, intent.get(key).deepCopy());
+            query.add("smbendpoint", endpoint);
+        }
         query.addProperty("recursive",intent.has("recursive")?intent.get("recursive").getAsBoolean():
                 intent.has("recursivepermission") && intent.get("recursivepermission").getAsBoolean());
         List<String> refs=java.util.stream.Stream.concat(fs.stream().map(StorageFileShareVO::getUuid),bs.stream().map(StorageBlockTargetVO::getUuid)).sorted().collect(java.util.stream.Collectors.toList());

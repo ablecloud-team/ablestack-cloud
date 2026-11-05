@@ -26,6 +26,32 @@ class AdmissionTests(unittest.TestCase):
             {"freebytes": 1024*preflight.MIB, "freeinodes": 1000, "readonly": False}],
             "busyvolumes": [], "connections": 1, "load1": .1, "cpucount": 2, "snapshotbytes": 13321, "observedat": time.time()}
 
+    def test_implicit_smb_handoff_forces_current_drain_and_confirms_both_bindings(self):
+        intent={"protocol":"SMB","instanceUuid":str(uuid.uuid4()),"revision":3,"action":"ENABLE",
+                "smblistenerchange":True,"ports":[1445],"ackrequired":False,"drainrequired":False,
+                "smbendpoint":{"listenip":"192.0.2.10","port":1445}}
+        proof={"mode":"IMPLICIT_LEGACY","port":445,"sockets":[["0.0.0.0",445],["::",445]],"pid":41}
+        with patch.object(transaction.SmbListenerProfiles,"implicit_legacy",return_value=proof), patch.object(preflight,"sample",return_value=self.sample) as sample:
+            report=preflight.inspect(intent)
+            self.assertEqual("BLOCKED",report["status"])
+            self.assertTrue(report["impact"]["drainrequired"]);self.assertTrue(report["impact"]["ackrequired"])
+            self.assertEqual(proof["sockets"],report["smblegacypreview"]["bindings"])
+            self.assertEqual([445,1445],sample.call_args[0][0]["ports"])
+            self.assertTrue(any(c["code"]=="DRAIN_REQUIRED" and c["blocking"] for c in report["checks"]))
+    def test_legacy_identity_changes_invalidate_ack_but_resource_sample_changes_do_not(self):
+        intent={"protocol":"SMB","instanceUuid":str(uuid.uuid4()),"revision":3,"action":"ENABLE","smblistenerchange":True}
+        proof={"mode":"IMPLICIT_LEGACY","port":445,"sockets":[["0.0.0.0",445]],"pid":41}
+        with patch.object(transaction.SmbListenerProfiles,"implicit_legacy",return_value=proof) as observe, patch.object(preflight,"sample",return_value={**self.sample,"connections":0}):
+            first=preflight.inspect(intent);observe.return_value={**proof,"pid":42};second=preflight.inspect(intent)
+            self.assertNotEqual(first["fingerprint"],second["fingerprint"])
+    def test_managed_smb_and_observation_loss_keep_existing_admission_contract(self):
+        intent={"protocol":"SMB","instanceUuid":str(uuid.uuid4()),"revision":3,"action":"ENABLE","smblistenerchange":True}
+        with patch.object(transaction.SmbListenerProfiles,"implicit_legacy",return_value=None), patch.object(preflight,"sample",return_value=self.sample):
+            report=preflight.inspect(intent);self.assertEqual("READY",report["status"])
+            self.assertNotIn("smblegacypreview",report)
+        with patch.object(transaction.SmbListenerProfiles,"implicit_legacy",side_effect=OSError("transport unavailable")):
+            self.assertEqual("UNKNOWN",preflight.inspect(intent)["status"])
+
     def report(self, **patches):
         return preflight.evaluate(self.intent, {**self.sample, **patches})
 

@@ -30,6 +30,8 @@ def fingerprint(intent):
         material.update(smbclientaccess=intent["smbclientaccess"], clientaccessfingerprint=intent.get("clientaccessfingerprint"))
     if intent.get("fileidentitytarget"):
         material.update(fileidentitytarget=intent["fileidentitytarget"], fileidentityfingerprint=intent.get("fileidentityfingerprint"))
+    if intent.get("smblistenerchange"):
+        material.update(smblistenerchange=True, smblegacyfingerprint=intent.get("smblegacyfingerprint"))
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 def _read_json(path):
@@ -203,7 +205,21 @@ def inspect(intent):
             target = intent["fileidentitytarget"]
             file_identity = FixedIdentities().preview(target, intent["instanceUuid"], target.get("publicationRequired", False), target.get("verifyCurrent", False))
             intent["fileidentityfingerprint"] = hashlib.sha256(json.dumps(file_identity, sort_keys=True).encode()).hexdigest()
+        legacy = None
+        if intent.get("protocol") == "SMB" and intent.get("smblistenerchange"):
+            from configuration_transaction import SmbListenerProfiles, load, public_hash
+            listener = SmbListenerProfiles()
+            legacy = listener.implicit_legacy(load(listener.desired, {}), intent["instanceUuid"])
+            if legacy:
+                intent["smblegacyfingerprint"] = public_hash(legacy)
+                intent["ackrequired"] = True
+                intent["drainrequired"] = True
+                intent["ports"] = sorted(set(intent.get("ports", [])) | {legacy["port"]})
         report = evaluate(intent, sample(intent))
+        if legacy:
+            report["smblegacypreview"] = {"mode": legacy["mode"], "bindings": legacy["sockets"],
+                                        "requested": intent.get("smbendpoint", {})}
+            report["impact"].update(method="SMB_LEGACY_HANDOFF", drainrequired=True, ackrequired=True)
         if nfs_client is not None:
             report["impact"].update({"class": "ONLINE_RELOAD", "method": "NFS_CLIENT_RELOAD", "drainrequired": False})
         if client_access is not None:

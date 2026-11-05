@@ -10739,5 +10739,10 @@
   "label.sharedfs.delete.history": "Removal history",
   "label.sharedfs.delete.state.CANCELLED": "Removal cancelled by recovery",
   "label.sharedfs.delete.state.REJECTED": "Rejected before changes; reapprove the plan",
-  "label.sharedfs.delete.reapprove": "Review and approve a fresh plan"
+  "label.sharedfs.delete.reapprove": "Review and approve a fresh plan",
+  "label.storage.smb.legacy.handoff": "Default SMB listener handoff",
+  "label.storage.smb.legacy.bindings": "Current default listener",
+  "label.storage.smb.legacy.requested": "Requested managed endpoint",
+  "message.storage.smb.legacy.handoff": "Drain existing connections before moving the default Samba listener to a managed endpoint. Shares, authentication, ACLs and directory permissions are preserved. Drain requirements cannot be bypassed.",
+  "label.storage.configuration.first.failure.detail": "Original child failure"
 }

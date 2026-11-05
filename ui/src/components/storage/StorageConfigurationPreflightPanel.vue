@@ -20,6 +20,13 @@ show-icon
       <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
       <span v-if="check.connections !== undefined"> · {{ check.connections }} TCP</span>
     </div>
+    <section v-if="report.smblegacypreview" class="path-preview" data-testid="smb-legacy-handoff">
+      <a-alert type="warning" show-icon :message="$t('label.storage.smb.legacy.handoff')" :description="$t('message.storage.smb.legacy.handoff')" />
+      <a-descriptions bordered size="small" :column="1" class="summary">
+        <a-descriptions-item :label="$t('label.storage.smb.legacy.bindings')">{{ legacyBindings }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.storage.smb.legacy.requested')">{{ legacyRequested }}</a-descriptions-item>
+      </a-descriptions>
+    </section>
     <a-descriptions v-if="report.posixobservation && Object.keys(report.posixchanges || {}).length" bordered size="small" :column="1" class="summary">
       <a-descriptions-item :label="$t('label.storage.nfs.current.posix')">{{ beforePosix }}</a-descriptions-item>
       <a-descriptions-item :label="$t('label.storage.nfs.after.posix')">{{ afterPosix }}</a-descriptions-item>
@@ -55,6 +62,13 @@ export default {
   props: { report: { type: Object, required: true }, loading: Boolean, acknowledged: Boolean },
   emits: ['refresh', 'acknowledge'],
   computed: {
+    legacyBindings () {
+      return (this.report.smblegacypreview?.bindings || []).map(([ip, port]) => (ip.includes(':') ? '[' + ip + ']' : ip) + ':' + port).join(', ')
+    },
+    legacyRequested () {
+      const target = this.report.smblegacypreview?.requested || {}
+      return target.listenip ? target.listenip + ':' + (target.port || 445) : this.$t('label.none')
+    },
     pathColumns () {
       return [
         { title: this.$t('label.name'), dataIndex: 'name', key: 'name' },

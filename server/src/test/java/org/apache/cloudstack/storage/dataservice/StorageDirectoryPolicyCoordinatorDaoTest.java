@@ -136,6 +136,82 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
         Field f = type.getDeclaredField(name); f.setAccessible(true); f.set(target, value);
     }
 
+    private void smbNativeFailureRoundtrip(boolean oldJournal) throws Exception {
+        instance.setVmId(221L); instances.update(instance.getId(), instance);
+        JsonObject fixture;
+        try (java.io.InputStream in=getClass().getResourceAsStream("/storage-config/smb-implicit-legacy-actual.json")) {
+            assertNotNull(in); fixture=com.google.gson.JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        JsonObject nativeStatus=fixture.getAsJsonObject("operation");
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(call -> {
+            StorageServiceGuestCommand request=call.getArgument(0); JsonObject result;
+            if (request.getOperation().equals("configuration capability show")) {
+                result=new JsonObject();
+                for (String name:new String[]{"configurationTransactionVersion","configurationPreflightVersion","smbListenerProfilesVersion"})
+                    result.addProperty(name,1);
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                result=nativeStatus.deepCopy();result.add("operationid",input.get("operationid"));result.add("instanceUuid",input.get("instanceUuid"));
+                if (oldJournal && request.getOperation().equals("configuration operation apply"))
+                    result.getAsJsonObject("originalfailure").remove("detail");
+                if (request.getOperation().equals("configuration operation resume")) {
+                    result.addProperty("state","ROLLED_BACK");result.addProperty("phase","COMPLETED");
+                    result.add("rollback",com.google.gson.JsonParser.parseString("{\"state\":\"SUCCEEDED\"}"));
+                }
+            }
+            return new StorageServiceGuestCommandResult(true,"actual-native-legacy-failure",result.toString());
+        });
+        EnableStorageServiceProtocolCmd cmd=new EnableStorageServiceProtocolCmd();
+        field(cmd,cmd.getClass(),"instanceId",instance.getId());field(cmd,cmd.getClass(),"protocol","SMB");
+        field(cmd,cmd.getClass(),"listenIp","192.0.2.10");field(cmd,cmd.getClass(),"port",445);
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        java.util.function.Supplier<JsonObject> candidate=()->{
+            JsonObject value=new JsonObject();value.addProperty("instanceUuid",instance.getUuid());value.addProperty("enabled",true);
+            value.add("listeners",new com.google.gson.JsonArray());plan.get().commands.put("smb share apply",value);
+            JsonObject response=new JsonObject();response.addProperty("id",java.util.UUID.randomUUID().toString());return response;
+        };
+        try {
+            coordinator.execute(cmd,instance,StorageServiceInstance.Protocol.SMB,JsonObject.class,candidate,plan::set,()->{},null);
+            fail("native apply failure must remain recoverable");
+        } catch (CloudRuntimeException expected) {
+            assertTrue(expected.getMessage().contains("RECOVERY_REQUIRED"));
+        }
+        StorageServiceConfigurationOperationVO op=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("RECOVERY_REQUIRED",op.getState());String saved=op.getOriginalFailureJson();
+        JsonObject first=com.google.gson.JsonParser.parseString(saved).getAsJsonObject();
+        assertEquals("PROTOCOL_APPLY_FAILED",first.get("code").getAsString());
+        if (!oldJournal) assertEquals("SMB_LEGACY_IDENTITY_UNCONFIRMED",first.getAsJsonObject("detail").get("code").getAsString());
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl();
+        field(manager,StorageServiceManagerImpl.class,"guestCommandDispatcher",guest);
+        java.lang.reflect.Method format=StorageServiceManagerImpl.class.getDeclaredMethod("configurationResponse",StorageServiceInstanceVO.class,StorageServiceConfigurationOperationVO.class);
+        format.setAccessible(true);
+        var response=(org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse)format.invoke(manager,instances.findById(instance.getId()),op);
+        response.setResponseName("getstorageserviceconfigurationoperationresponse");
+        String wire=com.cloud.api.response.ApiResponseSerializer.toSerializedString(response,"json");
+        JsonObject body=com.google.gson.JsonParser.parseString(wire).getAsJsonObject().getAsJsonObject("getstorageserviceconfigurationoperationresponse").getAsJsonObject("configurationoperation");
+        assertEquals("SMB_LEGACY_IDENTITY_UNCONFIRMED",body.getAsJsonObject("originalfailure").getAsJsonObject("detail").get("code").getAsString());
+        assertEquals(saved,operations.findById(op.getId()).getOriginalFailureJson()); // getter remains read-only
+        String out=System.getProperty("configuration.legacy.operation.wire");
+        if (out!=null) {
+            java.nio.file.Path path=java.nio.file.Path.of(out);assertTrue(path.toString().startsWith("/root/work/epic1438-preparation/"));
+            java.nio.file.Files.writeString(path,wire);
+        }
+        coordinator.resume(instances.findById(instance.getId()),op,p2->{throw new AssertionError("rollback cannot commit a candidate");});
+        op=operations.findById(op.getId());assertEquals("ROLLED_BACK",op.getState());
+        first=com.google.gson.JsonParser.parseString(op.getOriginalFailureJson()).getAsJsonObject();
+        assertEquals("PROTOCOL_APPLY_FAILED",first.get("code").getAsString());
+        if (oldJournal) assertEquals(saved,op.getOriginalFailureJson());
+        else assertEquals("SMB_LEGACY_IDENTITY_UNCONFIRMED",first.getAsJsonObject("detail").get("code").getAsString());
+        assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        response=(org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse)format.invoke(manager,instances.findById(instance.getId()),op);
+        response.setResponseName("getstorageserviceconfigurationoperationresponse");
+        body=com.google.gson.JsonParser.parseString(com.cloud.api.response.ApiResponseSerializer.toSerializedString(response,"json")).getAsJsonObject()
+                .getAsJsonObject("getstorageserviceconfigurationoperationresponse").getAsJsonObject("configurationoperation");
+        assertEquals("SMB_LEGACY_IDENTITY_UNCONFIRMED",body.getAsJsonObject("originalfailure").getAsJsonObject("detail").get("code").getAsString());
+    }
+    @Test public void actualNativeSmbChildFailureSurvivesCoordinatorDaoAndApi() throws Exception { smbNativeFailureRoundtrip(false); }
+    @Test public void oldGenericFailureEnrichmentIsReadOnlyUntilExplicitRecovery() throws Exception { smbNativeFailureRoundtrip(true); }
+
     @Test public void actualCoordinatorReservationCommitAndDaoReloadPreserveCommonReferenceAndLargeMetadata() throws Exception {
         StorageFileShareVO nfs=new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.NFS,"nfs","/export/team",77L,"xfs",null,
                 StorageServiceInstance.ResourceState.Ready,"{\"keep\":true}");

@@ -277,6 +277,24 @@ def validated_kernel_links(trees, base=Path("/sys/kernel/config/nvmet")):
     return links
 
 
+def retain_runner_failure_detail(value, private):
+    """Expose only the first safe structured child code, never process output."""
+    failure = value.get("originalfailure") or {}
+    if not isinstance(failure, dict) or failure.get("detail"):
+        return
+    original = load(Path(private) / "original-runner-result.json", {})
+    detail = original.get("result") or {}
+    if not isinstance(detail, dict):
+        return
+    code = detail.get("code", "")
+    if not isinstance(code, str):
+        return
+    if code in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE") or code.startswith("NFS_CLIENT_"):
+        failure["detail"] = {k: detail[k] for k in ("code", "failures", "port", "stage") if k in detail}
+    elif failure.get("code") == "PROTOCOL_APPLY_FAILED" and code.startswith("SMB_") and re.fullmatch(r"SMB_[A-Z0-9_]{1,120}", code):
+        failure["detail"] = {"code": code, "stage": "SMB_LISTENER"}
+
+
 class Transaction:
     def __init__(self, root=ROOT, adapter_factory=None):
         self.root = Path(root)
@@ -315,6 +333,7 @@ class Transaction:
         if value.get("state") != "NOT_FOUND":
             progress = load(status.parent / "smb-options-progress.json")
             if progress: value["smbOptions"] = progress
+        retain_runner_failure_detail(value, status.parent)
         return self.bindings_status(value, status.parent)
 
     def execute(self, action, payload):
@@ -325,6 +344,8 @@ class Transaction:
             os.chmod(directory / "lock", 0o600)
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             current = load(status_path)
+            if current:
+                retain_runner_failure_detail(current, private)
             revision = load(directory / "revision.json", {"revision": 0})
             if action == "commit":
                 if not current or current.get("state") not in ("VERIFIED", "COMMITTED"):
@@ -373,6 +394,7 @@ class Transaction:
                     atomic_json(status_path, current)
                     return current
                 current.setdefault("originalfailure", {"code": "PROTOCOL_APPLY_FAILED", "phase": current["phase"]})
+                retain_runner_failure_detail(current, private)
                 atomic_json(status_path, current)
                 return self.rollback(current, status_path, adapter)
             if action != "apply":
@@ -439,10 +461,7 @@ class Transaction:
                     if isinstance(port, int) and not isinstance(port, bool) and 1 <= port <= 65535:
                         safe["port"] = port
                     current["originalfailure"]["detail"] = safe
-                original = load(private / "original-runner-result.json", {})
-                detail = original.get("result") or {}
-                if detail.get("code") in ("NFS_EXPORT_VISIBILITY_FAILED", "NFS_LOCAL_ADDRESS_OBSERVATION_UNAVAILABLE") or str(detail.get("code", "")).startswith("NFS_CLIENT_"):
-                    current["originalfailure"]["detail"] = {k: detail[k] for k in ("code", "failures", "port", "stage") if k in detail}
+                retain_runner_failure_detail(current, private)
                 if current["phase"] == "VALIDATING":
                     current.update(state="ROLLED_BACK", phase="COMPLETED", rollback={"state": "NOT_NEEDED"})
                     atomic_json(status_path, current)
@@ -668,9 +687,11 @@ class SmbListenerProfiles:
         if raw_pid and not self.pid(row):
             raise Rejected("SMB_PROFILE_OWNERSHIP_CHANGED")
         if raw_pid:
-            checked(["systemctl", "stop", row["unit"]])
+            if row.get("implicitLegacy"):
+                self.verify_implicit_legacy(row["implicitLegacy"])
+            self.ctl("stop", row["unit"])
         if row.get("kind") == "legacy":
-            checked(["systemctl", "disable", "smbd"])
+            self.ctl("disable", "smbd")
         elif row["key"] != self.key(row):
             raise Rejected("INVALID_SMB_PROFILE_KEY")
         else:
@@ -681,6 +702,128 @@ class SmbListenerProfiles:
                 path.unlink()
             with contextlib.suppress(FileNotFoundError):
                 (self.root / row["key"]).rmdir()
+
+    @staticmethod
+    def legacy_sockets(pid):
+        """Owned IPv4 and IPv6 LISTEN sockets; legacy rollback restores both."""
+        import socket
+        owned = {os.readlink(p) for p in Path("/proc/%s/fd" % pid).iterdir()}
+        result = set()
+        for family, name in ((socket.AF_INET, "tcp"), (socket.AF_INET6, "tcp6")):
+            path = Path("/proc/%s/net/%s" % (pid, name))
+            if not path.exists() and family == socket.AF_INET6:
+                continue
+            for line in path.read_text().splitlines()[1:]:
+                fields = line.split()
+                if fields[3] != "0A" or "socket:[" + fields[9] + "]" not in owned:
+                    continue
+                raw, port = fields[1].split(":")
+                data = bytes.fromhex(raw)
+                data = data[::-1] if family == socket.AF_INET else b"".join(data[n:n+4][::-1] for n in range(0, 16, 4))
+                result.add((socket.inet_ntop(family, data), int(port, 16)))
+        return sorted([list(item) for item in result])
+
+    def legacy_process(self):
+        values = dict(line.split("=", 1) for line in self.ctl(
+            "show", "smbd", "-p", "MainPID", "-p", "ControlGroup", "-p", "UnitFileState").splitlines() if "=" in line)
+        pid = int(values.get("MainPID") or 0)
+        if not pid:
+            return None
+        proc = Path("/proc/%s" % pid)
+        if (proc / "exe").resolve() != Path("/usr/sbin/smbd").resolve():
+            raise Rejected("SMB_LEGACY_PROCESS_UNCONFIRMED")
+        args = (proc / "cmdline").read_bytes().split(b"\0")
+        config = Path("/etc/samba/smb.conf")
+        for index, arg in enumerate(args):
+            if arg in (b"-s", b"--configfile") and index + 1 < len(args):
+                config = Path(os.fsdecode(args[index + 1]))
+            elif arg.startswith(b"--configfile="):
+                config = Path(os.fsdecode(arg.split(b"=", 1)[1]))
+        groups = {line.split(":", 2)[2] for line in (proc / "cgroup").read_text().splitlines()}
+        if config.resolve() != self.base.resolve() or not values.get("ControlGroup") or values["ControlGroup"] not in groups:
+            raise Rejected("SMB_LEGACY_CONFIGURATION_UNCONFIRMED")
+        start = (proc / "stat").read_text().rsplit(")", 1)[1].split()[19]
+        boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        return {"pid": pid, "start": start, "boot": boot, "unitState": values.get("UnitFileState", "")}
+
+    @staticmethod
+    def legacy_file(path):
+        import stat
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022 or info.st_size > 4 * 1024 * 1024:
+            raise Rejected("SMB_LEGACY_CONFIGURATION_UNCONFIRMED")
+        return {"sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "uid": info.st_uid,
+                "gid": info.st_gid, "mode": info.st_mode & 0o777}
+
+    def implicit_legacy(self, before, instance=None):
+        """Read-only proof of the existing implicit default; never fabricates endpoint rows."""
+        if self.namespace or self.manifest.exists() or self.normalized(before):
+            return None
+        process = self.legacy_process()
+        if process is None:
+            return None
+        persisted = load(self.desired, {})
+        identity = token(instance or before.get("instanceUuid"))
+        if (not before.get("enabled", True) or not persisted.get("enabled", True) or
+                persisted.get("instanceUuid") != identity or before.get("instanceUuid") != identity or
+                self.normalized(persisted)):
+            raise Rejected("SMB_LEGACY_IDENTITY_UNCONFIRMED")
+        base, desired = self.legacy_file(self.base), self.legacy_file(self.desired)
+        ports = checked(["testparm", "-s", "--parameter-name=smb ports", str(self.base)]).decode().split()
+        interfaces = checked(["testparm", "-s", "--parameter-name=interfaces", str(self.base)]).decode().strip()
+        bind = checked(["testparm", "-s", "--parameter-name=bind interfaces only", str(self.base)]).decode().strip().lower()
+        if len(ports) != 1 or not ports[0].isdigit() or interfaces or bind not in ("no", "false"):
+            raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+        port = int(ports[0])
+        sockets = self.legacy_sockets(process["pid"])
+        allowed = {("0.0.0.0", port), ("::", port)}
+        if ("0.0.0.0", port) not in map(tuple, sockets) or not set(map(tuple, sockets)).issubset(allowed):
+            raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+        return {"version": 1, "instanceUuid": identity, "mode": "IMPLICIT_LEGACY", "port": port,
+                "process": process, "base": base, "desired": desired, "sockets": sockets}
+
+    def verify_implicit_legacy(self, proof, allow_restart=False):
+        process = self.legacy_process()
+        expected = proof["process"]
+        if (process is None or process["boot"] != expected["boot"] or
+                not allow_restart and any(process[k] != expected[k] for k in ("pid", "start"))):
+            raise Rejected("SMB_LEGACY_PROCESS_CHANGED")
+        if process.get("unitState") != expected.get("unitState"):
+            raise Rejected("SMB_LEGACY_UNIT_STATE_CHANGED")
+        if self.legacy_file(self.base) != proof["base"] or self.legacy_file(self.desired) != proof["desired"]:
+            raise Rejected("SMB_LEGACY_BEFORE_IMAGE_CHANGED")
+        if self.legacy_sockets(process["pid"]) != proof["sockets"]:
+            raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
+        return process
+
+    def implicit_connections(self, proof):
+        ports = {int(item[1]) for item in proof["sockets"]}
+        count = 0
+        for name in ("tcp", "tcp6"):
+            path = Path("/proc/%s/net/%s" % (proof["process"]["pid"], name))
+            if path.exists():
+                count += sum(1 for line in path.read_text().splitlines()[1:]
+                             if line.split()[3] == "01" and int(line.split()[1].split(":")[1], 16) in ports)
+        return count
+
+    def restore_implicit_legacy(self, proof):
+        if self.legacy_file(self.base) != proof["base"] or self.legacy_file(self.desired) != proof["desired"]:
+            raise Rejected("SMB_LEGACY_BEFORE_IMAGE_CHANGED")
+        if self.legacy_process() is None:
+            self.ctl("start", "smbd")
+        if proof["process"].get("unitState") == "enabled":
+            self.ctl("enable", "smbd")
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline:
+            if self.legacy_process() is not None:
+                try:
+                    self.verify_implicit_legacy(proof, allow_restart=True)
+                    return
+                except Rejected as error:
+                    if error.code != "SMB_LEGACY_BINDING_UNCONFIRMED":
+                        raise
+            time.sleep(.1)
+        raise Rejected("SMB_LEGACY_BINDING_UNCONFIRMED")
 
     def bootstrap(self, value, before):
         state = load(self.manifest)
@@ -693,6 +836,14 @@ class SmbListenerProfiles:
         legacy_pid = 0 if self.namespace else int(self.ctl("show", "smbd", "-p", "MainPID", "--value") or 0)
         if legacy_pid:
             desired = load(self.desired, {})
+            implicit = self.implicit_legacy(before, value.get("instanceUuid")) if not previous else None
+            if implicit:
+                identity = str(uuid.uuid5(uuid.UUID(value["instanceUuid"]), "implicit-smbd"))
+                row = {"id": identity, "listenIp": "0.0.0.0", "port": implicit["port"],
+                       "key": identity + "-legacy", "kind": "legacy", "unit": "smbd.service",
+                       "implicitLegacy": implicit}
+                return {"schemaVersion": self.VERSION, "instanceUuid": value["instanceUuid"],
+                        "profiles": {row["key"]: row}, "implicitManifestAbsent": True}
             if len(previous) != 1 or desired.get("instanceUuid") != value.get("instanceUuid"):
                 raise Rejected("SMB_LEGACY_IDENTITY_UNCONFIRMED")
             row = {**previous[0], "key": previous[0]["id"] + "-legacy", "kind": "legacy", "unit": "smbd.service"}
@@ -772,6 +923,11 @@ class SmbListenerProfiles:
         desired = self.normalized(value)
         with self.locked():
             state = self.bootstrap(value, before)
+            if not desired and value.get("enabled", True):
+                legacy = next((p.get("implicitLegacy") for p in state["profiles"].values() if p.get("implicitLegacy")), None)
+                if legacy:
+                    self.verify_implicit_legacy(legacy)
+                    return {"success": True, "runtimeReady": True, "listeners": 0, "legacyUnchanged": True}
             pending = state.get("pending")
             if pending and (pending["operationid"] != operation or pending["hash"] != public_hash(value)):
                 raise Rejected("SMB_LISTENER_OPERATION_PENDING")
@@ -780,6 +936,21 @@ class SmbListenerProfiles:
                            "before": json.loads(json.dumps(state["profiles"])), "value": redact(value)}
                 state["pending"] = pending
             profiles = state["profiles"]
+            pending.setdefault("implicitManifestAbsent", state.get("implicitManifestAbsent", False))
+            for old in profiles.values():
+                proof = old.get("implicitLegacy")
+                if proof:
+                    captured = value.get("listenerImplicitBefore")
+                    if not captured or any(captured.get(k) != v for k, v in proof.items()):
+                        raise Rejected("SMB_LEGACY_BEFORE_IMAGE_CHANGED")
+                    if self.legacy_process() is not None:
+                        self.verify_implicit_legacy(proof)
+                        if self.implicit_connections(proof):
+                            raise Rejected("SMB_LEGACY_DRAIN_REQUIRED")
+                        if old["key"] not in pending.setdefault("stoppedImplicit", []):
+                            pending["stoppedImplicit"].append(old["key"])
+                        atomic_json(self.manifest, state)
+                        self.stop(old)
             pending.setdefault("beforeOwnedAliases", json.loads(json.dumps(state.get("ownedAliases", {}))))
             if original_network is not None:
                 self.remember_added_aliases(state, desired, original_network)
@@ -815,6 +986,30 @@ class SmbListenerProfiles:
         # Prove the original configuration and actual legacy listener read-only.
         import base64
         rows = self.normalized(value)
+        proof = snapshot.get("smbLegacy")
+        if proof:
+            self.verify_implicit_legacy(proof, allow_restart=proof.get("stopAllowed") is True)
+            return
+        if not rows and snapshot.get("smbLegacyBoot"):
+            for path in (self.base, self.desired):
+                image = snapshot["files"].get(str(path))
+                if not image:
+                    raise Rejected("SMB_LEGACY_BEFORE_IMAGE_UNAVAILABLE")
+                expected = {"sha256": hashlib.sha256(base64.b64decode(image["content"])).hexdigest(),
+                            "uid": image["uid"], "gid": image["gid"], "mode": image["mode"]}
+                if self.legacy_file(path) != expected:
+                    raise Rejected("SMB_LEGACY_BEFORE_IMAGE_CHANGED")
+            proof = self.implicit_legacy(value)
+            if proof:
+                process = proof["process"]
+                proc = Path("/proc/%s/stat" % process["pid"]).read_text().rsplit(")", 1)[1].split()
+                btime = int(next(line.split()[1] for line in Path("/proc/stat").read_text().splitlines() if line.startswith("btime ")))
+                birth = btime + int(proc[19]) / os.sysconf("SC_CLK_TCK")
+                epoch = snapshot.get("smbListeners", {}).get("observedEpoch", 0)
+                if process["boot"] != snapshot["smbLegacyBoot"] or not epoch or birth > epoch:
+                    raise Rejected("SMB_LEGACY_PROCESS_CHANGED")
+                self.verify_implicit_legacy(proof)
+                return
         if str(self.manifest) in snapshot["files"]:
             raise Rejected("SMB_PROFILE_BEFORE_IMAGE_MISSING")
         for path in (self.base, self.desired):
@@ -879,11 +1074,11 @@ class SmbListenerProfiles:
             self.release_owned_aliases(state, pending["value"])
             value = pending["value"]
             atomic_json(self.desired, {k: v for k, v in value.items()
-                                       if k not in ("configurationOperationId", "releaseAddresses")})
+                                       if k not in ("configurationOperationId", "releaseAddresses", "listenerImplicitBefore")})
             state.pop("pending")
             atomic_json(self.manifest, state)
 
-    def rollback(self, operation):
+    def rollback(self, operation, restore_before=None):
         with self.locked():
             state = load(self.manifest, {})
             pending = state.get("pending")
@@ -896,9 +1091,17 @@ class SmbListenerProfiles:
                 if key not in previous:
                     self.stop(row)
             state["profiles"] = previous
+            atomic_json(self.manifest, state)
+            if restore_before is not None:
+                restore_before()
+            for key in pending.get("stoppedImplicit", []):
+                self.restore_implicit_legacy(previous[key]["implicitLegacy"])
             state["ownedAliases"] = pending.get("beforeOwnedAliases", state.get("ownedAliases", {}))
             state.pop("pending")
-            atomic_json(self.manifest, state)
+            if pending.get("implicitManifestAbsent"):
+                self.manifest.unlink()
+            else:
+                atomic_json(self.manifest, state)
 
     def boot(self, value):
         state = load(self.manifest, {})
@@ -1401,7 +1604,22 @@ class RuntimeAdapter:
             except KeyError:
                 snapshot["groups"][group] = None
         if self.listener_only(payload):
-            snapshot["smbListeners"] = SmbListenerProfiles().show()
+            listener = SmbListenerProfiles()
+            snapshot["smbListeners"] = listener.show()
+            legacy = listener.implicit_legacy(payload.get("before", {}).get("smb share apply", {}))
+            admission = payload.get("preflight", {})
+            if admission.get("smblistenerchange") and admission.get("expectedFingerprint"):
+                from configuration_preflight import fingerprint
+                observed = dict(admission)
+                if legacy:
+                    observed["smblegacyfingerprint"] = public_hash(legacy)
+                    observed["drainrequired"] = True
+                if fingerprint(observed) != admission["expectedFingerprint"]:
+                    raise Rejected("PREFLIGHT_IMPACT_CHANGED")
+            if legacy:
+                legacy["operationid"] = token(payload["operationid"])
+                legacy["stopAllowed"] = True
+                snapshot["smbLegacy"] = legacy
         snapshot["network"] = json.loads(checked(["ip", "-j", "-4", "addr", "show"]))
         snapshot["mounts"] = json.loads(checked(["findmnt", "-J", "-o", "TARGET,SOURCE,FSTYPE,OPTIONS"]))
         # The kernel snapshot contains attributes/links, never ordinary file copies into configfs.
@@ -1605,6 +1823,9 @@ class RuntimeAdapter:
                 value["configurationOperationId"] = saved["operationid"]
                 value["listenerBefore"] = saved.get("before", {}).get(operation, {})
                 value["listenerOriginalNetwork"] = load(self.snapshot_path, {}).get("network", [])
+                captured = load(self.snapshot_path, {}).get("smbLegacy")
+                if captured:
+                    value["listenerImplicitBefore"] = captured
             self.run(operation, value)
         payload = load(self.payload_path)
         if commands == payload["candidate"]:
@@ -1713,14 +1934,18 @@ class RuntimeAdapter:
                         if not path.is_file() or path.read_text().strip() != "1":
                             raise Rejected("NVME_NAMESPACE_NOT_READY")
 
-    def restore_files(self, snapshot):
+    def restore_files(self, snapshot, preserve=()):
         import base64
         payload = load(self.payload_path)
         current = self.file_paths(payload)
         for path in current:
+            if str(path) in preserve:
+                continue
             if str(path) not in snapshot["files"] and path.is_file() and not path.is_symlink():
                 path.unlink()
         for name, value in snapshot["files"].items():
+            if name in preserve:
+                continue
             path = Path(name); path.parent.mkdir(parents=True, exist_ok=True)
             fd, temporary = tempfile.mkstemp(prefix=".configuration-", dir=path.parent)
             try:
@@ -1757,7 +1982,9 @@ class RuntimeAdapter:
             self.restore_posix_only(payload, snapshot)
             return
         if self.listener_only(payload):
-            SmbListenerProfiles().rollback(payload["operationid"])
+            listener = SmbListenerProfiles()
+            listener.rollback(payload["operationid"],
+                              lambda: self.restore_files(snapshot, (str(listener.manifest),)))
             self.restore_files(snapshot)
             self.restore_network(snapshot, payload)
             return
@@ -2034,6 +2261,8 @@ class RuntimeAdapter:
             return
         profiles = SmbListenerProfiles() if self.listener_only(payload) else None
         if profiles is not None and not profiles.manifest.exists():
+            if "smbLegacy" not in snapshot:
+                snapshot = {**snapshot, "smbLegacyBoot": load(self.child_path, {}).get("boot")}
             profiles.verify_legacy_restored(payload["before"].get("smb share apply", {}), snapshot)
         else:
             self.verify(payload["before"])
