@@ -1,10 +1,10 @@
-# #1461 SharedFS 삭제 시 DATA 보존·분리 정책 — 코드 수준 설계안
+# #1461 SharedFS 삭제 시 DATA 보존·분리 정책 — 코드 수준 설계
 
-**2026-11-05 / 설계만 / 구현·제품 빌드·배포0 / OPEN·인수0/4.**
+**2026-11-05 / 설계 완료 / 제품 구현·제품 빌드·배포0 / OPEN·인수0/4.**
 
 상위 Epic #1438, 기존 작업 브랜치 epic/1438-sharedfs. 설계 기준 HEAD **689ba57c24dac23acf74928156c7658281aef709**, 로컬/upstream Europa **413d1459682b6f4dea6c90773510b8342dba1ec2**, divergence0/0. Windows checkout은 수정하지 않았다.
 
-현재 브라우저 도구가 Work에서 비활성화됐고 사용자가 **앱 재실행이 필요함**을 확인했다. 따라서 이번 기록은 코드·배포본 검토와 실제 SystemVM 사전 실증 및 빌드한 Vue3 목업 소스까지다. **오늘 실제 UI의 현재 삭제 대화상자·VM 표준 화면 검토와 라이트/다크 목업 이미지 캡처는 미완료다.** 앱 재실행 후 이 두 항목을 보완하기 전까지 설계 완료로 판정하지 않는다. 과거 UI 사진을 오늘의 검토 근거로 대체하지 않는다.
+2026-11-05 앱 재실행 후 브라우저 제어가 정상화돼 실제 UI의 현재 파기 대화상자(A), 컴퓨트 > 가상머신의 목록·Breadcrumb·상세·탭·대화상자(S), 개선 목업의 라이트·다크(B)를 검토·캡처했다. [UI 검토 원문](evidence/ui-review.json)의 9개 점검을 통과했다. **설계 완료 / 제품 구현 미착수·배포0·인수0/4·OPEN.** 사용자가 이전 구현 지시를 취소했으므로 제품 구현을 시작하지 않는다. 과거 화면이나 목업을 실제 제품 인수로 대체하지 않는다.
 
 ## 1. 범위와 목표
 
@@ -179,11 +179,11 @@ provider 지원·API권한은 새 제거 capability를 실제 endpoint별로 노
 
 [실행 가능한 Vue3/AntD/Mold 목업](mockup/README.md), [App.vue](mockup/App.vue).
 
-**A 현재 UI:** 소스에서 현재 destroy/expunge의 자동 대화상자 계약을 확인했다. 오늘 실제 브라우저 캡처는 차단돼 미완료. 과거 사진이나 B를 A라고 표시하지 않는다.
+**A 현재 UI:** 현재 13번 실제 SharedFS 파기 대화상자·목록·정보 상세를 검토·캡처했다. 최종 삭제는 제출하지 않았다. 이미지와 구체적 차이는 8절을 따른다.
 
-**S VM 표준:** 실제 코드의 AutogenView, Breadcrumb, ResourceLayout, DestroyVM, MoldDialog를 기준으로 대조했다. 오늘 실제 컴퓨트 > 가상머신 화면 검토는 앱 재실행 뒤 필요하다.
+**S VM 표준:** 실제 컴퓨트 > 가상머신의 목록·Breadcrumb·상세·세로 탭·볼륨 탭·삭제 대화상자를 현재13번에서 검토했다. AutogenView/Breadcrumb/ResourceLayout/DestroyVM/MoldDialog 소스와 대조했다.
 
-**B 개선 목업:** 실제 ui/node_modules의 Vue3·Ant Design Vue와 repo의 Breadcrumb/ResourceLayout/MoldDialog/style/index.less를 import한다. API 호출·실제 삭제 코드는 없다. 예시 데이터는 실제 자원 상태와 명확히 구분한다. 로컬 목업 webpack build만 PASS했고 제품 UI를 빌드/배포한 것은 아니다. **이미지 첨부·시각 검수는 아직 미완료.**
+**B 개선 목업:** 실제 ui/node_modules의 Vue3·Ant Design Vue와 repo의 Breadcrumb/ResourceLayout/MoldDialog/style/index.less를 import한다. API 호출·실제 삭제 코드는 없다. 예시 데이터는 실제 자원 상태와 명확히 구분한다. 로컬 목업 webpack build만 PASS했고 제품 UI를 빌드/배포한 것은 아니다. **라이트·다크 이미지와 시각 검수를 완료했다(8절).**
 
 - Breadcrumb/목록/InfoCard+상세 프레임/세로 탭/탭 콘텐츠는 VM 표준을 유지한다. 상세는 정보 전용, 작업은 작업 메뉴·대화상자·작업 내역으로 분리한다.
 - 기본은 모든DATA보존. ROOT는 별도 고정 행. 삭제 선택은 row별 target UUID에 연결하고 공유·삭제 보호 볼륨의 선택은 비활성화한다.
@@ -191,8 +191,8 @@ provider 지원·API권한은 새 제거 capability를 실제 endpoint별로 노
 - 주요 버튼은 좌측 작업군의 파란 primary, 업데이트는 Reload 아이콘+업데이트다. 불필요한 탭 중복 제목과 전체 UI 정리를 추가하지 않는다.
 - 제거 대화상자 MoldDialog size=xl. 제목 헤더와 취소/확인 푸터는 고정, 영향 목록·폼만 본문 스크롤. 파란 최종 확인 버튼과 별도의 데이터 손실 경고·정확한 이름 확인을 사용한다.
 - 기존 AntD/UI CSS token만 사용하고 버튼8px/섹션16px 간격을 유지한다. 상태는 글자로 구분하고 색만으로 판정하지 않는다.
-- 앱 재실행 후 라이트/다크의 본문·경고·비활성 선택·긴 UUID·좁은 창과 fixed header/footer 위치를 실제 렌더로 검수한다. 미완료 검수를 통과했다고 쓰지 않는다.
-- 목업용 별도 PR은 생성하지 않는다. 설계 문서/목업만 기존 Epic 브랜치에서 공유하고 이미지 확보 후 이슈에 연결한다. 최종 UI 정리 #1468은 HOLD다.
+- 라이트/다크 본문·경고·비활성 선택·긴 UUID와1366×720의 고정 header/footer·본문 스크롤을 실제 렌더로 검수했다. 8절 원문 수치를 따른다.
+- 목업용 별도 PR은 생성하지 않는다. 설계 문서/목업만 기존 Epic 브랜치에서 공유하고 검토한 이미지들을 이슈에 연결한다. 최종 UI 정리 #1468은 HOLD다.
 
 ## 7. 구현 승인 후 검증 계획 — 아직 수행하지 않음
 
@@ -207,9 +207,74 @@ provider 지원·API권한은 새 제거 capability를 실제 endpoint별로 노
 9. **실제 UI/다크:** 현재 A/VM S/개선 B 대조, 라이트·다크/긴목록·본문만스크롤·중복확인·서버원인 전달. 제품 코드 오류는 원인 분석 후 중단, 시험 실수는 자체교정.
 10. 모두 통과한 후에만 #1461 완료 기록→Epic PR 코드반영→이슈종료. 이번은 설계안 기록이며 이슈를 닫지 않는다.
 
-## 8. 재개할 정확한 위치
+## 8. 설계 완료 기록과 구현 경계
 
-1. 앱 재실행 후 브라우저 제어 활성 여부 확인.
-2. 실제 13번 SharedFS 삭제 대화상자(최종 제출하지 않음)와 VM 표준 화면을 열어 A/S 기록.
-3. 빌드된 목업을 local server에서 열어 B 보존/선택삭제/부분실패·목록/상세/작업내역을 라이트/다크로 캡처·본문스크롤 검수.
-4. 설계와 목업을 이슈에 보완한 뒤 **설계 완료** 보고. 그 전/후 모두 제품 구현은 별도 지시 전 시작하지 않는다.
+이전 미완료였던 실제 UI/VM 표준 검토와 라이트·다크 목업 캡처를 모두 보완했다. 실제 서비스/클라이언트는 정상 상태를 유지했고 삭제·정지·생성·볼륨 변경 최종 요청은 제출하지 않았다. 사용자가 **구현 진행 명령을 취소**했으므로 이 문서의 코드·스키마·제품 UI 변경은 모두 향후 구현 설계다. 인수 체크4개는 그대로 미완료다.
+
+### 8.1 A 현재 UI / S 표준 / B 개선안을 구분
+
+| 구분 | 현재 확인한 내용 | 이미지 |
+|---|---|---|
+| A 현재 SharedFS | 실제13번 cb889aa9… Ready, 파기 폼에 영구삭제·강제만 있음. DATA 보존 선택/영향 목록 없음. 경고는 모든 데이터 삭제라고 표시 | [현재 파기 폼](images/A-current-destroy-light.jpg), [현재 상세](images/A-current-details-light.jpg), [현재 목록](images/A-sharedfs-list-light.jpg) |
+| S 실제 VM 표준 | 실제13번 C1 a8697776…의 목록·Breadcrumb/작업 메뉴·왼쪽정보/세로탭·정보상세·볼륨탭·삭제 대화상자를 검토. 현재 삭제 폼의 영구삭제 기본off 유지 | [목록](images/S-vm-list-light.jpg), [상세](images/S-vm-details-light.jpg), [탭 라이트](images/S-vm-tab-light.jpg), [탭 다크](images/S-vm-tab-dark.jpg), [대화상자](images/S-vm-destroy-light.jpg) |
+| B 개선 목업 | 실제 Vue3/AntD·Mold 컴포넌트/레이아웃·theme token. 기본보존·선택삭제·부분실패, 목록/정보상세/작업내역. 예시 데이터/API연결0 | 아래 라이트·다크 이미지 |
+
+A의 “모든 데이터 삭제” 경고는 현재 소스에서 확인한 기본 DATA 별도삭제/추가 DATA 분리 구조와도 구분해야 한다. 개선 UI는 영구 제거 시 ROOT·DATA 각각의 승인 정책과 실제 단계 결과를 표시한다. 삭제 성공을 새로 재현한 사진이 아니다.
+
+### 8.2 검토 후 목업 보완
+
+- **즉시 영구 제거 기본off**로 현재 API/VM 표준의 파기·복구 의미를 유지했다.
+- DATA 기본보존. DELETE_SELECTED 모드로 바꿔도 **초기 선택0**이며 사용자가 각 UUID 행에서 직접 선택해야 한다.
+- 모든 볼륨 이름 아래 예시 UUID를 표시하고 ROOT/기본/추가/파일/블록·소유/참조/삭제 보호를 구분했다.
+- 선택 삭제의 안내 문구가 보존 성공을 암시하지 않도록 변경하고 데이터 손실 경고를 별도로 표시했다.
+- 재진입 시 이전 선택·이름·중단/손실 확인을 초기화한다. 단순히 모달을 다시 열어 이전 확인으로 제출되지 않는다.
+- 정보 상세는 실제 VM처럼 **라벨 위·값 아래** 행 배치로 맞췄다. 상세 탭에 작업 섹션을 넣지 않는다.
+- 주요 버튼은 파란 primary이며, 업데이트는 Reload 아이콘+업데이트다. 탭 중복 타이틀이나 다른 이슈의 UI 정리는 추가하지 않았다.
+
+### 8.3 시각·동작 확인 결과
+
+[기계 판독 점검 결과/크기/색상](evidence/ui-review.json)
+
+- 목업 점검 **9개 PASS**: 기본값/확인disabled, light/dark 본문스크롤·고정영역, 보호/공유DATA 선택disabled, 선택/정확한이름/중단/손실확인 필요, 재진입 초기화, 다크 primary 파란색, 실제 VM 표준 검토, 화면·진단 캡처.
+- 1366×720 실제 렌더: 본문 clientHeight **534** / scrollHeight **1043**, scrollTop **0→509**. 라이트·다크 모두 header **y33/height55**, footer **y622/height65**가 동일했다. 제목과 확인/취소 버튼은 화면 안에 고정되고 본문만 스크롤한다.
+- 본문 라이트 **rgb(31,41,55)/흰 배경**, 다크 **rgb(240,243,246)/rgb(34,40,47)**. 정상 입력·긴UUID·경고·결과 행을 실제 이미지로 검토했다. 비활성 삭제 선택은 이유를 별도 태그/문구로 표시한다.
+- 다크의 확인 완료 primary **rgb(9,105,218)/흰색**을 확인했다. 비활성 버튼이 회색인 것은 미확인 보호 상태로 구분했다.
+- 목업의 browser console error0. 제품 API를 호출하지 않으며 확인 버튼을 통해 실제 제거 작업을 실행하지 않았다.
+- 임시 화면 크기와 실제 서비스의 브라우저 테마를 원래대로 복구했다. 자원 구성/권한 변경0. 실제 VM 볼륨 탭의 로딩 중 임시 경고는 조회 완료 후 해소된 화면으로 교체해 캡처했다.
+
+**설계 실증 범위는 앞선 실제 SystemVM19검사 + 이번 실제 UI/목업 검토다.** DAO·선택삭제·재연결·네 프로토콜 E2E 인수를 수행한 것으로 확대하지 않는다. 제품 구현/제품 모듈 빌드/13번 배포/이슈 종료0, #1468 HOLD 유지.
+
+### 8.4 이미지
+
+A 현재 문제 화면:
+
+![A 실제 SharedFS 파기 폼](images/A-current-destroy-light.jpg)
+
+S 실제 가상머신 표준:
+
+![S 실제 가상머신 상세](images/S-vm-details-light.jpg)
+
+B 기본 보존·라이트/다크:
+
+![B 기본 보존 라이트](images/B-preserve-light.jpg)
+![B 기본 보존 다크](images/B-preserve-dark.jpg)
+
+B 선택 삭제·고정 푸터·본문 스크롤:
+
+![B 선택 삭제 라이트](images/B-selected-light.jpg)
+![B 선택 삭제 다크](images/B-selected-dark.jpg)
+![B 선택 삭제 최종 확인 다크](images/B-selected-dark-confirm.jpg)
+![B 보존 본문 스크롤 다크](images/B-preserve-dark-scroll.jpg)
+
+B 부분 실패·최초 오류·볼륨별 결과:
+
+![B 부분 실패 라이트](images/B-failed-light.jpg)
+![B 부분 실패 다크](images/B-failed-dark.jpg)
+
+B VM 표준 목록·정보 상세·작업 내역:
+
+![B 목록 다크](images/B-list-dark.jpg)
+![B 정보 상세 다크](images/B-details-dark.jpg)
+![B 작업 내역 다크](images/B-operations-dark.jpg)
+
+별도 목업 PR은 만들지 않는다. 설계 문서/이미지만 기존 Epic 브랜치에 기록하고 #1461 이슈에서 확인하도록 연결한다. 이슈는 제품 인수가 남아 OPEN으로 유지한다.

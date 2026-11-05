@@ -1,0 +1,287 @@
+{
+  "scope": "design only; no product execution",
+  "actual": {
+    "sharedfs": "cb889aa9-aae8-441f-8091-3e3b803e5a4b",
+    "vm": "a8697776-c010-4b64-bc8e-2175b9c6a3b3",
+    "destroySubmitted": false
+  },
+  "checks": [
+    {
+      "name": "default preserve / expunge off / confirmation disabled",
+      "pass": true,
+      "controls": [
+        {
+          "checked": true,
+          "value": "PRESERVE"
+        },
+        {
+          "checked": false,
+          "value": "DELETE_SELECTED"
+        },
+        {
+          "checked": false,
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "light fixed header/footer with body scroll",
+      "pass": true
+    },
+    {
+      "name": "dark fixed header/footer with body scroll",
+      "pass": true
+    },
+    {
+      "name": "protected/shared DATA selection disabled",
+      "pass": true
+    },
+    {
+      "name": "selected delete requires explicit selection, resource name, stop acknowledgement and loss acknowledgement",
+      "pass": true
+    },
+    {
+      "name": "reentry clears confirmations and selected volumes",
+      "pass": true
+    },
+    {
+      "name": "confirmed primary action remains blue in dark mode",
+      "pass": true,
+      "style": {
+        "background": "rgb(9, 105, 218)",
+        "color": "rgb(255, 255, 255)",
+        "disabled": false
+      }
+    },
+    {
+      "name": "actual VM standard reviewed: list, breadcrumb, details, vertical tab content, dialog",
+      "pass": true
+    },
+    {
+      "name": "light/dark preserve, selected delete, failure diagnostic and info-only detail captured",
+      "pass": true
+    }
+  ],
+  "light": {
+    "before": {
+      "background": "rgb(255, 255, 255)",
+      "body": {
+        "clientHeight": 534,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 1043,
+        "scrollTop": 0,
+        "width": 1118,
+        "x": 124,
+        "y": 88
+      },
+      "footer": {
+        "height": 65,
+        "width": 1118,
+        "x": 124,
+        "y": 622
+      },
+      "header": {
+        "height": 55,
+        "width": 1118,
+        "x": 124,
+        "y": 33
+      },
+      "textColor": "rgb(31, 41, 55)",
+      "viewport": {
+        "height": 720,
+        "width": 1366
+      }
+    },
+    "after": {
+      "background": "rgb(255, 255, 255)",
+      "body": {
+        "clientHeight": 534,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 1043,
+        "scrollTop": 509,
+        "width": 1118,
+        "x": 124,
+        "y": 88
+      },
+      "footer": {
+        "height": 65,
+        "width": 1118,
+        "x": 124,
+        "y": 622
+      },
+      "header": {
+        "height": 55,
+        "width": 1118,
+        "x": 124,
+        "y": 33
+      },
+      "textColor": "rgb(31, 41, 55)",
+      "viewport": {
+        "height": 720,
+        "width": 1366
+      }
+    }
+  },
+  "dark": {
+    "before": {
+      "background": "rgb(34, 40, 47)",
+      "body": {
+        "clientHeight": 534,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 1043,
+        "scrollTop": 0,
+        "width": 1118,
+        "x": 124,
+        "y": 88
+      },
+      "footer": {
+        "height": 65,
+        "width": 1118,
+        "x": 124,
+        "y": 622
+      },
+      "header": {
+        "height": 55,
+        "width": 1118,
+        "x": 124,
+        "y": 33
+      },
+      "textColor": "rgb(240, 243, 246)",
+      "viewport": {
+        "height": 720,
+        "width": 1366
+      }
+    },
+    "after": {
+      "background": "rgb(34, 40, 47)",
+      "body": {
+        "clientHeight": 534,
+        "height": 534,
+        "overflow": "auto",
+        "scrollHeight": 1043,
+        "scrollTop": 509,
+        "width": 1118,
+        "x": 124,
+        "y": 88
+      },
+      "footer": {
+        "height": 65,
+        "width": 1118,
+        "x": 124,
+        "y": 622
+      },
+      "header": {
+        "height": 55,
+        "width": 1118,
+        "x": 124,
+        "y": 33
+      },
+      "textColor": "rgb(240, 243, 246)",
+      "viewport": {
+        "height": 720,
+        "width": 1366
+      }
+    }
+  },
+  "actualThemeRestored": true,
+  "productCodeChanged": false,
+  "productDeployment": false,
+  "designOnly": true,
+  "imageDimensions": {
+    "A-current-destroy-light.jpg": [
+      1680,
+      897
+    ],
+    "A-current-details-light.jpg": [
+      1680,
+      897
+    ],
+    "A-sharedfs-list-light.jpg": [
+      1680,
+      897
+    ],
+    "B-details-dark.jpg": [
+      1356,
+      715
+    ],
+    "B-details-light.jpg": [
+      1356,
+      715
+    ],
+    "B-failed-dark.jpg": [
+      1366,
+      720
+    ],
+    "B-failed-light.jpg": [
+      1366,
+      720
+    ],
+    "B-list-dark.jpg": [
+      1366,
+      720
+    ],
+    "B-list-light.jpg": [
+      1366,
+      720
+    ],
+    "B-operations-dark.jpg": [
+      1356,
+      715
+    ],
+    "B-preserve-dark-scroll.jpg": [
+      1366,
+      720
+    ],
+    "B-preserve-dark.jpg": [
+      1366,
+      720
+    ],
+    "B-preserve-light-scroll.jpg": [
+      1366,
+      720
+    ],
+    "B-preserve-light.jpg": [
+      1366,
+      720
+    ],
+    "B-selected-dark-confirm.jpg": [
+      1366,
+      720
+    ],
+    "B-selected-dark.jpg": [
+      1366,
+      720
+    ],
+    "B-selected-light-confirm.jpg": [
+      1366,
+      720
+    ],
+    "B-selected-light.jpg": [
+      1366,
+      720
+    ],
+    "S-vm-destroy-light.jpg": [
+      1680,
+      841
+    ],
+    "S-vm-details-light.jpg": [
+      1680,
+      841
+    ],
+    "S-vm-list-light.jpg": [
+      1680,
+      841
+    ],
+    "S-vm-tab-dark.jpg": [
+      1366,
+      720
+    ],
+    "S-vm-tab-light.jpg": [
+      1366,
+      720
+    ]
+  }
+}
