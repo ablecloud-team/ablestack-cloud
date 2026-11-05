@@ -177,6 +177,23 @@ class EngineAndTransaction(unittest.TestCase):
                 outer.engine.private = self.private
                 outer.engine.journal = self.private / "nfs-client-policy.json"
                 return outer.engine
+            def path_bindings(self, restoring=False):
+                # Same filesystem observation seam as FakeEngine.directories().
+                # Keep real receipt ownership, persistence and verification logic.
+                bindings = FileSharePathBindings(journal=self.private / "pathbindings.json")
+                rows = outer.req["before"][policy.OP]["exports"]
+                records = {}
+                for row in rows:
+                    if not bindings.bound(row):
+                        continue
+                    config = row["config"]
+                    records[row["uuid"]] = {"resourceuuid": row["uuid"],
+                        "volumeuuid": Path(config["volumeMountPath"]).name,
+                        "relativepath": config["relativeSharePath"], "pathIdentity": config["pathIdentity"],
+                        "anchor": str(bindings.anchor(row["uuid"], config["pathIdentity"])), "protocol": "NFS"}
+                bindings.registered = lambda: {"version": 1, "records": copy.deepcopy(records)}
+                bindings.observe = lambda row: {"status": "VERIFIED"}
+                return bindings
         return Adapter(private)
 
     def test_real_transaction_partial_failure_compensates_and_preserves_original(self):
@@ -313,6 +330,82 @@ class EngineAndTransaction(unittest.TestCase):
         self.assertEqual("NFS_CLIENT_POLICY", result["originalfailure"]["detail"]["stage"])
         self.assertEqual(before, path.read_bytes())
         self.assertEqual([], self.engine.calls)
+
+
+    def test_explicit_verified_resume_revalidates_missing_receipt_without_reapply(self):
+        transaction = tx.Transaction(self.root / "transactions", self.adapter)
+        result = transaction.execute("apply", self.req)
+        self.assertEqual("VERIFIED",result["state"])
+        calls = list(self.engine.calls)
+        private = self.root / "transactions" / self.req["instanceUuid"] / self.req["operationid"]
+        (private / "pathbindings.json").unlink()
+        result = transaction.execute("resume", self.req)
+        self.assertEqual("VERIFIED",result["state"])
+        self.assertEqual(self.req["operationid"],result["pathbindings"]["operationid"])
+        self.assertEqual(calls,self.engine.calls)
+
+
+class ExistingBindingReceipts(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+        self.engine = FileSharePathBindings(managed=self.base / "volumes", root=self.base / "bindings",
+                                           journal=self.base / "private/receipt.json")
+        self.value = {"instanceUuid": str(uuid.uuid4()), "operationid": str(uuid.uuid4())}
+        identity = {"filesystemUuid": str(uuid.uuid4()), "volumeRootInode": 128, "inode": 456}
+        volume = str(uuid.uuid4())
+        self.row = {"uuid": str(uuid.uuid4()), "state": "Ready", "config": {"pathBindingVersion": 1,
+            "relativeSharePath": "export/sibling", "volumeMountPath": str(self.engine.managed / volume), "pathIdentity": identity}}
+        self.entry = {"resourceuuid": self.row["uuid"], "volumeuuid": volume, "relativepath": "export/sibling",
+            "pathIdentity": identity, "anchor": str(self.engine.anchor(self.row["uuid"], identity)), "protocol": "NFS"}
+        self.registry = {"version": 1, "records": {self.row["uuid"]: self.entry}}
+        self.commands = {"nfs export apply": {"exports": [self.row]}}
+        self.registered = patch.object(self.engine, "registered", side_effect=lambda: copy.deepcopy(self.registry))
+        self.observed = patch.object(self.engine, "observe", return_value={"status": "VERIFIED"})
+        self.registered.start(); self.observed.start()
+        self.addCleanup(self.registered.stop); self.addCleanup(self.observed.stop)
+
+    def test_existing_receipt_preserves_registry_and_uses_current_operation(self):
+        before = copy.deepcopy(self.registry)
+        with patch.object(self.engine, "ensure", side_effect=AssertionError("must not repin")):
+            receipt = self.engine.retain_existing(self.value, self.commands)
+            self.assertEqual(receipt, self.engine.retain_existing(self.value, self.commands))
+        self.assertEqual(before, self.registry)
+        self.assertEqual(self.value["operationid"], receipt["operationid"])
+        self.assertEqual(self.value["instanceUuid"], receipt["instanceUuid"])
+        self.assertTrue(receipt["existingOnly"])
+        self.assertEqual({k:v for k,v in self.entry.items() if k not in ("anchor", "protocol")}, receipt["bindings"][self.row["uuid"]])
+
+    def test_all_active_bound_rows_are_covered_but_legacy_and_disabled_are_not(self):
+        second = copy.deepcopy(self.row);second["uuid"] = str(uuid.uuid4())
+        entry = copy.deepcopy(self.entry);entry["resourceuuid"] = second["uuid"]
+        entry["anchor"] = str(self.engine.anchor(second["uuid"], entry["pathIdentity"]))
+        self.registry["records"][second["uuid"]] = entry
+        self.commands["nfs export apply"]["exports"] += [second, {"uuid":"legacy", "config":{}}, {**second,"uuid":"disabled","state":"Disabled"}]
+        receipt = self.engine.retain_existing(self.value,self.commands)
+        self.assertEqual({self.row["uuid"],second["uuid"]},set(receipt["bindings"]))
+
+    def test_registration_identity_and_anchor_mismatches_remain_rejected(self):
+        original = copy.deepcopy(self.registry)
+        for key in ("resourceuuid","volumeuuid","relativepath","anchor","pathIdentity","protocol"):
+            self.registry = copy.deepcopy(original)
+            self.registry["records"][self.row["uuid"]][key] = "foreign"
+            with self.subTest(key=key), self.assertRaisesRegex(Exception,"DIRECTORY_BINDING_RECEIPT_MISMATCH"):
+                self.engine.retain_existing(self.value,self.commands)
+        self.assertFalse(self.engine.journal.exists())
+
+    def test_existing_receipt_operation_or_instance_cannot_be_reused(self):
+        self.engine.retain_existing(self.value,self.commands)
+        for key in ("operationid","instanceUuid"):
+            with self.subTest(key=key), self.assertRaisesRegex(Exception,"DIRECTORY_BINDING_RECEIPT_MISMATCH"):
+                self.engine.retain_existing({**self.value,key:str(uuid.uuid4())},self.commands)
+
+    def test_actual_observation_failure_is_not_hidden_by_registered_receipt(self):
+        with patch.object(self.engine,"observe",return_value={"status":"UNAVAILABLE","reason":"DIRECTORY_BINDING_IDENTITY_CHANGED"}):
+            with self.assertRaisesRegex(Exception,"DIRECTORY_BINDING_IDENTITY_CHANGED"):
+                self.engine.retain_existing(self.value,self.commands)
+        self.assertFalse(self.engine.journal.exists())
 
 
 class Observation(unittest.TestCase):

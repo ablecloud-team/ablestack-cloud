@@ -269,7 +269,9 @@ final class StorageServiceConfigurationCoordinator {
         JsonObject observation = rpc(instance, "configuration operation show", identity(op, instance));
         if (!matches(op, observation)) throw new CloudRuntimeException("Guest configuration identity is unconfirmed");
         String state = observation.has("state") ? observation.get("state").getAsString() : "UNKNOWN";
-        if (!Arrays.asList("VERIFIED", "COMMITTED", "ROLLED_BACK").contains(state))
+        if (!Arrays.asList("VERIFIED", "COMMITTED", "ROLLED_BACK").contains(state)
+                || "VERIFIED".equals(state) && observation.has("nfsClientPolicy"))
+            // Explicit NFS policy recovery revalidates existing bindings; it never reapplies the candidate.
             observation = rpc(instance, "configuration operation resume", identity(op, instance));
         if (!matches(op, observation)) throw new CloudRuntimeException("Guest configuration identity is unconfirmed");
         op.setGuestObservationJson(JSON.toJson(observation));

@@ -96,6 +96,9 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
                 assertNotNull(in);ddl=new String(in.readAllBytes(),StandardCharsets.UTF_8);
             }
             s.execute(ddl);s.execute(ddl);
+            int acl=schema.indexOf("CREATE TABLE IF NOT EXISTS "+quote+"cloud"+quote+"."+quote+"storage_access_rule"+quote);
+            assertTrue(acl>=0);s.execute(schema.substring(acl,schema.indexOf(';',acl)+1));
+            s.execute("DELETE FROM storage_access_rule");
             s.execute("DELETE FROM storage_directory_policy");
             s.execute("DELETE FROM storage_file_share");
             s.execute("DELETE FROM storage_service_configuration_operation");
@@ -556,5 +559,115 @@ public class StorageDirectoryPolicyCoordinatorDaoTest {
                 ()->{throw new AssertionError("duplicate source policy");},plan::set,()->{},null));
         assertEquals(1,operations.listByInstance(instance.getId()).size());
     }
+
+
+    /** Actual SystemVM response + actual SQL DAOs; RPC/request identities alone are remapped. */
+    private void nfsClientBindingRoundtrip(String invalid, boolean recover) throws Exception {
+        instance.setVmId(211L);instances.update(instance.getId(),instance);
+        JsonObject fixture;
+        try(java.io.InputStream in=getClass().getResourceAsStream("/storage-config/storage-1460-bound-client-verified.json")) {
+            assertNotNull(in);fixture=com.google.gson.JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        JsonObject nativeResponse=fixture.getAsJsonObject("response");
+        JsonObject before=fixture.getAsJsonObject("request").getAsJsonObject("before").getAsJsonObject("nfs export apply").deepCopy();
+        JsonObject after=fixture.getAsJsonObject("request").getAsJsonObject("candidate").getAsJsonObject("nfs export apply").deepCopy();
+        var rules=new org.apache.cloudstack.storage.dataservice.dao.StorageAccessRuleDaoImpl();
+        java.util.Map<String,Long> ids=new java.util.HashMap<>();
+        for(com.google.gson.JsonElement element:before.getAsJsonArray("exports")) {
+            JsonObject item=element.getAsJsonObject();
+            StorageFileShareVO row=new StorageFileShareVO(instance.getId(),StorageServiceInstance.Protocol.NFS,
+                    item.get("name").getAsString(),item.get("path").getAsString(),77L,"xfs",null,
+                    StorageServiceInstance.ResourceState.Ready,item.get("config").toString());
+            field(row,StorageFileShareVO.class,"uuid",item.get("uuid").getAsString());
+            row=shares.persist(row);ids.put(row.getUuid(),row.getId());
+        }
+        JsonObject oldRule=before.getAsJsonArray("exports").get(0).getAsJsonObject().getAsJsonArray("acls").get(0).getAsJsonObject();
+        StorageAccessRuleVO rule=new StorageAccessRuleVO(StorageServiceInstance.AccessResourceType.FILE_SHARE,
+                ids.get(before.getAsJsonArray("exports").get(0).getAsJsonObject().get("uuid").getAsString()),
+                StorageServiceInstance.PrincipalType.CIDR,oldRule.get("principal").getAsString(),
+                StorageServiceInstance.Permission.READ_WRITE,StorageServiceInstance.ResourceState.Ready,oldRule.get("config").toString());
+        field(rule,StorageAccessRuleVO.class,"uuid",oldRule.get("uuid").getAsString());rule=rules.persist(rule);
+        final long ruleId=rule.getId();
+        for(JsonObject payload:new JsonObject[]{before,after}) {
+            payload.addProperty("instanceId",instance.getId());payload.addProperty("instanceUuid",instance.getUuid());
+            payload.remove("configurationOperationId");payload.remove("posixIntent");
+            for(com.google.gson.JsonElement element:payload.getAsJsonArray("exports")) {
+                JsonObject row=element.getAsJsonObject();row.addProperty("id",ids.get(row.get("uuid").getAsString()));row.addProperty("volumeId",77);
+                for(com.google.gson.JsonElement acl:row.getAsJsonArray("acls"))acl.getAsJsonObject().addProperty("id",ruleId);
+            }
+        }
+        java.util.Map<Long,String> configs=new java.util.HashMap<>();
+        for(Long id:ids.values())configs.put(id,shares.findById(id).getConfigJson());
+        var preflight=mock(StorageServiceConfigurationPreflight.class);
+        JsonObject report=new JsonObject();report.addProperty("status","READY");report.addProperty("fingerprint","fixture");
+        report.add("checks",new com.google.gson.JsonArray());report.add("intent",new JsonObject());
+        JsonObject profile=new JsonObject();profile.addProperty("observationseconds",60);report.add("profile",profile);
+        org.mockito.Mockito.when(preflight.observe(any(),any(),any())).thenReturn(report);
+        var currentCoordinator=new StorageServiceConfigurationCoordinator(instances,operations,mock(StorageServiceProtocolDao.class),
+                shares,mock(StorageBlockTargetDao.class),rules,guest,preflight,mock(StorageServiceRuntimeUpgradeDao.class)).withDirectoryPolicies(policies);
+        var cmd=new org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsAclCmd();
+        field(cmd,cmd.getClass(),"id",ruleId);field(cmd,cmd.getClass(),"principal","10.10.254.250/32");
+        field(cmd,BaseStorageServiceConfigurationCmd.class,"expectedRevision",3L);
+        final int[] calls={0,0,0};final boolean[] good={invalid==null};
+        org.mockito.Mockito.when(guest.dispatch(any())).thenAnswer(invocation->{
+            StorageServiceGuestCommand request=invocation.getArgument(0);JsonObject result=new JsonObject();
+            if(request.getOperation().equals("configuration capability show")) {
+                for(String key:new String[]{"nfsPosixIntentVersion","configurationPreflightVersion","configurationTransactionVersion",
+                        "nestedFileSharePathVersion","nestedFileSharePathProtectionVersion"})result.addProperty(key,1);
+            } else {
+                JsonObject input=com.google.gson.JsonParser.parseString(request.getPayload()).getAsJsonObject();
+                result=nativeResponse.deepCopy();result.add("operationid",input.get("operationid"));
+                result.addProperty("instanceUuid",instance.getUuid());result.addProperty("baseRevision",3);result.addProperty("targetRevision",4);
+                result.getAsJsonObject("nfsClientPolicy").add("operationid",input.get("operationid"));
+                if(request.getOperation().equals("configuration operation resume")){calls[1]++;good[0]=true;}
+                JsonObject receipt=result.getAsJsonObject("pathbindings");receipt.add("operationid",input.get("operationid"));
+                receipt.addProperty("instanceUuid",instance.getUuid());
+                if(!good[0]) {
+                    if("missing".equals(invalid))result.remove("pathbindings");
+                    if("operation".equals(invalid))receipt.addProperty("operationid","foreign");
+                    if("volume".equals(invalid))receipt.getAsJsonArray("bindings").get(0).getAsJsonObject().addProperty("volumeuuid","foreign");
+                    if("inode".equals(invalid))receipt.getAsJsonArray("bindings").get(0).getAsJsonObject().getAsJsonObject("pathIdentity").addProperty("inode",99999);
+                }
+                if(request.getOperation().equals("configuration operation apply"))calls[0]++;
+                if(request.getOperation().equals("configuration operation commit")){calls[2]++;result.addProperty("state","COMMITTED");}
+            }
+            return new StorageServiceGuestCommandResult(true,"actual-systemvm-nfs-client-receipt",result.toString());
+        });
+        java.util.function.Supplier<JsonObject> candidate=()->{
+            var view=plan.get().dao(StorageAccessRuleDao.class);StorageAccessRuleVO updated=view.findById(ruleId);
+            JsonObject acl=after.getAsJsonArray("exports").get(0).getAsJsonObject().getAsJsonArray("acls").get(0).getAsJsonObject();
+            updated.setPrincipal(acl.get("principal").getAsString());updated.setConfigJson(acl.get("config").toString());view.update(ruleId,updated);
+            plan.get().commands.put("nfs export apply",after.deepCopy());
+            JsonObject response=new JsonObject();response.addProperty("id",updated.getUuid());return response;
+        };
+        if(invalid==null)currentCoordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,JsonObject.class,candidate,plan::set,
+                ()->plan.get().commands.put("nfs export apply",before.deepCopy()),null);
+        else {
+            try {currentCoordinator.execute(cmd,instance,StorageServiceInstance.Protocol.NFS,JsonObject.class,candidate,plan::set,
+                    ()->plan.get().commands.put("nfs export apply",before.deepCopy()),null);fail("bad bound receipt committed");}
+            catch(com.cloud.exception.InvalidParameterValueException expected){assertTrue(expected.getMessage().startsWith("DIRECTORY_"));}
+            assertEquals(oldRule.get("principal").getAsString(),rules.findById(ruleId).getPrincipal());
+            assertEquals(3,instances.findById(instance.getId()).getConfigurationRevision());
+            assertNotNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+            if(!recover)return;
+            currentCoordinator.resume(instances.findById(instance.getId()),operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId()),value->{});
+            assertEquals(1,calls[1]);
+        }
+        assertEquals("10.10.254.250/32",rules.findById(ruleId).getPrincipal());
+        for(Long id:ids.values())assertEquals(configs.get(id),shares.findById(id).getConfigJson());
+        var operation=operations.findByRequest(instance.getId(),cmd.getConfigurationRequestId());
+        assertEquals("COMMITTED",operation.getState());assertEquals(4,instances.findById(instance.getId()).getConfigurationRevision());
+        assertNull(instances.findById(instance.getId()).getActiveConfigurationOperationId());
+        currentCoordinator.execute(cmd,instances.findById(instance.getId()),StorageServiceInstance.Protocol.NFS,JsonObject.class,
+                ()->{throw new AssertionError("duplicate ACL reapplied");},plan::set,()->{},null);
+        assertEquals(1,calls[0]);assertEquals(1,calls[2]);
+        assertEquals(1,operations.listByInstance(instance.getId()).size());
+    }
+    @Test public void actualNfsClientReceiptCommitsLegacyAclAndBoundSiblingThroughRealDaos() throws Exception {nfsClientBindingRoundtrip(null,false);}
+    @Test public void actualNfsClientReceiptMissingStillBlocksSqlCommit() throws Exception {nfsClientBindingRoundtrip("missing",false);}
+    @Test public void actualNfsClientReceiptForeignOperationStillBlocksSqlCommit() throws Exception {nfsClientBindingRoundtrip("operation",false);}
+    @Test public void actualNfsClientReceiptWrongVolumeStillBlocksSqlCommit() throws Exception {nfsClientBindingRoundtrip("volume",false);}
+    @Test public void actualNfsClientReceiptWrongInodeStillBlocksSqlCommit() throws Exception {nfsClientBindingRoundtrip("inode",false);}
+    @Test public void actualNfsClientVerifiedRecoveryRevalidatesReceiptWithoutSecondApply() throws Exception {nfsClientBindingRoundtrip("missing",true);}
 
 }

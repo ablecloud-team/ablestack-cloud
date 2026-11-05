@@ -1539,6 +1539,35 @@ class FileSharePathBindings:
         except (PolicyError, OSError, ValueError) as error:
             return {"status": "UNAVAILABLE", "reason": getattr(error, "code", "DIRECTORY_OBSERVATION_UNAVAILABLE")}
 
+    def retain_existing(self, payload, commands):
+        """Receipt for existing verified bindings only; never creates or repins paths."""
+        registered = self.registered()
+        bindings = {}
+        for row in self.rows(commands):
+            config = row["config"]
+            entry = registered["records"].get(row["uuid"])
+            identity = config.get("pathIdentity")
+            if (not entry or not identity or entry.get("resourceuuid") != row["uuid"]
+                    or entry.get("volumeuuid") != Path(config["volumeMountPath"]).name
+                    or entry.get("relativepath") != relative_file_share_path(config["relativeSharePath"])
+                    or entry.get("pathIdentity") != identity
+                    or entry.get("anchor") != str(self.anchor(row["uuid"], identity))
+                    or entry.get("protocol") != "NFS"):
+                raise PolicyError("DIRECTORY_BINDING_RECEIPT_MISMATCH")
+            observed = self.observe(row)
+            if observed["status"] != "VERIFIED":
+                raise PolicyError(observed["reason"])
+            bindings[row["uuid"]] = {key: entry[key] for key in
+                ("resourceuuid", "volumeuuid", "relativepath", "pathIdentity")}
+        receipt = {"version": 1, "operationid": payload["operationid"],
+                   "instanceUuid": payload["instanceUuid"], "existingOnly": True, "bindings": bindings}
+        previous = self.journal_value()
+        if previous and previous != receipt:
+            raise PolicyError("DIRECTORY_BINDING_RECEIPT_MISMATCH")
+        if not previous:
+            self.write(self.journal, receipt)
+        return receipt
+
     def verify(self, commands):
         journal = self.journal_value()
         for row in self.rows(commands):

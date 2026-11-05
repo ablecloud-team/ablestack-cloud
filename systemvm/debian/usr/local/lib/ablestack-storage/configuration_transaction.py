@@ -344,6 +344,14 @@ class Transaction:
                     raise Rejected("UNKNOWN_OPERATION")
                 # Observe only known private material. Never replay a candidate with lost credentials.
                 if current.get("state") in TERMINAL or current.get("state") == "VERIFIED":
+                    if current.get("state") == "VERIFIED":
+                        adapter = self.adapter_factory(private)
+                        saved = load(adapter.payload_path, {})
+                        if adapter.nfs_client_policy_only(saved):
+                            # Explicit recovery revalidates the existing result, never reapplies it.
+                            adapter.verify(saved["candidate"])
+                            self.bindings_status(current, private)
+                            atomic_json(status_path, current)
                     return current
                 adapter = self.adapter_factory(private)
                 if adapter.is_running():
@@ -1120,7 +1128,11 @@ class RuntimeAdapter:
     def finalize_paths(self):
         payload = load(self.payload_path, {})
         if (self.private / "pathbindings.json").exists():
-            self.path_bindings().finalize(payload.get("candidate", {}))
+            if load(self.private / "pathbindings.json").get("existingOnly"):
+                snapshot = self.nfs_client_policy_snapshot()
+                self.path_bindings().retain_existing(payload, {"nfs export apply": snapshot["value"]})
+            else:
+                self.path_bindings().finalize(payload.get("candidate", {}))
 
     @staticmethod
     def smb_options_only(payload):
@@ -1309,7 +1321,9 @@ class RuntimeAdapter:
 
     def snapshot(self, payload):
         if self.nfs_client_policy_only(payload):
-            atomic_json(self.snapshot_path, {"nfsClientPolicy": self.nfs_client_policy_engine().snapshot(payload)})
+            snapshot = self.nfs_client_policy_engine().snapshot(payload)
+            self.path_bindings().retain_existing(payload, {"nfs export apply": snapshot["value"]})
+            atomic_json(self.snapshot_path, {"nfsClientPolicy": snapshot})
             return
         if self.smb_options_only(payload):
             atomic_json(self.snapshot_path, {"smbOptions": self.smb_options_engine(payload).snapshot(payload)})
@@ -1589,7 +1603,9 @@ class RuntimeAdapter:
 
     def verify(self, commands):
         if self.nfs_client_policy_only(load(self.payload_path, {})):
-            self.nfs_client_policy_engine().verify(self.nfs_client_policy_snapshot())
+            snapshot = self.nfs_client_policy_snapshot()
+            self.nfs_client_policy_engine().verify(snapshot)
+            self.path_bindings().retain_existing(load(self.payload_path), {"nfs export apply": snapshot["value"]})
             return
         if self.smb_options_only(load(self.payload_path, {})):
             self.smb_options_engine().verify(self.smb_options_snapshot())
