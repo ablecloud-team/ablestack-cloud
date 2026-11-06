@@ -2888,7 +2888,7 @@ PY
 volume_attach_inspect() {
   local payload_file="$1"
 
-  python3 - "$payload_file" <<'PY'
+  python3 - "$payload_file" "${2:-inspect}" <<'PY'
 import json
 import os
 import shutil
@@ -2903,6 +2903,19 @@ from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: 
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
+
+defer_directory = sys.argv[2] == "prepare-smb"
+if defer_directory:
+    import uuid
+    try:
+        operation_id = payload["configurationOperationId"]
+        volume_id = payload["volumeUuid"]
+        if str(uuid.UUID(operation_id)) != operation_id or str(uuid.UUID(volume_id)) != volume_id:
+            raise ValueError
+    except (KeyError, ValueError, TypeError, AttributeError):
+        raise SystemExit("SMB_DIRECTORY_PREPARATION_IDENTITY_REQUIRED")
+    if payload.get("protocol") != "SMB":
+        raise SystemExit("SMB_DIRECTORY_PREPARATION_IDENTITY_REQUIRED")
 
 preparation = None
 if payload.get("preparationOperationId"):
@@ -3042,6 +3055,11 @@ supported_filesystems = {"xfs", "ext4"}
 mount_path = config.get("volumeMountPath") or payload.get("mountPath") or f"/srv/ablestack-storage/volumes/{payload.get('volumeUuid') or payload.get('shareUuid')}"
 relative_share_path = str(config.get("relativeSharePath") or payload.get("path") or "").strip().strip("/")
 create_directory = bool(config.get("createDirectory", True))
+if defer_directory:
+    expected_mount = "/srv/ablestack-storage/volumes/" + volume_id
+    if mount_path != expected_mount or os.path.realpath(mount_path) != expected_mount:
+        raise SystemExit("SMB_DIRECTORY_PREPARATION_MOUNT_INVALID")
+
 share_uuid = str(payload.get("shareUuid") or payload.get("shareId") or payload.get("volumeUuid") or "unknown")
 managed_marker = f"ablestack-storage:{share_uuid}:backing"
 
@@ -3154,7 +3172,10 @@ def resolve_backing_path(volume_mount_path, relative_path, create_missing):
     if cleaned.startswith("export/") and cleaned.count("/") != 1:
         raise SystemExit(f"Storage Service share path must be a direct child of /export: /{cleaned}")
     root = os.path.realpath(volume_mount_path)
-    target = os.path.realpath(os.path.join(volume_mount_path, cleaned))
+    requested = os.path.join(volume_mount_path, cleaned)
+    target = os.path.realpath(requested)
+    if defer_directory and target != requested:
+        raise SystemExit("DIRECTORY_PATH_SYMLINK")
     if target != root and not target.startswith(root + os.sep):
         raise SystemExit(f"Backing volume relative share path escapes the mounted volume: {relative_path}")
     if os.path.exists(target) and not os.path.isdir(target):
@@ -3162,8 +3183,17 @@ def resolve_backing_path(volume_mount_path, relative_path, create_missing):
     if not os.path.exists(target):
         if not create_missing:
             raise SystemExit(f"Backing volume relative share path does not exist: {relative_path}")
-        os.makedirs(target, exist_ok=True)
+        if not defer_directory:
+            os.makedirs(target, exist_ok=True)
     return target
+
+if defer_directory:
+    mounted = run(["findmnt", "-J", "-M", mount_path, "-o", "SOURCE,UUID,FSROOT"])
+    observed = json.loads(mounted.stdout).get("filesystems", []) if mounted.returncode == 0 else []
+    if (len(observed) != 1 or observed[0].get("fsroot") != "/"
+            or os.path.realpath(observed[0].get("source") or "") != os.path.realpath(device)
+            or not fs_uuid or observed[0].get("uuid") != fs_uuid):
+        raise SystemExit("SMB_DIRECTORY_PREPARATION_MOUNT_UNVERIFIED")
 
 directory_existed = os.path.isdir(os.path.join(mount_path, relative_share_path.strip("/")))
 backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
@@ -3187,7 +3217,8 @@ print(json.dumps({
     "mountPath": mount_path,
     "volumeMountPath": mount_path,
     "relativeSharePath": relative_share_path,
-    "directoryCreated": not directory_existed,
+    "directoryCreated": not defer_directory and not directory_existed,
+    **({"directoryManagedByApply": True} if defer_directory else {}),
     "configurationOperationId": payload.get("configurationOperationId"),
     "backingPath": backing_path,
     "persistentMount": import_mode != "INSPECT_ONLY",
@@ -6945,13 +6976,13 @@ case "$command" in
         exit 2
       fi
       python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/volume_preparation.py" "$action" "$payload"
-    elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
+    elif [[ "$subcommand" == "attach" && "$action" =~ ^(inspect|prepare-smb)$ ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."
         exit 2
       fi
       log_command "$command $subcommand $action" "$payload"
-      volume_attach_inspect "$payload"
+      volume_attach_inspect "$payload" "$action"
     elif [[ "$subcommand" == "detach" && "$action" == "prepare" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume detach prepare."

@@ -3673,7 +3673,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void inspectAttachedFileShareVolume(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
             final VolumeVO volume, final String importMode) {
         final JsonObject payload = createFileShareVolumePayload(instance, share, volume);
-        if (configurationPlan.get() != null) payload.addProperty("configurationOperationId", configurationPlan.get().operationUuid);
+        final StorageServiceConfigurationPlan plan = configurationPlan.get();
+        final boolean deferDirectory = plan != null && share.getProtocol() == StorageServiceInstance.Protocol.SMB;
+        if (plan != null) {
+            payload.addProperty("configurationOperationId", plan.operationUuid);
+        }
         payload.addProperty("importMode", StringUtils.defaultIfBlank(importMode, "MOUNT_EXISTING").toUpperCase());
         SharedFSVO importedFs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
         org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext imported =
@@ -3688,12 +3692,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             backingConfig.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         }
         final StorageServiceGuestCommandResult result = dispatchStorageGuest(new StorageServiceGuestCommand(instance.getVmId(),
-                "volume attach inspect", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+                deferDirectory ? "volume attach prepare-smb" : "volume attach inspect", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
         if (!result.isSuccess()) {
             throw new CloudRuntimeException("Failed to inspect attached Storage Service volume: " + result.getDetails());
         }
         final JsonObject resultJson = parseJsonObject(result.getResultJson());
         final String observedVolumeUuid = getJsonString(resultJson, "volumeUuid");
+        if (deferDirectory && (!Boolean.TRUE.equals(getJsonBoolean(resultJson, "directoryManagedByApply"))
+                || !Boolean.FALSE.equals(getJsonBoolean(resultJson, "directoryCreated"))
+                || !Objects.equals(plan.operationUuid, getJsonString(resultJson, "configurationOperationId"))
+                || !volume.getUuid().equals(observedVolumeUuid)
+                || StringUtils.isBlank(getJsonString(resultJson, "filesystemUuid")))) {
+            throw new CloudRuntimeException("SMB_DIRECTORY_PREPARATION_RECEIPT_INVALID");
+        }
         if (StringUtils.isNotBlank(observedVolumeUuid)
                 && !normalizeVolumeIdentity(volume.getUuid()).equals(normalizeVolumeIdentity(observedVolumeUuid))) {
             throw new CloudRuntimeException("Storage Service volume inspection returned a different backing volume identity");
