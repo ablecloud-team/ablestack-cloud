@@ -22,8 +22,16 @@ import org.apache.cloudstack.context.CallContext;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import java.util.Collections;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SnapshotPolicyScopeTest {
     @SuppressWarnings("unchecked")

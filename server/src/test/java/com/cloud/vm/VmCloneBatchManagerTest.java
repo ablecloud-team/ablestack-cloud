@@ -16,23 +16,46 @@
 // under the License.
 package com.cloud.vm;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.cloud.exception.*;
-import com.cloud.storage.*;
-import com.cloud.storage.dao.*;
-import com.cloud.user.*;
-import com.cloud.vm.dao.*;
+import com.cloud.exception.InvalidParameterValueException;
+import com.cloud.exception.PermissionDeniedException;
+import com.cloud.storage.Storage;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.user.AccountManager;
+import com.cloud.user.AccountVO;
+import com.cloud.user.UserVO;
+import com.cloud.vm.dao.UserVmDao;
+import com.cloud.vm.dao.VMInstanceDetailsDao;
+import com.cloud.vm.dao.VmCloneBatchDao;
 
 import org.apache.cloudstack.api.command.user.vm.CloneVMCmd;
 import org.apache.cloudstack.api.response.VmCloneBatchResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.framework.jobs.dao.AsyncJobDao;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class VmCloneBatchManagerTest {
     private VmCloneBatchManager manager;

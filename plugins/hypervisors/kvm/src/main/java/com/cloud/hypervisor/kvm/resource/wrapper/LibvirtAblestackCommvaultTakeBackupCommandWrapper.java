@@ -23,39 +23,24 @@ import com.cloud.agent.api.Answer;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
 import com.cloud.resource.CommandWrapper;
 import com.cloud.resource.ResourceWrapper;
-import com.cloud.utils.Pair;
-import org.apache.cloudstack.backup.BackupAnswer;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand;
-import org.apache.commons.lang3.StringUtils;
 
 @ResourceWrapper(handles = AblestackCommvaultTakeBackupCommand.class)
 public class LibvirtAblestackCommvaultTakeBackupCommandWrapper extends CommandWrapper<AblestackCommvaultTakeBackupCommand, Answer, LibvirtComputingResource> {
-    private static final String BACKUP_TRACE = "[ABLESTACK_COMMVAULT_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("commvault", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     @Override
     public Answer execute(AblestackCommvaultTakeBackupCommand command, LibvirtComputingResource libvirtComputingResource) {
-        logger.info("{} phase=[AGENT_ENTER], vm=[{}], backupPath=[{}], backupType=[{}]",
-                BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType());
         LibvirtAblestackCommvaultBackupHelper backupHelper = new LibvirtAblestackCommvaultBackupHelper(libvirtComputingResource);
-        Pair<Integer, String> result = backupHelper.executeBackup(command);
-
-        if (result.first() != 0) {
-            String failureDetails = StringUtils.defaultIfBlank(result.second(),
-                    "Commvault backup helper returned failure without details");
-            logger.warn("{} phase=[AGENT_FAILED], vm=[{}], backupPath=[{}], backupType=[{}], resultCode=[{}], reason=[{}]",
-                    BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType(), result.first(), failureDetails);
-            logger.warn("Failed to take VM backup for [{}]: {}", command.getVmName(), failureDetails);
-            BackupAnswer answer = new BackupAnswer(command, false, failureDetails);
-            if (result.first() == LibvirtAblestackCommvaultBackupHelper.EXIT_CLEANUP_FAILED) {
-                logger.debug("Backup cleanup failed");
-                answer.setNeedsCleanup(true);
-            }
-            return answer;
-        }
-
-        logger.info("{} phase=[AGENT_DONE], vm=[{}], backupPath=[{}], backupType=[{}]",
-                BACKUP_TRACE, command.getVmName(), command.getBackupPath(), command.getBackupType());
-        BackupAnswer answer = new BackupAnswer(command, true, "success");
-        return answer;
+        return LibvirtAblestackTakeBackupCommandHelper.execute(command, logger, BACKUP_TRACE, "Commvault",
+                new LibvirtAblestackTakeBackupCommandHelper.BackupCommandContext(command.getBackupJobId(), command.getVmName(),
+                        command.getBackupPath(), command.getBackupType(), command.isWaitForCompletion()),
+                () -> backupHelper.buildDetachedBackupScriptCommand(command),
+                () -> backupHelper.executeBackup(command),
+                LibvirtAblestackCommvaultBackupHelper.EXIT_CLEANUP_FAILED,
+                "Commvault backup helper returned failure without details",
+                false,
+                null);
     }
 }

@@ -298,6 +298,13 @@ describe('Components > Widgets > Status.vue', () => {
 })
 
 // VM snapshot transitions use the same translated processing badge as other lists.
+test.each([['en', 'Expired'], ['ko_KR', '만료 됨']])('expired recovery points show a translated warning in %s', (locale, label) => {
+  const messages = require('../../../../public/locales/' + locale + '.json')
+  const context = { text: 'Expired', displayText: true, $t: key => messages[key] || key }
+  expect(Status.methods.getText.call(context)).toBe(label)
+  expect(Status.methods.getBadgeStatus.call(context, 'Expired')).toBe('warning')
+})
+
 test.each([['en', 'Creating', 'Creating'], ['en', 'Reverting', 'Reverting'], ['ko_KR', 'Creating', '생성 중'], ['ko_KR', 'Reverting', '복원 중']])('snapshot %s %s state is translated and shows progress', (locale, state, label) => {
   const messages = require('../../../../public/locales/' + locale + '.json')
   const context = { text: state, displayText: true, $t: key => messages[key] || key }

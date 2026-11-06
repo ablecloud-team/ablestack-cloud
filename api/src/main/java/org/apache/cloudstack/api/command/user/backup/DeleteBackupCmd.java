@@ -63,9 +63,13 @@ public class DeleteBackupCmd  extends BaseAsyncCmd {
     @Parameter(name = ApiConstants.FORCED,
             type = CommandType.BOOLEAN,
             required = false,
-            description = "Force the deletion of backup which removes the entire backup chain but keep Instance in Backup Offering",
+            description = "Provider-specific force deletion. ABLESTACK deletes the selected backup and dependent recovery points; the Instance remains in its Backup Offering",
             since = "4.18.0.0")
     private Boolean forced;
+
+    @Parameter(name = "deletionplan", type = CommandType.STRING,
+            description = "Optional fingerprint from getBackupDeletionPlan; deletion is rejected if its scope changed")
+    private String deletionPlan;
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
@@ -86,7 +90,7 @@ public class DeleteBackupCmd  extends BaseAsyncCmd {
     @Override
     public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
         try {
-            boolean result = backupManager.deleteBackup(getId(), isForced());
+            boolean result = backupManager.deleteBackup(getId(), isForced(), deletionPlan);
             if (result) {
                 SuccessResponse response = new SuccessResponse(getCommandName());
                 response.setResponseName(getCommandName());

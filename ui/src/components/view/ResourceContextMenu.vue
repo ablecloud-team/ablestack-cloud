@@ -33,6 +33,7 @@
         :selectedItems="selectedItems"
         :show-resource-title="true"
         :titleOverride="titleOverride"
+        :titleSuffix="titleSuffix"
         size="default"
         @exec-action="$emit('exec-action', $event)" />
     </div>
@@ -53,7 +54,8 @@ export default {
     position: { type: Object, default: () => ({ x: 0, y: 0 }) },
     selectedRowKeys: { type: Array, default: () => [] },
     selectedItems: { type: Array, default: () => [] },
-    titleOverride: { type: String, default: '' }
+    titleOverride: { type: String, default: '' },
+    titleSuffix: { type: String, default: '' }
   },
   emits: ['close', 'exec-action'],
   data () {

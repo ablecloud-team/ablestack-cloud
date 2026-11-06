@@ -15,8 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import java.nio.file.*;
-import org.objectweb.asm.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 public class FaultInjector {
  public static void main(String[] args) throws Exception {
   byte[] bytes=Files.readAllBytes(Path.of(args[0])); ClassReader reader=new ClassReader(bytes);

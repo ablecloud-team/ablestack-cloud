@@ -13,12 +13,21 @@ package org.apache.cloudstack.storage.vmsnapshot;
 import java.util.List;
 import com.cloud.storage.SnapshotVO;
 import com.cloud.storage.dao.SnapshotDao;
-import com.cloud.vm.snapshot.*;
+import com.cloud.vm.snapshot.VMSnapshot;
+import com.cloud.vm.snapshot.VMSnapshotDetailsVO;
 import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
-import org.apache.cloudstack.engine.subsystem.api.storage.*;
+import org.apache.cloudstack.engine.subsystem.api.storage.SnapshotStrategy;
+import org.apache.cloudstack.engine.subsystem.api.storage.StorageStrategyFactory;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class StorageSnapshotDeleteRetryTest {
     @Test public void partialDeleteAndRetryKeepEveryDiskIdentityIncludingRemovedRows() {

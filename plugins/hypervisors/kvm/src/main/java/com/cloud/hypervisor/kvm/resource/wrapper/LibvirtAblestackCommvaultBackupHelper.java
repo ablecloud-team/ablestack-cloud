@@ -21,12 +21,10 @@ package com.cloud.hypervisor.kvm.resource.wrapper;
 
 import com.cloud.hypervisor.kvm.resource.LibvirtConnection;
 import com.cloud.hypervisor.kvm.resource.LibvirtComputingResource;
-import com.cloud.hypervisor.kvm.storage.KVMPhysicalDisk;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePool;
-import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.script.Script;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
 import org.apache.cloudstack.backup.AblestackCommvaultTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.utils.security.ParserUtils;
@@ -47,8 +45,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -60,14 +56,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.STAGING_COMPLETE_MARKER;
+import static org.apache.cloudstack.backup.AblestackBackupFrameworkUtils.STAGING_IN_PROGRESS_MARKER;
+
 class LibvirtAblestackCommvaultBackupHelper {
     protected Logger LOGGER = LogManager.getLogger(LibvirtAblestackCommvaultBackupHelper.class);
     static final Integer EXIT_CLEANUP_FAILED = 20;
     private static final int BACKUP_JOB_POLL_INTERVAL_MS = 10000;
     private static final DateTimeFormatter SCRIPT_LOG_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss>");
-    private static final String STAGING_IN_PROGRESS_MARKER = ".staging.inprogress";
-    private static final String STAGING_COMPLETE_MARKER = ".staging.complete";
-    private static final String BACKUP_TRACE = "[ABLESTACK_COMMVAULT_BACKUP_TRACE]";
+    private static final String BACKUP_TRACE = AblestackBackupFrameworkUtils.buildTracePrefix("commvault", AblestackBackupFrameworkUtils.OPERATION_BACKUP);
 
     enum BackupExecutionMode {
         RUNNING("backup-running"),
@@ -123,25 +120,24 @@ class LibvirtAblestackCommvaultBackupHelper {
         return result;
     }
 
+    String[] buildDetachedBackupScriptCommand(AblestackCommvaultTakeBackupCommand command) {
+        if (command.getVolumeStagingManifest() != null) {
+            return LibvirtAblestackVolumeBackupHelper.buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                    command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                    command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getWait(), command.getStagingBufferPercent(), command.getBandwidthLimitMbps(), command.getStagingQueueTimeout());
+        }
+        List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
+        if (BackupExecutionMode.STOPPED.equals(executionMode)) {
+            LOGGER.info("Commvault detached staging is skipped for stopped VM [{}]. Java helper execution is required.", command.getVmName());
+            return null;
+        }
+        ensureParentCheckpointMaterialized(command);
+        return buildBackupScriptCommand(command, diskPaths, executionMode);
+    }
+
     List<String> resolveDiskPaths(List<PrimaryDataStoreTO> volumePools, List<String> volumePaths) {
-        List<String> diskPaths = new ArrayList<>();
-        if (volumePaths == null) {
-            return diskPaths;
-        }
-
-        KVMStoragePoolManager storagePoolMgr = resource.getStoragePoolMgr();
-        for (int idx = 0; idx < volumePaths.size(); idx++) {
-            PrimaryDataStoreTO volumePool = volumePools.get(idx);
-            String volumePath = volumePaths.get(idx);
-            if (volumePool.getPoolType() != Storage.StoragePoolType.RBD) {
-                diskPaths.add(volumePath);
-                continue;
-            }
-
-            KVMStoragePool volumeStoragePool = storagePoolMgr.getStoragePool(volumePool.getPoolType(), volumePool.getUuid());
-            diskPaths.add(KVMPhysicalDisk.RBDStringBuilder(volumeStoragePool, volumePath));
-        }
-        return diskPaths;
+        return LibvirtAblestackTakeBackupCommandHelper.resolveDiskPaths(resource, volumePools, volumePaths);
     }
 
     private String[] buildBackupScriptCommand(AblestackCommvaultTakeBackupCommand command, List<String> diskPaths, BackupExecutionMode executionMode) {
@@ -158,6 +154,7 @@ class LibvirtAblestackCommvaultBackupHelper {
                 "-f", command.getBackupFiles() == null || command.getBackupFiles().isEmpty() ? "" : String.join(",", command.getBackupFiles()),
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
                 "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--data-operation-timeout-seconds", String.valueOf(command.getWait()),
                 "--bandwidth-limit-mbps", String.valueOf(command.getBandwidthLimitMbps())
         };
     }
@@ -285,11 +282,8 @@ class LibvirtAblestackCommvaultBackupHelper {
         if (dest == null || !Files.exists(dest)) {
             return true;
         }
-        try (var stream = Files.walk(dest)) {
-            List<Path> paths = stream.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            for (Path path : paths) {
-                Files.deleteIfExists(path);
-            }
+        try {
+            LibvirtAblestackStagingCleanup.delete("ablestack-commvault", dest, null);
             return true;
         } catch (IOException e) {
             LOGGER.warn("Failed to cleanup stopped VM Commvault backup path [{}]: {}", dest, e.getMessage(), e);
@@ -360,22 +354,7 @@ class LibvirtAblestackCommvaultBackupHelper {
     }
 
     private Pair<Integer, String> runCommandWithOutput(String command) {
-        String wrappedCommand = String.format("set +e; %s 2>&1; rc=$?; echo __CMD_EXIT__=$rc", command);
-        String output = Script.runSimpleBashScriptWithFullResult(wrappedCommand, resource.getCmdsTimeout());
-        if (output == null) {
-            return new Pair<>(-1, "");
-        }
-
-        List<String> lines = new ArrayList<>(Arrays.asList(output.split("\n")));
-        int exitCode = -1;
-        if (!lines.isEmpty()) {
-            String lastLine = lines.get(lines.size() - 1).trim();
-            if (lastLine.startsWith("__CMD_EXIT__=")) {
-                exitCode = Integer.parseInt(lastLine.substring("__CMD_EXIT__=".length()));
-                lines.remove(lines.size() - 1);
-            }
-        }
-        return new Pair<>(exitCode, String.join("\n", lines).trim());
+        return LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "bash", "-c", command);
     }
 
     private String sanitizeCommandOutput(String output) {
@@ -501,8 +480,9 @@ class LibvirtAblestackCommvaultBackupHelper {
     }
 
     private void waitForBackup(String vmName, long timeoutMillis) throws IOException {
+        final long deadline = System.currentTimeMillis() + timeoutMillis;
         long remainingMillis = timeoutMillis;
-        while (remainingMillis > 0) {
+        while ((remainingMillis = deadline - System.currentTimeMillis()) > 0) {
             String result = checkBackupJob(vmName);
             if (result != null && result.contains("Completed") && result.contains("Backup")) {
                 return;
@@ -517,14 +497,13 @@ class LibvirtAblestackCommvaultBackupHelper {
                 Thread.currentThread().interrupt();
                 throw new IOException(e);
             }
-            remainingMillis -= sleepMillis;
         }
         throw new IOException("Timed out waiting for backup job of dummy VM " + vmName + " after "+ timeoutMillis + " milliseconds"
         );
     }
 
     private void cancelBackupJob(String vmName) {
-        Script.runSimpleBashScriptForExitValue(String.format("virsh -c qemu:///system domjobabort --domain %s > /dev/null 2>&1", shellQuote(vmName)));
+        LibvirtAblestackAsyncBackupRunner.executeAndCapture(30000, "virsh", "-c", "qemu:///system", "domjobabort", "--domain", vmName);
     }
 
     private String checkBackupJob(String vmName) {

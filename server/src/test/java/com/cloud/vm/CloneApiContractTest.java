@@ -26,8 +26,15 @@ import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class CloneApiContractTest {
     private UserVmManagerImpl manager;

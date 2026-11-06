@@ -51,7 +51,7 @@ public class AblestackVeeamBackupOffering implements BackupOffering {
 
     @Override
     public boolean isUserDrivenBackupAllowed() {
-        return true;
+        return false;
     }
 
     @Override

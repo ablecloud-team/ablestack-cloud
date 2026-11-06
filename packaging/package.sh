@@ -210,10 +210,13 @@ function packaging() {
     mkdir -p "$RPMDIR/BUILD"
     mkdir -p "$RPMDIR/RPMS"
     mkdir -p "$RPMDIR/SRPMS"
-    mkdir -p "$RPMDIR/SOURCES/$PACK_PROJECT-$VERSION"
+    RPM_SOURCE_DIR="$RPMDIR/SOURCES/$PACK_PROJECT-$VERSION"
+    # Removed source files must not survive in a reused RPM staging directory.
+    rm -rf -- "$RPM_SOURCE_DIR" || exit 3
+    mkdir -p "$RPM_SOURCE_DIR" || exit 3
 
     echo ". preparing source tarball"
-    (cd $PWD/../; tar -c --exclude .git --exclude dist . | tar -C "$RPMDIR/SOURCES/$PACK_PROJECT-$VERSION" -x )
+    (set -o pipefail; cd "$PWD/../" && tar -c --exclude .git --exclude dist . | tar -C "$RPM_SOURCE_DIR" -x ) || exit 3
     (cd "$RPMDIR/SOURCES/"; tar -czf "$PACK_PROJECT-$VERSION.tgz" "$PACK_PROJECT-$VERSION")
 
     # Build the host runtime into the same artifact tree before Cloud packages.

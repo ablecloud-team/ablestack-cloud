@@ -47,6 +47,7 @@ import com.cloud.vm.dao.VMInstanceDao;
 import org.apache.cloudstack.backup.Backup;
 import org.apache.cloudstack.backup.BackupManagerImpl;
 import org.apache.cloudstack.backup.BackupProvider;
+import org.apache.cloudstack.backup.AblestackBackupRestoreDeviceIds;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.storage.command.CopyCommand;
 import org.apache.cloudstack.storage.command.StorageSubSystemCommand;
@@ -390,7 +391,8 @@ public class KVMGuru extends HypervisorGuruBase implements HypervisorGuru {
                } else if (VMVolToRestore.getType() == Volume.Type.DATADISK) {
                    List<VolumeVO> vmVolumes = _volumeDao.findByInstance(vm.getId());
                    _volumeDao.update(volume.getId(), volume);
-                   _volumeDao.attachVolume(volume.getId(), vm.getId(), getNextAvailableDeviceId(vmVolumes));
+                   Long existingDeviceId = AblestackBackupRestoreDeviceIds.existingAttachment(backupProvider.getName(), vm, volume);
+                   _volumeDao.attachVolume(volume.getId(), vm.getId(), existingDeviceId != null ? existingDeviceId : getNextAvailableDeviceId(vmVolumes));
                }
                UsageEventUtils.publishUsageEvent(EventTypes.EVENT_VOLUME_ATTACH, volume.getAccountId(), volume.getDataCenterId(), volume.getId(), volume.getName(),
                        volume.getDiskOfferingId(), volume.getTemplateId(), volume.getSize(), Volume.class.getName(), volume.getUuid(), vm.getId(), volume.isDisplay());

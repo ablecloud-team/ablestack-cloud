@@ -27,7 +27,6 @@ import com.cloud.hypervisor.kvm.storage.KVMStoragePoolManager;
 import com.cloud.storage.Storage;
 import com.cloud.utils.Pair;
 import com.cloud.utils.script.Script;
-import org.apache.cloudstack.backup.AblestackVeeamImportSeedCommand;
 import org.apache.cloudstack.backup.AblestackVeeamTakeBackupCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.commons.collections.CollectionUtils;
@@ -90,17 +89,6 @@ class LibvirtAblestackVeeamHelper {
         this.resource = resource;
     }
 
-    Pair<Integer, String> executeImportSeed(AblestackVeeamImportSeedCommand command, List<String> diskPaths) {
-        if (CollectionUtils.isEmpty(command.getStagingDiskPaths())) {
-            return new Pair<>(1, "Staging disk paths are required for Veeam seed import");
-        }
-        String[] scriptCommand = buildImportSeedScriptCommand(command, diskPaths);
-        List<String[]> commands = new ArrayList<>();
-        commands.add(scriptCommand);
-        final int timeout = command.getWait() > 0 ? command.getWait() * 1000 : resource.getCmdsTimeout();
-        return Script.executePipedCommands(commands, timeout);
-    }
-
     long parseBackupSize(String output, List<String> diskPaths) {
         if (output == null || output.isBlank()) {
             return 0L;
@@ -152,6 +140,22 @@ class LibvirtAblestackVeeamHelper {
         } finally {
             cleanupParentCheckpointWorkspace(parentCheckpointWorkspace);
         }
+    }
+
+    String[] buildDetachedBackupScriptCommand(AblestackVeeamTakeBackupCommand command) {
+        if (command.getVolumeStagingManifest() != null) {
+            return LibvirtAblestackVolumeBackupHelper.buildCommand(resource, command.getVolumeStagingManifest(), command.getBackupPath(),
+                    command.getVolumePools(), command.getVolumePaths(), command.getCheckpointName(), command.getParentCheckpointName(),
+                    command.getParentCheckpointXmlChain(), command.getQuiesce(), command.getWait(), command.getStagingBufferPercent(), command.getBandwidthLimitMbps(), command.getStagingQueueTimeout());
+        }
+        List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
+        if (BackupExecutionMode.STOPPED.equals(executionMode)) {
+            LOGGER.info("Veeam detached backup is skipped for stopped VM [{}]. Java helper execution is required.", command.getVmName());
+            return null;
+        }
+        ensureParentCheckpointMaterialized(command);
+        return buildBackupScriptCommand(command, diskPaths, executionMode);
     }
 
     long calculateBackupSize(AblestackVeeamTakeBackupCommand command) {
@@ -212,22 +216,6 @@ class LibvirtAblestackVeeamHelper {
         return diskPaths;
     }
 
-    private String[] buildImportSeedScriptCommand(AblestackVeeamImportSeedCommand command, List<String> diskPaths) {
-        return new String[] {
-                resource.getAbleVeeamPath(),
-                "-o", "import-seed",
-                "-v", command.getVmName(),
-                "-p", command.getBackupPath(),
-                "-c", Objects.nonNull(command.getCheckpointName()) ? command.getCheckpointName() : "",
-                "-f", CollectionUtils.isEmpty(command.getBackupFiles()) ? "" : String.join(",", command.getBackupFiles()),
-                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
-                "--staging-disks", String.join(",", command.getStagingDiskPaths()),
-                "--source-format", Objects.nonNull(command.getSourceFormat()) ? command.getSourceFormat() : "vmdk",
-                "--veeam-restore-point", Objects.nonNull(command.getVeeamRestorePointId()) ? command.getVeeamRestorePointId() : "",
-                "--bootstrap-checkpoint", command.getBootstrapCheckpoint() != null && command.getBootstrapCheckpoint() ? "true" : "false"
-        };
-    }
-
     private String[] buildBackupScriptCommand(AblestackVeeamTakeBackupCommand command, List<String> diskPaths, BackupExecutionMode executionMode) {
         return new String[] {
                 resource.getAbleVeeamPath(),
@@ -241,7 +229,8 @@ class LibvirtAblestackVeeamHelper {
                 "-j", Objects.nonNull(command.getParentCheckpointPath()) ? command.getParentCheckpointPath() : "",
                 "-f", command.getBackupFiles() == null || command.getBackupFiles().isEmpty() ? "" : String.join(",", command.getBackupFiles()),
                 "-q", command.getQuiesce() != null && command.getQuiesce() ? "true" : "false",
-                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths)
+                "-d", diskPaths.isEmpty() ? "" : String.join(",", diskPaths),
+                "--data-operation-timeout-seconds", String.valueOf(command.getWait())
         };
     }
 
@@ -362,6 +351,15 @@ class LibvirtAblestackVeeamHelper {
 
     private void cleanupParentCheckpointWorkspace(Path workspace) {
         if (workspace == null || !Files.exists(workspace)) {
+            return;
+        }
+        try {
+            LibvirtAblestackStagingCleanup.validate("ablestack-veeam", workspace.getParent().getParent(), null);
+            if (Files.isSymbolicLink(workspace) || Files.isSymbolicLink(workspace.getParent())) {
+                throw new IOException("Parent checkpoint workspace must not traverse symbolic links");
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Unsafe parent checkpoint workspace cleanup [{}]", workspace, e);
             return;
         }
         try (var walk = Files.walk(workspace)) {

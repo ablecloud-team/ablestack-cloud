@@ -17,8 +17,8 @@
 # under the License.
 
 # Diagnose / register Veeam backup offering against whatever provider MS actually has.
-#   bash /etc/ablestack/veeam/diagnose-mold-veeam-offering.sh
-#   bash /etc/ablestack/veeam/diagnose-mold-veeam-offering.sh --import
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/diagnose-mold-veeam-offering.sh
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/diagnose-mold-veeam-offering.sh --import
 set -euo pipefail
 set +H
 
@@ -57,7 +57,7 @@ mold_backup_cmk_run listBackupProviders 2>&1 | head -c 1500 || true
 echo ""
 echo "=== listBackupProviderOfferings provider=${VEEAM_PROVIDER_NAME} ==="
 mold_backup_cmk_run listBackupProviderOfferings "provider=${VEEAM_PROVIDER_NAME}" "zoneid=${ZONE_ID}" 2>&1 | head -c 2500 || true
-OFFERING_EXTERNAL_ID="$(mold_backup_api_pick_offering_external_id "${VEEAM_PROVIDER_NAME}")"
+OFFERING_EXTERNAL_ID="veeam"
 export OFFERING_EXTERNAL_ID
 echo "  picked externalid=${OFFERING_EXTERNAL_ID}"
 if [[ "$OFFERING_EXTERNAL_ID" == "8a4d0113-529b-40eb-9b9d-59e0d3f2d69d" ]] || echo "$OFFERING_EXTERNAL_ID" | grep -qi nas; then
@@ -103,6 +103,6 @@ fi
 echo ""
 echo "=== MS note ==="
 echo "  ZONE_ID: beb3cc2a-a5af-417f-a17e-85410490eedc"
-echo "  Seed import needs offering provider=ablestack-veeam (NOT display-name veeam/NAS hybrid)"
+echo "  Volume staging requires offering provider=ablestack-veeam"
 echo "  externalid=veeam"
 echo "  등록: bash $0 --import"

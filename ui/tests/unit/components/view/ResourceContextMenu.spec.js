@@ -16,8 +16,20 @@
 // under the License.
 
 import ResourceContextMenu from '@/components/view/ResourceContextMenu'
+import { shallowMount } from '@vue/test-utils'
 
 describe('Components > View > ResourceContextMenu.vue', () => {
+  it('passes the selection suffix independently of the resource title', () => {
+    const wrapper = shallowMount(ResourceContextMenu, {
+      props: { titleOverride: 'nas-rbd-2026-11-05T05:19:53+0000', titleSuffix: '외 4개 항목' },
+      global: { stubs: { teleport: true } }
+    })
+    const actionButton = wrapper.findComponent({ name: 'ActionButton' })
+    expect(actionButton.props('titleOverride')).toBe('nas-rbd-2026-11-05T05:19:53+0000')
+    expect(actionButton.props('titleSuffix')).toBe('외 4개 항목')
+    wrapper.unmount()
+  })
+
   describe('handleWindowScroll()', () => {
     it('keeps the menu open while its own scroll container scrolls', () => {
       const close = jest.fn()

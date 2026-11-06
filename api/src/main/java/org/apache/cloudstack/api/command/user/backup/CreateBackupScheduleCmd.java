@@ -82,9 +82,11 @@ public class CreateBackupScheduleCmd extends BaseCmd {
     @Parameter(name = ApiConstants.QUIESCE_VM,
             type = CommandType.BOOLEAN,
             required = false,
-            description = "Quiesce the Instance before checkpointing the disks for backup. Applicable only to NAS and KBOSS backup providers. " +
-                    "The filesystem is frozen before the backup starts and thawed immediately after. " +
-                    "Requires the instance to have the QEMU Guest Agent installed and running.",
+            description = "Quiesce the Instance before checkpointing the disks for backup. Supported by NAS, Commvault, NetBackup, Ablestack Veeam, and KBOSS providers. " +
+                    "Requires QEMU Guest Agent. Volume staging thaws guest filesystems after source recovery points are established, before export and transfer. " +
+                    "NetBackup uses this setting when backup.plugin.netbackup.vm.schedule.enabled=true; " +
+                    "Ablestack Veeam uses it when backup.plugin.ablestack-veeam.vm.schedule.enabled=true. " +
+                    "Volume staging continues if freezing is unsupported or fails; application consistency is not guaranteed.",
             since = "4.21.0")
     private Boolean quiesceVM;
 

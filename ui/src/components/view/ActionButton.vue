@@ -21,6 +21,7 @@
       v-if="dataView"
       :entries="dataViewMenuEntries"
       :title="displayTitle"
+      :title-suffix="titleSuffix"
       :show-resource-title="showResourceTitle"
       @execute="executeDataViewEntry" />
     <template v-else>
@@ -160,6 +161,10 @@ export default {
       default: false
     },
     titleOverride: {
+      type: String,
+      default: ''
+    },
+    titleSuffix: {
       type: String,
       default: ''
     }

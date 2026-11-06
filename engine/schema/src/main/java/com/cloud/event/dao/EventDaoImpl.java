@@ -106,11 +106,12 @@ public class EventDaoImpl extends GenericDaoBase<EventVO, Long> implements Event
     }
 
     @Override
-    public boolean existsByTypeAndResource(String type, long resourceId, String resourceType) {
+    public boolean existsByTypeAndResourceAndLevel(String type, long resourceId, String resourceType, String level) {
         SearchCriteria<EventVO> sc = createSearchCriteria();
         sc.addAnd("type", Op.EQ, type);
         sc.addAnd("resourceId", Op.EQ, resourceId);
         sc.addAnd("resourceType", Op.EQ, resourceType);
+        sc.addAnd("level", Op.EQ, level);
         sc.addAnd("archived", Op.EQ, false);
         return findOneIncludingRemovedBy(sc) != null;
     }

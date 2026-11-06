@@ -1,0 +1,13 @@
+{
+  "backupsetProperties": [
+    {
+      "content": [{"path": "/mnt/glue-gfs/ablestack-commvault/i-2-220-VM/2026.10.15.14.48.56.102"}],
+      "planEntity": {"planType": 2, "planName": "plan", "planSubtype": 33554437, "planId": 1},
+      "commonBackupSet": {"isDefaultBackupSet": false, "isDeleted": false},
+      "backupSetEntity": {
+        "clientName": "ablecube4", "clientId": 13, "instanceId": 1,
+        "backupsetId": 30, "backupsetName": "i-2-220-VM", "applicationId": 29
+      }
+    }
+  ]
+}

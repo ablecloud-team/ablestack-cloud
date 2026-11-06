@@ -11,7 +11,9 @@
 package org.apache.cloudstack.storage.vmsnapshot;
 
 import java.util.List;
-import com.cloud.storage.*;
+import com.cloud.storage.Storage;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeVO;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.vm.UserVmVO;
 import com.cloud.vm.VirtualMachine;
@@ -19,8 +21,10 @@ import org.apache.cloudstack.storage.datastore.db.PrimaryDataStoreDao;
 import org.apache.cloudstack.storage.datastore.db.StoragePoolVO;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StoppedRbdSnapshotTest {
     @Test public void onlyStoppedReadyRawRbdDisksUseStorageOnlySnapshot() {

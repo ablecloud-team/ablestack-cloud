@@ -20,8 +20,13 @@ import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.vm.UserVmService;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class CloneVMCmdTest {
     @Test public void minimalRequestUsesOneStoppedFullClone() throws Exception {

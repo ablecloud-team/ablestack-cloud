@@ -26,6 +26,9 @@
             <a-input-number
               v-focus="true"
               v-model:value="inputValue"
+              :min="maxDiskSize > 0 ? minDiskSize : undefined"
+              :max="maxDiskSize || undefined"
+              :disabled="maxDiskSize > 0 && maxDiskSize === minDiskSize ? true : undefined"
               @change="($event) => updateDiskSize($event)"
             />
             <span style="padding-top: 6px; margin-left: 5px">GB</span>
@@ -93,6 +96,10 @@ export default {
       default: () => {}
     },
     minDiskSize: {
+      type: Number,
+      default: 0
+    },
+    maxDiskSize: {
       type: Number,
       default: 0
     },

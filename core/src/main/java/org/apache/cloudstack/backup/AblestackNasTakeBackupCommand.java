@@ -26,7 +26,38 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import java.util.List;
 
 public class AblestackNasTakeBackupCommand extends Command {
+    @LogLevel(LogLevel.Log4jLevel.Off)
+    private String sourceStartPlan;
+    private boolean stoppedSourceProtectionRequired;
+    public boolean isStoppedSourceProtectionRequired() { return stoppedSourceProtectionRequired; }
+    public void setStoppedSourceProtectionRequired(boolean required) { stoppedSourceProtectionRequired = required; }
+    public String getSourceStartPlan() { return sourceStartPlan; }
+    public void setSourceStartPlan(String plan) { sourceStartPlan = plan; }
+
+    /** Bind preparation to the exact NAS request without storing repository credentials in source ownership. */
+    public String sourceRequestDigest() {
+        com.google.gson.JsonObject serialized = new com.google.gson.Gson().toJsonTree(this).getAsJsonObject();
+        com.google.gson.JsonObject identity = new com.google.gson.JsonObject();
+        for (String field : List.of("vmName", "backupJobId", "backupPath", "backupType", "checkpointName", "parentBackupPath",
+                "parentCheckpointName", "parentCheckpointPath", "backupRepoType", "backupRepoAddress", "volumePools", "volumePaths",
+                "backupFiles", "quiesce", "mountOptions", "mountTimeout", "bandwidthLimitMbps", "stoppedSourceProtectionRequired")) {
+            if (serialized.has(field)) { identity.add(field, serialized.get(field)); }
+        }
+        identity.addProperty("wait", getWait());
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(identity.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(64);
+            for (byte value : digest) { hex.append(Character.forDigit((value >>> 4) & 15, 16)).append(Character.forDigit(value & 15, 16)); }
+            return hex.toString();
+        } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+    }
+
+    private AblestackSharedRawBackup.Plan offlineGuard;
+    public AblestackSharedRawBackup.Plan getOfflineGuard() { return offlineGuard; }
+    public void setOfflineGuard(AblestackSharedRawBackup.Plan plan) { offlineGuard = plan; }
     private String vmName;
+    private String backupJobId;
     private String backupPath;
     private String backupType;
     private String checkpointName;
@@ -39,6 +70,7 @@ public class AblestackNasTakeBackupCommand extends Command {
     private List<String> volumePaths;
     private List<String> backupFiles;
     private Boolean quiesce;
+    private boolean waitForCompletion = true;
     @LogLevel(LogLevel.Log4jLevel.Off)
     private String mountOptions;
     private Integer mountTimeout;
@@ -56,6 +88,14 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setVmName(String vmName) {
         this.vmName = vmName;
+    }
+
+    public String getBackupJobId() {
+        return backupJobId;
+    }
+
+    public void setBackupJobId(final String backupJobId) {
+        this.backupJobId = backupJobId;
     }
 
     public String getBackupPath() {
@@ -168,6 +208,14 @@ public class AblestackNasTakeBackupCommand extends Command {
 
     public void setQuiesce(Boolean quiesce) {
         this.quiesce = quiesce;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

@@ -59,6 +59,9 @@ import com.cloud.utils.fsm.NoTransitionException;
  */
 public interface VirtualMachineManager extends Manager {
 
+    /** Capture an unmarked KVM VM's previous PCIe policy without changing the running domain. */
+    void preserveKvmPcieTopology(VirtualMachine vm);
+
     String KVM_BLANK_VM_TEMPLATE_NAME = "kvm-blank-vm-template";
 
     ConfigKey<Boolean> ExecuteInSequence = new ConfigKey<>("Advanced", Boolean.class, "execute.in.sequence.hypervisor.commands", "false",

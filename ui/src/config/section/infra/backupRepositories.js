@@ -38,7 +38,7 @@ export default {
           options: ['nfs', 'cifs', 'ceph']
         },
         provider: {
-          value: (record) => { return 'nas' }
+          value: (record) => { return 'ablestack-nas' }
         }
       }
     },

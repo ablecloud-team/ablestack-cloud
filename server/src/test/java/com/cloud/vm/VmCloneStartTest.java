@@ -22,8 +22,14 @@ import com.cloud.utils.Pair;
 import com.cloud.utils.exception.CloudRuntimeException;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class VmCloneStartTest {
     private UserVmManagerImpl manager;

@@ -36,6 +36,7 @@ public class KVMStoragePoolProviderTest {
             KVMStoragePool pool = Mockito.mock(KVMStoragePool.class);
             Mockito.when(pool.getUuid()).thenReturn("fixture-pool");
             ReflectionTestUtils.setField(manager, "_storagePools", new ConcurrentHashMap<>());
+            ReflectionTestUtils.setField(manager, "storagePoolLocks", new ConcurrentHashMap<>());
             ReflectionTestUtils.setField(manager, "_storageMapper", Map.of(type.toString(), adaptor));
             ReflectionTestUtils.setField(manager, "_haMonitor", Mockito.mock(KVMHAMonitor.class));
             Mockito.when(adaptor.createStoragePool("fixture-pool", "fixture-host", 1, "/fixture", null, type, Map.of(), true)).thenReturn(pool);

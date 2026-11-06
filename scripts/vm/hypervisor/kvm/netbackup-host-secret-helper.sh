@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-SECRET_KEY_FILE="${SECRET_KEY_FILE:-/root/.ssh/ablestack.key}"
+export SECRET_KEY_FILE="${SECRET_KEY_FILE:-${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON_HELPER="${SCRIPT_DIR}/netbackup-host-secret-helper.py"
 
@@ -39,24 +39,6 @@ fail() {
   exit 1
 }
 
-file_mode() {
-  local target="$1"
-  if stat -c '%a' "${target}" >/dev/null 2>&1; then
-    stat -c '%a' "${target}"
-    return 0
-  fi
-  stat -f '%OLp' "${target}"
-}
-
-validate_secret_key_file() {
-  [[ -f "${SECRET_KEY_FILE}" ]] || fail "Secret key file not found: ${SECRET_KEY_FILE}"
-  [[ -r "${SECRET_KEY_FILE}" ]] || fail "Secret key file is not readable: ${SECRET_KEY_FILE}"
-
-  local mode
-  mode="$(file_mode "${SECRET_KEY_FILE}")"
-  [[ "${mode}" == "600" ]] || fail "Secret key file must have permission 600: ${SECRET_KEY_FILE} (current: ${mode})"
-}
-
 ACTION="${1:-}"
 
 [[ -f "${PYTHON_HELPER}" ]] || fail "Python helper not found: ${PYTHON_HELPER}"
@@ -64,12 +46,10 @@ ACTION="${1:-}"
 case "${ACTION}" in
   encrypt)
     shift
-    validate_secret_key_file
     exec python3 "${PYTHON_HELPER}" encrypt "${1:-}"
     ;;
   decrypt)
     shift
-    validate_secret_key_file
     exec python3 "${PYTHON_HELPER}" decrypt "${1:-}"
     ;;
   -h|--help|help)

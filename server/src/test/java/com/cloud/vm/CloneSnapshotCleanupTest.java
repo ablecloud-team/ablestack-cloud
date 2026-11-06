@@ -11,18 +11,35 @@
 package com.cloud.vm;
 
 import java.util.List;
-import com.cloud.storage.*;
-import com.cloud.storage.dao.*;
-import com.cloud.vm.snapshot.*;
-import com.cloud.vm.snapshot.dao.*;
-import org.apache.cloudstack.framework.jobs.*;
+import com.cloud.storage.SnapshotVO;
+import com.cloud.storage.Storage;
+import com.cloud.storage.Volume;
+import com.cloud.storage.VolumeDetailVO;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.SnapshotDao;
+import com.cloud.storage.dao.VolumeDao;
+import com.cloud.storage.dao.VolumeDetailsDao;
+import com.cloud.vm.snapshot.VMSnapshot;
+import com.cloud.vm.snapshot.VMSnapshotDetailsVO;
+import com.cloud.vm.snapshot.VMSnapshotManager;
+import com.cloud.vm.snapshot.VMSnapshotVO;
+import com.cloud.vm.snapshot.dao.VMSnapshotDao;
+import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
+import org.apache.cloudstack.framework.jobs.AsyncJobManager;
 import org.apache.cloudstack.framework.jobs.impl.AsyncJobVO;
 import org.apache.cloudstack.jobs.JobInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class CloneSnapshotCleanupTest {
     private UserVmManagerImpl manager;

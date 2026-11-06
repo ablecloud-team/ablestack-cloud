@@ -47,4 +47,3 @@ class Tests(unittest.TestCase):
   d=self.deployment();d['metadata']['annotations']={'deployment.kubernetes.io/revision':'2'};rs={'items':[{'metadata':{'uid':'old-rs','annotations':{'deployment.kubernetes.io/revision':'1'},'ownerReferences':[{'uid':'deployment-1','kind':'Deployment','controller':True}]}}]};pods={'items':[{'metadata':{'ownerReferences':[{'uid':'old-rs','kind':'ReplicaSet','controller':True}]},'spec':{'nodeName':'node-a'},'status':{'conditions':[{'type':'Ready','status':'True'}]}}]};self.assertEqual(m.owned_ready_nodes(d,rs,pods),[])
 if __name__ == '__main__':
  unittest.main()
-

@@ -68,8 +68,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * PowerShell-over-SSH for those calls.</p>
  *
  * <p>Note: there is no VBR REST endpoint that exports backup disk content to a filesystem
- * path. Disk export for NAS seed creation/restore must still be performed via PowerShell
- * ({@link AblestackVeeamClient#exportRestorePointDisksToStaging}).</p>
+ * path. Volume staging uses isolated Agent Jobs through the PowerShell client instead.</p>
  */
 public class AblestackVeeamRestClient {
 

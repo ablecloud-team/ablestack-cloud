@@ -19,14 +19,13 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.agent.api.LogLevel;
 import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.List;
 
-public class AblestackNasRestoreBackupCommand extends Command  {
+public class AblestackNasRestoreBackupCommand extends AblestackRestoreBackupCommand {
     private String vmName;
     private String backupPath;
     private String backupRepoType;
@@ -44,6 +43,8 @@ public class AblestackNasRestoreBackupCommand extends Command  {
     private VirtualMachine.State vmState;
     private Integer mountTimeout;
     private String cacheMode;
+    private String restoreJobId;
+    private boolean waitForCompletion = true;
 
     protected AblestackNasRestoreBackupCommand() {
         super();
@@ -199,5 +200,21 @@ public class AblestackNasRestoreBackupCommand extends Command  {
 
     public void setCacheMode(String cacheMode) {
         this.cacheMode = cacheMode;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 }

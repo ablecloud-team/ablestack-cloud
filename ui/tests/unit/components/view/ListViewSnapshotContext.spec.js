@@ -66,7 +66,7 @@ describe('Shared selection context menu', () => {
     row.classList.add('ant-table-row'); row.setAttribute('data-row-key', 'b')
     ListView.methods.handleGlobalContextMenu.call(context, { target: row, clientX: 20, clientY: 40, preventDefault: jest.fn(), stopPropagation: jest.fn() })
     expect(context.contextQuickViewRecord.id).toBe('a')
-    expect(ListView.computed.contextMenuTitle.call(context)).toBe('A 외 1개 항목')
+    expect(ListView.computed.contextMenuTitle.call(context)).toBe('A')
     expect(context.contextMenuActions.map(action => action.api)).toEqual(['deleteVMSnapshot'])
 
     const parent = { selectedItems: context.selectedItems }
@@ -122,7 +122,8 @@ describe('Shared selection context menu', () => {
     const menu = wrapper.findComponent({ name: 'ResourceContextMenu' })
     expect(menu.exists()).toBe(true)
     expect(menu.props('selectedItems')).toEqual([rows[0], rows[2]])
-    expect(menu.props('titleOverride')).toBe('A 외 1개 항목')
+    expect(menu.props('titleOverride')).toBe('A')
+    expect(menu.props('titleSuffix')).toBe('외 1개 항목')
     expect(menu.props('actions').map(action => action.api)).toEqual(['deleteVMSnapshot'])
     wrapper.unmount()
   })

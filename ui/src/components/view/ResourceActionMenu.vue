@@ -18,8 +18,9 @@
 -->
 <template>
   <div class="resource-action-menu">
-    <div v-if="showResourceTitle && title" class="resource-action-menu__title" :title="title">
-      {{ title }}
+    <div v-if="showResourceTitle && title" class="resource-action-menu__title" :title="[title, titleSuffix].filter(Boolean).join(' ')">
+      <span class="resource-action-menu__title-name">{{ title }}</span>
+      <span v-if="titleSuffix" class="resource-action-menu__title-suffix">{{ titleSuffix }}</span>
     </div>
     <a-menu class="resource-action-menu__list" :selectable="false">
       <a-menu-item-group v-for="group in groupedEntries" :key="group.key">
@@ -58,6 +59,7 @@ export default {
   props: {
     entries: { type: Array, default: () => [] },
     title: { type: String, default: '' },
+    titleSuffix: { type: String, default: '' },
     showResourceTitle: { type: Boolean, default: false }
   },
   emits: ['execute'],

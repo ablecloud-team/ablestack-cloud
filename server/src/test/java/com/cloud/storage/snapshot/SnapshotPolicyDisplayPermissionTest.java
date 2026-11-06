@@ -19,9 +19,18 @@ import com.cloud.utils.db.TransactionCallback;
 import org.apache.cloudstack.context.CallContext;
 import org.junit.Test;
 import org.mockito.MockedStatic;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SnapshotPolicyDisplayPermissionTest {
     private void edit(boolean preserve, boolean previous, boolean requested, boolean expected, boolean exists) {

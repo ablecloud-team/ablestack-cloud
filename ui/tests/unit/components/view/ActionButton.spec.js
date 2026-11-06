@@ -147,6 +147,24 @@ describe('Components > View > ActionButton.vue', () => {
       expect(iconSlot.exists()).toBe(true)
       expect(iconSlot.attributes('aria-hidden')).toBe('true')
     })
+
+    it('renders the selection count separately from a long resource name', () => {
+      const name = 'nas-rbd-2026-11-05T05:19:53+0000'
+      const wrapper = factory({
+        props: {
+          dataView: true,
+          resource: { id: 'backup', name },
+          titleOverride: name,
+          titleSuffix: '외 4개 항목',
+          showResourceTitle: true
+        }
+      })
+
+      expect(wrapper.find('.resource-action-menu__title-name').text()).toBe(name)
+      expect(wrapper.find('.resource-action-menu__title-suffix').text()).toBe('외 4개 항목')
+      expect(wrapper.find('.resource-action-menu__title').attributes('title')).toBe(`${name} 외 4개 항목`)
+      wrapper.unmount()
+    })
   })
 
   describe('Method', () => {

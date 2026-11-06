@@ -179,6 +179,10 @@ public class VirtualMachineManagerImplTest {
     @InjectMocks
     private VirtualMachineManagerImpl virtualMachineManagerImpl = new VirtualMachineManagerImpl();
     @Mock
+    private org.apache.cloudstack.backup.ThirdPartyBackupVolumeService thirdPartyBackupVolumeService;
+    @Mock
+    private UserVmManager userVmManager;
+    @Mock
     private AgentManager agentManagerMock;
     @Mock
     private VMInstanceDao vmInstanceDaoMock;
@@ -299,6 +303,19 @@ public class VirtualMachineManagerImplTest {
 
     private ConfigDepotImpl configDepotImpl;
     private boolean updatedConfigKeyDepot = false;
+
+    @Test
+    public void stoppedBackupBlocksBeforeVmStartStateTransition() throws Exception {
+        when(vmInstanceDaoMock.findByUuid("protected-vm")).thenReturn(vmInstanceMock);
+        when(thirdPartyBackupVolumeService.guardVmStart(vmInstanceVoMockId))
+                .thenThrow(new CloudRuntimeException("Backup source is protected"));
+        CloudRuntimeException error = assertThrows(CloudRuntimeException.class,
+                () -> virtualMachineManagerImpl.orchestrateStart("protected-vm", new HashMap<>(), null, null));
+        assertEquals("Backup source is protected", error.getMessage());
+        verify(vmInstanceDaoMock, never()).update(Mockito.anyLong(), any(VMInstanceVO.class));
+        Mockito.verifyNoInteractions(agentManagerMock);
+        Mockito.verifyNoInteractions(userVmManager);
+    }
 
     @Before
     public void setup() {

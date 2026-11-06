@@ -139,36 +139,16 @@ export default {
     max-width: calc(100vw - 32px);
   }
   .ant-modal-body {
-    height: ~"min(650px, calc(100dvh - 130px))";
-    overflow: hidden;
+    max-height: ~"min(650px, calc(100dvh - 130px))";
+    overflow-y: auto;
   }
   .backup-dialog,
   .backup-schedule-wizard,
   .backup-schedule-wizard > .ant-tabs {
     width: 100%;
-    height: 100%;
-    min-height: 0;
   }
   .backup-schedule-wizard {
-    .ant-tabs-content-holder { min-height: 0; overflow: hidden; }
-    .ant-tabs-content, .ant-tabs-tabpane-active,
-    .ant-spin-nested-loading, .ant-spin-container {
-      height: 100%;
-      min-height: 0;
-    }
-    .list-schedule { max-height: 100%; overflow: auto; }
-    .form-layout, .form, form {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-    }
-    .form-layout { height: 100%; }
-    .form-layout > label, .ant-alert { flex-shrink: 0; }
-    form > .ant-row { min-height: 0; overflow-y: auto; flex: 1; }
     .action-button {
-      flex-shrink: 0;
       display: flex;
       justify-content: flex-end;
       gap: 8px;

@@ -124,6 +124,9 @@ public interface VolumeApiService {
 
     Volume detachVolumeViaDestroyVM(long vmId, long volumeId);
 
+    /** Internal DATA volume detach after VM removal has stopped the VM. */
+    Volume detachVolumeForAblestackVmRemoval(long vmId, long volumeId);
+
     Volume detachVolumeFromVM(DetachVolumeCmd cmd);
 
     Snapshot takeSnapshot(Long volumeId, Long policyId, Long snapshotId, Account account, boolean quiescevm, Snapshot.LocationType locationType, boolean asyncBackup, Map<String, String> tags, List<Long> zoneIds, List<Long> poolIds, Boolean useStorageReplication)

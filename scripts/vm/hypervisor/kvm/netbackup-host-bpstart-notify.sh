@@ -53,9 +53,14 @@ cleanup_failed_pre_run() {
   exit ${rc}
 }
 
+resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
+# Transfer jobs (and pre-upgrade artifact policies) must never recursively request a VM backup.
+if [[ "${SCHEDULE_NAME}" == mold-transfer || "${POLICY_NAME}" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]]; then
+  exit 0
+fi
+supervise_netbackup_hook PRE "${BASH_SOURCE[0]}" "$@"
 ensure_runtime_dirs
 cleanup_stale_transient_state
-resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
 cleanup_runtime_history
 load_policy_schedule_config
 acquire_lock
@@ -64,6 +69,10 @@ mark_context_in_progress
 trap cleanup_failed_pre_run EXIT
 initialize_runtime_cache
 init_runtime_state
+if ! prepare_parent_policy_staging; then
+  update_runtime_status "MOLD_BACKUP_DEFERRED_STORAGE"
+  exit 1
+fi
 cache_mold_virtual_machines
 
 write_state_file "${CONTEXT_FILE}" \
@@ -72,6 +81,7 @@ write_state_file "${CONTEXT_FILE}" \
   CLIENT_NAME "${CLIENT_NAME}" \
   SESSION_TIMESTAMP "${SESSION_TIMESTAMP}" \
   BACKUP_ID "${BACKUP_ID}" \
+  NETBACKUP_JOB_ID "${NETBACKUP_JOB_ID}" \
   BACKUP_TIME "${BACKUP_TIME}" \
   UNIX_BACKUP_TIME "${UNIX_BACKUP_TIME}" \
   RUNTIME_FILE "${RUNTIME_FILE}"
@@ -101,6 +111,8 @@ done < <(list_target_vms)
 if [[ ${vm_count} -eq 0 ]]; then
   update_runtime_status "MOLD_BACKUP_SKIPPED_NO_TARGET"
   log -ne "No target running VMs found on host for NetBackup staging; skipping successfully"
+  trap - EXIT
+  clear_context_in_progress
   exit 0
 fi
 

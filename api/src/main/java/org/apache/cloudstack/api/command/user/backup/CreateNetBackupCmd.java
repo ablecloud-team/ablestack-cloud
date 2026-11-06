@@ -27,7 +27,10 @@ import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseAsyncCreateCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
-import org.apache.cloudstack.api.response.SuccessResponse;
+import org.apache.cloudstack.api.response.BackupScheduleResponse;
+import org.apache.cloudstack.api.response.CreateNetBackupResponse;
+import org.apache.cloudstack.api.response.BackupOfferingResponse;
+import org.apache.cloudstack.api.response.HostResponse;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.backup.BackupManager;
 import org.apache.cloudstack.context.CallContext;
@@ -42,12 +45,18 @@ import com.cloud.utils.exception.CloudRuntimeException;
 
 @APICommand(name = "createNetBackup",
         description = "Create Instance Backup for NetBackup",
-        responseObject = SuccessResponse.class, since = "4.22.0",
+        responseObject = CreateNetBackupResponse.class, since = "4.22.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
 
     @Inject
     private BackupManager backupManager;
+
+    private String createdBackupId;
+
+    public void setCreatedBackupId(final String value) {
+        createdBackupId = value;
+    }
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////
@@ -75,9 +84,9 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
     @Parameter(name = ApiConstants.QUIESCE_VM,
             type = CommandType.BOOLEAN,
             required = false,
-            description = "Quiesce the instance before checkpointing the disks for backup. Applicable only to NAS backup provider. " +
-                    "The filesystem is frozen before the backup starts and thawed immediately after. " +
-                    "Requires the instance to have the QEMU Guest Agent installed and running.",
+            description = "Attempt to freeze guest filesystems through QEMU Guest Agent while establishing source recovery points, then thaw before volume export and transfer. " +
+                    "In SCHEDULE mode, the stored backup schedule setting takes precedence over this parameter. " +
+                    "Backup continues if freezing is unsupported or fails; application consistency is not guaranteed.",
             since = "4.21.0")
     private Boolean quiesceVM;
 
@@ -88,9 +97,38 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
             since = "4.21.0")
     private String policyId;
 
+    @Parameter(name = ApiConstants.SCHEDULE_ID,
+            type = CommandType.UUID,
+            entityType = BackupScheduleResponse.class,
+            required = false,
+            description = "the backup schedule ID that triggered this NetBackup staging request",
+            since = "4.23.0")
+    private Long scheduleId;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
+
+    @Parameter(name = "selectionmode", type = CommandType.STRING,
+            description = "Host target selection mode: SCHEDULE or CONFIG")
+    private String selectionMode;
+
+    @Parameter(name = ApiConstants.HOST_ID, type = CommandType.UUID, entityType = HostResponse.class,
+            description = "Host that selected this VM; execution stops if the VM has moved")
+    private Long hostId;
+
+    @Parameter(name = ApiConstants.BACKUP_OFFERING_ID, type = CommandType.UUID, entityType = BackupOfferingResponse.class,
+            description = "Offering observed during target selection; execution stops if it changed")
+    private Long backupOfferingId;
+
+    @Parameter(name = "vmschedulebackup", type = CommandType.BOOLEAN,
+            description = "Deprecated host selection flag, ignored for mode selection. NetBackup uses backup.plugin.netbackup.vm.schedule.enabled.")
+    private Boolean vmScheduleBackup;
+
+    public Boolean getVmScheduleBackup() { return vmScheduleBackup; }
+    public String getSelectionMode() { return selectionMode; }
+    public Long getHostId() { return hostId; }
+    public Long getBackupOfferingId() { return backupOfferingId; }
 
     public Long getVmId() {
         return vmId;
@@ -112,6 +150,10 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
         return policyId;
     }
 
+    public Long getScheduleId() {
+        return scheduleId;
+    }
+
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -121,7 +163,8 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
         try {
             boolean result = backupManager.createNetBackup(this);
             if (result) {
-                SuccessResponse response = new SuccessResponse(getCommandName());
+                CreateNetBackupResponse response = new CreateNetBackupResponse();
+                response.setBackupId(createdBackupId);
                 response.setResponseName(getCommandName());
                 setResponseObject(response);
             } else {

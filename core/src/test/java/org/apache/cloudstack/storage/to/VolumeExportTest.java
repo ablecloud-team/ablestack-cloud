@@ -21,8 +21,8 @@ import org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore;
 import com.cloud.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class VolumeExportTest {
     private VolumeObjectTO source, result;

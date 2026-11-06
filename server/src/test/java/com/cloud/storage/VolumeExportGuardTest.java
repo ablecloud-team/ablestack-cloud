@@ -25,7 +25,10 @@ import com.cloud.vm.dao.VMInstanceDetailsDao;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class VolumeExportGuardTest {
     private VolumeApiServiceImpl service;

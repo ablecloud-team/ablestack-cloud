@@ -649,7 +649,10 @@ export default {
           docHelp: 'adminguide/virtual_machines.html#creating-vm-backups',
           dataView: true,
           args: ['virtualmachineid'],
-          show: (record) => { return record.backupofferingid },
+          show: (record) => {
+            const provider = (record.backupprovider || '').toLowerCase()
+            return record.backupofferingid && !['ablestack-netbackup', 'ablestack-veeam'].includes(provider)
+          },
           disabled: (record) => { return isFastCloneFlattenActive(record) },
           tooltip: (record) => { return isFastCloneFlattenActive(record) ? fastCloneOperationBlockedLabel : 'label.create.backup' },
           mapping: {

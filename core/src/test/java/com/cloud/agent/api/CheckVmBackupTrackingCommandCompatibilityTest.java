@@ -14,7 +14,10 @@ import java.util.List;
 import com.google.gson.Gson;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /** The Agent wrapper and command must be deployed from the same contract. */
 public class CheckVmBackupTrackingCommandCompatibilityTest {
