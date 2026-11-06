@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "e7323382510220e06daeac12620b4492a74c8d69",
+  "files": {
+    "index.html": {
+      "before": "16fbf759e3ceb573e59627f1f1529d47922317dc3ddb3eef0aa775c88acdaca3",
+      "after": "cf287119ee2540d32d21b889cbc996504469a3bb0f0432c10d923067e76bac21",
+      "bytes": 36227
+    },
+    "locales/ko_KR.json": {
+      "before": "b80c09abc4aef1780707553822dd9603b6226820cc5dd0e2770454a631e5b088",
+      "after": "84a6d85e55851d49d96e4c90b985f8ddb87c06a71080eb83d9237bfcf377e395",
+      "bytes": 853606
+    },
+    "locales/en.json": {
+      "before": "3302bb31be1db9f9234aff610c3cd4a792ce65f9a8905e4ba0a011cc7a1d6acf",
+      "after": "118495e6c38f4553dd7f0a07535341f2080d71d7d0281d2c3cbd33354861904e",
+      "bytes": 767106
+    },
+    "css/chunk-46de8856.06397761.css": {
+      "before": null,
+      "after": "65a24e58aaccee429bd11c7cb599b28f114435c7ecdc7e2e4af5f159cb1ed0d5",
+      "bytes": 28939
+    },
+    "js/app.42ce52f5.js": {
+      "before": null,
+      "after": "defc0446a8325fc04eee809bc462b67a6f1268546ae020fe35dc47c0bbb2959c",
+      "bytes": 1630614
+    },
+    "js/chunk-46de8856.6a0ffec9.js": {
+      "before": null,
+      "after": "8843721121e3ee5aee995ea06b4e5ee9bc99dcb239fc386b9de79ef2aae31346",
+      "bytes": 696321
+    }
+  },
+  "sha256": "c8a4f3c5bda9bc69f232a63d01edaecc9ff92c26a2fd011d7fccda3335b7c2c3",
+  "preserve": [
+    "config.json",
+    "color.less"
+  ]
+}

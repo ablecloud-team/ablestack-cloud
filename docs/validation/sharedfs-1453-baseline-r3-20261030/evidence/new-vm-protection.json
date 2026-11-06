@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "effectiveUid": 0,
+  "helperFile": "/usr/local/lib/ablestack-storage/shared_directory_policy.py",
+  "limit": 1048576,
+  "updater": {
+    "regular": true,
+    "symlink": false,
+    "uid": 0,
+    "gid": 0,
+    "mode": "0o644",
+    "size": 55903,
+    "sha256": "c43bb080bfc2d924475c019a9335e73cb98d0756436e26c152465b8f444a84fe",
+    "version": [
+      5
+    ]
+  },
+  "protection": 1,
+  "capability": "{\"configurationTransactionVersion\": 1, \"configurationPreflightVersion\": 1, \"configurationObservationVersion\": 1, \"smbListenerProfilesVersion\": 1, \"nfsPosixIntentVersion\": 1, \"nfsDeferredPosixVersion\": 1, \"sharedDirectoryPolicyVersion\": 1, \"smbParentInheritanceVersion\": 1, \"smbParentInheritanceProtectionVersion\": 1, \"nfsIdentityMappingVersion\": 1, \"nfsidentitymapping\": {\"observationstatus\": \"APPLIED\", \"endpoints\": [{\"port\": 2049, \"endpoint\": \"0.0.0.0_2049\", \"configuredmode\": \"NUMERIC\", \"configuredrevision\": 3, \"state\": \"APPLIED\", \"effectivemode\": \"NUMERIC\", \"observedrevision\": 3, \"observeddomain\": \"localdomain\", \"observedat\": \"1793290855.4351294\"}], \"observedat\": \"1793291072.3323762\", \"observeddomain\": \"localdomain\", \"effectivemode\": \"NUMERIC\", \"policyrevision\": 3}}\n"
+}

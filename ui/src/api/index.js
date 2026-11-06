@@ -46,7 +46,7 @@ function hasSessionKey () {
   return !!getSessionKey()
 }
 
-export function getAPI (command, args = {}, { optionalDiscovery = false, timeout, backgroundJob = false, preserveOnFailure = false } = {}) {
+export function getAPI (command, args = {}, { optionalDiscovery = false, timeout, backgroundJob = false, preserveOnFailure = false, signal } = {}) {
   args.command = command
   args.response = 'json'
 
@@ -63,6 +63,7 @@ export function getAPI (command, args = {}, { optionalDiscovery = false, timeout
     method: 'GET',
     ...(optionalDiscovery ? { optionalDiscovery: true, timeout: 15000 } : {}),
     ...(timeout ? { timeout } : {}),
+    ...(signal ? { signal } : {}),
     ...(backgroundJob ? { backgroundJob: true } : {}),
     ...(preserveOnFailure || command === 'listVMSnapshot' ? { preserveOnFailure: true } : {})
   })

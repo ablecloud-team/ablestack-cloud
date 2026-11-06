@@ -1,0 +1,170 @@
+{
+  "after": {
+    "enabled": true,
+    "endpointAliases": [],
+    "instanceId": 93,
+    "instanceUuid": "cc7d7185-d19c-46ac-8596-fc3848ffba10",
+    "lastApply": {
+      "applied": 1,
+      "skipped": 0,
+      "success": true
+    },
+    "listeners": [
+      {
+        "listenIp": "0.0.0.0",
+        "port": 4420
+      }
+    ],
+    "subsystems": [
+      {
+        "config": {
+          "allowAnyHost": false,
+          "engine": "KERNEL_NVMET",
+          "engineState": "SUPPORTED",
+          "transport": "tcp",
+          "type": "subsystem"
+        },
+        "hosts": [
+          {
+            "config": {
+              "dhChapCtrlEnabled": false,
+              "dhChapEnabled": false
+            },
+            "id": 504,
+            "permission": "READ_WRITE",
+            "principal": "nqn.2026-11.local.client:boot1459",
+            "principalType": "NVME_HOST_NQN",
+            "state": "Ready",
+            "uuid": "8eb82420-e79b-4960-b8c3-76b1c811d86d"
+          }
+        ],
+        "id": 94,
+        "namespaces": [
+          {
+            "backstoreType": "BLOCK",
+            "config": {
+              "backstoreType": "BLOCK",
+              "endpointMode": "LISTENER_GROUP",
+              "listenerGroupPorts": [
+                4420
+              ],
+              "type": "namespace"
+            },
+            "effectiveSizeBytes": 1073741824,
+            "endpointMode": "LISTENER_GROUP",
+            "expectedSerialPrefix": "7d0cc36c262444b680ab",
+            "id": 95,
+            "listenerPorts": "4420",
+            "lunOrNamespace": "1",
+            "protocol": "NVME_OF",
+            "runtime": {
+              "backingPath": "/dev/sdb",
+              "backingType": "block"
+            },
+            "state": "Ready",
+            "targetName": "nqn.2026-11.local.storage:boot1459-disk",
+            "uuid": "cb406d3e-c14f-48f9-a66d-9dfcab865f0e",
+            "volumeDeviceId": 4,
+            "volumeId": 371,
+            "volumeName": "epic1459-nvme-data",
+            "volumePath": "7d0cc36c-2624-44b6-80ab-c88ecb9cf554",
+            "volumeSizeBytes": 1073741824,
+            "volumeUuid": "7d0cc36c-2624-44b6-80ab-c88ecb9cf554"
+          }
+        ],
+        "protocol": "NVME_OF",
+        "runtimeListenerPorts": [
+          4420
+        ],
+        "state": "Ready",
+        "targetName": "nqn.2026-11.local.storage:boot1459-disk",
+        "uuid": "b5ae338a-94c8-4494-a3ff-bd3eba10d75e"
+      }
+    ]
+  },
+  "before": {
+    "enabled": true,
+    "endpointAliases": [],
+    "instanceId": 93,
+    "instanceUuid": "cc7d7185-d19c-46ac-8596-fc3848ffba10",
+    "lastApply": {
+      "applied": 1,
+      "skipped": 0,
+      "success": true
+    },
+    "listeners": [
+      {
+        "listenIp": "0.0.0.0",
+        "port": 4420
+      }
+    ],
+    "subsystems": [
+      {
+        "config": {
+          "allowAnyHost": false,
+          "engine": "KERNEL_NVMET",
+          "engineState": "SUPPORTED",
+          "transport": "tcp",
+          "type": "subsystem"
+        },
+        "hosts": [
+          {
+            "config": {
+              "dhChapCtrlEnabled": false,
+              "dhChapEnabled": false
+            },
+            "id": 504,
+            "permission": "READ_WRITE",
+            "principal": "nqn.2026-11.local.client:boot1459",
+            "principalType": "NVME_HOST_NQN",
+            "state": "Ready",
+            "uuid": "8eb82420-e79b-4960-b8c3-76b1c811d86d"
+          }
+        ],
+        "id": 94,
+        "namespaces": [
+          {
+            "backstoreType": "BLOCK",
+            "config": {
+              "backstoreType": "BLOCK",
+              "endpointMode": "LISTENER_GROUP",
+              "listenerGroupPorts": [
+                4420
+              ],
+              "type": "namespace"
+            },
+            "effectiveSizeBytes": 1073741824,
+            "endpointMode": "LISTENER_GROUP",
+            "expectedSerialPrefix": "7d0cc36c262444b680ab",
+            "id": 95,
+            "listenerPorts": "4420",
+            "lunOrNamespace": "1",
+            "protocol": "NVME_OF",
+            "runtime": {
+              "backingPath": "/dev/sdd",
+              "backingType": "block"
+            },
+            "state": "Ready",
+            "targetName": "nqn.2026-11.local.storage:boot1459-disk",
+            "uuid": "cb406d3e-c14f-48f9-a66d-9dfcab865f0e",
+            "volumeDeviceId": 4,
+            "volumeId": 371,
+            "volumeName": "epic1459-nvme-data",
+            "volumePath": "7d0cc36c-2624-44b6-80ab-c88ecb9cf554",
+            "volumeSizeBytes": 1073741824,
+            "volumeUuid": "7d0cc36c-2624-44b6-80ab-c88ecb9cf554"
+          }
+        ],
+        "protocol": "NVME_OF",
+        "runtimeListenerPorts": [
+          4420
+        ],
+        "state": "Ready",
+        "targetName": "nqn.2026-11.local.storage:boot1459-disk",
+        "uuid": "b5ae338a-94c8-4494-a3ff-bd3eba10d75e"
+      }
+    ]
+  },
+  "protocol": "NVMEOF",
+  "source": "SystemVM 671ef954 signed CLI multi-protocol apply output; only prior observed device path reconstructed from failed-boot exact hash proof"
+}

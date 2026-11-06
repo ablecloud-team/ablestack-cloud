@@ -1,0 +1,73 @@
+{
+  "source": "Actual Mold UI-triggered listSharedFileSystems and listStorageServiceHealth response bodies captured on cluster 13, 2026-10-26; legacyHealth is the original pre-1448 capture. No generated policy fields.",
+  "resource": {
+    "id": "8b03d48c-0a8c-47bb-aac8-ce5546b25eed",
+    "name": "epic1438-1448-static-20261026",
+    "state": "Ready",
+    "networkmode": "STATIC",
+    "ipaddress": "10.10.13.233",
+    "cidr": "10.10.0.0/16",
+    "gateway": "10.10.13.1",
+    "dns1": "8.8.8.8",
+    "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219"
+  },
+  "testNowEpoch": 1792954396.7127135,
+  "legacyHealth": [
+    {
+      "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "resultjson": "{\"schemaVersion\": 1, \"generatedAt\": \"2026-10-25T14:18:52Z\", \"cached\": true, \"staleAfterSeconds\": 30, \"network\": {\"addresses\": [{\"cidr\": \"10.10.13.250/16\", \"interface\": \"eth0\", \"ipaddress\": \"10.10.13.250\", \"prefixlen\": 16, \"primary\": true, \"role\": \"primary\", \"secondary\": false}]}, \"listenPorts\": {\"iscsi\": true, \"iscsiPorts\": {\"3260\": true}, \"nfs\": true, \"nvmeof\": true, \"nvmeofPorts\": {\"4420\": {\"configured\": true, \"linked\": true, \"listening\": true, \"state\": \"LISTENING\"}}, \"smb\": true}, \"generatedEpoch\": 1792937932}"
+    }
+  ],
+  "policyHealth": [
+    {
+      "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "details": "Storage Service command completed",
+      "resultjson": "{\"cached\":true,\"capabilities\":{\"nvmeof\":{\"configfsHostSupported\":false,\"dhChapCtrlSupported\":false,\"dhChapSupported\":false,\"kernel\":\"6.1.0-54-amd64\",\"kernelTargetSupported\":false,\"reason\":\"missing nvmet configfs root\"}},\"collector\":\"health\",\"commands\":{\"exportfs\":true,\"net\":true,\"nvme\":true,\"smbd\":true,\"targetcli\":true},\"desiredState\":{\"iscsiTargets\":false,\"nfsQuotas\":true,\"nvmeofSubsystems\":false,\"smbDomain\":false,\"smbDomainError\":false,\"smbQuotas\":true},\"generatedAt\":\"2026-10-25T18:53:15Z\",\"generatedEpoch\":1792954395.7127135,\"hostname\":\"sharedfs-867bfbfb-e370-345d-b5f9-ccd20d044219\",\"identity\":{\"smbDomain\":{},\"smbDomainError\":{}},\"listenPorts\":{\"iscsi\":false,\"iscsiPorts\":{\"3260\":false},\"nfs\":true,\"nvmeof\":true,\"nvmeofPorts\":{},\"smb\":true},\"network\":{\"addresses\":[{\"cidr\":\"10.10.13.233/16\",\"interface\":\"eth0\",\"ipaddress\":\"10.10.13.233\",\"prefixlen\":16,\"primary\":true,\"role\":\"primary\",\"secondary\":false},{\"cidr\":\"10.10.13.235/16\",\"interface\":\"eth0\",\"ipaddress\":\"10.10.13.235\",\"prefixlen\":16,\"primary\":false,\"role\":\"secondary\",\"secondary\":true}],\"policy\":{\"addresses\":[{\"family\":\"inet\",\"label\":\"eth0\",\"local\":\"10.10.13.233\",\"preferred_life_time\":4294967295,\"prefixlen\":16,\"scope\":\"global\",\"valid_life_time\":4294967295},{\"family\":\"inet\",\"label\":\"eth0\",\"local\":\"10.10.13.235\",\"preferred_life_time\":4294967295,\"prefixlen\":16,\"scope\":\"global\",\"secondary\":true,\"valid_life_time\":4294967295}],\"aliases\":[{\"active\":true,\"ipaddress\":\"10.10.13.235\",\"prefixlen\":16}],\"desired\":{\"cidr\":\"10.10.0.0/16\",\"dns\":[\"8.8.8.8\"],\"gateway\":\"10.10.13.1\",\"ipAddress\":\"10.10.13.233\",\"macAddress\":\"02:0d:00:cc:00:57\",\"prefixlen\":16},\"dns\":[\"8.8.8.8\"],\"interface\":\"eth0\",\"lastApply\":{\"observedEpoch\":1792954273.2952788,\"phase\":\"NETWORK_READY\",\"status\":\"READY\"},\"macAddress\":\"02:0d:00:cc:00:57\",\"mode\":\"STATIC\",\"observedAt\":\"2026-10-25T18:53:15Z\",\"observedEpoch\":1792954395.6810257,\"owner\":\"SharedFS STATIC policy\",\"phase\":\"NETWORK_PRIMARY\",\"routes\":[{\"dev\":\"eth0\",\"dst\":\"default\",\"flags\":[],\"gateway\":\"10.10.13.1\",\"metric\":100},{\"dev\":\"eth0\",\"dst\":\"10.10.0.0/16\",\"flags\":[],\"prefsrc\":\"10.10.13.233\",\"protocol\":\"kernel\",\"scope\":\"link\"}],\"schemaVersion\":1,\"source\":\"guest\",\"status\":\"READY\"}},\"nfsGanesha\":{\"active\":1,\"configured\":1,\"endpoints\":[{\"file\":\"0.0.0.0_2049.conf\",\"listenIp\":\"0.0.0.0\",\"listening\":true,\"logPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.log\",\"pid\":1639,\"pidPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.pid\",\"port\":2049,\"processRunning\":true,\"protocolMode\":\"V4_ONLY\",\"status\":\"active\"}],\"listening\":true,\"protocolMode\":\"V4_ONLY\",\"rpcbindActive\":true,\"rpcbindRequired\":false,\"status\":\"ok\"},\"schemaVersion\":1,\"services\":{\"iscsiTarget\":\"inactive\",\"nfs\":\"ok\",\"nfsGanesha\":\"ok\",\"nmbd\":\"active\",\"qemuGuestAgent\":\"active\",\"smbd\":\"active\",\"winbind\":\"active\"},\"staleAfterSeconds\":30,\"status\":\"ok\",\"success\":true,\"uptimeSeconds\":130}"
+    }
+  ],
+  "noGatewayResource": {
+    "id": "dbb633aa-f661-41de-b1bc-e5579632ac99",
+    "name": "epic1438-1448-nogw-20261026",
+    "state": "Starting",
+    "networkmode": "STATIC",
+    "ipaddress": "10.10.13.234",
+    "cidr": "10.10.0.0/16",
+    "dns1": "8.8.8.8",
+    "virtualmachineid": "fa4905f9-8fa9-339e-8244-e7b78fb3a97e"
+  },
+  "noGatewayHealth": [
+    {
+      "id": "7c232dd7-17b7-42cf-9e72-7e80859cb286",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "details": "Storage Service command completed",
+      "resultjson": "{\"cached\":true,\"capabilities\":{\"nvmeof\":{\"configfsHostSupported\":false,\"dhChapCtrlSupported\":false,\"dhChapSupported\":false,\"kernel\":\"6.1.0-54-amd64\",\"kernelTargetSupported\":false,\"reason\":\"missing nvmet configfs root\"}},\"collector\":\"health\",\"commands\":{\"exportfs\":true,\"net\":true,\"nvme\":true,\"smbd\":true,\"targetcli\":true},\"desiredState\":{\"iscsiTargets\":false,\"nfsQuotas\":true,\"nvmeofSubsystems\":false,\"smbDomain\":false,\"smbDomainError\":false,\"smbQuotas\":false},\"generatedAt\":\"2026-10-25T18:55:09Z\",\"generatedEpoch\":1792954509.548824,\"hostname\":\"sharedfs-fa4905f9-8fa9-339e-8244-e7b78fb3a97e\",\"identity\":{\"smbDomain\":{},\"smbDomainError\":{}},\"listenPorts\":{\"iscsi\":false,\"iscsiPorts\":{\"3260\":false},\"nfs\":true,\"nvmeof\":true,\"nvmeofPorts\":{},\"smb\":false},\"network\":{\"addresses\":[{\"cidr\":\"10.10.13.234/16\",\"interface\":\"eth0\",\"ipaddress\":\"10.10.13.234\",\"prefixlen\":16,\"primary\":true,\"role\":\"primary\",\"secondary\":false}],\"policy\":{\"addresses\":[{\"family\":\"inet\",\"label\":\"eth0\",\"local\":\"10.10.13.234\",\"preferred_life_time\":4294967295,\"prefixlen\":16,\"scope\":\"global\",\"valid_life_time\":4294967295}],\"aliases\":[],\"desired\":{\"cidr\":\"10.10.0.0/16\",\"dns\":[\"8.8.8.8\"],\"ipAddress\":\"10.10.13.234\",\"macAddress\":\"02:0d:00:cc:00:58\",\"prefixlen\":16},\"dns\":[\"8.8.8.8\"],\"interface\":\"eth0\",\"lastApply\":{\"observedEpoch\":1792954458.775318,\"phase\":\"NETWORK_PRIMARY\",\"status\":\"READY\"},\"macAddress\":\"02:0d:00:cc:00:58\",\"mode\":\"STATIC\",\"observedAt\":\"2026-10-25T18:55:09Z\",\"observedEpoch\":1792954509.521,\"owner\":\"SharedFS STATIC policy\",\"phase\":\"NETWORK_PRIMARY\",\"routes\":[{\"dev\":\"eth0\",\"dst\":\"10.10.0.0/16\",\"flags\":[],\"prefsrc\":\"10.10.13.234\",\"protocol\":\"kernel\",\"scope\":\"link\"}],\"schemaVersion\":1,\"source\":\"guest\",\"status\":\"READY\"}},\"nfsGanesha\":{\"active\":1,\"configured\":1,\"endpoints\":[{\"file\":\"0.0.0.0_2049.conf\",\"listenIp\":\"0.0.0.0\",\"listening\":true,\"logPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.log\",\"pid\":3033,\"pidPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.pid\",\"port\":2049,\"processRunning\":true,\"protocolMode\":\"V4_ONLY\",\"status\":\"active\"}],\"listening\":true,\"protocolMode\":\"V4_ONLY\",\"rpcbindActive\":true,\"rpcbindRequired\":false,\"status\":\"ok\"},\"schemaVersion\":1,\"services\":{\"iscsiTarget\":\"inactive\",\"nfs\":\"ok\",\"nfsGanesha\":\"ok\",\"nmbd\":\"inactive\",\"qemuGuestAgent\":\"active\",\"smbd\":\"inactive\",\"winbind\":\"inactive\"},\"staleAfterSeconds\":30,\"status\":\"ok\",\"success\":true,\"uptimeSeconds\":63}"
+    }
+  ],
+  "noGatewayTestNowEpoch": 1792954510.548824,
+  "dhcpResource": {
+    "id": "1fe48b9f-eac4-499b-bef7-7020e85b5ee8",
+    "name": "epic1438-1448-dhcp-20261026",
+    "state": "Ready",
+    "networkmode": "DHCP",
+    "virtualmachineid": "e4c02b82-7699-36c8-9164-2d6464001414"
+  },
+  "dhcpHealth": [
+    {
+      "id": "5a796256-7fc4-4931-a26a-742190602145",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "details": "Storage Service command completed",
+      "resultjson": "{\"cached\":true,\"capabilities\":{\"nvmeof\":{\"configfsHostSupported\":false,\"dhChapCtrlSupported\":false,\"dhChapSupported\":false,\"kernel\":\"6.1.0-54-amd64\",\"kernelTargetSupported\":false,\"reason\":\"missing nvmet configfs root\"}},\"collector\":\"health\",\"commands\":{\"exportfs\":true,\"net\":true,\"nvme\":true,\"smbd\":true,\"targetcli\":true},\"desiredState\":{\"iscsiTargets\":false,\"nfsQuotas\":true,\"nvmeofSubsystems\":false,\"smbDomain\":false,\"smbDomainError\":false,\"smbQuotas\":false},\"generatedAt\":\"2026-10-25T19:02:08Z\",\"generatedEpoch\":1792954928.1945956,\"hostname\":\"sharedfs-e4c02b82-7699-36c8-9164-2d6464001414\",\"identity\":{\"smbDomain\":{},\"smbDomainError\":{}},\"listenPorts\":{\"iscsi\":false,\"iscsiPorts\":{\"3260\":false},\"nfs\":true,\"nvmeof\":true,\"nvmeofPorts\":{},\"smb\":false},\"network\":{\"addresses\":[{\"cidr\":\"10.1.1.135/24\",\"interface\":\"eth0\",\"ipaddress\":\"10.1.1.135\",\"prefixlen\":24,\"primary\":true,\"role\":\"primary\",\"secondary\":false}],\"policy\":{\"addresses\":[{\"broadcast\":\"10.1.1.255\",\"family\":\"inet\",\"label\":\"eth0\",\"local\":\"10.1.1.135\",\"preferred_life_time\":4294967295,\"prefixlen\":24,\"scope\":\"global\",\"valid_life_time\":4294967295}],\"aliases\":[],\"dns\":[\"10.1.1.1\",\"8.8.8.8\"],\"interface\":\"eth0\",\"lastApply\":{\"observedEpoch\":1792954925.6926425,\"phase\":\"NETWORK_READY\",\"status\":\"READY\"},\"macAddress\":\"02:0d:00:d0:00:05\",\"mode\":\"DHCP\",\"observedAt\":\"2026-10-25T19:02:08Z\",\"observedEpoch\":1792954928.16824,\"owner\":\"DHCP\",\"phase\":\"NETWORK_PRIMARY\",\"routes\":[{\"dev\":\"eth0\",\"dst\":\"default\",\"flags\":[],\"gateway\":\"10.1.1.1\"},{\"dev\":\"eth0\",\"dst\":\"10.1.1.0/24\",\"flags\":[],\"prefsrc\":\"10.1.1.135\",\"protocol\":\"kernel\",\"scope\":\"link\"}],\"schemaVersion\":1,\"source\":\"guest\",\"status\":\"READY\"}},\"nfsGanesha\":{\"active\":1,\"configured\":1,\"endpoints\":[{\"file\":\"0.0.0.0_2049.conf\",\"listenIp\":\"0.0.0.0\",\"listening\":true,\"logPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.log\",\"pid\":1683,\"pidPath\":\"/run/ablestack-storage/ganesha/0.0.0.0_2049.pid\",\"port\":2049,\"processRunning\":true,\"protocolMode\":\"V4_ONLY\",\"status\":\"active\"}],\"listening\":true,\"protocolMode\":\"V4_ONLY\",\"rpcbindActive\":true,\"rpcbindRequired\":false,\"status\":\"ok\"},\"schemaVersion\":1,\"services\":{\"iscsiTarget\":\"inactive\",\"nfs\":\"ok\",\"nfsGanesha\":\"ok\",\"nmbd\":\"inactive\",\"qemuGuestAgent\":\"active\",\"smbd\":\"inactive\",\"winbind\":\"inactive\"},\"staleAfterSeconds\":30,\"status\":\"ok\",\"success\":true,\"uptimeSeconds\":10}"
+    }
+  ],
+  "dhcpTestNowEpoch": 1792954929.16824
+}

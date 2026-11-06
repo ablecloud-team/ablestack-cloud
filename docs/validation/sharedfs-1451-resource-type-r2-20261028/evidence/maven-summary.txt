@@ -1,0 +1,12 @@
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.149 s - in org.apache.cloudstack.storage.dataservice.dao.StorageConfigurationDaoRoundTripTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.69 s - in org.apache.cloudstack.storage.dataservice.StorageNfsIdentityCoordinatorDaoTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.855 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.104 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPlanTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in org.apache.cloudstack.storage.dataservice.StorageNfsIdentityMappingTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.157 s - in org.apache.cloudstack.storage.dataservice.StorageNfsPosixTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.api.response.StorageNfsIdentityWireTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.api.response.StorageConfigurationWireTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.339 s - in com.cloud.api.dispatch.ParamProcessWorkerNfsPreflightTest
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS

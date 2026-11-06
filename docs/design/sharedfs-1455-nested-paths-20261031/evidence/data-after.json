@@ -1,0 +1,473 @@
+{
+  "objects": {
+    "/export/common1453r5": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o775",
+      "inode": 8388736,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/hold1454-c1.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388747,
+      "device": 2064,
+      "sha256": "43f6398802bfd66ad450173bdf4a1ea424f1fa7601bb3a153de5ad774731ed6a",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/hold1454r2-c1.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388748,
+      "device": 2064,
+      "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/local-independent": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 25165957,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/local-independent/grandchild": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 142,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/local-independent/nested.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 25165958,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/local-independent.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388745,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/local00": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 16908416,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/local00/grandchild": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 25165952,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/local00/nested.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 16908417,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/local00.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388738,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/r2-afterboot-local.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388754,
+      "device": 2064,
+      "sha256": "25377624d6f840e49b0ebda015bd4a528ded4b423e02552898189a5a3660c3c6",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/r2-final-nfs-local.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o644",
+      "inode": 8388755,
+      "device": 2064,
+      "sha256": "d265c5ace54142ca8bc388089c584db914deb03bf122abd767e00fb7b9f8f66a",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/common1453r5/r2-local-640.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o640",
+      "inode": 8388749,
+      "device": 2064,
+      "sha256": "d4fd8768bd0d721be4840d7e371259128bc0dfba05ef43d734752c3555815a38",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::---"
+    },
+    "/export/common1453r5/r2-local-750": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o750",
+      "inode": 147,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\t#effective:r-x\nuser:1002:r-x\ngroup::rwx\t#effective:r-x\nmask::r-x\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/r2-local-default.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388753,
+      "device": 2064,
+      "sha256": "4feaea9b407b0506fb815f151fcaea3aaf04f605845ec442319fbac5ab2f0a59",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/r2-local-defaultdir": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 25165959,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/r2-local-force.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o775",
+      "inode": 8388750,
+      "device": 2064,
+      "sha256": "bf902cc87d1d8c1e59c4392b617c293b1cf4e0e660af14083b53e590f7ced35b",
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::r-x"
+    },
+    "/export/common1453r5/r2-local-forcedir": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o770",
+      "inode": 8388751,
+      "device": 2064,
+      "acl": "user::rwx\nuser:1001:rwx\nuser:1002:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:1002:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/common1453r5/r2-nfs-local.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o644",
+      "inode": 8388752,
+      "device": 2064,
+      "sha256": "94e811e9d8d540c99c3d97fa2f147e2cabc8029edab5443481530fcee61ee584",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/common1453r5/r6-local.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "inode": 8388746,
+      "device": 2064,
+      "sha256": "229da8f052d7f164deeece52d0bc6248b0aaec7f83c38cfea2fb0dba3be014e9",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:rw-\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/common1453r5/seed.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "inode": 8388737,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:1001:rwx\t#effective:r--\nuser:1002:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/ad1453r5": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2775",
+      "inode": 132,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad00": {
+      "uid": 10000,
+      "gid": 10003,
+      "mode": "0o770",
+      "inode": 8388739,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad00/grandchild": {
+      "uid": 10000,
+      "gid": 10003,
+      "mode": "0o770",
+      "inode": 16908418,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad00/nested.txt": {
+      "uid": 10000,
+      "gid": 10003,
+      "mode": "0o660",
+      "inode": 8388740,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad00.txt": {
+      "uid": 10000,
+      "gid": 10003,
+      "mode": "0o660",
+      "inode": 134,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad01": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 25165955,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad01/grandchild": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 139,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad01/nested.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 25165956,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad01.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 138,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad01final": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 8388743,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad01final/grandchild": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 16908420,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad01final/nested.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 8388744,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad01final.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 140,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad10": {
+      "uid": 65534,
+      "gid": 10003,
+      "mode": "0o770",
+      "inode": 25165953,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad10/grandchild": {
+      "uid": 65534,
+      "gid": 10003,
+      "mode": "0o770",
+      "inode": 136,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad10/nested.txt": {
+      "uid": 65534,
+      "gid": 10003,
+      "mode": "0o660",
+      "inode": 25165954,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad10.txt": {
+      "uid": 65534,
+      "gid": 10003,
+      "mode": "0o660",
+      "inode": 135,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad11": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 8388741,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad11/grandchild": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 16908419,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/ad11/nested.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 8388742,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/ad11.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 137,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/hold1454-c2.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 145,
+      "device": 2064,
+      "sha256": "43f6398802bfd66ad450173bdf4a1ea424f1fa7601bb3a153de5ad774731ed6a",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/hold1454r2-c2.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 146,
+      "device": 2064,
+      "sha256": "32e0f113d98cd9f0adc8ce501dd178a0f3640e0478b8ee5c96a5c01243a93ff8",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/nfs-ad.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o644",
+      "inode": 141,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/ad1453r5/r2-ad-2770": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o2770",
+      "inode": 16908421,
+      "device": 2064,
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:10000:rwx\ndefault:user:10001:r-x\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x"
+    },
+    "/export/ad1453r5/r2-ad-670.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o770",
+      "inode": 148,
+      "device": 2064,
+      "sha256": "674aaa0a027696a4836092e72fe7b266d3ea93284c1ba763715ea72feba591f1",
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---"
+    },
+    "/export/ad1453r5/r2-afterboot-ad.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o770",
+      "inode": 150,
+      "device": 2064,
+      "sha256": "c717f5a5107340ce0b237cc445ccf86a89567b062072d1f3b54e6bebaa2bca24",
+      "acl": "user::rwx\nuser:10000:rwx\nuser:10001:r-x\ngroup::rwx\nmask::rwx\nother::---"
+    },
+    "/export/ad1453r5/r2-final-nfs-ad.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o644",
+      "inode": 151,
+      "device": 2064,
+      "sha256": "650364d523d0d04cad8b7cd5ba7513dde5a3fc6b0b6dd4fcf1ea42b451a2548f",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/ad1453r5/r2-nfs-ad.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o644",
+      "inode": 149,
+      "device": 2064,
+      "sha256": "ad90774416636d8937e6e7fbbe12743960b70e9ad6f7896b3a929ad5d02d31f8",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/ad1453r5/r6-c1.txt": {
+      "uid": 65534,
+      "gid": 10004,
+      "mode": "0o660",
+      "inode": 143,
+      "device": 2064,
+      "sha256": "229da8f052d7f164deeece52d0bc6248b0aaec7f83c38cfea2fb0dba3be014e9",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:rw-\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:rw-\nmask::rw-\nother::---"
+    },
+    "/export/ad1453r5/r6-nfs.txt": {
+      "uid": 10000,
+      "gid": 10004,
+      "mode": "0o644",
+      "inode": 144,
+      "device": 2064,
+      "sha256": "0852e2edaabf4cd1062153a9e384f21b28271f833b3b113917ad3cdc16686d02",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    },
+    "/export/ad1453r5/seed.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "inode": 133,
+      "device": 2064,
+      "sha256": "c0438308b9ed57b51763f473a343cffffcb97a9579a550d70ba62a9950140903",
+      "acl": "user::rw-\nuser:10000:rwx\t#effective:r--\nuser:10001:r-x\t#effective:r--\ngroup::rwx\t#effective:r--\nmask::r--\nother::r--"
+    }
+  },
+  "forbiddenAbsent": true,
+  "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs    /dev/sdb[/export/ad1453r5] /export/ad1453r5",
+  "legacySmbd": "inactive"
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "806cd1f8-6c52-4345-8926-c59bdf17b590",
+    "type": "ROOT",
+    "size": 5242880000,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  },
+  {
+    "id": "6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  },
+  {
+    "id": "3024c2f0-a429-42fe-8bf8-5d74b50ac85f",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  },
+  {
+    "id": "8afeba62-cd52-4586-881f-bd63c0ecb831",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  },
+  {
+    "id": "45cb2342-fb79-4340-884e-efd8da8277ec",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  },
+  {
+    "id": "eed01666-4d51-4e62-be8e-f8f4c09a5dae",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "state": "Ready",
+    "provisioningtype": "sparse"
+  }
+]

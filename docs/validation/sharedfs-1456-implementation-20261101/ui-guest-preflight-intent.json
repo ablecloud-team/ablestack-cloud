@@ -1,0 +1,155 @@
+{
+  "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+  "revision": 42,
+  "protocol": "SMB",
+  "action": "CREATE",
+  "drainrequired": true,
+  "recursive": false,
+  "ports": [
+    445,
+    1445
+  ],
+  "inheritancetarget": {
+    "uuid": "NEW",
+    "name": "NEW",
+    "config": {
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a",
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "directoryPolicyUuid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "inheritOwner": false
+    }
+  },
+  "inheritancepolicy": {
+    "uuid": "77262649-396b-35ca-85b2-ac72188c020d",
+    "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+    "canonicalpath": "epic1456/projects/team-a",
+    "owneruid": 7001,
+    "ownergid": 7002,
+    "mode": "0770",
+    "revision": 1,
+    "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+    "inode": 8388760
+  },
+  "smbinheritance": {
+    "inheritOwner": false,
+    "directoryPolicyId": "77262649-396b-35ca-85b2-ac72188c020d"
+  },
+  "fileidentitytarget": {
+    "uuid": "NEW",
+    "name": "NEW",
+    "config": {
+      "relativeSharePath": "epic1456/projects/team-a",
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a",
+      "pathBindingVersion": 1,
+      "createDirectory": false,
+      "directoryPolicyUuid": "77262649-396b-35ca-85b2-ac72188c020d",
+      "inheritOwner": false,
+      "guestOk": false,
+      "readOnly": false,
+      "fileIdentity": {
+        "version": 1,
+        "mode": "FIXED",
+        "uid": 7001,
+        "gid": 7002
+      }
+    },
+    "currentConfig": {},
+    "publicationRequired": false,
+    "verifyCurrent": false
+  },
+  "smbfileidentity": {
+    "mode": "FIXED",
+    "uid": 7001,
+    "gid": 7002,
+    "version": 1
+  },
+  "pathtarget": {
+    "uuid": "NEW",
+    "config": {
+      "relativeSharePath": "epic1456/projects/team-a",
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a",
+      "pathBindingVersion": 1,
+      "createDirectory": false
+    }
+  },
+  "pathresources": [
+    {
+      "uuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+      "name": "common1453r5",
+      "protocol": "NFS",
+      "relativepath": "export/common1453r5",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+      "name": "ad1453r5",
+      "protocol": "NFS",
+      "relativepath": "export/ad1453r5",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+      "name": "p1455-parent",
+      "protocol": "NFS",
+      "relativepath": "epic1455/projects",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "2340a052-c7a6-465b-8b8a-e13d575caf20",
+      "name": "p1455-sibling",
+      "protocol": "NFS",
+      "relativepath": "epic1455/projects/team-b",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "03575162-1534-4847-b07e-e75d7e90cd62",
+      "name": "p1456-parent",
+      "protocol": "NFS",
+      "relativepath": "epic1456/projects",
+      "relation": "ANCESTOR"
+    },
+    {
+      "uuid": "d4696c71-fdb9-4324-b8b2-229e2344f59e",
+      "name": "p1456-child",
+      "protocol": "NFS",
+      "relativepath": "epic1456/projects/team-a",
+      "relation": "EXACT_ALIAS"
+    },
+    {
+      "uuid": "bab4b234-633d-4389-961e-fa257e9b413c",
+      "name": "common1453r5",
+      "protocol": "SMB",
+      "relativepath": "export/common1453r5",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+      "name": "ad1453r5",
+      "protocol": "SMB",
+      "relativepath": "export/ad1453r5",
+      "relation": "SIBLING"
+    },
+    {
+      "uuid": "20112217-8f9c-4eea-8363-521e7028740b",
+      "name": "s1455-child",
+      "protocol": "SMB",
+      "relativepath": "epic1455/projects/team-a",
+      "relation": "SIBLING"
+    }
+  ],
+  "pathoperation": "createStorageSmbShare",
+  "volumeuuids": [
+    "e070a0aa-dbf5-48c0-83e0-09f874446277"
+  ],
+  "resourceids": [
+    "20112217-8f9c-4eea-8363-521e7028740b",
+    "b9da2c11-244d-44de-bf8b-fad2e2f3b4df",
+    "bab4b234-633d-4389-961e-fa257e9b413c"
+  ],
+  "resourcecount": 3,
+  "resourcesdigest": "436123fca6542994497f3f1fa37339305f18334a9a349cce7e6b7478ec1e97f9",
+  "ackrequired": true
+}

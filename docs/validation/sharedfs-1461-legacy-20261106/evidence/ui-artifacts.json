@@ -1,0 +1,51 @@
+{
+  "archiveSha256": "87e50edc4c154f1b741ffd9c734ca7149e4c199a2f22a8a7892468c9459823bf",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "5e6040d43a114b9f85628db3a4a97e149758f579996238ddfcb1006ea07096c6",
+      "bytes": 37583
+    },
+    {
+      "path": "color.less",
+      "sha256": "17a21db464020c66a97ffa34aa7324a281477ef779b4e17e4eec777b0be48ac7",
+      "bytes": 698755
+    },
+    {
+      "path": "locales/ko_KR.json",
+      "sha256": "764272658c103243dbdae936381f1b06dbc8079d7cf1b329f0c69eb087da051d",
+      "bytes": 907932
+    },
+    {
+      "path": "locales/en.json",
+      "sha256": "f78717e25d26e58718eef81925988a4b02a0eb0a42dce92b5353ff552a4b1b6d",
+      "bytes": 816347
+    },
+    {
+      "path": "css/chunk-002060e0.6a59bee8.css",
+      "sha256": "af33acf51bb84343187b5cff1b563e8e5f4ff4143a01ff4d217aaac9aede314c",
+      "bytes": 30797
+    },
+    {
+      "path": "js/chunk-002060e0.fd16137e.js",
+      "sha256": "5c9d4e11e77ca0fdf991bda8d7ffdd1f26f87c09f82e002b83f6df8d2704dbc3",
+      "bytes": 757154
+    },
+    {
+      "path": "js/chunk-002060e0.fd16137e.js.map",
+      "sha256": "629c7f1ae42680e471b8b479d5972cc39a66368120f1dce6eda3a27fde6b4df4",
+      "bytes": 1291245
+    },
+    {
+      "path": "js/app.642a5642.js.map",
+      "sha256": "5117f2c52d6847e8c0990179ef9bd45940e2495699ad2d9cdc03ec2aec599f9d",
+      "bytes": 3297568
+    },
+    {
+      "path": "js/app.642a5642.js",
+      "sha256": "33bce9d0d36218053f26255d31fb34c2e230dc712e0fbe277aa3e15db071104f",
+      "bytes": 1660028
+    }
+  ],
+  "configExcluded": true
+}

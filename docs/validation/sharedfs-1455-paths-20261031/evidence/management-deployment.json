@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "sourceCommit": "4065598a3f058149cf9e04d0671eca8322789182",
+  "beforeSha256": "ec836625519820bac02eea1aeaf5ea00ffe5baa90e7bd61e265e7d832f06b0fd",
+  "afterSha256": "61ef596a3a48e0cb108935af1b48c317da1c05b0b4a0f1188cc102cfe939b03a",
+  "changedEntries": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class": "bc919916ee8104556fff9d03f479c240d78225392bd7de519b70b69261506dd7",
+    "storage-runtime/bootstrap/runtime_updater.py": "516ca9674b58b7aecb46913b64d910812d198c8086c5fba825b91d663e92f329",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": "42d1ee83028c1e17503838bb4e5510af38c05f461ad91575724b87feb472fe4e",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": "495ae7fa911a191e17c077627f48c2f8c59d0511fa7db783bdcfb4472af45987",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": "e70cfac76a1518fe553781a165e0c0c088634301235624b250633f5efc62f550",
+    "storage-runtime/bootstrap/runtime-baseline-profile.json": "3160def31b27063d80d6d320a2d4a9e7cf3391f25c388d8c9c39a81592466915",
+    "org/apache/cloudstack/api/response/StorageSmbShareResponse.class": "f951ca9fea33e22f40b32026a023d7e2595c0efaefea86c1dbb934b219123262",
+    "org/apache/cloudstack/api/response/StorageNfsExportResponse.class": "c4b7f115f88830fb91fa5274244b5fec1ad7bf2ce88dc127e08892fbf34b932c",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": "6965e53fc14d86c38e827228f4ed1764dd72f46fee2b17ddad7f0cb6ea240fa4",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class": "84292b2ac822c54bdda9f1af723c13241da1dd7b7428d73985e44482a6212bc2",
+    "org/apache/cloudstack/storage/dataservice/StorageDirectoryPolicies.class": "6850ba39e16a7568db80f006c5420c9dd938989bb433eea77e7ba54a0af5f499",
+    "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class": "71bce34bcdf7d0641b64fba9ed8c087dc6afb0e524d6d8172dbb5a6efa26db5f",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "51644e1f09d0d74969ad3ab532bd113f16c8c813544c74c82f26f026f48bebef",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class": "7cc94ab424dcdf963f08a3edefdd831f5cba6a5cd1f3b67501c869cc82cbdccb",
+    "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class": "4a6d06372cdbd10b0b15625bb65cfb40af7572dd80a77b10a343ae785c41d43c"
+  },
+  "unchangedEntriesByteCompared": 92539,
+  "service": "active",
+  "databaseMigration": false,
+  "hostAgentChanged": false,
+  "packagingCheckCorrection": "reopen original ZipFile before comparison because writestr mutates shared ZipInfo header offsets; production jar was unchanged until full verification passed"
+}

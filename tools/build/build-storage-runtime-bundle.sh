@@ -56,17 +56,25 @@ source_root="${source_root:-${repo_root}/systemvm/debian/usr/local/bin}"
 output_dir="${output_dir:-${repo_root}/dist/storage-runtime}"
 mkdir -p "$output_dir"
 
-for name in ablestack-storagectl ablestack-storage-boot-reconcile ablestack-storage-monitor; do
-  [[ -r "${source_root}/${name}" ]] || { echo "Missing runtime source: ${source_root}/${name}" >&2; exit 1; }
-done
-
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
 stage="${workdir}/stage"
 mkdir -p "$stage"
-for name in ablestack-storagectl ablestack-storage-boot-reconcile ablestack-storage-monitor; do
-  install -m 0755 "${source_root}/${name}" "${stage}/${name}"
-done
+python3 - "$repo_root" "$source_root" "$stage" <<'PYBUILD'
+import ast, pathlib, shutil, sys
+repo, source, stage = map(pathlib.Path, sys.argv[1:])
+module = repo / "systemvm/debian/usr/local/lib/ablestack-storage/runtime_updater.py"
+tree = ast.parse(module.read_text())
+contract = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(t,ast.Name) and t.id=="MANAGED_FILES" for t in n.targets))
+for name, mode in contract.items():
+    original = source / name if "/" not in name else repo / "systemvm/debian/usr/local" / name
+    if not original.is_file() or original.is_symlink():
+        raise SystemExit("Missing or unsafe runtime source: " + str(original))
+    target = stage / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(original, target)
+    target.chmod(mode)
+PYBUILD
 
 manifest="${output_dir}/manifest.json"
 signature="${output_dir}/manifest.sig"
@@ -81,15 +89,18 @@ import sys
 stage, output, version, runtime_abi, desired_schema, impact, key_id, commit, build_time = sys.argv[1:]
 stage = Path(stage)
 files = []
-for path in sorted(stage.iterdir(), key=lambda item: item.name):
+for path in sorted((x for x in stage.rglob("*") if x.is_file()), key=lambda item: str(item.relative_to(stage))):
     files.append({
-        "path": path.name,
+        "path": str(path.relative_to(stage)),
+        "bytes": path.stat().st_size,
         "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-        "mode": "0755",
+        "mode": format(path.stat().st_mode & 0o777, "04o"),
         "owner": "root",
         "group": "root",
     })
 manifest = {
+    "manifestFormat": 2,
+    "payloadLayout": 2,
     "bundleVersion": version,
     "runtimeAbiVersion": runtime_abi,
     "desiredStateSchemaVersion": desired_schema,
@@ -105,7 +116,7 @@ PY
 source_date_epoch="${SOURCE_DATE_EPOCH:-0}"
 tar --sort=name --mtime="@${source_date_epoch}" --owner=0 --group=0 --numeric-owner \
   -C "$stage" -czf "$archive" \
-  ablestack-storagectl ablestack-storage-boot-reconcile ablestack-storage-monitor
+  ablestack-storagectl ablestack-storage-boot-reconcile ablestack-storage-monitor lib
 openssl pkeyutl -sign -inkey "$private_key" -rawin -in "$manifest" -out "$signature"
 (
   cd "$output_dir"

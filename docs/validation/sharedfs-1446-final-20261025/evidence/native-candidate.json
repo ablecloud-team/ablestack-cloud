@@ -1,0 +1,17 @@
+{
+  "nativeRegression": {
+    "exitcode": 0,
+    "stdout": "",
+    "stderr": "..............\n----------------------------------------------------------------------\nRan 14 tests in 9.762s\n\nOK\n"
+  },
+  "readonlySnapshot": {
+    "exitcode": 0,
+    "stdout": "{\"snapshotCreated\": true, \"freshHealthAndConfigurationMatch\": true, \"noProtocolApply\": true}\n",
+    "stderr": ""
+  },
+  "atomicReceiver": {
+    "exitcode": 0,
+    "stdout": "{\"badHashPreservesOld\": true, \"completeFilePublished\": true, \"symlinkRejected\": true, \"pinnedKeyConflictRejected\": true, \"livePathsUntouched\": true}\n",
+    "stderr": ""
+  }
+}

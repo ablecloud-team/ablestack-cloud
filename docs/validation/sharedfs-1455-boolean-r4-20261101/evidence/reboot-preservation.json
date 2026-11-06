@@ -1,0 +1,31 @@
+{
+  "bootChanged": true,
+  "old54Preserved": true,
+  "allTestObjectsPreserved": true,
+  "filesystemSame": true,
+  "faultHookAbsent": true,
+  "ip": [
+    "10.10.13.220"
+  ],
+  "operations": {
+    "18dc6b50-841f-4980-8eab-2c1a6409fa58": {
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baseRevision": 36,
+      "targetRevision": 37,
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    "be1417ba-c346-479f-b5e6-f838ad8d28a4": {
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baseRevision": 37,
+      "targetRevision": 38,
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    }
+  },
+  "configHashesEqual": true
+}

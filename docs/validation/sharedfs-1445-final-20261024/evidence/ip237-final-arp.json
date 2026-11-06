@@ -1,0 +1,1 @@
+{"at": 1792842680.0200737, "candidate": "10.10.13.237", "exitcode": 0, "stdout": "ARPING 10.10.13.237 from 0.0.0.0 bridge0\nSent 3 probes (3 broadcast(s))\nReceived 0 response(s)\n"}

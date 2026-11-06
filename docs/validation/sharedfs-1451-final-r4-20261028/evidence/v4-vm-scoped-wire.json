@@ -1,0 +1,42 @@
+[
+  {
+    "command": "rebootVirtualMachine",
+    "params": {
+      "command": "rebootVirtualMachine",
+      "response": "json",
+      "id": "13246a3e-76c3-3ed1-b869-dd39695a85aa"
+    },
+    "body": {
+      "rebootvirtualmachineresponse": {
+        "jobid": "001ff879-aa48-49c4-9d22-4cd781db3701"
+      }
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "params": {
+      "jobId": "001ff879-aa48-49c4-9d22-4cd781db3701",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "body": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.admin.vm.RebootVMCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobinstancetype": "VirtualMachine",
+        "jobinstanceid": "13246a3e-76c3-3ed1-b869-dd39695a85aa",
+        "managementserverid": "93af5ef3-8cbf-4435-8f92-9c208f1d7b0c",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-28T11:25:53+0900",
+        "jobid": "001ff879-aa48-49c4-9d22-4cd781db3701",
+        "jobstatus": 0
+      }
+    }
+  }
+]

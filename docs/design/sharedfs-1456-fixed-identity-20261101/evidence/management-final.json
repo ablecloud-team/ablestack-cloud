@@ -1,0 +1,12 @@
+{
+  "jarSha": "9e55bac7f538941a481cba326e68ff5bf12d8701307649c8cbb79ae67aa1f153",
+  "entries": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "c5ecab138d8250d4fd13b5d5f53f3eabd8f095a1b2a11aa493d7584dab7e7772",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": "42d1ee83028c1e17503838bb4e5510af38c05f461ad91575724b87feb472fe4e",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": "6965e53fc14d86c38e827228f4ed1764dd72f46fee2b17ddad7f0cb6ea240fa4",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": "e70cfac76a1518fe553781a165e0c0c088634301235624b250633f5efc62f550",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": "495ae7fa911a191e17c077627f48c2f8c59d0511fa7db783bdcfb4472af45987",
+    "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class": "4a6d06372cdbd10b0b15625bb65cfb40af7572dd80a77b10a343ae785c41d43c"
+  },
+  "uiIndexSha": "cf287119ee2540d32d21b889cbc996504469a3bb0f0432c10d923067e76bac21"
+}

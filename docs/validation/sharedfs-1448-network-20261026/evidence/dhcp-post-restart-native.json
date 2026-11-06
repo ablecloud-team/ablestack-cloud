@@ -1,0 +1,56 @@
+{
+  "boot": "ab622697-8b7a-477d-ad78-7d662221de23",
+  "policy": {
+    "addresses": [
+      {
+        "broadcast": "10.1.1.255",
+        "family": "inet",
+        "label": "eth0",
+        "local": "10.1.1.135",
+        "preferred_life_time": 4294967295,
+        "prefixlen": 24,
+        "scope": "global",
+        "valid_life_time": 4294967295
+      }
+    ],
+    "aliases": [],
+    "dns": [
+      "10.1.1.1",
+      "8.8.8.8"
+    ],
+    "interface": "eth0",
+    "lastApply": {
+      "error": null,
+      "observedEpoch": 1792954925.6926425,
+      "phase": "NETWORK_READY",
+      "status": "READY"
+    },
+    "macAddress": "02:0d:00:d0:00:05",
+    "mode": "DHCP",
+    "observedAt": "2026-10-25T19:02:32Z",
+    "observedEpoch": 1792954952.2488034,
+    "owner": "DHCP",
+    "phase": "NETWORK_PRIMARY",
+    "routes": [
+      {
+        "dev": "eth0",
+        "dst": "default",
+        "flags": [],
+        "gateway": "10.1.1.1"
+      },
+      {
+        "dev": "eth0",
+        "dst": "10.1.1.0/24",
+        "flags": [],
+        "prefsrc": "10.1.1.135",
+        "protocol": "kernel",
+        "scope": "link"
+      }
+    ],
+    "schemaVersion": 1,
+    "source": "guest",
+    "status": "READY"
+  },
+  "dhcpUnit": "active",
+  "leaseContains135": true
+}

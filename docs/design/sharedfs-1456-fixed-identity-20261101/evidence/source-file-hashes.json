@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "cc67ac7656a9230ce0e238862a6932897f40e281",
+  "files": {
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.java": "8b3781a5f92ee1547251511bdb1cc4e8750c75cc105919e6d7b954034a5ea58b",
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.java": "99e58c451e1d4f5c060796e5ce4df9c4b28da67822803d2ae3d7f89e50c295bc",
+    "api/src/main/java/org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.java": "49c1569051ac31a02f3a3cb5cbb2e927109e020e053b6348c44132778253463c",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "453c07b6ad7970da2722944ab49faa87dd0ea241add6911d5e4fff0236ea02a8",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.java": "f34b15ff93a6e1e4490b202768cf91540e60a1a0aafd2cee28e9e7564c6a590a",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.java": "000a09ef6b4de8ae76c54f10776b67b9df0608c834dd1ebfe5120ceec84e58f3",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageSmbCreationPolicy.java": "e8a52a67b5719bf7af57179b593a628a7c01a3539c0350346acbb55052c50c87",
+    "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageSmbParentInheritance.java": "648ac075d917c0918eae46761f581371278b6d73474dc625e8370a7815ae63a3",
+    "systemvm/debian/usr/local/bin/ablestack-storagectl": "52283e7ec4bac675ca81b455ebf1a5c69f722d21dc6d9fd34003953653d0b57c",
+    "systemvm/debian/usr/local/lib/ablestack-storage/shared_directory_policy.py": "c47a57262646007602025870c8fdcf68a1d5bbb8bb452b2976d6701b4d46465d",
+    "systemvm/debian/usr/local/lib/ablestack-storage/configuration_transaction.py": "b8d3ef9e434aec64fd4ddbe0b70c65bef8d0cbe63f84662d03fa797e8a2aa0b7",
+    "systemvm/debian/usr/local/lib/ablestack-storage/configuration_preflight.py": "a829c0c1146ac75841fcf7ddd5c4adae2d5e2ba27ab0d85b3cfeaef03007f495",
+    "systemvm/debian/usr/local/lib/ablestack-storage/runtime_updater.py": "516ca9674b58b7aecb46913b64d910812d198c8086c5fba825b91d663e92f329",
+    "systemvm/debian/usr/local/lib/ablestack-storage/runtime-baseline-profile.json": "42ae3e8e7798f61b0a8b6c836cf1514cdd0b1486dfdccafc120f3796b9284b62",
+    "tools/appliance/systemvmtemplate/scripts/install_systemvm_packages.sh": "e831209151a9276819157c54004a4a99704a3ac71565d975db82ae14e7a3b57f",
+    "ui/src/views/storage/SharedFSTab.vue": "6c7329a166b3d7891f8e325460f3f8c799f366fb3a8ee2a37093f4372366fa4b",
+    "ui/src/components/storage/SmbCreationPolicyDialog.vue": "025a7fea156e7c777f0118a6f872fa845319ee7405d6d7de329db7add4edf4c2",
+    "ui/src/layouts/ResourceLayout.vue": "0be02f1511ba10ed27a6b103178681fa0f950384d419ba53403a132352d7f20a",
+    "ui/src/components/widgets/Breadcrumb.vue": "352de00f5818987e6f49f178836dd52b98458b7fd695868c45042435ce4b1673",
+    "ui/src/components/view/MoldDialog.vue": "a720cd6fff0c51bd690b276a5ac3dbe17bcae139657043ac343904d78f0f2ea3",
+    "ui/src/components/view/MoldDialogActions.vue": "cdd25579c8d56a6b3221cb770d600b659664274f06f3ba0f732de881d842d392"
+  }
+}

@@ -217,6 +217,7 @@ jobs:
   build-systemvm-kvm:
     needs: metadata
     uses: ./.github/workflows/systemvm-kvm.yml
+    secrets: inherit
     with:
       ref: ${{ needs.metadata.outputs.source_commit_sha }}
       version: ${{ needs.metadata.outputs.package_version }}

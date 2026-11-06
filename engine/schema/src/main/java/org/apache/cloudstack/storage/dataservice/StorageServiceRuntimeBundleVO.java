@@ -36,7 +36,8 @@ import com.cloud.utils.db.GenericDao;
 @Entity
 @Table(name = "storage_service_runtime_bundle")
 public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundle {
-    public enum State { AVAILABLE, DISABLED }
+    public enum State { AVAILABLE, DISABLED, DRAFT, PUBLISHED, SUSPENDED, RETIRED, REVOKING, REVOKED, DELETED }
+    public enum ValidationStatus { UNVERIFIED, RUNNING, VERIFIED, FAILED, UNKNOWN }
     public enum ServiceImpact { NONE, PROTOCOL_RESTART, VM_REBOOT }
 
     @Id
@@ -70,7 +71,11 @@ public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundl
     private String signingKeyId;
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
-    private State state = State.AVAILABLE;
+    private State state = State.DRAFT;
+    @Column(name = "state_revision") private long stateRevision;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "validation_status") private ValidationStatus validationStatus = ValidationStatus.UNVERIFIED;
+    @Column(name = "current_validation_id") private Long currentValidationId;
     @Column(name = GenericDao.CREATED_COLUMN)
     @Temporal(TemporalType.TIMESTAMP)
     private Date created = new Date();
@@ -113,5 +118,12 @@ public class StorageServiceRuntimeBundleVO implements StorageServiceRuntimeBundl
     public State getState() { return state; }
     public Date getCreated() { return created; }
     public Date getRemoved() { return removed; }
+    public long getStateRevision() { return stateRevision; }
+    public void setStateRevision(long value) { stateRevision = value; }
+    public ValidationStatus getValidationStatus() { return validationStatus; }
+    public void setValidationStatus(ValidationStatus value) { validationStatus = value; }
+    public Long getCurrentValidationId() { return currentValidationId; }
+    public void setCurrentValidationId(Long value) { currentValidationId = value; }
+    public void setRemoved(Date value) { removed = value; }
     public void setState(final State state) { this.state = state; }
 }

@@ -1,0 +1,17 @@
+{
+  "baseCompressedSha256": "1d1f4c05f3f719642c4c1d9a17a0ade58a97024281cf8921ecfceb37079d19d3",
+  "installedModuleHashes": {
+    "usr/local/lib/ablestack-storage/volume_preparation.py": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+  },
+  "changedGuestPaths": [
+    "usr/local/lib/ablestack-storage/volume_preparation.py"
+  ],
+  "unchangedGuestPathsVerified": 33924,
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261023/issue1443-observation-fix/systemvm-epic1443-observation-20261023.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261023/issue1443-observation-fix/systemvm-epic1443-observation-20261023.qcow2.bz2",
+  "compressedSha256": "3333bd054a17a34d71120fdabcddcd9cf05aa1702da9dabd10ab7bc1a1f062b1",
+  "compressedBytes": 496370597,
+  "qemuImageCheck": "No errors were found on the image.\n27415/80000 = 34.27% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1797586944",
+  "buildKind": "scoped SharedFS observation module overlay; formatter, bootstrap and journal unchanged"
+}

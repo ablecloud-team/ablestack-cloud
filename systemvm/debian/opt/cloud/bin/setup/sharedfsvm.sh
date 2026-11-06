@@ -21,6 +21,11 @@
 setup_sharedfsvm() {
     log_it "Setting up sharedfsvm"
 
+    # The persisted STATIC configuration is authoritative after common init.
+    # No state on first boot/DHCP keeps the existing DHCP path.
+    local sharedfs_boot_network_mode
+    sharedfs_boot_network_mode=$(python3 /usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py) || exit 1
+
     update-alternatives --set iptables /usr/sbin/iptables-legacy
     update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
     update-alternatives --set arptables /usr/sbin/arptables-legacy
@@ -46,7 +51,13 @@ setup_sharedfsvm() {
     enable_irqbalance 0
     setup_ntp
     mkdir -p /var/lib/dhcp
-    dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+    if [ "$sharedfs_boot_network_mode" = "STATIC" ]; then
+      log_it "Persisted SharedFS STATIC network restored; bootstrap DHCP skipped"
+    else
+      local sharedfs_interface
+      sharedfs_interface=$(/usr/local/sbin/ablestack-sharedfs-network --interface "${NIC_MACS:-}") || exit 1
+      dhclient -4 -v -pf "/run/dhclient.${sharedfs_interface}.pid" -lf "/var/lib/dhcp/dhclient.${sharedfs_interface}.leases" "$sharedfs_interface" || true
+    fi
 
     rm -f /etc/logrotate.d/cloud
     mkdir -p /etc/ablestack-storage
@@ -79,7 +90,7 @@ setup_sharedfsvm() {
       chmod +x /usr/local/bin/ablestack-storage-monitor
       chmod 0644 /etc/systemd/system/ablestack-storage-monitor.service
       systemctl unmask ablestack-storage-monitor.service >/dev/null 2>&1 || true
-      systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true
+      systemctl enable --now --no-block ablestack-storage-monitor.service >/dev/null 2>&1 || true
     fi
     if [ -f /etc/systemd/system/ablestack-storage-runtime-bootstrap.service ]; then
       chmod 0644 /etc/systemd/system/ablestack-storage-runtime-bootstrap.service

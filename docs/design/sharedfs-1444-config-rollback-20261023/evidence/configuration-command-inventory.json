@@ -1,0 +1,176 @@
+[
+  {
+    "command": "CreateStorageNfsExportCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNfsExportCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageNfsExport"
+  },
+  {
+    "command": "UpdateStorageNfsExportCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNfsExportCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageNfsExport"
+  },
+  {
+    "command": "DeleteStorageNfsExportCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageNfsExportCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageNfsExport"
+  },
+  {
+    "command": "CreateStorageNfsAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNfsAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageNfsAcl"
+  },
+  {
+    "command": "UpdateStorageNfsAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNfsAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageNfsAcl"
+  },
+  {
+    "command": "DeleteStorageNfsAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageNfsAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageNfsAcl"
+  },
+  {
+    "command": "CreateStorageSmbShareCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageSmbShare"
+  },
+  {
+    "command": "UpdateStorageSmbShareCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageSmbShare"
+  },
+  {
+    "command": "DeleteStorageSmbShareCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageSmbShareCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageSmbShare"
+  },
+  {
+    "command": "CreateStorageSmbAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageSmbAcl"
+  },
+  {
+    "command": "UpdateStorageSmbAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageSmbAcl"
+  },
+  {
+    "command": "DeleteStorageSmbAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageSmbAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageSmbAcl"
+  },
+  {
+    "command": "CreateStorageIscsiTargetCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageIscsiTargetCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageIscsiTarget"
+  },
+  {
+    "command": "UpdateStorageIscsiTargetCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageIscsiTargetCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageIscsiTarget"
+  },
+  {
+    "command": "DeleteStorageIscsiTargetCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageIscsiTargetCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageIscsiTarget"
+  },
+  {
+    "command": "CreateStorageIscsiAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageIscsiAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageIscsiAcl"
+  },
+  {
+    "command": "UpdateStorageIscsiAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageIscsiAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageIscsiAcl"
+  },
+  {
+    "command": "DeleteStorageIscsiAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageIscsiAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageIscsiAcl"
+  },
+  {
+    "command": "CreateStorageNvmeOfSubsystemCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNvmeOfSubsystemCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageNvmeOfSubsystem"
+  },
+  {
+    "command": "UpdateStorageNvmeOfSubsystemCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNvmeOfSubsystemCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageNvmeOfSubsystem"
+  },
+  {
+    "command": "DeleteStorageNvmeOfSubsystemCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageNvmeOfSubsystemCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageNvmeOfSubsystem"
+  },
+  {
+    "command": "CreateStorageNvmeOfNamespaceCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNvmeOfNamespaceCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageNvmeOfNamespace"
+  },
+  {
+    "command": "UpdateStorageNvmeOfNamespaceCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNvmeOfNamespaceCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageNvmeOfNamespace"
+  },
+  {
+    "command": "DeleteStorageNvmeOfNamespaceCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageNvmeOfNamespaceCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageNvmeOfNamespace"
+  },
+  {
+    "command": "CreateStorageNvmeOfHostAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageNvmeOfHostAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "createStorageNvmeOfHostAcl"
+  },
+  {
+    "command": "UpdateStorageNvmeOfHostAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageNvmeOfHostAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "updateStorageNvmeOfHostAcl"
+  },
+  {
+    "command": "DeleteStorageNvmeOfHostAclCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageNvmeOfHostAclCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageNvmeOfHostAcl"
+  },
+  {
+    "command": "EnableStorageServiceProtocolCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/EnableStorageServiceProtocolCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "enableStorageServiceProtocol"
+  },
+  {
+    "command": "DeleteStorageServiceProtocolCmd",
+    "source": "api/src/main/java/org/apache/cloudstack/api/command/user/storage/dataservice/DeleteStorageServiceProtocolCmd.java",
+    "base": "BaseAsyncCmd",
+    "managerMethod": "deleteStorageServiceProtocol"
+  }
+]

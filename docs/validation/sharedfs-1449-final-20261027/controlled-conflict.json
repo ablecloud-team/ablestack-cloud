@@ -1,0 +1,15 @@
+{
+  "child": {
+    "observationUnknown": false,
+    "operation": "smb share apply",
+    "outputTruncated": false,
+    "result": {
+      "code": "SMB_ENDPOINT_IN_USE"
+    },
+    "returncode": 1
+  },
+  "state": "ROLLED_BACK",
+  "rollback": {
+    "state": "SUCCEEDED"
+  }
+}

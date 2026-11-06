@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"sourceCommit\": \"7970009e5535168e371b2eaa14ac1e18b2c4d0fd\", \"managementSha256\": \"b17ed65a6728cbe3719ad89d3fcb126384c14d94d260330df0a870e9019fac31\", \"uiPreserved\": true, \"uiIndexSha256\": \"c37069d7fdd460ae2719ec49a549a35094f20fcc6f618eaf2f9120b25a176a48\", \"externalJarsPreserved\": true, \"schemaChanged\": false, \"backupRoot\": \"/var/tmp/epic1438-1453-ad-7970009e5535-r5\"}\n",
+  "stderr": ""
+}

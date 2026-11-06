@@ -1,0 +1,10 @@
+{
+  "head": "b0695d7e44c9975284ced0d72eb19196ca6a09bf",
+  "activeEqualsSource": {
+    "ablestack-storagectl": "6639c2abaf55b18785783298723544afd5a1b432959c6721914ae4b9cb43d03d",
+    "lib/ablestack-storage/boot_reconcile.py": "03fd617e478a304c3bfbce565812c65d81afb5b56de0cac6ff5ce3d9f35d852a",
+    "lib/ablestack-storage/shared_directory_policy.py": "83dca5104d21dbd94408e3cdebda5de2ad975971a6dbd38eb4bcbe6482d89f76"
+  },
+  "base": "413d1459682b6f4dea6c90773510b8342dba1ec2",
+  "divergence": "0 0"
+}

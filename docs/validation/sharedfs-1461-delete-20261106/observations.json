@@ -1,0 +1,418 @@
+{
+  "nativeNext1461": {
+    "volume": "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff",
+    "uuid": "a1d28a22-ec76-4301-aab3-f1853fa3f286",
+    "provisioning": "SPARSE",
+    "operationId": "dab8710b-d43b-49ae-bb47-db4d8536d0e8",
+    "checks": [
+      "real mounted device and UUID verified by prepare-smb",
+      "createDirectory=false refused missing path",
+      "prepare did not create a directory",
+      "same-operation journal created and verified three inodes under umask 077",
+      "actual account can traverse new parents",
+      "rollback removed only owned empty paths",
+      "existing parent ACL and inode preserved"
+    ]
+  },
+  "guestDeployNext1461": {
+    "success": true,
+    "previous": "1461.parent.1",
+    "current": "1461.parent.2",
+    "sourceCommit": "9b97c749202adebf94909e9dca39081658909417",
+    "signatureVerified": true,
+    "integrityVerified": true,
+    "configurationAndPendingOperationUnchanged": true,
+    "protocolRestarted": false,
+    "changedModuleFiles": [
+      "ablestack-storagectl"
+    ]
+  },
+  "managementNext1461": {
+    "management": "d5be6ed5b3d09b928742cf8f8355e48c7824576dc362054812a2fd716dfa8696",
+    "previous": "5b7817871b7c05a613ffb1bdf02622b057af2d18ef240c770cd1554f8a0e7ccc",
+    "service": "active"
+  },
+  "uiDeployNext1461": {
+    "verifiedAssets": 929,
+    "updated": [
+      "color.less"
+    ],
+    "index": "0f2780db997788e317a64cea371960e5fc62d6446bcebb747d354c2074c1f010",
+    "configPreserved": true
+  },
+  "rollbackArchiveNext1461": {
+    "rootFree": 600719360,
+    "preservedRollbackArtifacts": 3,
+    "archive": "/nfs/secondary/.epic1461-rollback-jars"
+  },
+  "baselineNext1461": {
+    "nfs": {
+      "sha256": "b0c4ebd7b72d6346de1e995e2d2cd2a9af1e1a99f46f43aac9535c99203a962e",
+      "inode": 8388737,
+      "mode": "0o640",
+      "uid": 65534
+    },
+    "boot": "7d12ca83-0105-4a9b-a791-2714c3f5b1d2",
+    "mounts": {
+      "56ab871e-246b-403e-a852-fa907ef98c92": "/dev/sdb bde0c6a5-98df-4190-9ae6-1840e3dd104e xfs    /",
+      "53807a11-8997-4031-a235-1cc91b525d0f": "/dev/sdc 372907ef-0e94-458e-a4d8-7f6ba8f2d3f4 ext4   /",
+      "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": "/dev/sdd a1d28a22-ec76-4301-aab3-f1853fa3f286 xfs    /"
+    },
+    "parents": {
+      "56ab871e-246b-403e-a852-fa907ef98c92": {
+        "inode": 131,
+        "mode": "0o700",
+        "uid": 0,
+        "gid": 0,
+        "aclHash": "fe3b0dfb6ba214108a4bfbc9ce0e518de9559daa0ff32feba77c0f3d6d7accd3"
+      },
+      "53807a11-8997-4031-a235-1cc91b525d0f": {
+        "inode": 131073,
+        "mode": "0o700",
+        "uid": 0,
+        "gid": 0,
+        "aclHash": "fe3b0dfb6ba214108a4bfbc9ce0e518de9559daa0ff32feba77c0f3d6d7accd3"
+      },
+      "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": {
+        "inode": 131,
+        "mode": "0o700",
+        "uid": 0,
+        "gid": 0,
+        "aclHash": "fe3b0dfb6ba214108a4bfbc9ce0e518de9559daa0ff32feba77c0f3d6d7accd3"
+      }
+    }
+  },
+  "prepareAppliedNext1461": "{\"op\": \"7272b089-ebbe-4d48-bc5a-e90e4034dfaf\", \"state\": \"COMMITTED\", \"rev\": 10, \"observed\": {\"configurationOperationId\": \"7272b089-ebbe-4d48-bc5a-e90e4034dfaf\", \"directoryCreated\": false, \"directoryManagedByApply\": true, \"filesystemUuid\": \"0a3d70cd-c8ae-4252-9108-52b524ca6b86\", \"importMode\": \"FORMAT_EMPTY\", \"observedAt\": \"2026-11-06T02:09:28.857409Z\"}, \"journal\": \"7272b089-ebbe-4d48-bc5a-e90e4034dfaf\", \"created\": [{\"filesystemUuid\": \"0a3d70cd-c8ae-4252-9108-52b524ca6b86\", \"inode\": 131, \"relative\": \"export\", \"volume\": \"/srv/ablestack-storage/volumes/cc337e4f-2016-4d8c-8ca2-85b1f66767c8\", \"volumeRootInode\": 128}, {\"filesystemUuid\": \"0a3d70cd-c8ae-4252-9108-52b524ca6b86\", \"inode\": 8388736, \"relative\": \"export/smb1461-prepare\", \"volume\": \"/srv/ablestack-storage/volumes/cc337e4f-2016-4d8c-8ca2-85b1f66767c8\", \"volumeRootInode\": 128}], \"acls\": []}\n{\"op\": \"57b99de2-f6bf-4b9d-a34d-9180652f2b47\", \"state\": \"COMMITTED\", \"rev\": 11, \"observed\": {\"configurationOperationId\": \"7272b089-ebbe-4d48-bc5a-e90e4034dfaf\", \"directoryCreated\": false, \"directoryManagedByApply\": true, \"filesystemUuid\": \"0a3d70cd-c8ae-4252-9108-52b524ca6b86\", \"importMode\": \"FORMAT_EMPTY\", \"observedAt\": \"2026-11-06T02:09:28.857409Z\"}, \"journal\": null, \"created\": [], \"acls\": [\"issue1461user\"]}\n/dev/sde 0a3d70cd-c8ae-4252-9108-52b524ca6b86 xfs    /\n711 131 /srv/ablestack-storage/volumes/cc337e4f-2016-4d8c-8ca2-85b1f66767c8/export\n770 8388736 /srv/ablestack-storage/volumes/cc337e4f-2016-4d8c-8ca2-85b1f66767c8/export/smb1461-prepare",
+  "smbBeforeRebootNext1461": {
+    "hash": "1ebc5420ad75e2b1458af7d5dc2cb8d4f97fa596168f59ed26e859c2f13ee1c5",
+    "mode": "0o660",
+    "uid": 1001,
+    "gid": 1001,
+    "inode": 8388737,
+    "boot": "7d12ca83-0105-4a9b-a791-2714c3f5b1d2",
+    "aclHash": "d9b84ac748f061986f3af32b8ae4f341234490587ca6df6ac41c42d749f14aef"
+  },
+  "rebootNext1461": {
+    "boot": "661d58bf-6b1b-4083-9b7d-5927eb705efc",
+    "changed": true,
+    "hash": "1ebc5420ad75e2b1458af7d5dc2cb8d4f97fa596168f59ed26e859c2f13ee1c5",
+    "mode": "0o660",
+    "uid": 1001,
+    "gid": 1001,
+    "inode": 8388737,
+    "aclHash": "d9b84ac748f061986f3af32b8ae4f341234490587ca6df6ac41c42d749f14aef",
+    "mount": "0a3d70cd-c8ae-4252-9108-52b524ca6b86 /"
+  },
+  "softDestroyNext1461": {
+    "state": "SOFT_DESTROYED",
+    "phase": "SOFT_DESTROYED",
+    "operationid": "fb4a9f6e-7bca-4f53-b3da-10c9f521ea52",
+    "progress": {
+      "volumes": {},
+      "vmStopped": true
+    },
+    "originalfailure": null,
+    "canresume": false
+  },
+  "softVolumesNext1461": {
+    "vm": {
+      "id": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d",
+      "state": "Stopped"
+    },
+    "volumes": [
+      {
+        "id": "3fc10ca9-3aa3-4dbd-84a3-7b8d552e8c20",
+        "name": "sharedfs-ROOT-221",
+        "type": "ROOT",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "56ab871e-246b-403e-a852-fa907ef98c92",
+        "name": "sharedfs-DATA-221",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "53807a11-8997-4031-a235-1cc91b525d0f",
+        "name": "issue1461-smb-ext4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff",
+        "name": "issue1461-parent-smb-sparse",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "cc337e4f-2016-4d8c-8ca2-85b1f66767c8",
+        "name": "issue1461-prepare-smb-sparse",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "e9f3fa28-66ca-451c-8856-e814b624e4de",
+        "name": "issue1461-iscsi-sparse",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      },
+      {
+        "id": "6b8897a0-fccb-4cdb-866e-0074e340b25d",
+        "name": "issue1461-nvme-sparse",
+        "type": "DATADISK",
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "db7810f8-f49c-3fbd-881e-7b0e34de3f8d"
+      }
+    ]
+  },
+  "hardPreserveNext1461": {
+    "state": "COMPLETED",
+    "phase": "COMPLETED",
+    "operationid": "fb4a9f6e-7bca-4f53-b3da-10c9f521ea52",
+    "progress": {
+      "volumes": {
+        "56ab871e-246b-403e-a852-fa907ef98c92": "DETACHED_PRESERVED",
+        "53807a11-8997-4031-a235-1cc91b525d0f": "DETACHED_PRESERVED",
+        "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": "DETACHED_PRESERVED",
+        "cc337e4f-2016-4d8c-8ca2-85b1f66767c8": "DETACHED_PRESERVED",
+        "e9f3fa28-66ca-451c-8856-e814b624e4de": "DETACHED_PRESERVED",
+        "6b8897a0-fccb-4cdb-866e-0074e340b25d": "DETACHED_PRESERVED"
+      },
+      "vmStopped": true,
+      "expungeRequested": true,
+      "vmRemoved": true
+    },
+    "originalfailure": null,
+    "canresume": false
+  },
+  "selectedDeleteNext1461": {
+    "keys": [
+      "count",
+      "deletionoperation"
+    ],
+    "operations": [
+      {
+        "operationid": "69aea040-2e66-455f-a164-a7b2f49b9b6f",
+        "state": "COMPLETED",
+        "phase": "COMPLETED",
+        "progress": {
+          "expungeRequested": true,
+          "volumes": {
+            "5e74ac6c-b46f-4ad6-82bb-400675e0242d": "DETACHED_PRESERVED",
+            "0a79ce97-d3e5-46ff-b7f6-834e3f44879b": "DELETED"
+          },
+          "vmStopped": true,
+          "vmRemoved": true
+        },
+        "originalfailure": null,
+        "requestid": "adbbb3d8-c60c-4a3c-ac3e-b89018c26e49"
+      },
+      {
+        "operationid": "fb4a9f6e-7bca-4f53-b3da-10c9f521ea52",
+        "state": "COMPLETED",
+        "phase": "COMPLETED",
+        "progress": {
+          "volumes": {
+            "56ab871e-246b-403e-a852-fa907ef98c92": "DETACHED_PRESERVED",
+            "53807a11-8997-4031-a235-1cc91b525d0f": "DETACHED_PRESERVED",
+            "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": "DETACHED_PRESERVED",
+            "cc337e4f-2016-4d8c-8ca2-85b1f66767c8": "DETACHED_PRESERVED",
+            "e9f3fa28-66ca-451c-8856-e814b624e4de": "DETACHED_PRESERVED",
+            "6b8897a0-fccb-4cdb-866e-0074e340b25d": "DETACHED_PRESERVED"
+          },
+          "vmStopped": true,
+          "expungeRequested": true,
+          "vmRemoved": true
+        },
+        "originalfailure": null,
+        "requestid": "875f4992-7f5e-4cf2-885c-3f43f8c1bddb"
+      }
+    ]
+  },
+  "postDeleteVolumes1461": {
+    "56ab871e-246b-403e-a852-fa907ef98c92": {
+      "name": "sharedfs-DATA-221",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "53807a11-8997-4031-a235-1cc91b525d0f": {
+      "name": "issue1461-smb-ext4",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": {
+      "name": "issue1461-parent-smb-sparse",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "cc337e4f-2016-4d8c-8ca2-85b1f66767c8": {
+      "name": "issue1461-prepare-smb-sparse",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "e9f3fa28-66ca-451c-8856-e814b624e4de": {
+      "name": "issue1461-iscsi-sparse",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "6b8897a0-fccb-4cdb-866e-0074e340b25d": {
+      "name": "issue1461-nvme-sparse",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "5e74ac6c-b46f-4ad6-82bb-400675e0242d": {
+      "name": "sharedfs-DATA-222",
+      "state": "Ready",
+      "virtualmachineid": null,
+      "provisioningtype": "sparse"
+    },
+    "3fc10ca9-3aa3-4dbd-84a3-7b8d552e8c20": null,
+    "6626d843-9392-48cc-8018-e9f3c58dda9f": null,
+    "0a79ce97-d3e5-46ff-b7f6-834e3f44879b": null
+  },
+  "reattachAPINext1461": [
+    {
+      "id": "0eda616f-9fd6-4b09-ad30-61fb3caf25fd",
+      "name": "ROOT-220",
+      "deviceid": 0,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "ROOT",
+      "path": "0eda616f-9fd6-4b09-ad30-61fb3caf25fd"
+    },
+    {
+      "id": "56ab871e-246b-403e-a852-fa907ef98c92",
+      "name": "sharedfs-DATA-221",
+      "deviceid": 1,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "56ab871e-246b-403e-a852-fa907ef98c92"
+    },
+    {
+      "id": "53807a11-8997-4031-a235-1cc91b525d0f",
+      "name": "issue1461-smb-ext4",
+      "deviceid": 6,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "53807a11-8997-4031-a235-1cc91b525d0f"
+    },
+    {
+      "id": "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff",
+      "name": "issue1461-parent-smb-sparse",
+      "deviceid": 7,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff"
+    },
+    {
+      "id": "cc337e4f-2016-4d8c-8ca2-85b1f66767c8",
+      "name": "issue1461-prepare-smb-sparse",
+      "deviceid": 2,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "cc337e4f-2016-4d8c-8ca2-85b1f66767c8"
+    },
+    {
+      "id": "e9f3fa28-66ca-451c-8856-e814b624e4de",
+      "name": "issue1461-iscsi-sparse",
+      "deviceid": 4,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "e9f3fa28-66ca-451c-8856-e814b624e4de"
+    },
+    {
+      "id": "6b8897a0-fccb-4cdb-866e-0074e340b25d",
+      "name": "issue1461-nvme-sparse",
+      "deviceid": 5,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "6b8897a0-fccb-4cdb-866e-0074e340b25d"
+    },
+    {
+      "id": "5e74ac6c-b46f-4ad6-82bb-400675e0242d",
+      "name": "sharedfs-DATA-222",
+      "deviceid": 8,
+      "provisioningtype": "sparse",
+      "state": "Ready",
+      "type": "DATADISK",
+      "path": "5e74ac6c-b46f-4ad6-82bb-400675e0242d"
+    }
+  ],
+  "managementRestartNext1461": {
+    "previousPid": "1319236",
+    "newPid": "1324943",
+    "state": "active"
+  },
+  "postManagementRestartNext1461": {
+    "history": [
+      {
+        "operationid": "fb4a9f6e-7bca-4f53-b3da-10c9f521ea52",
+        "state": "COMPLETED",
+        "phase": "COMPLETED",
+        "requestid": "875f4992-7f5e-4cf2-885c-3f43f8c1bddb",
+        "progress": {
+          "volumes": {
+            "56ab871e-246b-403e-a852-fa907ef98c92": "DETACHED_PRESERVED",
+            "53807a11-8997-4031-a235-1cc91b525d0f": "DETACHED_PRESERVED",
+            "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff": "DETACHED_PRESERVED",
+            "cc337e4f-2016-4d8c-8ca2-85b1f66767c8": "DETACHED_PRESERVED",
+            "e9f3fa28-66ca-451c-8856-e814b624e4de": "DETACHED_PRESERVED",
+            "6b8897a0-fccb-4cdb-866e-0074e340b25d": "DETACHED_PRESERVED"
+          },
+          "vmStopped": true,
+          "expungeRequested": true,
+          "vmRemoved": true
+        }
+      },
+      {
+        "operationid": "69aea040-2e66-455f-a164-a7b2f49b9b6f",
+        "state": "COMPLETED",
+        "phase": "COMPLETED",
+        "requestid": "adbbb3d8-c60c-4a3c-ac3e-b89018c26e49",
+        "progress": {
+          "expungeRequested": true,
+          "volumes": {
+            "5e74ac6c-b46f-4ad6-82bb-400675e0242d": "DETACHED_PRESERVED",
+            "0a79ce97-d3e5-46ff-b7f6-834e3f44879b": "DELETED"
+          },
+          "vmStopped": true,
+          "vmRemoved": true
+        }
+      }
+    ],
+    "reattachedReady": [
+      "56ab871e-246b-403e-a852-fa907ef98c92",
+      "53807a11-8997-4031-a235-1cc91b525d0f",
+      "cdcd91d8-d5d9-4f5b-824c-6c88893b33ff",
+      "cc337e4f-2016-4d8c-8ca2-85b1f66767c8",
+      "e9f3fa28-66ca-451c-8856-e814b624e4de",
+      "6b8897a0-fccb-4cdb-866e-0074e340b25d",
+      "5e74ac6c-b46f-4ad6-82bb-400675e0242d"
+    ]
+  }
+}

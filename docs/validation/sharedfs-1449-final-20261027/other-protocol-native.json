@@ -1,0 +1,36 @@
+{
+  "sockets": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                    \nLISTEN 0      256     10.10.13.250:3260      0.0.0.0:*                                                              \nLISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=1072,fd=3))                            \nLISTEN 0      65535        0.0.0.0:111       0.0.0.0:*    users:((\"rpcbind\",pid=1515,fd=4),(\"systemd\",pid=1,fd=115))\nLISTEN 0      50           0.0.0.0:445       0.0.0.0:*    users:((\"smbd\",pid=1174,fd=30))                           \nLISTEN 0      128     10.10.13.250:4420      0.0.0.0:*                                                              \nLISTEN 0      4096               *:2049            *:*    users:((\"ganesha.nfsd\",pid=1542,fd=14))                   \nLISTEN 0      128             [::]:22           [::]:*    users:((\"sshd\",pid=1072,fd=4))                            \nLISTEN 0      65535           [::]:111          [::]:*    users:((\"rpcbind\",pid=1515,fd=6),(\"systemd\",pid=1,fd=119))\nLISTEN 0      50              [::]:445          [::]:*    users:((\"smbd\",pid=1174,fd=29))                           \n",
+  "nfsFiles": [
+    "/etc/ganesha/vfs.conf",
+    "/etc/ganesha/ablestack-storage",
+    "/etc/ganesha/ganesha.conf"
+  ],
+  "stateFiles": [
+    "/etc/ablestack-storage/nvmeof-namespace-identities.json.lock",
+    "/etc/ablestack-storage/runtime-trusted-keys",
+    "/etc/ablestack-storage/sharedfs-network-applied.json",
+    "/etc/ablestack-storage/nvmeof-namespace-identities.json",
+    "/etc/ablestack-storage/secrets",
+    "/etc/ablestack-storage/network-endpoints.json",
+    "/etc/ablestack-storage/nfs-quotas.json",
+    "/etc/ablestack-storage/smb-quotas.json",
+    "/etc/ablestack-storage/desired-state",
+    "/etc/ablestack-storage/sharedfs-network.json",
+    "/etc/ablestack-storage/smb-listeners",
+    "/etc/ablestack-storage/nfs-export-aliases.json",
+    "/etc/ablestack-storage/nvmeof-subsystems.json",
+    "/etc/ablestack-storage/smb-listeners.json",
+    "/etc/ablestack-storage/smb-access.json",
+    "/etc/ablestack-storage/iscsi-targets.json"
+  ],
+  "iscsi": "o- / ......................................................................................................................... [...]\n  o- backstores .............................................................................................................. [...]\n  | o- block .................................................................................................. [Storage Objects: 1]\n  | | o- ablestack-51da150a-8385-42f1-8bae-2042d969c1ff .................................. [/dev/sde (20.0GiB) write-thru activated]\n  | |   o- alua ................................................................................................... [ALUA Groups: 1]\n  | |     o- default_tg_pt_gp ....................................................................... [ALUA state: Active/optimized]\n  | o- fileio ................................................................................................. [Storage Objects: 0]\n  | o- pscsi .................................................................................................. [Storage Objects: 0]\n  | o- ramdisk ................................................................................................ [Storage Objects: 0]\n  o- iscsi ............................................................................................................ [Targets: 1]\n  | o- iqn.2026-10.local.storage:r1444i .................................................................................. [TPGs: 1]\n  |   o- tpg1 ............................................................................................... [no-gen-acls, no-auth]\n  |     o- acls .......................................................................................................... [ACLs: 1]\n  |     | o- iqn.1994-05.com.redhat:629d4acdf2d ................................................................... [Mapped LUNs: 1]\n  |     |   o- mapped_lun0 ........................................ [lun0 block/ablestack-51da150a-8385-42f1-8bae-2042d969c1ff (rw)]\n  |     o- luns .......................................................................................................... [LUNs: 1]\n  |     | o- lun0 ............................. [block/ablestack-51da150a-8385-42f1-8bae-2042d969c1ff (/dev/sde) (default_tg_pt_gp)]\n  |     o- portals .................................................................................................... [Portals: 1]\n  |       o- 10.10.13.250:3260 ................................................................................................ [OK]\n  o- loopback ......................................................................................................... [Targets: 0]\n  o- vhost ............................................................................................................ [Targets: 0]\n  o- xen-pvscsi ....................................................................................................... [Targets: 0]\n",
+  "nvme": [
+    {
+      "nqn": "nqn.2026-10.local.storage:r1444v",
+      "nsid": "1",
+      "device_path": "/dev/sdd",
+      "device_uuid": "c16a7f1f-5e65-49c0-a1f7-ab1ae9902ced",
+      "enable": "1"
+    }
+  ]
+}

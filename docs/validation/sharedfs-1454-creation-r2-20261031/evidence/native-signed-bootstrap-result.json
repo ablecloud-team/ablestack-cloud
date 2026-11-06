@@ -1,0 +1,34 @@
+{
+  "success": true,
+  "signatureAndTenFileProfile": {
+    "baselineProfileMatches": true,
+    "bundleVersion": "1454.creation.2",
+    "managedFilesVerified": [
+      "ablestack-storage-boot-reconcile",
+      "ablestack-storage-monitor",
+      "ablestack-storagectl",
+      "lib/ablestack-storage/configuration_preflight.py",
+      "lib/ablestack-storage/configuration_transaction.py",
+      "lib/ablestack-storage/nvmeof_identity.py",
+      "lib/ablestack-storage/session_auth.py",
+      "lib/ablestack-storage/shared_directory_policy.py",
+      "lib/ablestack-storage/volume_identity.py",
+      "lib/ablestack-storage/volume_preparation.py"
+    ],
+    "manifestSha256": "cb2114defcb51c9593538e6328fd5ff41e194d3740831414f54bd3c531a6abcf",
+    "signatureVerified": true,
+    "success": true
+  },
+  "native": {
+    "bootstrapPhases": [
+      "BOOTSTRAPPED",
+      "BOOTSTRAPPED",
+      "BOOTSTRAPPED"
+    ],
+    "activeCliFeature": 1,
+    "protectedBaseline": 1,
+    "oldTargetRejected": true,
+    "signedTargetAccepted": true
+  },
+  "productionUnchanged": true
+}

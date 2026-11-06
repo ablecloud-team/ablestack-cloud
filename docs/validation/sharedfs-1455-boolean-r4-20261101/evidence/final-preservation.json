@@ -1,0 +1,28 @@
+{
+  "old54Count": 54,
+  "old54Preserved": true,
+  "allPreRebootObjectsPreserved": true,
+  "configHashesSameAcrossRebootAndManagementRestart": true,
+  "filesystemSame": true,
+  "mac": "02:0d:00:cc:00:93",
+  "faultHookAbsent": true,
+  "newR4Files": [
+    "epic1455/projects/team-a/r4-c1.txt",
+    "epic1455/projects/team-a/r4-smb-c1.txt",
+    "epic1455/projects/team-a/r4-c2.txt",
+    "epic1455/projects/team-a/r4-smb-c2-445.txt",
+    "epic1455/projects/team-a/r4-smb-c2-1445.txt",
+    "epic1455/projects/team-a/r4-after-management.txt",
+    "epic1455/projects/team-b/r4-c1.txt"
+  ],
+  "old8Preserved": true,
+  "newR4ContentsMatchClientWrites": {
+    "team-a/r4-c1.txt": true,
+    "team-a/r4-smb-c1.txt": true,
+    "team-a/r4-c2.txt": true,
+    "team-a/r4-smb-c2-445.txt": true,
+    "team-a/r4-smb-c2-1445.txt": true,
+    "team-a/r4-after-management.txt": true,
+    "team-b/r4-c1.txt": true
+  }
+}

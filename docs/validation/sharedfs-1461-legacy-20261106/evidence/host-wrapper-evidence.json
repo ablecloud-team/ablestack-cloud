@@ -1,0 +1,7 @@
+{
+  "chunk_id": "bba492",
+  "wall_time_seconds": 3.4130205,
+  "exit_code": 0,
+  "original_token_count": 116,
+  "output": "{\"exit\": 0, \"stdout\": \"{\\\"jar\\\": \\\"/usr/share/mold-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar\\\", \\\"classSha256\\\": \\\"db6dc18f8692b200d097df32bd7c324ed9b4e2fe2ce59afc0a1d03a83c877796\\\", \\\"secureUmask077PrefixPresent\\\": true}\\n{\\\"jar\\\": \\\"/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar\\\", \\\"classSha256\\\": \\\"db6dc18f8692b200d097df32bd7c324ed9b4e2fe2ce59afc0a1d03a83c877796\\\", \\\"secureUmask077PrefixPresent\\\": true}\\n\", \"stderr\": \"\"}\n"
+}

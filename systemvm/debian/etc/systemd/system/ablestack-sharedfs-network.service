@@ -1,0 +1,13 @@
+[Unit]
+Description=ABLESTACK SharedFS static network restore
+After=local-fs.target cloud-early-config.service
+Before=ablestack-storage-reconcile.service
+ConditionPathExists=/etc/ablestack-storage/sharedfs-network.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

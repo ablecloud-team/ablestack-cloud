@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "kind": "private SystemVM design feasibility; not product acceptance",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "real V4 Ganesha exports on two private listeners",
+      "exports": 1,
+      "probes": 2,
+      "concurrency": 4,
+      "elapsedSeconds": 0.085,
+      "passed": true
+    },
+    {
+      "name": "real V4 Ganesha exports on two private listeners",
+      "exports": 10,
+      "probes": 20,
+      "concurrency": 4,
+      "elapsedSeconds": 0.79,
+      "passed": true
+    },
+    {
+      "name": "real V4 Ganesha exports on two private listeners",
+      "exports": 100,
+      "probes": 200,
+      "concurrency": 4,
+      "elapsedSeconds": 6.544,
+      "passed": true
+    },
+    {
+      "name": "one failed private export probe then observe-only recovery; listener PIDs unchanged",
+      "passed": true,
+      "firstFailure": {
+        "success": false,
+        "timeout": false,
+        "mounted": false,
+        "error": "mount.nfs4: mounting 192.0.2.59:/absent failed, reason given by server: No such file or directory\n"
+      }
+    },
+    {
+      "name": "real timeout terminates process group including descendant and reaps parent",
+      "passed": true,
+      "descendantRunning": false
+    }
+  ],
+  "protectedUnchanged": true,
+  "temporaryResourcesRemoved": true
+}

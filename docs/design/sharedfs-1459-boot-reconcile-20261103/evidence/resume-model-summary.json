@@ -1,0 +1,73 @@
+{
+  "success": true,
+  "kind": "design model only; no product API or active configuration writes",
+  "checks": [
+    {
+      "name": "bounded workload budget is derived from actual probe work, not fixed per service",
+      "passed": true,
+      "matrix": [
+        {
+          "exports": 1,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "probes": 2,
+          "budgetSeconds": 90
+        },
+        {
+          "exports": 1,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "probes": 2,
+          "budgetSeconds": 90
+        },
+        {
+          "exports": 10,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "probes": 20,
+          "budgetSeconds": 100
+        },
+        {
+          "exports": 10,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "probes": 20,
+          "budgetSeconds": 90
+        },
+        {
+          "exports": 100,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "probes": 200,
+          "budgetSeconds": 235
+        },
+        {
+          "exports": 100,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "probes": 200,
+          "budgetSeconds": 215
+        }
+      ]
+    },
+    {
+      "name": "journal reopen and lost response reuse same boot/desired identity; only pending observation resumes",
+      "passed": true,
+      "applyCounts": {
+        "NFS": 1,
+        "SMB": 1,
+        "ISCSI": 1,
+        "NVMEOF": 1
+      },
+      "firstFailurePreserved": true
+    },
+    {
+      "name": "new boot, desired mutation and runtime/FS identity change invalidate completed observations",
+      "passed": true
+    },
+    {
+      "name": "real nonblocking flock rejects duplicate worker admission",
+      "passed": true
+    }
+  ]
+}

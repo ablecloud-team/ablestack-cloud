@@ -1,0 +1,152 @@
+{
+  "readOnly": true,
+  "files": {
+    "/etc/ablestack-storage/sharedfs-network.json": {
+      "sha256": "c650c2cf45643f6dbe2933d7106e64f5df9de0c38cb650884d43278b067b9a68",
+      "mode": "0o600",
+      "uid": 0
+    },
+    "/usr/local/sbin/ablestack-sharedfs-network": {
+      "sha256": "7e74d3213c7bcb9eed461ed3554f7b1a924a9392f35340e99282a08647347e94",
+      "mode": "0o755",
+      "uid": 0
+    },
+    "/etc/systemd/system/ablestack-sharedfs-network.service": {
+      "sha256": "ac8efd0d4d77f099db8fecdc94293e9b74ad1c0d70364cbbe152c9f14885debf",
+      "mode": "0o644",
+      "uid": 0
+    },
+    "/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": {
+      "sha256": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573",
+      "mode": "0o644",
+      "uid": 0
+    },
+    "/opt/cloud/bin/setup/sharedfsvm.sh": {
+      "sha256": "f6a4d913a92bf5a4c6cfbef4817b9740b47d508b5ceeded43819ce5055b9771f",
+      "mode": "0o755",
+      "uid": 0
+    },
+    "/etc/network/interfaces": {
+      "sha256": "0f18c98583f63a9f9e1539820d64d09083e16bfad945e3cdd899133194edaab0",
+      "mode": "0o644",
+      "uid": 0
+    },
+    "/etc/resolv.conf": {
+      "sha256": "be102039b1dc4747490c6994ca8dc17d12d32219561f8ba23e8c0b865ac223ed",
+      "mode": "0o644",
+      "uid": 0
+    },
+    "/etc/ablestack-storage/network-endpoints.json": {
+      "sha256": "6edb09a5f81ba9c664a1032aa28b28b69e2d70c73107773a86ff6ffd2f2d3eef",
+      "mode": "0o644",
+      "uid": 0
+    }
+  },
+  "addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.10.13.250",
+          "prefixlen": 16,
+          "scope": "global",
+          "label": "eth0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "routes": {
+    "code": 0,
+    "output": "[{\"dst\":\"default\",\"gateway\":\"10.10.13.1\",\"dev\":\"eth0\",\"flags\":[]},{\"dst\":\"10.10.0.0/16\",\"dev\":\"eth0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"10.10.13.250\",\"flags\":[]}]",
+    "error": ""
+  },
+  "dhcpProcesses": [],
+  "units": {
+    "cloud-early-config": {
+      "code": 0,
+      "output": "Result=success\nBefore=ablestack-sharedfs-network.service cloud-postinit.service\nAfter=systemd-journald.socket system.slice cloud-preinit.service local-fs.target\nActiveState=active\nSubState=exited",
+      "error": ""
+    },
+    "networking": {
+      "code": 0,
+      "output": "Result=exit-code\nBefore=network.target shutdown.target network-online.target cloud-init.service\nAfter=network-pre.target systemd-journald.socket systemd-sysctl.service apparmor.service systemd-modules-load.service local-fs.target system.slice ifupdown-pre.service\nActiveState=failed\nSubState=failed",
+      "error": ""
+    },
+    "systemd-networkd": {
+      "code": 0,
+      "output": "Result=success\nBefore=network.target apt-daily.service systemd-networkd-wait-online.service shutdown.target multi-user.target initrd-switch-root.target\nAfter=systemd-udevd.service systemd-sysusers.service systemd-sysctl.service systemd-networkd.socket -.mount network-pre.target system.slice systemd-journald.socket\nActiveState=inactive\nSubState=dead",
+      "error": ""
+    },
+    "NetworkManager": {
+      "code": 0,
+      "output": "Result=success\nBefore=apt-daily.service\nAfter=cloud-init-local.service\nActiveState=inactive\nSubState=dead",
+      "error": ""
+    },
+    "ablestack-sharedfs-network": {
+      "code": 0,
+      "output": "Result=success\nBefore=multi-user.target shutdown.target\nAfter=cloud-early-config.service system.slice basic.target local-fs.target systemd-journald.socket sysinit.target\nActiveState=active\nSubState=exited",
+      "error": ""
+    },
+    "ablestack-storage-reconcile": {
+      "code": 0,
+      "output": "Result=success\nBefore=ablestack-storage-monitor.service shutdown.target multi-user.target\nAfter=sysinit.target local-fs.target qemu-guest-agent.service rtslib-fb-targetctl.service system.slice basic.target ablestack-storage-runtime-bootstrap.service cloud-dhclient@eth0.service network-online.target systemd-journald.socket\nActiveState=inactive\nSubState=dead",
+      "error": ""
+    }
+  },
+  "listeners": [
+    "*:2049",
+    "0.0.0.0:111",
+    "0.0.0.0:22",
+    "0.0.0.0:445",
+    "10.10.13.250:3260",
+    "10.10.13.250:4420",
+    "[::]:111",
+    "[::]:22",
+    "[::]:445"
+  ],
+  "noRebootOrLifecycleMutation": true
+}

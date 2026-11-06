@@ -1,0 +1,7 @@
+{
+  "chunk_id": "f2306d",
+  "wall_time_seconds": 2.9291179,
+  "exit_code": 0,
+  "original_token_count": 127,
+  "output": "{\"exit\": 0, \"stdout\": \"{\\\"pid\\\": 116922, \\\"exit\\\": 0, \\\"stdout\\\": \\\"{\\\\\\\"nfs\\\\\\\": {\\\\\\\"sha256\\\\\\\": \\\\\\\"b0c4ebd7b72d6346de1e995e2d2cd2a9af1e1a99f46f43aac9535c99203a962e\\\\\\\", \\\\\\\"uid\\\\\\\": 65534, \\\\\\\"gid\\\\\\\": 65534, \\\\\\\"mode\\\\\\\": \\\\\\\"0o640\\\\\\\", \\\\\\\"inode\\\\\\\": 8388737}, \\\\\\\"smbManifestConfigured\\\\\\\": null, \\\\\\\"smbManifestPending\\\\\\\": null, \\\\\\\"legacyServiceState\\\\\\\": \\\\\\\"inactive\\\\\\\", \\\\\\\"smbDirectoryEmpty\\\\\\\": true, \\\\\\\"primaryOrAdditionalDataDeleted\\\\\\\": false}\\\\n\\\", \\\"stderr\\\": \\\"\\\"}\\n\", \"stderr\": \"\"}\n"
+}

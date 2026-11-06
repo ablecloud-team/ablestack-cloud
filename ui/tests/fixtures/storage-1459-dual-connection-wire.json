@@ -1,0 +1,82 @@
+{
+  "listStorageServiceProtocols": {
+    "liststorageserviceprotocolsresponse": {
+      "count": 1,
+      "storageserviceprotocol": [
+        {
+          "id": "4b01191a-e304-4cf5-a8c5-f416c23cdc45",
+          "instanceid": "feebaf43-5297-4bf1-b24a-b42db9b362b4",
+          "protocol": "NFS",
+          "enabled": true,
+          "port": 2049,
+          "state": "Ready",
+          "protocolmode": "V3V4_DUAL",
+          "config": "{\"protocolMode\":\"V3V4_DUAL\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}],\"nfs4IdentityMappingMode\":\"NAME_DOMAIN\",\"nfs4IdentityPolicyRevision\":0}",
+          "listenertype": "WILDCARD",
+          "primaryip": "10.10.13.181",
+          "runtimeprimaryip": "10.10.13.181",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.181",
+              "port": 2049,
+              "role": "PRIMARY"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 1
+        }
+      ]
+    }
+  },
+  "listStorageNfsExports": {
+    "liststoragenfsexportsresponse": {
+      "count": 1,
+      "storagenfsexport": [
+        {
+          "relativepath": "export/dual001",
+          "pathstatus": "LEGACY",
+          "localprobe": {
+            "ports": [
+              {
+                "observedAt": 1793699507.953562,
+                "port": 2049,
+                "status": "MOUNT_VERIFIED"
+              }
+            ],
+            "externalclientrequired": false
+          },
+          "posixobservation": {
+            "fingerprint": "405254f22bb867aca28338b320602963b1aff7dd48b7e95405dc9f6f5efae529",
+            "mode": "0775",
+            "observedat": 1793718811.9733102,
+            "ownergid": 65534,
+            "owneruid": 65534,
+            "resourceuuid": "4a07aa16-324d-4619-8fd4-2e01c38c60b0",
+            "status": "OBSERVED"
+          },
+          "id": "4a07aa16-324d-4619-8fd4-2e01c38c60b0",
+          "instanceid": "feebaf43-5297-4bf1-b24a-b42db9b362b4",
+          "name": "dual001",
+          "path": "/export/dual001",
+          "volumeid": "19267e66-d6f9-4de1-8ebd-dcede8092677",
+          "volumeuuid": "19267e66-d6f9-4de1-8ebd-dcede8092677",
+          "filesystemuuid": "38d2ecba-fd92-4707-9668-cced476f663e",
+          "volumemountpath": "/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677",
+          "runtimedevicepath": "/dev/sdb",
+          "runtimeobservedat": "2026-11-03T15:13:31Z",
+          "runtimebootid": "07197407-c41b-4e80-bc03-7e39a05dc305",
+          "runtimematchedby": "VOLUME_SERIAL",
+          "mappingstatus": "EXACT",
+          "filesystem": "xfs",
+          "state": "Ready",
+          "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"anonUid\":65534,\"anonGid\":65534,\"ownerUid\":65534,\"ownerGid\":65534,\"mode\":\"0775\",\"recursivePermission\":false,\"protocolMode\":\"V3V4_DUAL\",\"endpointMode\":\"ALL\",\"listenerGroupPorts\":[2049],\"posixPolicy\":\"ANONYMOUS_WRITE\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"19267e66-d6f9-4de1-8ebd-dcede8092677\",\"attachedVolumeName\":\"sharedfs-DATA-203\",\"filesystemUuid\":\"38d2ecba-fd92-4707-9668-cced476f663e\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677/export/dual001\",\"bootId\":\"07197407-c41b-4e80-bc03-7e39a05dc305\",\"configurationOperationId\":\"e645a868-856f-4542-80b0-55e7f712035f\",\"directoryCreated\":true,\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"38d2ecba-fd92-4707-9668-cced476f663e\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677\",\"observedAt\":\"2026-11-03T09:51:27.989178Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/dual001\",\"schemaVersion\":2,\"serial\":\"19267e66d6f94de18ebd\",\"status\":\"ok\",\"success\":true,\"supportsInitialPosixPreservation\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677\",\"volumeUuid\":\"19267e66-d6f9-4de1-8ebd-dcede8092677\"},\"backingPath\":\"/srv/ablestack-storage/volumes/19267e66-d6f9-4de1-8ebd-dcede8092677/export/dual001\"}",
+          "listenerports": "2049",
+          "endpointmode": "ALL",
+          "protocolmode": "V3V4_DUAL",
+          "configvalid": true
+        }
+      ]
+    }
+  }
+}

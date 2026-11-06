@@ -1,0 +1,70 @@
+{
+  "status": "STOPPED_AT_NEW_PREFLIGHT_FAILURE",
+  "issue": 1455,
+  "closed": false,
+  "implementationCommit": "82d83b6c2c0477b30c6fb5a5865c57f105b2d088",
+  "builds": {
+    "management": "PASS",
+    "ui": "PASS, not deployed before stop",
+    "systemVmImage": "PASS, not registered before stop"
+  },
+  "tests": {
+    "guest": 87,
+    "javaApi": 17,
+    "ui": 9,
+    "lint": "PASS",
+    "systemVmPrivateChecks": 4,
+    "signedBootstrapCycles": 3
+  },
+  "actualUi": {
+    "restrictedNfsAcl": {
+      "state": "COMMITTED",
+      "operation": "52354c5b-6d4e-4bf8-830a-55574ebc2f2e",
+      "revision": 28
+    },
+    "nestedSmbCreate": {
+      "state": "COMMITTED",
+      "operation": "acc9671e-40f1-448e-b304-26984aa968d2",
+      "revision": 29
+    },
+    "adoptActualPosix": {
+      "state": "COMMITTED",
+      "operation": "14bdce65-3f73-4005-b46f-71835c60eec8",
+      "revision": 30
+    },
+    "setgidUpdatePreflight": {
+      "status": "BLOCKED",
+      "code": "DIRECTORY_RUNTIME_COMMAND_FAILED",
+      "timestamp": "2026-11-01T01:37:44+0900",
+      "mutationPerformed": false
+    }
+  },
+  "clients": {
+    "client1": "10.10.254.224: NFS mount/write/hash passed",
+    "client2": "10.10.254.223: NFS mount/cross-read/write/hash passed",
+    "smbBeforeAcl": "not published; actual authenticated tree connect denied as expected",
+    "afterStop": "both consoles logged out, no NFS/CIFS mount left, runtime password removed"
+  },
+  "newFailure": {
+    "cause": "setgid admission calls testparm on an intentionally unpublished SMB section before ACL creation",
+    "commandExit": 1,
+    "stderr": "Unknown section s1455-child",
+    "permissionAfter": "0:0 / 0770, unchanged"
+  },
+  "preservation": {
+    "oldObjects": 54,
+    "allOldDataOwnerModeAclInodeDeviceUnchanged": true,
+    "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+    "provisioning": "SPARSE",
+    "macChanged": false,
+    "formatPerformed": false
+  },
+  "remaining": [
+    "UI notice deployment and live localprobe observation",
+    "SMB ACL publication and actual client cross-protocol access",
+    "sibling and same-directory alias tests",
+    "parent delete/retarget and volume detach actual UI guards",
+    "intentional failure compensation",
+    "actual VM and management restart acceptance"
+  ]
+}

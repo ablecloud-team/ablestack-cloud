@@ -1,0 +1,95 @@
+{
+  "liststorageserviceprotocolsresponse": {
+    "count": 4,
+    "storageserviceprotocol": [
+      {
+        "id": "1bb625c7-7009-4db6-b9b8-085ac6e07f6c",
+        "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 3260,
+        "state": "Ready",
+        "listenertype": "DEDICATED",
+        "primaryip": "10.10.13.250",
+        "runtimeprimaryip": "10.10.13.250",
+        "identitystatus": "CONSISTENT",
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.250",
+            "port": 3260,
+            "role": "DEDICATED"
+          }
+        ],
+        "runtimestate": "READY",
+        "linkedresourcecount": 1
+      },
+      {
+        "id": "5e0ac5cd-905f-488e-b525-c77abf5e213e",
+        "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "protocolmode": "V4_ONLY",
+        "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+        "listenertype": "WILDCARD",
+        "primaryip": "10.10.13.250",
+        "runtimeprimaryip": "10.10.13.250",
+        "identitystatus": "CONSISTENT",
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.250",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ],
+        "runtimestate": "READY",
+        "linkedresourcecount": 1
+      },
+      {
+        "id": "b6cb4622-d8f7-4fc4-a443-b94ad72d4e99",
+        "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listenip": "10.10.13.250",
+        "port": 4420,
+        "state": "Ready",
+        "listenertype": "DEDICATED",
+        "primaryip": "10.10.13.250",
+        "runtimeprimaryip": "10.10.13.250",
+        "identitystatus": "CONSISTENT",
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.250",
+            "port": 4420,
+            "role": "DEDICATED"
+          }
+        ],
+        "runtimestate": "READY",
+        "linkedresourcecount": 2
+      },
+      {
+        "id": "1035476e-216c-42cd-a155-94ae780f56d8",
+        "instanceid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+        "protocol": "SMB",
+        "enabled": true,
+        "port": 445,
+        "state": "Ready",
+        "listenertype": "WILDCARD",
+        "primaryip": "10.10.13.250",
+        "runtimeprimaryip": "10.10.13.250",
+        "identitystatus": "CONSISTENT",
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.250",
+            "port": 445,
+            "role": "PRIMARY"
+          }
+        ],
+        "runtimestate": "READY",
+        "linkedresourcecount": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "actualSnapshotMeasurement": {
+    "bytes": 13321,
+    "pythonAllocationPeakBytes": 155542,
+    "elapsedSeconds": 0.014665276999949128
+  },
+  "realSample": {
+    "observedAt": 1792829254.400122,
+    "memoryAvailable": 3777335296,
+    "load1": 0.11181640625,
+    "cpuCount": 2,
+    "filesystems": [
+      {
+        "device": 2054,
+        "path": "/var/lib/ablestack-storage/configuration-operations",
+        "freeBytes": 2605527040,
+        "freeInodes": 230293,
+        "readOnly": false
+      }
+    ],
+    "affectedConnections": 1,
+    "busyVolumes": []
+  },
+  "resourceMatrix": [
+    {
+      "case": "actual-measurement-pass",
+      "result": {
+        "ready": true,
+        "blockers": [],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "injected-low-memory",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "MEMORY_LOW"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "injected-low-space",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "SPACE_LOW"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "injected-readonly-filesystem",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "FILESYSTEM_READONLY"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "injected-running-formatter",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "VOLUME_PREPARATION_ACTIVE"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "actual-connections-destructive-intent",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "DRAIN_REQUIRED"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "injected-unknown-memory",
+      "result": {
+        "ready": false,
+        "blockers": [
+          "RESOURCE_OBSERVATION_UNAVAILABLE"
+        ],
+        "warnings": [],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "load-only-warning",
+      "result": {
+        "ready": true,
+        "blockers": [],
+        "warnings": [
+          "LOAD_HIGH"
+        ],
+        "requiredMemoryBytes": 218251608,
+        "requiredDiskBytes": 83923030,
+        "fingerprint": "45fdf5b914e698a649ef0cea1eba6741e3180ca0657bba2d6fb392b4ab19c122",
+        "expiresAt": 1792829284.400122,
+        "cancellationSupported": false
+      }
+    },
+    {
+      "case": "stale-edit-noack-and-drain-ack-contract",
+      "passed": true
+    }
+  ],
+  "gateBeforeMutation": [
+    {
+      "case": "memory",
+      "state": "ROLLED_BACK",
+      "code": "MEMORY_LOW",
+      "calls": {
+        "snapshot": 0,
+        "apply": 0,
+        "restore": 0
+      }
+    },
+    {
+      "case": "disk",
+      "state": "ROLLED_BACK",
+      "code": "SPACE_LOW",
+      "calls": {
+        "snapshot": 0,
+        "apply": 0,
+        "restore": 0
+      }
+    },
+    {
+      "case": "busy-volume",
+      "state": "ROLLED_BACK",
+      "code": "VOLUME_PREPARATION_ACTIVE",
+      "calls": {
+        "snapshot": 0,
+        "apply": 0,
+        "restore": 0
+      }
+    }
+  ],
+  "existingControlProof": {
+    "callerWaitExpiredWithoutKill": true,
+    "running": {
+      "baseRevision": 0,
+      "instanceUuid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+      "operationid": "b7304e38-ea4a-4d81-b93a-7a70e4dfb368",
+      "phase": "APPLYING",
+      "requestHash": "bc9a1f7a5861f81d859b9655c1397a09454fabedac742f3cc8c271a075616436",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "state": "RUNNING",
+      "targetRevision": 1,
+      "updated": 1792829254.4623094,
+      "workerActive": true
+    },
+    "getterMutations": 0,
+    "concurrentWriterBlocked": true,
+    "applyCount": 1,
+    "resumeDidNotReplay": true,
+    "finalState": "COMMITTED",
+    "currentStatusHasHeartbeat": false,
+    "prototypeHeartbeat": {
+      "sequence": 15,
+      "heartbeatAt": 1792829255.2811587
+    }
+  },
+  "actualServiceApplyCount": 0,
+  "productFilesModified": false
+}

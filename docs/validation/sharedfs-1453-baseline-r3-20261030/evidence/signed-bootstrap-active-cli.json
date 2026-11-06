@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "version": "epic1438-1453-inherit-e6bf899c4774-r3",
+  "updaterVersion": 5,
+  "managedFileCount": 10,
+  "signatureAndProfileVerified": true,
+  "firstBootstrap": true,
+  "repeatBootstrapChecks": 2,
+  "activeFeatureDowngradeBlocked": true,
+  "productionUnchanged": true,
+  "activeCliRegression": {
+    "success": true,
+    "firstAndRepeatedBootstrapActiveCli": [
+      {
+        "bootstrap": 1,
+        "version": "epic1438-1453-inherit-e6bf899c4774-r3",
+        "activatedCli": "/var/tmp/epic1453-bootstrap-oh5lbpx0/runtime/releases/epic1438-1453-inherit-e6bf899c4774-r3/ablestack-storagectl",
+        "protection": 1,
+        "inheritOwnerTruePreflight": "READY"
+      },
+      {
+        "bootstrap": 2,
+        "version": "epic1438-1453-inherit-e6bf899c4774-r3",
+        "activatedCli": "/var/tmp/epic1453-bootstrap-oh5lbpx0/runtime/releases/epic1438-1453-inherit-e6bf899c4774-r3/ablestack-storagectl",
+        "protection": 1,
+        "inheritOwnerTruePreflight": "READY"
+      },
+      {
+        "bootstrap": 3,
+        "version": "epic1438-1453-inherit-e6bf899c4774-r3",
+        "activatedCli": "/var/tmp/epic1453-bootstrap-oh5lbpx0/runtime/releases/epic1438-1453-inherit-e6bf899c4774-r3/ablestack-storagectl",
+        "protection": 1,
+        "inheritOwnerTruePreflight": "READY"
+      }
+    ],
+    "releaseContainsUpdater": false,
+    "configurationApplied": false
+  },
+  "temporaryResourcesRemoved": true
+}

@@ -1,0 +1,9 @@
+{
+  "jar": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "ui_index": "e4a47cba8d2d7739f28bb6f177b08e2cd1868fa8a06e1a17b89d98d81a3c59cd",
+  "config": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+  "systemvm_inode": 201337502,
+  "service": "MainPID=3003800\nActiveState=active\n",
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   52G   32G  63% /\n/dev/mapper/rl-root   83G   52G   32G  63% /\n",
+  "java": "openjdk version \"17.0.20.1\" 2026-08-18 LTS\nOpenJDK Runtime Environment (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS)\nOpenJDK 64-Bit Server VM (Red_Hat-17.0.20.1.1-1) (build 17.0.20.1+1-LTS, mixed mode, sharing)\n"
+}

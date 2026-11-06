@@ -1,0 +1,7 @@
+{
+  "ip": "10.10.13.192",
+  "rc": 0,
+  "device": "bridge0",
+  "stdout": "ARPING 10.10.13.192 from 0.0.0.0 bridge0\nSent 3 probes (3 broadcast(s))\nReceived 0 response(s)\n",
+  "stderr": ""
+}

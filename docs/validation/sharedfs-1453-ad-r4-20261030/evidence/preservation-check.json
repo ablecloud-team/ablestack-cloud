@@ -1,0 +1,14 @@
+{
+  "baselineParentAndSeedCompared": 2,
+  "baselineParentAndSeedUnchanged": true,
+  "preJoinClientStatObjectsCompared": 4,
+  "preJoinClientStatMatchesAfterFailure": true,
+  "allThreeKnownDataFileHashes": [
+    "cf9d60c43ee9aec2b26cf1e2dcbf82f8e139f5a0a6b23ff218597d5a78d4e83f"
+  ],
+  "allKnownDataHashesMatchSeed": true,
+  "listenerPidAndBindingUnchanged": true,
+  "legacySmbdInactive": true,
+  "membershipAttempted": false,
+  "krb5FileExists": false
+}

@@ -1,0 +1,113 @@
+{
+  "success": true,
+  "count": 8,
+  "checks": [
+    {
+      "name": "real XFS subtree bind aliases share a filesystem identity with different FSROOT",
+      "passed": true
+    },
+    {
+      "name": "real EXT4 clones with equal UUID remain separate by device",
+      "passed": true
+    },
+    {
+      "name": "statvfs is sampled once per unique filesystem, not per alias",
+      "passed": true,
+      "calls": 3
+    },
+    {
+      "name": "attached DATA includes hidden and unreferenced volumes, excludes ROOT and preserved detached volume",
+      "passed": true,
+      "summary": {
+        "provisionedBytes": 11072962560,
+        "volumeCount": 4,
+        "filesystemUsedBytes": 113328128,
+        "filesystemCount": 3,
+        "unsupportedVolumeCount": 1,
+        "usageStatus": "PARTIAL"
+      }
+    },
+    {
+      "name": "20000 duplicate protocol or alias references cannot inflate volume/filesystem totals",
+      "passed": true,
+      "seconds": 0.0011908919987035915
+    },
+    {
+      "name": "raw block use is unsupported and null, never fabricated zero",
+      "passed": true
+    },
+    {
+      "name": "stale values remain explicitly historical",
+      "passed": true
+    },
+    {
+      "name": "attachment generation mismatch invalidates old usage instead of showing zero",
+      "passed": true
+    }
+  ],
+  "identities": {
+    "live": {
+      "uuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "dev": 2064,
+      "inode": 128,
+      "fsroot": "/",
+      "fstype": "xfs",
+      "root": "/run/epic1458-design-jss33cy0/live"
+    },
+    "live-alias": {
+      "uuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "dev": 2064,
+      "inode": 16908423,
+      "fsroot": "/epic1457/projects/team-a",
+      "fstype": "xfs",
+      "root": "/run/epic1458-design-jss33cy0/live-alias"
+    },
+    "ext4": {
+      "uuid": "16f838e7-56f0-4664-88a1-1ebef6d8ef53",
+      "dev": 1792,
+      "inode": 2,
+      "fsroot": "/",
+      "fstype": "ext4",
+      "root": "/run/epic1458-design-jss33cy0/ext4"
+    },
+    "ext4-alias": {
+      "uuid": "16f838e7-56f0-4664-88a1-1ebef6d8ef53",
+      "dev": 1792,
+      "inode": 2,
+      "fsroot": "/",
+      "fstype": "ext4",
+      "root": "/run/epic1458-design-jss33cy0/ext4-alias"
+    },
+    "clone": {
+      "uuid": "16f838e7-56f0-4664-88a1-1ebef6d8ef53",
+      "dev": 1794,
+      "inode": 2,
+      "fsroot": "/",
+      "fstype": "ext4",
+      "root": "/run/epic1458-design-jss33cy0/clone"
+    }
+  },
+  "images": {
+    "ext4": {
+      "file": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/.epic1458-design-8209fa6b6efb483aba42f27c22d92621/ext4.img",
+      "device": "/dev/loop0",
+      "bytes": 134217728,
+      "allocatedBytes": 4595712
+    },
+    "raw": {
+      "file": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/.epic1458-design-8209fa6b6efb483aba42f27c22d92621/raw.img",
+      "device": "/dev/loop1",
+      "bytes": 67108864,
+      "allocatedBytes": 0
+    },
+    "clone": {
+      "file": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/.epic1458-design-8209fa6b6efb483aba42f27c22d92621/clone.img",
+      "device": "/dev/loop2",
+      "bytes": 134217728,
+      "allocatedBytes": 331776
+    }
+  },
+  "productImplementation": false,
+  "cloudResourceChanges": 0,
+  "notes": "Only LIVE is a real Cloud volume; other attachment metadata is injected test data. Private SPARSE loop files test real EXT4/raw/clone identity."
+}

@@ -33,6 +33,14 @@ public class ListStorageServiceRuntimeBundlesCmd extends BaseListCmd implements 
     @Inject private StorageService storageService;
     @Parameter(name = "id", type = CommandType.UUID, entityType = StorageServiceRuntimeBundleResponse.class) private Long id;
     @Parameter(name = "version", type = CommandType.STRING) private String version;
+    @Parameter(name = "purpose", type = CommandType.STRING) private String purpose;
+    @Parameter(name = "state", type = CommandType.STRING) private String state;
+    @Parameter(name = "validationstatus", type = CommandType.STRING) private String validationStatus;
+    @Parameter(name = "sharedfilesystemid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.SharedFSResponse.class) private Long sharedFileSystemId;
+    public String getPurpose() { return purpose; }
+    public String getState() { return state; }
+    public String getValidationStatus() { return validationStatus; }
+    public Long getSharedFileSystemId() { return sharedFileSystemId; }
     public Long getId() { return id; }
     public String getVersion() { return version; }
     public void execute() { final ListResponse<StorageServiceRuntimeBundleResponse> response = storageService.listStorageServiceRuntimeBundles(this); response.setResponseName(getCommandName()); setResponseObject(response); }

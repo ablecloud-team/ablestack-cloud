@@ -1,0 +1,101 @@
+{
+  "issue": 1444,
+  "epic": 1438,
+  "status": "DESIGN_VALIDATED_IMPLEMENTATION_NOT_STARTED",
+  "sourceBaseline": "c6df1cc42ea512aa2ad5b3ae19318eaebb2c892e",
+  "localBase": "a7543feb62a728a5a806283b1e0e6134a7305260",
+  "configurationCommands": 29,
+  "runtimeManagerClassComparison": "identical",
+  "hostWrapperComparison": "identical; no transport modification planned",
+  "guestSourceComparison": "identical",
+  "guestProbeProductionWrites": 0,
+  "newVmOrDiskCount": 0,
+  "preservation": {
+    "codeConfigAccountHashesIdentical": true,
+    "filesChecked": 18,
+    "sameBootId": true,
+    "sameDaemonPidsAndActiveState": true,
+    "noLeftoverTemporaryDirectories": true,
+    "newVmOrDiskCount": 0
+  },
+  "uiSummary": {
+    "designOnly": true,
+    "viewport": {
+      "h": 720,
+      "w": 1280
+    },
+    "sampledContrast": {
+      "dark": {
+        "minimumSampledTextContrast": 5.192060987927794,
+        "viewport": {
+          "h": 720,
+          "w": 1280
+        },
+        "horizontalOverflow": false
+      },
+      "light": {
+        "minimumSampledTextContrast": 5.192060987927794,
+        "viewport": {
+          "h": 720,
+          "w": 1280
+        },
+        "horizontalOverflow": false
+      },
+      "recovery": {
+        "minimumSampledTextContrast": 7.128935659391724,
+        "viewport": {
+          "h": 720,
+          "w": 1280
+        },
+        "horizontalOverflow": false
+      }
+    },
+    "headerYBeforeAfter": [
+      33,
+      33
+    ],
+    "footerYBeforeAfter": [
+      622,
+      622
+    ],
+    "bodyScrollTop": 1193,
+    "toolbarButtonHeight": 32,
+    "toolbarGaps": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "primaryFirstAndWideLastInLeftGroup": true,
+    "diagnostic": {
+      "title": "\uc124\uc815 \uc791\uc5c5 \uc9c4\ub2e8\uc124\uacc4 \ubaa9\uc5c5",
+      "nameReadonly": true,
+      "confirmCount": 0
+    },
+    "recovery": {
+      "recoveryApplyDisabled": true,
+      "recoveryUpdateEnabled": true,
+      "recoveryMinContrast": 7.128935659391724
+    },
+    "pending": {
+      "confirmDisabled": true,
+      "updateEnabled": true,
+      "closeButtonCount": 0
+    },
+    "toolbarPrimaryForegroundContrast": 5.192060987927794
+  },
+  "notClaimed": [
+    "live DB compensation",
+    "live LIO/NVMe rollback",
+    "real client connection preservation under failures",
+    "full implementation acceptance"
+  ],
+  "liveUiPreservation": {
+    "resourceRows": 13,
+    "readyRows": 13,
+    "targetShareReady": true,
+    "targetSmbDaemonsActive": true,
+    "originalDarkThemeRestored": true,
+    "noResourceCreationOrDeletion": true,
+    "source": "Actual Mold UI observation; all dialogs only viewed/cancelled"
+  }
+}

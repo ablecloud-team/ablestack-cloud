@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "c1ec5f343b908546f9aa79178b4571378028d643",
+  "managementSha256": "8150530b9f53c38fd16246855b1d0f8fa1008bffd01e151c45959e725eb04d9b",
+  "changedJarEntries": [
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class",
+    "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$NativeRuntimeRejected.class",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbCreationPolicy.class",
+    "storage-runtime/bootstrap/runtime-baseline-profile.json",
+    "storage-runtime/bootstrap/runtime_updater.py"
+  ],
+  "uiIndexSha256": "ede1f23e654b6116b848d65aa74512f2e58cb3239e194a1cc11f50d226293220",
+  "changedUiFileCount": 574,
+  "operatorConfigPreserved": true,
+  "externalJarsPreserved": true,
+  "schemaMigrationRequired": false,
+  "hostAgentChanged": false,
+  "systemVmImageSha256": "804d992bebbb1985ec93b2c5d472ffc62ed48f13aebefb5ea57a481ee80bd124",
+  "imageUrl": "http://10.10.13.10:8080/client/systemvm/systemvm-epic1454-creation-r1.qcow2.bz2",
+  "rollbackRoot": "/var/tmp/epic1438-1454-c1ec5f343b9"
+}

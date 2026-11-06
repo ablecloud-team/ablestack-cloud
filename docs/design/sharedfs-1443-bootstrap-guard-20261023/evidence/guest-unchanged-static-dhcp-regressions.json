@@ -1,0 +1,10 @@
+{
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_actual_shell_branch_keeps_dhcp_arguments_and_skips_them_for_static (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_actual_shell_branch_keeps_dhcp_arguments_and_skips_them_for_static) ... ok\ntest_ambiguous_matching_nics_block (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_ambiguous_matching_nics_block) ... ok\ntest_corrupt_state_blocks (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_corrupt_state_blocks) ... ok\ntest_first_boot_and_dhcp_mode_do_not_invoke_static_helper (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_first_boot_and_dhcp_mode_do_not_invoke_static_helper) ... ok\ntest_helper_failure_does_not_become_dhcp (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_helper_failure_does_not_become_dhcp) ... ok\ntest_invalid_static_never_falls_back_to_dhcp (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_invalid_static_never_falls_back_to_dhcp) ... ok\ntest_nonprivate_state_blocks (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_nonprivate_state_blocks) ... ok\ntest_symlink_state_blocks (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_symlink_state_blocks) ... ok\ntest_untrusted_helper_blocks (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_untrusted_helper_blocks) ... ok\ntest_valid_static_uses_existing_helper_once_and_preserves_state (test_sharedfs_bootstrap_network.BootstrapNetworkTest.test_valid_static_uses_existing_helper_once_and_preserves_state) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.016s\n\nOK\n",
+  "sourceHashes": {
+    "test/test_sharedfs_bootstrap_network.py": "86132fcbf105465af4758823a8a266191fd9e3083a8b00a7c10dd8e6e2638c22",
+    "debian/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573",
+    "debian/opt/cloud/bin/setup/sharedfsvm.sh": "f6a4d913a92bf5a4c6cfbef4817b9740b47d508b5ceeded43819ce5055b9771f"
+  }
+}

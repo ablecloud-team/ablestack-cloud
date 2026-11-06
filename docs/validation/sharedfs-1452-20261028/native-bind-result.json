@@ -1,0 +1,147 @@
+{
+  "kind": "real SystemVM bind/two-port regression; not Mold UI acceptance",
+  "operatorProvisioning": "SPARSE",
+  "checks": [
+    {
+      "name": "real bind mount maps to exactly both listeners; unrelated directory and foreign filesystem excluded",
+      "passed": true,
+      "units": [
+        {
+          "unit": "ablestack-storage-ganesha@bind_23049.service",
+          "config": "/var/tmp/epic1452-bind-8ba3d64f3c/ganesha/bind_23049.conf",
+          "sha256": "33cbd613f77b117da263147f04826ecf852321573bb27447ae663623fdc58999",
+          "paths": [
+            "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-bind-8ba3d64f3c/shared"
+          ],
+          "aliases": [
+            {
+              "exportpath": "/var/tmp/epic1452-bind-8ba3d64f3c/export-alias",
+              "physicalpath": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-bind-8ba3d64f3c/shared",
+              "volumeuuid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "filesystemuuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+              "mounttarget": "/var/tmp/epic1452-bind-8ba3d64f3c/export-alias",
+              "fsroot": "/.epic1452-bind-8ba3d64f3c/shared",
+              "volumemount": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+              "volumefsroot": "/",
+              "device": 2064,
+              "inode": 140
+            }
+          ],
+          "port": "23049"
+        },
+        {
+          "unit": "ablestack-storage-ganesha@bind_23050.service",
+          "config": "/var/tmp/epic1452-bind-8ba3d64f3c/ganesha/bind_23050.conf",
+          "sha256": "7f543e231556816edb2511afdd4bd7a0ad314a7b4db6651e864f3f50b80f51fb",
+          "paths": [
+            "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-bind-8ba3d64f3c/shared"
+          ],
+          "aliases": [
+            {
+              "exportpath": "/var/tmp/epic1452-bind-8ba3d64f3c/export-alias",
+              "physicalpath": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-bind-8ba3d64f3c/shared",
+              "volumeuuid": "78396639-cab6-46a8-9999-89f991abbd01",
+              "filesystemuuid": "eddc0aa3-2a28-4983-a569-11cecc8d91b5",
+              "mounttarget": "/var/tmp/epic1452-bind-8ba3d64f3c/export-alias",
+              "fsroot": "/.epic1452-bind-8ba3d64f3c/shared",
+              "volumemount": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01",
+              "volumefsroot": "/",
+              "device": 2064,
+              "inode": 140
+            }
+          ],
+          "port": "23050"
+        }
+      ],
+      "inode": 140
+    },
+    {
+      "name": "alias rebind after preview is rejected without modifying permissions",
+      "passed": true
+    },
+    {
+      "name": "both bind-backed ports and SMB cross-read/write after common POSIX change",
+      "passed": true,
+      "before": [
+        {
+          "port": 23049,
+          "uid": 65534,
+          "gid": 65534,
+          "mode": "0770",
+          "nfsToSmb": true,
+          "smbToNfs": true,
+          "seedPreserved": true
+        },
+        {
+          "port": 23050,
+          "uid": 65534,
+          "gid": 65534,
+          "mode": "0770",
+          "nfsToSmb": true,
+          "smbToNfs": true,
+          "seedPreserved": true
+        }
+      ],
+      "after": [
+        {
+          "port": 23049,
+          "uid": 1001,
+          "gid": 1001,
+          "mode": "0777",
+          "nfsToSmb": true,
+          "smbToNfs": true,
+          "seedPreserved": true
+        },
+        {
+          "port": 23050,
+          "uid": 1001,
+          "gid": 1001,
+          "mode": "0777",
+          "nfsToSmb": true,
+          "smbToNfs": true,
+          "seedPreserved": true
+        }
+      ]
+    },
+    {
+      "name": "journal reopen and duplicate request do not replay mutation",
+      "passed": true
+    },
+    {
+      "name": "real adapter restores POSIX, ACL and policy; both bind-backed listeners remain usable",
+      "passed": true,
+      "operation": {
+        "operationid": "15926690-db5c-4139-85d2-7ef0e095925b",
+        "instanceUuid": "5383aae5-1e92-48b0-82e9-020709e8ac7b",
+        "baseRevision": 2,
+        "targetRevision": 3,
+        "requestHash": "6d6300ec0996a8cc642cb237324c8c4f604e955a7aa2ac67cadd1cd1bc8768fb",
+        "state": "ROLLED_BACK",
+        "phase": "COMPLETED",
+        "rollback": {
+          "state": "SUCCEEDED"
+        },
+        "updated": 1793185405.6731555,
+        "originalfailure": {
+          "code": "TEST_BIND_PEER_FAILURE",
+          "phase": "VERIFYING",
+          "type": "Rejected"
+        }
+      }
+    },
+    {
+      "name": "actual deployed bind aliases and two process/socket identities match by read-only observation",
+      "passed": true
+    }
+  ],
+  "success": true,
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true,
+  "productionFileCount": 61,
+  "candidateFileHashes": {
+    "configuration_transaction.py": "761049b7cd3cfcbb6e7e3ba687b128977db1bf80f3a8e25b416beda49a07fb94",
+    "configuration_preflight.py": "41d49f5bbd723bef3c9f377dd9f80a50aab3be99dce5fcf42601adbbede31793",
+    "shared_directory_policy.py": "b68bf6bc0fbd8ea2c0cf0b9cb8e3ac9f7476e931de4c0bf8d89e0d1e9e56c75c",
+    "native_shared_directory_bind.py": "92f9a69156b6ca48128112f2aecbd7c14d7306bd950af4c651748a13071bf1c9"
+  }
+}

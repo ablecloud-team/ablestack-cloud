@@ -1,0 +1,11 @@
+{
+  "kind": "temporary build export, canonical WSL source retained",
+  "base": "/root/work/epic1438-preparation/20261101/issue1455-nfs-probe-r2/ui-compatible-source/ui",
+  "changedFiles": [
+    "src/components/storage/SmbPublicationNotice.vue",
+    "src/components/storage/StorageDirectoryPolicyPanel.vue",
+    "src/components/storage/StorageDirectorySetgidDialog.vue"
+  ],
+  "previousNfsNoticeIncluded": true,
+  "operatorConfigAndThemePreservedOnDeploy": true
+}

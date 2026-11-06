@@ -1,0 +1,56 @@
+생성 및 연결
+기존 볼륨 연결
+업데이트
+이름	상태	유형	볼륨 번호 (Device ID)	크기	스토리지	KMS 키	작업
+
+ 
+	
+ 
+	
+ 
+	
+ 
+	
+ 
+	
+ 
+	
+ 
+	
+ 
+
+sharedfs-ROOT-127
+기존 호환 값: sparse
+	
+ Ready	ROOT	0	4.88 GB	Primary Storage		
+디스크 분리
+
+sharedfs-DATA-127
+기존 호환 값: sparse
+	
+ Ready	DATADISK	1	20.00 GB	Primary Storage		
+디스크 분리
+
+epic1438-1444-raw-iscsi-20261023
+기존 호환 값: sparse
+	
+ Ready	DATADISK	2	20.00 GB	Primary Storage		
+디스크 분리
+
+epic1438-1444-raw-nvme-20261023
+기존 호환 값: sparse
+	
+ Ready	DATADISK	4	20.00 GB	Primary Storage		
+디스크 분리
+
+epic1438-1444-nfs-create-20261024
+기존 호환 값: sparse
+	
+ Ready	DATADISK	5	20.00 GB	Primary Storage		
+디스크 분리
+
+epic1438-1444-raw-create-20261024
+기존 호환 값: sparse
+	
+ Ready	DATADISK	6	20.00 GB	Primary Storage		
+디스크 분리

@@ -1,0 +1,9 @@
+{
+  "baseExport": "/root/work/epic1438-preparation/20261031/issue1455-implementation/ui-compatible-source/ui",
+  "sourceKind": "temporary export; no additional Git checkout",
+  "overlaidFiles": [
+    "src/views/storage/SharedFSTab.vue",
+    "src/components/storage/NfsLocalProbeNotice.vue"
+  ],
+  "operatorConfigAndThemeDeployment": "excluded"
+}

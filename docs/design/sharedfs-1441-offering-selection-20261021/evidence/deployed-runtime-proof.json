@@ -1,0 +1,120 @@
+{
+  "management_pid": "2983986",
+  "unit_active": "active",
+  "jar_sha256": "69afe59ca4ebf3108f4963c8f30b01c9fbf2dce759633258804bfeb97164a41d",
+  "class_sha256": {
+    "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class": "a2aad562d5ef19e2fd6f16482c11d659fbebedfc4a8f36b94da4b7b6f0abc80d",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": "e39e5273351ceef217d9abcd89f84569304078fca375dc2a997239fe80d84b42",
+    "com/cloud/api/query/dao/ServiceOfferingJoinDaoImpl.class": "4dd53af482c927268121031375df5dc70fd3c4ed7620f09fb8207bddc76fbd0d"
+  },
+  "db_read_only": true,
+  "protected_configuration_unchanged": true,
+  "db": {
+    "service_root_offerings": [
+      {
+        "uuid": "4007504f-6cc3-4694-b44e-46f5a6f0baa4",
+        "name": "CKS Instance",
+        "cpu": "2",
+        "ram_size": "2048",
+        "ha_enabled": "0",
+        "customized": "0",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "00ab83a6-e6fd-40ca-aae3-12913393f14e",
+        "provisioning_type": "thin"
+      },
+      {
+        "uuid": "ff8d160d-7523-46a7-ab98-faf49d16554b",
+        "name": "2C4GB",
+        "cpu": "2",
+        "ram_size": "4096",
+        "ha_enabled": "1",
+        "customized": "0",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "48bae5f6-dc30-451f-a7bb-b4e4a877a1ee",
+        "provisioning_type": "thin"
+      },
+      {
+        "uuid": "1dae1249-0b94-4db8-9317-4f60ecfdaa6a",
+        "name": "epic898-scale-4C8GB",
+        "cpu": "4",
+        "ram_size": "8192",
+        "ha_enabled": "1",
+        "customized": "0",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "fd600aae-1dfd-4b05-82a1-85f5966478b1",
+        "provisioning_type": "thin"
+      },
+      {
+        "uuid": "5da2d6c9-d9c4-453a-a28c-3e93274a3380",
+        "name": "사용자 정의 컴퓨트 오퍼링",
+        "cpu": "NULL",
+        "ram_size": "NULL",
+        "ha_enabled": "1",
+        "customized": "1",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+        "provisioning_type": "sparse"
+      },
+      {
+        "uuid": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+        "name": "epic898-sharedfs-sparse-2C4GB",
+        "cpu": "2",
+        "ram_size": "4096",
+        "ha_enabled": "1",
+        "customized": "0",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "90b3f7d0-bf5b-46dc-bb6c-d46c57fa8774",
+        "provisioning_type": "sparse"
+      },
+      {
+        "uuid": "57c431e2-3330-4a1d-a0ff-11cbb5321899",
+        "name": "epic898-sharedfs-sparse-4C8GB",
+        "cpu": "4",
+        "ram_size": "8192",
+        "ha_enabled": "1",
+        "customized": "0",
+        "dynamic_scaling_enabled": "1",
+        "root_disk_offering_uuid": "1ae2dee3-dbf8-4626-9664-601a7dbef950",
+        "provisioning_type": "sparse"
+      }
+    ],
+    "existing_test_root": [
+      {
+        "uuid": "5d5ef65b-37bd-4939-8664-0071e0745ef9",
+        "provisioning_type": "sparse",
+        "format": "QCOW2",
+        "state": "Ready",
+        "path": "5d5ef65b-37bd-4939-8664-0071e0745ef9",
+        "service_offering_uuid": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+        "root_disk_offering_uuid": "90b3f7d0-bf5b-46dc-bb6c-d46c57fa8774"
+      }
+    ],
+    "compute_limits": [
+      {
+        "name": "sharedfsvm.min.cpu.count",
+        "value": "2"
+      },
+      {
+        "name": "sharedfsvm.min.ram.size",
+        "value": "1024"
+      },
+      {
+        "name": "vm.serviceoffering.cpu.cores.max",
+        "value": "0"
+      },
+      {
+        "name": "vm.serviceoffering.ram.size.max",
+        "value": "0"
+      }
+    ],
+    "custom_details": [],
+    "preferred_arch": [
+      {
+        "name": "system.vm.preferred.architecture",
+        "value": "x86_64"
+      }
+    ],
+    "zone_arch_override": []
+  },
+  "deployed_checkPrerequisites": "public void checkPrerequisites(com.cloud.dc.DataCenter, java.lang.Long);\n    Code:\n       0: aload_0\n       1: getfield      #107                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;\n       4: aload_2\n       5: invokeinterface #111,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;\n      10: checkcast     #117                // class com/cloud/offering/ServiceOffering\n      13: astore_3\n      14: aload_3\n      15: ifnonnull     32\n      18: new           #342                // class com/cloud/exception/InvalidParameterValueException\n      21: dup\n      22: aload_2\n      23: invokedynamic #344,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/Long;)Ljava/lang/String;\n      28: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n      31: athrow\n      32: aload_3\n      33: invokeinterface #349,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;\n      38: ifnonnull     52\n      41: new           #342                // class com/cloud/exception/InvalidParameterValueException\n      44: dup\n      45: ldc_w         #353                // String Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.\n      48: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n      51: athrow\n      52: aload_3\n      53: invokeinterface #355,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;\n      58: ifnonnull     72\n      61: new           #342                // class com/cloud/exception/InvalidParameterValueException\n      64: dup\n      65: ldc_w         #358                // String Service offering must have a fixed RAM size for SharedFS VM. Custom RAM offerings are not supported.\n      68: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n      71: athrow\n      72: aload_3\n      73: invokeinterface #349,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;\n      78: invokevirtual #360                // Method java/lang/Integer.intValue:()I\n      81: getstatic     #365                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;\n      84: aload_1\n      85: invokeinterface #370,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J\n      90: invokestatic  #322                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;\n      93: invokevirtual #195                // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;\n      96: checkcast     #361                // class java/lang/Integer\n      99: invokevirtual #360                // Method java/lang/Integer.intValue:()I\n     102: if_icmpge     124\n     105: new           #342                // class com/cloud/exception/InvalidParameterValueException\n     108: dup\n     109: getstatic     #365                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;\n     112: invokevirtual #371                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;\n     115: invokedynamic #374,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;\n     120: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n     123: athrow\n     124: aload_3\n     125: invokeinterface #355,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;\n     130: invokevirtual #360                // Method java/lang/Integer.intValue:()I\n     133: getstatic     #376                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;\n     136: aload_1\n     137: invokeinterface #370,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J\n     142: invokestatic  #322                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;\n     145: invokevirtual #195                // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;\n     148: checkcast     #361                // class java/lang/Integer\n     151: invokevirtual #360                // Method java/lang/Integer.intValue:()I\n     154: if_icmpge     176\n     157: new           #342                // class com/cloud/exception/InvalidParameterValueException\n     160: dup\n     161: getstatic     #376                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;\n     164: invokevirtual #371                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;\n     167: invokedynamic #379,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;\n     172: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n     175: athrow\n     176: aload_3\n     177: invokeinterface #380,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.isOfferHA:()Z\n     182: ifne          196\n     185: new           #342                // class com/cloud/exception/InvalidParameterValueException\n     188: dup\n     189: ldc_w         #383                // String Service offering\\'s should be HA enabled\n     192: invokespecial #348                // Method com/cloud/exception/InvalidParameterValueException.\"<init>\":(Ljava/lang/String;)V\n     195: athrow\n     196: return\n\n  "
+}

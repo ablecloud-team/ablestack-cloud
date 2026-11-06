@@ -1,0 +1,45 @@
+{
+  "allEightFilesUnchanged": true,
+  "files": {
+    "/etc/ablestack-storage/sharedfs-network.json": {
+      "sha256": "c650c2cf45643f6dbe2933d7106e64f5df9de0c38cb650884d43278b067b9a68",
+      "unchanged": true
+    },
+    "/usr/local/sbin/ablestack-sharedfs-network": {
+      "sha256": "7e74d3213c7bcb9eed461ed3554f7b1a924a9392f35340e99282a08647347e94",
+      "unchanged": true
+    },
+    "/etc/systemd/system/ablestack-sharedfs-network.service": {
+      "sha256": "ac8efd0d4d77f099db8fecdc94293e9b74ad1c0d70364cbbe152c9f14885debf",
+      "unchanged": true
+    },
+    "/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": {
+      "sha256": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573",
+      "unchanged": true
+    },
+    "/opt/cloud/bin/setup/sharedfsvm.sh": {
+      "sha256": "f6a4d913a92bf5a4c6cfbef4817b9740b47d508b5ceeded43819ce5055b9771f",
+      "unchanged": true
+    },
+    "/etc/network/interfaces": {
+      "sha256": "0f18c98583f63a9f9e1539820d64d09083e16bfad945e3cdd899133194edaab0",
+      "unchanged": true
+    },
+    "/etc/resolv.conf": {
+      "sha256": "be102039b1dc4747490c6994ca8dc17d12d32219561f8ba23e8c0b865ac223ed",
+      "unchanged": true
+    },
+    "/etc/ablestack-storage/network-endpoints.json": {
+      "sha256": "6edb09a5f81ba9c664a1032aa28b28b69e2d70c73107773a86ff6ffd2f2d3eef",
+      "unchanged": true
+    }
+  },
+  "bootIdUnchanged": true,
+  "servicesUnchanged": true,
+  "addressesUnchanged": true,
+  "routesUnchanged": true,
+  "listenerAddressPortsUnchanged": true,
+  "macChanged": false,
+  "productCodeChanged": false,
+  "newDiskCreated": false
+}

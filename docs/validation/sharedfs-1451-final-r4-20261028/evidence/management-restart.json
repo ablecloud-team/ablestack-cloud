@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "unit": "mold.service",
+  "before": "MainPID=4167073\nExecMainStartTimestampMonotonic=2278405721121\nActiveState=active\n",
+  "after": "MainPID=103411\nExecMainStartTimestampMonotonic=2324778625095\nActiveState=active\n",
+  "startedAt": 1793156022.4399629,
+  "finishedAt": 1793156025.2727473,
+  "hashesUnchanged": {
+    "jar": "07c64a803b1702ebd22b652bcea2468351e38a89f81eff36e8ba47600972e9a4",
+    "ui": "9e0b33bcaa9858142d31d4ee199d8b1f82ff3be71338c65dbaeb448b655e88a3"
+  }
+}

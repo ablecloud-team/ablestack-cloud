@@ -39,6 +39,9 @@ public interface SharedFSService {
 
     List<SharedFSProvider> getSharedFSProviders();
 
+    ListResponse<org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse> listCreationServiceOfferings(
+            Long zoneId, ListResponse<org.apache.cloudstack.api.response.ServiceOfferingResponse> visible);
+
     boolean stateTransitTo(SharedFS sharedFS, SharedFS.Event event);
 
     void setSharedFSProviders(List<SharedFSProvider> sharedFSProviders);
@@ -46,6 +49,11 @@ public interface SharedFSService {
     SharedFSProvider getSharedFSProvider(String sharedFSProviderName);
 
     SharedFS allocSharedFS(CreateSharedFSCmd cmd);
+
+    String getSharedFSPreparation(Long id, String requestId);
+
+    SharedFS resumeSharedFSCreation(Long id, String requestId, String action) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
     SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
@@ -64,6 +72,11 @@ public interface SharedFSService {
     SharedFS changeSharedFSServiceOffering(ChangeSharedFSServiceOfferingCmd cmd) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException, ManagementServerException, VirtualMachineMigrationException;
 
     Boolean destroySharedFS(DestroySharedFSCmd cmd);
+    com.google.gson.JsonObject getDeletionImpact(String uuid);
+    ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionResponse> listDeletionOperations(org.apache.cloudstack.api.command.user.storage.sharedfs.ListSharedFSDeletionOperationsCmd cmd);
+    com.google.gson.JsonObject getDeletionOperation(String sharedFsUuid,String operationUuid,String requestId);
+    com.google.gson.JsonObject resumeDeletion(String operationUuid,String requestId);
+    com.google.gson.JsonObject deleteSharedFS(org.apache.cloudstack.api.command.user.storage.sharedfs.BaseSharedFSDeletionCmd cmd,boolean immediate);
 
     SharedFS recoverSharedFS(Long sharedFSId);
 

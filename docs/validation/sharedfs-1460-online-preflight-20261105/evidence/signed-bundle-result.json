@@ -1,0 +1,20 @@
+{
+  "version": "1460.client.4",
+  "buildCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+  "keyId": "ablestack-runtime-cluster13",
+  "signatureVerified": true,
+  "plaintextPrivateKeyWritten": false,
+  "changedManagedFiles": [
+    "lib/ablestack-storage/nfs_client_policy_runtime.py",
+    "lib/ablestack-storage/shared_directory_policy.py",
+    "lib/ablestack-storage/configuration_transaction.py",
+    "lib/ablestack-storage/nfs_ganesha_render.py",
+    "lib/ablestack-storage/configuration_preflight.py",
+    "ablestack-storagectl"
+  ],
+  "files": {
+    "ablestack-storage-runtime-1460.client.4.tar.gz": "2db6a30011abc49c6611615016366b673439dbf61d9dce0a525c19f0327739e9",
+    "manifest.json": "f22b731561ccf957c167f484307bf65d52e78cb67374cb770435d8520fdf3496",
+    "manifest.sig": "8067a0765cd1a1f875cc66c58668a744c1df7cf4b984ae36be32b88ac5acd02d"
+  }
+}

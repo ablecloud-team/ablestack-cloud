@@ -1,0 +1,38 @@
+{
+  "time": 1792724825.4002817,
+  "journal": {
+    "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+    "createdAt": 1792724392.0718033,
+    "deadlineAt": 1792726312.235266,
+    "errorCode": null,
+    "formatCount": 1,
+    "formatDeadlineAt": 1792726312.235266,
+    "formatEverStarted": true,
+    "formatStartedAt": 1792724392.235266,
+    "heartbeatAt": 1792724824.0397878,
+    "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+    "payload": {
+      "filesystem": "xfs",
+      "formatTimeoutSeconds": 1920,
+      "instanceUuid": "29bdc2bf-4539-471b-9ca8-605837b4fe20",
+      "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+      "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+      "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeName": "sharedfs-DATA-121",
+      "volumeSizeBytes": 10995116277760,
+      "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+    },
+    "phase": "FORMATTING",
+    "phaseStartedAt": 1792724392.235266,
+    "phaseTimeoutSeconds": 1920,
+    "reason": null,
+    "startedAt": 1792724392.0718033,
+    "status": "RUNNING",
+    "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+    "version": 1,
+    "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+    "workerPid": 5148,
+    "workerStartTicks": "13173"
+  },
+  "workerUnit": "Result=success\nActiveState=active\nSubState=running\n"
+}

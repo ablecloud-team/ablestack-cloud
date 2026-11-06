@@ -1,0 +1,41 @@
+{
+  "backend-tests-final.log": [
+    "[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.366 s - in org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeCatalogTest",
+    "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in com.cloud.api.response.StorageRuntimeWireTest",
+    "[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ],
+  "ui-refresh-final-tests.log": [
+    "Test Suites: 3 passed, 3 total",
+    "Tests:       20 passed, 20 total"
+  ],
+  "native-tests.log": [
+    "Ran 16 tests in 23.423s",
+    "OK"
+  ],
+  "ui-refresh-lint-final.log": [
+    " DONE  No lint errors found!"
+  ],
+  "ui-spacing-lint.log": [
+    " DONE  No lint errors found!"
+  ],
+  "actualDao": {
+    "temporaryTablesOnly": true,
+    "actualDaoPersistAndReload": true,
+    "jsonBytes": 300012,
+    "auditReasonChars": 1024,
+    "uniqueRequestEnforced": true
+  },
+  "managementRestart": {
+    "beforeMainPid": 3741791,
+    "afterMainPid": 3787624,
+    "beforeInvocationId": "bea3fba358f34ff0a17f278379d90fbc",
+    "afterInvocationId": "e711cd1900244ee9a5d24159687243ea"
+  },
+  "uiFinalProductionBuild": "PASS",
+  "uiFinalToolbarGapPx": 16,
+  "uiFinalIndexSha256": "8c072378498c56d48f5cac22c7d6368a3da7878864cfc4887fe19473c02f9f76",
+  "newDiskCount": 0,
+  "macChanged": false,
+  "implementationCommit": "3ef819f59f9"
+}

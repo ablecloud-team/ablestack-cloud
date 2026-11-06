@@ -1,0 +1,36 @@
+{
+  "source_commit": "be2bae799750650ef6432995c4dee896daefd1d1",
+  "integration_merge": "0dea71588808cfb434b9f0cc73a5a22460e09877",
+  "volume_source_head": "ba4cfd1d52979f487959786f6b40b364ad11b359",
+  "base": "0e6b5093d51079f0cfd9bfc88b6e37a795be55a3",
+  "source_changes_this_run": false,
+  "deployed_management": true,
+  "deployed_agents": [
+    "10.10.13.1",
+    "10.10.13.2",
+    "10.10.13.3"
+  ],
+  "deployed_ui": true,
+  "modules_packaged": 43,
+  "backend_tests": 403,
+  "backend_failures": 0,
+  "ui_files_verified": 899,
+  "name_only_ui_success": true,
+  "protection_only_on_off_ui_success": true,
+  "path_omitted_in_ui_requests": true,
+  "db_final_changes": [
+    "primary_data.name"
+  ],
+  "physical_identity_equal": true,
+  "nfs_client_data_verified": false,
+  "existing_volume_attached": false,
+  "blocked_by_existing_issue": 1460,
+  "failure_job": "532ba6fc-be74-4afa-a253-d9cb68841c00",
+  "failure_jobstatus": 2,
+  "failure_code": 530,
+  "failure_stage": "nfs local visibility probe host-selection before external client access",
+  "acl_persisted_state": "Updating",
+  "issue_1440_state": "OPEN",
+  "further_resource_mutations_stopped": true,
+  "new_issue_created": false
+}

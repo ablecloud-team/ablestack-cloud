@@ -1,0 +1,7 @@
+{
+  "runtime": "/opt/ablestack/storage-runtime/releases/1459.directory.1",
+  "cliSha": "6639c2abaf55b18785783298723544afd5a1b432959c6721914ae4b9cb43d03d",
+  "ganesha": "PID COMMAND\n   6389 /usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2049.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2049.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2049.conf\n   6397 /usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2050.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2050.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2050.conf",
+  "remainingTestNetns": [],
+  "remainingTestData": []
+}

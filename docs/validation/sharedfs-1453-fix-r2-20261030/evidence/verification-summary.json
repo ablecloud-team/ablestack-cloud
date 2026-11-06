@@ -1,0 +1,15 @@
+{
+  "backendFocused": 27,
+  "actualApiSerializerAndDao": true,
+  "ui": {
+    "passed": 58,
+    "suites": 6,
+    "lintExit": 0
+  },
+  "guest": 39,
+  "managementPackage": "PASS",
+  "uiProductionBuild": "PASS",
+  "fullAcceptance": "NOT_COMPLETE",
+  "blockedBy": "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED",
+  "privateNativeCoverageLimitation": "Activated release helper lookup was not proven by the earlier baseline/private-dispatch tests"
+}

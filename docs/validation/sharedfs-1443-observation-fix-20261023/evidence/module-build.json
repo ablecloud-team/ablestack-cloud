@@ -1,0 +1,14 @@
+{
+  "kind": "scoped SystemVM Python observation module",
+  "builtAt": 1792726092.847155,
+  "sourceSha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+  "changedGuestPaths": [
+    "usr/local/lib/ablestack-storage/volume_preparation.py"
+  ],
+  "regressionTests": 54,
+  "failed": 0,
+  "preImplementationGuestTest": "actual10t-preimplementation.json",
+  "baseCommit": "1f97b5df610",
+  "backendUiSchemaChanges": false,
+  "artifactSha256": "e17899b23c6a594915a77b8c946276c472448ac547ec27806de990d76f458746"
+}

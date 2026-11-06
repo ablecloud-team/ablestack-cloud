@@ -1,0 +1,18 @@
+{
+  "designOnly": true,
+  "count": 11,
+  "checks": [
+    "ROOT_RW",
+    "ROOT_RO",
+    "NONE_RW",
+    "NONE_RO",
+    "ALL_RW",
+    "ALL_RO",
+    "unchanged_and_policy_only_fields_omitted",
+    "zero_is_preserved_and_mode_is_normalized",
+    "mapping_independent_from_directory_permissions",
+    "all_squash_is_unambiguous",
+    "custom_anonymous_recommendation"
+  ],
+  "productFilesChanged": false
+}

@@ -1,0 +1,546 @@
+{
+  "kind": "design-only actual-SystemVM isolated injection",
+  "liveNetworkCommandsExecuted": false,
+  "productionFilesPatched": false,
+  "liveMacChanged": false,
+  "helperSha256": "7e74d3213c7bcb9eed461ed3554f7b1a924a9392f35340e99282a08647347e94",
+  "currentHelper": {
+    "same-static": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens8.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens8",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens8",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "replace",
+          "default",
+          "via",
+          "192.0.2.1",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens8"
+    },
+    "no-gateway": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens8.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens8",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens8",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens8"
+    },
+    "self-gateway": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens8.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens8",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens8",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "replace",
+          "default",
+          "via",
+          "192.0.2.10",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens8"
+    },
+    "network-gateway": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens8.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens8",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens8",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "replace",
+          "default",
+          "via",
+          "192.0.2.0",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens8"
+    },
+    "broadcast-gateway": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens8.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens8",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens8",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "route",
+          "replace",
+          "default",
+          "via",
+          "192.0.2.255",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens8"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens8"
+    },
+    "ambiguous-mac": {
+      "error": null,
+      "calls": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "cloud-dhclient@ens9.service"
+        ],
+        [
+          "ip",
+          "link",
+          "set",
+          "dev",
+          "ens9",
+          "up"
+        ],
+        [
+          "ip",
+          "-4",
+          "addr",
+          "flush",
+          "dev",
+          "ens9",
+          "scope",
+          "global"
+        ],
+        [
+          "ip",
+          "addr",
+          "replace",
+          "192.0.2.10/24",
+          "dev",
+          "ens9"
+        ],
+        [
+          "ip",
+          "route",
+          "del",
+          "default",
+          "dev",
+          "ens9"
+        ],
+        [
+          "ip",
+          "route",
+          "replace",
+          "default",
+          "via",
+          "192.0.2.1",
+          "dev",
+          "ens9"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "addr",
+          "show",
+          "dev",
+          "ens9"
+        ],
+        [
+          "ip",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "default"
+        ]
+      ],
+      "aliasPreserved": false,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": false,
+      "resolvedInterface": "ens9"
+    },
+    "prefix-31": {
+      "error": "SharedFS static IP cannot be the network or broadcast address",
+      "calls": [],
+      "aliasPreserved": true,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": true,
+      "resolvedInterface": null
+    },
+    "prefix-32": {
+      "error": "SharedFS static IP cannot be the network or broadcast address",
+      "calls": [],
+      "aliasPreserved": true,
+      "otherNicDefaultPreserved": true,
+      "dnsSearchOptionsPreserved": true,
+      "resolvedInterface": null
+    }
+  },
+  "candidateSketchIsProduct": false,
+  "candidatePlanCases": [
+    "STATIC_NOOP_PRESERVES_ALIASES_AND_PORTS",
+    "NO_GATEWAY_REMOVES_OWN_DEFAULT_ONLY",
+    "DHCP_UNCHANGED",
+    "NON_ETH0_RESOLVED_BY_MAC_WITHOUT_RENAME",
+    "REJECT_GATEWAY_192.0.2.10",
+    "REJECT_GATEWAY_192.0.2.0",
+    "REJECT_GATEWAY_192.0.2.255",
+    "REJECT_GATEWAY_198.51.100.1",
+    "REJECT_GATEWAY_::1",
+    "AMBIGUOUS_MAC_BLOCKED",
+    "PREFIX31_PEER_MATCHES_EXISTING_SERVER_CONTRACT",
+    "PREFIX32_NO_GATEWAY_MATCHES_EXISTING_SERVER_CONTRACT",
+    "PREFIX33_BLOCKED_BEFORE_MUTATION"
+  ],
+  "actualDhclientHookSketch": [
+    {
+      "mode": "STATIC",
+      "reason": "PREINIT",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "BOUND",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "RENEW",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "REBIND",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "REBOOT",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "EXPIRE",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "FAIL",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "STATIC",
+      "reason": "STOP",
+      "networkCommandCount": 0
+    },
+    {
+      "mode": "DHCP",
+      "reason": "EXPIRE",
+      "originalHandlerReached": true,
+      "handlerExecutionStoppedByFixture": true
+    }
+  ],
+  "bootOrdering": {
+    "currentExitCode": 0,
+    "currentCallsAfterNetworkFailure": [
+      "network endpoints reconcile",
+      "nfs export apply /tmp/epic1448-private-4ae3cm59/boot-order/nfs.json"
+    ],
+    "gateSketchExitCode": 1,
+    "gateSketchProtocolCalls": 0,
+    "liveBootOrServiceExecuted": false
+  },
+  "privateFixtureRemovedOnExit": true
+}

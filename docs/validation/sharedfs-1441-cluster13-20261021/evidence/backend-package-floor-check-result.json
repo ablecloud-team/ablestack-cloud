@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "command": [
+    "mvn",
+    "-B",
+    "-pl",
+    "api,server,plugins/storage/sharedfs/storagevm",
+    "-am",
+    "package",
+    "-Dcheckstyle.skip=true",
+    "-Drat.skip=true",
+    "-Dtest=SharedFSOfferingEligibilityTest,SharedFSOfferingCatalogCmdTest,SharedFSServiceImplTest,StorageVmSharedFSLifeCycleTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false"
+  ],
+  "finished_utc": "2026-10-21T11:40:09.043211+00:00"
+}

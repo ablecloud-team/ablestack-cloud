@@ -1,0 +1,38 @@
+{
+  "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": [
+    {
+      "path": "server/target/classes/org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+      "sha256": "62315770c338c851e8d6cf54ce9a698732253dd1d5713a3b4af89b09bf6851ea"
+    }
+  ],
+  "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class": [
+    {
+      "path": "plugins/storage/sharedfs/storagevm/target/classes/org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class",
+      "sha256": "d864f4f6438b6e82e4272914ec0a125fed6371655ba744b90ffc0ea0762caf17"
+    }
+  ],
+  "com/cloud/vm/UserVmManagerImpl.class": [
+    {
+      "path": "server/target/classes/com/cloud/vm/UserVmManagerImpl.class",
+      "sha256": "8a15a2a2a684752d982ba6e8b32218b0d40404326d38d90fc07ee28b0aad52d9"
+    }
+  ],
+  "org/apache/cloudstack/engine/orchestration/VolumeOrchestrator.class": [
+    {
+      "path": "engine/orchestration/target/classes/org/apache/cloudstack/engine/orchestration/VolumeOrchestrator.class",
+      "sha256": "a6bc52fb2da32f87bfce1434808d903e45def5ac1572cab509e2b1083d5dde1f"
+    }
+  ],
+  "org/apache/cloudstack/api/command/user/storage/sharedfs/DestroySharedFSCmd.class": [
+    {
+      "path": "api/target/classes/org/apache/cloudstack/api/command/user/storage/sharedfs/DestroySharedFSCmd.class",
+      "sha256": "5f5308e7908326d421989a5a0d7133b9b970b925df34b9361d8ef1f7b20d2737"
+    }
+  ],
+  "org/apache/cloudstack/api/command/user/storage/sharedfs/ExpungeSharedFSCmd.class": [
+    {
+      "path": "api/target/classes/org/apache/cloudstack/api/command/user/storage/sharedfs/ExpungeSharedFSCmd.class",
+      "sha256": "c6efa526701cbc267dfa81884f07b524fd4428d4e5539cfab079abca6221494e"
+    }
+  ]
+}

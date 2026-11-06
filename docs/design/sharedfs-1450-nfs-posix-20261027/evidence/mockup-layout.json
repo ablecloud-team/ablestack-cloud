@@ -1,0 +1,173 @@
+{
+  "before": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "clientHeight": 534,
+      "color": "rgb(240, 243, 246)",
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 1195,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 64,
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "formSpacing": "6px",
+    "header": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 54,
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 33
+    },
+    "secondary": {
+      "background": "rgba(0, 0, 0, 0)",
+      "clientHeight": 48,
+      "color": "rgb(197, 204, 212)",
+      "height": 47.796875,
+      "overflowY": "visible",
+      "scrollHeight": 48,
+      "scrollTop": 0,
+      "width": 892,
+      "x": 189,
+      "y": 414
+    },
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "afterScroll": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "clientHeight": 534,
+      "color": "rgb(240, 243, 246)",
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 1195,
+      "scrollTop": 494,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 64,
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "formSpacing": "6px",
+    "header": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 54,
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 33
+    },
+    "secondary": {
+      "background": "rgba(0, 0, 0, 0)",
+      "clientHeight": 48,
+      "color": "rgb(197, 204, 212)",
+      "height": 47.796875,
+      "overflowY": "visible",
+      "scrollHeight": 48,
+      "scrollTop": 0,
+      "width": 892,
+      "x": 189,
+      "y": -80
+    },
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "preview": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "clientHeight": 534,
+      "color": "rgb(240, 243, 246)",
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 1316,
+      "scrollTop": 494,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 64,
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "formSpacing": "6px",
+    "header": {
+      "background": "rgb(39, 46, 54)",
+      "clientHeight": 54,
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "width": 958,
+      "x": 161,
+      "y": 33
+    },
+    "secondary": {
+      "background": "rgba(0, 0, 0, 0)",
+      "clientHeight": 48,
+      "color": "rgb(197, 204, 212)",
+      "height": 47.796875,
+      "overflowY": "visible",
+      "scrollHeight": 48,
+      "scrollTop": 0,
+      "width": 892,
+      "x": 189,
+      "y": -80
+    },
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "confirmDisabled": true,
+  "contrastSamples": {
+    "mainText": 13.35,
+    "secondaryText": 9.18,
+    "scope": "Measured dark modal colors only; not a full accessibility audit"
+  }
+}

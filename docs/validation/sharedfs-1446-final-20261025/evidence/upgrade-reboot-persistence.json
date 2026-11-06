@@ -1,0 +1,8 @@
+{
+  "vmActuallyRebootedAgain": true,
+  "confirmedUpgradeVersionPersisted": true,
+  "namespaceUuidPreserved": true,
+  "current": "/opt/ablestack/storage-runtime/releases/epic1438-1446-7f473dc06768",
+  "previous": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba",
+  "newBootId": "1221b5a9-63b6-42c9-a297-0a44d178c1f7"
+}

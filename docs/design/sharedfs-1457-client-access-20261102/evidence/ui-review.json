@@ -1,0 +1,100 @@
+{
+  "layout": {
+    "before": {
+      "body": {
+        "bottom": 622,
+        "clientHeight": 534,
+        "height": 534,
+        "scrollHeight": 687,
+        "scrollTop": 0,
+        "top": 88
+      },
+      "footer": {
+        "bottom": 687,
+        "clientHeight": 64,
+        "height": 65,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "top": 622
+      },
+      "header": {
+        "bottom": 88,
+        "clientHeight": 54,
+        "height": 55,
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "top": 33
+      }
+    },
+    "after": {
+      "body": {
+        "bottom": 622,
+        "clientHeight": 534,
+        "height": 534,
+        "scrollHeight": 687,
+        "scrollTop": 0,
+        "top": 88
+      },
+      "footer": {
+        "bottom": 687,
+        "clientHeight": 64,
+        "height": 65,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "top": 622
+      },
+      "header": {
+        "bottom": 88,
+        "clientHeight": 54,
+        "height": 55,
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "top": 33
+      }
+    },
+    "scrolled": {
+      "body": {
+        "bottom": 622,
+        "clientHeight": 534,
+        "scrollHeight": 782,
+        "scrollTop": 248,
+        "top": 88
+      },
+      "footer": {
+        "bottom": 687,
+        "clientHeight": 64,
+        "scrollHeight": 64,
+        "scrollTop": 0,
+        "top": 622
+      },
+      "header": {
+        "bottom": 88,
+        "clientHeight": 54,
+        "scrollHeight": 54,
+        "scrollTop": 0,
+        "top": 33
+      }
+    },
+    "fixedHeaderFooterAfterScroll": true
+  },
+  "contrast": {
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgba(255, 255, 255, 0.85)",
+      "fontSize": "14px",
+      "contrastRatio": 11.12
+    },
+    "help": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "fontSize": "12px",
+      "contrastRatio": 9.18
+    },
+    "warning": {
+      "background": "rgba(250, 173, 20, 0.14)",
+      "color": "rgb(255, 231, 163)",
+      "fontSize": "16px",
+      "contrastRatio": 9.19
+    }
+  }
+}

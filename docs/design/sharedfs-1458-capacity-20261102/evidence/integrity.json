@@ -1,0 +1,22 @@
+{
+  "deployed": {
+    "jarSha256": "c34b3ec27fe163b6b2246ec46d4f835907d3bf71f12c16d5299f32134250a458",
+    "classes": {
+      "org/apache/cloudstack/storage/sharedfs/query/dao/SharedFSJoinDaoImpl.class": "830cd2183272abb2c8b9501895e05e123dbaf2e55f9da90c045c0de74692df13",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": "719b0136a2b1f885fc199005af86e6861c1557c1094529d696fbe59eca75c192",
+      "org/apache/cloudstack/api/response/SharedFSResponse.class": "96477d9be0bb200eb52f4311a86f38f6192e6ed586dbbe10f93718fd2accee95",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "7ac6e3bed09d3c49e699d776727cd5286dcecd9e1db4e1a168e1ecfc3350fc1c"
+    },
+    "uiIndexSha256": "f68719a8d5e9984218d813b367227b177c1a977b6b1df9583cdb85ef8f14b95e"
+  },
+  "local": {
+    "classes": {
+      "org/apache/cloudstack/storage/sharedfs/query/dao/SharedFSJoinDaoImpl.class": "830cd2183272abb2c8b9501895e05e123dbaf2e55f9da90c045c0de74692df13",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": "719b0136a2b1f885fc199005af86e6861c1557c1094529d696fbe59eca75c192",
+      "org/apache/cloudstack/api/response/SharedFSResponse.class": "96477d9be0bb200eb52f4311a86f38f6192e6ed586dbbe10f93718fd2accee95",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "7ac6e3bed09d3c49e699d776727cd5286dcecd9e1db4e1a168e1ecfc3350fc1c"
+    },
+    "sourceHead": "4dccae0b9fc89a96ecfc691e90e7fd09f921f61c",
+    "base": "50d666d1113ddbc50f0b632eb69e0d72d82faba4"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "exitcode": 0,
+  "result": {
+    "actualSystemVm": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+    "oldMismatchReproduced": true,
+    "sameParamsFingerprintEqual": true,
+    "correctedFingerprint": "14984782a7b611cf9aac97ab95742be323bf5422e75a0667869d74f08e2e9ad2",
+    "productionMutation": false,
+    "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1456/projects/team-a"
+  }
+}

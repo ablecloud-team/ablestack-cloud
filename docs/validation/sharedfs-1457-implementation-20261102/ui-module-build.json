@@ -1,0 +1,83 @@
+{
+  "files": {
+    "index.html": {
+      "sha256": "092a4db8c59235e7cd6039c4dc90d03887237d36a1ec3d2a57d72eedd307687c",
+      "bytes": 36227
+    },
+    "locales/ko_KR.json": {
+      "sha256": "09580fdcad447a14d412fa926d20debe21b73bc3e5677c92645769ee3aae9e59",
+      "bytes": 864631
+    },
+    "locales/en.json": {
+      "sha256": "3cb79ed73e655ded41a7ce8ba0c724841b7fc22e6a7afe78bc9a9abd9334d3ae",
+      "bytes": 777719
+    },
+    "css/chunk-872353a6.e48bbdae.css": {
+      "sha256": "a76fea1c91fb61df4e8b16bf699daf9762d79c492fe4b46d70724198005ad934",
+      "bytes": 29272
+    },
+    "js/chunk-0baa968d.86ca1983.js.map": {
+      "sha256": "5074c1659f859b499fa3570a89a48adc3f890874b2eeae4fe348df1f03785b11",
+      "bytes": 55923
+    },
+    "js/app.9cde54ab.js": {
+      "sha256": "eabc12882cdd69f1770aa68eaad3c90616c3c62ddd8db1bebbff55b1691633bc",
+      "bytes": 1630614
+    },
+    "js/chunk-872353a6.327fbe38.js": {
+      "sha256": "476c08736021695f5a95cceee6634bd0c7c3cb756301ad50b2714e542ed617d5",
+      "bytes": 721539
+    },
+    "js/chunk-872353a6.327fbe38.js.map": {
+      "sha256": "5647c5dcd7269898e9d21998be4d9ae57e7068c576ebe7c149fc764e77dc94f0",
+      "bytes": 1245625
+    },
+    "js/app.9cde54ab.js.map": {
+      "sha256": "d045b8e360a5d7fe456637e8de90520f7a51516ee59ef9475a17e5edf677a197",
+      "bytes": 3257876
+    },
+    "js/chunk-0baa968d.86ca1983.js": {
+      "sha256": "88d62fd4b5bd4ab37400ee6c9fcd369b526ea8a685f73eae418dce89b786c6b0",
+      "bytes": 25451
+    }
+  },
+  "unchangedAssets": 598,
+  "excludedUnrelatedMaps": 307,
+  "beforeIndexSha256": "01b7adac8bbd8467b2bde4b2fec8442d1002566b9ddef77ad47c5e5e74307f63",
+  "operatorFiles": {
+    "config.json": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "color.less": "eaeb8ac7e9b4391576b1e39e2b8edd88b565e6b012b4dcd04a1c5e3983dc9624"
+  },
+  "excludedUnrelatedStaticAssets": [
+    "cloud.ico",
+    "assets/logo.svg",
+    "assets/white-logo-clostack.png",
+    "assets/mini-logo-ablestack.png",
+    "assets/white-logo-hv.png",
+    "assets/403.png",
+    "assets/google.svg",
+    "assets/success.png",
+    "assets/white-logo-ablestack.png",
+    "assets/keycloak.svg",
+    "assets/login-logo-clostack.png",
+    "assets/feather.svg",
+    "assets/mini-logo-clostack.png",
+    "assets/logo-ablestack.png",
+    "assets/banner.svg",
+    "assets/error.png",
+    "assets/login-logo-ablestack.png",
+    "assets/asf-logo.svg",
+    "assets/404.png",
+    "assets/logo-clostack.png",
+    "assets/mini-logo-hv.png",
+    "assets/github.svg",
+    "assets/bg-what-is-cloudstack.png",
+    "assets/login-logo-hv.png",
+    "assets/logo-hv.png",
+    "assets/mini-logo.svg",
+    "assets/bg-what-is-ablestack.png",
+    "assets/500.png",
+    "assets/ablestack-favicon.png"
+  ],
+  "sourceCommit": "0c4411ab8ccd92a4ef3c93e9b27afd43ac3bc6ce"
+}

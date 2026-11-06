@@ -1,0 +1,6 @@
+{
+  "time": 1792724912.6590164,
+  "mkfsCmdline": "mkfs.xfs -f /dev/sdb ",
+  "mkfsSyscall": "16 0x4 0x1277 0x7fff5a0ec1f0 0x7f07cc372fe8 0x3348e84e37 0x5592756d4720 0x7fff5a0ec180 0x7f07cc462d6b\n",
+  "sdbStat": "     676        0    29512       32        0        0        0        0        2   520300   780510     4382        0 9189720064   780478        0        0\n"
+}

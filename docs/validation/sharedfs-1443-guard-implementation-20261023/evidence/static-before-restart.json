@@ -1,0 +1,137 @@
+{
+  "operationId": "adae2c82-e78b-3ac9-8a2f-04bd54c8e47f",
+  "formatCount": 1,
+  "filesystemUuid": "9fff071b-eac0-45d6-aed7-1d727ea68a16",
+  "mountPath": "/srv/ablestack-storage/volumes/e3e223fb-6843-4e8c-b235-9c6df2dbfae9",
+  "status": "PREPARED",
+  "phase": "PREPARED",
+  "bootId": "2ad9acd7-2359-4fc8-be97-8ab10e896293",
+  "addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.10.13.253",
+          "prefixlen": 16,
+          "scope": "global",
+          "label": "eth0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "dst": "default",
+      "gateway": "10.10.13.1",
+      "dev": "eth0",
+      "flags": []
+    },
+    {
+      "dst": "10.10.0.0/16",
+      "dev": "eth0",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "10.10.13.253",
+      "flags": []
+    }
+  ],
+  "networkState": {
+    "macAddress": "02:0d:00:cc:00:4a",
+    "ipAddress": "10.10.13.253",
+    "cidr": "10.10.0.0/16",
+    "gateway": "10.10.13.1",
+    "dns1": "8.8.8.8"
+  },
+  "files": {
+    "g1443n": {
+      "sha256": "a052fc79e4fd9024318397899dc9665be7290a2718411c1fadc35b93a27ce556",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "onDataFilesystem": true
+    },
+    "g1443s": {
+      "sha256": "aeca6f69b22e8559b85085557d54776aded71207a925e57546f7747aad7840b0",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "onDataFilesystem": true
+    }
+  },
+  "fstab": [
+    "UUID=9fff071b-eac0-45d6-aed7-1d727ea68a16 /srv/ablestack-storage/volumes/e3e223fb-6843-4e8c-b235-9c6df2dbfae9 xfs defaults,nofail,x-systemd.device-timeout=30 0 2 # ablestack-storage:e3e223fb-6843-4e8c-b235-9c6df2dbfae9:backing",
+    "/srv/ablestack-storage/volumes/e3e223fb-6843-4e8c-b235-9c6df2dbfae9/export/g1443n /export/g1443n none bind,nofail,x-systemd.requires-mounts-for=/srv/ablestack-storage/volumes/e3e223fb-6843-4e8c-b235-9c6df2dbfae9/export/g1443n 0 0 # ablestack-storage:b82e5440-9c97-4639-8968-f63d645ae45d:alias"
+  ],
+  "unitStates": {
+    "cloud-preinit.service": "Result=success\nExecMainStartTimestampMonotonic=3505101\nExecMainExitTimestampMonotonic=5549846\nActiveState=active\nSubState=exited\nJob=\n",
+    "cloud-early-config.service": "Result=success\nExecMainStartTimestampMonotonic=5560199\nExecMainExitTimestampMonotonic=130241349\nActiveState=active\nSubState=exited\nJob=\n",
+    "cloud-init-local.service": "Result=success\nExecMainStartTimestampMonotonic=8076199\nExecMainExitTimestampMonotonic=9773753\nActiveState=active\nSubState=exited\nJob=\n",
+    "cloud-init.service": "Result=exit-code\nExecMainStartTimestampMonotonic=9800145\nExecMainExitTimestampMonotonic=130189394\nActiveState=failed\nSubState=failed\nJob=\n",
+    "ssh.service": "Result=success\nExecMainStartTimestampMonotonic=130219880\nExecMainExitTimestampMonotonic=0\nActiveState=active\nSubState=running\nJob=\n",
+    "ablestack-sharedfs-network.service": "Result=success\nExecMainStartTimestampMonotonic=130924062\nExecMainExitTimestampMonotonic=130961475\nActiveState=active\nSubState=exited\nJob=\n"
+  },
+  "bootTimeline": [
+    "[    6.156162] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + systemctl restart ssh",
+    "[    6.269847] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + log_it 'Persisted SharedFS STATIC network restored; bootstrap DHCP skipped'",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + echo 'Fri Oct 23 01:31:52 AM UTC 2026 Persisted SharedFS STATIC network restored; bootstrap DHCP skipped'",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + log_action_msg 'Persisted SharedFS STATIC network restored; bootstrap DHCP skipped'",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + log_action_msg_pre 'Persisted SharedFS STATIC network restored; bootstrap DHCP skipped'",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + echo 'Persisted SharedFS STATIC network restored; bootstrap DHCP skipped.'",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: Persisted SharedFS STATIC network restored; bootstrap DHCP skipped.",
+    "[    6.270993] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + log_action_msg_post 'Persisted SharedFS STATIC network restored; bootstrap DHCP skipped'",
+    "[    8.103098] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 cloud-early-config[1042]: + systemctl restart ssh",
+    "[  130.242376] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 systemd[1]: Finished cloud-early-config.service - CloudStack post-boot patching service using cmdline.",
+    "[  130.957846] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 ablestack-sharedfs-network[5110]: {\"interface\":\"eth0\",\"ipAddress\":\"10.10.13.253\",\"cidr\":\"10.10.0.0/16\",\"gateway\":\"10.10.13.1\",\"dns\":[\"8.8.8.8\"]}",
+    "[  130.961623] sharedfs-8144aac2-225b-3b0f-95ae-f2d490d4ef76 systemd[1]: Finished ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore."
+  ],
+  "moduleHashes": {
+    "/opt/cloud/bin/setup/sharedfsvm.sh": "f6a4d913a92bf5a4c6cfbef4817b9740b47d508b5ceeded43819ce5055b9771f",
+    "/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573",
+    "/usr/local/bin/ablestack-storagectl": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+    "/usr/local/lib/ablestack-storage/volume_preparation.py": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0"
+  }
+}

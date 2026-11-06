@@ -1,0 +1,23 @@
+{
+  "reconcileStatus": {
+    "rc": 3,
+    "stdout": "○ ablestack-storage-reconcile.service - ABLESTACK Storage Service boot reconcile\n     Loaded: loaded (/etc/systemd/system/ablestack-storage-reconcile.service; enabled; preset: enabled)\n     Active: inactive (dead)\n\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Dependency failed for ablestack-storage-reconcile.service - ABLESTACK Storage Service boot reconcile.\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-reconcile.service: Job ablestack-storage-reconcile.service/start failed with result 'dependency'.\n",
+    "stderr": ""
+  },
+  "reconcileJournal": {
+    "rc": 0,
+    "stdout": "Oct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Dependency failed for ablestack-storage-reconcile.service - ABLESTACK Storage Service boot reconcile.\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-reconcile.service: Job ablestack-storage-reconcile.service/start failed with result 'dependency'.\n",
+    "stderr": ""
+  },
+  "runtimeBootstrap": {
+    "rc": 0,
+    "stdout": "Oct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Starting ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap...\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 ablestack-storage-runtime-updater[496]: {\"errorCode\": \"INTERNAL_ERROR\", \"message\": \"[Errno 17] File exists: '/opt/ablestack/storage-runtime/releases/epic1438-1448-network-7a9630a08a2'\", \"success\": false}\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-runtime-bootstrap.service: Main process exited, code=exited, status=1/FAILURE\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-runtime-bootstrap.service: Failed with result 'exit-code'.\nOct 28 00:34:04 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Failed to start ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap.\nOct 28 00:34:07 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Starting ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap...\nOct 28 00:34:07 sharedfs-936fd57c-386a-384d-be07-368844b41b61 ablestack-storage-runtime-updater[1194]: {\"errorCode\": \"INTERNAL_ERROR\", \"message\": \"[Errno 17] File exists: '/opt/ablestack/storage-runtime/releases/epic1438-1448-network-7a9630a08a2'\", \"success\": false}\nOct 28 00:34:07 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-runtime-bootstrap.service: Main process exited, code=exited, status=1/FAILURE\nOct 28 00:34:07 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: ablestack-storage-runtime-bootstrap.service: Failed with result 'exit-code'.\nOct 28 00:34:07 sharedfs-936fd57c-386a-384d-be07-368844b41b61 systemd[1]: Failed to start ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap.\n",
+    "stderr": ""
+  },
+  "listeners": {
+    "rc": 0,
+    "stdout": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                        \nLISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=1046,fd=3))\nLISTEN 0      128             [::]:22           [::]:*    users:((\"sshd\",pid=1046,fd=4))\n",
+    "stderr": ""
+  },
+  "log": null
+}

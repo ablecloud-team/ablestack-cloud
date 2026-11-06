@@ -1,0 +1,11 @@
+{
+  "files": 45,
+  "preserved": true,
+  "bootChanged": true,
+  "oldBoot": "5721062e-65e9-4753-a955-61278637b8bf",
+  "newBoot": "f9e5652b-562d-4849-b843-2ec6a9e6086b",
+  "bootstrap": "PASS",
+  "bootReconcile": "PASS",
+  "mode": "NUMERIC",
+  "policyRevision": 7
+}

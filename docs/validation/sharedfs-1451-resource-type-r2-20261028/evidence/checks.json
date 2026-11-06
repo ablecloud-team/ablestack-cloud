@@ -1,0 +1,21 @@
+{
+  "backendPackageModules": 26,
+  "javaRegressionTests": 42,
+  "failures": 0,
+  "skipped": 0,
+  "realCoordinatorDaoTests": 3,
+  "realExistingDaoTests": 3,
+  "styleCleanup": "issue-owned test imports only",
+  "moduleCheckstyleRemainingErrors": 18,
+  "issueOwnedCheckstyleErrors": 0,
+  "uiProductChangedThisRound": false,
+  "guestProductChangedThisRound": false,
+  "schemaMigration": false,
+  "matrixProfiles": 48,
+  "matrixUidCases": 192,
+  "aliasProfiles": 4,
+  "aliasUidCases": 16,
+  "rollbackFilesPreserved": 241,
+  "functionalUiError": "stale canresume RUNNING returned after terminal job without fresh operation read",
+  "restartAndDualNotRun": true
+}

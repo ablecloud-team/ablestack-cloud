@@ -1,0 +1,78 @@
+[
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "fields": {
+      "command": "preflightStorageServiceConfiguration",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "intent": "{\"api\":\"updateStorageDirectoryPolicy\",\"resourceid\":\"77262649-396b-35ca-85b2-ac72188c020d\",\"expectedpolicyrevision\":1,\"posixchanges\":{\"mode\":\"2770\"}}"
+    },
+    "status": 200,
+    "body": {
+      "preflightstorageserviceconfigurationresponse": {
+        "configurationpreflight": {
+          "status": "BLOCKED",
+          "revision": 47,
+          "observedat": "2026-11-02T00:22:03+0900",
+          "expiresat": "2026-11-02T00:22:33+0900",
+          "fingerprint": "",
+          "checks": [
+            {
+              "code": "SMB_PARENT_IDENTITY_CONFLICT",
+              "blocking": true,
+              "severity": "ERROR"
+            }
+          ],
+          "impact": {},
+          "profile": {},
+          "cancellationsupported": false
+        }
+      }
+    }
+  },
+  {
+    "command": "rebootVirtualMachine",
+    "fields": {
+      "command": "rebootVirtualMachine",
+      "response": "json",
+      "id": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2"
+    },
+    "status": 200,
+    "body": {
+      "rebootvirtualmachineresponse": {
+        "jobid": "3aef6408-3da0-4018-b1b6-56bb301936de"
+      }
+    }
+  },
+  {
+    "command": "preflightStorageServiceConfiguration",
+    "fields": {
+      "command": "preflightStorageServiceConfiguration",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "intent": "{\"api\":\"updateStorageDirectoryPolicy\",\"resourceid\":\"77262649-396b-35ca-85b2-ac72188c020d\",\"expectedpolicyrevision\":1,\"posixchanges\":{\"mode\":\"2770\"}}"
+    },
+    "status": 200,
+    "body": {
+      "preflightstorageserviceconfigurationresponse": {
+        "configurationpreflight": {
+          "status": "BLOCKED",
+          "revision": 47,
+          "observedat": "2026-11-02T00:38:47+0900",
+          "expiresat": "2026-11-02T00:39:17+0900",
+          "fingerprint": "",
+          "checks": [
+            {
+              "code": "SMB_PARENT_IDENTITY_CONFLICT",
+              "blocking": true,
+              "severity": "ERROR"
+            }
+          ],
+          "impact": {},
+          "profile": {},
+          "cancellationsupported": false
+        }
+      }
+    }
+  }
+]

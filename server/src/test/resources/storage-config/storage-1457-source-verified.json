@@ -1,0 +1,192 @@
+{
+  "observation": {
+    "baseRevision": 57,
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "operationid": "6f3fd76b-7a26-4f09-bede-1e741310705c",
+    "phase": "COMMITTING",
+    "requestHash": "338e78a24b5b99e2878a2e27cc81d0639a19535816f89dc75aa7474ef5e67ed2",
+    "rollback": {
+      "state": "NOT_NEEDED"
+    },
+    "state": "VERIFIED",
+    "targetRevision": 58,
+    "updated": 1793590653.1398568
+  },
+  "beforeShare": {
+    "acls": [
+      {
+        "config": {
+          "localAccount": true
+        },
+        "id": 495,
+        "permission": "READ_WRITE",
+        "principal": "epic1453rw",
+        "principalType": "LOCAL_USER",
+        "state": "Ready",
+        "uuid": "e8c6e6ec-e3a2-4b65-b97d-2f3ee4ab1bd1"
+      },
+      {
+        "config": {
+          "localAccount": false
+        },
+        "id": 496,
+        "permission": "READ_WRITE",
+        "principal": "ABLESTACK\\Administrator",
+        "principalType": "AD_USER",
+        "state": "Ready",
+        "uuid": "4c01165e-860f-4b7f-9304-e33f45df5774"
+      }
+    ],
+    "config": {
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+      "browseable": true,
+      "clientAccess": {
+        "cidrs": [
+          "10.10.254.224/32"
+        ],
+        "version": 1
+      },
+      "createDirectory": false,
+      "crossProtocol": true,
+      "directoryMode": "0770",
+      "directoryPolicyUuid": "268ec90c-b74a-3b0d-9f5d-8982bb4b6c06",
+      "fileIdentity": {
+        "gid": 7002,
+        "mode": "FIXED",
+        "uid": 7001,
+        "version": 1
+      },
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "guestOk": false,
+      "pathBindingVersion": 1,
+      "pathIdentity": {
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "inode": 16908423,
+        "volumeRootInode": 128
+      },
+      "readOnly": false,
+      "relativeSharePath": "epic1457/projects/team-a",
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+    },
+    "displayPath": "/export/s1457-restricted",
+    "filesystem": "xfs",
+    "id": 456,
+    "name": "s1457-restricted",
+    "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+    "state": "Ready",
+    "uuid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+    "volumeId": 355
+  },
+  "afterShare": {
+    "acls": [
+      {
+        "config": {
+          "localAccount": true
+        },
+        "id": 495,
+        "permission": "READ_WRITE",
+        "principal": "epic1453rw",
+        "principalType": "LOCAL_USER",
+        "state": "Ready",
+        "uuid": "e8c6e6ec-e3a2-4b65-b97d-2f3ee4ab1bd1"
+      },
+      {
+        "config": {
+          "localAccount": false
+        },
+        "id": 496,
+        "permission": "READ_WRITE",
+        "principal": "ABLESTACK\\Administrator",
+        "principalType": "AD_USER",
+        "state": "Ready",
+        "uuid": "4c01165e-860f-4b7f-9304-e33f45df5774"
+      }
+    ],
+    "config": {
+      "backingPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+      "browseable": true,
+      "clientAccess": {
+        "cidrs": [
+          "10.10.254.0/24"
+        ],
+        "version": 1
+      },
+      "createDirectory": false,
+      "crossProtocol": true,
+      "directoryMode": "0770",
+      "directoryPolicyUuid": "268ec90c-b74a-3b0d-9f5d-8982bb4b6c06",
+      "fileIdentity": {
+        "gid": 7002,
+        "mode": "FIXED",
+        "uid": 7001,
+        "version": 1
+      },
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "guestOk": false,
+      "pathBindingVersion": 1,
+      "pathIdentity": {
+        "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "inode": 16908423,
+        "volumeRootInode": 128
+      },
+      "readOnly": false,
+      "relativeSharePath": "epic1457/projects/team-a",
+      "volumeMountPath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277"
+    },
+    "displayPath": "/export/s1457-restricted",
+    "filesystem": "xfs",
+    "id": 456,
+    "name": "s1457-restricted",
+    "path": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1457/projects/team-a",
+    "state": "Updating",
+    "uuid": "fb7e2b3e-baa7-4774-af08-3f102fb1c504",
+    "volumeId": 355
+  },
+  "flags": {
+    "onlineSmbOptions": null,
+    "onlineSmbClientAccess": true
+  },
+  "commandKeys": [
+    "smb share apply"
+  ],
+  "boot": "48c332c5-562e-4baf-b708-4ac6b62b882d",
+  "dataMount": "xfs    9c8ddfe9-3e23-46f0-9476-5c794b004841\n",
+  "capability": {
+    "configurationTransactionVersion": 1,
+    "configurationPreflightVersion": 1,
+    "smbClientAccessPolicyVersion": 1,
+    "smbClientAccessPolicyProtectionVersion": 1,
+    "smbClientAccessAddressFamilies": [
+      "IPv4"
+    ],
+    "configurationObservationVersion": 1,
+    "smbListenerProfilesVersion": 1,
+    "nfsPosixIntentVersion": 1,
+    "nfsDeferredPosixVersion": 1,
+    "nestedFileSharePathVersion": 1,
+    "nestedFileSharePathProtectionVersion": 1,
+    "smbFileIdentityVersion": 1,
+    "smbFileIdentityProtectionVersion": 1,
+    "smbCreationPolicyVersion": 1,
+    "smbCreationPolicyProtectionVersion": 1,
+    "sharedDirectoryPolicyVersion": 1,
+    "adDomainTransactionVersion": 1,
+    "smbParentInheritanceVersion": 1,
+    "smbParentInheritanceProtectionVersion": 1,
+    "nfsIdentityMappingVersion": 1,
+    "nfsidentitymapping": {
+      "observationstatus": "UNKNOWN",
+      "endpoints": [
+        {
+          "port": 2049,
+          "endpoint": "0.0.0.0_2049",
+          "configuredmode": "NUMERIC",
+          "configuredrevision": 4,
+          "state": "UNKNOWN"
+        }
+      ],
+      "observedat": "1793593077.7842834",
+      "observeddomain": "localdomain"
+    }
+  }
+}

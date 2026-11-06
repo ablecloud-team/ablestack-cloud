@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "signatureAndProfile": {
+    "baselineProfileMatches": true,
+    "bundleVersion": "1457.sources.1",
+    "managedFilesVerified": [
+      "ablestack-storage-boot-reconcile",
+      "ablestack-storage-monitor",
+      "ablestack-storagectl",
+      "lib/ablestack-storage/configuration_preflight.py",
+      "lib/ablestack-storage/configuration_transaction.py",
+      "lib/ablestack-storage/nvmeof_identity.py",
+      "lib/ablestack-storage/session_auth.py",
+      "lib/ablestack-storage/shared_directory_policy.py",
+      "lib/ablestack-storage/smb_client_access.py",
+      "lib/ablestack-storage/smb_file_identity.py",
+      "lib/ablestack-storage/volume_identity.py",
+      "lib/ablestack-storage/volume_preparation.py"
+    ],
+    "manifestSha256": "9fef476290e2bb7862844acd8d5818864daecbd422921fd53dad409daf81ae60",
+    "signatureVerified": true,
+    "success": true
+  },
+  "native": {
+    "bootstrapPhases": [
+      "BOOTSTRAPPED",
+      "BOOTSTRAPPED",
+      "BOOTSTRAPPED"
+    ],
+    "clientAccessFeature": 1,
+    "protectedBaseline": 10,
+    "actualCliPreflight": "READY",
+    "ownedProfilesObserved": 2,
+    "auditDependencyReady": true,
+    "oldTargetRejectedWithRetiredIdentity": true,
+    "oldTargetRejectedWithSourcePolicy": true,
+    "signedTargetAccepted": true
+  },
+  "productionAndAccountFilesUnchanged": true
+}

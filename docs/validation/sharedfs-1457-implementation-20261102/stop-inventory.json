@@ -1,0 +1,35 @@
+{
+  "runtime": "1457.sources.1",
+  "protectedUpdaterVersion": 10,
+  "baselineProfileVersion": 10,
+  "managedFileCount": 12,
+  "manifestSha256": "9fef476290e2bb7862844acd8d5818864daecbd422921fd53dad409daf81ae60",
+  "sourceCommit": "0c4411ab8ccd92a4ef3c93e9b27afd43ac3bc6ce",
+  "paths": {
+    "epic1457/projects": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0775",
+      "inode": 8388779
+    },
+    "epic1457/projects/team-a": {
+      "uid": 7001,
+      "gid": 7002,
+      "mode": "0770",
+      "inode": 16908423
+    }
+  },
+  "sources": [
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf",
+      "pid": 1854,
+      "sha256": "99b920504123d815772b2694b87ec66e7220c7c0b9cedc0459464c4b77da849f"
+    },
+    {
+      "config": "/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf",
+      "pid": 1839,
+      "sha256": "5e3dfb02d0e9f31c3c063c5169daa5479668477599fcd9f0383e0bcf8a32d632"
+    }
+  ],
+  "mac": "02:0d:00:cc:00:93"
+}

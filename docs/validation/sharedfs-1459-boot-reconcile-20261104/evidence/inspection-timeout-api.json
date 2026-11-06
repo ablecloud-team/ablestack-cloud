@@ -1,0 +1,20 @@
+{
+  "id": "f278613e-3beb-403f-9934-0367f3ac8e52",
+  "instanceid": "2e33cc27-81fd-4056-8d37-8592e281edbc",
+  "requestid": "bf195f53-bee7-442d-8467-38f5e52d7a42",
+  "state": "ROLLED_BACK",
+  "phase": "COMPLETED",
+  "baserevision": 105,
+  "targetrevision": 106,
+  "canresume": false,
+  "originalfailure": {
+    "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+    "phase": "VALIDATING",
+    "stage": "DIRECTORY_POLICY_INSPECT",
+    "reason": "QGA_COMMAND_TIMEOUT"
+  },
+  "rollback": {
+    "state": "NOT_NEEDED"
+  },
+  "created": "2026-11-04T19:00:20+0900"
+}

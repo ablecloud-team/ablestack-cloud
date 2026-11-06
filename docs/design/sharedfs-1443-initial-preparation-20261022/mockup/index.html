@@ -1,0 +1,27 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>#1443 설계 목업 — 미구현</title>
+<link rel="stylesheet" href="/assets/antd.css"><link rel="stylesheet" href="/assets/mold-tokens.css"><link rel="stylesheet" href="/assets/mold-dialog.css"><style>
+:root{--ui-text-primary:#1f2937;--ui-text-secondary:#64748b;--ui-bg-surface:#fff;--ui-bg-input:#fff;--ui-border:#e2e8f0;--ui-border-strong:#94a3b8;--ui-link:#1890ff;--dialog-chrome:#fff;}
+body{margin:0;background:#f1f5f9;font-family:Arial,"Malgun Gothic",sans-serif}.design-note{position:fixed;top:0;left:0;right:0;background:#fff7e6;border-bottom:1px solid #ffd591;padding:10px 22px;z-index:1100;display:flex;gap:14px;align-items:center}.background{padding:90px 32px}.context{color:#64748b;margin-bottom:10px}.mold-dialog-toolbar{display:flex;gap:8px;margin:14px 0}.ant-descriptions-item-label{width:130px}.phase-note{margin:18px 0 10px;color:#475569}.fixture-tag{font-size:12px;font-weight:normal;color:#ad4e00}.phase-bar{height:7px;background:#e6f7ff;border-radius:4px;overflow:hidden;margin:12px 0}.phase-bar span{display:block;width:35%;height:7px;background:#1890ff}.footnote{color:#64748b;font-size:12px;margin-top:12px}.ant-modal-mask{background:rgba(15,23,42,.3)}.ant-modal-wrap{padding-top:42px}.ant-modal-body{padding-top:18px!important}
+</style></head><body><div id="app"><div class="design-note"><strong>B. 개선 UI 목업 · 미구현</strong><span>Vue3 + 현재 MoldDialog·AntD 사용 / 모든 작업 값은 시험용</span><a-select v-model:value="scenario" style="width:150px"><a-select-option value="running">진행 중</a-select-option value="unknown">관찰 대기</a-select-option value="blocked">복구 확인 필요</a-select-option value="prepared">볼륨 준비 완료</a-select-option></a-select></div><div class="background"><div class="context">스토리지 / 공유 파일 시스템</div><a-card title="공유 파일 시스템"><a-tag color="processing">생성 요청 접수 · 서비스는 아직 준비 중</a-tag></a-card></div>
+<mold-dialog :visible="true" size="lg" :closable="false"><template #title>공유 파일 시스템 준비 상태 <span class="fixture-tag">#1443 설계용 화면</span></template>
+<a-alert :type="state.type" show-icon :message="state.title" :description="state.description"></a-alert>
+<div class="mold-dialog-toolbar"><a-button type="primary" @click="observed='지금 (시험용 값)'">⟳ 업데이트</a-button><a-button :disabled="scenario!=='prepared'" @click="hint='설계용 동작: 기존 작업을 관찰한 뒤 초기 공유 구성으로 이어갑니다.'">준비 재개</a-button></div>
+<a-steps size="small" :current="state.step" :status="scenario==='blocked'?'error':'process'"><a-step title="장치 확인"></a-step><a-step title="파일시스템 준비"></a-step><a-step title="무결성 확인"></a-step><a-step title="마운트"></a-step><a-step title="공유 적용"></a-step></a-steps>
+<div class="phase-note">{{state.phase}} <a-tag v-if="scenario==='running'" color="processing">진행률 산정 불가</a-tag></div>
+<div v-if="scenario==='running'" style="margin:12px 0"><a-spin size="small"></a-spin><span style="margin-left:10px">작업 프로세스 실행 중 · 완료 비율 미제공</span></div>
+<a-descriptions size="small" bordered :column="2">
+<a-descriptions-item label="이름" :span="2">epic1438-1443-design-fixture</a-descriptions-item>
+<a-descriptions-item label="볼륨 용량">10.00 TiB · SPARSE</a-descriptions-item><a-descriptions-item label="파일 시스템">XFS</a-descriptions-item>
+<a-descriptions-item label="작업 경과">00:00:23 (시험용)</a-descriptions-item><a-descriptions-item label="포맷 제한 시간">00:32:00 (설계 후보)</a-descriptions-item>
+<a-descriptions-item label="마지막 실행 확인">{{scenario==='unknown'?'확인 불가 · 연결 점검 필요':'2초 전 (시험용)'}}</a-descriptions-item><a-descriptions-item label="마지막 상태 조회">{{observed}}</a-descriptions-item>
+<a-descriptions-item label="재개 가능 여부" :span="2">{{state.resume}}</a-descriptions-item>
+<a-descriptions-item label="볼륨 아이디" :span="2">11111111-2222-4333-8444-555555555555 (시험용)</a-descriptions-item>
+</a-descriptions><p class="footnote">완료된 포맷을 반복하지 않습니다. 화면을 닫아도 접수된 작업은 취소되지 않으며, 목록의 ‘준비 작업 상태’에서 다시 확인합니다.</p><a-alert v-if="hint" type="info" :message="hint" show-icon></a-alert>
+<template #footer><a-button>닫기</a-button></template></mold-dialog></div>
+<script src="/assets/vue.global.prod.js"></script><script src="/assets/antd-vue3.js"></script><script src="/assets/MoldDialog.js"></script>
+<script>const states={
+running:{type:'info',title:'파일시스템을 준비하고 있습니다',description:'새 볼륨을 포맷 중입니다. 완료 후 파일시스템 확인과 마운트가 이어집니다.',step:1,phase:'포맷 진행 중 · 완료 비율은 제공되지 않습니다.',resume:'진행 중인 작업이 있어 재개 버튼을 사용할 수 없습니다.'},
+unknown:{type:'warning',title:'작업의 현재 상태를 다시 확인해야 합니다',description:'마지막 응답을 확인하지 못했습니다. 포맷을 다시 실행하지 않고 기존 작업을 조회합니다.',step:1,phase:'관찰 대기 · 진행 중 여부 확인 필요',resume:'현재 실행 여부를 확인하기 전에는 재개할 수 없습니다.'},
+blocked:{type:'error',title:'자동 재개를 중단했습니다',description:'불완전하거나 알 수 없는 파일시스템이 관측됐습니다. 데이터 보호를 위해 자동 포맷하지 않습니다.',step:2,phase:'복구 확인 필요 · 파일시스템 검증 단계',resume:'안전한 상태가 확인되지 않아 차단됐습니다. 진단 정보를 검토해야 합니다.'},
+prepared:{type:'success',title:'볼륨 준비를 완료했습니다',description:'같은 볼륨의 파일시스템과 마운트를 확인했습니다. 초기 공유 구성을 이어갈 수 있습니다.',step:4,phase:'볼륨 준비 완료 · 서비스 적용 전',resume:'기존 작업으로 이어갈 수 있습니다. 새 디스크나 포맷 작업을 만들지 않습니다.'}};
+const app=Vue.createApp({data:()=>({scenario:new URLSearchParams(location.search).get('state')||'running',observed:'1초 전 (시험용)',hint:''}),computed:{state(){return states[this.scenario]}}});app.use(antd.default || antd);app.component('MoldDialog',window.DesignMoldDialog);app.mount('#app');</script></body></html>

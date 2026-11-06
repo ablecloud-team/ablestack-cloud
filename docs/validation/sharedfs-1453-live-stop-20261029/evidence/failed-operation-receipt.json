@@ -1,0 +1,59 @@
+{
+  "operation": "1aae5145-4a9e-4403-b7c3-0ab63d0b6d17",
+  "readOnly": true,
+  "status": {
+    "state": "ROLLED_BACK",
+    "phase": "COMPLETED",
+    "originalfailure": {
+      "code": "PROTOCOL_APPLY_FAILED",
+      "phase": "APPLYING",
+      "type": "Rejected"
+    },
+    "rollback": {
+      "state": "SUCCEEDED"
+    },
+    "baseRevision": 3,
+    "targetRevision": 4,
+    "operationid": "1aae5145-4a9e-4403-b7c3-0ab63d0b6d17"
+  },
+  "latestRunnerResult": {
+    "operation": "smb share apply",
+    "returncode": 0,
+    "outputTruncated": false
+  },
+  "requestKeys": [
+    "baseRevision",
+    "before",
+    "candidate",
+    "executionProfile",
+    "instanceUuid",
+    "operationid",
+    "preflight",
+    "targetRevision",
+    "vmUuid"
+  ],
+  "candidateCommands": [
+    "smb share apply"
+  ],
+  "shares": [
+    {
+      "name": "smb1453",
+      "uuid": "0f383e0d-12e4-4447-96b8-81501c1e3812",
+      "state": "Updating",
+      "configKeys": [
+        "backingPath",
+        "browseable",
+        "createDirectory",
+        "crossProtocol",
+        "directoryMode",
+        "directoryPolicyUuid",
+        "filesystemUuid",
+        "guestOk",
+        "readOnly",
+        "volumeMountPath"
+      ],
+      "inheritOwnerPresent": false,
+      "directoryPolicyUuid": "02832155-9814-3232-9136-5068642a78d8"
+    }
+  ]
+}

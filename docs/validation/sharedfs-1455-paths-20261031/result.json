@@ -1,0 +1,55 @@
+{
+  "status": "STOPPED_PRODUCT_ERROR",
+  "implementationCommit": "4065598a3f058149cf9e04d0671eca8322789182",
+  "issue": 1455,
+  "issueClosed": false,
+  "tests": {
+    "guest": {
+      "passed": 80,
+      "failed": 0
+    },
+    "managementApiDao": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "uiPaths": {
+      "passed": 7,
+      "failed": 0
+    },
+    "nativePaths": {
+      "passed": 8
+    },
+    "signedBootstrap": {
+      "passed": 3
+    },
+    "uiLint": "PASS",
+    "managementModuleBuild": "PASS",
+    "uiModuleBuild": "PASS",
+    "systemVmImageBuild": "PASS"
+  },
+  "actualUi": {
+    "nfsParentCreate": "COMMITTED",
+    "invalidRelativePath": "UI rejected before submission",
+    "missingDirectoryWithoutCreate": "BLOCKED/DIRECTORY_CREATION_REQUIRED",
+    "restrictiveAcl": "ROLLED_BACK/SUCCEEDED",
+    "actualClientAcceptance": "NOT_STARTED"
+  },
+  "failure": {
+    "operationId": "d00110d1-61f6-4187-bf69-3951eb391bda",
+    "requestId": "6c629546-173d-4d74-9332-af23eccaebcc",
+    "jobId": null,
+    "publicCode": "PROTOCOL_APPLY_FAILED",
+    "cause": "NFS self-probe requires a local IPv4 allowed by client ACL; two remote /32 clients exclude SystemVM IP",
+    "selectorUnchangedFromPreviousRelease": true,
+    "reappliedOrRetriedAfterFailure": false
+  },
+  "remaining": [
+    "SMB nested share creation",
+    "NFS/SMB actual client access",
+    "parent deletion and volume detach protections in actual UI",
+    "intentional rollback tests",
+    "VM/management restart and data preservation acceptance"
+  ],
+  "deploymentLimit": "signed image built and verified locally; no template registration after stop"
+}

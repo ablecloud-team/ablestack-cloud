@@ -1,0 +1,27 @@
+{
+  "beforeObjects": 102,
+  "afterObjects": 109,
+  "missing": [],
+  "changed": {
+    "epic1457/projects/team-a": {
+      "acl": {
+        "before": "user::rwx\ngroup::rwx\nother::---\n\n",
+        "after": "user::rwx\nuser:1001:rwx\nuser:10002:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:user:10002:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+      }
+    }
+  },
+  "new": [
+    "epic1457/projects/team-a/ad-c1-1445.txt",
+    "epic1457/projects/team-a/ad-c1-445.txt",
+    "epic1457/projects/team-a/nfs-c1.txt",
+    "epic1457/projects/team-a/nfs-c2.txt",
+    "epic1457/projects/team-a/posix-deny.txt",
+    "epic1457/projects/team-a/smb-c1-1445.txt",
+    "epic1457/projects/team-a/smb-c1-445.txt"
+  ],
+  "accountsUnchanged": true,
+  "bootUnchanged": true,
+  "macUnchanged": true,
+  "fsUnchanged": true,
+  "ipUnchanged": true
+}

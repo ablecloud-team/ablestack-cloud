@@ -1,0 +1,61 @@
+{
+  "time": 1792724541.3587759,
+  "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+  "journals": [
+    {
+      "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+      "createdAt": 1792724392.0718033,
+      "deadlineAt": 1792726312.235266,
+      "errorCode": null,
+      "formatCount": 1,
+      "formatDeadlineAt": 1792726312.235266,
+      "formatEverStarted": true,
+      "formatStartedAt": 1792724392.235266,
+      "heartbeatAt": 1792724541.0989203,
+      "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+      "payload": {
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "instanceUuid": "29bdc2bf-4539-471b-9ca8-605837b4fe20",
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      },
+      "phase": "FORMATTING",
+      "phaseStartedAt": 1792724392.235266,
+      "phaseTimeoutSeconds": 1920,
+      "reason": null,
+      "startedAt": 1792724392.0718033,
+      "status": "RUNNING",
+      "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+      "version": 1,
+      "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "workerPid": 5148,
+      "workerStartTicks": "13173"
+    }
+  ],
+  "lsblk": {
+    "rc": 0,
+    "stdout": "{\n   \"blockdevices\": [\n      {\n         \"name\": \"sda\",\n         \"size\": 5242880000,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"fcd7b575935c4d0caf85\",\n         \"mountpoints\": [\n             null\n         ],\n         \"children\": [\n            {\n               \"name\": \"sda1\",\n               \"size\": 398458880,\n               \"fstype\": \"ext2\",\n               \"uuid\": \"02a28a52-ae70-46b5-8f12-3636640c9a99\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/boot\"\n               ]\n            },{\n               \"name\": \"sda2\",\n               \"size\": 1024,\n               \"fstype\": null,\n               \"uuid\": null,\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda5\",\n               \"size\": 510656512,\n               \"fstype\": \"swap\",\n               \"uuid\": \"c30f6d3c-fe8f-41df-99b0-52cb823c014c\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda6\",\n               \"size\": 4329570304,\n               \"fstype\": \"ext4\",\n               \"uuid\": \"91b8366d-a5de-42ad-a420-2e26aa755c3d\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/\"\n               ]\n            }\n         ]\n      },{\n         \"name\": \"sdb\",\n         \"size\": 10995116277760,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"09f6122a3225406e8de1\",\n         \"mountpoints\": [\n             null\n         ]\n      },{\n         \"name\": \"sr0\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00003\",\n         \"mountpoints\": [\n             null\n         ]\n      },{\n         \"name\": \"sr1\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00004\",\n         \"mountpoints\": [\n             null\n         ]\n      }\n   ]\n}\n",
+    "stderr": ""
+  },
+  "units": {
+    "rc": 0,
+    "stdout": "  UNIT                                                                    LOAD   ACTIVE   SUB     DESCRIPTION\n  ablestack-sharedfs-network.service                                      loaded active   exited  ABLESTACK SharedFS static network restore\n  ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service loaded active   running /usr/bin/python3 /usr/local/lib/ablestack-storage/volume_preparation.py worker 09f6122a-3225-406e-8de1-66bcaff79707 4e8bf069-ae53-33b9-ac9a-a61030e38c0a\n  ablestack-storage-monitor.service                                       loaded active   running ABLESTACK Storage Service monitor cache\n  ablestack-storage-reconcile.service                                     loaded inactive dead    ABLESTACK Storage Service boot reconcile\n  ablestack-storage-runtime-bootstrap.service                             loaded active   exited  ABLESTACK Storage Service runtime bootstrap\n\nLOAD   = Reflects whether the unit definition was properly loaded.\nACTIVE = The high-level unit activation state, i.e. generalization of SUB.\nSUB    = The low-level unit activation state, values depend on unit type.\n5 loaded units listed.\nTo show all installed unit files use 'systemctl list-unit-files'.\n",
+    "stderr": ""
+  },
+  "network": {
+    "rc": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:0d:00:cc:00:4c\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\",\"ens3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.10.13.251\",\"prefixlen\":16,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "stderr": ""
+  },
+  "unitJournal": {
+    "rc": 0,
+    "stdout": "Oct 23 02:59:52 sharedfs-093de0e0-0fe2-3faa-874b-53542640a372 systemd[1]: Starting ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service - /usr/bin/python3 /usr/local/lib/ablestack-storage/volume_preparation.py worker 09f6122a-3225-406e-8de1-66bcaff79707 4e8bf069-ae53-33b9-ac9a-a61030e38c0a...\nOct 23 02:59:52 sharedfs-093de0e0-0fe2-3faa-874b-53542640a372 systemd[1]: Started ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service - /usr/bin/python3 /usr/local/lib/ablestack-storage/volume_preparation.py worker 09f6122a-3225-406e-8de1-66bcaff79707 4e8bf069-ae53-33b9-ac9a-a61030e38c0a.\n",
+    "stderr": ""
+  },
+  "sourceSha": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0"
+}

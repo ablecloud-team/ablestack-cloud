@@ -353,4 +353,16 @@ public class LibvirtGetVmIpAddressCommandWrapperTest {
                 scriptMock.close();
         }
     }
+    @Test
+    public void capturedSharedFsAliasRemainsAValidLegacyDiscoveryResult() throws Exception {
+        String output = java.nio.file.Files.readString(java.nio.file.Paths.get(
+                getClass().getResource("/sharedfs-1448-domifaddr.txt").toURI()));
+        GetVmIpAddressCommand command = new GetVmIpAddressCommand("i-2-132-VM", null, false, "02:0d:00:cc:00:57");
+        try (MockedStatic<Script> script = mockStatic(Script.class)) {
+            when(Script.executePipedCommands(anyList(), anyLong())).thenReturn(new Pair<>(0, output));
+            Answer answer = new LibvirtGetVmIpAddressCommandWrapper().execute(command, mock(LibvirtComputingResource.class));
+            assertTrue(answer.getResult());
+            assertEquals("10.10.13.235", answer.getDetails());
+        }
+    }
 }

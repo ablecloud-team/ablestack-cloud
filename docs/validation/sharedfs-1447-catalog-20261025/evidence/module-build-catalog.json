@@ -1,0 +1,217 @@
+{
+  "management": {
+    "beforeSha256": "775e269b5fa2dab878c9edf865a4a3523fc902bd0a796e390a6bd024dee15531",
+    "afterSha256": "8242b2273ff4a20273acebd30e34781db04453bb16c1a01fe7a90bedddb4166e",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundlesCmd.class",
+        "before": "a43fd523a5b1668e173d642776f705284a5a74ea71d7b938037f64416890f66f",
+        "after": "9ea81d0f9d3b15afa6d9cd64f95ba72f99e08255502f99b2bd1a73421d60d933"
+      },
+      {
+        "path": "org/apache/cloudstack/api/response/StorageServiceRuntimeBundleResponse.class",
+        "before": "fb093ab929318fec2430f8315061d119f2fc723852d91b383bd49190e4e2f7f6",
+        "after": "f06579bf1b052bef9be42759f274e990e8486848288f1b6e86a7c87701c52b02"
+      },
+      {
+        "path": "com/cloud/agent/api/StorageServiceRuntimeOperation.class",
+        "before": "318cb8384db22c3fc8fa3df317eb4d0d1b86ab9918c690e6455448a271123987",
+        "after": "ff3d76dbd1c0707bff2e73a11a12d39f20f125378afa26cef1a95a784aad0839"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+        "before": "ec5a1b57655dca9298fa5a9abcd4cd5881be55f8307883cd2f78de005f1acac8",
+        "after": "3db9299915b5caa2eada02ec8d34914a2f4c446396376350a0b70e40c5ede5aa"
+      },
+      {
+        "path": "storage-runtime/bootstrap/runtime_updater.py",
+        "before": "65618c2aa35db2ea8efb1cfb11dd5581ceac730c00f625074fcf9476234c3f40",
+        "after": "4cb0d0bbeef615753be3e532f2aa727a739434b652ae0c4dde48b342cb1d6fd0"
+      },
+      {
+        "path": "META-INF/cloudstack/core/spring-engine-schema-core-daos-context.xml",
+        "before": "a9598d1310be9f8dda8ff35fe70604e8e104c2c25cea42fbdcf59730d1d1eda5",
+        "after": "778f88442d3de7716a9ac16a37a49e7f1b7eec7a3f5e8a018b4225e36e52c5e3"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleDao.class",
+        "before": "b56fbb80c17d3a4ae97409a97067395f221606a19ca1528c6d330b9781514068",
+        "after": "4408b5cf2fc7104127d802c613a09c10d6c80eb7bb82a7d1ace9e2ba3cb96cc4"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleDaoImpl.class",
+        "before": "c4ab80a3015c259dfd5ead05bda40b42c2fe63a33d3b8a6569ba7e2b3fadf825",
+        "after": "33355fcdb0a55fa2b2c09a923072eaacb9ef0e7d583540fd7d7f95d313d9842d"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleVO.class",
+        "before": "59adb7856ca504c59b6c848e73f1eb10806ea010e2d171384e2e008d85c96c43",
+        "after": "d2070a4b1c165c4eb7f9e5aba68f14e83cf9fcbadcd9a28914a7e9051a3d324c"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleVO$State.class",
+        "before": "f3e99d85df3ccaf58dc4e7dda8decf4a5968d172cfa484c01ed23ec646a66417",
+        "after": "321dabcc41149b49136c1997e25941d98181b51b560c82113e753a9a3b1b2ec4"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeVO.class",
+        "before": "7d3c5a025d283beeac11689f198e8aa40fafe31e79b747441fce87d8d2bc0412",
+        "after": "23634dc45e23c1b0334060ba26bcb1c97b3eca9568cba47b910410cbf665cf8f"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleVO$ServiceImpact.class",
+        "before": "288a539f48fe3769a8e8e2e4224a7ebc33d06b1e9ed3228a6be393e335a3f25a",
+        "after": "c39d1a30cd4fb8e6db4633f1b8c47d5cc5703b80086f890800649b8861c73346"
+      },
+      {
+        "path": "META-INF/cloudstack/core/spring-server-core-managers-context.xml",
+        "before": "c855e530c8aa514a4899bebcc8eb4845db02ba6de92a58187a663a94a80c2089",
+        "after": "f7efd8ff9729d155d6949d76f816493c3014fc800e95db786a310f2c76935c7e"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "before": "fe013e45a2b659cb7ab557b35a965c83d3c289b4cca37a0dc2bd5d8935186d5e",
+        "after": "e31c176528c87b88abfa8ca3d3d43dd48d0c56f3bef66e4bec77411e7190a584"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class",
+        "before": "03b96ff7586c2766949e5a83655d294d7f66b3cfbcc643d75638dcc0fa61957f",
+        "after": "fe99047953188ae3d7dab2ec77cc79b38de75fa1fbc4d228456a7ce9510c9f72"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+        "before": "226362dbf2daeb0c781e444ce6cc0c6ec915153f60b1e947adc1c0fd28299549",
+        "after": "dcc6bfbf5a4dba25cd4a0f429ba82cdfadd2a03f1475592d89124466a7ff08b6"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ProtocolResponseContext.class",
+        "before": "643fe668d8be1c04ecd7f00d7fca56613fcab6993701ac9ca092b451310a976c",
+        "after": "d5298e6269c8cefb0c74fdf83422f38dc4c3ce3e4f7bbb25937f1c654d45c679"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl$NativeRuntimeRejected.class",
+        "before": "39f06642f39f8b3f0d4541a331eaec42490438f896362c2a9ab48c61b4b3779a",
+        "after": "4b9af4b7c821c377b39acb74e98ebc3ab2f2f5004ae2bef1a929bd9f4080f725"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleEventsCmd.class",
+        "before": null,
+        "after": "96f9ecf14e97c16fb9bd7b57c20d29ce9c945b68863921ad2491edec284aaa23"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleUsagesCmd.class",
+        "before": null,
+        "after": "5d3bd6328af6e59300e33bc7960888caa902b229bdf1b994ce60f5e84ed63b2b"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleValidationsCmd.class",
+        "before": null,
+        "after": "fc371cd9ffd6e7c93c2f161827e334aac57daec5d290ab6e6d8b046cc222be63"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/TransitionStorageServiceRuntimeBundleCmd.class",
+        "before": null,
+        "after": "850214b633d23b25503d8106ca1ae7e29f9cabe48b5370b818f463c5893d1bfc"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/admin/storage/dataservice/ValidateStorageServiceRuntimeBundleCmd.class",
+        "before": null,
+        "after": "c6ed0a08705fe79c0ebebb3abe397db7a728d0275758a2bb0e764c055c1e10a2"
+      },
+      {
+        "path": "org/apache/cloudstack/api/response/StorageServiceRuntimeCatalogRecordResponse.class",
+        "before": null,
+        "after": "309819fd516bad8faaaf5c5509a11c94039fc7daac5299cee93a2303a844681e"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeCatalog.class",
+        "before": null,
+        "after": "b48ed691b9d1537b68a605e6160e441ca8c992fc8ccd0f7ddba7dcf29c04626c"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleEventVO.class",
+        "before": null,
+        "after": "bf57a6c5da44eaeeebf17767fbf9b4b0a82fb365d61ecfb2eb00f88169752b16"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleVO$ValidationStatus.class",
+        "before": null,
+        "after": "5e89351842ecf4c2699ea64f544c0d0bc8a13149ded736bd7c9a6a246d12b33b"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleValidationVO.class",
+        "before": null,
+        "after": "af4d9bc7f379f7491047b5d61debea693cc8978bbe6bebeeb10c578e555a9a12"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleEventDaoImpl.class",
+        "before": null,
+        "after": "e9be17eaae22945b0d94be17702bc07d9d0d5c629ec9048e1020d72e526817f2"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleEventDao.class",
+        "before": null,
+        "after": "224378d293085b96a9cb81f534c8bb428fea2fd682d545b0bccc3220a87686d4"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleValidationDao.class",
+        "before": null,
+        "after": "67d1a972339d7d1b950e9e2a552989943770412f3e739e596a9f0ade8d8730e1"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleValidationDaoImpl.class",
+        "before": null,
+        "after": "c47e9a10565f8f5062c8da5071a044b9979b1f14d0709f59e21ec4e220616df5"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeCatalogManagerImpl.class",
+        "before": null,
+        "after": "4c0e4db09e1026c052ed0a7573b9f2450bc816791286cdf2febf229675a81602"
+      },
+      {
+        "path": "storage-runtime/catalog_verifier.py",
+        "before": null,
+        "after": "f81f569af945e1a0fe98e2d7144ff529edc1773f79425f34270bccc76b468ad4"
+      }
+    ],
+    "otherEntriesByteIdentical": true
+  },
+  "hosts": {
+    "10.10.13.1": {
+      "beforeSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+      "afterSha256": "724c42ca6fe82051879172e8df80585f10b04689e30f3bd9abcdfe321aa2f259",
+      "changedEntries": [
+        {
+          "path": "com/cloud/agent/api/StorageServiceRuntimeOperation.class",
+          "before": "318cb8384db22c3fc8fa3df317eb4d0d1b86ab9918c690e6455448a271123987",
+          "after": "ff3d76dbd1c0707bff2e73a11a12d39f20f125378afa26cef1a95a784aad0839"
+        }
+      ],
+      "otherEntriesByteIdentical": true
+    },
+    "10.10.13.2": {
+      "beforeSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+      "afterSha256": "724c42ca6fe82051879172e8df80585f10b04689e30f3bd9abcdfe321aa2f259",
+      "changedEntries": [
+        {
+          "path": "com/cloud/agent/api/StorageServiceRuntimeOperation.class",
+          "before": "318cb8384db22c3fc8fa3df317eb4d0d1b86ab9918c690e6455448a271123987",
+          "after": "ff3d76dbd1c0707bff2e73a11a12d39f20f125378afa26cef1a95a784aad0839"
+        }
+      ],
+      "otherEntriesByteIdentical": true
+    },
+    "10.10.13.3": {
+      "beforeSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+      "afterSha256": "724c42ca6fe82051879172e8df80585f10b04689e30f3bd9abcdfe321aa2f259",
+      "changedEntries": [
+        {
+          "path": "com/cloud/agent/api/StorageServiceRuntimeOperation.class",
+          "before": "318cb8384db22c3fc8fa3df317eb4d0d1b86ab9918c690e6455448a271123987",
+          "after": "ff3d76dbd1c0707bff2e73a11a12d39f20f125378afa26cef1a95a784aad0839"
+        }
+      ],
+      "otherEntriesByteIdentical": true
+    }
+  }
+}

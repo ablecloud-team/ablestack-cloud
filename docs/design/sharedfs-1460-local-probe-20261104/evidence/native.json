@@ -1,0 +1,196 @@
+{
+  "success": true,
+  "checks": [
+    {
+      "name": "v4 revoke client2; next direct READ denied; client1 and sibling remain allowed",
+      "passed": true,
+      "checks": [
+        {
+          "client": 1,
+          "version": 4,
+          "port": 23049,
+          "rc": 0,
+          "stderr": ""
+        },
+        {
+          "client": 2,
+          "version": 4,
+          "port": 23049,
+          "rc": 1,
+          "stderr": "dd: failed to open '/var/tmp/epic1460-design-8sxo2qiz/mnt-2-4-23049-shared/seed': Permission denied"
+        },
+        {
+          "client": 1,
+          "version": 4,
+          "port": 23050,
+          "rc": 0,
+          "stderr": ""
+        },
+        {
+          "client": 2,
+          "version": 4,
+          "port": 23050,
+          "rc": 1,
+          "stderr": "dd: failed to open '/var/tmp/epic1460-design-8sxo2qiz/mnt-2-4-23050-shared/seed': Permission denied"
+        }
+      ],
+      "pids": [
+        424439,
+        424509
+      ]
+    },
+    {
+      "name": "v4 regrant restores existing mounts without reconnect",
+      "passed": true
+    },
+    {
+      "name": "v4 RW to RO prevents next write; no daemon restart",
+      "passed": true
+    },
+    {
+      "name": "v4 root squash policy dynamically changes numeric owner",
+      "passed": true
+    },
+    {
+      "name": "v4 invalid config rejected with live export preserved; previous valid config reloaded",
+      "passed": true
+    },
+    {
+      "name": "v4 actual installed local probe distinguishes remote-only ACL",
+      "passed": true,
+      "result": [
+        {
+          "listenIp": "0.0.0.0",
+          "port": 23049,
+          "probeSuccess": true,
+          "exportsVisible": null,
+          "probeResults": [
+            {
+              "exportUuid": "isolated1460",
+              "exportName": "shared",
+              "protocolMode": "V4_ONLY",
+              "targetPath": "/srv/ablestack-storage/volumes/ef9a2ff3-31fd-44fe-a97a-2e0669455127/.epic1460-design-8sxo2qiz/shared",
+              "pseudoPath": "/shared",
+              "success": null,
+              "probes": [
+                {
+                  "mode": "host-selection",
+                  "success": null,
+                  "status": "NOT_APPLICABLE_LOCAL_ACL",
+                  "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+                }
+              ],
+              "status": "EXTERNAL_CLIENT_REQUIRED",
+              "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+            }
+          ],
+          "probeComplete": false
+        }
+      ]
+    },
+    {
+      "name": "v4 continuously allowed mounted client I/O",
+      "passed": true,
+      "requests": 851,
+      "errors": []
+    },
+    {
+      "name": "dual revoke client2; next direct READ denied; client1 and sibling remain allowed",
+      "passed": true,
+      "checks": [
+        {
+          "client": 1,
+          "version": 4,
+          "port": 23049,
+          "rc": 0,
+          "stderr": ""
+        },
+        {
+          "client": 2,
+          "version": 4,
+          "port": 23049,
+          "rc": 1,
+          "stderr": "dd: failed to open '/var/tmp/epic1460-design-8sxo2qiz/mnt-2-4-23049-shared/seed': Permission denied"
+        },
+        {
+          "client": 1,
+          "version": 3,
+          "port": 23049,
+          "rc": 0,
+          "stderr": ""
+        },
+        {
+          "client": 2,
+          "version": 3,
+          "port": 23049,
+          "rc": 1,
+          "stderr": "dd: failed to open '/var/tmp/epic1460-design-8sxo2qiz/mnt-2-3-23049-shared/seed': Permission denied"
+        }
+      ],
+      "pids": [
+        425394
+      ]
+    },
+    {
+      "name": "dual regrant restores existing mounts without reconnect",
+      "passed": true
+    },
+    {
+      "name": "dual RW to RO prevents next write; no daemon restart",
+      "passed": true
+    },
+    {
+      "name": "dual root squash policy dynamically changes numeric owner",
+      "passed": true
+    },
+    {
+      "name": "dual invalid config rejected with live export preserved; previous valid config reloaded",
+      "passed": true
+    },
+    {
+      "name": "dual actual installed local probe distinguishes remote-only ACL",
+      "passed": true,
+      "result": [
+        {
+          "listenIp": "0.0.0.0",
+          "port": 23049,
+          "probeSuccess": true,
+          "exportsVisible": null,
+          "probeResults": [
+            {
+              "exportUuid": "isolated1460",
+              "exportName": "shared",
+              "protocolMode": "V3V4_DUAL",
+              "targetPath": "/srv/ablestack-storage/volumes/ef9a2ff3-31fd-44fe-a97a-2e0669455127/.epic1460-design-8sxo2qiz/shared",
+              "pseudoPath": "/shared",
+              "success": null,
+              "probes": [
+                {
+                  "mode": "host-selection",
+                  "success": null,
+                  "status": "NOT_APPLICABLE_LOCAL_ACL",
+                  "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+                }
+              ],
+              "status": "EXTERNAL_CLIENT_REQUIRED",
+              "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL"
+            }
+          ],
+          "probeComplete": false
+        }
+      ]
+    },
+    {
+      "name": "dual continuously allowed mounted client I/O",
+      "passed": true,
+      "requests": 853,
+      "errors": []
+    },
+    {
+      "name": "real DATA remains on verified SPARSE XFS; no format performed",
+      "passed": true
+    }
+  ],
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true
+}

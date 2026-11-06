@@ -64,11 +64,14 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
             null,
             SharedFSFeatureEnabled.key());
 
+    ConfigKey<Integer> SharedFSInitialFormatMaxSeconds = new ConfigKey<>("Advanced", Integer.class,
+        "sharedfs.initial.backing.format.max.seconds", "3600", "Maximum format budget for newly allocated initial SharedFS DATA only.", true);
+
     String SharedFSVmNamePrefix = "sharedfs";
     String SharedFSPath = "/export";
 
     enum FileSystemType {
-        EXT4, XFS
+        EXT4, XFS, AUTO
     }
 
     enum Protocol {
@@ -119,6 +122,7 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
         }
 
         static {
+            s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Error, Event.CreationResumeRequested, Allocated, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Allocated, Event.OperationFailed, Error, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Allocated, Event.OperationSucceeded, Ready, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Error, Event.DestroyRequested, Destroyed, null));
@@ -138,6 +142,7 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     }
 
     enum Event {
+        CreationResumeRequested,
         StopRequested,
         StartRequested,
         DestroyRequested,
@@ -150,6 +155,10 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     static String getSharedFSPath() {
         return SharedFSPath;
     }
+
+    default String getCreationRequestId() { return null; }
+
+    default String getCreationContext() { return null; }
 
     long getId();
 

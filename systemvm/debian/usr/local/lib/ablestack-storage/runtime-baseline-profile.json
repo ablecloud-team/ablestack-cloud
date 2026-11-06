@@ -1,0 +1,88 @@
+{
+  "baselineVersion": 15,
+  "files": [
+    {
+      "path": "ablestack-storage-boot-reconcile",
+      "mode": 493,
+      "sha256": "d39bb13dfd11ea9437831348351c5ab4645013cbe5caa01a09fcaf137e0342e8"
+    },
+    {
+      "path": "ablestack-storage-monitor",
+      "mode": 493,
+      "sha256": "bbff97a73cd2e772d30d95d894658a1e454ff1c2d4bef825dfca9a7a60c09f18"
+    },
+    {
+      "path": "ablestack-storagectl",
+      "mode": 493,
+      "sha256": "320bcd80d4daf2fc05ae666ccda079eed6eadb9084b1e87d29b9bff335c0e9b2"
+    },
+    {
+      "path": "lib/ablestack-storage/boot_reconcile.py",
+      "mode": 420,
+      "sha256": "03fd617e478a304c3bfbce565812c65d81afb5b56de0cac6ff5ce3d9f35d852a"
+    },
+    {
+      "path": "lib/ablestack-storage/configuration_preflight.py",
+      "mode": 420,
+      "sha256": "5ba6e9781f27f15c8765056b76597360515656bec28e6cd87c947757456abfd3"
+    },
+    {
+      "path": "lib/ablestack-storage/configuration_transaction.py",
+      "mode": 420,
+      "sha256": "3544e8104a302ffae91b3672236fc39e8f60e591a6719d1399799a010408a272"
+    },
+    {
+      "path": "lib/ablestack-storage/nfs_client_policy_runtime.py",
+      "mode": 420,
+      "sha256": "40c98a83716b18f0bf65b2bcb2412b74e9fc95056973b6f11d86b11a3e089dae"
+    },
+    {
+      "path": "lib/ablestack-storage/nfs_ganesha_render.py",
+      "mode": 420,
+      "sha256": "02703aafe31e25956018051589b06a7adab15093526ccb9ecd5fd0d2f0c9215f"
+    },
+    {
+      "path": "lib/ablestack-storage/nvmeof_identity.py",
+      "mode": 420,
+      "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+    },
+    {
+      "path": "lib/ablestack-storage/session_auth.py",
+      "mode": 420,
+      "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59"
+    },
+    {
+      "path": "lib/ablestack-storage/shared_directory_policy.py",
+      "mode": 420,
+      "sha256": "9b1557b9516cdb8ffdeb99c4b35ad7956c52cddc99427d6a9ca36b5c4d53283c"
+    },
+    {
+      "path": "lib/ablestack-storage/smb_client_access.py",
+      "mode": 420,
+      "sha256": "1a88a1a3c798c5ec820a251aff866bdbee057e2d7577e1617a19909735a415f6"
+    },
+    {
+      "path": "lib/ablestack-storage/smb_file_identity.py",
+      "mode": 420,
+      "sha256": "fd96a02b4c559eef71eca84f8f5dfaf11d0b82be2973144b5c4579642fe568ce"
+    },
+    {
+      "path": "lib/ablestack-storage/volume_identity.py",
+      "mode": 420,
+      "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+    },
+    {
+      "path": "lib/ablestack-storage/volume_preparation.py",
+      "mode": 420,
+      "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+    }
+  ],
+  "nativeDependencies": {
+    "smbFullAudit": {
+      "packageVersion": "2:4.17.12+dfsg-0+deb12u4",
+      "path": "/usr/lib/x86_64-linux-gnu/samba/vfs/full_audit.so",
+      "sha256": "2c3cd14ad32b124dc3ea7d40b3554aebd53edc1472290fb7fbd513f61b6b4675"
+    }
+  },
+  "sourcePayloadSha256": "36dca8166270636d9a606a6a4f2494e732ed65f09a9d80c971239ef374a33be3"
+}

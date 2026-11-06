@@ -1,0 +1,78 @@
+[
+  {
+    "name": "add",
+    "before": [],
+    "request": {
+      "id": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "clientcidrs": "[\"10.10.254.224/32\"]"
+    },
+    "intent": {
+      "api": "updateStorageSmbShare",
+      "protocol": "SMB",
+      "resourceid": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "smbclientaccess": {
+        "cidrs": [
+          "10.10.254.224/32"
+        ]
+      }
+    }
+  },
+  {
+    "name": "replace",
+    "before": [
+      "10.10.254.224/32"
+    ],
+    "request": {
+      "id": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "clientcidrs": "[\"10.10.254.223/32\"]"
+    },
+    "intent": {
+      "api": "updateStorageSmbShare",
+      "protocol": "SMB",
+      "resourceid": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "smbclientaccess": {
+        "cidrs": [
+          "10.10.254.223/32"
+        ]
+      }
+    }
+  },
+  {
+    "name": "network",
+    "before": [],
+    "request": {
+      "id": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "clientcidrs": "[\"10.10.13.0/24\"]"
+    },
+    "intent": {
+      "api": "updateStorageSmbShare",
+      "protocol": "SMB",
+      "resourceid": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "smbclientaccess": {
+        "cidrs": [
+          "10.10.13.0/24"
+        ]
+      }
+    }
+  },
+  {
+    "name": "clear",
+    "before": [
+      "10.10.254.224/32"
+    ],
+    "request": {
+      "id": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "clientcidrs": "[]",
+      "confirmanysource": true
+    },
+    "intent": {
+      "api": "updateStorageSmbShare",
+      "protocol": "SMB",
+      "resourceid": "0fc08aa0-61e2-4a35-a23f-94eb4afcf7de",
+      "smbclientaccess": {
+        "cidrs": [],
+        "confirmAnySource": true
+      }
+    }
+  }
+]

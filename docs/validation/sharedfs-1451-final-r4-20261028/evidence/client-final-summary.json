@@ -1,0 +1,14 @@
+{
+  "v4": {
+    "profileCount": 16,
+    "uidCases": 64
+  },
+  "dual": {
+    "profileCount": 16,
+    "uidCases": 64
+  },
+  "measurementNotes": {
+    "wireFieldProtocol": "NFSv4 GETATTR, also when the I/O mount uses v3",
+    "v3AttributeSource": "stat on explicit vers=3 mount; actual read/write"
+  }
+}

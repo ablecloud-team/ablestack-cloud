@@ -1,0 +1,19 @@
+{
+  "commit": "57cc5293429062b515bb181d16e15f75f0502eff",
+  "at_utc": "2026-10-22T07:01:08.826805+00:00",
+  "bundle_sha256": "1a27d93faa397e72146de8b31fb83a70ce20a9ec7b99c6294476f89ebe0963ab",
+  "files_verified": 901,
+  "before": {
+    "config_realpath": "/etc/cloudstack/management/config.json",
+    "config_sha256": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "systemvm_inode": 201337502,
+    "index_sha256": "9aea9b407ef97c6cb1fe6b37180d04d1382c574361e66b5dcf36002ec4434708"
+  },
+  "after": {
+    "config_realpath": "/etc/cloudstack/management/config.json",
+    "config_sha256": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+    "systemvm_inode": 201337502,
+    "index_sha256": "d2ceee21369a08e5aecd5001d49618a7571f944a52564c2377385f0d81fd2b3c"
+  },
+  "backup": "/var/tmp/epic1443-wire-57cc52934290-ui-rollback/ui-static.tgz"
+}

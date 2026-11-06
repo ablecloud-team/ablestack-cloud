@@ -1,0 +1,85 @@
+{
+  "rows": [
+    {
+      "fs": "AUTO",
+      "id": 56,
+      "kind": "creation",
+      "uuid": "64305194-2694-4e90-9bb2-afe487891342",
+      "vmId": null,
+      "state": "Allocated",
+      "context": "{\"version\":1,\"existing\":true,\"fingerprint\":\"3fb968de0819e7a9356db980426e36f2e12a00d4e5c78de109f975726c0357b9\",\"volumeId\":199,\"networkId\":204,\"ownedVolumeIds\":[],\"originalPoolId\":1,\"originalPath\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"originalSize\":214748",
+      "volumeId": 199,
+      "requestId": "1d57fe5e-ea94-48fa-9d7c-4a04c2dca9ae",
+      "validJson": false,
+      "contextBytes": 255,
+      "contextLength": 255
+    },
+    {
+      "kind": "source",
+      "path": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "pool": 1,
+      "uuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "vmId": null,
+      "bytes": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "removed": null,
+      "offering": 16
+    },
+    {
+      "kind": "source",
+      "path": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "pool": 1,
+      "uuid": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "vmId": null,
+      "bytes": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "removed": null,
+      "offering": 16
+    },
+    {
+      "kind": "baseline",
+      "uuid": "7268de5b-2f68-4a0c-93c1-499a462a13c3",
+      "vmId": 101,
+      "state": "Ready",
+      "volumeId": 185
+    },
+    {
+      "kind": "baseline",
+      "uuid": "e2d9ea22-2809-4ca0-ae7e-87ab4dce5e24",
+      "vmId": 102,
+      "state": "Ready",
+      "volumeId": 187
+    },
+    {
+      "kind": "baseline",
+      "uuid": "d9d58c22-50c4-4b38-8d46-33081c812f34",
+      "vmId": 103,
+      "state": "Ready",
+      "volumeId": 190
+    },
+    {
+      "kind": "baseline",
+      "uuid": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+      "vmId": 105,
+      "state": "Ready",
+      "volumeId": 193
+    },
+    {
+      "kind": "baseline",
+      "uuid": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+      "vmId": 106,
+      "state": "Ready",
+      "volumeId": 195
+    },
+    {
+      "kind": "baseline",
+      "uuid": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+      "vmId": 107,
+      "state": "Ready",
+      "volumeId": 197
+    }
+  ],
+  "protectedFilesUnchanged": true
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "5b2df22b21e309240e761e38232927ea94b7e27f",
+  "source": "ui/src/views/storage/SharedFSTab.vue",
+  "sourceSha256": "1d42f7ad7a2b23a81968961b2881e7f3172540ffdfe459ade2a5ad2243c328fa",
+  "exportSourceSha256": "1d42f7ad7a2b23a81968961b2881e7f3172540ffdfe459ade2a5ad2243c328fa",
+  "buildComplete": true,
+  "deltaAssets": 6,
+  "backendChanged": false,
+  "guestChanged": false,
+  "base": "226b61dffc243131c40711c2c1fc80a307dd0ae0"
+}

@@ -1,0 +1,33 @@
+{
+  "actualComponent": "MoldDialog",
+  "smallViewport": {
+    "width": 1366,
+    "height": 720
+  },
+  "body": {
+    "height": 534,
+    "scrollHeight": 662,
+    "overflow": "auto",
+    "scrollTopBefore": 0,
+    "scrollTopAfter": 128
+  },
+  "headerBeforeAndAfter": {
+    "top": 33,
+    "bottom": 88
+  },
+  "footerBeforeAndAfter": {
+    "top": 622,
+    "bottom": 687
+  },
+  "viewportReset": true,
+  "darkDialog": {
+    "background": "rgb(34, 40, 47)",
+    "text": "rgba(255, 255, 255, 0.85)"
+  },
+  "gapPx": {
+    "buttons": 8,
+    "sections": 16
+  },
+  "apiCalls": 0,
+  "prototypeOnly": true
+}

@@ -1,0 +1,17 @@
+{
+  "time": 1792726909.9175608,
+  "beforeSha256": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+  "installedSha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+  "protectedFilesUnchanged": true,
+  "intentBeforeAfter": {
+    "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+    "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+    "formatCount": 1,
+    "formatStartedAt": 1792724392.235266
+  },
+  "phase": "PREPARED",
+  "workerPid": 5148,
+  "backup": "/var/tmp/epic1443-observation-3214dfed5c93/volume_preparation.before.py",
+  "serviceRestart": false,
+  "formatterRestart": false
+}

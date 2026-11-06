@@ -1,0 +1,2055 @@
+{
+  "main": {
+    "status": "PASS",
+    "designOnly": true,
+    "vmUuid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+    "cases": {
+      "firstboot": {
+        "old30AttemptLoop": [
+          {
+            "attempt": 1,
+            "elapsed": 0.011,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 2,
+            "elapsed": 3.043,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 3,
+            "elapsed": 6.064,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 4,
+            "elapsed": 9.085,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 5,
+            "elapsed": 12.105,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 6,
+            "elapsed": 15.126,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 7,
+            "elapsed": 18.147,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 8,
+            "elapsed": 21.167,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 9,
+            "elapsed": 24.186,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 10,
+            "elapsed": 27.207,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 11,
+            "elapsed": 30.228,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 12,
+            "elapsed": 33.248,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 13,
+            "elapsed": 36.269,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 14,
+            "elapsed": 39.29,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 15,
+            "elapsed": 42.31,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 16,
+            "elapsed": 45.33,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 17,
+            "elapsed": 48.35,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 18,
+            "elapsed": 51.371,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 19,
+            "elapsed": 54.393,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 20,
+            "elapsed": 57.416,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 21,
+            "elapsed": 60.437,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 22,
+            "elapsed": 63.457,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 23,
+            "elapsed": 66.477,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 24,
+            "elapsed": 69.497,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 25,
+            "elapsed": 72.518,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 26,
+            "elapsed": 75.538,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 27,
+            "elapsed": 78.561,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 28,
+            "elapsed": 81.584,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 29,
+            "elapsed": 84.605,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "attempt": 30,
+            "elapsed": 87.625,
+            "rc": 75,
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          }
+        ],
+        "oldSucceeded": false,
+        "elapsedOld": 88.63738399000431,
+        "prototypeObservations": [
+          {
+            "elapsed": 88.653,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 90.678,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 92.705,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 94.732,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 96.76,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 98.785,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 100.811,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 102.837,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 104.861,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 106.887,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 108.911,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 110.936,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 112.963,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 114.988,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 117.014,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 119.04,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 121.066,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 123.092,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 125.117,
+            "verdict": "PENDING",
+            "early": {
+              "MainPID": "799878",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            },
+            "metadata": {
+              "MainPID": "799884",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 127.141,
+            "verdict": "READY",
+            "early": {
+              "MainPID": "0",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93473842728",
+              "ExecMainExitTimestampMonotonic": "93600052410",
+              "Id": "epic1443-guard-design-firstboot-early.service",
+              "LoadState": "loaded",
+              "ActiveState": "active",
+              "SubState": "exited"
+            },
+            "metadata": {
+              "MainPID": "0",
+              "Result": "exit-code",
+              "ExecMainStartTimestampMonotonic": "93473853237",
+              "ExecMainExitTimestampMonotonic": "93600038387",
+              "Id": "epic1443-guard-design-firstboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "failed",
+              "SubState": "failed"
+            }
+          }
+        ],
+        "prototypeSucceeded": true,
+        "elapsedPrototype": 127.15358820700203,
+        "metadataResult": {
+          "elapsed": 126.06931623700075,
+          "httpStatus": 404,
+          "result": [
+            false,
+            null
+          ],
+          "messages": [
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [0/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [1/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [2/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [3/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [4/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [5/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [7/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [9/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [11/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [13/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [15/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [18/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [21/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [24/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [27/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [30/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [34/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [38/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [42/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [46/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [50/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [55/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [60/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [65/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [70/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [75/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [81/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [87/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [93/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [99/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [105/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [112/120s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:34035/latest/meta-data/instance-id' failed [119/120s]: bad status code [404]"
+          ]
+        },
+        "originalGuardAfterWait": 0,
+        "journal": "[93473.836465] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Starting epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH...\n[93473.837395] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Finished epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH.\n[93473.843063] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Starting epic1443-guard-design-firstboot-early.service - Isolated SharedFS tail; no real bootstrap...\n[93473.844535] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + log_it 'Starting epic1443-guard-design-firstboot-meta.service services'\n[93473.844811] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + printf '%s\\n' 'Starting epic1443-guard-design-firstboot-meta.service services'\n[93473.844868] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: Starting epic1443-guard-design-firstboot-meta.service services\n[93473.844949] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + '[' -f /run/epic1443-guard-design-probe/firstboot-absent-success ']'\n[93473.845003] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + systemctl start --no-block epic1443-guard-design-firstboot-meta.service\n[93473.853693] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Starting epic1443-guard-design-firstboot-meta.service - Isolated actual cloud-init URL wait...\n[93473.855556] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + systemctl start --no-block epic1443-guard-design-firstboot-config.service\n[93473.868594] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + systemctl start --no-block epic1443-guard-design-firstboot-final.service\n[93473.905740] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + patch_sshd_config\n[93473.912287] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799893]: ++ ssh -Q PubkeyAcceptedAlgorithms\n[93473.921480] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799896]: ++ ssh -Q PubkeyAcceptedAlgorithms\n[93473.925484] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799898]: ++ grep '^PubkeyAcceptedAlgorithms' /run/epic1443-guard-design-probe/firstboot-sshd.conf\n[93473.926793] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + log_it 'Adding PubkeyAcceptedAlgorithms=+ssh-rsa to sshd_config'\n[93473.926793] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + printf '%s\\n' 'Adding PubkeyAcceptedAlgorithms=+ssh-rsa to sshd_config'\n[93473.926793] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: Adding PubkeyAcceptedAlgorithms=+ssh-rsa to sshd_config\n[93473.926793] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + sed -i '/PubkeyAuthentication yes/aPubkeyAcceptedAlgorithms=+ssh-rsa' /run/epic1443-guard-design-probe/firstboot-sshd.conf\n[93473.928108] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a bash[799878]: + systemctl restart epic1443-guard-design-firstboot-ssh.service\n[93473.932620] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: epic1443-guard-design-firstboot-ssh.service: Deactivated successfully.\n[93473.932689] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Stopped epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH.\n[93473.932731] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Stopping epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH...\n[93600.039858] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: epic1443-guard-design-firstboot-meta.service: Main process exited, code=exited, status=1/FAILURE\n[93600.048887] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: epic1443-guard-design-firstboot-meta.service: Failed with result 'exit-code'.\n[93600.048930] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Failed to start epic1443-guard-design-firstboot-meta.service - Isolated actual cloud-init URL wait.\n[93600.048971] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Starting epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH...\n[93600.050555] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Finished epic1443-guard-design-firstboot-ssh.service - Isolated SSH ordering witness; no real SSH.\n[93600.052567] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Finished epic1443-guard-design-firstboot-early.service - Isolated SharedFS tail; no real bootstrap.\n"
+      },
+      "configuredReboot": {
+        "oldGuard": {
+          "rc": 0,
+          "early": {
+            "MainPID": "0",
+            "Result": "success",
+            "ExecMainStartTimestampMonotonic": "93601203072",
+            "ExecMainExitTimestampMonotonic": "93601272470",
+            "Id": "epic1443-guard-design-configured-reboot-early.service",
+            "LoadState": "loaded",
+            "ActiveState": "active",
+            "SubState": "exited"
+          },
+          "metadata": {
+            "MainPID": "801286",
+            "Result": "success",
+            "ExecMainStartTimestampMonotonic": "93601214420",
+            "ExecMainExitTimestampMonotonic": "0",
+            "Id": "epic1443-guard-design-configured-reboot-meta.service",
+            "LoadState": "loaded",
+            "ActiveState": "activating",
+            "SubState": "start"
+          },
+          "elapsed": 0.10299418799695559
+        },
+        "prototype": [
+          {
+            "elapsed": 0.11545971599116456,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 0.33303177398920525,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 0.5512185510015115,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 0.7693384040030651,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 0.9877890329953516,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 1.2067881949915318,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 1.4268475489952834,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 1.6470382159895962,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 1.8662266100000124,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 2.0842646959936246,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 2.303670585999498,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 2.522500086997752,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 2.740871824993519,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 2.959293895997689,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 3.1786716869974043,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 3.3998376699892106,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 3.6208892119902885,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 3.8414669369958574,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 4.060203157001524,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 4.279961940992507,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 4.498403764999239,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 4.712626161999651,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 4.927227138003218,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 5.141696284990758,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 5.355556290989625,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 5.569333253995865,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 5.782760488989879,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 5.9963560629985295,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 6.209743109997362,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 6.423097113001859,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 6.636475033999886,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 6.849802066994016,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 7.063104086002568,
+            "verdict": "PENDING",
+            "metadata": {
+              "MainPID": "801286",
+              "Result": "success",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "0",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start"
+            }
+          },
+          {
+            "elapsed": 7.276722309994511,
+            "verdict": "READY",
+            "metadata": {
+              "MainPID": "0",
+              "Result": "exit-code",
+              "ExecMainStartTimestampMonotonic": "93601214420",
+              "ExecMainExitTimestampMonotonic": "93608338131",
+              "Id": "epic1443-guard-design-configured-reboot-meta.service",
+              "LoadState": "loaded",
+              "ActiveState": "failed",
+              "SubState": "failed"
+            }
+          }
+        ],
+        "metadataResult": {
+          "elapsed": 7.015316463992349,
+          "httpStatus": 404,
+          "result": [
+            false,
+            null
+          ],
+          "messages": [
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [0/6s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [1/6s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [2/6s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [3/6s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [4/6s]: bad status code [404]",
+            "Calling 'http://127.0.0.1:37407/latest/meta-data/instance-id' failed [5/6s]: bad status code [404]"
+          ]
+        },
+        "prototypeSucceeded": true
+      },
+      "terminalFailure": {
+        "oldRc": 75,
+        "newVerdict": "FAILED"
+      }
+    },
+    "unchanged": {
+      "files": true,
+      "units": true,
+      "addr": true,
+      "route": true,
+      "mounts": true
+    },
+    "testUnitsRemoved": true,
+    "protectedFilesCompared": [
+      "/etc/ssh/sshd_config",
+      "/etc/fstab",
+      "/etc/resolv.conf",
+      "/opt/cloud/bin/setup/sharedfsvm.sh",
+      "/opt/cloud/bin/setup/patch.sh",
+      "/usr/local/sbin/ablestack-sharedfs-network",
+      "/etc/ablestack-storage/sharedfs-network.json"
+    ],
+    "accountFilesComparedWithoutPublishingHashes": true
+  },
+  "extra": {
+    "status": "PASS",
+    "cases": {
+      "queuedNetworkStage": {
+        "oldRc": 0,
+        "first": [
+          "PENDING",
+          {
+            "Result": "success",
+            "LoadState": "loaded",
+            "ActiveState": "active",
+            "SubState": "exited",
+            "Job": ""
+          },
+          [
+            {
+              "Result": "success",
+              "LoadState": "loaded",
+              "ActiveState": "activating",
+              "SubState": "start",
+              "Job": "16439"
+            },
+            {
+              "Result": "success",
+              "LoadState": "loaded",
+              "ActiveState": "inactive",
+              "SubState": "dead",
+              "Job": "16523"
+            }
+          ]
+        ],
+        "last": [
+          "READY",
+          {
+            "Result": "success",
+            "LoadState": "loaded",
+            "ActiveState": "active",
+            "SubState": "exited",
+            "Job": ""
+          },
+          [
+            {
+              "Result": "success",
+              "LoadState": "loaded",
+              "ActiveState": "active",
+              "SubState": "exited",
+              "Job": ""
+            },
+            {
+              "Result": "success",
+              "LoadState": "loaded",
+              "ActiveState": "active",
+              "SubState": "exited",
+              "Job": ""
+            }
+          ]
+        ]
+      },
+      "finishedNoDatasourceIsNotStaticFailure": [
+        "READY",
+        {
+          "Result": "success",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited",
+          "Job": ""
+        },
+        [
+          {
+            "Result": "exit-code",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "SubState": "failed",
+            "Job": ""
+          }
+        ]
+      ],
+      "missingRequiredEarlyUnit": [
+        "FAILED",
+        {
+          "Result": "success",
+          "LoadState": "not-found",
+          "ActiveState": "inactive",
+          "SubState": "dead",
+          "Job": ""
+        },
+        [
+          {
+            "Result": "success",
+            "LoadState": "loaded",
+            "ActiveState": "active",
+            "SubState": "exited",
+            "Job": ""
+          }
+        ]
+      ],
+      "noInstalledCloudInitIsNotNewDhcpRequirement": [
+        "READY",
+        {
+          "Result": "success",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited",
+          "Job": ""
+        },
+        [
+          {
+            "Result": "success",
+            "LoadState": "not-found",
+            "ActiveState": "inactive",
+            "SubState": "dead",
+            "Job": ""
+          }
+        ]
+      ],
+      "deadlinePolicyPrototype": {
+        "dhcpNoDispatch": {
+          "outcome": "SKIPPED",
+          "calls": [],
+          "elapsed": 0
+        },
+        "normal126Seconds": {
+          "outcome": "READY",
+          "calls": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+          ],
+          "elapsed": 127.0
+        },
+        "perpetualPending": {
+          "outcome": "PENDING_TIMEOUT",
+          "calls": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            50
+          ],
+          "elapsed": 360.0
+        },
+        "terminalFailure": {
+          "outcome": "FAILED",
+          "calls": [
+            60
+          ],
+          "elapsed": 1.0
+        },
+        "lastRpcBoundedByRemaining": {
+          "outcome": "PENDING_TIMEOUT",
+          "calls": [
+            60,
+            3
+          ],
+          "elapsed": 65.0
+        }
+      }
+    },
+    "unchanged": {
+      "files": true,
+      "units": true,
+      "addr": true,
+      "route": true,
+      "mounts": true
+    },
+    "testUnitsRemoved": true,
+    "protectedFilesCompared": [
+      "/etc/ssh/sshd_config",
+      "/etc/fstab",
+      "/etc/resolv.conf",
+      "/opt/cloud/bin/setup/sharedfsvm.sh",
+      "/opt/cloud/bin/setup/patch.sh",
+      "/usr/local/sbin/ablestack-sharedfs-network",
+      "/etc/ablestack-storage/sharedfs-network.json"
+    ],
+    "accountFilesComparedWithoutPublishingHashes": true
+  }
+}

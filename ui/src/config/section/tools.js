@@ -23,6 +23,53 @@ export default {
   icon: 'tool-outlined',
   children: [
     {
+      name: 'runtimebundle',
+      title: 'label.runtime.catalog',
+      icon: 'SafetyCertificateOutlined',
+      permission: ['listStorageServiceRuntimeBundles'],
+      show: () => store.getters.userInfo.roletype === 'Admin',
+      columns: ['name', 'state', 'validationstatus', 'profileid', 'referencecount', 'signingkeyid'],
+      details: ['version', 'id', 'state', 'validationstatus', 'revision', 'runtimeabiversion', 'desiredstateschemaversion', 'serviceimpact', 'sha256', 'manifestsha256', 'signingkeyid', 'artifacturl', 'manifesturl', 'signatureurl', 'created'],
+      searchFilters: ['keyword', 'state', 'validationstatus'],
+      params: () => ({ purpose: 'catalog' }),
+      tabs: [
+        { name: 'details', component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue'))) },
+        ...['runtime.validations', 'runtime.usages', 'runtime.events'].map(name => ({ name, component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogRecords.vue'))) }))
+      ],
+      actions: [
+        {
+          api: 'registerStorageServiceRuntimeBundle',
+          label: 'label.runtime.catalog.register',
+          icon: 'plus-outlined',
+          listView: true,
+          popup: true,
+          selfManagedDialog: true,
+          catalogAction: 'REGISTER',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue')))
+        },
+        ...['VALIDATE', 'PUBLISH', 'SUSPEND', 'RETIRE', 'REVOKE', 'DELETE'].map(action => ({
+          api: action === 'VALIDATE' ? 'validateStorageServiceRuntimeBundle' : 'transitionStorageServiceRuntimeBundle',
+          label: 'label.runtime.catalog.' + action.toLowerCase(),
+          icon: action === 'VALIDATE' ? 'SafetyCertificateOutlined' : 'setting-outlined',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          catalogAction: action,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/tools/RuntimeCatalogAction.vue'))),
+          show: record => {
+            if (record.validationstatus === 'RUNNING') return false
+            if (action === 'VALIDATE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
+            if (action === 'PUBLISH') return ['DRAFT', 'SUSPENDED'].includes(record.state) && record.validationstatus === 'VERIFIED'
+            if (action === 'SUSPEND') return record.state === 'PUBLISHED'
+            if (action === 'RETIRE') return ['DRAFT', 'PUBLISHED', 'SUSPENDED'].includes(record.state)
+            if (action === 'REVOKE') return !['REVOKED', 'DELETED'].includes(record.state)
+            return ['DRAFT', 'RETIRED'].includes(record.state)
+          }
+        }))
+      ]
+    },
+
+    {
       name: 'comment',
       title: 'label.comments',
       icon: 'message-outlined',

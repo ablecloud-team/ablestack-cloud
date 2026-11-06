@@ -1,0 +1,8 @@
+{
+  "faultArmed": true,
+  "oneShot": true,
+  "secondPort": "445",
+  "pid": 1942,
+  "expiresInSeconds": 120,
+  "originalSha256": "c541fb9f988c58b0cf835b80ed892a751a5893ebfa14eff9f07ab9ad2df78a00"
+}

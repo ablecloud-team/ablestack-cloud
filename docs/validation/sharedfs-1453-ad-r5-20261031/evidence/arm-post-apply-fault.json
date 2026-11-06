@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"protectedRuntimeChanged\": false, \"passthroughTrustVerified\": true, \"fault\": \"once; only direct AD transaction final wbinfo -t\", \"originalSha256\": \"263631dd3c09ead449fde6be4ce064498db9a4f37ca6b1fe830454d68b0bf63f\"}\n",
+  "stderr": ""
+}

@@ -1,0 +1,95 @@
+{
+  "checks": [
+    {
+      "name": "existing request has volume ID, omits five new disk fields",
+      "passed": true
+    },
+    {
+      "name": "new request preserves disk offering, storage, size and EXT4 intent",
+      "passed": true
+    },
+    {
+      "name": "existing INSPECT_ONLY retained",
+      "passed": true
+    },
+    {
+      "name": "expected AUTO is explicit, not XFS default",
+      "passed": true
+    },
+    {
+      "name": "explicit expected EXT4 retained",
+      "passed": true
+    },
+    {
+      "name": "existing FORMAT_EMPTY rejected",
+      "passed": true
+    },
+    {
+      "name": "existing FORMAT_NEW rejected",
+      "passed": true
+    },
+    {
+      "name": "missing volume rejected",
+      "passed": true
+    },
+    {
+      "name": "ROOT rejected",
+      "passed": true
+    },
+    {
+      "name": "non Ready rejected",
+      "passed": true
+    },
+    {
+      "name": "attached volume rejected",
+      "passed": true
+    },
+    {
+      "name": "existing XFS observation retained",
+      "passed": true
+    },
+    {
+      "name": "existing EXT4 observation retained",
+      "passed": true
+    },
+    {
+      "name": "blank INSPECT reports unknown and makes no write",
+      "passed": true
+    },
+    {
+      "name": "blank MOUNT rejected",
+      "passed": true
+    },
+    {
+      "name": "explicit expected mismatch rejected",
+      "passed": true
+    },
+    {
+      "name": "unsupported filesystem rejected",
+      "passed": true
+    },
+    {
+      "name": "inspect-only not service Ready",
+      "passed": true
+    },
+    {
+      "name": "lost VM response reuses recorded identity",
+      "passed": true
+    },
+    {
+      "name": "lost attach response repeats no attach or allocation",
+      "passed": true
+    },
+    {
+      "name": "unknown outcome observes before allocation or deletion",
+      "passed": true
+    },
+    {
+      "name": "cleanup excludes pre-existing data by ownership",
+      "passed": true
+    }
+  ],
+  "kind": "design-only request and observation/state contract checks; no API/backend implementation acceptance",
+  "passed": 22,
+  "total": 22
+}

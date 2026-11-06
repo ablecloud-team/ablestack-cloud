@@ -1,0 +1,38 @@
+{
+  "children": [
+    {
+      "name": "file",
+      "info": {
+        "children": [],
+        "virtual-size": 10996794392576,
+        "filename": "/mnt/glue-gfs/63b0ccf3-ca97-4cf1-8528-e1adbbf531a0",
+        "format": "file",
+        "actual-size": 1807642624,
+        "format-specific": {
+          "type": "file",
+          "data": {}
+        },
+        "dirty-flag": false
+      }
+    }
+  ],
+  "virtual-size": 10995116277760,
+  "filename": "/mnt/glue-gfs/63b0ccf3-ca97-4cf1-8528-e1adbbf531a0",
+  "cluster-size": 65536,
+  "format": "qcow2",
+  "actual-size": 1807642624,
+  "format-specific": {
+    "type": "qcow2",
+    "data": {
+      "compat": "1.1",
+      "compression-type": "zlib",
+      "lazy-refcounts": false,
+      "refcount-bits": 16,
+      "corrupt": false,
+      "extended-l2": false
+    }
+  },
+  "dirty-flag": false,
+  "allocatedBytes": 1807642624,
+  "apparentBytes": 10996794392576
+}

@@ -1,0 +1,71 @@
+{
+  "runtimeResponseKeys": [
+    "id",
+    "operation",
+    "success",
+    "status",
+    "details",
+    "resultjson"
+  ],
+  "inventoryKeys": [
+    "cached",
+    "capabilities",
+    "collector",
+    "fileSharePaths",
+    "fileShareVolumes",
+    "generatedAt",
+    "generatedEpoch",
+    "iscsiRuntime",
+    "iscsiTargets",
+    "network",
+    "nfsExports",
+    "nfsGaneshaExports",
+    "nfsGaneshaRuntime",
+    "nfsLocalProbes",
+    "nfsPosixObservations",
+    "nfsQuotas",
+    "nfsidentitymapping",
+    "nvmeofRuntime",
+    "nvmeofSubsystems",
+    "runtimeObservability",
+    "schemaVersion",
+    "smbClientAccessObservations",
+    "smbDomain",
+    "smbDomainError",
+    "smbFileIdentityObservations",
+    "smbParentInheritanceObservations",
+    "smbQuotas",
+    "smbRuntime",
+    "smbShares",
+    "staleAfterSeconds",
+    "status",
+    "success"
+  ],
+  "bootReconcilePresent": false,
+  "localProbes": {
+    "1722f57b-b0e8-4ffd-9fa0-7f7bdbff173c": [
+      {
+        "observedAt": 1793640934.7604983,
+        "port": 2049,
+        "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL",
+        "status": "EXTERNAL_CLIENT_REQUIRED"
+      }
+    ],
+    "9d9da57e-7dae-4252-a5a9-6cc4278d260b": [
+      {
+        "observedAt": 1793640934.760497,
+        "port": 2049,
+        "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL",
+        "status": "EXTERNAL_CLIENT_REQUIRED"
+      }
+    ],
+    "dcd2106b-748b-4ceb-b85d-f90b73bf3088": [
+      {
+        "observedAt": 1793640934.7604988,
+        "port": 2049,
+        "reason": "LOCAL_ADDRESS_EXCLUDED_BY_ACL",
+        "status": "EXTERNAL_CLIENT_REQUIRED"
+      }
+    ]
+  }
+}

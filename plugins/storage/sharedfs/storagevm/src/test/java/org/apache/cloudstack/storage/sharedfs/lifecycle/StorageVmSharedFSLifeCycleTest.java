@@ -127,6 +127,15 @@ public class StorageVmSharedFSLifeCycleTest {
     private DiskOfferingDao diskOfferingDao;
 
     @Mock
+    private com.cloud.service.dao.ServiceOfferingDetailsDao serviceOfferingDetailsDao;
+
+    @Mock
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao diskOfferingDetailsDao;
+
+    @Mock
+    private com.cloud.storage.VolumeAllocationService allocationService;
+
+    @Mock
     protected LaunchPermissionDao launchPermissionDao;
 
     @Spy
@@ -245,6 +254,92 @@ public class StorageVmSharedFSLifeCycleTest {
         Assert.assertEquals(exception.getMessage(), "Service offering's should be HA enabled");
     }
 
+
+    private ServiceOfferingVO prepareCreationOffering(Integer cpu, Integer ram, Integer speed) {
+        ServiceOfferingVO offering = mock(ServiceOfferingVO.class);
+        when(offering.getCpu()).thenReturn(cpu);
+        when(offering.getRamSize()).thenReturn(ram);
+        when(offering.getSpeed()).thenReturn(speed);
+        when(offering.getState()).thenReturn(ServiceOffering.State.Active);
+        when(offering.isOfferHA()).thenReturn(true);
+        when(offering.getDiskOfferingId()).thenReturn(42L);
+        when(serviceOfferingDao.findById(s_serviceOfferingId)).thenReturn(offering);
+        when(serviceOfferingDetailsDao.listDetailsKeyPairs(s_serviceOfferingId)).thenReturn(java.util.Collections.emptyMap());
+        com.cloud.storage.DiskOfferingVO root = mock(com.cloud.storage.DiskOfferingVO.class);
+        when(root.getId()).thenReturn(42L);
+        when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        when(diskOfferingDao.findById(42L)).thenReturn(root);
+        when(diskOfferingDetailsDao.listDetailsKeyPairs(42L)).thenReturn(java.util.Collections.emptyMap());
+        org.mockito.Mockito.doReturn(0).when(lifeCycle).creationMaxCpu();
+        org.mockito.Mockito.doReturn(0).when(lifeCycle).creationMaxRam();
+        org.mockito.Mockito.doReturn("x86_64").when(lifeCycle).creationArchitecture(s_zoneId);
+        org.mockito.Mockito.doReturn(true).when(lifeCycle).hasReadyCreationTemplate(s_zoneId, "x86_64");
+        return offering;
+    }
+
+    @Test
+    public void creationUsesExistingCustomValidationAndOfferingCopy() {
+        ServiceOfferingVO offering = prepareCreationOffering(null, null, null);
+        when(offering.isDynamic()).thenReturn(true);
+        DataCenterVO zone = mock(DataCenterVO.class);
+        when(zone.getId()).thenReturn(s_zoneId);
+        java.util.Map<String, String> values = java.util.Map.of("cpuNumber", "4", "memory", "8192", "cpuSpeed", "2000");
+        ServiceOfferingVO resolved = mock(ServiceOfferingVO.class);
+        when(resolved.getCpu()).thenReturn(4);
+        when(resolved.getRamSize()).thenReturn(8192);
+        when(resolved.isOfferHA()).thenReturn(true);
+        when(serviceOfferingDao.getComputeOffering(offering, values)).thenReturn(resolved);
+        Assert.assertEquals(values, lifeCycle.checkCreationPrerequisites(zone, s_serviceOfferingId, values));
+        org.mockito.Mockito.verify(userVmManager).validateCustomParameters(offering, values);
+        org.mockito.Mockito.verify(serviceOfferingDao).getComputeOffering(offering, values);
+        org.mockito.Mockito.verify(offering, org.mockito.Mockito.never()).setCpu(org.mockito.ArgumentMatchers.anyInt());
+        org.mockito.Mockito.verify(serviceOfferingDao, org.mockito.Mockito.never()).update(org.mockito.ArgumentMatchers.anyLong(),
+                org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    public void catalogKeepsCustomInputAndRejectsThinRootWithoutRequiringDynamicScaling() {
+        prepareCreationOffering(null, null, 2000);
+        DataCenterVO zone = mock(DataCenterVO.class);
+        when(zone.getId()).thenReturn(s_zoneId);
+        org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility result =
+                lifeCycle.getCreationOfferingEligibility(zone, s_serviceOfferingId);
+        Assert.assertTrue(result.isSelectable());
+        Assert.assertTrue(result.isInputRequired());
+        Assert.assertEquals("free", result.getMode());
+        com.cloud.storage.DiskOfferingVO root = diskOfferingDao.findById(42L);
+        when(root.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.THIN);
+        result = lifeCycle.getCreationOfferingEligibility(zone, s_serviceOfferingId);
+        Assert.assertFalse(result.isSelectable());
+        Assert.assertEquals("ROOT_POLICY_THIN", result.getReasons().get(0).getCode());
+    }
+
+    @Test
+    public void catalogRejectsInvalidRootContractAndUnavailableArchitecture() {
+        prepareCreationOffering(2, 1024, 2000);
+        DataCenterVO zone = mock(DataCenterVO.class);
+        when(zone.getId()).thenReturn(s_zoneId);
+        when(diskOfferingDetailsDao.listDetailsKeyPairs(42L)).thenReturn(java.util.Map.of(
+                "allocation.contract.version", "future", "allocation.requested.policy", "metadata"));
+        org.mockito.Mockito.doReturn(false).when(lifeCycle).hasReadyCreationTemplate(s_zoneId, "x86_64");
+        org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility result =
+                lifeCycle.getCreationOfferingEligibility(zone, s_serviceOfferingId);
+        Assert.assertFalse(result.isSelectable());
+        Assert.assertTrue(result.getReasons().stream().anyMatch(x -> x.getCode().equals("ROOT_POLICY_UNAVAILABLE")));
+        Assert.assertTrue(result.getReasons().stream().anyMatch(x -> x.getCode().equals("SYSTEMVM_ARCH_UNAVAILABLE")));
+    }
+
+    @Test
+    public void readyTemplateComparisonUsesCanonicalArchitecture() {
+        // This path uses the actual context helper rather than the catalog mock.
+        VMTemplateVO template = mock(VMTemplateVO.class);
+        when(template.getArch()).thenReturn(com.cloud.cpu.CPU.CPUArch.amd64);
+        when(resourceMgr.getSupportedHypervisorTypes(s_zoneId, false, null)).thenReturn(List.of(Hypervisor.HypervisorType.KVM));
+        when(templateDao.findSystemVMReadyTemplate(s_zoneId, Hypervisor.HypervisorType.KVM, "x86_64")).thenReturn(template);
+        Assert.assertTrue(lifeCycle.hasReadyCreationTemplate(s_zoneId, "x86_64"));
+        Assert.assertFalse(lifeCycle.hasReadyCreationTemplate(s_zoneId, null));
+    }
+
     private SharedFS prepareDeploySharedFS() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         SharedFS sharedFS = mock(SharedFS.class);
         when(sharedFS.getDataCenterId()).thenReturn(s_zoneId);
@@ -297,6 +392,48 @@ public class StorageVmSharedFSLifeCycleTest {
         when(volumeDao.findByInstance(s_vmId)).thenReturn(List.of(rootVol, dataVol));
 
          Pair<Long, Long> result = lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops);
+         Assert.assertEquals(Optional.ofNullable(result.first()), Optional.ofNullable(s_volumeId));
+         Assert.assertEquals(Optional.ofNullable(result.second()), Optional.ofNullable(s_vmId));
+    }
+
+    @Test
+    public void testDeploySharedFSWithCustomValues() throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, IOException, OperationTimedoutException {
+        SharedFS sharedFS = prepareDeploySharedFS();
+        when(sharedFS.getAccountId()).thenReturn(s_ownerId);
+
+        Account owner = mock(Account.class);
+        when(owner.getId()).thenReturn(s_ownerId);
+        when(accountMgr.getActiveAccountById(s_ownerId)).thenReturn(owner);
+
+        UserVm vm = mock(UserVm.class);
+        when(vm.getId()).thenReturn(s_vmId);
+        when(userVmService.createAdvancedVirtualMachine(
+                any(DataCenter.class), any(ServiceOffering.class), any(VirtualMachineTemplate.class), anyList(), any(Account.class), anyString(),
+                anyString(), anyLong(), anyLong(), any(), isNull(), any(Hypervisor.HypervisorType.class), any(BaseCmd.HTTPMethod.class), anyString(),
+                isNull(), isNull(), anyList(), isNull(), any(Network.IpAddresses.class), isNull(), isNull(), isNull(),
+                anyMap(), isNull(), isNull(), isNull(), isNull(),
+                anyBoolean(), anyString(), isNull(), isNull(), isNull(), isNull())).thenAnswer(invocation -> {
+                    java.util.Map<?, ?> parameters = (java.util.Map<?, ?>) java.util.Arrays.stream(invocation.getArguments())
+                            .filter(x -> x instanceof java.util.Map).findFirst().orElseThrow();
+                    Assert.assertEquals("4", parameters.get("cpuNumber"));
+                    Assert.assertEquals("8192", parameters.get("memory"));
+                    Assert.assertEquals(Long.toString(s_minIops), parameters.get("minIopsDo"));
+                    Assert.assertEquals(Long.toString(s_maxIops), parameters.get("maxIopsDo"));
+                    Assert.assertFalse(parameters.containsKey("cpuSpeed"));
+                    return vm;
+                });
+
+        VolumeVO rootVol = mock(VolumeVO.class);
+        when(rootVol.getVolumeType()).thenReturn(Volume.Type.ROOT);
+        when(rootVol.getName()).thenReturn("ROOT-1");
+        VolumeVO dataVol = mock(VolumeVO.class);
+        when(dataVol.getId()).thenReturn(s_volumeId);
+        when(dataVol.getName()).thenReturn("DATA-1");
+        when(dataVol.getVolumeType()).thenReturn(Volume.Type.DATADISK);
+        when(dataVol.getPoolId()).thenReturn(s_storageId);
+        when(volumeDao.findByInstance(s_vmId)).thenReturn(List.of(rootVol, dataVol));
+
+         Pair<Long, Long> result = lifeCycle.deploySharedFS(sharedFS, s_networkId, s_diskOfferingId, s_storageId, s_size, s_minIops, s_maxIops, java.util.Map.of("cpuNumber", "4", "memory", "8192"));
          Assert.assertEquals(Optional.ofNullable(result.first()), Optional.ofNullable(s_volumeId));
          Assert.assertEquals(Optional.ofNullable(result.second()), Optional.ofNullable(s_vmId));
     }
@@ -363,4 +500,22 @@ public class StorageVmSharedFSLifeCycleTest {
         boolean result = lifeCycle.reDeploySharedFS(sharedFS);
         Assert.assertEquals(result, true);
     }
+    @Test
+    public void initialVmAllocationReobservesOwnedUuidAfterResponseLoss() throws Exception {
+        SharedFS fs = mock(SharedFS.class);when(fs.getAccountId()).thenReturn(1L);when(fs.getDataCenterId()).thenReturn(2L);
+        UserVmVO vm=mock(UserVmVO.class);when(vm.getId()).thenReturn(9L);when(vm.getAccountId()).thenReturn(1L);
+        when(vm.getDataCenterId()).thenReturn(2L);when(vm.getUserVmType()).thenReturn(UserVmManager.SHAREDFSVM);
+        when(userVmDao.findByUuid("planned-uuid")).thenReturn(vm);
+        Assert.assertEquals(Long.valueOf(9L),lifeCycle.allocateInitialSharedFSVm(fs,3L,java.util.Map.of(),"planned-uuid"));
+        org.mockito.Mockito.verifyNoInteractions(userVmService);
+    }
+
+    @Test(expected=CloudRuntimeException.class)
+    public void initialVmAllocationRejectsOtherOwnerWithoutAdoption() throws Exception {
+        SharedFS fs=mock(SharedFS.class);when(fs.getAccountId()).thenReturn(1L);when(fs.getDataCenterId()).thenReturn(2L);
+        UserVmVO vm=mock(UserVmVO.class);when(vm.getAccountId()).thenReturn(99L);
+        when(userVmDao.findByUuid("planned-uuid")).thenReturn(vm);
+        lifeCycle.allocateInitialSharedFSVm(fs,3L,java.util.Map.of(),"planned-uuid");
+    }
+
 }

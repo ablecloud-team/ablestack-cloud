@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"tcp\": \"State Recv-Q Send-Q Local Address:Port  Peer Address:Port Process\\nESTAB 0      0       10.10.13.220:445  10.10.254.224:52574 users:((\\\"smbd\\\",pid=1125119,fd=33))\\n\", \"profiles\": [{\"path\": \"/etc/ablestack-storage/smb-listeners/4f04f7ac-0330-4a9d-b9b7-7c37a3010e46-1a562f59f9fe.conf\", \"pid\": 990062, \"interfaces\": \"10.10.13.220\"}, {\"path\": \"/etc/ablestack-storage/smb-listeners/bb7897d3-6702-4849-9472-1cf9229ad967-ae29d3eed6c8.conf\", \"pid\": 990047, \"interfaces\": \"10.10.13.220\"}], \"sourceSha256\": \"1a88a1a3c798c5ec820a251aff866bdbee057e2d7577e1617a19909735a415f6\"}\n",
+  "stderr": ""
+}

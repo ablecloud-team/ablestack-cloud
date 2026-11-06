@@ -1,0 +1,102 @@
+[
+  {
+    "suite": "StorageDirectoryPolicyCoordinatorDaoTest",
+    "tests": "12",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "booleanDeleteRejectsMissingReceiptAndResumesSameDurableOperation",
+      "booleanNfsDeleteCommitsWithActualVerifiedReceiptAndRemainingNestedPaths",
+      "booleanDeleteRejectsChangedInodeReceipt",
+      "booleanLastBoundDeleteCommitsWithEmptyReceipt",
+      "actualCoordinatorReservationCommitAndDaoReloadPreserveCommonReferenceAndLargeMetadata",
+      "booleanSmbDeletePreservesResultAndRemainingBindings",
+      "actualSmbCreationCoordinatorDaoRoundtripPreservesOtherConfigurationAndDuplicateKey",
+      "actualCoordinatorVerifiedPathReceiptCommitsIdentityAndDaoReloadWithoutChangingAlias",
+      "booleanDeleteRejectsWrongOperationReceipt",
+      "actualSmbCoordinatorPersistsOptionalInheritanceAndLeavesCommonPosixUnchanged",
+      "booleanDeleteRejectsWrongVolumeReceipt",
+      "adSqlLeaseBlocksNewReservationButNotCompletedReplay"
+    ]
+  },
+  {
+    "suite": "StorageConfigurationPreflightTest",
+    "tests": "8",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "existingOperationRemainsReadableWhenQgaIsDisconnected",
+      "acknowledgementMetadataCannotTurnAnAcceptedRetryIntoAnotherBusinessRequest",
+      "runtimeReadyIsNotAnActiveWriter",
+      "readOnlyProbeReturnsUnknownOnTransportLossWithoutMutatingDaos",
+      "configuredProtocolPortsAreObservedWithoutMixingOtherProtocols",
+      "blockedOrUnknownObservationCannotBeAcknowledgedIntoSuccess",
+      "publicIntentIsStrictAndCannotCarrySecretsOrExecuteArbitraryCommands",
+      "interruptingImpactRequiresCurrentAckAndReadyWithoutImpactIsCompatible"
+    ]
+  },
+  {
+    "suite": "StorageDirectoryPolicyContractTest",
+    "tests": "5",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "actualSerializerPreservesDirectoryListAndPublicPreflightPreview",
+      "actualCommandAndUiPreflightCarryOnlyChangedPosix",
+      "differentClientAliasBindsSamePhysicalDirectoryWithoutRelaxingLegacyPathRules",
+      "expectedNativeConflictIsStructuredPreflightWithoutAnInternalError",
+      "realSerializerKeepsVerifiedPublicationStateAndListenerCountTyped"
+    ]
+  },
+  {
+    "suite": "StorageFileSharePathsTest",
+    "tests": "4",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "strictRelativePathAndComponentBoundaries",
+      "legacyConfigIsUntouchedAndNewModeNeverFormatsOrUsesImplicitCreation",
+      "parentGuardsIncludeOtherProtocolButAllowExactAliasesAndSiblings",
+      "optionalSmbApiPathIsCapturedInRealCommandIntent"
+    ]
+  },
+  {
+    "suite": "StorageNfsPosixTest",
+    "tests": "13",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "creationDefaultsRespectAllThreePoliciesAndReadOnly",
+      "publicPreflightIntentAcceptsBoundedPermissionChanges",
+      "intentContainsOnlyExplicitPosixAndKeepsZero",
+      "newAclHasNoSyntheticMappingOverrides",
+      "aclInheritanceRemovesOnlyMappingOverrides",
+      "explicitZeroAndExistingUnchangedFieldsArePreserved",
+      "realResponseSerializerKeepsObservedZeroAndPreviewContract",
+      "omittedEditPosixNeverCreatesAnOwner",
+      "ordinaryCreationNeedsNoNewCapabilityAndDeferredV1IsAccepted",
+      "deferredPayloadContainsOnlyOneUnpublishedTargetWithInspectionReceipt",
+      "realSerializerKeepsLocalProbeIncompleteSeparateFromPolicyAndReadyState",
+      "deferredCreationRejectsAnOldGuestBeforeCandidatePreparation",
+      "initialImportedPreservationRemainsAboveRecommendations"
+    ]
+  },
+  {
+    "suite": "StorageSmbParentInheritanceContractTest",
+    "tests": "4",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "cases": [
+      "optionalBooleanMergePreservesUnrelatedConfigurationAndExplicitFalse",
+      "actualCommandIntentAndStrictPublicInputShareOneBooleanContract",
+      "actualApiSerializationSuppliesTypedInheritanceAndModeOnlyUiFixture",
+      "uuidAndInternalPolicyIdProduceExactlyTheSameNormalizedParentQuery"
+    ]
+  }
+]

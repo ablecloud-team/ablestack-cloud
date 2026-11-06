@@ -1,0 +1,16 @@
+{
+  "liststorageservicedomainstatusresponse": {
+    "count": 1,
+    "storageidentitydomain": [
+      {
+        "id": "73be15f6-e1ce-4d1e-87f1-1c394daada35",
+        "instanceid": "dece7b8e-e5d0-4eae-b4cf-5ec0fdf0244d",
+        "domainname": "ablestack.local",
+        "dnsservers": "10.10.13.247",
+        "joinstate": "JOINED",
+        "healthstate": "OK",
+        "config": "{\"identityProvider\":\"active_directory\",\"workgroup\":\"ABLESTACK\"}"
+      }
+    ]
+  }
+}

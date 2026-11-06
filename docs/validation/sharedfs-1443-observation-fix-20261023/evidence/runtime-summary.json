@@ -1,0 +1,19 @@
+{
+  "observationsCaptured": 66,
+  "observedStatuses": [
+    "PREPARED",
+    "RUNNING"
+  ],
+  "formatCounts": [
+    1
+  ],
+  "operationId": "f4853fa6-7dbd-345b-8377-747618861a7c",
+  "filesystemUuid": "931059e8-29aa-4581-8381-275841550bc2",
+  "preparationSeconds": 1875.3714094161987,
+  "formatBudgetSeconds": 1920,
+  "completedBeforeDeadline": true,
+  "uiReadyNfs": true,
+  "fullRestartClientLargeAcceptanceResumed": false,
+  "oldAndNewUiTestResourcesRemoved": true,
+  "preservedReadyCount": 13
+}

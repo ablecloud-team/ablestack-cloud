@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"libsmbclient\": \"libsmbclient.so.0\", \"mountCifs\": \"/usr/sbin/mount.cifs\", \"smbclient\": \"/usr/bin/smbclient\", \"cifsModule\": 0, \"existingUser\": \"epic1453rw:x:1001:1001::/home/epic1453rw:/usr/sbin/nologin\"}\n",
+  "stderr": ""
+}

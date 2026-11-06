@@ -1,0 +1,8 @@
+{
+  "ip249": "ARP no response, but Mold UI found stopped i-2-128-VM reservation; create guard correctly rejected before resource allocation",
+  "ip250": "Mold UI found stopped i-2-127-VM reservation; not submitted",
+  "ip251": "Absent from L2 VM list but physical ARP response; not submitted",
+  "selectedIp220": "Absent from all60 L2 UI VM rows; DAD3 probes0 responses; correct create succeeded",
+  "unusedAdAllowlistSources249251": "Removed after validation; active220 source retained",
+  "earlyOffOnTrial": "File creation preceded final profile write by about0.72s; unscored; no product retry/change; ad01final after UI completion gave expected10000:10004"
+}

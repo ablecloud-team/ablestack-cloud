@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "cc67ac7656a9230ce0e238862a6932897f40e281",
+  "appSourceSha": "0f55430a516e28cd9e4f77f4a71233e8cf9e2546b74ddbb8a14cb5a5d8c0ad48",
+  "builtAppSha": "25e28bb0d6021a8488f81321ae5f8a378dbf970f1337fb16bc04abc10d073434",
+  "builtBytes": 10533152,
+  "build": "PASS",
+  "runtime": "Vue3 + AntD + actual Mold components",
+  "nodeFlag": "--openssl-legacy-provider (webpack4 mock build only)",
+  "apiConnected": false,
+  "productModulesBuilt": false
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "background": "rgb(9, 105, 218)",
+    "color": "rgb(255, 255, 255)",
+    "h": 32,
+    "margin": "0px",
+    "primary": true,
+    "text": "NFS 내보내기 생성",
+    "w": 163.703125,
+    "x": 708,
+    "y": 122
+  },
+  {
+    "background": "rgb(39, 46, 54)",
+    "color": "rgb(197, 204, 212)",
+    "h": 32,
+    "margin": "0px",
+    "primary": false,
+    "text": "프로토콜 활성화",
+    "w": 126,
+    "x": 879.703125,
+    "y": 122
+  },
+  {
+    "background": "rgb(39, 46, 54)",
+    "color": "rgb(197, 204, 212)",
+    "h": 32,
+    "margin": "0px",
+    "primary": false,
+    "text": "업데이트",
+    "w": 105.53125,
+    "x": 1013.703125,
+    "y": 122
+  },
+  {
+    "background": "rgb(39, 46, 54)",
+    "color": "rgb(197, 204, 212)",
+    "h": 32,
+    "margin": "0px",
+    "primary": false,
+    "text": "넓게 보기",
+    "w": 87.359375,
+    "x": 1127.234375,
+    "y": 122
+  }
+]

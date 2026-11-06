@@ -1,0 +1,118 @@
+{
+  "capability": {
+    "activationConfirmation": true,
+    "catalogPolicyVersion": 1,
+    "commands": [
+      "capabilities",
+      "bootstrap",
+      "begin",
+      "status",
+      "finalize",
+      "verify",
+      "preflight",
+      "activate",
+      "rollback",
+      "cleanup"
+    ],
+    "currentVersion": "epic1438-1447-catalog-20261025",
+    "desiredStateSchemaVersion": "1",
+    "entrypointsManaged": true,
+    "integrity": {
+      "files": [
+        {
+          "mode": "0755",
+          "path": "ablestack-storagectl",
+          "sha256": "486d04141c7f504c687f61794f29f7942252073efd010714d72f7e0342aad69f"
+        },
+        {
+          "mode": "0755",
+          "path": "ablestack-storage-boot-reconcile",
+          "sha256": "8de772de6d44e01262d9a009b51b4ce840fb5e0f2a2bfa8d7fd85dd788e421b9"
+        },
+        {
+          "mode": "0755",
+          "path": "ablestack-storage-monitor",
+          "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/volume_identity.py",
+          "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/volume_preparation.py",
+          "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/session_auth.py",
+          "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/configuration_transaction.py",
+          "sha256": "0550dd0349d00f7bd9c114d3e14ff370ea8f68b113e02d16fb5e1445e600c474"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/configuration_preflight.py",
+          "sha256": "a99c77e9cf84d7592c85d10a8e2fea9c5370c7bcb40c0b391074f2d1877de186"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/nvmeof_identity.py",
+          "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+        }
+      ],
+      "verified": true
+    },
+    "payloadLayout": 2,
+    "previousVersion": "epic1438-1446-7f473dc06768",
+    "runtimeAbiVersion": "1",
+    "success": true,
+    "supportedServiceImpacts": [
+      "NONE"
+    ],
+    "updaterSha256": "4cb0d0bbeef615753be3e532f2aa727a739434b652ae0c4dde48b342cb1d6fd0",
+    "updaterVersion": 3
+  },
+  "bootId": "a13b90c2-997c-45cb-a3e4-33d3844ee750",
+  "policy": {
+    "bundles": {
+      "epic1438-1446-7f473dc06768": {
+        "bundleId": "65bb7b92-8c97-40b9-bb03-dfe214732b09",
+        "manifestSha256": "9abd0d530ea8535140c4340c67431d8a25c4faef296e4fb8bb33c6b014242ecc",
+        "revision": 6,
+        "state": "REVOKED",
+        "validation": "VERIFIED",
+        "version": "epic1438-1446-7f473dc06768"
+      },
+      "epic1438-1447-catalog-20261025": {
+        "bundleId": "70a82da7-0989-46b2-abee-5c86fceaaa50",
+        "manifestSha256": "7339a2e8d56f8d3abe9a2c3d215102745cd9302fd52d0711f4e24c5f1523d960",
+        "revision": 5,
+        "state": "PUBLISHED",
+        "validation": "VERIFIED",
+        "version": "epic1438-1447-catalog-20261025"
+      }
+    },
+    "instanceUuid": "3730ab80-bd6c-4e33-b2db-13b1a55ee691"
+  },
+  "markers": [
+    {
+      "path": "/srv/ablestack-storage/volumes/6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae/export/r1444n/ui-preserve.txt",
+      "sha256": "d4aa35f7d126e31d0e98c254513a80d8b8528b0b6544a44ec0de1af6234855ba",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640"
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae/export/r1444s/ui-preserve.txt",
+      "sha256": "4db09637a676b95f7008b98c34be71219dbee588e38d7de6f174da82eb4fd350",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660"
+    }
+  ]
+}

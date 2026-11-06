@@ -1,0 +1,110 @@
+{
+  "apiDiskOfferingRequired": true,
+  "filteredCreateRequest": {
+    "account": "admin",
+    "cpunumber": 2,
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "filesystem": "XFS",
+    "memory": 1024,
+    "networkid": "5b054061-0c15-4389-bfca-873871f4b470",
+    "networkmode": "DHCP",
+    "serviceofferingid": "5da2d6c9-d9c4-453a-a28c-3e93274a3380",
+    "size": 20,
+    "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+  },
+  "hiddenDiskOfferingValue": "02a1e767-dfe0-4889-af23-00378b131e5c",
+  "modes": [
+    {
+      "calls": [
+        {
+          "api": "createStorageNfsExport",
+          "params": {
+            "anongid": 65534,
+            "anonuid": 65534,
+            "createdirectory": true,
+            "deferapply": false,
+            "filesystem": "ext4",
+            "importmode": "FORMAT_IF_EMPTY",
+            "instanceid": "design-only-instance",
+            "mode": "0775",
+            "name": "nfs1442",
+            "ownergid": 65534,
+            "owneruid": 65534,
+            "path": "/export/nfs1442",
+            "protocolmode": "V4_ONLY",
+            "quotabytes": null,
+            "readonly": false,
+            "recursivepermission": false,
+            "rootsquash": true,
+            "secure": false,
+            "sync": true,
+            "volumeid": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3"
+          }
+        },
+        {
+          "api": "attachStorageVolumeToFileShare",
+          "params": {
+            "filesystem": "ext4",
+            "id": "design-only-no-resource",
+            "importmode": "INSPECT_ONLY",
+            "volumeid": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3"
+          }
+        }
+      ],
+      "selectedMode": "INSPECT_ONLY"
+    },
+    {
+      "calls": [
+        {
+          "api": "createStorageNfsExport",
+          "params": {
+            "anongid": 65534,
+            "anonuid": 65534,
+            "createdirectory": true,
+            "deferapply": false,
+            "filesystem": "ext4",
+            "importmode": "FORMAT_IF_EMPTY",
+            "instanceid": "design-only-instance",
+            "mode": "0775",
+            "name": "nfs1442",
+            "ownergid": 65534,
+            "owneruid": 65534,
+            "path": "/export/nfs1442",
+            "protocolmode": "V4_ONLY",
+            "quotabytes": null,
+            "readonly": false,
+            "recursivepermission": false,
+            "rootsquash": true,
+            "secure": false,
+            "sync": true,
+            "volumeid": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3"
+          }
+        },
+        {
+          "api": "attachStorageVolumeToFileShare",
+          "params": {
+            "filesystem": "ext4",
+            "id": "design-only-no-resource",
+            "importmode": "MOUNT_EXISTING",
+            "volumeid": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3"
+          }
+        }
+      ],
+      "selectedMode": "MOUNT_EXISTING"
+    }
+  ],
+  "selectedVolume": {
+    "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+    "diskofferingname": "사용자 정의 디스크 오퍼링",
+    "id": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3",
+    "name": "epic1438-1440-data-20261021-01",
+    "provisioningtype": "sparse",
+    "size": 21474836480,
+    "state": "Ready",
+    "storage": "Primary Storage",
+    "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+    "type": "DATADISK",
+    "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f"
+  },
+  "stage": "final bounded deployed code characterization with plain isolated contexts; no POST"
+}

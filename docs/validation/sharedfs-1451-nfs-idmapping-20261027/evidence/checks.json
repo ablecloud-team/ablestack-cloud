@@ -1,0 +1,39 @@
+{
+  "javaContracts": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "realDao": {
+    "tests": 3,
+    "failures": 0,
+    "skipped": 0,
+    "gap": "new configuration operation resource_type path was not covered"
+  },
+  "guestNfs": {
+    "tests": 33,
+    "failures": 0
+  },
+  "guestExistingConfiguration": {
+    "tests": 22,
+    "skipped": 4,
+    "failures": 0
+  },
+  "uiBeforePaneAdjustment": {
+    "suites": 3,
+    "tests": 29,
+    "failures": 0
+  },
+  "uiAfterPaneAdjustment": {
+    "suites": 1,
+    "tests": 6,
+    "failures": 0
+  },
+  "backendModuleBuild": "PASS",
+  "uiBuildFinal": "PASS",
+  "nativeGanesha": "PASS",
+  "liveAcceptance": "STOPPED_PRODUCT_ERROR",
+  "failedRequest": "e5cff33e-92ea-43c5-a635-c545aff5fa07",
+  "uiScopeLintFinal": "PASS"
+}

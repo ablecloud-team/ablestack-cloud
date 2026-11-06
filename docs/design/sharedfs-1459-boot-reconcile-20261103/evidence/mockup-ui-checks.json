@@ -1,0 +1,53 @@
+{
+  "productApiConnected": false,
+  "framework": "repository Vue3 + Ant Design Vue",
+  "components": [
+    "Breadcrumb",
+    "ResourceLayout",
+    "MoldDialog"
+  ],
+  "recoveryTabIsVertical": true,
+  "buttons": [
+    {
+      "background": "rgb(24, 144, 255)",
+      "text": "미완료 점검 재개",
+      "x": 695.703125,
+      "y": 208
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "text": "업데이트",
+      "x": 855.546875,
+      "y": 208
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "text": "진단 보기",
+      "x": 969.078125,
+      "y": 208
+    }
+  ],
+  "bodyOnlyScroll": [
+    {
+      "class": "ant-modal-header",
+      "h": 55,
+      "overflow": "visible",
+      "scrollTop": 0,
+      "y": 33
+    },
+    {
+      "class": "ant-modal-body",
+      "h": 534,
+      "overflow": "auto",
+      "scrollTop": 390,
+      "y": 88
+    },
+    {
+      "class": "ant-modal-footer",
+      "h": 65,
+      "overflow": "visible",
+      "scrollTop": 0,
+      "y": 622
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "sourceCommit": "e6bf899c47747a875ba36ec34889c5eb755096c1",
+  "base": "31c147ca747f7a4ffc0380818bcd44887558a0c7",
+  "management": {
+    "path": "/root/work/ablestack-cloud/client/target/cloud-client-ui-4.23.0.0.jar",
+    "bytes": 152415036,
+    "sha256": "d62c7cf890e277b05a14e716be36f2847b5219a9977f8b040c99693ab234bdf2"
+  },
+  "ui": {
+    "path": "/root/work/epic1438-preparation/20261030/issue1453-baseline-r3/ui-module.tar.gz",
+    "bytes": 16215000,
+    "sha256": "9d21a12241844146a0aa1a9fcd3943d9f08f79de131e67cd8853ff51892d2eec"
+  },
+  "uiIndexSha256": "de8259f2fbb6b6b004597a3be3536f46d8e404bd2a9cb5ee9add77bee605097a",
+  "guest": {
+    "sourceCommit": "e6bf899c47747a875ba36ec34889c5eb755096c1",
+    "baseCompressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+    "image": "/root/work/epic1438-preparation/20261030/issue1453-baseline-r3/systemvm-epic1453-inherit-e6bf899c4774-r3.qcow2",
+    "compressed": "/root/work/epic1438-preparation/20261030/issue1453-baseline-r3/systemvm-epic1453-inherit-e6bf899c4774-r3.qcow2.bz2",
+    "compressedBytes": 498330538,
+    "compressedSha256": "11d3e34cf1841c4e90ad52d6c3bbe05776effeddcc8f328ab0b31e497f3417d3",
+    "changedGuestPaths": [
+      "etc/ablestack-storage/runtime-default/manifest.json",
+      "etc/ablestack-storage/runtime-default/manifest.sig",
+      "usr/local/bin/ablestack-storagectl",
+      "usr/local/lib/ablestack-storage/configuration_preflight.py",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py",
+      "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+      "usr/local/lib/ablestack-storage/runtime_updater.py",
+      "usr/local/lib/ablestack-storage/shared_directory_policy.py"
+    ],
+    "unchangedGuestPathsVerified": 33929,
+    "hostAccountFilesUnchanged": true,
+    "qemuImageCheck": "No errors were found on the image.\n27444/80000 = 34.30% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1799487488",
+    "managedFileCount": 10
+  }
+}

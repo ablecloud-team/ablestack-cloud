@@ -1,0 +1,14 @@
+{
+  "duplicateSmbHeading": 0,
+  "toolbar": {
+    "bottom": 218
+  },
+  "table": {
+    "top": 234
+  },
+  "bodyColors": {
+    "cellBackground": "rgb(39, 46, 54)",
+    "text": "rgb(240, 243, 246)"
+  },
+  "wideHidesInfoCard": true
+}

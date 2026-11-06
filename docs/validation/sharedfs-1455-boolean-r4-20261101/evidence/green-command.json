@@ -1,0 +1,15 @@
+[
+  "mvn",
+  "-B",
+  "-pl",
+  "server",
+  "-am",
+  "package",
+  "-Dtest=StorageDirectoryPolicyCoordinatorDaoTest,StorageFileSharePathsTest,StorageDirectoryPolicyContractTest,StorageSmbParentInheritanceContractTest,StorageConfigurationPreflightTest,StorageNfsPosixTest",
+  "-Dsurefire.failIfNoSpecifiedTests=false",
+  "-Dconfiguration.dao.test.url=jdbc:mysql://127.0.0.1:13344/cloud?useSSL=false&allowPublicKeyRetrieval=true",
+  "-Dcheckstyle.skip=true",
+  "-Drat.skip=true",
+  "-Dlicense.skip=true",
+  "-DargLine=-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true"
+]

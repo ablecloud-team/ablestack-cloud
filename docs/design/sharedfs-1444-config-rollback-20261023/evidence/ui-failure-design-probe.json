@@ -1,0 +1,48 @@
+{
+  "source": "actual source methods with isolated API/job stubs; deployed minified method control flow also captured",
+  "deployedMethods": [
+    "runStorageAction",
+    "closeActionModal",
+    "submitActionModal"
+  ],
+  "designOnly": true,
+  "results": [
+    {
+      "case": "current-job-pending",
+      "posts": 1,
+      "pendingJobs": 1,
+      "notified": 0,
+      "modalClosed": true,
+      "loading": false,
+      "draftInMemory": "draft-retained"
+    },
+    {
+      "case": "current-post-failure",
+      "posts": 1,
+      "pendingJobs": 0,
+      "notified": 1,
+      "modalClosed": true,
+      "loading": false,
+      "draftInMemory": "draft-retained"
+    },
+    {
+      "case": "current-validation",
+      "posts": 0,
+      "pendingJobs": 0,
+      "notified": 0,
+      "modalClosed": true,
+      "loading": false,
+      "draftInMemory": "draft-retained"
+    },
+    {
+      "case": "design-result-contract",
+      "modalRemainsOpen": true,
+      "draftRetained": true,
+      "firstFailureSeparate": true,
+      "rollbackSeparate": true,
+      "updateReads": 3,
+      "changePosts": 1,
+      "fixtureOnly": true
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "before": {
+    "helperSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+    "identitySha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+    "fstabSha256": "cc2e81c270694889ea8e9c1007e345cb84d6e067aa3caca945f7a12f248e828d",
+    "dataSha256": "09df9a6d745892c7391ed661f5d9f5c75b3ece9c8206da41c19439113c6c9d4b",
+    "directory": {
+      "uid": 1234,
+      "gid": 2345,
+      "mode": "0o750"
+    },
+    "file": {
+      "uid": 1234,
+      "gid": 2345,
+      "mode": "0o640"
+    }
+  },
+  "after": {
+    "helperSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+    "identitySha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+    "fstabSha256": "cc2e81c270694889ea8e9c1007e345cb84d6e067aa3caca945f7a12f248e828d",
+    "dataSha256": "09df9a6d745892c7391ed661f5d9f5c75b3ece9c8206da41c19439113c6c9d4b",
+    "directory": {
+      "uid": 1234,
+      "gid": 2345,
+      "mode": "0o750"
+    },
+    "file": {
+      "uid": 1234,
+      "gid": 2345,
+      "mode": "0o640"
+    }
+  },
+  "productionStateUnchanged": true,
+  "deployedRun": {
+    "kind": "real-deployed-run-function",
+    "actualTimeoutSeconds": 20,
+    "elapsedSeconds": 20.02,
+    "command": "/bin/sleep 21",
+    "observedProductionStorageCommandSettingSeconds": 300,
+    "harnessTotalWaitBudgetSeconds": 100,
+    "productionHostCommandDispatched": false
+  },
+  "isolatedSketch": {
+    "kind": "isolated-timeout-signature-sketch",
+    "timeoutSeconds": 30,
+    "elapsedSeconds": 21.0,
+    "returncode": 0,
+    "productionHelperChanged": false
+  },
+  "formatFunctionCases": [
+    {
+      "fs": "xfs",
+      "virtualSizeFixtureGiB": 10240,
+      "capturedOnlyCommands": [
+        [
+          "mkfs.xfs",
+          "-f",
+          "/dev/issue1443-NEVER-OPENED"
+        ]
+      ],
+      "realMkfsExecuted": false
+    },
+    {
+      "fs": "ext4",
+      "virtualSizeFixtureGiB": 10240,
+      "capturedOnlyCommands": [
+        [
+          "mkfs.ext4",
+          "-F",
+          "/dev/issue1443-NEVER-OPENED"
+        ]
+      ],
+      "realMkfsExecuted": false
+    }
+  ],
+  "formatTimeoutEscapesUnstructured": true,
+  "identityFixtures": [
+    {
+      "case": "exact_serial",
+      "result": {
+        "devicePath": "/dev/sdb",
+        "diskPath": "/dev/sdb",
+        "diskName": "sdb",
+        "filesystem": null,
+        "filesystemUuid": null,
+        "serial": "11111111222243338444",
+        "matchedBy": "VOLUME_SERIAL"
+      }
+    },
+    {
+      "case": "wrong_uuid_same_size_legacy_fallback",
+      "result": {
+        "devicePath": "/dev/sdb",
+        "diskPath": "/dev/sdb",
+        "diskName": "sdb",
+        "filesystem": null,
+        "filesystemUuid": null,
+        "serial": "other-volume",
+        "matchedBy": "UNIQUE_BLANK_SIZE"
+      }
+    },
+    {
+      "case": "wrong_uuid_strict_blocks",
+      "blocked": true,
+      "reason": "Unable to identify the exact attached Storage Service volume device for 11111111-2222-4333-8444-555555555555"
+    },
+    {
+      "case": "ambiguous_serial",
+      "blocked": true,
+      "reason": "Ambiguous Storage Service volume mapping for ABLESTACK volume UUID/serial: /dev/sdb, /dev/sdc"
+    },
+    {
+      "case": "root_identity_blocks",
+      "blocked": true,
+      "reason": "Unable to identify the exact attached Storage Service volume device for 11111111-2222-4333-8444-555555555555"
+    }
+  ]
+}

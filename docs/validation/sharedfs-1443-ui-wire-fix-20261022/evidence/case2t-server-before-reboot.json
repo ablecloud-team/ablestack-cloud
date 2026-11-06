@@ -1,0 +1,130 @@
+{
+  "operationId": "33447f4c-0e5a-3d85-8ce3-11a794441052",
+  "volumeUuid": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+  "status": "PREPARED",
+  "phase": "PREPARED",
+  "formatCount": 1,
+  "formatEverStarted": true,
+  "filesystemUuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+  "createdAt": 1792636414.560555,
+  "formatStartedAt": 1792636414.9029412,
+  "formatDeadlineAt": 1792636894.9029412,
+  "heartbeatAt": 1792636473.3596358,
+  "finishedAt": 1792636473.359634,
+  "errorCode": null,
+  "reason": null,
+  "mountPath": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da",
+  "observedAt": 1792652785.0057337,
+  "unitState": "MainPID=0\nActiveState=inactive\nSubState=dead\n",
+  "formatterProcesses": "",
+  "disks": {
+    "blockdevices": [
+      {
+        "name": "sda",
+        "path": "/dev/sda",
+        "type": "disk",
+        "fstype": null,
+        "uuid": null,
+        "serial": "f155538f6bac412caf02",
+        "size": 5242880000,
+        "mountpoint": null,
+        "children": [
+          {
+            "name": "sda1",
+            "path": "/dev/sda1",
+            "type": "part",
+            "fstype": "ext2",
+            "uuid": "02a28a52-ae70-46b5-8f12-3636640c9a99",
+            "serial": null,
+            "size": 398458880,
+            "mountpoint": "/boot"
+          },
+          {
+            "name": "sda2",
+            "path": "/dev/sda2",
+            "type": "part",
+            "fstype": null,
+            "uuid": null,
+            "serial": null,
+            "size": 1024,
+            "mountpoint": null
+          },
+          {
+            "name": "sda5",
+            "path": "/dev/sda5",
+            "type": "part",
+            "fstype": "swap",
+            "uuid": "c30f6d3c-fe8f-41df-99b0-52cb823c014c",
+            "serial": null,
+            "size": 510656512,
+            "mountpoint": null
+          },
+          {
+            "name": "sda6",
+            "path": "/dev/sda6",
+            "type": "part",
+            "fstype": "ext4",
+            "uuid": "91b8366d-a5de-42ad-a420-2e26aa755c3d",
+            "serial": null,
+            "size": 4329570304,
+            "mountpoint": "/"
+          }
+        ]
+      },
+      {
+        "name": "sdb",
+        "path": "/dev/sdb",
+        "type": "disk",
+        "fstype": "xfs",
+        "uuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+        "serial": "942aee61490d493eb60d",
+        "size": 2199023255552,
+        "mountpoint": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da"
+      },
+      {
+        "name": "sr0",
+        "path": "/dev/sr0",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00003",
+        "size": 1073741312,
+        "mountpoint": null
+      },
+      {
+        "name": "sr1",
+        "path": "/dev/sr1",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00004",
+        "size": 1073741312,
+        "mountpoint": null
+      }
+    ]
+  },
+  "fstabMatches": [
+    "UUID=bbaf069a-c5b9-4a55-be4f-774d7ad80583 /srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da xfs defaults,nofail,x-systemd.device-timeout=30 0 2 # ablestack-storage:942aee61-490d-493e-b60d-8cb81ce8f9da:backing",
+    "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n /export/p1443x2n none bind,nofail,x-systemd.requires-mounts-for=/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n 0 0 # ablestack-storage:83767bdf-5fa8-4a0f-9e8d-740a5510c0e8:alias"
+  ],
+  "helperSha256": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+  "moduleSha256": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+  "files": {
+    "p1443x2n": {
+      "path": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n/preserve.txt",
+      "sha256": "a212dd6d52fd75eec77faa86de2d4144055114db900fb94a46bb3296a83bbec7",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "onDataFilesystem": true
+    },
+    "p1443x2s": {
+      "path": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2s/preserve.txt",
+      "sha256": "134e153ebcd502cee07baf7f6285219b1424cc65b7c978cc6974d2cc4f09ab42",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "onDataFilesystem": true
+    }
+  }
+}

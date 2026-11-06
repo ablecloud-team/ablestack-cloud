@@ -1,0 +1,100 @@
+{
+  "native-tests.log": {
+    "lines": [
+      "Ran 6 tests in 0.525s"
+    ],
+    "lastLines": [
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 6 tests in 0.525s",
+      "",
+      "OK"
+    ]
+  },
+  "server-tests.log": {
+    "lines": [
+      "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.908 s - in org.apache.cloudstack.storage.sharedfs.SharedFSCapacityServiceTest",
+      "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "lastLines": [
+      "[INFO] BUILD SUCCESS",
+      "[INFO] ------------------------------------------------------------------------",
+      "[INFO] Total time:  02:48 min",
+      "[INFO] Finished at: 2026-11-02T23:09:38+09:00",
+      "[INFO] ------------------------------------------------------------------------"
+    ]
+  },
+  "dao-tests.log": {
+    "lines": [
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.691 s - in org.apache.cloudstack.storage.sharedfs.dao.SharedFSCapacityDaoTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "lastLines": [
+      "[INFO] BUILD SUCCESS",
+      "[INFO] ------------------------------------------------------------------------",
+      "[INFO] Total time:  21.964 s",
+      "[INFO] Finished at: 2026-11-02T23:18:16+09:00",
+      "[INFO] ------------------------------------------------------------------------"
+    ]
+  },
+  "ui-tests.log": {
+    "lines": [
+      "Test Suites: 2 passed, 2 total",
+      "Tests:       11 passed, 11 total"
+    ],
+    "lastLines": [
+      "Tests:       11 passed, 11 total",
+      "Snapshots:   0 total",
+      "Time:        103.553s",
+      "Ran all test suites within paths \"tests/unit/views/storage/SharedFSCapacity.spec.js\", \"tests/unit/views/storage/SharedFSCapacityAutogen.spec.js\".",
+      "Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?"
+    ]
+  },
+  "module-package-scoped.log": {
+    "lines": [
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.17 s - in org.apache.cloudstack.storage.sharedfs.dao.SharedFSCapacityDaoTest",
+      "[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.752 s - in org.apache.cloudstack.storage.dataservice.StorageSmbClientAccessPolicyTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.699 s - in org.apache.cloudstack.storage.dataservice.StorageSmbShareRequestContractTest",
+      "[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 s - in org.apache.cloudstack.storage.dataservice.StorageSmbFileIdentityTest",
+      "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.125 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest",
+      "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.163 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryGuardPreflightTest",
+      "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.17 s - in org.apache.cloudstack.storage.sharedfs.SharedFSCapacityServiceTest",
+      "[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0",
+      "[INFO] BUILD SUCCESS"
+    ],
+    "lastLines": [
+      "[INFO] BUILD SUCCESS",
+      "[INFO] ------------------------------------------------------------------------",
+      "[INFO] Total time:  01:16 min",
+      "[INFO] Finished at: 2026-11-02T23:58:05+09:00",
+      "[INFO] ------------------------------------------------------------------------"
+    ]
+  },
+  "ui-lint.log": {
+    "lines": [
+      " DONE  No lint errors found!"
+    ],
+    "lastLines": [
+      "",
+      "Browserslist: caniuse-lite is outdated. Please run:",
+      "  npx update-browserslist-db@latest",
+      "  Why you should do it regularly: https://github.com/browserslist/update-db#readme",
+      " DONE  No lint errors found!"
+    ]
+  },
+  "ui-build.log": {
+    "lines": [
+      " DONE  Build complete. The dist directory is ready to be deployed."
+    ],
+    "lastLines": [
+      "> cloudstack-ui@4.22.0 postbuild",
+      "> ./postbuild.sh",
+      "",
+      "Post-build: removing all docHelp suffixes in ./public/config.json",
+      "[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15"
+    ]
+  }
+}

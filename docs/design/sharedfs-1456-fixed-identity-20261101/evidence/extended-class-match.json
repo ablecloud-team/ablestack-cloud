@@ -1,0 +1,8 @@
+{
+  "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": true,
+  "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": true,
+  "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": true,
+  "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": true,
+  "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": true,
+  "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class": true
+}

@@ -1,0 +1,22 @@
+{
+  "issue": 1442,
+  "state": "OPEN",
+  "implementationCommit": "9a5b755368daf851e7383eb04803677bb23e8936",
+  "epicPr": 1470,
+  "backendTests": 97,
+  "uiTests": 36,
+  "backendBuild": "PASS",
+  "uiProductionBuild": "PASS",
+  "deployed": true,
+  "actualUiAcceptance": "FAILED_FIRST_XFS_CREATE",
+  "clientDataPreservationAcceptance": "NOT_RUN",
+  "duplicateResourceAcceptance": "UNIT_ONLY_NOT_LIVE_COMPLETE",
+  "stoppedOnFirstProductFailure": true,
+  "rootCause": "VO Column length defaults to 255; GenericDao truncates JSON before JDBC binding",
+  "failedEntity": "64305194-2694-4e90-9bb2-afe487891342",
+  "failedJob": "bb904c34-ddc7-4adb-8c60-050596de8e02",
+  "newSharedFsVmAllocated": false,
+  "existingServicesReady": 6,
+  "newSourceVolumesReadyUnattached": 2,
+  "retryCountAfterProductFailure": 0
+}

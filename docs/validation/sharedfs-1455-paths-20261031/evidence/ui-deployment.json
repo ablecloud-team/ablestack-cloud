@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "files": {
+    "index.html": {
+      "before": "ede1f23e654b6116b848d65aa74512f2e58cb3239e194a1cc11f50d226293220",
+      "after": "16fbf759e3ceb573e59627f1f1529d47922317dc3ddb3eef0aa775c88acdaca3",
+      "bytes": 36227
+    },
+    "locales/ko_KR.json": {
+      "before": "14c36b597033e6622e6e2359342e28d6cb0ab2b7e8bd8bbe1174d547575201c1",
+      "after": "b80c09abc4aef1780707553822dd9603b6226820cc5dd0e2770454a631e5b088",
+      "bytes": 852326
+    },
+    "locales/en.json": {
+      "before": "27dc4b966b64268db13505ca6092c00f45f6957ef044c444784058866faad7e1",
+      "after": "3302bb31be1db9f9234aff610c3cd4a792ce65f9a8905e4ba0a011cc7a1d6acf",
+      "bytes": 766045
+    },
+    "css/chunk-7abfc410.1ef00113.css": {
+      "before": null,
+      "after": "55463aab048f71661954e2f0028800baebc64805cef9250fce4f5270400697ca",
+      "bytes": 28764
+    },
+    "js/chunk-f818a9d4.32460a0e.js": {
+      "before": null,
+      "after": "227dd01ed7e652e125183200d7d0a7fb3e38dea77f89c88be9a51eb0ecedda85",
+      "bytes": 20340
+    },
+    "js/chunk-7abfc410.cc12ad78.js": {
+      "before": null,
+      "after": "e5d9b2a218126c8c67fa5955984609f5d2298f57a2df886b7a432d005b0fb690",
+      "bytes": 693331
+    },
+    "js/app.0af2d84b.js": {
+      "before": null,
+      "after": "026261dc3b1fd4347e773b1f58776d9542a176e4fd2cde51a3c36d5535c93d97",
+      "bytes": 1630614
+    }
+  },
+  "count": 7,
+  "operatorConfigAndThemePreserved": true,
+  "webroot": "/usr/share/cloudstack-management/webapp",
+  "sourceCommit": "4065598a3f058149cf9e04d0671eca8322789182"
+}

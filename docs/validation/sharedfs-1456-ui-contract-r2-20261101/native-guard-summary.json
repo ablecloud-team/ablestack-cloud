@@ -1,0 +1,175 @@
+{
+  "success": true,
+  "checks": [
+    {
+      "name": "managed identity is non-login, locked and no home",
+      "passed": true,
+      "uid": 7001,
+      "gid": 7002
+    },
+    {
+      "name": "real duplicate UID creation refuses without account edits",
+      "passed": true
+    },
+    {
+      "name": "prototype guard root",
+      "passed": true,
+      "code": "PROTECTED_ID"
+    },
+    {
+      "name": "prototype guard protected",
+      "passed": true,
+      "code": "PROTECTED_ID"
+    },
+    {
+      "name": "prototype guard AD overlap",
+      "passed": true,
+      "code": "AD_IDMAP_RANGE"
+    },
+    {
+      "name": "prototype guard foreign UID",
+      "passed": true,
+      "code": "UID_GID_COLLISION"
+    },
+    {
+      "name": "prototype guard foreign GID",
+      "passed": true,
+      "code": "UID_GID_COLLISION"
+    },
+    {
+      "name": "prototype guard inherit owner",
+      "passed": true,
+      "code": "INHERIT_CONFLICT"
+    },
+    {
+      "name": "prototype guard guest",
+      "passed": true,
+      "code": "GUEST_FORBIDDEN"
+    },
+    {
+      "name": "prototype guard setgid",
+      "passed": true,
+      "code": "INHERIT_CONFLICT"
+    },
+    {
+      "name": "verified owned identity can be observed repeatedly",
+      "passed": true
+    },
+    {
+      "name": "forced identity is absent from isolated Samba passdb",
+      "passed": true
+    },
+    {
+      "name": "fixed file",
+      "passed": true,
+      "uid": 7001,
+      "gid": 7002,
+      "directoryUid": 7001,
+      "directoryGid": 7002
+    },
+    {
+      "name": "unlisted user",
+      "passed": true,
+      "status": [
+        "tree connect failed: NT_STATUS_ACCESS_DENIED"
+      ]
+    },
+    {
+      "name": "POSIX denied",
+      "passed": true,
+      "status": [
+        "NT_STATUS_ACCESS_DENIED opening remote file \\denied.txt"
+      ]
+    },
+    {
+      "name": "guest denied",
+      "passed": true,
+      "status": [
+        "session setup failed: NT_STATUS_LOGON_FAILURE"
+      ]
+    },
+    {
+      "name": "forced identity login denied",
+      "passed": true,
+      "status": [
+        "session setup failed: NT_STATUS_LOGON_FAILURE"
+      ]
+    },
+    {
+      "name": "ordinary authenticated mode keeps creator UID",
+      "passed": true,
+      "uid": 7003
+    },
+    {
+      "name": "legacy ADMIN root bypass is isolated evidence",
+      "passed": true,
+      "rootOwned": true
+    },
+    {
+      "name": "raw SGID result recorded; existing policy guard must stay",
+      "passed": true,
+      "actualGid": 7004,
+      "requestedGid": 7002,
+      "parentGid": 7004
+    },
+    {
+      "name": "private configuration reload keeps fixed UID/GID",
+      "passed": true
+    },
+    {
+      "name": "private daemon restart keeps fixed UID/GID",
+      "passed": true
+    },
+    {
+      "name": "audit retains authenticated user separately from effective user/group",
+      "passed": true,
+      "sample": [
+        "EPIC1456|e1456auth|e1456force|e1456force|fixed|127.0.0.1|openat|ok|w|/run/epic1456-anchor-l8wa9xza/rw/fixed.txt"
+      ]
+    },
+    {
+      "name": "existing file data/owner/group/mode/inode preserved",
+      "passed": true
+    },
+    {
+      "name": "implementation read-only preview uses real numeric credentials",
+      "passed": true
+    },
+    {
+      "name": "implementation creates owned non-login account and reuses it without account edits",
+      "passed": true
+    },
+    {
+      "name": "implementation guest/inheritance gates preserved",
+      "passed": true
+    },
+    {
+      "name": "implementation real SGID conflict rejected",
+      "passed": true
+    },
+    {
+      "name": "implementation renderer and owned-source verification drive actual Samba UID/GID",
+      "passed": true,
+      "uid": 7101,
+      "gid": 7102
+    },
+    {
+      "name": "published share missing section still rejected",
+      "passed": true
+    },
+    {
+      "name": "implementation live identity drift rejected before mutation",
+      "passed": true
+    },
+    {
+      "name": "implementation authentication enrollment rejects managed identity",
+      "passed": true
+    },
+    {
+      "name": "implementation compensation retires owned identity while preserving files and owner",
+      "passed": true
+    }
+  ],
+  "provisioning": "SPARSE",
+  "productionMutation": false
+}

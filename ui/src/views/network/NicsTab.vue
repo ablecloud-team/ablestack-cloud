@@ -16,16 +16,16 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loadingNic">
+  <a-spin :spinning="loadingNic" :class="{ 'sharedfs-nics-standard': standard }">
     <a-button
       type="primary"
-      style="width: 100%; margin-bottom: 10px"
+      :style="standard ? { marginBottom: '16px' } : { width: '100%', marginBottom: '10px' }"
       @click="showAddNicModal"
       :loading="loadingNic"
       :disabled="!('addNicToVirtualMachine' in $store.getters.apis) || resource.hypervisor === 'External'">
       <template #icon><plus-outlined /></template> {{ $t('label.network.addvm') }}
     </a-button>
-    <NicsTable :resource="resource" :loading="loading">
+    <NicsTable :resource="resource" :loading="loading" :standard="standard">
       <template #actions="record">
         <a-popconfirm
           v-if="!record.nic.isdefault && resource.hypervisor !== 'External'"
@@ -86,12 +86,16 @@
       </template>
     </NicsTable>
 
-    <a-modal
+    <component
+:is="standard ? 'MoldDialog' : 'a-modal'"
+:size="standard ? 'md' : undefined"
+:form-actions="standard"
+      :class="{ 'sharedfs-nic-dialog': standard }"
       :visible="showAddNetworkModal"
       :title="$t('label.network.addvm')"
       :maskClosable="false"
       :closable="true"
-      :footer="null"
+      :footer="standard ? undefined : null"
       @cancel="closeModals">
       <a-form
         class="form-layout"
@@ -155,19 +159,23 @@
             {{ $t('label.make.default') }}
           </a-checkbox>
         </a-form-item>
-        <div :span="24" class="action-button">
+        <component :is="standard ? 'MoldDialogActions' : 'div'" v-bind="standard ? { busy: loadingNic } : {}" :class="standard ? undefined : 'action-button'">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitAddNetwork">{{ $t('label.ok') }}</a-button>
-        </div>
+        </component>
       </a-form>
-    </a-modal>
+    </component>
 
-    <a-modal
+    <component
+:is="standard ? 'MoldDialog' : 'a-modal'"
+:size="standard ? 'md' : undefined"
+:form-actions="standard"
+      :class="{ 'sharedfs-nic-dialog': standard }"
       :visible="showUpdateIpMacModal"
       :title="$t('label.change.ipaddress.or.macaddress')"
       :maskClosable="false"
       :closable="true"
-      :footer="null"
+      :footer="standard ? undefined : null"
       @cancel="closeModals"
     >
       <a-form
@@ -221,18 +229,22 @@
             :placeholder="$t('label.macaddress')"></a-input>
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <component :is="standard ? 'MoldDialogActions' : 'div'" v-bind="standard ? { busy: loadingNic } : {}" :class="standard ? undefined : 'action-button'">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitUpdateIPMac">{{ $t('label.ok') }}</a-button>
-        </div>
+        </component>
       </a-form>
-    </a-modal>
+    </component>
 
-    <a-modal
+    <component
+:is="standard ? 'MoldDialog' : 'a-modal'"
+:size="standard ? 'md' : undefined"
+:form-actions="standard"
+      :class="{ 'sharedfs-nic-dialog': standard }"
       :visible="showSecondaryIpModal"
       :title="$t('label.acquire.new.secondary.ip')"
       :maskClosable="false"
-      :footer="null"
+      :footer="standard ? undefined : null"
       :closable="false"
       class="wide-modal"
     >
@@ -275,10 +287,10 @@
             :placeholder="$t('label.new.secondaryip.description.description')"
             v-model:value="newSecondaryIpDescription" />
         </a-form-item>
-        <div :span="24" class="action-button">
+        <component :is="standard ? 'MoldDialogActions' : 'div'" v-bind="standard ? { busy: loadingNic } : {}" :class="standard ? undefined : 'action-button'">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitSecondaryIP">{{ $t('label.add.secondary.ip') }}</a-button>
-        </div>
+        </component>
       </a-form>
 
       <a-divider />
@@ -300,14 +312,18 @@
           </a-popconfirm>
         </a-list-item>
       </a-list>
-    </a-modal>
+    </component>
 
-    <a-modal
+    <component
+:is="standard ? 'MoldDialog' : 'a-modal'"
+:size="standard ? 'md' : undefined"
+:form-actions="standard"
+      :class="{ 'sharedfs-nic-dialog': standard }"
       :visible="showUpdateNicModal"
       :title="$t('label.edit.nic')"
       :maskClosable="false"
       :closable="true"
-      :footer="null"
+      :footer="standard ? undefined : null"
       @cancel="closeModals"
     >
       {{ $t('message.network.update.nic') }}
@@ -320,12 +336,12 @@
           <a-switch v-model:checked="editNicStateValue" @change="val => { editNicStateValue = val }" />
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <component :is="standard ? 'MoldDialogActions' : 'div'" v-bind="standard ? { busy: loadingNic } : {}" :class="standard ? undefined : 'action-button'">
           <a-button @click="closeModals">{{ $t('label.cancel') }}</a-button>
           <a-button type="primary" ref="submit" @click="submitUpdateNic">{{ $t('label.ok') }}</a-button>
-        </div>
+        </component>
       </a-form>
-    </a-modal>
+    </component>
   </a-spin>
 </template>
 
@@ -333,6 +349,8 @@
 import { getAPI, postAPI } from '@/api'
 import { ref, reactive } from 'vue'
 import NicsTable from '@/views/network/NicsTable'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -341,11 +359,14 @@ export default {
   name: 'NicsTab',
   components: {
     NicsTable,
+    MoldDialog,
+    MoldDialogActions,
     TooltipButton,
     ResourceIcon,
     TooltipLabel
   },
   props: {
+    standard: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -870,4 +891,8 @@ export default {
   padding-top: 12px;
   padding-bottom: 12px;
 }
+</style>
+
+<style scoped>
+.sharedfs-nic-dialog :deep(.form-layout) { width: 100%; max-width: none; }
 </style>

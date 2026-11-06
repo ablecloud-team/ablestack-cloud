@@ -1,0 +1,47 @@
+{
+  "root": {
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o775",
+    "dev": 2064,
+    "inode": 8388736
+  },
+  "files": {
+    "nfs-c1.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o644",
+      "dev": 2064,
+      "inode": 8388737,
+      "sha256": "ff13137f74bdcf6216c7b2204bdcf7124e0eeb00d1252eb303c50053e68a3475"
+    },
+    "smb-c1.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "dev": 2064,
+      "inode": 8388738,
+      "sha256": "957a2f4b819c0291e2978112d6388307a204cf63932fe8ca19f575090650f640"
+    },
+    "smb-c2.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "dev": 2064,
+      "inode": 8388739,
+      "sha256": "3e58d8eb57a0bd06fdaaccdaca26619123ca1bb03cf1c6520e834a4714ee162a"
+    },
+    "nfs-c2.txt": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o644",
+      "dev": 2064,
+      "inode": 8388740,
+      "sha256": "b3d338c7263bfe6863ac149358819b9a3dbf6e0f9ba00418461b40788febd70d"
+    }
+  },
+  "acl": "user::rwx\nuser:1001:rwx\ngroup::rwx\nmask::rwx\nother::r-x\ndefault:user::rwx\ndefault:user:1001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::r-x\n\n",
+  "services": "ablestack-storage-ganesha@0.0.0.0_2049.service loaded active running ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2049\nablestack-storage-ganesha@0.0.0.0_2050.service loaded active running ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2050\n",
+  "listeners": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                   \nLISTEN 0      65535        0.0.0.0:111       0.0.0.0:*    users:((\"rpcbind\",pid=9225,fd=4),(\"systemd\",pid=1,fd=67))\nLISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=4773,fd=3))                           \nLISTEN 0      50      10.10.13.241:445       0.0.0.0:*    users:((\"smbd\",pid=17201,fd=30))                         \nLISTEN 0      65535           [::]:111          [::]:*    users:((\"rpcbind\",pid=9225,fd=6),(\"systemd\",pid=1,fd=69))\nLISTEN 0      4096               *:2050            *:*    users:((\"ganesha.nfsd\",pid=27803,fd=14))                 \nLISTEN 0      4096               *:2049            *:*    users:((\"ganesha.nfsd\",pid=27771,fd=14))                 \nLISTEN 0      128             [::]:22           [::]:*    users:((\"sshd\",pid=4773,fd=4))                           \n",
+  "bootid": "f9a3884f-817e-4b79-9df1-c148e5c02d0c"
+}

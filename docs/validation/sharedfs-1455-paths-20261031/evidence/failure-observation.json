@@ -1,0 +1,234 @@
+{
+  "files": [
+    [
+      "runner-progress.json",
+      265
+    ],
+    [
+      "pathbindings.json",
+      1618
+    ],
+    [
+      "runner.json",
+      83
+    ],
+    [
+      "before.json",
+      21261
+    ],
+    [
+      "request.json",
+      11572
+    ],
+    [
+      "runner-result.json",
+      1749
+    ],
+    [
+      "status.json",
+      444
+    ],
+    [
+      "path-restore.json",
+      19
+    ]
+  ],
+  "status.json": {
+    "baseRevision": 27,
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "operationid": "d00110d1-61f6-4187-bf69-3951eb391bda",
+    "originalfailure": {
+      "code": "PROTOCOL_APPLY_FAILED",
+      "phase": "APPLYING",
+      "type": "Rejected"
+    },
+    "phase": "COMPLETED",
+    "requestHash": "17a782c8b9aabacaf9fd5f358b993d2dce5d234aeb9fc36b7cefc44525b9ba2b",
+    "rollback": {
+      "state": "SUCCEEDED"
+    },
+    "state": "ROLLED_BACK",
+    "targetRevision": 28,
+    "updated": 1793457280.6236742
+  },
+  "runner-result.json": {
+    "observationUnknown": false,
+    "operation": "nfs export apply",
+    "outputTruncated": false,
+    "result": {
+      "endpoints": 1,
+      "exports": 3,
+      "listenPorts": {
+        "0.0.0.0": 2049
+      },
+      "quotas": 0,
+      "rpcbindActive": true,
+      "rpcbindRequired": false,
+      "runtimeEndpoints": [
+        {
+          "exportsVisible": true,
+          "key": "0.0.0.0_2049",
+          "listenIp": "0.0.0.0",
+          "listening": true,
+          "logPath": "/run/ablestack-storage/ganesha/0.0.0.0_2049.log",
+          "pid": 222094,
+          "port": 2049,
+          "probeResults": [
+            {
+              "exportName": "common1453r5",
+              "exportUuid": "490cc35e-07d9-4a02-8e5e-0634f163fbc0",
+              "probes": [
+                {
+                  "mode": "NFSv4",
+                  "mountType": "nfs4",
+                  "options": "vers=4.1,proto=tcp,port=2049,ro,soft,timeo=1,retrans=1",
+                  "success": true,
+                  "target": "10.10.13.220:/common1453r5"
+                }
+              ],
+              "protocolMode": "V4_ONLY",
+              "pseudoPath": "/common1453r5",
+              "success": true,
+              "targetPath": "/export/common1453r5"
+            },
+            {
+              "exportName": "ad1453r5",
+              "exportUuid": "029d73b4-1baf-4ba9-8829-feb02582c7f2",
+              "probes": [
+                {
+                  "mode": "NFSv4",
+                  "mountType": "nfs4",
+                  "options": "vers=4.1,proto=tcp,port=2049,ro,soft,timeo=1,retrans=1",
+                  "success": true,
+                  "target": "10.10.13.220:/ad1453r5"
+                }
+              ],
+              "protocolMode": "V4_ONLY",
+              "pseudoPath": "/ad1453r5",
+              "success": true,
+              "targetPath": "/export/ad1453r5"
+            },
+            {
+              "exportName": "p1455-parent",
+              "exportUuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+              "probes": [
+                {
+                  "mode": "NFSv4",
+                  "mountType": "nfs4",
+                  "options": "vers=4.1,proto=tcp,port=2049,ro,soft,timeo=1,retrans=1",
+                  "success": true,
+                  "target": "10.10.13.220:/p1455-parent"
+                }
+              ],
+              "protocolMode": "V4_ONLY",
+              "pseudoPath": "/p1455-parent",
+              "success": true,
+              "targetPath": "/export/p1455-parent"
+            }
+          ],
+          "probeSuccess": true,
+          "processRunning": true,
+          "protocolMode": "V4_ONLY"
+        }
+      ],
+      "runtimeProbeFailures": [],
+      "runtimeProbeSuccess": true,
+      "runtimeReady": true,
+      "success": true
+    },
+    "returncode": 0
+  },
+  "runner-progress.json": {
+    "cancellationSupported": false,
+    "child": {
+      "boot": "f873c7b0-4703-4650-a809-9263cfc541aa",
+      "pid": 221918,
+      "start": "1415808"
+    },
+    "heartbeatAt": 1793457283.2250698,
+    "operation": "nfs export apply",
+    "softDeadlineAt": 1793457583.2249568,
+    "startedAt": 1793457283.2249568
+  },
+  "pathbindings.json": {
+    "before": {
+      "records": {
+        "9cc9628a-8a5a-4172-a92b-46d78f0610cf": {
+          "anchor": "/run/ablestack-storage/file-shares/9cc9628a-8a5a-4172-a92b-46d78f0610cf-9979ee6deb824d0d775c1dd5",
+          "pathIdentity": {
+            "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+            "inode": 152,
+            "volumeRootInode": 128
+          },
+          "protocol": "NFS",
+          "relativepath": "epic1455/projects",
+          "resourceuuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+          "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+        }
+      },
+      "version": 1
+    },
+    "bindings": {
+      "9cc9628a-8a5a-4172-a92b-46d78f0610cf": {
+        "pathIdentity": {
+          "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+          "inode": 152,
+          "volumeRootInode": 128
+        },
+        "relativepath": "epic1455/projects",
+        "resourceuuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+        "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+      }
+    },
+    "created": [],
+    "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "intents": [],
+    "operationid": "d00110d1-61f6-4187-bf69-3951eb391bda",
+    "plans": {
+      "9cc9628a-8a5a-4172-a92b-46d78f0610cf": {
+        "acl": "user::rwx\ngroup::rwx\nother::r-x\n\n",
+        "exists": true,
+        "filesystemuuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+        "inode": 152,
+        "missing": [],
+        "mode": "0775",
+        "mountid": 99,
+        "ownergid": 65534,
+        "owneruid": 65534,
+        "parents": [
+          {
+            "inode": 128,
+            "path": ""
+          },
+          {
+            "inode": 25165960,
+            "path": "epic1455"
+          }
+        ],
+        "physicalpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/epic1455/projects",
+        "relativepath": "epic1455/projects",
+        "rootinode": 128,
+        "volumemountpath": "/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277",
+        "volumeuuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+      }
+    },
+    "retained": [],
+    "version": 1
+  },
+  "logTail": [
+    "2026-10-31T14:35:11+00:00 command=inventory payload=",
+    "2026-10-31T14:35:12+00:00 command=sessions payload=",
+    "2026-10-31T14:35:22+00:00 command=network endpoints reconcile payload=",
+    "2026-10-31T14:35:22+00:00 command=health payload=",
+    "2026-10-31T14:35:22+00:00 command=inventory payload=",
+    "2026-10-31T14:35:23+00:00 command=sessions payload=",
+    "2026-10-31T14:35:33+00:00 command=network endpoints reconcile payload=",
+    "2026-10-31T14:35:33+00:00 command=health payload=",
+    "2026-10-31T14:35:33+00:00 command=inventory payload=",
+    "2026-10-31T14:35:33+00:00 command=sessions payload=",
+    "2026-10-31T14:35:44+00:00 command=network endpoints reconcile payload=",
+    "2026-10-31T14:35:44+00:00 command=health payload=",
+    "2026-10-31T14:35:44+00:00 command=inventory payload=",
+    "2026-10-31T14:35:44+00:00 command=sessions payload="
+  ]
+}

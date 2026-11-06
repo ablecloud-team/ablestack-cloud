@@ -1,0 +1,48 @@
+{
+  "result": {
+    "dynamicScalingRequired": false,
+    "effective": {
+      "cpunumber": 8,
+      "cpuspeed": 2000,
+      "memory": 16384
+    },
+    "guestParameters": {
+      "cpuNumber": "8",
+      "memory": "16384"
+    },
+    "inputs": {
+      "cpu": {
+        "field": "cpunumber",
+        "fixed": false,
+        "max": 8,
+        "min": 2
+      },
+      "memory": {
+        "field": "memory",
+        "fixed": false,
+        "max": 16384,
+        "min": 2048
+      },
+      "speed": {
+        "field": "cpuspeed",
+        "fixed": true,
+        "max": 2000,
+        "min": 2000
+      }
+    },
+    "mode": "ranged",
+    "params": {
+      "cpunumber": 8,
+      "memory": 16384
+    },
+    "reasons": [],
+    "rootPolicy": "sparse",
+    "selectable": false,
+    "valid": true
+  },
+  "selected": "fixture-range-only",
+  "values": {
+    "cpunumber": 8,
+    "memory": 16384
+  }
+}

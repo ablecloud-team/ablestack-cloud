@@ -1,0 +1,42 @@
+{
+  "time": 1792730143.8767948,
+  "journal": {
+    "bootId": "6fd69d30-5a50-471b-9cfb-5cc36a52b220",
+    "createdAt": 1792727903.2469923,
+    "deadlineAt": null,
+    "errorCode": null,
+    "filesystemUuid": "931059e8-29aa-4581-8381-275841550bc2",
+    "finishedAt": 1792729778.7834394,
+    "formatCount": 1,
+    "formatDeadlineAt": 1792729823.41203,
+    "formatEverStarted": true,
+    "formatStartedAt": 1792727903.41203,
+    "heartbeatAt": 1792729778.7834396,
+    "mountPath": "/srv/ablestack-storage/volumes/f77ce7e2-956d-4b56-b6d0-7774c30d02e5",
+    "observedFilesystem": "xfs",
+    "operationId": "f4853fa6-7dbd-345b-8377-747618861a7c",
+    "payload": {
+      "filesystem": "xfs",
+      "formatTimeoutSeconds": 1920,
+      "instanceUuid": "7e985d82-c973-4f7d-b25c-4d37572be751",
+      "operationId": "f4853fa6-7dbd-345b-8377-747618861a7c",
+      "rootVolumeUuid": "6aa9e350-6be5-43ad-ac4c-18b2d8397a08",
+      "vmUuid": "4e4bd682-8700-3b0c-8571-7790487d286d",
+      "volumeName": "sharedfs-DATA-122",
+      "volumeSizeBytes": 10995116277760,
+      "volumeUuid": "f77ce7e2-956d-4b56-b6d0-7774c30d02e5"
+    },
+    "phase": "PREPARED",
+    "phaseStartedAt": 1792729778.5537527,
+    "phaseTimeoutSeconds": 120,
+    "reason": null,
+    "startedAt": 1792727903.2469923,
+    "status": "PREPARED",
+    "unit": "ablestack-sharedfs-prepare-f4853fa6-7dbd-345b-8377-747618861a7c.service",
+    "version": 1,
+    "volumeUuid": "f77ce7e2-956d-4b56-b6d0-7774c30d02e5",
+    "workerPid": 5150,
+    "workerStartTicks": "13195"
+  },
+  "workerUnit": "Result=success\nActiveState=inactive\nSubState=dead\n"
+}

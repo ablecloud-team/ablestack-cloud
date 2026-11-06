@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"provisioning\": \"SPARSE\", \"checks\": [{\"name\": \"two actual daemons verify deliberate absence and ownership defaults\", \"passed\": true}, {\"name\": \"published sections verified on both actual listeners\", \"passed\": true}, {\"name\": \"missing published section remains blocked\", \"passed\": true}, {\"name\": \"unexpected publication cannot use waiting fallback\", \"passed\": true}, {\"name\": \"global force-group conflict remains blocked\", \"passed\": true}, {\"name\": \"data inode and empty directory preserved\", \"passed\": true}]}\n\n\n\n\n",
+  "stderr": ""
+}

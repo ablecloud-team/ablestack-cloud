@@ -1,0 +1,17 @@
+{
+  "getstorageserviceconfigurationoperationresponse": {
+    "configurationoperation": {
+      "id": "c46af534-b1cf-4d0a-b0cf-d3187fef3cf9",
+      "requestid": "775e54bc-4141-48a3-a850-769d27aa775f",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "originalfailure": {
+        "code": "VERIFY_FAILED",
+        "phase": "VERIFYING"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    }
+  }
+}

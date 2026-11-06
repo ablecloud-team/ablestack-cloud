@@ -1,0 +1,20 @@
+{
+  "state": "MainPID=3003800\nActiveState=active\n",
+  "jarSha256": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "uiIndexSha256": "e4a47cba8d2d7739f28bb6f177b08e2cd1868fa8a06e1a17b89d98d81a3c59cd",
+  "classes": {
+    "org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class": {
+      "sha256": "756663e2e2ea8c3cec8b22850b8b5da63c2d385b321b80cc9ea64c1d9926fa62"
+    },
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": {
+      "sha256": "bfd2d3b102c58d802c7043099993c7940bdb74256cea70ecc6364a5b78cbafc6"
+    },
+    "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class": {
+      "sha256": "266e6762ed6688cd5949084d86ed93556be3839e2b12d59cc7030e29deb9db3e"
+    },
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": {
+      "sha256": "6b6e3fc7b02566cf3bba72c4c359c019a9c165ebdbe621d9dd65e16d1b558ffe"
+    }
+  },
+  "sourceHead": "5584782db8c1d998623e2650902d3b2450d6031d"
+}

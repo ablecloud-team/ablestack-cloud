@@ -1,0 +1,109 @@
+{
+  "issue": 1455,
+  "epic": 1438,
+  "pr": 1470,
+  "status": "PASS",
+  "acceptance": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "sourceCommit": "e4de8529e57cb1f09ccdbfbc0841c3cd8abf059d",
+  "tests": {
+    "javaApi": 46,
+    "skipped": 0,
+    "nativeSystemVmBeforeImplementation": 6,
+    "modules": 26,
+    "redTest": "ClassCastException reproduced before fix"
+  },
+  "deployment": {
+    "sourceCommit": "e4de8529e57cb1f09ccdbfbc0841c3cd8abf059d",
+    "beforeSha256": "fa2a02d93f75d71773262759d8884cbcf165bd0d1fa8ff5052474451d4d92395",
+    "afterSha256": "9e55bac7f538941a481cba326e68ff5bf12d8701307649c8cbb79ae67aa1f153",
+    "changedEntries": [
+      "org/apache/cloudstack/storage/dataservice/StorageFileSharePaths.class"
+    ],
+    "unchangedEntriesByteCompared": 92556,
+    "classSha256": "06858c7e59b6de8eec30ac7fc8f741a7700ce5f35a762643a9b6f65782c8e677",
+    "databaseMigration": false,
+    "guestChanged": false,
+    "uiChanged": false,
+    "hostAgentChanged": false,
+    "service": "active"
+  },
+  "delete": {
+    "operation": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+    "request": "caf503d6-4ade-4381-805e-9fbb57d80027",
+    "state": "COMMITTED",
+    "base": 36,
+    "target": 37,
+    "result": true,
+    "newDeleteRequest": false
+  },
+  "intentionalFault": {
+    "operation": "be1417ba-c346-479f-b5e6-f838ad8d28a4",
+    "request": "f6d4a043-47e6-4393-ba51-97983b15f037",
+    "state": "ROLLED_BACK",
+    "rollback": "SUCCEEDED",
+    "expectedFailure": "PROTOCOL_APPLY_FAILED",
+    "faultRemoved": true
+  },
+  "restart": {
+    "vm": "actual Mold UI restart cleanup=false",
+    "job": "0ff86afc-efbb-474a-baf3-e1c09398cd65",
+    "jobstatus": 1,
+    "bootIdChanged": true,
+    "originalIp": "10.10.13.220",
+    "managementServiceRestart": true,
+    "managementOsReboot": false,
+    "historyRecordsPreserved": 42
+  },
+  "clientVerification": {
+    "clients": 2,
+    "source": "actual noVNC",
+    "nfsParentSibling": "PASS",
+    "smbPorts": [
+      445,
+      1445
+    ],
+    "crossReadWriteHashOwner": "PASS",
+    "mountsCleared": 4,
+    "runtimePasswordsCleared": true
+  },
+  "preservation": {
+    "old54Count": 54,
+    "old54Preserved": true,
+    "allPreRebootObjectsPreserved": true,
+    "configHashesSameAcrossRebootAndManagementRestart": true,
+    "filesystemSame": true,
+    "mac": "02:0d:00:cc:00:93",
+    "faultHookAbsent": true,
+    "newR4Files": [
+      "epic1455/projects/team-a/r4-c1.txt",
+      "epic1455/projects/team-a/r4-smb-c1.txt",
+      "epic1455/projects/team-a/r4-c2.txt",
+      "epic1455/projects/team-a/r4-smb-c2-445.txt",
+      "epic1455/projects/team-a/r4-smb-c2-1445.txt",
+      "epic1455/projects/team-a/r4-after-management.txt",
+      "epic1455/projects/team-b/r4-c1.txt"
+    ],
+    "old8Preserved": true,
+    "newR4ContentsMatchClientWrites": {
+      "team-a/r4-c1.txt": true,
+      "team-a/r4-smb-c1.txt": true,
+      "team-a/r4-c2.txt": true,
+      "team-a/r4-smb-c2-445.txt": true,
+      "team-a/r4-smb-c2-1445.txt": true,
+      "team-a/r4-after-management.txt": true,
+      "team-b/r4-c1.txt": true
+    }
+  },
+  "limits": [
+    "previous R3 acceptance evidence reused explicitly; not all earlier tests repeated",
+    "no new UI/guest/image/schema/host deployment in R4",
+    "display-only followups reserved for #1468",
+    "not whole Epic completion or whole repository CI"
+  ],
+  "nextIssue": 1456
+}

@@ -1,0 +1,11 @@
+{
+  "base": "31c147ca747f7a4ffc0380818bcd44887558a0c7",
+  "localBaseUpstreamDivergence": "0 0",
+  "productCommit": "e6bf899c47747a875ba36ec34889c5eb755096c1",
+  "schemaMigration": false,
+  "uiFocusedPassed": 62,
+  "guestFocusedPassed": 39,
+  "fullLiveAcceptance": "STOPPED_ON_AD_SMB_ENDPOINT_IN_USE",
+  "localFourCombinations": "PASS",
+  "issueState": "OPEN"
+}

@@ -1,0 +1,1104 @@
+{
+  "currentUiIndex": "2e637bd6eae3855b32a23028b9a669a69354e7d073bf6ac7b1e48b1dcd387bff",
+  "instances": [
+    {
+      "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+      "name": "epic1438-1444-rollback-20261023-01",
+      "vm": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+      "state": "Running",
+      "revision": 6,
+      "protection": false
+    },
+    {
+      "id": "419cecff-c03b-4216-91f1-ce53c17dd729",
+      "name": "epic1438-1445-1g-preflight-20261024",
+      "vm": "2f9185c4-b7e8-3c85-b308-8333b966cc22",
+      "state": "Running",
+      "revision": 3,
+      "protection": false
+    },
+    {
+      "id": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "name": "epic1438-1445-observer-new-20261024",
+      "vm": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+      "state": "Running",
+      "revision": 4,
+      "protection": false
+    }
+  ],
+  "operations": [
+    {
+      "status": 200,
+      "id": "3deafeac-7f64-4ba0-8bae-e69590179d84",
+      "instanceid": "419cecff-c03b-4216-91f1-ce53c17dd729",
+      "requestid": "1012d77e-32ee-4537-bad1-ed998b04d1a6",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 0,
+      "targetrevision": 1,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "a916d842-c2a7-49d8-a91a-8d10a3e3bea6",
+      "instanceid": "419cecff-c03b-4216-91f1-ce53c17dd729",
+      "requestid": "8e6df5e3-2579-48a2-ae34-1901c92f4e02",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "a916d842-c2a7-49d8-a91a-8d10a3e3bea6",
+      "instanceid": "419cecff-c03b-4216-91f1-ce53c17dd729",
+      "requestid": "8e6df5e3-2579-48a2-ae34-1901c92f4e02",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "a916d842-c2a7-49d8-a91a-8d10a3e3bea6",
+      "instanceid": "419cecff-c03b-4216-91f1-ce53c17dd729",
+      "requestid": "8e6df5e3-2579-48a2-ae34-1901c92f4e02",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "8474f5b0-d8cf-4be0-8cbd-6a1e4ec0bcbe",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7b8f8a4c-67bf-4750-9af6-32676cf94b76",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 0,
+      "targetrevision": 1,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "8474f5b0-d8cf-4be0-8cbd-6a1e4ec0bcbe",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7b8f8a4c-67bf-4750-9af6-32676cf94b76",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 0,
+      "targetrevision": 1,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "8474f5b0-d8cf-4be0-8cbd-6a1e4ec0bcbe",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7b8f8a4c-67bf-4750-9af6-32676cf94b76",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 0,
+      "targetrevision": 1,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "a15aebf8-b734-4612-ad4d-49fe4ed9db8f",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7e475459-26d9-4936-8c54-8c9d0b54040d",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "a15aebf8-b734-4612-ad4d-49fe4ed9db8f",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7e475459-26d9-4936-8c54-8c9d0b54040d",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "a15aebf8-b734-4612-ad4d-49fe4ed9db8f",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "7e475459-26d9-4936-8c54-8c9d0b54040d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "25b764af-7117-4db5-a772-b8907fd49b16",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "b64fd885-ca8f-436c-948a-a6770e8d5b53",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "25b764af-7117-4db5-a772-b8907fd49b16",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "b64fd885-ca8f-436c-948a-a6770e8d5b53",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "25b764af-7117-4db5-a772-b8907fd49b16",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "b64fd885-ca8f-436c-948a-a6770e8d5b53",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "0efe7cdc-5b3d-4462-962b-5b23aa0c3f99",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "57b97eea-b122-4694-afc1-09a7992f9e91",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "0efe7cdc-5b3d-4462-962b-5b23aa0c3f99",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "57b97eea-b122-4694-afc1-09a7992f9e91",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {
+        "phase": "PREFLIGHT",
+        "code": "MEMORY_LOW"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "status": 200,
+      "id": "372ceea8-574b-4354-9c98-bcb3d9faf197",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "372ceea8-574b-4354-9c98-bcb3d9faf197",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {},
+      "rollback": {},
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "372ceea8-574b-4354-9c98-bcb3d9faf197",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "workerActive": false
+    },
+    {
+      "status": 200,
+      "id": "372ceea8-574b-4354-9c98-bcb3d9faf197",
+      "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+      "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    }
+  ],
+  "mutationRequests": [
+    {
+      "id": "39028.6353",
+      "command": "createStorageNfsAcl",
+      "params": {
+        "command": "createStorageNfsAcl",
+        "response": "json",
+        "exportid": "8c1914cb-0918-4c8a-a575-18381fec3459",
+        "principaltype": "CIDR",
+        "principal": "10.10.0.0/16",
+        "permission": "READ_WRITE",
+        "rootsquash": "true",
+        "sync": "true",
+        "secure": "false",
+        "requestid": "8e6df5e3-2579-48a2-ae34-1901c92f4e02",
+        "impactack": "e3f7d2bf172b4e5dc0b92df7b15fc491aa88f54aaf1ef23a26f3ff41bf19d144"
+      }
+    },
+    {
+      "id": "39028.6620",
+      "command": "enableStorageServiceProtocol",
+      "params": {
+        "command": "enableStorageServiceProtocol",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "protocol": "NFS",
+        "port": "2049",
+        "protocolmode": "V4_ONLY",
+        "requestid": "7b8f8a4c-67bf-4750-9af6-32676cf94b76"
+      }
+    },
+    {
+      "id": "39028.6631",
+      "command": "createStorageNfsExport",
+      "params": {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "name": "r1445fresh",
+        "path": "/export/r1445fresh",
+        "volumeid": "b9c2f3b3-c905-4ee2-a0f0-86ff5547e2c5",
+        "filesystem": "xfs",
+        "importmode": "MOUNT_EXISTING",
+        "createdirectory": "true",
+        "protocolmode": "V4_ONLY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "deferapply": "true",
+        "requestid": "7e475459-26d9-4936-8c54-8c9d0b54040d"
+      }
+    },
+    {
+      "id": "39028.6696",
+      "command": "createStorageNfsAcl",
+      "params": {
+        "command": "createStorageNfsAcl",
+        "response": "json",
+        "exportid": "c1995bde-20e0-43ff-bc92-df71cfb8e8db",
+        "principaltype": "CIDR",
+        "principal": "10.10.0.0/16",
+        "permission": "READ_WRITE",
+        "rootsquash": "true",
+        "sync": "true",
+        "secure": "false",
+        "requestid": "b64fd885-ca8f-436c-948a-a6770e8d5b53",
+        "impactack": "b1eb691be56b732562c756c42eee7a6ac235c196fa8804f7db2767e10812fcf9"
+      }
+    },
+    {
+      "id": "39028.6840",
+      "command": "createVolume",
+      "params": {
+        "command": "createVolume",
+        "response": "json",
+        "name": "epic1438-1445-cache-draft-20261024",
+        "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+        "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+        "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+        "size": "20"
+      }
+    },
+    {
+      "id": "39028.6844",
+      "command": "createStorageNfsExport",
+      "params": {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "name": "r1445cache",
+        "path": "/export/r1445cache",
+        "createdirectory": "true",
+        "volumeid": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+        "filesystem": "xfs",
+        "protocolmode": "V4_ONLY",
+        "importmode": "FORMAT_EMPTY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "allsquash": "false",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "endpointmode": "LISTENER_GROUP",
+        "listenerports": "2049",
+        "cleanupvolumeonfailure": "true",
+        "requestid": "57b97eea-b122-4694-afc1-09a7992f9e91",
+        "expectedrevision": "3",
+        "impactack": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0"
+      }
+    },
+    {
+      "id": "39028.6920",
+      "command": "createStorageNfsExport",
+      "params": {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "name": "r1445cache",
+        "path": "/export/r1445cache",
+        "createdirectory": "true",
+        "volumeid": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+        "filesystem": "xfs",
+        "protocolmode": "V4_ONLY",
+        "importmode": "FORMAT_EMPTY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "allsquash": "false",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "endpointmode": "LISTENER_GROUP",
+        "listenerports": "2049",
+        "cleanupvolumeonfailure": "true",
+        "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+        "expectedrevision": "3",
+        "impactack": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0"
+      }
+    }
+  ],
+  "preflightReports": [
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T20:45:36+0900",
+        "expiresat": "2026-10-24T20:46:06+0900",
+        "fingerprint": "e3f7d2bf172b4e5dc0b92df7b15fc491aa88f54aaf1ef23a26f3ff41bf19d144",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 825675776,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2653638656,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230497
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T20:46:13+0900",
+        "expiresat": "2026-10-24T20:46:43+0900",
+        "fingerprint": "e3f7d2bf172b4e5dc0b92df7b15fc491aa88f54aaf1ef23a26f3ff41bf19d144",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 816316416,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2653614080,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230497
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 0,
+        "observedat": "2026-10-24T20:54:00+0900",
+        "expiresat": "2026-10-24T20:54:30+0900",
+        "fingerprint": "56093835bc7a1942f55c8b1b511c8e39257299811ace93c10d13a121a5fa546e",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 814813184,
+            "requiredbytes": 218276272
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655543296,
+            "requiredbytes": 83929196,
+            "readonly": false,
+            "freeinodes": 230521
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "ONLINE",
+          "affectedcount": 0,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": false,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 1,
+        "observedat": "2026-10-24T20:54:10+0900",
+        "expiresat": "2026-10-24T20:54:40+0900",
+        "fingerprint": "cdf09091b3b9a1c1a33bce4082898254b5d3630a68267cdb0b93da2981964a80",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 820711424,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655457280,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230502
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "ONLINE",
+          "affectedcount": 0,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": false,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T20:54:22+0900",
+        "expiresat": "2026-10-24T20:54:52+0900",
+        "fingerprint": "b1eb691be56b732562c756c42eee7a6ac235c196fa8804f7db2767e10812fcf9",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 824901632,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655416320,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230497
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T20:55:55+0900",
+        "expiresat": "2026-10-24T20:56:25+0900",
+        "fingerprint": "b1eb691be56b732562c756c42eee7a6ac235c196fa8804f7db2767e10812fcf9",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 814919680,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655363072,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230497
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T20:57:11+0900",
+        "expiresat": "2026-10-24T20:57:41+0900",
+        "fingerprint": "b1eb691be56b732562c756c42eee7a6ac235c196fa8804f7db2767e10812fcf9",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 821174272,
+            "requiredbytes": 218276336
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655330304,
+            "requiredbytes": 83929212,
+            "readonly": false,
+            "freeinodes": 230497
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 3,
+        "observedat": "2026-10-24T21:02:32+0900",
+        "expiresat": "2026-10-24T21:03:02+0900",
+        "fingerprint": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 754966528,
+            "requiredbytes": 218292272
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2655059968,
+            "requiredbytes": 83933196,
+            "readonly": false,
+            "freeinodes": 230481
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 3,
+        "observedat": "2026-10-24T21:06:27+0900",
+        "expiresat": "2026-10-24T21:06:57+0900",
+        "fingerprint": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 754843648,
+            "requiredbytes": 218292272
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2654932992,
+            "requiredbytes": 83933196,
+            "readonly": false,
+            "freeinodes": 230481
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 0
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 0,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    }
+  ],
+  "volumes": [
+    {
+      "id": "b9c2f3b3-c905-4ee2-a0f0-86ff5547e2c5",
+      "name": "sharedfs-DATA-131",
+      "type": "DATADISK",
+      "state": "Ready",
+      "vm": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+      "provisioningtype": "sparse",
+      "size": 21474836480
+    },
+    {
+      "id": "019587f4-2e6a-42be-95aa-278a270fa806",
+      "name": "sharedfs-ROOT-131",
+      "type": "ROOT",
+      "state": "Ready",
+      "vm": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+      "provisioningtype": "sparse",
+      "size": 5242880000
+    },
+    {
+      "id": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+      "name": "epic1438-1445-cache-draft-20261024",
+      "type": "DATADISK",
+      "state": "Ready",
+      "vm": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+      "provisioningtype": "sparse",
+      "size": 21474836480
+    }
+  ],
+  "cache": {
+    "volume": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+    "createVolumeCount": 1,
+    "attempts": [
+      {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "name": "r1445cache",
+        "path": "/export/r1445cache",
+        "createdirectory": "true",
+        "volumeid": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+        "filesystem": "xfs",
+        "protocolmode": "V4_ONLY",
+        "importmode": "FORMAT_EMPTY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "allsquash": "false",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "endpointmode": "LISTENER_GROUP",
+        "listenerports": "2049",
+        "cleanupvolumeonfailure": "true",
+        "requestid": "57b97eea-b122-4694-afc1-09a7992f9e91",
+        "expectedrevision": "3",
+        "impactack": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0"
+      },
+      {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "3e09d4ea-92c2-42ad-8a08-f6dd6fe0b249",
+        "name": "r1445cache",
+        "path": "/export/r1445cache",
+        "createdirectory": "true",
+        "volumeid": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+        "filesystem": "xfs",
+        "protocolmode": "V4_ONLY",
+        "importmode": "FORMAT_EMPTY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "allsquash": "false",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "endpointmode": "LISTENER_GROUP",
+        "listenerports": "2049",
+        "cleanupvolumeonfailure": "true",
+        "requestid": "02c2990a-4305-4679-97be-20049417e53a",
+        "expectedrevision": "3",
+        "impactack": "7eccf5c96c73bc2d7e6240830e2d4905848b767ccf0b5362ac359f6c89f554f0"
+      }
+    ]
+  }
+}

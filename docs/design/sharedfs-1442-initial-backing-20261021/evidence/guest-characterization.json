@@ -1,0 +1,516 @@
+{
+  "kind": "design-only characterization of deployed-identical code with all process/filesystem I/O stubbed; not real-volume import acceptance",
+  "sourceSha256": "c48dea1de2a4637292a26185af18a0bcd8aa6a1105a41269e92df371c107ca27",
+  "cases": [
+    {
+      "fixtureFilesystem": "xfs",
+      "mode": "MOUNT_EXISTING",
+      "expected": "xfs",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "xfs",
+        "filesystemSupported": true,
+        "filesystemUuid": "design-filesystem-uuid",
+        "fsUuid": "design-filesystem-uuid",
+        "importMode": "MOUNT_EXISTING",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.622707Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": true,
+        "relativeSharePath": "export/design1442",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "TARGET",
+            "--source",
+            "/dev/sdb"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "mount",
+            "/dev/sdb",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        },
+        {
+          "operation": "persist_mount_stub",
+          "device": "/dev/sdb",
+          "filesystem": "xfs"
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442"
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": "ext4",
+      "mode": "MOUNT_EXISTING",
+      "expected": "xfs",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "ext4",
+        "filesystemSupported": true,
+        "filesystemUuid": "design-filesystem-uuid",
+        "fsUuid": "design-filesystem-uuid",
+        "importMode": "MOUNT_EXISTING",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.623340Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": true,
+        "relativeSharePath": "export/design1442",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "TARGET",
+            "--source",
+            "/dev/sdb"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "mount",
+            "/dev/sdb",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        },
+        {
+          "operation": "persist_mount_stub",
+          "device": "/dev/sdb",
+          "filesystem": "ext4"
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442"
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": null,
+      "mode": "INSPECT_ONLY",
+      "expected": "xfs",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "xfs",
+        "filesystemSupported": true,
+        "filesystemUuid": "",
+        "fsUuid": "",
+        "importMode": "INSPECT_ONLY",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.623748Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": false,
+        "relativeSharePath": "export/design1442",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "blkid",
+            "-s",
+            "UUID",
+            "-o",
+            "value",
+            "/dev/sdb"
+          ]
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442"
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": null,
+      "mode": "MOUNT_EXISTING",
+      "expected": "xfs",
+      "result": null,
+      "error": "design fake: blank disk cannot mount",
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "SOURCE",
+            "--mountpoint",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "findmnt",
+            "-n",
+            "-o",
+            "TARGET",
+            "--source",
+            "/dev/sdb"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "mount",
+            "/dev/sdb",
+            "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+          ]
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": "xfs",
+      "mode": "INSPECT_ONLY",
+      "expected": "xfs",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "xfs",
+        "filesystemSupported": true,
+        "filesystemUuid": "design-filesystem-uuid",
+        "fsUuid": "design-filesystem-uuid",
+        "importMode": "INSPECT_ONLY",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.624499Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": false,
+        "relativeSharePath": "export/design1442",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "blkid",
+            "-s",
+            "UUID",
+            "-o",
+            "value",
+            "/dev/sdb"
+          ]
+        },
+        {
+          "operation": "mkdir_stub",
+          "path": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910/export/design1442"
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": "xfs",
+      "mode": "INSPECT_ONLY",
+      "expected": "auto",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "xfs",
+        "filesystemSupported": true,
+        "filesystemUuid": "design-filesystem-uuid",
+        "fsUuid": "design-filesystem-uuid",
+        "importMode": "INSPECT_ONLY",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.624856Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": false,
+        "relativeSharePath": "",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "blkid",
+            "-s",
+            "UUID",
+            "-o",
+            "value",
+            "/dev/sdb"
+          ]
+        }
+      ],
+      "formatted": false
+    },
+    {
+      "fixtureFilesystem": null,
+      "mode": "INSPECT_ONLY",
+      "expected": "auto",
+      "result": {
+        "backingPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "bootId": "",
+        "devicePath": "/dev/sdb",
+        "filesystem": "auto",
+        "filesystemSupported": false,
+        "filesystemUuid": "",
+        "fsUuid": "",
+        "importMode": "INSPECT_ONLY",
+        "matchedBy": "VOLUME_SERIAL",
+        "mountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "observedAt": "2026-10-21T12:47:29.625336Z",
+        "observedDevicePath": "/dev/sdb",
+        "persistentMount": false,
+        "relativeSharePath": "",
+        "schemaVersion": 2,
+        "serial": "3af8261e687744798815",
+        "status": "ok",
+        "success": true,
+        "volumeMountPath": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+        "volumeUuid": "3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      "error": null,
+      "operations": [
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "lsblk",
+            "-b",
+            "-J",
+            "-o",
+            "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"
+          ]
+        },
+        {
+          "operation": "command_stub",
+          "command": [
+            "blkid",
+            "-s",
+            "UUID",
+            "-o",
+            "value",
+            "/dev/sdb"
+          ]
+        }
+      ],
+      "formatted": false
+    }
+  ],
+  "checksPassed": 7,
+  "changesToGuest": false
+}

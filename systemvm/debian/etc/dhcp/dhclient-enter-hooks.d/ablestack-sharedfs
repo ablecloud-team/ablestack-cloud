@@ -1,0 +1,10 @@
+# SharedFS owns only the NIC identified by its protected STATIC policy.
+# Sourced by Debian dhclient-script; return is ignored there, so stop the script.
+case "${reason:-}" in
+  PREINIT|BOUND|RENEW|REBIND|REBOOT|EXPIRE|FAIL|STOP)
+    if [ -x /usr/local/sbin/ablestack-sharedfs-network ] &&
+       /usr/local/sbin/ablestack-sharedfs-network --dhcp-guard "${interface:-}"; then
+      exit 0
+    fi
+    ;;
+esac

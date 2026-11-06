@@ -1,0 +1,63 @@
+{
+  "case": "10TiB XFS",
+  "sharedfs": "51af1393-16c3-4b40-ac9c-65d4e732c454",
+  "vm": "349f24c3-0804-3d1f-b3e1-ab39112a94bd",
+  "domain": "i-2-124-VM",
+  "host": "10.10.13.2",
+  "root": "8a6a2385-22dc-4bbf-b926-e16af787d38d",
+  "data": "6aa40e0d-83e4-4382-a1cd-652fc2733247",
+  "ip": "10.10.13.251",
+  "request": "64673061-a1ea-4a79-b27d-61da21020e66",
+  "initialJob": "cb902a94-f01b-4807-81cc-8439e41e17ae",
+  "op": "281dc801-5d40-3db4-bd9b-475cf78d4243",
+  "formatStartedAt": 1792733285.2201574,
+  "formatDeadlineAt": 1792735205.2201574,
+  "rootPolicy": "SPARSE",
+  "dataPolicy": "SPARSE",
+  "nfs": "f10xn",
+  "smb": "f10xs",
+  "template": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+  "managementRestartDuringFormatting": true,
+  "stage": "PASS; own VM/ROOT/DATA fully cleaned",
+  "time": 1792733485.929721,
+  "fsUuid": "7de22fd1-2e52-4f4e-a44a-185b7926a809",
+  "formatDurationSeconds": 1869.503494977951,
+  "formatCount": 1,
+  "filesBefore": [
+    {
+      "path": "/export/f10xn/preserve.txt",
+      "sha256": "4387147380d3f82f451d09d69e6944b3b2eb4e5441bbb679bffe2e832455ec26",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640"
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/6aa40e0d-83e4-4382-a1cd-652fc2733247/export/f10xn/preserve.txt",
+      "sha256": "4387147380d3f82f451d09d69e6944b3b2eb4e5441bbb679bffe2e832455ec26",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640"
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/6aa40e0d-83e4-4382-a1cd-652fc2733247/export/f10xs/preserve.txt",
+      "sha256": "860a5928964d08dd30d2d546728d9644d8ab6b5b33440ec696c517a9cf4690bd",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660"
+    }
+  ],
+  "vmRestartJob": "a6de3672-ff3d-4ec1-8cd7-3ccb19db91a2",
+  "checks": {
+    "freshVmRootData": true,
+    "rootDataSparse": true,
+    "managementRestartDuringFormatting": true,
+    "uiResumeSameRequestOperation": true,
+    "sameFsUuid": true,
+    "formatCountOne": true,
+    "vmBootChanged": true,
+    "sameIp": true,
+    "nfsSmbReadWriteAfterRestart": true,
+    "fileShaOwnershipModePreserved": true
+  },
+  "result": "PASS"
+}

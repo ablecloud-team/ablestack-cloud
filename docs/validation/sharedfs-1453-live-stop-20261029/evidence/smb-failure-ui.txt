@@ -1,0 +1,48 @@
+SMB 공유 생성
+이전 설정 원복 완료
+이전 설정으로 원복했습니다. 시도한 입력은 유지되며 확인을 누르면 새 요청으로 제출됩니다.
+요청 식별자	bc94baf8-a797-4bbb-8174-ffce9d5f44d0
+진행 단계	완료
+아이디	1aae5145-4a9e-4403-b7c3-0ab63d0b6d17
+최초 실패	PROTOCOL_APPLY_FAILED · 적용
+원복 결과	원복 확인 성공
+업데이트
+공통 POSIX 정책 참조
+/export/common1453 · 65534:65534 / 0775 · da246f5b-90fe-46b6-b9dd-70e4f7ea88bf
+POSIX 권한은 공통 정책을 상속합니다. 이 요청은 독립 POSIX 필드를 제출하지 않습니다.
+이름
+클라이언트 별칭 경로
+백킹 볼륨
+백킹 볼륨 선택
+현재 백킹 볼륨
+기존 볼륨
+새 볼륨 생성
+현재 백킹 볼륨
+sharedfs-DATA-185 / 10.0 GiB / /srv/ablestack-storage/volumes/da246f5b-90fe-46b6-b9dd-70e4f7ea88bf / common1453
+마운트 경로
+/srv/ablestack-storage/volumes/da246f5b-90fe-46b6-b9dd-70e4f7ea88bf
+연결된 내보내기
+common1453
+디렉터리가 없으면 생성
+SMB 공유 용량 제한
+GiB
+NFS와 같은 경로 공유
+디렉터리 권한
+읽기 전용
+탐색 허용
+게스트 접근
+새 객체의 소유권
+부모 UID 상속 (inherit owner)
+생성자 UID 유지
+
+새 SMB 파일·디렉터리의 UNIX UID와 Windows owner가 바로 위 부모를 따릅니다. 로그인·공유 ACL과 기존 파일 소유자는 바꾸지 않습니다.
+
+현재 실제 부모	65534:65534 / 0775
+부모 GID 상속 (setgid)	미사용 공유 디렉터리에서 관리
+새 객체 UID	생성자 UID 유지
+새 객체 GID	생성자 GID 유지
+
+기존 하위 디렉터리·파일의 owner·mode·ACL·데이터는 자동 변경하지 않습니다. 새 객체는 현재 부모의 권한과 기존 생성 mask를 따릅니다.
+
+취소
+사전 점검

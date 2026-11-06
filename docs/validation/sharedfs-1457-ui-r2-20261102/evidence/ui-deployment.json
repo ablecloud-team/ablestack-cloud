@@ -1,0 +1,15 @@
+{
+  "paths": [
+    "index.html",
+    "css/chunk-719036b0.119c4973.css",
+    "js/chunk-719036b0.511758ff.js.map",
+    "js/chunk-719036b0.511758ff.js",
+    "js/app.3827be93.js.map",
+    "js/app.3827be93.js"
+  ],
+  "indexSha256": "f68719a8d5e9984218d813b367227b177c1a977b6b1df9583cdb85ef8f14b95e",
+  "httpSha256": "f68719a8d5e9984218d813b367227b177c1a977b6b1df9583cdb85ef8f14b95e",
+  "configPreserved": true,
+  "colorPreserved": true,
+  "managementRestart": false
+}

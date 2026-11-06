@@ -1,0 +1,133 @@
+{
+  "operations": [
+    {
+      "id": "b894c4d7-bfa4-4746-af43-dd8407580390",
+      "requestid": "9f1627f4-9f79-4b8f-8210-ef99134215b1",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 47,
+      "targetrevision": 48,
+      "created": "2026-11-02T10:14:53+0900",
+      "updated": "2026-11-02T10:15:04+0900",
+      "completed": "2026-11-02T10:15:04+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "36d5aff5-757a-40fe-8ca2-ea303baf9914",
+      "requestid": "686594b4-5f0f-4928-9f3e-0ccfddfc0db1",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 48,
+      "targetrevision": 49,
+      "created": "2026-11-02T10:16:38+0900",
+      "updated": "2026-11-02T10:16:49+0900",
+      "completed": "2026-11-02T10:16:49+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "0d14c8be-a437-4ccc-ba87-93d65e4831f8",
+      "requestid": "cb0eaf1d-5be2-4c8a-8f3e-c84fa32f1aa9",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 49,
+      "targetrevision": 50,
+      "created": "2026-11-02T10:18:36+0900",
+      "updated": "2026-11-02T10:18:47+0900",
+      "completed": "2026-11-02T10:18:47+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "0746c1b5-2467-4fae-aafb-1c20d28d96c7",
+      "requestid": "64af79d0-b031-42de-b7fb-281167323af7",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 50,
+      "targetrevision": 51,
+      "created": "2026-11-02T10:19:16+0900",
+      "updated": "2026-11-02T10:19:26+0900",
+      "completed": "2026-11-02T10:19:26+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "f4d86516-dfb0-4de1-9376-9f44a4833714",
+      "requestid": "f3c9127f-2b3f-4883-bb54-676d2ac05284",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 51,
+      "targetrevision": 52,
+      "created": "2026-11-02T10:19:57+0900",
+      "updated": "2026-11-02T10:20:06+0900",
+      "completed": "2026-11-02T10:20:06+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "7181e585-1967-4cbb-8bfa-e0133490ab5a",
+      "requestid": "ca46095a-2551-47bc-b996-d0f06b25b009",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 53,
+      "targetrevision": 54,
+      "created": "2026-11-02T10:21:35+0900",
+      "updated": "2026-11-02T10:21:43+0900",
+      "completed": "2026-11-02T10:21:43+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "4990755c-b883-4a98-8bcc-2fe193af458a",
+      "requestid": "a735d33b-a740-4ad6-a7d6-9ccf72ed6ddb",
+      "protocol": "NFS",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 52,
+      "targetrevision": 53,
+      "created": "2026-11-02T10:20:31+0900",
+      "updated": "2026-11-02T10:20:40+0900",
+      "completed": "2026-11-02T10:20:40+0900",
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "id": "ca96e9dd-f4d1-45fa-b61d-1837f66a0766",
+      "name": "p1457-parent",
+      "path": "/export/p1457-parent",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "mode": null,
+      "owneruid": null,
+      "ownergid": null,
+      "policyrevision": null
+    },
+    {
+      "id": "27515d7a-bb71-4cba-b429-2cae3ab4ade9",
+      "name": "p1457-child",
+      "path": "/export/p1457-child",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "mode": null,
+      "owneruid": null,
+      "ownergid": null,
+      "policyrevision": null
+    }
+  ],
+  "smbCreateRequests": 0,
+  "sourcePolicyMutationRequests": 0
+}

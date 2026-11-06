@@ -1,0 +1,63 @@
+{
+  "success": true,
+  "vmUuid": "ac18af87-5354-3c07-b8d9-5a627b46ede0",
+  "volumeUuid": "da246f5b-90fe-46b6-b9dd-70e4f7ea88bf",
+  "provisioning": "SPARSE",
+  "kind": "unmodified full product CLI/native bindings with candidate executable dispatch",
+  "cases": [
+    {
+      "flag": "omitted",
+      "state": "VERIFIED",
+      "inheritOwnerValues": [
+        "no"
+      ],
+      "directCliPreview": true,
+      "parent": {
+        "uid": 100001,
+        "gid": 200001,
+        "mode": "0775",
+        "inode": 25165952
+      },
+      "duplicateDidNotApply": true
+    },
+    {
+      "flag": "false",
+      "state": "VERIFIED",
+      "inheritOwnerValues": [
+        "no"
+      ],
+      "directCliPreview": true,
+      "parent": {
+        "uid": 100001,
+        "gid": 200001,
+        "mode": "0775",
+        "inode": 25165952
+      },
+      "duplicateDidNotApply": true
+    },
+    {
+      "flag": "true",
+      "state": "VERIFIED",
+      "inheritOwnerValues": [
+        "windows and unix"
+      ],
+      "directCliPreview": true,
+      "parent": {
+        "uid": 100001,
+        "gid": 200001,
+        "mode": "0775",
+        "inode": 25165952
+      },
+      "duplicateDidNotApply": true
+    },
+    {
+      "flag": "injected-peer-failure",
+      "state": "ROLLED_BACK",
+      "rollback": "SUCCEEDED"
+    }
+  ],
+  "protectedStatePreserved": true,
+  "temporaryDataRemoved": true,
+  "installedStoragectlUnchanged": true,
+  "nativeStderrTail": "captured; no unexpected command failure"
+}

@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"removed\": true, \"markerConsumed\": true, \"unitActiveAfterAutomaticRollback\": \"active\", \"restartExecutedByHarness\": false, \"expectedJournal\": [\"Nov 01 04:10:22 sharedfs-d9c423e9-ce89-3ba9-9cd8-f48cdb791da2 sh[976831]: EPIC1455_EXPECTED_ONE_SHOT_START_FAILURE\", \"Nov 01 04:10:22 sharedfs-d9c423e9-ce89-3ba9-9cd8-f48cdb791da2 systemd[1]: ablestack-storage-ganesha@0.0.0.0_2049.service: Control process exited, code=exited, status=1/FAILURE\", \"Nov 01 04:10:23 sharedfs-d9c423e9-ce89-3ba9-9cd8-f48cdb791da2 systemd[1]: Started ablestack-storage-ganesha@0.0.0.0_2049.service - ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2049.\"]}\n",
+  "stderr": ""
+}

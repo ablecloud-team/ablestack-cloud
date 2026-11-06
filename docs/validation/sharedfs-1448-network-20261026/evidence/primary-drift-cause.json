@@ -1,0 +1,20 @@
+{
+  "managementLog": "2026-10-26 03:11:58,783 DEBUG [c.c.v.U.VmIpAddrFetchThread] (vmIpFetchThread-2:[ctx-0e499b16]) (logid:8801b17f) Trying IP retrieval for Instance [ID: 132, UUID: 867bfbfb-e370-345d-b5f9-ccd20d044219, name: i-2-132-VM], NIC Nic {\"broadcastUri\":\"vlan:\\/\\/untagged\",\"deviceId\":0,\"iPv4Address\":\"10.10.13.233\",\"id\":161,\"instanceId\":132,\"reservationId\":\"2441eb87-5880-4a42-ab5c-642764104fbc\",\"uuid\":\"28d84ba2-9efe-4239-9ba5-f928fe256bdd\"}\n2026-10-26 03:11:58,802 DEBUG [c.c.v.U.VmIpAddrFetchThread] (vmIpFetchThread-2:[ctx-0e499b16]) (logid:8801b17f) Instance [ID: 132, UUID: 867bfbfb-e370-345d-b5f9-ccd20d044219, name: i-2-132-VM] - IP 10.10.13.233 retrieved successfully\n2026-10-26 03:53:58,799 DEBUG [c.c.v.U.VmIpAddrFetchThread] (vmIpFetchThread-3:[ctx-822fda78]) (logid:af1ddb4e) Trying IP retrieval for Instance [ID: 132, UUID: 867bfbfb-e370-345d-b5f9-ccd20d044219, name: i-2-132-VM], NIC Nic {\"broadcastUri\":\"vlan:\\/\\/untagged\",\"deviceId\":0,\"iPv4Address\":\"10.10.13.233\",\"id\":161,\"instanceId\":132,\"reservationId\":\"4b3a980c-7f7b-4e09-86e0-d233556d3be1\",\"uuid\":\"28d84ba2-9efe-4239-9ba5-f928fe256bdd\"}\n2026-10-26 03:53:58,820 DEBUG [c.c.v.U.VmIpAddrFetchThread] (vmIpFetchThread-3:[ctx-822fda78]) (logid:af1ddb4e) Instance [ID: 132, UUID: 867bfbfb-e370-345d-b5f9-ccd20d044219, name: i-2-132-VM] - IP 10.10.13.235 retrieved successfully\n\n\n",
+  "hostObservation": {
+    "domifaddr": " Name       MAC address          Protocol     Address\n-------------------------------------------------------------------------------\n lo         00:00:00:00:00:00    ipv4         127.0.0.1/8\n eth0       02:0d:00:cc:00:57    ipv4         10.10.13.233/16\n -          -                    ipv4         10.10.13.235/16\n\n",
+    "wrapperSha256": "feb092bbc1f0641599df942af753a5b640e6415c38d28b4caf60bfbd798e4869"
+  },
+  "source": [
+    {
+      "path": "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtGetVmIpAddressCommandWrapper.java",
+      "lines": "93-140",
+      "defect": "getIpAddresses overwrites IPv4 for every continuation row; returns last alias."
+    },
+    {
+      "path": "server/src/main/java/com/cloud/vm/UserVmManagerImpl.java",
+      "lines": "1023-1038",
+      "defect": "VmIpAddrFetchThread writes returned IPv4 without STATIC or alias ownership protection."
+    }
+  ],
+  "fixed": false
+}

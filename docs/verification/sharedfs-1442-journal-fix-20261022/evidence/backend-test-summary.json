@@ -1,0 +1,86 @@
+{
+  "suites": [
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingCatalogCmdTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.273"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibilityTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.356"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationContextTest",
+      "tests": "17",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.503"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.dao.SharedFSCreationDaoRoundTripTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.717"
+    },
+    {
+      "name": "com.cloud.upgrade.dao.EuropaSharedFSCreationUpgradeTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.474"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServiceInitialBackingTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.36"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.368"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.609"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+      "tests": "36",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.292"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "6.899"
+    }
+  ],
+  "totalTests": 109,
+  "realDaoMariaDbTests": 4
+}

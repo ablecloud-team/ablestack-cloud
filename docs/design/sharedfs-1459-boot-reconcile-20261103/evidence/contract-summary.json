@@ -1,0 +1,92 @@
+{
+  "success": true,
+  "runtime": "1458.capacity.1",
+  "checks": [
+    {
+      "name": "deployed probe sequential cost for 1/10/100 actual function (injected successful subprocess responses)",
+      "matrix": [
+        {
+          "exports": 1,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "mountCalls": 2,
+          "unmountCalls": 2,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 30,
+          "under120SecondUnitIfEachMountTakes1Second": true
+        },
+        {
+          "exports": 1,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "mountCalls": 2,
+          "unmountCalls": 2,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 30,
+          "under120SecondUnitIfEachMountTakes1Second": true
+        },
+        {
+          "exports": 10,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "mountCalls": 20,
+          "unmountCalls": 20,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 300,
+          "under120SecondUnitIfEachMountTakes1Second": true
+        },
+        {
+          "exports": 10,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "mountCalls": 20,
+          "unmountCalls": 20,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 300,
+          "under120SecondUnitIfEachMountTakes1Second": true
+        },
+        {
+          "exports": 100,
+          "mode": "V4_ONLY",
+          "listeners": 2,
+          "mountCalls": 200,
+          "unmountCalls": 200,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 3000,
+          "under120SecondUnitIfEachMountTakes1Second": false
+        },
+        {
+          "exports": 100,
+          "mode": "V3V4_DUAL",
+          "listeners": 1,
+          "mountCalls": 200,
+          "unmountCalls": 200,
+          "fixedMountTimeoutSeconds": 15,
+          "sequentialWorstMountSeconds": 3000,
+          "under120SecondUnitIfEachMountTakes1Second": false
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "deployed timeout escapes before a diagnostic row and skips unmount attempt",
+      "passed": true,
+      "exception": "TimeoutExpired",
+      "unmountCalls": 0,
+      "diagnosticRows": 0
+    },
+    {
+      "name": "deployed orchestrator repeats successful protocols after one NFS failure",
+      "passed": true,
+      "calls": {
+        "nfs export": 2,
+        "smb share": 2,
+        "iscsi target": 2,
+        "nvmeof subsystem": 2
+      },
+      "scope": "copy only; all command side effects replaced"
+    }
+  ],
+  "productionWrites": 0,
+  "kind": "design-only fault injection; not product acceptance"
+}

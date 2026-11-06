@@ -1,0 +1,34 @@
+{
+  "request": "3f6256ca-dbf8-4fc8-8e0f-ff8fc81445ae",
+  "allUnchangedPosixOmitted": true,
+  "wire": {
+    "command": "updateStorageNfsExport",
+    "params": {
+      "command": "updateStorageNfsExport",
+      "response": "json",
+      "id": "2a11cb26-85cf-4e31-b15a-ea8054155fff",
+      "name": "e1451",
+      "path": "/export/e1451",
+      "createdirectory": "true",
+      "volumeid": "78396639-cab6-46a8-9999-89f991abbd01",
+      "filesystem": "xfs",
+      "protocolmode": "V4_ONLY",
+      "importmode": "MOUNT_EXISTING",
+      "readonly": "false",
+      "rootsquash": "true",
+      "allsquash": "false",
+      "sync": "true",
+      "secure": "false",
+      "endpointmode": "LISTENER_GROUP",
+      "listenerports": "2049,2050",
+      "requestid": "3f6256ca-dbf8-4fc8-8e0f-ff8fc81445ae",
+      "expectedrevision": "5",
+      "impactack": "5604a2101e116f0d5731f043cfa232c846132db701ddadbe23017ae5e1b12670"
+    },
+    "body": {
+      "updatestoragenfsexportresponse": {
+        "jobid": "8490efda-6c6a-4bda-b7c1-ddd5a42707eb"
+      }
+    }
+  }
+}

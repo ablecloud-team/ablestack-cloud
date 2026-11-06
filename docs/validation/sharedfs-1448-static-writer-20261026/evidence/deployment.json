@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "beforeSha256": "2318725d7316e225e5df5215482f8f948ee95502d856d3f33f120d83483eac31",
+  "deployedSha256": "bc7044751fe17b4f382cab05c9dd56a788fe3bcbad3ae6132981114304fc9da7",
+  "classEntries": 27,
+  "unrelatedEntriesPreserved": true,
+  "oldPid": "3829808",
+  "newPid": "3875286",
+  "schemaChanged": false,
+  "uiChanged": false,
+  "guestRestarted": false,
+  "rollbackPerformed": false
+}

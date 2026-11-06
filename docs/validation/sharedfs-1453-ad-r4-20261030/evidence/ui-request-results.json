@@ -1,0 +1,787 @@
+{
+  "receipts": [
+    {
+      "command": "createSharedFileSystem",
+      "request": {
+        "command": "createSharedFileSystem",
+        "response": "json",
+        "name": "epic1438-1453-ad-20261030-r4",
+        "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+        "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+        "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+        "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+        "size": "10",
+        "filesystem": "XFS",
+        "requestid": "709b9cdf-52ad-41d7-98e9-368d8a690e99",
+        "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "networkmode": "STATIC",
+        "ipcidr": "10.10.13.248/16",
+        "gateway": "10.10.0.1",
+        "dns1": "10.10.13.247",
+        "initialfilebacking": "true"
+      },
+      "wire": {
+        "createsharedfilesystemresponse": {
+          "id": "103e9ee0-d7d1-4d0b-9e76-79056d0a006c",
+          "jobid": "bbe12149-17b6-4578-bc7c-4be074ebc0a8"
+        }
+      }
+    },
+    {
+      "command": "createStorageNfsExport",
+      "request": {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "name": "common1453r4",
+        "path": "/export/common1453r4",
+        "volumeid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+        "filesystem": "xfs",
+        "importmode": "MOUNT_EXISTING",
+        "createdirectory": "true",
+        "protocolmode": "V4_ONLY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "deferapply": "true",
+        "requestid": "c75c6bde-d2a4-4b14-9fa3-ce4c32e2b635",
+        "impactack": "3863ab99872f5fe07f34f417789eec06456e71674e602c651b1a2bbc8379b149"
+      },
+      "wire": {
+        "createstoragenfsexportresponse": {
+          "jobid": "22d022b4-b2e7-48e3-a58c-a8d7ed98a3b5"
+        }
+      }
+    },
+    {
+      "command": "createStorageNfsAcl",
+      "request": {
+        "command": "createStorageNfsAcl",
+        "response": "json",
+        "exportid": "748058ee-9d66-4731-a1cc-ba1d97bc41ee",
+        "principaltype": "CIDR",
+        "principal": "10.10.0.0/16",
+        "permission": "READ_WRITE",
+        "rootsquash": "true",
+        "sync": "true",
+        "secure": "false",
+        "requestid": "2c820b12-8ab7-47be-9400-96464b772fa9",
+        "impactack": "dcfb705b1b253d1e695e7c91e53e17087c1a23dc4f9c08fd42a9ed66f8c8576c"
+      },
+      "wire": {
+        "createstoragenfsaclresponse": {
+          "jobid": "753a5be7-86eb-40ce-bd98-1b1158d8c989"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"updateStorageNfsIdentityMapping\",\"protocol\":\"NFS\",\"idmappingmode\":\"NUMERIC\"}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 3,
+            "observedat": "2026-10-30T15:13:19+0900",
+            "expiresat": "2026-10-30T15:13:49+0900",
+            "fingerprint": "3aba12db6be7c1a4e07ee79fc17534566e578280cba596cc03e0c186cfad94f6",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3815727104,
+                "requiredbytes": 218297728
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654605312,
+                "requiredbytes": 83934560,
+                "readonly": false,
+                "freeinodes": 230460
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "TEMPORARY_INTERRUPTION",
+              "affectedcount": 1,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false
+          }
+        }
+      }
+    },
+    {
+      "command": "updateStorageNfsIdentityMapping",
+      "request": {
+        "command": "updateStorageNfsIdentityMapping",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "idmappingmode": "NUMERIC",
+        "requestid": "95a134fa-dd39-4b05-88da-9616ad81eded",
+        "expectedrevision": "3",
+        "impactack": "3aba12db6be7c1a4e07ee79fc17534566e578280cba596cc03e0c186cfad94f6"
+      },
+      "wire": {
+        "updatestoragenfsidentitymappingresponse": {
+          "jobid": "992ecd1c-ab58-4998-814a-7edca8078cf2"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"enableStorageServiceProtocol\",\"protocol\":\"SMB\",\"listenip\":\"10.10.13.248\",\"port\":445}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 4,
+            "observedat": "2026-10-30T15:14:31+0900",
+            "expiresat": "2026-10-30T15:15:01+0900",
+            "fingerprint": "bc8df9c389cf4a2b466dd8e1006e95e855486b4922a3260fcd00f0e743f7ddb3",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3810738176,
+                "requiredbytes": 218297712
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654511104,
+                "requiredbytes": 83934556,
+                "readonly": false,
+                "freeinodes": 230452
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "ONLINE",
+              "affectedcount": 0,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": false,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false
+          }
+        }
+      }
+    },
+    {
+      "command": "enableStorageServiceProtocol",
+      "request": {
+        "command": "enableStorageServiceProtocol",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "protocol": "SMB",
+        "listenip": "10.10.13.248",
+        "port": "445",
+        "requestid": "fe85ba3c-d408-4350-ad1e-bdddf28c8121",
+        "expectedrevision": "4",
+        "impactack": "bc8df9c389cf4a2b466dd8e1006e95e855486b4922a3260fcd00f0e743f7ddb3"
+      },
+      "wire": {
+        "enablestorageserviceprotocolresponse": {
+          "jobid": "27251620-26b1-471d-845c-8f2fac04b799"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"createStorageDirectoryPolicy\",\"volumeid\":\"017acda1-a5eb-4b28-bbd5-50404955afb1\",\"path\":\"/export/common1453r4\"}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 5,
+            "observedat": "2026-10-30T15:15:45+0900",
+            "expiresat": "2026-10-30T15:16:15+0900",
+            "fingerprint": "7b10cce59ea59dac5e7aa56da9a3b9f75cc9a65060e6c09d0dadeabb95c2e595",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3803484160,
+                "requiredbytes": 218172848
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654384128,
+                "requiredbytes": 83903340,
+                "readonly": false,
+                "freeinodes": 230436
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "TEMPORARY_INTERRUPTION",
+              "affectedcount": 1,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false,
+            "directorypreview": {
+              "success": true,
+              "entrycount": 1,
+              "snapshotbytes": 604,
+              "units": [
+                {
+                  "unit": "ablestack-storage-ganesha@0.0.0.0_2049.service",
+                  "config": "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf",
+                  "sha256": "c68cc0500929506cde27c4f23fffc83ac90bab41e30c44c4be5a89b83af00ea8",
+                  "paths": [
+                    "/srv/ablestack-storage/volumes/017acda1-a5eb-4b28-bbd5-50404955afb1/export/common1453r4"
+                  ],
+                  "aliases": [
+                    {
+                      "exportpath": "/export/common1453r4",
+                      "physicalpath": "/srv/ablestack-storage/volumes/017acda1-a5eb-4b28-bbd5-50404955afb1/export/common1453r4",
+                      "volumeuuid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+                      "filesystemuuid": "2858550d-5e16-42eb-8c76-57a751e22096",
+                      "mounttarget": "/export/common1453r4",
+                      "fsroot": "/export/common1453r4",
+                      "volumemount": "/srv/ablestack-storage/volumes/017acda1-a5eb-4b28-bbd5-50404955afb1",
+                      "volumefsroot": "/",
+                      "device": 2064,
+                      "inode": 8388736
+                    }
+                  ],
+                  "port": "2049"
+                }
+              ],
+              "references": [
+                {
+                  "uuid": "748058ee-9d66-4731-a1cc-ba1d97bc41ee",
+                  "protocol": "NFS",
+                  "name": "common1453r4"
+                }
+              ],
+              "treefingerprint": "64bd9592b10db4ae3b295b268219ba8af4c62fd801fa4c00948fb0493f0677f5",
+              "aclimpact": {
+                "changes": [],
+                "count": 0,
+                "truncated": false
+              },
+              "before": {
+                "owneruid": 65534,
+                "ownergid": 65534,
+                "mode": "0775"
+              },
+              "after": {
+                "uuid": "cdec93fb-7d49-302a-bb2a-e87795059732",
+                "volumeuuid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+                "canonicalpath": "export/common1453r4",
+                "owneruid": 65534,
+                "ownergid": 65534,
+                "mode": "0775",
+                "filesystemuuid": "2858550d-5e16-42eb-8c76-57a751e22096",
+                "inode": 8388736,
+                "revision": 1
+              },
+              "unitreferences": [
+                {
+                  "uuid": "748058ee-9d66-4731-a1cc-ba1d97bc41ee",
+                  "protocol": "NFS",
+                  "name": "common1453r4"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": "createStorageDirectoryPolicy",
+      "request": {
+        "command": "createStorageDirectoryPolicy",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "volumeid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+        "path": "/export/common1453r4",
+        "requestid": "3e31f52b-e28b-42d0-b5a4-4e595ca24823",
+        "expectedrevision": "5",
+        "impactack": "7b10cce59ea59dac5e7aa56da9a3b9f75cc9a65060e6c09d0dadeabb95c2e595"
+      },
+      "wire": {
+        "createstoragedirectorypolicyresponse": {
+          "jobid": "015fafe5-5759-4386-8a07-b0a6623c72c3"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"createStorageSmbShare\",\"protocol\":\"SMB\",\"recursive\":false,\"volumeid\":\"017acda1-a5eb-4b28-bbd5-50404955afb1\",\"volumemode\":\"CURRENT\",\"smbinheritance\":{\"inheritOwner\":false,\"directoryPolicyId\":\"cdec93fb-7d49-302a-bb2a-e87795059732\"}}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 6,
+            "observedat": "2026-10-30T15:16:30+0900",
+            "expiresat": "2026-10-30T15:17:00+0900",
+            "fingerprint": "d3203c1a7769ce58cb1b9368b704bd87999efb495d529068fe8eedf41d4da0b2",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3800719360,
+                "requiredbytes": 218172848
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654306304,
+                "requiredbytes": 83903340,
+                "readonly": false,
+                "freeinodes": 230430
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "ONLINE",
+              "affectedcount": 0,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": false,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false,
+            "inheritancepreview": {
+              "inheritowner": false,
+              "parent": {
+                "owneruid": 65534,
+                "ownergid": 65534,
+                "mode": "0775",
+                "inode": 8388736,
+                "filesystemuuid": "2858550d-5e16-42eb-8c76-57a751e22096",
+                "volumeuuid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+                "canonicalpath": "export/common1453r4",
+                "fingerprint": "658887e4f1b9a1d80493f4b921cb9e28412f27fedeab0c6a9e8ea4d44a6b2fc0"
+              },
+              "futureowner": "CREATOR",
+              "futuregroup": "CREATOR",
+              "setgid": false,
+              "createmask": "0660",
+              "directorymask": "0770",
+              "existingobjectschange": false,
+              "runtime": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "command": "createStorageSmbShare",
+      "request": {
+        "command": "createStorageSmbShare",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "name": "common1453r4",
+        "path": "/export/common1453r4",
+        "volumeid": "017acda1-a5eb-4b28-bbd5-50404955afb1",
+        "filesystem": "xfs",
+        "importmode": "MOUNT_EXISTING",
+        "readonly": "false",
+        "browseable": "true",
+        "guestok": "false",
+        "createdirectory": "false",
+        "crossprotocol": "true",
+        "directorypolicyid": "cdec93fb-7d49-302a-bb2a-e87795059732",
+        "cleanupvolumeonfailure": "false",
+        "requestid": "1e7105ff-2466-4617-9a57-bb9228657883",
+        "expectedrevision": "6",
+        "impactack": "d3203c1a7769ce58cb1b9368b704bd87999efb495d529068fe8eedf41d4da0b2"
+      },
+      "wire": {
+        "createstoragesmbshareresponse": {
+          "jobid": "e075900d-a094-4685-a538-4213cbb9fede"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"createStorageSmbAcl\",\"protocol\":\"SMB\",\"recursive\":false}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 7,
+            "observedat": "2026-10-30T15:17:24+0900",
+            "expiresat": "2026-10-30T15:17:54+0900",
+            "fingerprint": "ebdb388e78153ccebb9d4b58a433a9dd65fbb89493e24009a76733b88150c51a",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3783892992,
+                "requiredbytes": 218185008
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654212096,
+                "requiredbytes": 83906380,
+                "readonly": false,
+                "freeinodes": 230419
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "TEMPORARY_INTERRUPTION",
+              "affectedcount": 1,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false
+          }
+        }
+      }
+    },
+    {
+      "command": "createStorageSmbAcl",
+      "request": {
+        "command": "createStorageSmbAcl",
+        "response": "json",
+        "shareid": "5e072681-d033-49cd-8de5-a2d25806a3d2",
+        "principaltype": "LOCAL_USER",
+        "principal": "epic1453rw",
+        "permission": "READ_WRITE",
+        "requestid": "0b78475b-1a18-4df2-b499-5590a2b0482a",
+        "expectedrevision": "7",
+        "impactack": "ebdb388e78153ccebb9d4b58a433a9dd65fbb89493e24009a76733b88150c51a"
+      },
+      "wire": {
+        "createstoragesmbaclresponse": {
+          "jobid": "0a676de9-6026-4d5c-acc0-592f5f45dcc9"
+        }
+      }
+    },
+    {
+      "command": "preflightStorageServiceConfiguration",
+      "request": {
+        "command": "preflightStorageServiceConfiguration",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "intent": "{\"api\":\"createStorageSmbAcl\",\"protocol\":\"SMB\",\"recursive\":false}"
+      },
+      "wire": {
+        "preflightstorageserviceconfigurationresponse": {
+          "configurationpreflight": {
+            "status": "READY",
+            "revision": 8,
+            "observedat": "2026-10-30T15:18:01+0900",
+            "expiresat": "2026-10-30T15:18:31+0900",
+            "fingerprint": "c05737c5acbb8125f1f48b3df62df289865e5afabd0723c83c2848579d54ce1f",
+            "checks": [
+              {
+                "code": "MEMORY_AVAILABLE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 3785576448,
+                "requiredbytes": 218189008
+              },
+              {
+                "code": "FILESYSTEM_SPACE",
+                "blocking": false,
+                "severity": "INFO",
+                "availablebytes": 2654121984,
+                "requiredbytes": 83907380,
+                "readonly": false,
+                "freeinodes": 230412
+              },
+              {
+                "code": "VOLUME_PREPARATION_ACTIVE",
+                "blocking": false,
+                "severity": "INFO",
+                "count": 0
+              },
+              {
+                "code": "RUNTIME_WRITER_ACTIVE",
+                "blocking": false,
+                "severity": "INFO"
+              },
+              {
+                "code": "DRAIN_REQUIRED",
+                "blocking": false,
+                "severity": "INFO",
+                "connections": 0
+              }
+            ],
+            "impact": {
+              "class": "TEMPORARY_INTERRUPTION",
+              "affectedcount": 1,
+              "connections": 0,
+              "confidence": "ENDPOINT_TCP_CONNECTIONS",
+              "ackrequired": true,
+              "drainrequired": false
+            },
+            "profile": {
+              "name": "CONFIGURATION",
+              "softdeadlineseconds": 300,
+              "pollintervalseconds": 2,
+              "observationseconds": 600
+            },
+            "cancellationsupported": false
+          }
+        }
+      }
+    },
+    {
+      "command": "createStorageSmbAcl",
+      "request": {
+        "command": "createStorageSmbAcl",
+        "response": "json",
+        "shareid": "5e072681-d033-49cd-8de5-a2d25806a3d2",
+        "principaltype": "LOCAL_USER",
+        "principal": "epic1453ro",
+        "permission": "READ_ONLY",
+        "requestid": "8ffc5a41-a893-44d6-942e-f9864efd41f3",
+        "expectedrevision": "8",
+        "impactack": "c05737c5acbb8125f1f48b3df62df289865e5afabd0723c83c2848579d54ce1f"
+      },
+      "wire": {
+        "createstoragesmbaclresponse": {
+          "jobid": "9d67b855-2c71-4d30-9d10-2a109c408ad7"
+        }
+      }
+    },
+    {
+      "command": "joinStorageServiceToAdDomain",
+      "request": {
+        "command": "joinStorageServiceToAdDomain",
+        "response": "json",
+        "instanceid": "4cc8fd3c-19c5-4f05-960c-82d40abdc802",
+        "domainname": "ablestack.local",
+        "username": "Administrator",
+        "dnsservers": "10.10.13.247"
+      },
+      "wire": {
+        "joinstorageservicetoaddomainresponse": {
+          "jobid": "797c59bb-0c73-4c41-9e44-8e255fc38e82"
+        }
+      }
+    }
+  ],
+  "adEvents": [],
+  "jobWires": [
+    {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "managementserverid": "93af5ef3-8cbf-4435-8f92-9c208f1d7b0c",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-30T15:19:32+0900",
+        "jobid": "797c59bb-0c73-4c41-9e44-8e255fc38e82",
+        "jobstatus": 0
+      }
+    },
+    {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "managementserverid": "93af5ef3-8cbf-4435-8f92-9c208f1d7b0c",
+        "managementservername": "ccvm-mngt",
+        "created": "2026-10-30T15:19:32+0900",
+        "jobid": "797c59bb-0c73-4c41-9e44-8e255fc38e82",
+        "jobstatus": 0
+      }
+    },
+    {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "AD_CLIENT_CONFIGURATION_UNSAFE; membership=UNCHANGED; rollback=NOT_NEEDED"
+        },
+        "created": "2026-10-30T15:19:32+0900",
+        "completed": "2026-10-30T15:19:34+0900",
+        "jobid": "797c59bb-0c73-4c41-9e44-8e255fc38e82",
+        "jobstatus": 2
+      }
+    }
+  ]
+}

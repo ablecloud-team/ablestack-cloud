@@ -84,7 +84,7 @@ function install_packages() {
     apache2 ssl-cert \
     dnsmasq dnsmasq-utils \
     nfs-common nfs-kernel-server nfs-ganesha nfs-ganesha-vfs rpcbind xfsprogs quota acl parted lvm2 \
-    samba samba-common smbclient cifs-utils winbind libnss-winbind libpam-winbind acl \
+    samba samba-common samba-vfs-modules smbclient cifs-utils winbind libnss-winbind libpam-winbind acl \
     krb5-user realmd sssd sssd-tools libnss-sss libpam-sss adcli \
     targetcli-fb nvme-cli \
     xl2tpd bcrelay ppp tdb-tools \

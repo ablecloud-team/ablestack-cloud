@@ -1,0 +1,50 @@
+{
+  "sourceCommit": "b2459c366ee2dfea6bc87bda8a62c745488893bd",
+  "management": {
+    "path": "/root/work/ablestack-cloud/client/target/cloud-client-ui-4.23.0.0.jar",
+    "bytes": 152387149,
+    "sha256": "e16a89d68fe9ee49a6ec560e9f51048a1a8e23e18d76bb465bfad434dfdd52ba",
+    "directoryPolicyApiPresent": true,
+    "inheritanceHelperPresent": true
+  },
+  "runtimeVersion": "epic1438-1453-inherit-b2459c366ee2-r1",
+  "manifestSha256": "25cd43c7451eb82c76521f5fa8ec2a7e38741b053755cab6e1691abe4d74ac7a",
+  "systemvm": {
+    "sourceCommit": "b2459c366ee2dfea6bc87bda8a62c745488893bd",
+    "baseCompressedSha256": "8417e0ba191eac7c01ab49790479ab396c8dfae4132c80ba2c170a54d9e84db5",
+    "image": "/root/work/epic1438-preparation/20261029/issue1453-implementation/systemvm-epic1453-inherit-b2459c366ee2-r1.qcow2",
+    "compressed": "/root/work/epic1438-preparation/20261029/issue1453-implementation/systemvm-epic1453-inherit-b2459c366ee2-r1.qcow2.bz2",
+    "compressedBytes": 498327347,
+    "compressedSha256": "b9a511a9ef6f76cb7525e53bb257f75e6ba08c5e99950bda537647ae2d35ce32",
+    "changedGuestPaths": [
+      "etc/ablestack-storage/runtime-default/manifest.json",
+      "etc/ablestack-storage/runtime-default/manifest.sig",
+      "usr/local/bin/ablestack-storagectl",
+      "usr/local/lib/ablestack-storage/configuration_preflight.py",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py",
+      "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+      "usr/local/lib/ablestack-storage/runtime_updater.py",
+      "usr/local/lib/ablestack-storage/shared_directory_policy.py"
+    ],
+    "unchangedGuestPathsVerified": 33929,
+    "hostAccountFilesUnchanged": true,
+    "qemuImageCheck": "No errors were found on the image.\n27444/80000 = 34.30% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1799487488",
+    "managedFileCount": 10
+  },
+  "ui": {
+    "path": "/root/work/epic1438-preparation/20261029/issue1453-implementation/ui-module.tar.gz",
+    "bytes": 16215006,
+    "sha256": "0ca0407972f64d42a164896ffcc4693846f9cc5f7210f081b361def951facccc",
+    "indexSha256": "30bd0897e5d898298b5bf8c795d997de1d0d321b679c80a1f7b821efd7ee7b4f"
+  },
+  "verification": {
+    "backendTests": 27,
+    "uiTests": 58,
+    "guestTests": 38,
+    "uiLint": "PASS",
+    "managementModuleBuildCount": 151,
+    "nativeCandidateGroups": 7,
+    "nativeSmbCombinations": 8,
+    "nativeNewObjects": 40
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "runtimeVersion": "1455.paths.2",
+  "newObjects": {
+    "epic1455/projects": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0775",
+      "inode": 152,
+      "acl": "user::rwx\ngroup::rwx\nother::r-x"
+    },
+    "epic1455/projects/c1.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0644",
+      "inode": 153,
+      "sha256": "b14f3ba62695faa028e199d350bee886661aaf5a14bc7520d53b68de1436e4c3",
+      "acl": "user::rw-\ngroup::r--\nother::r--"
+    },
+    "epic1455/projects/c2.txt": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0644",
+      "inode": 154,
+      "sha256": "4ce0eb6b58b3ba9552b76ea39ff40ae7a8289152eb7df99b48085487259ecc87",
+      "acl": "user::rw-\ngroup::r--\nother::r--"
+    },
+    "epic1455/projects/team-a": {
+      "uid": 0,
+      "gid": 0,
+      "mode": "0770",
+      "inode": 25165961,
+      "acl": "user::rwx\ngroup::rwx\nother::---"
+    }
+  },
+  "nfsParent": {
+    "uuid": "9cc9628a-8a5a-4172-a92b-46d78f0610cf",
+    "path": "/export/p1455-parent",
+    "principals": [
+      "10.10.254.224/32",
+      "10.10.254.223/32"
+    ],
+    "pathIdentity": {
+      "filesystemUuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841",
+      "inode": 152,
+      "volumeRootInode": 128
+    }
+  },
+  "filesystem": "9c8ddfe9-3e23-46f0-9476-5c794b004841 xfs"
+}

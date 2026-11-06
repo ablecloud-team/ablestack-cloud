@@ -1,0 +1,169 @@
+[
+  {
+    "command": "createStorageNfsExport",
+    "fields": {
+      "command": "createStorageNfsExport",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "p1457-parent",
+      "path": "/export/p1457-parent",
+      "createdirectory": "true",
+      "relativepath": "epic1457/projects",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "protocolmode": "V4_ONLY",
+      "importmode": "MOUNT_EXISTING",
+      "readonly": "false",
+      "rootsquash": "true",
+      "allsquash": "false",
+      "owneruid": "65534",
+      "ownergid": "65534",
+      "mode": "0775",
+      "anonuid": "65534",
+      "anongid": "65534",
+      "sync": "true",
+      "secure": "false",
+      "endpointmode": "LISTENER_GROUP",
+      "listenerports": "2049",
+      "cleanupvolumeonfailure": "false",
+      "requestid": "9f1627f4-9f79-4b8f-8210-ef99134215b1",
+      "expectedrevision": "47",
+      "impactack": "c7b15493a184bd85f7297aaf31e4a2ad56857d0fd495d6c24799faf998325420"
+    },
+    "status": 200,
+    "body": {
+      "createstoragenfsexportresponse": {
+        "jobid": "11ac0ac5-5a36-4a48-a559-0c03af0c9c39"
+      }
+    }
+  },
+  {
+    "command": "createStorageNfsExport",
+    "fields": {
+      "command": "createStorageNfsExport",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "name": "p1457-child",
+      "path": "/export/p1457-child",
+      "createdirectory": "true",
+      "relativepath": "epic1457/projects/team-a",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "filesystem": "xfs",
+      "protocolmode": "V4_ONLY",
+      "importmode": "MOUNT_EXISTING",
+      "readonly": "false",
+      "rootsquash": "true",
+      "allsquash": "false",
+      "owneruid": "7001",
+      "ownergid": "7002",
+      "mode": "0770",
+      "anonuid": "7001",
+      "anongid": "7002",
+      "sync": "true",
+      "secure": "false",
+      "endpointmode": "LISTENER_GROUP",
+      "listenerports": "2049",
+      "cleanupvolumeonfailure": "false",
+      "requestid": "686594b4-5f0f-4928-9f3e-0ccfddfc0db1",
+      "expectedrevision": "48",
+      "impactack": "79ce87bf6ef48a3a79537064c79e54d3baeda5bbb6e8473f74cd831022c39b1b"
+    },
+    "status": 200,
+    "body": {
+      "createstoragenfsexportresponse": {
+        "jobid": "13ab6598-f888-4a13-ae82-790be04ba623"
+      }
+    }
+  },
+  {
+    "command": "createStorageNfsAcl",
+    "fields": {
+      "command": "createStorageNfsAcl",
+      "response": "json",
+      "exportid": "ca96e9dd-f4d1-45fa-b61d-1837f66a0766",
+      "principaltype": "CIDR",
+      "principal": "10.10.254.224/32",
+      "principals": "10.10.254.224/32",
+      "permission": "READ_WRITE",
+      "inheritpolicy": "true",
+      "sync": "true",
+      "secure": "false",
+      "requestid": "cb0eaf1d-5be2-4c8a-8f3e-c84fa32f1aa9",
+      "expectedrevision": "49",
+      "impactack": "6a6757200602c31f6d0cb7d21fa992a30e450e268a671d2697401823a247bdc6"
+    },
+    "status": 200,
+    "body": {
+      "createstoragenfsaclresponse": {
+        "jobid": "de564f85-04a2-46ab-b9bc-96ab668a0191"
+      }
+    }
+  },
+  {
+    "command": "createStorageNfsAcl",
+    "fields": {
+      "command": "createStorageNfsAcl",
+      "response": "json",
+      "exportid": "ca96e9dd-f4d1-45fa-b61d-1837f66a0766",
+      "principaltype": "CIDR",
+      "principal": "10.10.254.223/32",
+      "principals": "10.10.254.223/32",
+      "permission": "READ_WRITE",
+      "inheritpolicy": "true",
+      "sync": "true",
+      "secure": "false",
+      "requestid": "64af79d0-b031-42de-b7fb-281167323af7",
+      "expectedrevision": "50",
+      "impactack": "3211c7655f7b515347fdbfec96b9423ae37eff351c101c4a9be4f80ffa018dcd"
+    },
+    "status": 200,
+    "body": {
+      "createstoragenfsaclresponse": {
+        "jobid": "8630995f-1b19-4726-83a2-f1fc2d660dff"
+      }
+    }
+  },
+  {
+    "command": "createStorageNfsAcl",
+    "fields": {
+      "command": "createStorageNfsAcl",
+      "response": "json",
+      "exportid": "27515d7a-bb71-4cba-b429-2cae3ab4ade9",
+      "principaltype": "CIDR",
+      "principal": "10.10.254.224/32",
+      "principals": "10.10.254.224/32",
+      "permission": "READ_WRITE",
+      "inheritpolicy": "true",
+      "sync": "true",
+      "secure": "false",
+      "requestid": "f3c9127f-2b3f-4883-bb54-676d2ac05284",
+      "expectedrevision": "51",
+      "impactack": "79dc3043b2dd063f80904be19a09e63c27e14c5650a44ef8428c080c54873f5d"
+    },
+    "status": 200,
+    "body": {
+      "createstoragenfsaclresponse": {
+        "jobid": "bb4382ff-019c-426f-a1a7-f85310f8a683"
+      }
+    }
+  },
+  {
+    "command": "createStorageDirectoryPolicy",
+    "fields": {
+      "command": "createStorageDirectoryPolicy",
+      "response": "json",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+      "path": "/epic1457/projects/team-a",
+      "requestid": "ca46095a-2551-47bc-b996-d0f06b25b009",
+      "expectedrevision": "53",
+      "impactack": "3726ee90b5dce50c1bf8a66c51e984be52f165684af8573112f6459c9f4f4652"
+    },
+    "status": 200,
+    "body": {
+      "createstoragedirectorypolicyresponse": {
+        "jobid": "966aeb4e-c709-4ce3-b661-bbf177de931a"
+      }
+    }
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"vm\": \"fdc01745-efea-3fb4-9959-2bf48694f57f\", \"activeCli\": \"/opt/ablestack/storage-runtime/releases/1453.ad.3f4547264620.r4/ablestack-storagectl\", \"capability\": {\"configurationTransactionVersion\": 1, \"configurationPreflightVersion\": 1, \"configurationObservationVersion\": 1, \"smbListenerProfilesVersion\": 1, \"nfsPosixIntentVersion\": 1, \"nfsDeferredPosixVersion\": 1, \"sharedDirectoryPolicyVersion\": 1, \"adDomainTransactionVersion\": 1, \"smbParentInheritanceVersion\": 1, \"smbParentInheritanceProtectionVersion\": 1, \"nfsIdentityMappingVersion\": 1, \"nfsidentitymapping\": {\"observationstatus\": \"NOT_RUNNING\", \"endpoints\": [], \"observedat\": \"1793340736.8791015\", \"observeddomain\": \"localdomain\"}}, \"legacySmbd\": \"inactive\", \"baselineSha256\": \"b35041183dbcc79d3ef6403eecab9f75d720819c0ca5ffbbf59df6905f8660f7\"}\n",
+  "stderr": ""
+}

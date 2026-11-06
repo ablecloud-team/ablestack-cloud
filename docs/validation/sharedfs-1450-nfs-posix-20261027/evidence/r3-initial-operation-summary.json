@@ -1,0 +1,201 @@
+{
+  "operations": [
+    {
+      "id": "5d6f7574-6928-4162-b20d-90102e05386c",
+      "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+      "requestid": "8d5ced0e-59ab-4fdb-817d-453dba4fca58",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "NFS",
+      "resourceid": "79f9cd31-3635-4419-a83e-c78d7eabb84a",
+      "baserevision": 0,
+      "targetrevision": 1,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "baseRevision": 0,
+        "instanceUuid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+        "operationid": "5d6f7574-6928-4162-b20d-90102e05386c",
+        "phase": "COMMITTING",
+        "requestHash": "61a8a694d36a2147372dc65868e4993675afe214449fd0743aea238201b2208a",
+        "rollback": {
+          "state": "NOT_NEEDED"
+        },
+        "state": "VERIFIED",
+        "targetRevision": 1,
+        "updated": 1793064229.690631
+      },
+      "created": "2026-10-27T10:23:44+0900",
+      "updated": "2026-10-27T10:23:50+0900",
+      "completed": "2026-10-27T10:23:50+0900",
+      "result": {
+        "id": "79f9cd31-3635-4419-a83e-c78d7eabb84a",
+        "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+        "protocol": "NFS",
+        "enabled": true,
+        "port": 2049,
+        "state": "Ready",
+        "protocolmode": "V4_ONLY",
+        "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+        "listenertype": "WILDCARD",
+        "runtimeprimaryip": "10.10.13.198",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 - differs from runtime primary IPv4 10.10.13.198",
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.198",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ],
+        "runtimestate": "READY",
+        "linkedresourcecount": 0
+      },
+      "candidate": {
+        "api": "EnableStorageServiceProtocolCmd",
+        "instanceid": 80,
+        "port": 2049,
+        "protocol": "NFS",
+        "protocolmode": "V4_ONLY"
+      }
+    },
+    {
+      "id": "9f83a3d9-f4f0-477a-9894-4d455d2062ba",
+      "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+      "requestid": "24f15cd5-300c-48a8-99f8-d022b99ccca0",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "NFS",
+      "resourceid": "10300b5f-0a8d-42c8-9a20-4172af05c407",
+      "baserevision": 1,
+      "targetrevision": 2,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "baseRevision": 1,
+        "instanceUuid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+        "operationid": "9f83a3d9-f4f0-477a-9894-4d455d2062ba",
+        "phase": "COMMITTING",
+        "requestHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "rollback": {
+          "state": "NOT_NEEDED"
+        },
+        "state": "VERIFIED",
+        "targetRevision": 2,
+        "updated": 1793064252.6546373
+      },
+      "created": "2026-10-27T10:24:04+0900",
+      "updated": "2026-10-27T10:24:13+0900",
+      "completed": "2026-10-27T10:24:13+0900",
+      "result": {
+        "posixobservation": {
+          "status": "UNAVAILABLE"
+        },
+        "id": "10300b5f-0a8d-42c8-9a20-4172af05c407",
+        "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+        "name": "e1450-r3",
+        "path": "/export/e1450-r3",
+        "volumeid": "b67f2980-6295-4e5d-929b-db07b829e5e9",
+        "volumeuuid": "b67f2980-6295-4e5d-929b-db07b829e5e9",
+        "filesystemuuid": "b568d4a4-cc01-406b-98b2-22d97d0045cc",
+        "volumemountpath": "/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9",
+        "runtimedevicepath": "/dev/sdb",
+        "runtimeobservedat": "2026-10-27T01:24:01Z",
+        "runtimebootid": "aa1304a4-d431-46e7-bd90-e115101beaba",
+        "runtimematchedby": "VOLUME_SERIAL",
+        "mappingstatus": "EXACT",
+        "filesystem": "xfs",
+        "state": "Allocated",
+        "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"anonUid\":65534,\"anonGid\":65534,\"ownerUid\":65534,\"ownerGid\":65534,\"mode\":\"0775\",\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049],\"posixPolicy\":\"ANONYMOUS_WRITE\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"b67f2980-6295-4e5d-929b-db07b829e5e9\",\"attachedVolumeName\":\"sharedfs-DATA-147\",\"filesystemUuid\":\"b568d4a4-cc01-406b-98b2-22d97d0045cc\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9/export/e1450-r3\",\"bootId\":\"aa1304a4-d431-46e7-bd90-e115101beaba\",\"configurationOperationId\":\"9f83a3d9-f4f0-477a-9894-4d455d2062ba\",\"directoryCreated\":true,\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"b568d4a4-cc01-406b-98b2-22d97d0045cc\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9\",\"observedAt\":\"2026-10-27T01:24:09.771368Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/e1450-r3\",\"schemaVersion\":2,\"serial\":\"b67f298062954e5d929b\",\"status\":\"ok\",\"success\":true,\"supportsInitialPosixPreservation\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9\",\"volumeUuid\":\"b67f2980-6295-4e5d-929b-db07b829e5e9\"},\"backingPath\":\"/srv/ablestack-storage/volumes/b67f2980-6295-4e5d-929b-db07b829e5e9/export/e1450-r3\"}",
+        "listenerports": "2049",
+        "endpointmode": "LISTENER_GROUP",
+        "protocolmode": "V4_ONLY",
+        "configvalid": true
+      },
+      "candidate": {
+        "anongid": 65534,
+        "anonuid": 65534,
+        "api": "CreateStorageNfsExportCmd",
+        "createdirectory": true,
+        "deferapply": true,
+        "filesystem": "xfs",
+        "impactack": "66d63336d4e3e2e7d3568652d4c790b6bad0ce0a06c967dc2ee9b7dcdfbcd57c",
+        "importmode": "MOUNT_EXISTING",
+        "instanceid": 80,
+        "mode": "0775",
+        "name": "e1450-r3",
+        "ownergid": 65534,
+        "owneruid": 65534,
+        "path": "/export/e1450-r3",
+        "protocolmode": "V4_ONLY",
+        "readonly": false,
+        "recursivepermission": false,
+        "rootsquash": true,
+        "secure": false,
+        "sync": true,
+        "volumeid": 278
+      }
+    },
+    {
+      "id": "88de783a-6cc4-4c7f-90d0-24865892c0c0",
+      "instanceid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+      "requestid": "e003cf96-b393-4347-8297-62552e7b5748",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "NFS",
+      "resourceid": "f83a6dbb-e7b7-412f-aa64-f0ebfa4f76be",
+      "baserevision": 2,
+      "targetrevision": 3,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "baseRevision": 2,
+        "instanceUuid": "9a49d3ec-b543-4eaa-a57f-bd877548414a",
+        "operationid": "88de783a-6cc4-4c7f-90d0-24865892c0c0",
+        "phase": "COMMITTING",
+        "requestHash": "8b4e6edb3935f43d34497daab2802aabf2d5f8a898ff8e890c46af3f53622034",
+        "rollback": {
+          "state": "NOT_NEEDED"
+        },
+        "state": "VERIFIED",
+        "targetRevision": 3,
+        "updated": 1793064270.7323582
+      },
+      "created": "2026-10-27T10:24:25+0900",
+      "updated": "2026-10-27T10:24:33+0900",
+      "completed": "2026-10-27T10:24:33+0900",
+      "result": {
+        "id": "f83a6dbb-e7b7-412f-aa64-f0ebfa4f76be",
+        "resourcetype": "FILE_SHARE",
+        "resourceid": "10300b5f-0a8d-42c8-9a20-4172af05c407",
+        "principaltype": "CIDR",
+        "principal": "10.10.0.0/16",
+        "permission": "READ_WRITE",
+        "state": "Ready",
+        "config": "{\"rootSquash\":true,\"sync\":true,\"secure\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049]}"
+      },
+      "candidate": {
+        "api": "CreateStorageNfsAclCmd",
+        "exportid": 427,
+        "impactack": "ae13cf05a3e83640aff6be4eb1e3d082c2b48cb1d14c5430a505d0672b6906ea",
+        "permission": "READ_WRITE",
+        "principal": "10.10.0.0/16",
+        "principaltype": "CIDR",
+        "rootsquash": true,
+        "secure": false,
+        "sync": true
+      }
+    }
+  ],
+  "issueComplete": false,
+  "reason": "NFS deferred creation POSIX intent not applied before ACL publication"
+}

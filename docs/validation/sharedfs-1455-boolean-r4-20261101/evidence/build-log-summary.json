@@ -1,0 +1,35 @@
+{
+  "module-build.log": [
+    "[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.167 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest",
+    "[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.534 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest",
+    "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.236 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyContractTest",
+    "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s - in org.apache.cloudstack.storage.dataservice.StorageFileSharePathsTest",
+    "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 s - in org.apache.cloudstack.storage.dataservice.StorageNfsPosixTest",
+    "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in org.apache.cloudstack.storage.dataservice.StorageSmbParentInheritanceContractTest",
+    "[INFO] Tests run: 46, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS",
+    "[INFO] Total time:  01:13 min",
+    "[INFO] Finished at: 2026-11-01T13:03:22+09:00"
+  ],
+  "green-build.log": [
+    "[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.783 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest",
+    "[ERROR] Tests run: 8, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.514 s <<< FAILURE! - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest",
+    "org.mockito.exceptions.verification.TooManyActualInvocations: ",
+    "[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.212 s - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyContractTest",
+    "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s - in org.apache.cloudstack.storage.dataservice.StorageFileSharePathsTest",
+    "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.1 s - in org.apache.cloudstack.storage.dataservice.StorageNfsPosixTest",
+    "[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s - in org.apache.cloudstack.storage.dataservice.StorageSmbParentInheritanceContractTest",
+    "[ERROR] Tests run: 46, Failures: 1, Errors: 0, Skipped: 0",
+    "[INFO] BUILD FAILURE",
+    "[INFO] Total time:  01:16 min",
+    "[INFO] Finished at: 2026-11-01T13:01:43+09:00"
+  ],
+  "red-test.log": [
+    "[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 10.311 s <<< FAILURE! - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest",
+    "java.lang.ClassCastException: class com.google.gson.JsonPrimitive cannot be cast to class com.google.gson.JsonObject (com.google.gson.JsonPrimitive and com.google.gson.JsonObject are in unnamed module of loader 'app')",
+    "[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0",
+    "[INFO] BUILD FAILURE",
+    "[INFO] Total time:  02:54 min",
+    "[INFO] Finished at: 2026-11-01T13:00:00+09:00"
+  ]
+}

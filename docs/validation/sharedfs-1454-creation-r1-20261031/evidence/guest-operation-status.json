@@ -1,0 +1,18 @@
+{
+  "baseRevision": 20,
+  "instanceUuid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+  "operationid": "f2f3068f-015d-48be-9acf-45d93d069548",
+  "originalfailure": {
+    "code": "SMB_OPTIONS_BASELINE_CHANGED",
+    "phase": "VALIDATING",
+    "type": "PolicyError"
+  },
+  "phase": "COMPLETED",
+  "requestHash": "7723c92bca6487dc977fda37a886ef2574d9131a08499c8c3e838e9615b38ab7",
+  "rollback": {
+    "state": "NOT_NEEDED"
+  },
+  "state": "ROLLED_BACK",
+  "targetRevision": 21,
+  "updated": 1793438916.0208886
+}

@@ -1,0 +1,21 @@
+{
+  "source": "Responses observed from actual Mold UI actions; selected public metadata only",
+  "sharedfs": {
+    "id": "3f0056db-4dfe-4f13-908d-b809dd565d34",
+    "name": "epic1438-1453-ad-20261030-r5",
+    "size": 10737418240,
+    "sizegb": "10.00 GiB",
+    "volumeid": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+    "virtualmachineid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2"
+  },
+  "volume": {
+    "id": "e070a0aa-dbf5-48c0-83e0-09f874446277",
+    "size": 10737418240,
+    "usedfsbytes": 1956667392,
+    "provisioningtype": "sparse",
+    "type": "DATADISK",
+    "state": "Ready",
+    "virtualmachineid": "d9c423e9-ce89-3ba9-9cd8-f48cdb791da2",
+    "deviceid": 1
+  }
+}

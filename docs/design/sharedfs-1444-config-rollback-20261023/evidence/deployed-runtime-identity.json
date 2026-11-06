@@ -1,0 +1,19 @@
+{
+  "classes": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": {
+      "deployed": "924361279991fb002052cda79f06e4645749ce0fed75d3fa5653e3b030f1f1a3",
+      "localCompiled": "924361279991fb002052cda79f06e4645749ce0fed75d3fa5653e3b030f1f1a3",
+      "identical": true
+    },
+    "org/apache/cloudstack/storage/dataservice/StorageServiceGuestCommandDispatcherImpl.class": {
+      "deployed": "07e382f7405a7df22529c889cb89eabdb17bdc0d994793f147d343e32d619eea",
+      "localCompiled": "07e382f7405a7df22529c889cb89eabdb17bdc0d994793f147d343e32d619eea",
+      "identical": true
+    }
+  },
+  "actuallyObservedUiChunk": {
+    "path": "/usr/share/cloudstack-management/webapp/js/chunk-c0835970.b82b48a2.js",
+    "sha256": "66956a0a7d52bb00dd3d382ff66531add498243176b077beaa924700ac278531",
+    "size": 466259
+  }
+}

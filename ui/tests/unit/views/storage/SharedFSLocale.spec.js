@@ -75,3 +75,14 @@ describe('SharedFS runtime locale contract', () => {
     expect(storageKeys('ko_KR')).toEqual(storageKeys('en'))
   })
 })
+
+describe('SharedFS network UI locale contract', () => {
+  it.each(Object.keys(localeFiles))('defines every network component label in %s', locale => {
+    const source = readUiFile('src/views/storage/SharedFSNetworkStatus.vue')
+    const pattern = /\$t\(\s*['"]([^'"]+)['"]\s*\)/g
+    const keys = new Set(['ready', 'failed', 'unknown'].map(state => 'label.sharedfs.network.state.' + state))
+    let match
+    while ((match = pattern.exec(source)) !== null) keys.add(match[1])
+    expect([...keys].filter(key => typeof localeMessages[locale][key] !== 'string' || !localeMessages[locale][key].trim() || localeMessages[locale][key] === key)).toEqual([])
+  })
+})

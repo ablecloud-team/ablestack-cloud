@@ -1,0 +1,1050 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Apache CloudStack Developer Tools - Checkstyle Configuration       [jar]
+[INFO] Apache CloudStack                                                  [pom]
+[INFO] Apache CloudStack Framework - Managed Context                      [jar]
+[INFO] Apache CloudStack Framework                                        [pom]
+[INFO] Apache CloudStack Framework - Certificate Authority                [jar]
+[INFO] Apache CloudStack Utils                                            [jar]
+[INFO] Apache CloudStack Framework - Database                             [jar]
+[INFO] Apache CloudStack Framework - Configuration                        [jar]
+[INFO] Apache CloudStack Framework - Direct Download to Primary Storage   [jar]
+[INFO] Apache CloudStack Framework - Key Management Service               [jar]
+[INFO] Apache CloudStack API                                              [jar]
+[INFO] Apache CloudStack Framework - REST                                 [jar]
+[INFO] Apache CloudStack Framework - IPC                                  [jar]
+[INFO] Apache CloudStack Cloud Engine                                     [pom]
+[INFO] Apache CloudStack Cloud Engine API                                 [jar]
+[INFO] Apache CloudStack Cloud Engine Schema Component                    [jar]
+[INFO] Apache CloudStack Framework - Security                             [jar]
+[INFO] Apache CloudStack Core                                             [jar]
+[INFO] Apache CloudStack Framework - Clustering                           [jar]
+[INFO] Apache CloudStack Framework - Event Notification                   [jar]
+[INFO] Apache CloudStack Framework - Jobs                                 [jar]
+[INFO] Apache CloudStack Cloud Engine Internal Components API             [jar]
+[INFO] Apache CloudStack Agent Management Servers Load Balancer           [jar]
+[INFO] Apache CloudStack Framework - Storage Config Drive Component       [jar]
+[INFO] Apache CloudStack Framework - Extensions                           [jar]
+[INFO] Apache CloudStack Server                                           [jar]
+[INFO] 
+[INFO] ------------------< org.apache.cloudstack:checkstyle >------------------
+[INFO] Building Apache CloudStack Developer Tools - Checkstyle Configuration 4.23.0.0 [1/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ checkstyle ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ checkstyle ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ checkstyle ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/tools/checkstyle/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ checkstyle ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ checkstyle ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ checkstyle ---
+[INFO] 
+[INFO] ------------------< org.apache.cloudstack:cloudstack >------------------
+[INFO] Building Apache CloudStack 4.23.0.0                               [2/26]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloudstack ---
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloudstack ---
+[INFO] No site descriptor found: nothing to attach.
+[INFO] 
+[INFO] -------< org.apache.cloudstack:cloud-framework-managed-context >--------
+[INFO] Building Apache CloudStack Framework - Managed Context 4.23.0.0   [3/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-managed-context ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-managed-context ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-managed-context ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/managed-context/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-managed-context ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-managed-context ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/managed-context/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-managed-context ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-managed-context ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-managed-context ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/managed-context/target/cloud-framework-managed-context-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-managed-context ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloudstack-framework >-------------
+[INFO] Building Apache CloudStack Framework 4.23.0.0                     [4/26]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloudstack-framework ---
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloudstack-framework ---
+[INFO] No site descriptor found: nothing to attach.
+[INFO] 
+[INFO] --------------< org.apache.cloudstack:cloud-framework-ca >--------------
+[INFO] Building Apache CloudStack Framework - Certificate Authority 4.23.0.0 [5/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-ca ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-ca ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-ca ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/ca/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-ca ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-ca ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/ca/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-ca ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-ca ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-ca ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/ca/target/cloud-framework-ca-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-ca ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-utils >------------------
+[INFO] Building Apache CloudStack Utils 4.23.0.0                         [6/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-utils ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-utils ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-utils ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-utils ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-utils ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-utils ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-utils ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-utils ---
+[INFO] Building jar: /root/work/ablestack-cloud/utils/target/cloud-utils-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-utils ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:test-jar (default) @ cloud-utils ---
+[INFO] Building jar: /root/work/ablestack-cloud/utils/target/cloud-utils-4.23.0.0-tests.jar
+[INFO] 
+[INFO] --- maven-shade-plugin:3.0.0:shade (rebuild-war) @ cloud-utils ---
+[INFO] Excluding org.apache.cloudstack:cloud-framework-managed-context:jar:4.23.0.0 from the shaded jar.
+[INFO] Excluding org.apache.cloudstack:cloud-framework-ca:jar:4.23.0.0 from the shaded jar.
+[INFO] Excluding org.springframework:spring-context:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.springframework:spring-aop:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.springframework:spring-beans:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.springframework:spring-core:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.springframework:spring-jcl:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.springframework:spring-expression:jar:5.3.26 from the shaded jar.
+[INFO] Excluding org.aspectj:aspectjweaver:jar:1.8.13 from the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-core:jar:2.19.0 in the shaded jar.
+[INFO] Including org.apache.logging.log4j:log4j-api:jar:2.19.0 in the shaded jar.
+[INFO] Excluding cglib:cglib-nodep:jar:3.3.0 from the shaded jar.
+[INFO] Excluding commons-validator:commons-validator:jar:1.6 from the shaded jar.
+[INFO] Excluding commons-beanutils:commons-beanutils:jar:1.9.2 from the shaded jar.
+[INFO] Excluding commons-digester:commons-digester:jar:1.8.1 from the shaded jar.
+[INFO] Excluding commons-logging:commons-logging:jar:1.2 from the shaded jar.
+[INFO] Excluding commons-collections:commons-collections:jar:3.2.2 from the shaded jar.
+[INFO] Including commons-codec:commons-codec:jar:1.20.0 in the shaded jar.
+[INFO] Excluding org.bouncycastle:bcprov-jdk18on:jar:1.83 from the shaded jar.
+[INFO] Excluding org.bouncycastle:bcpkix-jdk18on:jar:1.83 from the shaded jar.
+[INFO] Excluding org.bouncycastle:bcutil-jdk18on:jar:1.83 from the shaded jar.
+[INFO] Excluding org.bouncycastle:bctls-jdk18on:jar:1.83 from the shaded jar.
+[INFO] Excluding com.jcraft:jsch:jar:0.1.55 from the shaded jar.
+[INFO] Including org.jasypt:jasypt:jar:1.9.3 in the shaded jar.
+[INFO] Excluding org.jenkins-ci:trilead-ssh2:jar:build-217-jenkins-27 from the shaded jar.
+[INFO] Excluding net.i2p.crypto:eddsa:jar:0.3.0 from the shaded jar.
+[INFO] Excluding org.connectbot.jbcrypt:jbcrypt:jar:1.0.0 from the shaded jar.
+[INFO] Excluding com.amazonaws:aws-java-sdk-core:jar:1.12.795 from the shaded jar.
+[INFO] Excluding org.apache.httpcomponents:httpclient:jar:4.5.14 from the shaded jar.
+[INFO] Excluding org.apache.httpcomponents:httpcore:jar:4.4.16 from the shaded jar.
+[INFO] Excluding joda-time:joda-time:jar:2.12.5 from the shaded jar.
+[INFO] Excluding com.amazonaws:aws-java-sdk-s3:jar:1.12.795 from the shaded jar.
+[INFO] Excluding com.amazonaws:aws-java-sdk-kms:jar:1.12.795 from the shaded jar.
+[INFO] Excluding com.amazonaws:jmespath-java:jar:1.12.795 from the shaded jar.
+[INFO] Excluding com.googlecode.java-ipv6:java-ipv6:jar:0.17 from the shaded jar.
+[INFO] Excluding commons-configuration:commons-configuration:jar:1.10 from the shaded jar.
+[INFO] Excluding commons-lang:commons-lang:jar:2.6 from the shaded jar.
+[INFO] Excluding javax.annotation:javax.annotation-api:jar:1.3.2 from the shaded jar.
+[INFO] Excluding com.cronutils:cron-utils:jar:9.2.0 from the shaded jar.
+[INFO] Excluding org.slf4j:slf4j-api:jar:1.7.30 from the shaded jar.
+[INFO] Excluding org.glassfish:jakarta.el:jar:3.0.4 from the shaded jar.
+[INFO] Including com.google.protobuf:protobuf-java:jar:3.25.5 in the shaded jar.
+[INFO] Excluding commons-io:commons-io:jar:2.8.0 from the shaded jar.
+[INFO] Including org.apache.commons:commons-lang3:jar:3.11 in the shaded jar.
+[INFO] Excluding org.reflections:reflections:jar:0.10.2 from the shaded jar.
+[INFO] Excluding org.javassist:javassist:jar:3.27.0-GA from the shaded jar.
+[INFO] Excluding com.google.code.findbugs:jsr305:jar:3.0.2 from the shaded jar.
+[INFO] Excluding org.owasp.esapi:esapi:jar:2.1.0.1 from the shaded jar.
+[INFO] Excluding commons-fileupload:commons-fileupload:jar:1.4 from the shaded jar.
+[INFO] Excluding xom:xom:jar:1.2.5 from the shaded jar.
+[INFO] Excluding xerces:xercesImpl:jar:2.8.0 from the shaded jar.
+[INFO] Excluding xalan:xalan:jar:2.7.0 from the shaded jar.
+[INFO] Excluding org.beanshell:bsh-core:jar:2.0b4 from the shaded jar.
+[INFO] Excluding org.owasp.antisamy:antisamy:jar:1.5.3 from the shaded jar.
+[INFO] Excluding net.sourceforge.nekohtml:nekohtml:jar:1.9.16 from the shaded jar.
+[INFO] Excluding commons-httpclient:commons-httpclient:jar:3.1 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:batik-css:jar:1.14 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:batik-shared-resources:jar:1.14 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:batik-util:jar:1.14 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:batik-constants:jar:1.14 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:batik-i18n:jar:1.14 from the shaded jar.
+[INFO] Excluding org.apache.xmlgraphics:xmlgraphics-commons:jar:2.6 from the shaded jar.
+[INFO] Excluding org.opensaml:opensaml:jar:2.6.6 from the shaded jar.
+[INFO] Excluding org.opensaml:openws:jar:1.5.6 from the shaded jar.
+[INFO] Excluding org.opensaml:xmltooling:jar:1.4.6 from the shaded jar.
+[INFO] Excluding ca.juliusdavies:not-yet-commons-ssl:jar:0.3.9 from the shaded jar.
+[INFO] Excluding org.apache.velocity:velocity:jar:1.7 from the shaded jar.
+[INFO] Excluding org.apache.santuario:xmlsec:jar:1.5.7 from the shaded jar.
+[INFO] Excluding commons-net:commons-net:jar:3.7.2 from the shaded jar.
+[INFO] Excluding com.google.code.gson:gson:jar:2.10.1 from the shaded jar.
+[INFO] Excluding com.squareup.okhttp3:okhttp-jvm:jar:5.1.0 from the shaded jar.
+[INFO] Excluding com.squareup.okio:okio-jvm:jar:3.15.0 from the shaded jar.
+[INFO] Excluding org.jetbrains.kotlin:kotlin-stdlib:jar:2.2.0 from the shaded jar.
+[INFO] Excluding org.jetbrains:annotations:jar:13.0 from the shaded jar.
+[INFO] Excluding com.google.guava:guava-testlib:jar:18.0 from the shaded jar.
+[INFO] Excluding com.google.guava:guava:jar:31.1-jre from the shaded jar.
+[INFO] Excluding com.google.guava:failureaccess:jar:1.0.1 from the shaded jar.
+[INFO] Excluding com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava from the shaded jar.
+[INFO] Excluding com.google.j2objc:j2objc-annotations:jar:1.3 from the shaded jar.
+[INFO] Excluding com.google.truth:truth:jar:0.23 from the shaded jar.
+[INFO] Excluding com.fasterxml.jackson.core:jackson-databind:jar:2.13.3 from the shaded jar.
+[INFO] Excluding com.fasterxml.jackson.core:jackson-annotations:jar:2.13.3 from the shaded jar.
+[INFO] Excluding com.fasterxml.jackson.core:jackson-core:jar:2.13.3 from the shaded jar.
+[INFO] Excluding com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar:2.13.3 from the shaded jar.
+[INFO] Excluding org.apache.commons:commons-compress:jar:1.26.0 from the shaded jar.
+[INFO] Excluding javax.mail:mail:jar:1.5.0-b01 from the shaded jar.
+[INFO] Excluding javax.activation:activation:jar:1.1 from the shaded jar.
+[INFO] Excluding org.apache.commons:commons-email:jar:1.5 from the shaded jar.
+[INFO] Excluding com.sun.mail:javax.mail:jar:1.5.6 from the shaded jar.
+[INFO] Excluding org.openjdk.nashorn:nashorn-core:jar:15.3 from the shaded jar.
+[INFO] Excluding org.ow2.asm:asm:jar:7.3.1 from the shaded jar.
+[INFO] Excluding org.ow2.asm:asm-commons:jar:7.3.1 from the shaded jar.
+[INFO] Excluding org.ow2.asm:asm-analysis:jar:7.3.1 from the shaded jar.
+[INFO] Excluding org.ow2.asm:asm-tree:jar:7.3.1 from the shaded jar.
+[INFO] Excluding org.ow2.asm:asm-util:jar:7.3.1 from the shaded jar.
+[INFO] Including commons-cli:commons-cli:jar:1.5.0 in the shaded jar.
+[INFO] Including com.google.crypto.tink:tink:jar:1.7.0 in the shaded jar.
+[INFO] Excluding org.apache.commons:commons-collections4:jar:4.4 from the shaded jar.
+[INFO] Excluding javax.inject:javax.inject:jar:1 from the shaded jar.
+[INFO] Excluding com.github.ben-manes.caffeine:caffeine:jar:3.1.7 from the shaded jar.
+[INFO] Excluding org.checkerframework:checker-qual:jar:3.36.0 from the shaded jar.
+[INFO] Excluding com.google.errorprone:error_prone_annotations:jar:2.20.0 from the shaded jar.
+[WARNING] log4j-api-2.19.0.jar, commons-codec-1.20.0.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] maven-shade-plugin has detected that some class files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the class is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See http://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Replacing /root/work/ablestack-cloud/utils/target/cloud-utils-4.23.0.0-bundled.jar with /root/work/ablestack-cloud/utils/target/cloud-utils-4.23.0.0-shaded.jar
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.9.0:copy (copy) @ cloud-utils ---
+[INFO] junit:junit:4.13.2:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] org.hamcrest:hamcrest-all:1.3:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] org.bouncycastle:bcprov-jdk18on:1.83:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] javax.servlet:javax.servlet-api:4.0.1:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] org.springframework:spring-test:5.3.26:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] org.springframework:spring-core:5.3.26:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] commons-logging:commons-logging:1.2:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] com.jcraft:jsch:0.1.55:jar already exists in /root/work/ablestack-cloud/utils/target/lib
+[INFO] 
+[INFO] --------------< org.apache.cloudstack:cloud-framework-db >--------------
+[INFO] Building Apache CloudStack Framework - Database 4.23.0.0          [7/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-db ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-db ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-db ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-db ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-db ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-db ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-db ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-db ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/db/target/cloud-framework-db-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-db ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ------------< org.apache.cloudstack:cloud-framework-config >------------
+[INFO] Building Apache CloudStack Framework - Configuration 4.23.0.0     [8/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-config ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-config ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-config ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 2 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-config ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-config ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/config/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-config ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-config ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-config ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/config/target/cloud-framework-config-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-config ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------< org.apache.cloudstack:cloud-framework-direct-download >--------
+[INFO] Building Apache CloudStack Framework - Direct Download to Primary Storage 4.23.0.0 [9/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-direct-download ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-direct-download ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-direct-download ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/direct-download/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-direct-download ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-direct-download ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/direct-download/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-direct-download ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-direct-download ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-direct-download ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/direct-download/target/cloud-framework-direct-download-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-direct-download ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloud-framework-kms >--------------
+[INFO] Building Apache CloudStack Framework - Key Management Service 4.23.0.0 [10/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-kms ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-kms ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-kms ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/kms/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-kms ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-kms ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/kms/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-kms ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-kms ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-kms ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/kms/target/cloud-framework-kms-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-kms ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ------------------< org.apache.cloudstack:cloud-api >-------------------
+[INFO] Building Apache CloudStack API 4.23.0.0                          [11/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-api ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-api ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/api/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-api ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-api ---
+[INFO] Building jar: /root/work/ablestack-cloud/api/target/cloud-api-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-api ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:test-jar (default) @ cloud-api ---
+[INFO] Building jar: /root/work/ablestack-cloud/api/target/cloud-api-4.23.0.0-tests.jar
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloud-framework-rest >-------------
+[INFO] Building Apache CloudStack Framework - REST 4.23.0.0             [12/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-rest ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-rest ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-rest ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/rest/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-rest ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-rest ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/rest/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-rest ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-rest ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-rest ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/rest/target/cloud-framework-rest-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-rest ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloud-framework-ipc >--------------
+[INFO] Building Apache CloudStack Framework - IPC 4.23.0.0              [13/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-ipc ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-ipc ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-ipc ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-ipc ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-ipc ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 3 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-ipc ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-ipc ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-ipc ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/ipc/target/cloud-framework-ipc-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-ipc ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-engine >-----------------
+[INFO] Building Apache CloudStack Cloud Engine 4.23.0.0                 [14/26]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-engine ---
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine ---
+[INFO] No site descriptor found: nothing to attach.
+[INFO] 
+[INFO] ---------------< org.apache.cloudstack:cloud-engine-api >---------------
+[INFO] Building Apache CloudStack Cloud Engine API 4.23.0.0             [15/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-api ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-engine-api ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-engine-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-engine-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-engine-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/engine/api/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-engine-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-engine-api ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-engine-api ---
+[INFO] Building jar: /root/work/ablestack-cloud/engine/api/target/cloud-engine-api-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-api ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloud-engine-schema >--------------
+[INFO] Building Apache CloudStack Cloud Engine Schema Component 4.23.0.0 [16/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-schema ---
+[INFO] 
+[INFO] --- gmavenplus-plugin:3.0.2:execute (setproperty) @ cloud-engine-schema ---
+[INFO] Using plugin classloader, includes GMavenPlus and project classpath.
+[INFO] Using Groovy 2.4.17 to perform execute.
+[INFO] 
+[INFO] --- download-maven-plugin:1.6.3:wget (download-checksums) @ cloud-engine-schema ---
+[WARNING] Ignoring download failure.
+[INFO] 
+[INFO] --- gmavenplus-plugin:3.0.2:execute (set-properties) @ cloud-engine-schema ---
+[INFO] Using plugin classloader, includes GMavenPlus and project classpath.
+[INFO] Using Groovy 2.4.17 to perform execute.
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-engine-schema ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-engine-schema ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 225 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-engine-schema ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-engine-schema ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-engine-schema ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-engine-schema ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-engine-schema ---
+[INFO] Building jar: /root/work/ablestack-cloud/engine/schema/target/cloud-engine-schema-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-schema ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] --- exec-maven-plugin:3.4.1:exec (systemvm-template-metadata) @ cloud-engine-schema ---
+[INFO] 
+[INFO] -----------< org.apache.cloudstack:cloud-framework-security >-----------
+[INFO] Building Apache CloudStack Framework - Security 4.23.0.0         [17/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-security ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-security ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-security ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-security ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-security ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/security/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-security ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-security ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-security ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/security/target/cloud-framework-security-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-security ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ------------------< org.apache.cloudstack:cloud-core >------------------
+[INFO] Building Apache CloudStack Core 4.23.0.0                         [18/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-core ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-core ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-core ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 46 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-core ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-core ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-core ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-core ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-core ---
+[INFO] Building jar: /root/work/ablestack-cloud/core/target/cloud-core-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-core ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -----------< org.apache.cloudstack:cloud-framework-cluster >------------
+[INFO] Building Apache CloudStack Framework - Clustering 4.23.0.0       [19/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-cluster ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-cluster ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-cluster ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-cluster ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-cluster ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/cluster/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-cluster ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-cluster ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-cluster ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/cluster/target/cloud-framework-cluster-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-cluster ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ------------< org.apache.cloudstack:cloud-framework-events >------------
+[INFO] Building Apache CloudStack Framework - Event Notification 4.23.0.0 [20/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-events ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-events ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-events ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/events/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-events ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-events ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/events/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-events ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-events ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-events ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/events/target/cloud-framework-events-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-events ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------------< org.apache.cloudstack:cloud-framework-jobs >-------------
+[INFO] Building Apache CloudStack Framework - Jobs 4.23.0.0             [21/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-jobs ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-jobs ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-jobs ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-jobs ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-jobs ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-jobs ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-jobs ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-jobs ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/jobs/target/cloud-framework-jobs-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-jobs ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ---------< org.apache.cloudstack:cloud-engine-components-api >----------
+[INFO] Building Apache CloudStack Cloud Engine Internal Components API 4.23.0.0 [22/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-components-api ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-engine-components-api ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-engine-components-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-engine-components-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-engine-components-api ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/engine/components-api/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-engine-components-api ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-engine-components-api ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-engine-components-api ---
+[INFO] Building jar: /root/work/ablestack-cloud/engine/components-api/target/cloud-engine-components-api-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-components-api ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -----------< org.apache.cloudstack:cloud-framework-agent-lb >-----------
+[INFO] Building Apache CloudStack Agent Management Servers Load Balancer 4.23.0.0 [23/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-agent-lb ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-agent-lb ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-agent-lb ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/agent-lb/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-agent-lb ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-agent-lb ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/agent-lb/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-agent-lb ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-agent-lb ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-agent-lb ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/agent-lb/target/cloud-framework-agent-lb-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-agent-lb ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -------< org.apache.cloudstack:cloud-engine-storage-configdrive >-------
+[INFO] Building Apache CloudStack Framework - Storage Config Drive Component 4.23.0.0 [24/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-engine-storage-configdrive ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-engine-storage-configdrive ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-engine-storage-configdrive ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/engine/storage/configdrive/src/main/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-engine-storage-configdrive ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-engine-storage-configdrive ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/engine/storage/configdrive/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-engine-storage-configdrive ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-engine-storage-configdrive ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-engine-storage-configdrive ---
+[INFO] Building jar: /root/work/ablestack-cloud/engine/storage/configdrive/target/cloud-engine-storage-configdrive-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-engine-storage-configdrive ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] ----------< org.apache.cloudstack:cloud-framework-extensions >----------
+[INFO] Building Apache CloudStack Framework - Extensions 4.23.0.0       [25/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-framework-extensions ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-framework-extensions ---
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-framework-extensions ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-framework-extensions ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-framework-extensions ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /root/work/ablestack-cloud/framework/extensions/src/test/resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-framework-extensions ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-framework-extensions ---
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-framework-extensions ---
+[INFO] Building jar: /root/work/ablestack-cloud/framework/extensions/target/cloud-framework-extensions-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-framework-extensions ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] 
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] Building Apache CloudStack Server 4.23.0.0                       [26/26]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-server ---
+[INFO] 
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-server ---
+[INFO] 
+[INFO] --- maven-antrun-plugin:1.8:run (generate-resource) @ cloud-server ---
+[INFO] Executing tasks
+
+main:
+     [copy] Copying 4 files to /root/work/ablestack-cloud/server/target/conf
+[INFO] Executed tasks
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 31 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 609 source files to /root/work/ablestack-cloud/server/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 37 resources
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 326 source files to /root/work/ablestack-cloud/server/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-server ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.365 s - in org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageRuntimeBaselineTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.345 s - in org.apache.cloudstack.storage.dataservice.StorageRuntimeBaselineTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageServiceSmbEndpointTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.428 s - in org.apache.cloudstack.storage.dataservice.StorageServiceSmbEndpointTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageServiceSmbFinalizationTest
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.661 s - in org.apache.cloudstack.storage.dataservice.StorageServiceSmbFinalizationTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.204 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPreflightTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageConfigurationPlanTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.072 s - in org.apache.cloudstack.storage.dataservice.StorageConfigurationPlanTest
+[INFO] Running org.apache.cloudstack.storage.dataservice.StorageServiceProtocolListContractTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.187 s - in org.apache.cloudstack.storage.dataservice.StorageServiceProtocolListContractTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 30, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-server ---
+[INFO] Building jar: /root/work/ablestack-cloud/server/target/cloud-server-4.23.0.0.jar
+[INFO] 
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-server ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Apache CloudStack 4.23.0.0:
+[INFO] 
+[INFO] Apache CloudStack Developer Tools - Checkstyle Configuration SUCCESS [  1.381 s]
+[INFO] Apache CloudStack .................................. SUCCESS [  2.184 s]
+[INFO] Apache CloudStack Framework - Managed Context ...... SUCCESS [  1.534 s]
+[INFO] Apache CloudStack Framework ........................ SUCCESS [  0.051 s]
+[INFO] Apache CloudStack Framework - Certificate Authority  SUCCESS [  0.103 s]
+[INFO] Apache CloudStack Utils ............................ SUCCESS [  3.846 s]
+[INFO] Apache CloudStack Framework - Database ............. SUCCESS [  0.719 s]
+[INFO] Apache CloudStack Framework - Configuration ........ SUCCESS [  0.475 s]
+[INFO] Apache CloudStack Framework - Direct Download to Primary Storage SUCCESS [  0.355 s]
+[INFO] Apache CloudStack Framework - Key Management Service SUCCESS [  0.405 s]
+[INFO] Apache CloudStack API .............................. SUCCESS [  1.797 s]
+[INFO] Apache CloudStack Framework - REST ................. SUCCESS [  0.354 s]
+[INFO] Apache CloudStack Framework - IPC .................. SUCCESS [  0.459 s]
+[INFO] Apache CloudStack Cloud Engine ..................... SUCCESS [  0.022 s]
+[INFO] Apache CloudStack Cloud Engine API ................. SUCCESS [  0.570 s]
+[INFO] Apache CloudStack Cloud Engine Schema Component .... SUCCESS [  4.103 s]
+[INFO] Apache CloudStack Framework - Security ............. SUCCESS [  0.698 s]
+[INFO] Apache CloudStack Core ............................. SUCCESS [  0.785 s]
+[INFO] Apache CloudStack Framework - Clustering ........... SUCCESS [  0.502 s]
+[INFO] Apache CloudStack Framework - Event Notification ... SUCCESS [  0.354 s]
+[INFO] Apache CloudStack Framework - Jobs ................. SUCCESS [  0.751 s]
+[INFO] Apache CloudStack Cloud Engine Internal Components API SUCCESS [  0.551 s]
+[INFO] Apache CloudStack Agent Management Servers Load Balancer SUCCESS [  0.052 s]
+[INFO] Apache CloudStack Framework - Storage Config Drive Component SUCCESS [  0.448 s]
+[INFO] Apache CloudStack Framework - Extensions ........... SUCCESS [  0.500 s]
+[INFO] Apache CloudStack Server ........................... SUCCESS [ 53.369 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:18 min
+[INFO] Finished at: 2026-10-27T00:52:28+09:00
+[INFO] ------------------------------------------------------------------------

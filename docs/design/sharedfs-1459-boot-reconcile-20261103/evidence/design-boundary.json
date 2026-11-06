@@ -1,0 +1,14 @@
+{
+  "productSourceChanges": 0,
+  "activeCodeDeployment": 0,
+  "moduleBuilds": 0,
+  "githubActionsBuilds": 0,
+  "mockupLocalBuild": true,
+  "existingUnitPreserved": true,
+  "issueAcceptanceCompleted": 0,
+  "nativeTrialErrorsCorrected": [
+    "private Export_Id range",
+    "same namespace mount/read"
+  ],
+  "uiConsoleErrors": 0
+}

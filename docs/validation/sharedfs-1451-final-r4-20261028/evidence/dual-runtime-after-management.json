@@ -1,0 +1,117 @@
+{
+  "capabilities": {
+    "activationConfirmation": true,
+    "catalogPolicyVersion": 1,
+    "commands": [
+      "capabilities",
+      "bootstrap",
+      "begin",
+      "status",
+      "finalize",
+      "verify",
+      "preflight",
+      "activate",
+      "rollback",
+      "cleanup"
+    ],
+    "currentVersion": "epic1438-1451-idmap-4e6b7d88289-r4",
+    "desiredStateSchemaVersion": "1",
+    "entrypointsManaged": true,
+    "integrity": {
+      "files": [
+        {
+          "mode": "0755",
+          "path": "ablestack-storagectl",
+          "sha256": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61"
+        },
+        {
+          "mode": "0755",
+          "path": "ablestack-storage-boot-reconcile",
+          "sha256": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277"
+        },
+        {
+          "mode": "0755",
+          "path": "ablestack-storage-monitor",
+          "sha256": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/volume_identity.py",
+          "sha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/volume_preparation.py",
+          "sha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/session_auth.py",
+          "sha256": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/configuration_transaction.py",
+          "sha256": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/configuration_preflight.py",
+          "sha256": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06"
+        },
+        {
+          "mode": "0644",
+          "path": "lib/ablestack-storage/nvmeof_identity.py",
+          "sha256": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+        }
+      ],
+      "verified": true
+    },
+    "payloadLayout": 2,
+    "previousVersion": null,
+    "runtimeAbiVersion": "1",
+    "success": true,
+    "supportedServiceImpacts": [
+      "NONE"
+    ],
+    "updaterSha256": "4cb0d0bbeef615753be3e532f2aa727a739434b652ae0c4dde48b342cb1d6fd0",
+    "updaterVersion": 3
+  },
+  "bootId": "98b3cc2c-9a54-4486-ac0c-492d1f7c1544",
+  "identity": {
+    "observationstatus": "APPLIED",
+    "endpoints": [
+      {
+        "port": 2049,
+        "endpoint": "0.0.0.0_2049",
+        "configuredmode": "NUMERIC",
+        "configuredrevision": 5,
+        "state": "APPLIED",
+        "effectivemode": "NUMERIC",
+        "observedrevision": 5,
+        "observeddomain": "localdomain",
+        "observedat": "1793155704.174416"
+      }
+    ],
+    "observedat": "1793156381.5988414",
+    "observeddomain": "localdomain",
+    "effectivemode": "NUMERIC",
+    "policyrevision": 5
+  },
+  "hashes": {
+    "/usr/local/bin/ablestack-storagectl": "112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61",
+    "/usr/local/bin/ablestack-storage-boot-reconcile": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+    "/usr/local/bin/ablestack-storage-monitor": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+    "/usr/local/lib/ablestack-storage/volume_identity.py": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+    "/usr/local/lib/ablestack-storage/volume_preparation.py": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+    "/usr/local/lib/ablestack-storage/session_auth.py": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+    "/usr/local/lib/ablestack-storage/configuration_transaction.py": "f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f",
+    "/usr/local/lib/ablestack-storage/configuration_preflight.py": "2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06",
+    "/usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+  },
+  "units": {
+    "ablestack-storage-runtime-bootstrap.service": "Result=success\nExecMainStatus=0\nActiveState=active\nSubState=exited\n",
+    "ablestack-storage-reconcile.service": "Result=success\nExecMainStatus=0\nActiveState=inactive\nSubState=dead\n"
+  },
+  "bootstrapJournal": "Oct 28 02:48:18 sharedfs-5cb74250-966e-3839-b671-6f5dbde6d62f systemd[1]: Starting ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap...\nOct 28 02:48:18 sharedfs-5cb74250-966e-3839-b671-6f5dbde6d62f ablestack-storage-runtime-updater[495]: {\"currentVersion\": \"epic1438-1451-idmap-4e6b7d88289-r4\", \"integrity\": {\"files\": [{\"mode\": \"0755\", \"path\": \"ablestack-storagectl\", \"sha256\": \"112b889b9244e95fca385e943e65553274e9bab388020c093da02bd9c3deaf61\"}, {\"mode\": \"0755\", \"path\": \"ablestack-storage-boot-reconcile\", \"sha256\": \"936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277\"}, {\"mode\": \"0755\", \"path\": \"ablestack-storage-monitor\", \"sha256\": \"896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/volume_identity.py\", \"sha256\": \"7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/volume_preparation.py\", \"sha256\": \"7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/session_auth.py\", \"sha256\": \"227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/configuration_transaction.py\", \"sha256\": \"f65e56067cb0811bd1f35ba6e195e564e694f62cd5d97f68fe6b1c25b2ab671f\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/configuration_preflight.py\", \"sha256\": \"2b9cd3e9747d165003a474829c56e5a0260865fbcf28e82736494d6f147c7e06\"}, {\"mode\": \"0644\", \"path\": \"lib/ablestack-storage/nvmeof_identity.py\", \"sha256\": \"12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144\"}], \"verified\": true}, \"phase\": \"BOOTSTRAPPED\", \"success\": true}\nOct 28 02:48:18 sharedfs-5cb74250-966e-3839-b671-6f5dbde6d62f systemd[1]: Finished ablestack-storage-runtime-bootstrap.service - ABLESTACK Storage Service runtime bootstrap.\n"
+}

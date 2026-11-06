@@ -1,0 +1,10 @@
+{
+  "keyId": "ablestack-runtime-cluster13",
+  "scope": "cluster13 operator runtime signing",
+  "store": "Windows DPAPI CurrentUser; user-only directory ACL",
+  "protectedFile": "%LOCALAPPDATA%/ABLESTACK/SharedFS/RuntimeSigning/cluster13.ed25519.dpapi",
+  "publicPemSha256": "fbf0c547b2099d6a89110a5cacc2a26cd4a3ecbed4473cb50625ad8154d883a5",
+  "publicSpkiSha256": "55b3263eb9c013daa291fb41832827748294c802c222a0934f8581740b947c35",
+  "plaintextPrivateKeyWritten": false,
+  "result": "EXISTS"
+}

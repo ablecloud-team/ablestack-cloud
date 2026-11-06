@@ -1,0 +1,35 @@
+{
+  "managedReady": false,
+  "managedPid": null,
+  "rawPid": 0,
+  "row": {
+    "configHash": "f0ff6f12e04aaa30546bc973f53c1b12add73ad4e8a51182c3468f1c4bbcc5b3",
+    "id": "87e8545d-6f8b-4da8-bdd8-a3c10de2e695",
+    "key": "87e8545d-6f8b-4da8-bdd8-a3c10de2e695-fc2aa3ad820d",
+    "kind": "profile",
+    "listenIp": "10.10.13.246",
+    "port": 445,
+    "unit": "ablestack-smb-87e8545d-6f8b-4da8-bdd8-a3c10de2e695-fc2aa3ad820d.service"
+  },
+  "actualSockets": [
+    [
+      "0.0.0.0",
+      22
+    ],
+    [
+      "0.0.0.0",
+      111
+    ],
+    [
+      "0.0.0.0",
+      139
+    ],
+    [
+      "0.0.0.0",
+      445
+    ]
+  ],
+  "rejectedCode": "SMB_ENDPOINT_IN_USE",
+  "writesPerformed": false,
+  "installedConfigurationUnchanged": true
+}

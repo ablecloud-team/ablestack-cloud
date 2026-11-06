@@ -1,0 +1,30 @@
+{
+  "existing54ObjectsPreserved": true,
+  "existing1455TreePreserved": true,
+  "originalFsPreserved": true,
+  "macPreserved": true,
+  "bootIdStillUnchanged": true,
+  "accountsUnchangedAfterFixedCreation": true,
+  "fixedDirectoryMode": "0o770",
+  "testObjects": 16,
+  "testFileHashes": {
+    "team-a/nfs-c1.txt": "bf44d10199b80332fa5b70ca22309c4b0d99e9f73821c48240d8850b17b241c5",
+    "team-a/local-c1-445.txt": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d",
+    "team-a/local-c1-1445.txt": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d",
+    "team-a/ad-c2-445.txt": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960",
+    "team-a/ad-c2-1445.txt": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960",
+    "team-a/posix-deny.txt": "2dbf56a817f85e302766938f86b9b3e169c90968c20ab033498dda773d18c4fa",
+    "team-a/after-mask.txt": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d",
+    "team-a/after-rollback-local.txt": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d",
+    "team-a/nfs-c2.txt": "69adecd8f82597d7d6b47311ea94df11059ab784906fc776317551e39178d5a9",
+    "team-a/after-rollback-ad.txt": "35414bb4f5912ac98c7fcf44cd7298b27328eb5e9cadf39cd1bc898bf090d960",
+    "team-a/after-online-session.txt": "685618740f35308ea6f1df42ba577855f517e491401877b1642d37f45f5feb0d",
+    "team-a/nfs-parent-c2.txt": "e8a249b79b7e03964555e4584c9278a8583fe4a1e4b6bb4865b4cdd20c742260"
+  },
+  "rootOwner": {
+    "uid": 7001,
+    "gid": 7002,
+    "mode": "0o770",
+    "inode": 8388760
+  }
+}

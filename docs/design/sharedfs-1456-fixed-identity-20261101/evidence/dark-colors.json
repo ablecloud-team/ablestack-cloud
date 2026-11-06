@@ -1,0 +1,21 @@
+{
+  "background": "rgb(34, 40, 47)",
+  "samples": [
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "selector": ".hint"
+    },
+    {
+      "background": "rgba(255, 77, 79, 0.14)",
+      "color": "rgb(255, 210, 210)",
+      "selector": ".ant-alert-error"
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(240, 243, 246)",
+      "selector": ".ant-input-number-input"
+    }
+  ],
+  "text": "rgb(240, 243, 246)"
+}

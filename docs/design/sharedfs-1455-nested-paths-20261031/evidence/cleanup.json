@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"ownedInitialHarnessRemnantsRemoved\": [\"/var/tmp/epic1455-bind-01764e1220\", \"/srv/ablestack-storage/volumes/e070a0aa-dbf5-48c0-83e0-09f874446277/.epic1455-bind-01764e1220\"], \"otherResourcesChanged\": false}\n",
+  "stderr": ""
+}

@@ -1,0 +1,12 @@
+{
+  "objects": 33,
+  "files": 17,
+  "metadataAclsInodesDataUnchanged": true,
+  "filesystemUnchanged": true,
+  "bootIdChanged": true,
+  "macUnchanged": true,
+  "ipv4Unchanged": true,
+  "managedFilesMatch": true,
+  "vendorWbinfoUnchanged": true,
+  "legacySmbd": "inactive"
+}

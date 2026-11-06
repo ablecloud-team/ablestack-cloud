@@ -1,0 +1,43 @@
+{
+  "_comment": "foo",
+  "binary": "samba-vfs-modules",
+  "binary_version": "2:4.17.12+dfsg-0+deb12u4",
+  "result": [
+    {
+      "architecture": "ppc64el",
+      "hash": "deba2ccaf6b904f22639907bc19cc230942c4947"
+    },
+    {
+      "architecture": "armel",
+      "hash": "07a6dd0a30a89e8fc47b654633cb016747741a96"
+    },
+    {
+      "architecture": "amd64",
+      "hash": "bfc535fdda3a72e71acf3189a3b45e8384850389"
+    },
+    {
+      "architecture": "s390x",
+      "hash": "b0fb2c325a33790a42a2368d77ca1e0d15021301"
+    },
+    {
+      "architecture": "arm64",
+      "hash": "244b10cbf0d61fa0b327e19751d5ae49de57093d"
+    },
+    {
+      "architecture": "armhf",
+      "hash": "157470ca10bbefdcbb908ba916f58159f05df0f2"
+    },
+    {
+      "architecture": "i386",
+      "hash": "e6b103d8f97765bf116ff3a23530427480b6329f"
+    },
+    {
+      "architecture": "mips64el",
+      "hash": "5a8d67fb540ad65dfdec458d1686560a94c0c484"
+    },
+    {
+      "architecture": "mipsel",
+      "hash": "f8fb64f12a3c65ac00a7536ead66737b59493c08"
+    }
+  ]
+}

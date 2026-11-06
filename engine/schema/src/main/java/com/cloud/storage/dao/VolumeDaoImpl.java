@@ -105,6 +105,25 @@ public class VolumeDaoImpl extends GenericDaoBase<VolumeVO, Long> implements Vol
             + " AND pool.scope = 'ZONE' AND pool.status='Up' " + " GROUP BY pool.id ORDER BY 2 ASC ";
 
     @Override
+    public List<VolumeVO> listCurrentDataByVmIds(java.util.Collection<Long> vmIds) {
+        if (vmIds == null || vmIds.isEmpty()) return java.util.Collections.emptyList();
+        List<Long> ids = new java.util.ArrayList<>(new java.util.LinkedHashSet<>(vmIds));
+        List<VolumeVO> result = new java.util.ArrayList<>();
+        for (int offset = 0; offset < ids.size(); offset += 512) {
+            SearchBuilder<VolumeVO> sb = createSearchBuilder();
+            sb.and("vms", sb.entity().getInstanceId(), Op.IN);
+            sb.and("type", sb.entity().getVolumeType(), Op.EQ);
+            sb.and("removed", sb.entity().getRemoved(), Op.NULL);
+            sb.done();
+            SearchCriteria<VolumeVO> sc = sb.create();
+            sc.setParameters("vms", ids.subList(offset, Math.min(offset + 512, ids.size())).toArray());
+            sc.setParameters("type", Type.DATADISK);
+            result.addAll(listBy(sc));
+        }
+        return result;
+    }
+
+    @Override
     public List<VolumeVO> findDetachedByAccount(long accountId) {
         SearchCriteria<VolumeVO> sc = DetachedAccountIdSearch.create();
         sc.setParameters("accountId", accountId);

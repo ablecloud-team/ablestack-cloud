@@ -1,0 +1,170 @@
+{
+  "success": true,
+  "designOnly": true,
+  "scope": "private mount namespace; loop-backed SPARSE files only; no Cloud business API or live protocol mutation",
+  "checks": [
+    {
+      "name": "xfs sparse backing",
+      "passed": true,
+      "logicalBytes": 536870912,
+      "allocatedBytes": 0
+    },
+    {
+      "name": "xfs external aliases map by UUID/device/inode/FSROOT",
+      "passed": true
+    },
+    {
+      "name": "xfs existing helper only removes base mount",
+      "passed": true,
+      "externalAliasesRemain": true
+    },
+    {
+      "name": "xfs data still readable through retained alias",
+      "passed": true
+    },
+    {
+      "name": "xfs busy alias blocks before detach/VM/delete",
+      "passed": true,
+      "detachCalls": 0,
+      "vmExpungeCalls": 0,
+      "volumeDeleteCalls": 0
+    },
+    {
+      "name": "xfs reject ROOT/foreign path before helper",
+      "passed": true,
+      "helperCallsForRejected": 0
+    },
+    {
+      "name": "xfs verified aliases first then normal base unmount",
+      "passed": true
+    },
+    {
+      "name": "xfs detached observation resumes without helper",
+      "passed": true,
+      "repeatedUnmountCalls": 0
+    },
+    {
+      "name": "xfs reattach/remount preserves file, FSUUID, inode, owner, mode, ACL",
+      "passed": true,
+      "before": {
+        "hash": "2f74c63fee6768c3af5af8aac58cefda9fc9b5335c39dfd5fed6b437322808f2",
+        "identity": {
+          "target": "/var/tmp/epic1461-design-20261105-a/xfs-mount",
+          "source": "/dev/loop0",
+          "fstype": "xfs",
+          "uuid": "4c5cca73-1d91-4898-b5db-2b87e98a50a6",
+          "fsroot": "/",
+          "device": 1792,
+          "inode": 262272,
+          "uid": 1234,
+          "gid": 2345,
+          "mode": "0o2770"
+        },
+        "acl": "user::rwx\nuser:2001:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:2001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+      },
+      "after": {
+        "hash": "2f74c63fee6768c3af5af8aac58cefda9fc9b5335c39dfd5fed6b437322808f2",
+        "identity": {
+          "target": "/var/tmp/epic1461-design-20261105-a/xfs-mount",
+          "source": "/dev/loop0",
+          "fstype": "xfs",
+          "uuid": "4c5cca73-1d91-4898-b5db-2b87e98a50a6",
+          "fsroot": "/",
+          "device": 1792,
+          "inode": 262272,
+          "uid": 1234,
+          "gid": 2345,
+          "mode": "0o2770"
+        },
+        "acl": "user::rwx\nuser:2001:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:2001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+      }
+    },
+    {
+      "name": "ext4 sparse backing",
+      "passed": true,
+      "logicalBytes": 536870912,
+      "allocatedBytes": 0
+    },
+    {
+      "name": "ext4 external aliases map by UUID/device/inode/FSROOT",
+      "passed": true
+    },
+    {
+      "name": "ext4 existing helper only removes base mount",
+      "passed": true,
+      "externalAliasesRemain": true
+    },
+    {
+      "name": "ext4 data still readable through retained alias",
+      "passed": true
+    },
+    {
+      "name": "ext4 busy alias blocks before detach/VM/delete",
+      "passed": true,
+      "detachCalls": 0,
+      "vmExpungeCalls": 0,
+      "volumeDeleteCalls": 0
+    },
+    {
+      "name": "ext4 reject ROOT/foreign path before helper",
+      "passed": true,
+      "helperCallsForRejected": 0
+    },
+    {
+      "name": "ext4 verified aliases first then normal base unmount",
+      "passed": true
+    },
+    {
+      "name": "ext4 detached observation resumes without helper",
+      "passed": true,
+      "repeatedUnmountCalls": 0
+    },
+    {
+      "name": "ext4 reattach/remount preserves file, FSUUID, inode, owner, mode, ACL",
+      "passed": true,
+      "before": {
+        "hash": "32c7c816ae9d418cfe45aef4d61fabc52ee32a6d9ef7e9e663013776c3b91280",
+        "identity": {
+          "target": "/var/tmp/epic1461-design-20261105-a/ext4-mount",
+          "source": "/dev/loop0",
+          "fstype": "ext4",
+          "uuid": "480df148-113b-42ac-a4c2-3e1e60c678a3",
+          "fsroot": "/",
+          "device": 1792,
+          "inode": 13,
+          "uid": 1234,
+          "gid": 2345,
+          "mode": "0o2770"
+        },
+        "acl": "user::rwx\nuser:2001:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:2001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+      },
+      "after": {
+        "hash": "32c7c816ae9d418cfe45aef4d61fabc52ee32a6d9ef7e9e663013776c3b91280",
+        "identity": {
+          "target": "/var/tmp/epic1461-design-20261105-a/ext4-mount",
+          "source": "/dev/loop0",
+          "fstype": "ext4",
+          "uuid": "480df148-113b-42ac-a4c2-3e1e60c678a3",
+          "fsroot": "/",
+          "device": 1792,
+          "inode": 13,
+          "uid": 1234,
+          "gid": 2345,
+          "mode": "0o2770"
+        },
+        "acl": "user::rwx\nuser:2001:rwx\ngroup::rwx\nmask::rwx\nother::---\ndefault:user::rwx\ndefault:user:2001:rwx\ndefault:group::rwx\ndefault:mask::rwx\ndefault:other::---\n\n"
+      }
+    },
+    {
+      "name": "raw loop detach/reattach preserves exact bytes without filesystem",
+      "passed": true,
+      "sha256": "8b803415a51eb6750dffc95c933d9b700e6bc6a991461e51ca961e7e625282f0"
+    }
+  ],
+  "productSourceModified": false,
+  "liveProtocolRestarted": false,
+  "loopDevicesReleased": true,
+  "productionProtectedFilesUnchanged": true,
+  "protectedFileCount": 6,
+  "cliSha256": "c09a749ef83294cdb0dd544d7c61a5502873ce4a5cf612c927b6b6313330a3ef"
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "command": "updateVolume",
+    "method": "POST",
+    "params": {
+      "command": "updateVolume",
+      "response": "json",
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "epic1438-1440-nfs-data-20261021-01"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "6ffcf02c-060c-4b62-8cb7-a9b4ccc1158b"
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "params": {
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "6ffcf02c-060c-4b62-8cb7-a9b4ccc1158b",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "volumes": [
+        {
+          "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "name": "epic1438-1440-nfs-data-20261021-01",
+          "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "state": "Ready",
+          "size": 21474836480,
+          "type": "DATADISK",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+          "deviceid": 1,
+          "deleteprotection": false,
+          "provisioningtype": "sparse",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+        }
+      ]
+    }
+  },
+  {
+    "command": "updateVolume",
+    "method": "POST",
+    "params": {
+      "command": "updateVolume",
+      "response": "json",
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "deleteprotection": "true"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "26939e4e-04fe-4954-93eb-e91f321448e9"
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "params": {
+      "jobId": "26939e4e-04fe-4954-93eb-e91f321448e9",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "26939e4e-04fe-4954-93eb-e91f321448e9",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "volumes": [
+        {
+          "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "name": "epic1438-1440-nfs-data-20261021-01",
+          "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "state": "Ready",
+          "size": 21474836480,
+          "type": "DATADISK",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+          "deviceid": 1,
+          "deleteprotection": true,
+          "provisioningtype": "sparse",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+        }
+      ]
+    }
+  },
+  {
+    "command": "updateVolume",
+    "method": "POST",
+    "params": {
+      "command": "updateVolume",
+      "response": "json",
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "deleteprotection": "false"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "941f34fb-e7c0-49d7-93f4-bc4eebbbfea1"
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "params": {
+      "jobId": "941f34fb-e7c0-49d7-93f4-bc4eebbbfea1",
+      "command": "queryAsyncJobResult",
+      "response": "json"
+    },
+    "httpStatus": 200,
+    "reply": {
+      "jobid": "941f34fb-e7c0-49d7-93f4-bc4eebbbfea1",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "volumes": [
+        {
+          "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "name": "epic1438-1440-nfs-data-20261021-01",
+          "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "state": "Ready",
+          "size": 21474836480,
+          "type": "DATADISK",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+          "deviceid": 1,
+          "deleteprotection": false,
+          "provisioningtype": "sparse",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+        }
+      ]
+    }
+  }
+]

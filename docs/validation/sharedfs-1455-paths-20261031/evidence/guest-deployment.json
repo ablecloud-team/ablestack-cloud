@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "method": "operator module maintenance; existing trust signatures verified; no service/configuration reapply",
+  "previousVersion": "1454.creation.2",
+  "currentVersion": "1455.paths.1",
+  "protectedBaseline": 8,
+  "verifiedManagedFiles": 10,
+  "manifestSha256": "73608851d32c1b5738fccde72c71c1e1b2692fd2fb73aaedf8819a2cd6567741",
+  "protectedModuleSha256": "516ca9674b58b7aecb46913b64d910812d198c8086c5fba825b91d663e92f329",
+  "rollbackRoot": "/var/tmp/epic1455-paths-before"
+}

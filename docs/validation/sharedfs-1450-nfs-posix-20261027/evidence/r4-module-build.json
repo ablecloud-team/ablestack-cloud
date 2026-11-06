@@ -1,0 +1,35 @@
+{
+  "management": {
+    "beforeSha256": "761de3eaccfd94c5147589715714325e83b5b608da546dee6bcb157760588f7a",
+    "afterSha256": "978ce74bb62557ebb63a6d210669471ae9aae5ad99b505ab5c7eca0e375c2b12",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "before": "21b82fd345ae5528f09c8f643b4b67aa5265ea7b6460871685945a5d97a5fdff",
+        "after": "086ae3e6a7168eb5cd8bfc84deeff92e00b118d55cedb934205d0b04e5716244"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+        "before": "7f2da71eed7c0dd31ac04cc3e953208c3f6f98384a4c91ab7e5125fdbf40b01e",
+        "after": "bb7885a50de988112ed6759e88ae9a9270d7cd56264a5a389fd351e7ec7bed9e"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class",
+        "before": "e866ac2db6bfb4bba53b28eec1fefa5093d4abfc45bc8e92a1f7659dfc2f03a9",
+        "after": "f49c54cd7ed2df69b2b839ed242f2a1e2c9064ec1a920b258dbd59fe9d998da9"
+      },
+      {
+        "path": "storage-runtime/bootstrap/runtime-baseline-profile.json",
+        "before": "cf7d8c9d9c402c5db79e14ce72938fb1c2f65fda2f6f0fc33abfbedf9399dda4",
+        "after": "ad822e06b5a87dbf31b9fd750a860ab8f82404586150a57076e182c934156982"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageNfsPosix.class",
+        "before": "8defc4fc853ee0aaf4876b5704a64eb45c61804b02d4b6863a36e23ec8e47986",
+        "after": "0cc71230c344d96c6c207e2b78628b700b4cbc57ac2e616e7a1053c36b4ebe03"
+      }
+    ],
+    "unrelatedEntriesByteIdentical": true
+  },
+  "schemaMigration": false
+}

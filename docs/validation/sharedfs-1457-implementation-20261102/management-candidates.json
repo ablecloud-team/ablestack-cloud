@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "0c4411ab8ccd92a4ef3c93e9b27afd43ac3bc6ce",
+  "entries": {
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": "f4b82e56604b405d217fa584472e884fa32d1edf3813962a33ae03519fd4b9c6",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": "424d51758f68324339c6d417c84d0671c303bd8db9cb8f79292ecdd451c1e8d9",
+    "org/apache/cloudstack/api/response/StorageServiceConfigurationPreflightResponse.class": "9094d0b4d781a0ac11cb6e14e6a76ebaf764d0ad61bb1b389e5b1ea95b7b287a",
+    "org/apache/cloudstack/api/response/StorageSmbShareResponse.class": "bb57dfda4f541fc19c3151d0e771b60ac1d19aa428c802987c4d6a1f9b5e9f29",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": "adb339cde708dd75a217a53da3249736afb120f2624261963d944541cca5f5d1",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$Rejected.class": "49fb08c74cf5e04f504396d7a84c46414a22348db8bc983c958eba45cc623449",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$SmbInheritanceObserver.class": "a15cfe423085556263eaeb83dd04e77dd5af7119d2fa5412973f6c97da66be79",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": "503223f977f2dc9ffe600a59f868885ab47dd19822d700ea77ad34ec5c47b0ad",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight$DirectoryObserver.class": "3ce4470fccad2e2a228ff1c41fb202bbe3bf410c13ff2c3a04c339a3fdaeba92",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "7ac6e3bed09d3c49e699d776727cd5286dcecd9e1db4e1a168e1ecfc3350fc1c",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class": "e94f68710a51bfbfc72a5dafc89a99090201debe86412f713d55f48eda1e17e7",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class": "0f4d42704722cbcf4d0c0235a213a19c3fec9b8d16debfe895f9f145fb9f2935",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ProtocolResponseContext.class": "8f59955116cc9ed6e5d26b3ebb419daf5d220825f6fb3d0fe6068b0efd832e7e",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbClientAccessPolicy.class": "fdc9300ab4f0b6450c598f45a4c8f0b7ccc1cfe3e5b33d6b8bcfd73b3dcb9aee",
+    "storage-runtime/bootstrap/runtime_updater.py": "f3c3cfa59004c4fd2ceb483fdc29aaa4ec720618b2140eea6081d74107ce28f3",
+    "storage-runtime/bootstrap/runtime-baseline-profile.json": "02b79dee9be6df6f2ad0f60b12e804cec40ee51216397e7a9b884778f6f28368"
+  }
+}

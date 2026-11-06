@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"success\": true, \"faultConsumed\": {\"expectedFault\": \"post-SMB-apply trust verification\", \"parentPid\": 784338, \"once\": true}, \"vendorBinaryUnchanged\": true, \"trustVerified\": true, \"temporaryResourcesRemoved\": true}\n",
+  "stderr": ""
+}

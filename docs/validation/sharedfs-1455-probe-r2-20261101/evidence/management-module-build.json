@@ -1,0 +1,15 @@
+{
+  "sourceCommit": "82d83b6c2c0477b30c6fb5a5865c57f105b2d088",
+  "entries": {
+    "org/apache/cloudstack/api/response/StorageNfsExportResponse.class": "09bca15b7ba0171fd020559518a10234ec4b6249b5af03988c51a90b14d3a60f",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "c5ecab138d8250d4fd13b5d5f53f3eabd8f095a1b2a11aa493d7584dab7e7772",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class": "f13db23f2e0c4b0df4331bb7d4043f8e2b720aceb814ca033f2d10e78847aa4a",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class": "32d78c7b9a7af9827acbbcf917580b538ae15c2bac4b80ff3bf7ce071c8eb51d",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ProtocolResponseContext.class": "8f59955116cc9ed6e5d26b3ebb419daf5d220825f6fb3d0fe6068b0efd832e7e",
+    "storage-runtime/bootstrap/runtime_updater.py": "516ca9674b58b7aecb46913b64d910812d198c8086c5fba825b91d663e92f329",
+    "storage-runtime/bootstrap/runtime-baseline-profile.json": "10b820e1b4ba15f819d282a87d506721f4d9096fce724b93065b71f7e75fffe0"
+  },
+  "sha256": "ec865caf0f7b6c91c64149e42ad38f1e41f6da896e40c44637026ba1197f4367",
+  "databaseMigrationRequired": false,
+  "agentChanges": false
+}

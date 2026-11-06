@@ -1,0 +1,76 @@
+{
+  "dmi": "2e65bb57-9f05-39ef-bd89-08daadd33364",
+  "bootId": "48a27f8d-1be7-4c36-a726-4751bc1afb69",
+  "runtime": "1458.capacity.1",
+  "files": {
+    "ablestack-storagectl": "a3f7fbc71b23a68d7f627369bdb731fefbd73173c5037e8652f324c6c758d9dd",
+    "ablestack-storage-boot-reconcile": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+    "ablestack-storage-monitor": "bbff97a73cd2e772d30d95d894658a1e454ff1c2d4bef825dfca9a7a60c09f18",
+    "lib/ablestack-storage/configuration_transaction.py": "273c54b768f641fe6a31ccb9bf7a76faa6bbd71fac85744e9499bdabb9579bda",
+    "lib/ablestack-storage/shared_directory_policy.py": "9e3ef4816b8d30ba3a236e3c352fa6a823c887762d4e0e67cb8ad5970222f6aa"
+  },
+  "desiredHashes": {
+    "/etc/ablestack-storage/iscsi-targets.json": "3d1076dfec29f52a00836f8fd05e6a52b998d15eb4298b49706fd109e0f57869",
+    "/etc/ablestack-storage/desired-state/smb-share-apply.json": "1e91f45a90f291a92baf65fc8148906aaa5f6f3b47604ca8ea6bb86b15cb1944",
+    "/etc/ablestack-storage/desired-state/nfs-export-apply.json": "f85a5c28aa72496aef9b301105f16c0dfeb9b2255d2a7567b6ef3e8cdb277d37",
+    "/etc/ablestack-storage/desired-state/directory-policy.json": "2d6f5c0ee78925cb10ebc0d9d837d3b33c7d62e7620dd7f0899f8289fda6dd0d"
+  },
+  "nfs": {
+    "enabled": true,
+    "protocolMode": "V4_ONLY",
+    "exports": [
+      {
+        "uuid": "9d9da57e-7dae-4252-a5a9-6cc4278d260b",
+        "name": "cap1458-root",
+        "path": "/export/cap1458-root",
+        "state": "Ready",
+        "config": {
+          "listenerGroupPorts": [
+            2049
+          ],
+          "protocolMode": "V4_ONLY"
+        }
+      },
+      {
+        "uuid": "1722f57b-b0e8-4ffd-9fa0-7f7bdbff173c",
+        "name": "cap1458-team",
+        "path": "/export/cap1458-team",
+        "state": "Ready",
+        "config": {
+          "listenerGroupPorts": [
+            2049
+          ],
+          "protocolMode": "V4_ONLY"
+        }
+      },
+      {
+        "uuid": "dcd2106b-748b-4ceb-b85d-f90b73bf3088",
+        "name": "cap1458-ext4",
+        "path": "/export/cap1458-ext4",
+        "state": "Ready",
+        "config": {
+          "listenerGroupPorts": [
+            2049
+          ],
+          "protocolMode": "V4_ONLY"
+        }
+      }
+    ]
+  },
+  "reconcileUnit": {
+    "rc": 0,
+    "stdout": "# /etc/systemd/system/ablestack-storage-reconcile.service\n[Unit]\nDescription=ABLESTACK Storage Service boot reconcile\nAfter=local-fs.target cloud-early-config.service ablestack-storage-runtime-bootstrap.service ablestack-sharedfs-network.service network-online.target qemu-guest-agent.service rtslib-fb-targetctl.service\nRequires=ablestack-storage-runtime-bootstrap.service\nWants=ablestack-sharedfs-network.service network-online.target\nBefore=ablestack-storage-monitor.service\n\n[Service]\nType=oneshot\nExecStart=/usr/local/bin/ablestack-storage-boot-reconcile\nTimeoutStartSec=120\n\n[Install]\nWantedBy=multi-user.target\n",
+    "stderr": ""
+  },
+  "status": {
+    "rc": 0,
+    "stdout": "Result=success\nExecMainStartTimestamp=Mon 2026-11-02 17:35:32 UTC\nExecMainExitTimestamp=Mon 2026-11-02 17:35:37 UTC\nExecMainStatus=0\nActiveState=inactive\n",
+    "stderr": ""
+  },
+  "logTail": "2026-11-02T16:00:28+00:00 no saved Storage Service desired state; skipping boot reconcile\n2026-11-02T17:35:32+00:00 starting boot reconcile nfs=/etc/ablestack-storage/desired-state/nfs-export-apply.json smb=/etc/ablestack-storage/desired-state/smb-share-apply.json iscsi=/etc/ablestack-storage/iscsi-targets.json nvmeof=/etc/ablestack-storage/nvmeof-subsystems.json\n2026-11-02T17:35:32+00:00 attempt 1/12\n{\"schemaVersion\": 1, \"source\": \"guest\", \"observedAt\": \"2026-11-02T17:35:32Z\", \"observedEpoch\": 1793640932.8854969, \"status\": \"READY\", \"phase\": \"NETWORK_PRIMARY\", \"mode\": \"STATIC\", \"desired\": {\"ipAddress\": \"10.10.13.240\", \"cidr\": \"10.10.0.0/16\", \"prefixlen\": 16, \"gateway\": \"10.10.0.1\", \"dns\": [\"8.8.8.8\"], \"macAddress\": \"02:0d:00:cc:00:97\"}, \"interface\": \"eth0\", \"macAddress\": \"02:0d:00:cc:00:97\", \"owner\": \"SharedFS STATIC policy\", \"addresses\": [{\"family\": \"inet\", \"local\": \"10.10.13.240\", \"prefixlen\": 16, \"scope\": \"global\", \"label\": \"eth0\", \"valid_life_time\": 4294967295, \"preferred_life_time\": 4294967295}], \"routes\": [{\"dst\": \"default\", \"gateway\": \"10.10.0.1\", \"dev\": \"eth0\", \"metric\": 100, \"flags\": []}, {\"dst\": \"10.10.0.0/16\", \"dev\": \"eth0\", \"protocol\": \"kernel\", \"scope\": \"link\", \"prefsrc\": \"10.10.13.240\", \"flags\": []}], \"dns\": [\"8.8.8.8\"], \"aliases\": [{\"ipaddress\": \"10.10.13.240\", \"prefixlen\": 16, \"active\": true}], \"lastApply\": {\"error\": null, \"observedEpoch\": 1793640932.6261194, \"phase\": \"NETWORK_PRIMARY\", \"status\": \"READY\"}}\n{\"count\": 1, \"endpoints\": [{\"active\": true, \"changed\": false, \"interface\": \"eth0\", \"listenIp\": \"10.10.13.240\", \"prefixlen\": 16}], \"status\": \"ok\", \"success\": true}\n{\"schemaVersion\": 1, \"source\": \"guest\", \"observedAt\": \"2026-11-02T17:35:32Z\", \"observedEpoch\": 1793640932.9485686, \"status\": \"READY\", \"phase\": \"NETWORK_PRIMARY\", \"mode\": \"STATIC\", \"desired\": {\"ipAddress\": \"10.10.13.240\", \"cidr\": \"10.10.0.0/16\", \"prefixlen\": 16, \"gateway\": \"10.10.0.1\", \"dns\": [\"8.8.8.8\"], \"macAddress\": \"02:0d:00:cc:00:97\"}, \"interface\": \"eth0\", \"macAddress\": \"02:0d:00:cc:00:97\", \"owner\": \"SharedFS STATIC policy\", \"addresses\": [{\"family\": \"inet\", \"local\": \"10.10.13.240\", \"prefixlen\": 16, \"scope\": \"global\", \"label\": \"eth0\", \"valid_life_time\": 4294967295, \"preferred_life_time\": 4294967295}], \"routes\": [{\"dst\": \"default\", \"gateway\": \"10.10.0.1\", \"dev\": \"eth0\", \"metric\": 100, \"flags\": []}, {\"dst\": \"10.10.0.0/16\", \"dev\": \"eth0\", \"protocol\": \"kernel\", \"scope\": \"link\", \"prefsrc\": \"10.10.13.240\", \"flags\": []}], \"dns\": [\"8.8.8.8\"], \"aliases\": [{\"ipaddress\": \"10.10.13.240\", \"prefixlen\": 16, \"active\": true}], \"lastApply\": {\"error\": null, \"observedEpoch\": 1793640932.8881466, \"phase\": \"NETWORK_READY\", \"status\": \"READY\"}}\n{\"endpoints\": 1, \"exports\": 3, \"listenPorts\": {\"0.0.0.0\": 2049}, \"quotas\": 0, \"rpcbindActive\": true, \"rpcbindRequired\": false, \"runtimeEndpoints\": [{\"exportsVisible\": null, \"key\": \"0.0.0.0_2049\", \"listenIp\": \"0.0.0.0\", \"listening\": true, \"logPath\": \"/run/ablestack-storage/ganesha/0.0.0.0_2049.log\", \"pid\": 1532, \"port\": 2049, \"probeComplete\": false, \"probeResults\": [{\"exportName\": \"cap1458-root\", \"exportUuid\": \"9d9da57e-7dae-4252-a5a9-6cc4278d260b\", \"probes\": [{\"mode\": \"host-selection\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"NOT_APPLICABLE_LOCAL_ACL\", \"success\": null}], \"protocolMode\": \"V4_ONLY\", \"pseudoPath\": \"/cap1458-root\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"EXTERNAL_CLIENT_REQUIRED\", \"success\": null, \"targetPath\": \"/export/cap1458-root\"}, {\"exportName\": \"cap1458-team\", \"exportUuid\": \"1722f57b-b0e8-4ffd-9fa0-7f7bdbff173c\", \"probes\": [{\"mode\": \"host-selection\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"NOT_APPLICABLE_LOCAL_ACL\", \"success\": null}], \"protocolMode\": \"V4_ONLY\", \"pseudoPath\": \"/cap1458-team\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"EXTERNAL_CLIENT_REQUIRED\", \"success\": null, \"targetPath\": \"/export/cap1458-team\"}, {\"exportName\": \"cap1458-ext4\", \"exportUuid\": \"dcd2106b-748b-4ceb-b85d-f90b73bf3088\", \"probes\": [{\"mode\": \"host-selection\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"NOT_APPLICABLE_LOCAL_ACL\", \"success\": null}], \"protocolMode\": \"V4_ONLY\", \"pseudoPath\": \"/cap1458-ext4\", \"reason\": \"LOCAL_ADDRESS_EXCLUDED_BY_ACL\", \"status\": \"EXTERNAL_CLIENT_REQUIRED\", \"success\": null, \"targetPath\": \"/export/cap1458-ext4\"}], \"probeSuccess\": true, \"processRunning\": true, \"protocolMode\": \"V4_ONLY\"}], \"runtimeProbeComplete\": false, \"runtimeProbeFailures\": [], \"runtimeProbeSuccess\": true, \"runtimeReady\": true, \"success\": true}\n2026-11-02T17:35:34+00:00 NFS desired state reapplied successfully\nLoad smb config files from /etc/samba/.ablestack-candidate-py2ju8l2\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\nWARNING: lock directory /run/samba does not exist\n\nWARNING: pid directory /run/samba does not exist\n\nServer role: ROLE_STANDALONE\n\n{\"success\": true, \"shares\": 1, \"quotas\": 0, \"adJoined\": false, \"netbiosName\": \"STORBDE91E7D64\", \"access\": {\"acca6b76-3cb8-46a9-8bd0-a06d2735d879\": {\"shareName\": \"cap1458-smb\", \"path\": \"/srv/ablestack-storage/volumes/f79e348b-a3db-45c1-bd68-77302df8041f/export/cap1458-root/team\", \"configuredAclCount\": 1, \"appliedAclCount\": 1, \"guestOk\": false, \"accessState\": \"acl_applied\", \"directoryMode\": \"0o2777\", \"aclSummary\": [{\"principalType\": \"LOCAL_USER\", \"principal\": \"cap1458\", \"permission\": \"READ_WRITE\", \"state\": \"Ready\"}]}}}\n{\"success\": true, \"runtimeReady\": true}\n2026-11-02T17:35:35+00:00 SMB desired state reapplied successfully\n{\"success\": true, \"targets\": 0, \"applied\": 0, \"skipped\": 0, \"ports\": [], \"listening\": true, \"runtimeTargets\": []}\n2026-11-02T17:35:36+00:00 iSCSI desired state reapplied successfully\n",
+  "tools": {
+    "rc": 0,
+    "stdout": "/usr/bin/unshare\n/usr/bin/ganesha.nfsd\n/usr/bin/timeout\n/usr/sbin/mount.nfs4\n",
+    "stderr": ""
+  }
+}

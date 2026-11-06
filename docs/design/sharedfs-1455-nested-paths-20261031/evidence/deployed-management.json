@@ -1,0 +1,10 @@
+{
+  "managementSha256": "ec836625519820bac02eea1aeaf5ea00ffe5baa90e7bd61e265e7d832f06b0fd",
+  "uiIndexSha256": "ede1f23e654b6116b848d65aa74512f2e58cb3239e194a1cc11f50d226293220",
+  "sourceAndDeployedClassMatches": {
+    "StorageServiceManagerImpl": "d714600343ae0d4b0daef7370b5db6276e83095c19658721645ad6713e4bdcd8",
+    "StorageDirectoryPolicies": "2f5beccb4c6b8fcb513306d6b9d91c689d77f9ce1bac59e90c55b12f55017c19",
+    "StorageServiceConfigurationCoordinator": "98b01fc2e821f9ef5606e5f6e7fb75f3b052979995720468cf455d8754ab16cc"
+  },
+  "changed": false
+}

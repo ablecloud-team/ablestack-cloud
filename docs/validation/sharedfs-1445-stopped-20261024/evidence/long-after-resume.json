@@ -1,0 +1,17 @@
+{
+  "operation": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+  "launchCount": 1,
+  "delaySeconds": 310,
+  "elapsed": 375.6205313205719,
+  "lastHeartbeatElapsed": 310.5528521537781,
+  "childReturncode": 0,
+  "guestFiles": [
+    "runner-progress.json",
+    "runner.json",
+    "before.json",
+    "request.json",
+    "runner-result.json",
+    "status.json",
+    "candidate-completed.json"
+  ]
+}

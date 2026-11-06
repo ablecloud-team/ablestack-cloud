@@ -1,0 +1,1 @@
+{"preflightstorageserviceconfigurationresponse":{"configurationpreflight":{"status":"READY","revision":2,"fingerprint":"design-fingerprint","observedat":"2026-10-24T17:00:00+0900","cancellationsupported":false,"checks":[{"code":"MEMORY_AVAILABLE","blocking":false,"availablebytes":3777335296,"requiredbytes":218251608}]}}}

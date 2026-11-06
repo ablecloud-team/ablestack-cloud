@@ -1,0 +1,50 @@
+{
+  "designOnly": true,
+  "productAcceptance": false,
+  "mockupBuildHash": "41ddd071492db6799e19",
+  "checks": [
+    {
+      "name": "filter does not change provisioned total or volume count",
+      "passed": true
+    },
+    {
+      "name": "actual MoldDialog keeps header and footer fixed while body scrolls",
+      "passed": true,
+      "before": {
+        "client": 534,
+        "foot": 622,
+        "head": 33,
+        "scroll": 0,
+        "total": 739
+      },
+      "after": {
+        "client": 534,
+        "foot": 622,
+        "head": 33,
+        "scroll": 205,
+        "total": 739
+      }
+    },
+    {
+      "name": "unobserved usage remains dash with current provisioning",
+      "passed": true
+    },
+    {
+      "name": "stale usage is marked historical with observation time",
+      "passed": true
+    },
+    {
+      "name": "attachment transition does not reuse old usage as current",
+      "passed": true
+    },
+    {
+      "name": "complete filesystem scenario counts three DATA once",
+      "passed": true
+    },
+    {
+      "name": "final mockup filter retains 120 GiB / four DATA",
+      "passed": true
+    }
+  ],
+  "consoleErrors": []
+}

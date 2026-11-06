@@ -1,0 +1,1320 @@
+{
+  "equal": true,
+  "fields": [
+    "id",
+    "requestid",
+    "state",
+    "phase",
+    "baserevision",
+    "targetrevision",
+    "created",
+    "updated",
+    "completed",
+    "originalfailure",
+    "rollback"
+  ],
+  "before": [
+    {
+      "id": "073fb807-daf3-4c2d-b034-df92b21ea678",
+      "requestid": "146b37d4-dd04-47c8-b053-ec062b14c6da",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-30T16:22:18+0900",
+      "updated": "2026-10-30T16:22:25+0900",
+      "completed": "2026-10-30T16:22:25+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "14bdce65-3f73-4005-b46f-71835c60eec8",
+      "requestid": "8810d178-7a5e-46ec-ba75-d2bd479087b5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 29,
+      "targetrevision": 30,
+      "created": "2026-11-01T01:36:35+0900",
+      "updated": "2026-11-01T01:36:44+0900",
+      "completed": "2026-11-01T01:36:44+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "14c995dd-c6c9-4792-868b-a90d48f11b6a",
+      "requestid": "5f5867ae-de55-437e-bbe4-1a1f9ed3f0d0",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 20,
+      "targetrevision": 21,
+      "created": "2026-10-31T19:20:11+0900",
+      "updated": "2026-10-31T19:20:20+0900",
+      "completed": "2026-10-31T19:20:20+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+      "requestid": "caf503d6-4ade-4381-805e-9fbb57d80027",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 36,
+      "targetrevision": 37,
+      "created": "2026-11-01T09:31:13+0900",
+      "updated": "2026-11-01T13:06:32+0900",
+      "completed": "2026-11-01T13:06:32+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "1ff0e3ac-e55e-47a7-b315-912886b3fa5d",
+      "requestid": "2e3857fe-ea4a-433d-af23-3931cb923f06",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 18,
+      "targetrevision": 19,
+      "created": "2026-10-31T10:49:27+0900",
+      "updated": "2026-10-31T10:49:39+0900",
+      "completed": "2026-10-31T10:49:39+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "28b825b8-442d-4693-a011-f71d6fc8eb56",
+      "requestid": "ac522f09-0bd5-4b7f-9d60-bcd84a3020a3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-30T16:17:29+0900",
+      "updated": "2026-10-30T16:17:38+0900",
+      "completed": "2026-10-30T16:17:38+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "2cbe4f3b-991b-4c52-8896-387129ab32e3",
+      "requestid": "01bd0b54-2c52-46ca-b582-534a6324cd15",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 21,
+      "targetrevision": 22,
+      "created": "2026-10-31T19:23:00+0900",
+      "updated": "2026-10-31T19:23:09+0900",
+      "completed": "2026-10-31T19:23:09+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "2d28b07d-9e80-4d48-9914-2b8ed6d681ed",
+      "requestid": "2cc2d94f-c39d-4836-a9e9-8d4357c2cde1",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 24,
+      "targetrevision": 25,
+      "created": "2026-10-31T19:32:14+0900",
+      "updated": "2026-10-31T19:32:23+0900",
+      "completed": "2026-10-31T19:32:23+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "38aa59e8-7888-4051-9584-f456fdb01ffa",
+      "requestid": "973c3cd3-e574-48a2-9eff-d793d4064488",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 19,
+      "targetrevision": 20,
+      "created": "2026-10-31T18:25:59+0900",
+      "updated": "2026-10-31T18:26:08+0900",
+      "completed": "2026-10-31T18:26:08+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "3d1809da-4f0a-431f-a17a-e92b4ab683b7",
+      "requestid": "3cb889fc-28d5-4d9b-b6cc-f078969922b8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 33,
+      "targetrevision": 34,
+      "created": "2026-11-01T09:13:11+0900",
+      "updated": "2026-11-01T09:13:19+0900",
+      "completed": "2026-11-01T09:13:19+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "3e56393b-da07-43f3-bd9f-900f45e9b1cd",
+      "requestid": "c53243c1-f2e3-4dc9-8fa6-927d6e2b6e51",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 31,
+      "targetrevision": 32,
+      "created": "2026-11-01T09:10:13+0900",
+      "updated": "2026-11-01T09:10:21+0900",
+      "completed": "2026-11-01T09:10:21+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "42e76c1f-c630-4377-ace0-fa9f99107ee8",
+      "requestid": "83fdecb3-5f86-4cde-8654-a1e7f1df9a86",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 25,
+      "targetrevision": 26,
+      "created": "2026-10-31T19:33:45+0900",
+      "updated": "2026-10-31T19:33:54+0900",
+      "completed": "2026-10-31T19:33:54+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "47f865b1-90f3-4887-81ec-d7b31b424153",
+      "requestid": "50b15fc1-55f1-49c1-b73d-ba889c789c73",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 24,
+      "targetrevision": 25,
+      "created": "2026-10-31T19:28:55+0900",
+      "updated": "2026-10-31T19:29:05+0900",
+      "completed": "2026-10-31T19:29:05+0900",
+      "originalfailure": {
+        "code": "SMB_OPTIONS_RELOAD_FAILED",
+        "phase": "APPLYING",
+        "type": "PolicyError"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "4ba7cee2-cf91-4b37-b20d-55af83cdabe4",
+      "requestid": "85f51ec0-d135-4e58-9680-2d7b5c8fe8d6",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 16,
+      "targetrevision": 17,
+      "created": "2026-10-31T10:24:46+0900",
+      "updated": "2026-10-31T10:24:56+0900",
+      "completed": "2026-10-31T10:24:56+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "52354c5b-6d4e-4bf8-830a-55574ebc2f2e",
+      "requestid": "65e4b9ed-0062-4a78-8c6f-d1e37f250241",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 27,
+      "targetrevision": 28,
+      "created": "2026-11-01T01:30:23+0900",
+      "updated": "2026-11-01T01:30:32+0900",
+      "completed": "2026-11-01T01:30:32+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "598c7642-4240-44e8-b27a-b329e64d6cf6",
+      "requestid": "86cea9f4-512f-4a19-ac46-ed9f917f0cd7",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 35,
+      "targetrevision": 36,
+      "created": "2026-11-01T09:18:48+0900",
+      "updated": "2026-11-01T09:18:57+0900",
+      "completed": "2026-11-01T09:18:57+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6115dadc-2c70-40cf-8ae5-0f356af35da1",
+      "requestid": "14387841-e794-4949-a845-05719aedf067",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 5,
+      "targetrevision": 6,
+      "created": "2026-10-30T16:27:11+0900",
+      "updated": "2026-10-30T16:27:20+0900",
+      "completed": "2026-10-30T16:27:20+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6320ed11-cde3-44f1-a648-6a801c13e1c4",
+      "requestid": "c9358e15-6a33-4a22-937c-7e6829bd3eb8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 26,
+      "targetrevision": 27,
+      "created": "2026-10-31T23:31:26+0900",
+      "updated": "2026-10-31T23:31:36+0900",
+      "completed": "2026-10-31T23:31:36+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "63b016c7-527f-477b-b380-ed1d5b1a76cd",
+      "requestid": "f47cca2b-aebf-4c1d-aa22-de5163157067",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 10,
+      "targetrevision": 11,
+      "created": "2026-10-30T16:38:26+0900",
+      "updated": "2026-10-30T16:38:34+0900",
+      "completed": "2026-10-30T16:38:34+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6af5f54d-7251-4603-bea0-a328335175ca",
+      "requestid": "9197e1de-ac0a-4eda-968f-7ffe8f0ee3d3",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 36,
+      "targetrevision": 37,
+      "created": "2026-11-01T09:28:24+0900",
+      "updated": "2026-11-01T09:28:28+0900",
+      "completed": "2026-11-01T09:28:28+0900",
+      "originalfailure": {
+        "code": "PREPARATION_REJECTED",
+        "phase": "VALIDATING",
+        "type": "InvalidParameterValueException"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "7bf14b2a-fd3d-4db0-ae11-343e262f5d81",
+      "requestid": "fee9e5ba-700e-4369-8e3e-f1e9a34d65c5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-30T16:24:25+0900",
+      "updated": "2026-10-30T16:24:33+0900",
+      "completed": "2026-10-30T16:24:33+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "7edc0500-2319-4002-a2fe-7eef28ec0d7c",
+      "requestid": "6f1cfb5b-b5b0-4d3e-bfe0-ef8b1aab0796",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 7,
+      "targetrevision": 8,
+      "created": "2026-10-30T16:28:41+0900",
+      "updated": "2026-10-30T16:28:49+0900",
+      "completed": "2026-10-30T16:28:49+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "81952f87-4e30-4eab-ad42-070ab3d731ef",
+      "requestid": "d7c44f08-1cd2-4ac0-a71f-92f1d14d8fb3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-30T16:17:52+0900",
+      "updated": "2026-10-30T16:18:00+0900",
+      "completed": "2026-10-30T16:18:00+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "991e527c-409b-4e66-a730-073c020a388c",
+      "requestid": "3b06b51d-7407-43bb-b2b2-c4097ffca0e9",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 17,
+      "targetrevision": 18,
+      "created": "2026-10-31T10:27:06+0900",
+      "updated": "2026-10-31T10:27:17+0900",
+      "completed": "2026-10-31T10:27:17+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "9fbcbb08-f064-4174-a18b-8cabc9b3aa96",
+      "requestid": "297a4416-4d8f-4d60-b98f-92df629b260f",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 0,
+      "targetrevision": 1,
+      "created": "2026-10-30T16:16:51+0900",
+      "updated": "2026-10-30T16:16:57+0900",
+      "completed": "2026-10-30T16:16:57+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "a6deca45-881f-44a8-a915-9ed980f58ebb",
+      "requestid": "b5d27748-bfbc-452b-a8b2-ff8c42087878",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 32,
+      "targetrevision": 33,
+      "created": "2026-11-01T09:12:23+0900",
+      "updated": "2026-11-01T09:12:36+0900",
+      "completed": "2026-11-01T09:12:36+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "acc9671e-40f1-448e-b304-26984aa968d2",
+      "requestid": "107e28dc-9180-4b98-8549-f2a6aa50e281",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 28,
+      "targetrevision": 29,
+      "created": "2026-11-01T01:34:09+0900",
+      "updated": "2026-11-01T01:34:18+0900",
+      "completed": "2026-11-01T01:34:18+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "ad732479-f1e1-45ba-b52a-3d47462ceb7b",
+      "requestid": "678ebc70-261e-4812-8098-ff3fa7a41123",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 22,
+      "targetrevision": 23,
+      "created": "2026-10-31T19:24:44+0900",
+      "updated": "2026-10-31T19:24:53+0900",
+      "completed": "2026-10-31T19:24:53+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "b3acaa24-a8d6-48f1-b363-6f2fed8f8456",
+      "requestid": "73ac7350-941b-4dca-9650-db5edd822ba5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 8,
+      "targetrevision": 9,
+      "created": "2026-10-30T16:30:36+0900",
+      "updated": "2026-10-30T16:30:43+0900",
+      "completed": "2026-10-30T16:30:43+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "be1417ba-c346-479f-b5e6-f838ad8d28a4",
+      "requestid": "f6d4a043-47e6-4393-ba51-97983b15f037",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 37,
+      "targetrevision": 38,
+      "created": "2026-11-01T13:10:12+0900",
+      "updated": "2026-11-01T13:10:25+0900",
+      "completed": "2026-11-01T13:10:25+0900",
+      "originalfailure": {
+        "code": "PROTOCOL_APPLY_FAILED",
+        "phase": "APPLYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "bfe13e78-e1c5-4a1e-8514-4846e386c72a",
+      "requestid": "b2f7d38c-558e-4202-9844-31a03a78fd7d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 14,
+      "targetrevision": 15,
+      "created": "2026-10-31T10:20:43+0900",
+      "updated": "2026-10-31T10:20:50+0900",
+      "completed": "2026-10-31T10:20:50+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c2d93dae-c212-46bf-8ff9-0f5c54b0e11d",
+      "requestid": "36444c99-8347-49a4-9a2d-faebd5de646d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 13,
+      "targetrevision": 14,
+      "created": "2026-10-31T10:19:28+0900",
+      "updated": "2026-10-31T10:19:35+0900",
+      "completed": "2026-10-31T10:19:35+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c2f5ed3a-7d98-4f63-9e08-d06507368fc4",
+      "requestid": "f20d3697-ddf3-4a09-8713-a08f91017aa5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 15,
+      "targetrevision": 16,
+      "created": "2026-10-31T10:23:07+0900",
+      "updated": "2026-10-31T10:23:18+0900",
+      "completed": "2026-10-31T10:23:18+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c529c655-872d-4a29-83cc-9a0961d8e1c4",
+      "requestid": "417cbaa0-8cbf-453d-8b37-5bd12c9da4f3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 12,
+      "targetrevision": 13,
+      "created": "2026-10-30T16:40:01+0900",
+      "updated": "2026-10-30T16:40:13+0900",
+      "completed": "2026-10-30T16:40:13+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c7f42bb2-7a3e-4a42-a129-064c8e0a6dd2",
+      "requestid": "5eda1dbd-cab4-4867-8cc0-70cb824629f4",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 11,
+      "targetrevision": 12,
+      "created": "2026-10-30T16:39:07+0900",
+      "updated": "2026-10-30T16:39:16+0900",
+      "completed": "2026-10-30T16:39:16+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "d00110d1-61f6-4187-bf69-3951eb391bda",
+      "requestid": "6c629546-173d-4d74-9332-af23eccaebcc",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 27,
+      "targetrevision": 28,
+      "created": "2026-10-31T23:34:36+0900",
+      "updated": "2026-10-31T23:34:45+0900",
+      "completed": "2026-10-31T23:34:45+0900",
+      "originalfailure": {
+        "code": "PROTOCOL_APPLY_FAILED",
+        "phase": "APPLYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "dbd3b38b-d6c4-4220-9530-43b2c733c66a",
+      "requestid": "6b06a2b2-7b59-451e-a8af-399f00d35fcc",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 6,
+      "targetrevision": 7,
+      "created": "2026-10-30T16:28:08+0900",
+      "updated": "2026-10-30T16:28:17+0900",
+      "completed": "2026-10-30T16:28:17+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "dc633ac5-c2c2-4e5e-993e-567e03721333",
+      "requestid": "6cde5f19-e4c7-4dc4-8e76-40502e03382a",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 9,
+      "targetrevision": 10,
+      "created": "2026-10-30T16:36:39+0900",
+      "updated": "2026-10-30T16:36:50+0900",
+      "completed": "2026-10-30T16:36:50+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "dffa2137-aa8d-4183-8681-7813267e4e5f",
+      "requestid": "cf1c0b27-0ca4-4457-a90b-ab9a481b7d4f",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 23,
+      "targetrevision": 24,
+      "created": "2026-10-31T19:27:18+0900",
+      "updated": "2026-10-31T19:27:28+0900",
+      "completed": "2026-10-31T19:27:28+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "e3a86986-e3dc-4b10-8b81-55cd3d3d3fce",
+      "requestid": "1da16b5d-eeba-4178-abaa-15aa1f00c468",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 34,
+      "targetrevision": 35,
+      "created": "2026-11-01T09:16:57+0900",
+      "updated": "2026-11-01T09:17:09+0900",
+      "completed": "2026-11-01T09:17:09+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "f2f3068f-015d-48be-9acf-45d93d069548",
+      "requestid": "7041288f-a7e7-429c-bfad-83604e933f64",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 20,
+      "targetrevision": 21,
+      "created": "2026-10-31T18:28:29+0900",
+      "updated": "2026-10-31T18:28:37+0900",
+      "completed": "2026-10-31T18:28:37+0900",
+      "originalfailure": {
+        "code": "SMB_OPTIONS_BASELINE_CHANGED",
+        "phase": "VALIDATING",
+        "type": "PolicyError"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "f7e90951-6fc9-47b6-9fd4-7ca55443b46a",
+      "requestid": "5c58938f-ee18-481d-87d6-afd74aecc411",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 30,
+      "targetrevision": 31,
+      "created": "2026-11-01T09:08:45+0900",
+      "updated": "2026-11-01T09:08:54+0900",
+      "completed": "2026-11-01T09:08:54+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    }
+  ],
+  "after": [
+    {
+      "id": "073fb807-daf3-4c2d-b034-df92b21ea678",
+      "requestid": "146b37d4-dd04-47c8-b053-ec062b14c6da",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-30T16:22:18+0900",
+      "updated": "2026-10-30T16:22:25+0900",
+      "completed": "2026-10-30T16:22:25+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "14bdce65-3f73-4005-b46f-71835c60eec8",
+      "requestid": "8810d178-7a5e-46ec-ba75-d2bd479087b5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 29,
+      "targetrevision": 30,
+      "created": "2026-11-01T01:36:35+0900",
+      "updated": "2026-11-01T01:36:44+0900",
+      "completed": "2026-11-01T01:36:44+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "14c995dd-c6c9-4792-868b-a90d48f11b6a",
+      "requestid": "5f5867ae-de55-437e-bbe4-1a1f9ed3f0d0",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 20,
+      "targetrevision": 21,
+      "created": "2026-10-31T19:20:11+0900",
+      "updated": "2026-10-31T19:20:20+0900",
+      "completed": "2026-10-31T19:20:20+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "18dc6b50-841f-4980-8eab-2c1a6409fa58",
+      "requestid": "caf503d6-4ade-4381-805e-9fbb57d80027",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 36,
+      "targetrevision": 37,
+      "created": "2026-11-01T09:31:13+0900",
+      "updated": "2026-11-01T13:06:32+0900",
+      "completed": "2026-11-01T13:06:32+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "1ff0e3ac-e55e-47a7-b315-912886b3fa5d",
+      "requestid": "2e3857fe-ea4a-433d-af23-3931cb923f06",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 18,
+      "targetrevision": 19,
+      "created": "2026-10-31T10:49:27+0900",
+      "updated": "2026-10-31T10:49:39+0900",
+      "completed": "2026-10-31T10:49:39+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "28b825b8-442d-4693-a011-f71d6fc8eb56",
+      "requestid": "ac522f09-0bd5-4b7f-9d60-bcd84a3020a3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-30T16:17:29+0900",
+      "updated": "2026-10-30T16:17:38+0900",
+      "completed": "2026-10-30T16:17:38+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "2cbe4f3b-991b-4c52-8896-387129ab32e3",
+      "requestid": "01bd0b54-2c52-46ca-b582-534a6324cd15",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 21,
+      "targetrevision": 22,
+      "created": "2026-10-31T19:23:00+0900",
+      "updated": "2026-10-31T19:23:09+0900",
+      "completed": "2026-10-31T19:23:09+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "2d28b07d-9e80-4d48-9914-2b8ed6d681ed",
+      "requestid": "2cc2d94f-c39d-4836-a9e9-8d4357c2cde1",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 24,
+      "targetrevision": 25,
+      "created": "2026-10-31T19:32:14+0900",
+      "updated": "2026-10-31T19:32:23+0900",
+      "completed": "2026-10-31T19:32:23+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "38aa59e8-7888-4051-9584-f456fdb01ffa",
+      "requestid": "973c3cd3-e574-48a2-9eff-d793d4064488",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 19,
+      "targetrevision": 20,
+      "created": "2026-10-31T18:25:59+0900",
+      "updated": "2026-10-31T18:26:08+0900",
+      "completed": "2026-10-31T18:26:08+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "3d1809da-4f0a-431f-a17a-e92b4ab683b7",
+      "requestid": "3cb889fc-28d5-4d9b-b6cc-f078969922b8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 33,
+      "targetrevision": 34,
+      "created": "2026-11-01T09:13:11+0900",
+      "updated": "2026-11-01T09:13:19+0900",
+      "completed": "2026-11-01T09:13:19+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "3e56393b-da07-43f3-bd9f-900f45e9b1cd",
+      "requestid": "c53243c1-f2e3-4dc9-8fa6-927d6e2b6e51",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 31,
+      "targetrevision": 32,
+      "created": "2026-11-01T09:10:13+0900",
+      "updated": "2026-11-01T09:10:21+0900",
+      "completed": "2026-11-01T09:10:21+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "42e76c1f-c630-4377-ace0-fa9f99107ee8",
+      "requestid": "83fdecb3-5f86-4cde-8654-a1e7f1df9a86",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 25,
+      "targetrevision": 26,
+      "created": "2026-10-31T19:33:45+0900",
+      "updated": "2026-10-31T19:33:54+0900",
+      "completed": "2026-10-31T19:33:54+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "47f865b1-90f3-4887-81ec-d7b31b424153",
+      "requestid": "50b15fc1-55f1-49c1-b73d-ba889c789c73",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 24,
+      "targetrevision": 25,
+      "created": "2026-10-31T19:28:55+0900",
+      "updated": "2026-10-31T19:29:05+0900",
+      "completed": "2026-10-31T19:29:05+0900",
+      "originalfailure": {
+        "code": "SMB_OPTIONS_RELOAD_FAILED",
+        "phase": "APPLYING",
+        "type": "PolicyError"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "4ba7cee2-cf91-4b37-b20d-55af83cdabe4",
+      "requestid": "85f51ec0-d135-4e58-9680-2d7b5c8fe8d6",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 16,
+      "targetrevision": 17,
+      "created": "2026-10-31T10:24:46+0900",
+      "updated": "2026-10-31T10:24:56+0900",
+      "completed": "2026-10-31T10:24:56+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "52354c5b-6d4e-4bf8-830a-55574ebc2f2e",
+      "requestid": "65e4b9ed-0062-4a78-8c6f-d1e37f250241",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 27,
+      "targetrevision": 28,
+      "created": "2026-11-01T01:30:23+0900",
+      "updated": "2026-11-01T01:30:32+0900",
+      "completed": "2026-11-01T01:30:32+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "598c7642-4240-44e8-b27a-b329e64d6cf6",
+      "requestid": "86cea9f4-512f-4a19-ac46-ed9f917f0cd7",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 35,
+      "targetrevision": 36,
+      "created": "2026-11-01T09:18:48+0900",
+      "updated": "2026-11-01T09:18:57+0900",
+      "completed": "2026-11-01T09:18:57+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6115dadc-2c70-40cf-8ae5-0f356af35da1",
+      "requestid": "14387841-e794-4949-a845-05719aedf067",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 5,
+      "targetrevision": 6,
+      "created": "2026-10-30T16:27:11+0900",
+      "updated": "2026-10-30T16:27:20+0900",
+      "completed": "2026-10-30T16:27:20+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6320ed11-cde3-44f1-a648-6a801c13e1c4",
+      "requestid": "c9358e15-6a33-4a22-937c-7e6829bd3eb8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 26,
+      "targetrevision": 27,
+      "created": "2026-10-31T23:31:26+0900",
+      "updated": "2026-10-31T23:31:36+0900",
+      "completed": "2026-10-31T23:31:36+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "63b016c7-527f-477b-b380-ed1d5b1a76cd",
+      "requestid": "f47cca2b-aebf-4c1d-aa22-de5163157067",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 10,
+      "targetrevision": 11,
+      "created": "2026-10-30T16:38:26+0900",
+      "updated": "2026-10-30T16:38:34+0900",
+      "completed": "2026-10-30T16:38:34+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "6af5f54d-7251-4603-bea0-a328335175ca",
+      "requestid": "9197e1de-ac0a-4eda-968f-7ffe8f0ee3d3",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 36,
+      "targetrevision": 37,
+      "created": "2026-11-01T09:28:24+0900",
+      "updated": "2026-11-01T09:28:28+0900",
+      "completed": "2026-11-01T09:28:28+0900",
+      "originalfailure": {
+        "code": "PREPARATION_REJECTED",
+        "phase": "VALIDATING",
+        "type": "InvalidParameterValueException"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "7bf14b2a-fd3d-4db0-ae11-343e262f5d81",
+      "requestid": "fee9e5ba-700e-4369-8e3e-f1e9a34d65c5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-30T16:24:25+0900",
+      "updated": "2026-10-30T16:24:33+0900",
+      "completed": "2026-10-30T16:24:33+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "7edc0500-2319-4002-a2fe-7eef28ec0d7c",
+      "requestid": "6f1cfb5b-b5b0-4d3e-bfe0-ef8b1aab0796",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 7,
+      "targetrevision": 8,
+      "created": "2026-10-30T16:28:41+0900",
+      "updated": "2026-10-30T16:28:49+0900",
+      "completed": "2026-10-30T16:28:49+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "81952f87-4e30-4eab-ad42-070ab3d731ef",
+      "requestid": "d7c44f08-1cd2-4ac0-a71f-92f1d14d8fb3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-30T16:17:52+0900",
+      "updated": "2026-10-30T16:18:00+0900",
+      "completed": "2026-10-30T16:18:00+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "991e527c-409b-4e66-a730-073c020a388c",
+      "requestid": "3b06b51d-7407-43bb-b2b2-c4097ffca0e9",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 17,
+      "targetrevision": 18,
+      "created": "2026-10-31T10:27:06+0900",
+      "updated": "2026-10-31T10:27:17+0900",
+      "completed": "2026-10-31T10:27:17+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "9fbcbb08-f064-4174-a18b-8cabc9b3aa96",
+      "requestid": "297a4416-4d8f-4d60-b98f-92df629b260f",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 0,
+      "targetrevision": 1,
+      "created": "2026-10-30T16:16:51+0900",
+      "updated": "2026-10-30T16:16:57+0900",
+      "completed": "2026-10-30T16:16:57+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "a6deca45-881f-44a8-a915-9ed980f58ebb",
+      "requestid": "b5d27748-bfbc-452b-a8b2-ff8c42087878",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 32,
+      "targetrevision": 33,
+      "created": "2026-11-01T09:12:23+0900",
+      "updated": "2026-11-01T09:12:36+0900",
+      "completed": "2026-11-01T09:12:36+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "acc9671e-40f1-448e-b304-26984aa968d2",
+      "requestid": "107e28dc-9180-4b98-8549-f2a6aa50e281",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 28,
+      "targetrevision": 29,
+      "created": "2026-11-01T01:34:09+0900",
+      "updated": "2026-11-01T01:34:18+0900",
+      "completed": "2026-11-01T01:34:18+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "ad732479-f1e1-45ba-b52a-3d47462ceb7b",
+      "requestid": "678ebc70-261e-4812-8098-ff3fa7a41123",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 22,
+      "targetrevision": 23,
+      "created": "2026-10-31T19:24:44+0900",
+      "updated": "2026-10-31T19:24:53+0900",
+      "completed": "2026-10-31T19:24:53+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "b3acaa24-a8d6-48f1-b363-6f2fed8f8456",
+      "requestid": "73ac7350-941b-4dca-9650-db5edd822ba5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 8,
+      "targetrevision": 9,
+      "created": "2026-10-30T16:30:36+0900",
+      "updated": "2026-10-30T16:30:43+0900",
+      "completed": "2026-10-30T16:30:43+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "be1417ba-c346-479f-b5e6-f838ad8d28a4",
+      "requestid": "f6d4a043-47e6-4393-ba51-97983b15f037",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 37,
+      "targetrevision": 38,
+      "created": "2026-11-01T13:10:12+0900",
+      "updated": "2026-11-01T13:10:25+0900",
+      "completed": "2026-11-01T13:10:25+0900",
+      "originalfailure": {
+        "code": "PROTOCOL_APPLY_FAILED",
+        "phase": "APPLYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "bfe13e78-e1c5-4a1e-8514-4846e386c72a",
+      "requestid": "b2f7d38c-558e-4202-9844-31a03a78fd7d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 14,
+      "targetrevision": 15,
+      "created": "2026-10-31T10:20:43+0900",
+      "updated": "2026-10-31T10:20:50+0900",
+      "completed": "2026-10-31T10:20:50+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c2d93dae-c212-46bf-8ff9-0f5c54b0e11d",
+      "requestid": "36444c99-8347-49a4-9a2d-faebd5de646d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 13,
+      "targetrevision": 14,
+      "created": "2026-10-31T10:19:28+0900",
+      "updated": "2026-10-31T10:19:35+0900",
+      "completed": "2026-10-31T10:19:35+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c2f5ed3a-7d98-4f63-9e08-d06507368fc4",
+      "requestid": "f20d3697-ddf3-4a09-8713-a08f91017aa5",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 15,
+      "targetrevision": 16,
+      "created": "2026-10-31T10:23:07+0900",
+      "updated": "2026-10-31T10:23:18+0900",
+      "completed": "2026-10-31T10:23:18+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c529c655-872d-4a29-83cc-9a0961d8e1c4",
+      "requestid": "417cbaa0-8cbf-453d-8b37-5bd12c9da4f3",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 12,
+      "targetrevision": 13,
+      "created": "2026-10-30T16:40:01+0900",
+      "updated": "2026-10-30T16:40:13+0900",
+      "completed": "2026-10-30T16:40:13+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "c7f42bb2-7a3e-4a42-a129-064c8e0a6dd2",
+      "requestid": "5eda1dbd-cab4-4867-8cc0-70cb824629f4",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 11,
+      "targetrevision": 12,
+      "created": "2026-10-30T16:39:07+0900",
+      "updated": "2026-10-30T16:39:16+0900",
+      "completed": "2026-10-30T16:39:16+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "d00110d1-61f6-4187-bf69-3951eb391bda",
+      "requestid": "6c629546-173d-4d74-9332-af23eccaebcc",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 27,
+      "targetrevision": 28,
+      "created": "2026-10-31T23:34:36+0900",
+      "updated": "2026-10-31T23:34:45+0900",
+      "completed": "2026-10-31T23:34:45+0900",
+      "originalfailure": {
+        "code": "PROTOCOL_APPLY_FAILED",
+        "phase": "APPLYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      }
+    },
+    {
+      "id": "dbd3b38b-d6c4-4220-9530-43b2c733c66a",
+      "requestid": "6b06a2b2-7b59-451e-a8af-399f00d35fcc",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 6,
+      "targetrevision": 7,
+      "created": "2026-10-30T16:28:08+0900",
+      "updated": "2026-10-30T16:28:17+0900",
+      "completed": "2026-10-30T16:28:17+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "dc633ac5-c2c2-4e5e-993e-567e03721333",
+      "requestid": "6cde5f19-e4c7-4dc4-8e76-40502e03382a",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 9,
+      "targetrevision": 10,
+      "created": "2026-10-30T16:36:39+0900",
+      "updated": "2026-10-30T16:36:50+0900",
+      "completed": "2026-10-30T16:36:50+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "dffa2137-aa8d-4183-8681-7813267e4e5f",
+      "requestid": "cf1c0b27-0ca4-4457-a90b-ab9a481b7d4f",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 23,
+      "targetrevision": 24,
+      "created": "2026-10-31T19:27:18+0900",
+      "updated": "2026-10-31T19:27:28+0900",
+      "completed": "2026-10-31T19:27:28+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "e3a86986-e3dc-4b10-8b81-55cd3d3d3fce",
+      "requestid": "1da16b5d-eeba-4178-abaa-15aa1f00c468",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 34,
+      "targetrevision": 35,
+      "created": "2026-11-01T09:16:57+0900",
+      "updated": "2026-11-01T09:17:09+0900",
+      "completed": "2026-11-01T09:17:09+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "f2f3068f-015d-48be-9acf-45d93d069548",
+      "requestid": "7041288f-a7e7-429c-bfad-83604e933f64",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "baserevision": 20,
+      "targetrevision": 21,
+      "created": "2026-10-31T18:28:29+0900",
+      "updated": "2026-10-31T18:28:37+0900",
+      "completed": "2026-10-31T18:28:37+0900",
+      "originalfailure": {
+        "code": "SMB_OPTIONS_BASELINE_CHANGED",
+        "phase": "VALIDATING",
+        "type": "PolicyError"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    },
+    {
+      "id": "f7e90951-6fc9-47b6-9fd4-7ca55443b46a",
+      "requestid": "5c58938f-ee18-481d-87d6-afd74aecc411",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baserevision": 30,
+      "targetrevision": 31,
+      "created": "2026-11-01T09:08:45+0900",
+      "updated": "2026-11-01T09:08:54+0900",
+      "completed": "2026-11-01T09:08:54+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      }
+    }
+  ]
+}

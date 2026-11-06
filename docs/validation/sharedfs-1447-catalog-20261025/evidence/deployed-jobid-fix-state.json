@@ -1,0 +1,26 @@
+{
+  "management": {
+    "success": true,
+    "service": "mold",
+    "active": true,
+    "sha256": "8242b2273ff4a20273acebd30e34781db04453bb16c1a01fe7a90bedddb4166e",
+    "changedEntries": 34,
+    "guestRestarted": false,
+    "unitActive": "active"
+  },
+  "migration": {
+    "success": true,
+    "schemaStatements": 6,
+    "legacyRowsMigrated": 1
+  },
+  "ui": {
+    "success": true,
+    "uiChangedFiles": 21,
+    "indexSha256": "90a3d37f90f87216d1e25b343564ed9c4b0c0163c2439c0bbfa6f616bf3b22c1",
+    "configUnchanged": true,
+    "systemvmUnchanged": true,
+    "bundleVersion": "epic1438-1447-catalog-20261025",
+    "artifactSha256": "9bf78bc8a4e81ef0bc9d0fefa5eee1f0d225a25f8a094d216814a5f35463ef78",
+    "manifestSha256": "7339a2e8d56f8d3abe9a2c3d215102745cd9302fd52d0711f4e24c5f1523d960"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "getsharedfilesystempreparationresponse": {
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "cea507c7-5336-49da-bbc0-175ccb6d7f23",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792636414.560555,
+        "currentBootId": "cea507c7-5336-49da-bbc0-175ccb6d7f23",
+        "filesystemUuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+        "finishedAt": 1792636473.359634,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792636894.9029412,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792636414.9029412,
+        "heartbeatAt": 1792636473.3596358,
+        "lastObservedAt": 1792636605.9632041,
+        "mountPath": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+        "operationId": "33447f4c-0e5a-3d85-8ce3-11a794441052",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792636473.1279862,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792636414.560555,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-33447f4c-0e5a-3d85-8ce3-11a794441052.service",
+        "version": 1,
+        "volumeUuid": "942aee61-490d-493e-b60d-8cb81ce8f9da"
+      }
+    }
+  }
+}

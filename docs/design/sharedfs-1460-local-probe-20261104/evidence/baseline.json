@@ -1,0 +1,57 @@
+{
+  "current": "/opt/ablestack/storage-runtime/releases/1459.directory.1",
+  "files": {
+    "ablestack-storagectl": {
+      "exists": true,
+      "sha256": "6639c2abaf55b18785783298723544afd5a1b432959c6721914ae4b9cb43d03d"
+    },
+    "lib/ablestack-storage/boot_reconcile.py": {
+      "exists": true,
+      "sha256": "03fd617e478a304c3bfbce565812c65d81afb5b56de0cac6ff5ce3d9f35d852a"
+    },
+    "lib/ablestack-storage/shared_directory_policy.py": {
+      "exists": true,
+      "sha256": "83dca5104d21dbd94408e3cdebda5de2ad975971a6dbd38eb4bcbe6482d89f76"
+    }
+  },
+  "ganesha": [
+    {
+      "pidFile": "/run/ablestack-storage/ganesha/0.0.0.0_2050.pid",
+      "pid": 6397,
+      "cmdline": "/usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2050.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2050.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2050.conf ",
+      "start": "3629"
+    },
+    {
+      "pidFile": "/run/ablestack-storage/ganesha/0.0.0.0_2049.pid",
+      "pid": 6389,
+      "cmdline": "/usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2049.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2049.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2049.conf ",
+      "start": "3624"
+    },
+    {
+      "pidFile": "/var/run/ablestack-storage/ganesha/0.0.0.0_2050.pid",
+      "pid": 6397,
+      "cmdline": "/usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2050.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2050.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2050.conf ",
+      "start": "3629"
+    },
+    {
+      "pidFile": "/var/run/ablestack-storage/ganesha/0.0.0.0_2049.pid",
+      "pid": 6389,
+      "cmdline": "/usr/bin/ganesha.nfsd -F -p /run/ablestack-storage/ganesha/0.0.0.0_2049.pid -L /run/ablestack-storage/ganesha/0.0.0.0_2049.log -f /etc/ganesha/ablestack-storage/0.0.0.0_2049.conf ",
+      "start": "3624"
+    }
+  ],
+  "etcNames": [
+    "nfs-local-probes.json",
+    "runtime-trusted-keys",
+    "sharedfs-network-applied.json",
+    "runtime-default",
+    "network-endpoints.json",
+    "nfs-quotas.json",
+    "desired-state",
+    "sharedfs-network.json",
+    "nfs-export-aliases.json"
+  ],
+  "ganeshaVersion": "NFS-Ganesha Release = V4.3",
+  "ganeshaPackages": "dbus\t1.14.10-1~deb12u1\nnfs-ganesha\t4.3-2\nnfs-ganesha-vfs:amd64\t4.3-2",
+  "interfaces": "2: eth0    inet 10.10.13.184/16 scope global eth0\\       valid_lft forever preferred_lft forever"
+}

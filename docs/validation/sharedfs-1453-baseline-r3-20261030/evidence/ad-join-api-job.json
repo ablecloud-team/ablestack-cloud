@@ -1,0 +1,21 @@
+{
+  "queryasyncjobresultresponse": {
+    "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+    "account": "admin",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "domainpath": "ROOT",
+    "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.JoinStorageServiceToAdDomainCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Failed to apply SMB desired state on Storage Service System VM: Storage Service command failed with exit code 1: Load smb config files from /etc/samba/.ablestack-candidate-l0pw9fui\nLoaded services file OK.\nWeak crypto is allowed by GnuTLS (e.g. NTLM as a compatibility fallback)\n\nServer role: ROLE_DOMAIN_MEMBER\n\n"
+    },
+    "created": "2026-10-30T01:34:30+0900",
+    "completed": "2026-10-30T01:34:35+0900",
+    "jobid": "21fde2b5-10f9-4c95-8e6a-7495cdd6cb5e",
+    "jobstatus": 2
+  }
+}

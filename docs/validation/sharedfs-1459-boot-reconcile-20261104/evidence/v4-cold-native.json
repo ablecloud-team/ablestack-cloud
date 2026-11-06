@@ -1,0 +1,11 @@
+{
+  "bootId": "0d731205-f377-4556-b486-2a9ff34c8e52",
+  "runtimeVersion": "1459.directory.1",
+  "moduleSha": "83dca5104d21dbd94408e3cdebda5de2ad975971a6dbd38eb4bcbe6482d89f76",
+  "filesystem": "08b42571-dbc5-44bd-965b-c5da35d4eb7f xfs    /",
+  "seedSha": "2f884cdfd4d3c30d01aa1e1e0795bf35f888e73533c8a588ead1167f8a24666f",
+  "uid": 65534,
+  "gid": 65534,
+  "mode": "0o644",
+  "inode": 8388737
+}

@@ -1,0 +1,14 @@
+{
+  "phase": "compile only",
+  "success": true,
+  "testsExecuted": false,
+  "packageBuilt": false,
+  "modules": 26,
+  "skip": [
+    "checkstyle",
+    "rat",
+    "license"
+  ],
+  "sourceBase": "e54c9bb4fa5",
+  "fullLog": "/root/work/epic1438-preparation/20261102/issue1458-implementation/compile.log"
+}

@@ -1,0 +1,36 @@
+{
+  "capability": {
+    "getstorageserviceruntimeupgradecapabilitiesresponse": {
+      "storageserviceruntimecapability": {
+        "instanceid": "instance",
+        "available": true,
+        "currentversion": "baseline-known",
+        "previousversion": "bootstrap-known",
+        "runtimeabiversion": "1",
+        "desiredstateschemaversion": "1",
+        "updaterversion": 2,
+        "hosttransportversion": 2,
+        "integrityjson": "{\"verified\":true,\"files\":[{\"path\":\"ablestack-storagectl\",\"sha256\":\"abc\"}]}"
+      }
+    }
+  },
+  "operation": {
+    "upgradestorageserviceruntimeresponse": {
+      "storageserviceruntimeupgrade": {
+        "id": "operation",
+        "state": "OBSERVATION_PENDING",
+        "phase": "OBSERVATION_PENDING",
+        "transactionid": "same-request"
+      }
+    }
+  },
+  "bundleRegistration": {
+    "registerstorageserviceruntimebundleresponse": {
+      "storageserviceruntimebundle": {
+        "id": "registered-bundle",
+        "version": "v2",
+        "signingkeyid": "operator-key"
+      }
+    }
+  }
+}

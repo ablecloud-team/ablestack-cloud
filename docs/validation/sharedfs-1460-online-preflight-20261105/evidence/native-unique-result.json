@@ -1,0 +1,847 @@
+{
+  "success": true,
+  "checks": [
+    {
+      "name": "v4 actual preflight->Transaction->commit online revoke; next direct RPC denied only to C2",
+      "passed": true,
+      "operation": "cef040a8-843c-49b5-949d-b9f069f62ac0",
+      "state": "COMMITTED",
+      "admission": {
+        "status": "READY",
+        "impact": {
+          "class": "ONLINE_RELOAD",
+          "affectedcount": 2,
+          "connections": 4,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false,
+          "method": "NFS_CLIENT_RELOAD"
+        },
+        "fingerprint": "153374ba9bc4ef824b27c2631f39725269cf0d604326fa3e90acc5384334ed52"
+      }
+    },
+    {
+      "name": "v4 same operation is idempotent",
+      "passed": true
+    },
+    {
+      "name": "v4 regrant restores existing client mounts",
+      "passed": true
+    },
+    {
+      "name": "v4 read-only policy prevents writes",
+      "passed": true
+    },
+    {
+      "name": "v4 no-root-squash applied without restarting",
+      "passed": true
+    },
+    {
+      "name": "actual Ganesha parse rejection on second port rolls both listeners back with original cause",
+      "passed": true,
+      "result": {
+        "operationid": "915ae851-c9bb-4799-a982-3bb41c830c41",
+        "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+        "baseRevision": 4,
+        "targetRevision": 5,
+        "requestHash": "eae3fe775530ce89b4f3a7cfd0a3314844e82e94a219bd9fce83078c20416002",
+        "state": "ROLLED_BACK",
+        "phase": "COMPLETED",
+        "rollback": {
+          "state": "SUCCEEDED"
+        },
+        "updated": 1793845041.4167979,
+        "originalfailure": {
+          "code": "NFS_CLIENT_RELOAD_REJECTED",
+          "phase": "APPLYING",
+          "type": "PolicyError",
+          "detail": {
+            "code": "NFS_CLIENT_RELOAD_REJECTED",
+            "port": 2050,
+            "stage": "NFS_CLIENT_POLICY"
+          }
+        },
+        "admission": {
+          "status": "READY",
+          "impact": {
+            "class": "ONLINE_RELOAD",
+            "affectedcount": 2,
+            "connections": 4,
+            "confidence": "ENDPOINT_TCP_CONNECTIONS",
+            "ackrequired": true,
+            "drainrequired": false,
+            "method": "NFS_CLIENT_RELOAD"
+          },
+          "fingerprint": "93c439227cd919712bfd28e2d9c129423ba8a4383d8168995ae3967564da6257"
+        }
+      }
+    },
+    {
+      "name": "actual shared boot-probe implementation verifies local-allowed ports and current inventory receipt",
+      "passed": true
+    },
+    {
+      "name": "v4 continuously permitted I/O remained successful",
+      "passed": true,
+      "requests": 2129,
+      "errors": []
+    },
+    {
+      "name": "v4 all native Ganesha PIDs/start identities preserved",
+      "passed": true,
+      "pids": [
+        427907,
+        427928
+      ]
+    },
+    {
+      "name": "dual actual preflight->Transaction->commit online revoke; next direct RPC denied only to C2",
+      "passed": true,
+      "operation": "2e44627a-00dc-4eaf-9ce1-1bb2275ba651",
+      "state": "COMMITTED",
+      "admission": {
+        "status": "READY",
+        "impact": {
+          "class": "ONLINE_RELOAD",
+          "affectedcount": 2,
+          "connections": 4,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false,
+          "method": "NFS_CLIENT_RELOAD"
+        },
+        "fingerprint": "59a586d4ebc00c043c1c4816e9b8700a3555f23ffb0fe30d8cbc1114781df56c"
+      }
+    },
+    {
+      "name": "dual same operation is idempotent",
+      "passed": true
+    },
+    {
+      "name": "dual regrant restores existing client mounts",
+      "passed": true
+    },
+    {
+      "name": "dual read-only policy prevents writes",
+      "passed": true
+    },
+    {
+      "name": "dual no-root-squash applied without restarting",
+      "passed": true
+    },
+    {
+      "name": "dual continuously permitted I/O remained successful",
+      "passed": true,
+      "requests": 2131,
+      "errors": []
+    },
+    {
+      "name": "dual all native Ganesha PIDs/start identities preserved",
+      "passed": true,
+      "pids": [
+        429192
+      ]
+    },
+    {
+      "name": "real DATA remains on verified SPARSE XFS; no format performed",
+      "passed": true
+    }
+  ],
+  "fixtures": [
+    {
+      "request": {
+        "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+        "vmUuid": "5d82a2a4-2900-3586-a080-e3aaaef1e512",
+        "operationid": "cef040a8-843c-49b5-949d-b9f069f62ac0",
+        "baseRevision": 0,
+        "targetRevision": 1,
+        "before": {
+          "nfs export apply": {
+            "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+            "enabled": true,
+            "protocolMode": "V4_ONLY",
+            "port": 2049,
+            "nfs4IdentityMappingMode": "NAME_DOMAIN",
+            "nfs4IdentityPolicyRevision": 0,
+            "exports": [
+              {
+                "uuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+                "name": "shared",
+                "path": "/export/shared",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/shared",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049,
+                    2050
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false
+                },
+                "acls": [
+                  {
+                    "uuid": "0e6d96e1-4d99-5a59-97fc-b58659551c20",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "59f72aa0-33de-5ef9-acd5-9ca9fa3ea346",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              },
+              {
+                "uuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+                "name": "other",
+                "path": "/export/other",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/other",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049,
+                    2050
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false,
+                  "pathBindingVersion": 1,
+                  "relativeSharePath": ".epic1460-design-fnrusm_h/other",
+                  "pathIdentity": {
+                    "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                    "volumeRootInode": 128,
+                    "inode": 25166080
+                  }
+                },
+                "acls": [
+                  {
+                    "uuid": "11dafe17-cfce-52d5-bcda-bc5f84a12c0a",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "d6e00275-92db-5f29-af3f-7e3f87d5dcf0",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "nfs export apply": {
+            "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+            "enabled": true,
+            "protocolMode": "V4_ONLY",
+            "port": 2049,
+            "nfs4IdentityMappingMode": "NAME_DOMAIN",
+            "nfs4IdentityPolicyRevision": 0,
+            "exports": [
+              {
+                "uuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+                "name": "shared",
+                "path": "/export/shared",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/shared",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049,
+                    2050
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false
+                },
+                "acls": [
+                  {
+                    "uuid": "0e6d96e1-4d99-5a59-97fc-b58659551c20",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              },
+              {
+                "uuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+                "name": "other",
+                "path": "/export/other",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/other",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049,
+                    2050
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false,
+                  "pathBindingVersion": 1,
+                  "relativeSharePath": ".epic1460-design-fnrusm_h/other",
+                  "pathIdentity": {
+                    "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                    "volumeRootInode": 128,
+                    "inode": 25166080
+                  }
+                },
+                "acls": [
+                  {
+                    "uuid": "11dafe17-cfce-52d5-bcda-bc5f84a12c0a",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "d6e00275-92db-5f29-af3f-7e3f87d5dcf0",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "preflight": {
+          "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+          "revision": 0,
+          "protocol": "NFS",
+          "action": "DELETE",
+          "resourceids": [
+            "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+            "d0db777f-e58b-5ff4-84ba-af70aae4a2e4"
+          ],
+          "resourcesdigest": "49caa367def7315b55b35756a564ca2cefa4fcc33c0dda86754d9bb96018822e",
+          "resourcecount": 2,
+          "drainrequired": true,
+          "recursive": false,
+          "ports": [
+            2049,
+            2050
+          ],
+          "volumeuuids": [
+            "d959448c-04dd-4be9-a411-82abcb8cb5da"
+          ],
+          "ackrequired": true,
+          "nfsclientpolicy": {
+            "api": "deleteStorageNfsAcl",
+            "resourceuuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+            "ruleuuid": "59f72aa0-33de-5ef9-acd5-9ca9fa3ea346",
+            "patch": {}
+          },
+          "expectedFingerprint": "153374ba9bc4ef824b27c2631f39725269cf0d604326fa3e90acc5384334ed52"
+        },
+        "requireNfsClientPolicy": true
+      },
+      "response": {
+        "operationid": "cef040a8-843c-49b5-949d-b9f069f62ac0",
+        "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+        "baseRevision": 0,
+        "targetRevision": 1,
+        "requestHash": "4178f6e53987caec20f62366cea94828e4d1d47ea6962e85ae0e123948d4f776",
+        "state": "VERIFIED",
+        "phase": "COMMITTING",
+        "rollback": {
+          "state": "NOT_NEEDED"
+        },
+        "updated": 1793845039.223312,
+        "pathbindings": {
+          "operationid": "cef040a8-843c-49b5-949d-b9f069f62ac0",
+          "instanceUuid": "47770fe4-3ba5-402e-9961-75cab3da3f9d",
+          "bindings": [
+            {
+              "pathIdentity": {
+                "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                "inode": 25166080,
+                "volumeRootInode": 128
+              },
+              "relativepath": ".epic1460-design-fnrusm_h/other",
+              "resourceuuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+              "volumeuuid": "d959448c-04dd-4be9-a411-82abcb8cb5da"
+            }
+          ]
+        },
+        "nfsClientPolicy": {
+          "operationid": "cef040a8-843c-49b5-949d-b9f069f62ac0",
+          "phase": "APPLIED",
+          "endpoints": [
+            {
+              "changed": true,
+              "configHash": "2736885d6f6597502188fd3b17955c4040ad78f748f182688c0810de6ee1e0df",
+              "port": 2049,
+              "process": {
+                "boot": "0b4ffaeb-dac8-44a4-93f8-b45a735cf9f9",
+                "pid": 427907,
+                "start": "3707854"
+              }
+            },
+            {
+              "changed": true,
+              "configHash": "46a66324479fe1fae03bbde88cf54527a0d6b0823f4a01e558946d5fd9f1ef2e",
+              "port": 2050,
+              "process": {
+                "boot": "0b4ffaeb-dac8-44a4-93f8-b45a735cf9f9",
+                "pid": 427928,
+                "start": "3707863"
+              }
+            }
+          ]
+        }
+      },
+      "preflight": {
+        "status": "READY",
+        "revision": 0,
+        "observedat": 1793845039.2229583,
+        "expiresat": 1793845069.2229583,
+        "fingerprint": "153374ba9bc4ef824b27c2631f39725269cf0d604326fa3e90acc5384334ed52",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3646390272,
+            "requiredbytes": 218336096
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2629685248,
+            "requiredbytes": 83944152,
+            "readonly": false,
+            "freeinodes": 230245
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 4
+          }
+        ],
+        "impact": {
+          "class": "ONLINE_RELOAD",
+          "affectedcount": 2,
+          "connections": 4,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false,
+          "method": "NFS_CLIENT_RELOAD"
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "request": {
+        "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+        "vmUuid": "5d82a2a4-2900-3586-a080-e3aaaef1e512",
+        "operationid": "2e44627a-00dc-4eaf-9ce1-1bb2275ba651",
+        "baseRevision": 0,
+        "targetRevision": 1,
+        "before": {
+          "nfs export apply": {
+            "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+            "enabled": true,
+            "protocolMode": "V3V4_DUAL",
+            "port": 2049,
+            "nfs4IdentityMappingMode": "NAME_DOMAIN",
+            "nfs4IdentityPolicyRevision": 0,
+            "exports": [
+              {
+                "uuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+                "name": "shared",
+                "path": "/export/shared",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/shared",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false
+                },
+                "acls": [
+                  {
+                    "uuid": "0e6d96e1-4d99-5a59-97fc-b58659551c20",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "59f72aa0-33de-5ef9-acd5-9ca9fa3ea346",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              },
+              {
+                "uuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+                "name": "other",
+                "path": "/export/other",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/other",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false,
+                  "pathBindingVersion": 1,
+                  "relativeSharePath": ".epic1460-design-fnrusm_h/other",
+                  "pathIdentity": {
+                    "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                    "volumeRootInode": 128,
+                    "inode": 25166080
+                  }
+                },
+                "acls": [
+                  {
+                    "uuid": "11dafe17-cfce-52d5-bcda-bc5f84a12c0a",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "d6e00275-92db-5f29-af3f-7e3f87d5dcf0",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "nfs export apply": {
+            "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+            "enabled": true,
+            "protocolMode": "V3V4_DUAL",
+            "port": 2049,
+            "nfs4IdentityMappingMode": "NAME_DOMAIN",
+            "nfs4IdentityPolicyRevision": 0,
+            "exports": [
+              {
+                "uuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+                "name": "shared",
+                "path": "/export/shared",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/shared",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false
+                },
+                "acls": [
+                  {
+                    "uuid": "0e6d96e1-4d99-5a59-97fc-b58659551c20",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              },
+              {
+                "uuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+                "name": "other",
+                "path": "/export/other",
+                "state": "Ready",
+                "config": {
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da",
+                  "backingPath": "/srv/ablestack-storage/volumes/d959448c-04dd-4be9-a411-82abcb8cb5da/.epic1460-design-fnrusm_h/other",
+                  "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                  "rootSquash": true,
+                  "listenerGroupPorts": [
+                    2049
+                  ],
+                  "readOnly": false,
+                  "createDirectory": false,
+                  "pathBindingVersion": 1,
+                  "relativeSharePath": ".epic1460-design-fnrusm_h/other",
+                  "pathIdentity": {
+                    "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                    "volumeRootInode": 128,
+                    "inode": 25166080
+                  }
+                },
+                "acls": [
+                  {
+                    "uuid": "11dafe17-cfce-52d5-bcda-bc5f84a12c0a",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.11/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  },
+                  {
+                    "uuid": "d6e00275-92db-5f29-af3f-7e3f87d5dcf0",
+                    "principalType": "CIDR",
+                    "principal": "192.0.2.12/32",
+                    "state": "Ready",
+                    "permission": "READ_WRITE",
+                    "config": {
+                      "rootSquash": true,
+                      "secure": false,
+                      "sync": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "preflight": {
+          "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+          "revision": 0,
+          "protocol": "NFS",
+          "action": "DELETE",
+          "resourceids": [
+            "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+            "d0db777f-e58b-5ff4-84ba-af70aae4a2e4"
+          ],
+          "resourcesdigest": "49caa367def7315b55b35756a564ca2cefa4fcc33c0dda86754d9bb96018822e",
+          "resourcecount": 2,
+          "drainrequired": true,
+          "recursive": false,
+          "ports": [
+            2049
+          ],
+          "volumeuuids": [
+            "d959448c-04dd-4be9-a411-82abcb8cb5da"
+          ],
+          "ackrequired": true,
+          "nfsclientpolicy": {
+            "api": "deleteStorageNfsAcl",
+            "resourceuuid": "6ee5b24b-5ea0-55f1-af8b-49cd45a39436",
+            "ruleuuid": "59f72aa0-33de-5ef9-acd5-9ca9fa3ea346",
+            "patch": {}
+          },
+          "expectedFingerprint": "59a586d4ebc00c043c1c4816e9b8700a3555f23ffb0fe30d8cbc1114781df56c"
+        },
+        "requireNfsClientPolicy": true
+      },
+      "response": {
+        "operationid": "2e44627a-00dc-4eaf-9ce1-1bb2275ba651",
+        "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+        "baseRevision": 0,
+        "targetRevision": 1,
+        "requestHash": "d12f49606a5d6fd1882a92991bd8f934956526762cab5fc0acc33fa25cadd535",
+        "state": "VERIFIED",
+        "phase": "COMMITTING",
+        "rollback": {
+          "state": "NOT_NEEDED"
+        },
+        "updated": 1793845084.6201909,
+        "pathbindings": {
+          "operationid": "2e44627a-00dc-4eaf-9ce1-1bb2275ba651",
+          "instanceUuid": "636e7a12-adc0-485b-9307-00f31b909d93",
+          "bindings": [
+            {
+              "pathIdentity": {
+                "filesystemUuid": "d9c8176d-fb6c-481e-be20-c328a84c7a28",
+                "inode": 25166080,
+                "volumeRootInode": 128
+              },
+              "relativepath": ".epic1460-design-fnrusm_h/other",
+              "resourceuuid": "d0db777f-e58b-5ff4-84ba-af70aae4a2e4",
+              "volumeuuid": "d959448c-04dd-4be9-a411-82abcb8cb5da"
+            }
+          ]
+        },
+        "nfsClientPolicy": {
+          "operationid": "2e44627a-00dc-4eaf-9ce1-1bb2275ba651",
+          "phase": "APPLIED",
+          "endpoints": [
+            {
+              "changed": true,
+              "configHash": "d504b5f8232e579dff6bf498f5ac29ad3236047e54077ccd538cf270c5a16495",
+              "port": 2049,
+              "process": {
+                "boot": "0b4ffaeb-dac8-44a4-93f8-b45a735cf9f9",
+                "pid": 429192,
+                "start": "3712406"
+              }
+            }
+          ]
+        }
+      },
+      "preflight": {
+        "status": "READY",
+        "revision": 0,
+        "observedat": 1793845084.619859,
+        "expiresat": 1793845114.619859,
+        "fingerprint": "59a586d4ebc00c043c1c4816e9b8700a3555f23ffb0fe30d8cbc1114781df56c",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3677614080,
+            "requiredbytes": 218336096
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2629292032,
+            "requiredbytes": 83944152,
+            "readonly": false,
+            "freeinodes": 230190
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 4
+          }
+        ],
+        "impact": {
+          "class": "ONLINE_RELOAD",
+          "affectedcount": 2,
+          "connections": 4,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false,
+          "method": "NFS_CLIENT_RELOAD"
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    }
+  ],
+  "productionUnchanged": true,
+  "temporaryResourcesRemoved": true
+}

@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"installed\": true, \"target\": \"ablestack-storage-ganesha@0.0.0.0_2049.service\", \"restartExecutedByHarness\": false, \"oneShotMarker\": \"/run/epic1455-r4-fail-once\", \"dropin\": \"/run/systemd/system/ablestack-storage-ganesha@0.0.0.0_2049.service.d/90-epic1455-r4.conf\", \"activeBefore\": true, \"payloadUnchanged\": true}\n",
+  "stderr": ""
+}

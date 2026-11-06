@@ -1,0 +1,18 @@
+{
+  "before": {
+    "bodyClient": 534,
+    "bodyHeight": 1364,
+    "footerY": 622,
+    "headerY": 33,
+    "scrollTop": 0,
+    "tableBackground": "rgb(39, 46, 54)",
+    "tableText": "rgb(240, 243, 246)"
+  },
+  "after": {
+    "bodyClient": 534,
+    "bodyHeight": 1364,
+    "footerY": 622,
+    "headerY": 33,
+    "scrollTop": 830
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "commit": "001ca8c0bd883972dd441f993d305848cb4ae4c7",
+  "original_sha256": "69afe59ca4ebf3108f4963c8f30b01c9fbf2dce759633258804bfeb97164a41d",
+  "candidate_sha256": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "candidate": "/root/work/epic1438-preparation/20261021/issue1441-implementation/cloudstack-4.23.0.0-epic1441.jar",
+  "candidate_bytes": 152400587,
+  "entry_sha256": {
+    "org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class": "756663e2e2ea8c3cec8b22850b8b5da63c2d385b321b80cc9ea64c1d9926fa62",
+    "org/apache/cloudstack/api/command/user/storage/sharedfs/ListSharedFSServiceOfferingsCmd.class": "37b6489d8d0532a9eb339ae2f8ae11f2781868f3722bc7808fb2e6b7c39e73a9",
+    "org/apache/cloudstack/api/response/SharedFSServiceOfferingResponse.class": "130d8e2f73015ab3006d5facef5bfea1479621cf78b73bd66fd5cf1756037baa",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class": "1309e9014f24256eb2b12250a68a2ba7aaf2368c22bb978a93af476590ecfe18",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSService.class": "e69a928b96139b94f71d5258866eab6c29104ee7b84023efbf413337013edb85",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.class": "ba06a306feac4556ba7053ebdb27270510b9d5160ae946950061b091b133aa42",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility$Reason.class": "ca88ceef303814958927d1495178a7854018657ae2273916885b9bb54fa7cf1c",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility$Constraint.class": "46ef5d70c6dd1842653b4252dbc6a2aec9398a38d82d093c69f0abba79026a23",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": "bfd2d3b102c58d802c7043099993c7940bdb74256cea70ecc6364a5b78cbafc6",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$StaticNetworkConfiguration.class": "6d8b357e0c037a15d019a25e0eeeb28fa15c395c2bff048d36df85eeec6eabab",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class": "02095fd5431eff66572e04b60193b4254cfe538cc68d40bbb42fff46afcddbef",
+    "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class": "266e6762ed6688cd5949084d86ed93556be3839e2b12d59cc7030e29deb9db3e"
+  },
+  "removed_entries": [
+    "org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSService.class",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$StaticNetworkConfiguration.class",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class",
+    "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class"
+  ],
+  "unchanged_entries_verified": 93741,
+  "probe_classes": [
+    "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "org.apache.cloudstack.api.command.user.storage.sharedfs.ListSharedFSServiceOfferingsCmd",
+    "org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSLifeCycle",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSService",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl",
+    "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycle"
+  ]
+}

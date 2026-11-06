@@ -1,0 +1,131 @@
+{
+  "command": "listStorageServiceConfigurationOperations",
+  "fields": {
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "page": "1",
+    "pagesize": "200",
+    "command": "listStorageServiceConfigurationOperations",
+    "response": "json"
+  },
+  "status": 200,
+  "operations": [
+    {
+      "id": "50d0862f-779b-467d-a130-7cad4bfaa88d",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "18473657-6337-43cf-82d1-ee5142f9de9c",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "0fcca935-d438-4c76-a32d-110b4593535b",
+      "baserevision": 46,
+      "targetrevision": 47,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "created": "2026-11-01T21:53:44+0900",
+      "updated": "2026-11-01T21:53:54+0900",
+      "completed": "2026-11-01T21:53:54+0900"
+    },
+    {
+      "id": "611853f7-c254-4ded-8862-a57d142ea00f",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "a9b690b6-ac03-4f17-893b-484b4efe1cb5",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "0fcca935-d438-4c76-a32d-110b4593535b",
+      "baserevision": 46,
+      "targetrevision": 47,
+      "canresume": false,
+      "originalfailure": {
+        "code": "PROTOCOL_APPLY_FAILED",
+        "phase": "APPLYING",
+        "type": "Rejected"
+      },
+      "rollback": {
+        "state": "SUCCEEDED"
+      },
+      "created": "2026-11-01T21:48:31+0900",
+      "updated": "2026-11-01T21:48:45+0900",
+      "completed": "2026-11-01T21:48:45+0900"
+    },
+    {
+      "id": "597894b6-aa2c-4e39-a60a-0a9dfdd876bb",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "b2f7655e-44d2-44bd-b612-6c31aab6379d",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "0fcca935-d438-4c76-a32d-110b4593535b",
+      "baserevision": 45,
+      "targetrevision": 46,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "created": "2026-11-01T21:43:33+0900",
+      "updated": "2026-11-01T21:43:43+0900",
+      "completed": "2026-11-01T21:43:43+0900"
+    },
+    {
+      "id": "69b2d82e-5906-41bb-bd40-4825d4450039",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "3828542c-3bd7-418b-b29d-edcf443eb5e8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "c67fbc2f-eb4a-42cb-a138-659adafb4e68",
+      "baserevision": 44,
+      "targetrevision": 45,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "created": "2026-11-01T21:28:48+0900",
+      "updated": "2026-11-01T21:28:57+0900",
+      "completed": "2026-11-01T21:28:57+0900"
+    },
+    {
+      "id": "70a90564-86cb-40c9-83ef-190a9083dad4",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "14cfb403-26d7-4875-9d52-d0936f0360fe",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "ba278e66-b5ad-4294-8aee-00b1fb6f0f7f",
+      "baserevision": 43,
+      "targetrevision": 44,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "created": "2026-11-01T21:24:10+0900",
+      "updated": "2026-11-01T21:24:19+0900",
+      "completed": "2026-11-01T21:24:19+0900"
+    },
+    {
+      "id": "3bfb0227-64a1-4609-a111-5af4ecebf2b4",
+      "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+      "requestid": "0e2b2490-f525-439d-9466-8cde255b76e7",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "protocol": "SMB",
+      "resourceid": "0fcca935-d438-4c76-a32d-110b4593535b",
+      "baserevision": 42,
+      "targetrevision": 43,
+      "canresume": false,
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "created": "2026-11-01T21:21:27+0900",
+      "updated": "2026-11-01T21:21:38+0900",
+      "completed": "2026-11-01T21:21:38+0900"
+    }
+  ]
+}

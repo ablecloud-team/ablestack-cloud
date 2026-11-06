@@ -1,0 +1,52 @@
+{
+  "volume": "17f958c0-896d-442d-a933-643da72a205f",
+  "preparationPath": "/var/lib/ablestack-storage/volume-preparation/17f958c0-896d-442d-a933-643da72a205f.json",
+  "preparation": {
+    "bootId": "cfc3927a-1bb1-4bd1-ba70-7a95bbf80230",
+    "createdAt": 1793154917.9027286,
+    "deadlineAt": null,
+    "errorCode": null,
+    "filesystemUuid": "af93e001-32e0-49db-8411-7c3bf3c26f67",
+    "finishedAt": 1793154918.5238574,
+    "formatCount": 1,
+    "formatDeadlineAt": 1793155218.0761104,
+    "formatEverStarted": true,
+    "formatStartedAt": 1793154918.0761104,
+    "heartbeatAt": 1793154918.5238576,
+    "mountPath": "/srv/ablestack-storage/volumes/17f958c0-896d-442d-a933-643da72a205f",
+    "observedFilesystem": "xfs",
+    "operationId": "e7e18492-1e19-3ab2-9e8c-f7ad9f9545af",
+    "payload": {
+      "filesystem": "xfs",
+      "formatTimeoutSeconds": 300,
+      "instanceUuid": "17c7f72a-6e6d-48bd-a4f7-a0100fc6e839",
+      "operationId": "e7e18492-1e19-3ab2-9e8c-f7ad9f9545af",
+      "rootVolumeUuid": "fead0e71-5a4f-476b-ba8c-80b2bfe562c2",
+      "vmUuid": "5cb74250-966e-3839-b671-6f5dbde6d62f",
+      "volumeName": "sharedfs-DATA-177",
+      "volumeSizeBytes": 10737418240,
+      "volumeUuid": "17f958c0-896d-442d-a933-643da72a205f"
+    },
+    "phase": "PREPARED",
+    "phaseStartedAt": 1793154918.3419175,
+    "phaseTimeoutSeconds": 120,
+    "reason": null,
+    "startedAt": 1793154917.9027286,
+    "status": "PREPARED",
+    "unit": "ablestack-sharedfs-prepare-e7e18492-1e19-3ab2-9e8c-f7ad9f9545af.service",
+    "version": 1,
+    "volumeUuid": "17f958c0-896d-442d-a933-643da72a205f",
+    "workerPid": 5207,
+    "workerStartTicks": "14357"
+  },
+  "mount": {
+    "filesystems": [
+      {
+        "source": "/dev/sdb",
+        "target": "/srv/ablestack-storage/volumes/17f958c0-896d-442d-a933-643da72a205f",
+        "fstype": "xfs",
+        "uuid": "af93e001-32e0-49db-8411-7c3bf3c26f67"
+      }
+    ]
+  }
+}

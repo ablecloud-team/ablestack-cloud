@@ -1,0 +1,98 @@
+{
+  "preflight": {
+    "status": "READY",
+    "revision": 5,
+    "observedat": 1793891652.6275337,
+    "expiresat": 1793891682.6275337,
+    "fingerprint": "d0c6363e98c9471aad778957513a642e6d91458df9192a46704e919b2ef50aa0",
+    "checks": [
+      {
+        "code": "MEMORY_AVAILABLE",
+        "blocking": false,
+        "severity": "INFO",
+        "availablebytes": 3737624576,
+        "requiredbytes": 218185488
+      },
+      {
+        "code": "FILESYSTEM_SPACE",
+        "blocking": false,
+        "severity": "INFO",
+        "availablebytes": 2630660096,
+        "requiredbytes": 83906500,
+        "readonly": false,
+        "freeinodes": 230205
+      },
+      {
+        "code": "VOLUME_PREPARATION_ACTIVE",
+        "blocking": false,
+        "severity": "INFO",
+        "count": 0
+      },
+      {
+        "code": "RUNTIME_WRITER_ACTIVE",
+        "blocking": false,
+        "severity": "INFO"
+      },
+      {
+        "code": "DRAIN_REQUIRED",
+        "blocking": false,
+        "severity": "INFO",
+        "connections": 0
+      }
+    ],
+    "impact": {
+      "class": "DRAIN_REQUIRED",
+      "affectedcount": 1,
+      "connections": 0,
+      "confidence": "ENDPOINT_TCP_CONNECTIONS",
+      "ackrequired": true,
+      "drainrequired": true,
+      "method": "SMB_LEGACY_HANDOFF"
+    },
+    "profile": {
+      "name": "CONFIGURATION",
+      "softdeadlineseconds": 300,
+      "pollintervalseconds": 2,
+      "observationseconds": 600
+    },
+    "cancellationsupported": false,
+    "smblegacypreview": {
+      "mode": "IMPLICIT_LEGACY",
+      "bindings": [
+        [
+          "0.0.0.0",
+          445
+        ],
+        [
+          "::",
+          445
+        ]
+      ],
+      "requested": {
+        "listenip": "10.10.13.188",
+        "port": 445
+      }
+    }
+  },
+  "operation": {
+    "operationid": "961d447a-4555-4703-85ee-ecd056df82cf",
+    "instanceUuid": "543a0cf2-b06b-48df-92c3-9cdc327e0b76",
+    "state": "RECOVERY_REQUIRED",
+    "phase": "OBSERVING",
+    "originalfailure": {
+      "code": "PROTOCOL_APPLY_FAILED",
+      "phase": "APPLYING",
+      "type": "Rejected",
+      "detail": {
+        "code": "SMB_LEGACY_IDENTITY_UNCONFIRMED",
+        "stage": "SMB_LISTENER"
+      }
+    },
+    "rollback": {
+      "code": "SMB_LEGACY_BINDING_UNCONFIRMED",
+      "state": "FAILED",
+      "type": "Rejected"
+    }
+  },
+  "statusFileUnchanged": true
+}

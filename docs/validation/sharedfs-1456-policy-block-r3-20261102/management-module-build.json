@@ -1,0 +1,11 @@
+{
+  "beforeJarSha256": "b5f55e9ac9367b918b929dcba7cf633edefa5e527144c1d063365ef577692e6f",
+  "entries": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": "4282cbfe165c0950bb4a00994e6cf075c605307f85f736a46496954eb2669ab7"
+  },
+  "archiveSha256": "0f73501eff8ef2f6e1ca80e68daff4ccb624ebb508ab4dbc2e2a259e3c3ea3c7",
+  "databaseMigration": false,
+  "hostAgentChanged": false,
+  "guestChanged": false,
+  "sourceCommit": "9f1b3b517a309b416db4134f21c68b58fabede86"
+}

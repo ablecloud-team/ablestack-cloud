@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------------
+Test set: org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 10.311 s <<< FAILURE! - in org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest
+booleanNfsDeleteCommitsWithActualVerifiedReceiptAndRemainingNestedPaths(org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest)  Time elapsed: 10.233 s  <<< ERROR!
+java.lang.ClassCastException: class com.google.gson.JsonPrimitive cannot be cast to class com.google.gson.JsonObject (com.google.gson.JsonPrimitive and com.google.gson.JsonObject are in unnamed module of loader 'app')
+	at org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest.booleanDeleteRoundtrip(StorageDirectoryPolicyCoordinatorDaoTest.java:373)
+	at org.apache.cloudstack.storage.dataservice.StorageDirectoryPolicyCoordinatorDaoTest.booleanNfsDeleteCommitsWithActualVerifiedReceiptAndRemainingNestedPaths(StorageDirectoryPolicyCoordinatorDaoTest.java:403)
+

@@ -1,0 +1,45 @@
+{
+  "request": {
+    "command": "preflightStorageServiceConfiguration",
+    "response": "json",
+    "instanceid": "c1eca707-a554-4c42-85cd-1e9e9744d804",
+    "intent": "{\"api\":\"updateStorageDirectoryPolicy\",\"resourceid\":\"77262649-396b-35ca-85b2-ac72188c020d\",\"expectedpolicyrevision\":1,\"posixchanges\":{\"mode\":\"2770\"}}"
+  },
+  "apiResponse": {
+    "preflightstorageserviceconfigurationresponse": {
+      "configurationpreflight": {
+        "status": "UNKNOWN",
+        "revision": 47,
+        "observedat": "2026-11-01T21:59:42+0900",
+        "expiresat": "2026-11-01T22:00:12+0900",
+        "fingerprint": "",
+        "checks": [
+          {
+            "code": "DIRECTORY_OBSERVATION_UNAVAILABLE",
+            "blocking": true,
+            "severity": "ERROR"
+          }
+        ],
+        "impact": {},
+        "profile": {},
+        "cancellationsupported": false
+      }
+    }
+  },
+  "guestDiagnostic": {
+    "operation": "directory policy preview",
+    "exit": 1,
+    "response": {
+      "code": "SMB_PARENT_IDENTITY_CONFLICT"
+    },
+    "readOnly": true
+  },
+  "actualDirectoryUpdatePosts": 0,
+  "classifier": "StorageServiceConfigurationPreflight.observe directory branch only preserves DIRECTORY_* codes",
+  "plannedCorrection": "whitelist SMB_PARENT_IDENTITY_CONFLICT and SMB_FIXED_IDENTITY_PERMISSION_DENIED as BLOCKED; keep actual transport failures UNKNOWN; reuse localized policy-block reasons",
+  "additionalSourceFinding": {
+    "code": "SMB_FIXED_IDENTITY_PERMISSION_DENIED",
+    "source": "smb_file_identity.validate_directory_change",
+    "liveReproduced": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "sharedfs": {
+    "id": "bd9bf00f-579c-4a22-a7d7-40eed014872c",
+    "name": "epic1438-1444-rollback-20261023-01",
+    "state": "Ready",
+    "networkmode": "STATIC",
+    "ipaddress": "10.10.13.250",
+    "cidr": "10.10.0.0/16",
+    "gateway": "10.10.13.1",
+    "dns1": "8.8.8.8",
+    "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0"
+  },
+  "health": {
+    "generatedAt": "2026-10-25T14:18:52Z",
+    "cached": true,
+    "staleAfterSeconds": 30,
+    "network": {
+      "addresses": [
+        {
+          "cidr": "10.10.13.250/16",
+          "interface": "eth0",
+          "ipaddress": "10.10.13.250",
+          "prefixlen": 16,
+          "primary": true,
+          "role": "primary",
+          "secondary": false
+        }
+      ]
+    },
+    "listenPorts": {
+      "iscsi": true,
+      "iscsiPorts": {
+        "3260": true
+      },
+      "nfs": true,
+      "nvmeof": true,
+      "nvmeofPorts": {
+        "4420": {
+          "configured": true,
+          "linked": true,
+          "listening": true,
+          "state": "LISTENING"
+        }
+      },
+      "smb": true
+    }
+  },
+  "requestOrigin": "UI Update button; Network response observer; no independent API mutation"
+}

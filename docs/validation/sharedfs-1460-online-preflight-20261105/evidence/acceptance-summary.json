@@ -1,0 +1,38 @@
+{
+  "issue": 1460,
+  "baseCommit": "413d1459682b6f4dea6c90773510b8342dba1ec2",
+  "productCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+  "acceptanceCriteriaPassed": 5,
+  "totalAcceptanceCriteria": 5,
+  "v4": {
+    "revision": 16,
+    "committed": 16,
+    "rolledBack": 1,
+    "continuityRequests": 62681,
+    "continuityErrors": 0,
+    "sixSquashAccessCases": true
+  },
+  "dual": {
+    "revision": 8,
+    "committed": 8,
+    "continuityRequests": 4725,
+    "continuityErrors": 0,
+    "v3v4RevokeRegrantNextRpc": true,
+    "rwRo": true
+  },
+  "plannedFailure": {
+    "operationId": "4620719a-eed1-4704-a2f3-c871c519a9a4",
+    "code": "NFS_CLIENT_RELOAD_REJECTED",
+    "rollback": "SUCCEEDED"
+  },
+  "unexpectedProductErrorsThisTurn": 0,
+  "vmReboots": 2,
+  "managementServiceRestarts": 1,
+  "osReboots": 0,
+  "manualMacChanges": 0,
+  "thinCreated": 0,
+  "uiCacheOldTabExcluded": true,
+  "buildActionsExecuted": 0,
+  "manualWorkflowDispatches": 0,
+  "automaticMetadataCheck": "PR Merge Conflict Check, no build"
+}

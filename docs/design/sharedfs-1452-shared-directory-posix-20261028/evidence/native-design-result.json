@@ -1,0 +1,148 @@
+{
+  "kind": "isolated design validation; not product implementation or acceptance",
+  "checks": [
+    {
+      "name": "installed crossProtocol skips chmod but ACL mask changes effective mode",
+      "passed": true,
+      "before": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0750"
+      },
+      "after": {
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0770"
+      }
+    },
+    {
+      "name": "standalone legacy SMB chmod/reset behavior reproduced",
+      "passed": true
+    },
+    {
+      "name": "canonical in-volume parent alias groups NFS/SMB references once",
+      "passed": true,
+      "policyKey": "1909903940e495866db5440c1ffb587ac5e53de7e7e3c55f0bf36e8591909ecb",
+      "canonical": "/srv/ablestack-storage/volumes/78396639-cab6-46a8-9999-89f991abbd01/.epic1452-design-proof/actual/shared"
+    },
+    {
+      "name": "outside-volume and leaf symlink rejected",
+      "passed": true
+    },
+    {
+      "name": "common mode mask 5 cannot grant requested RW ACL mask 7",
+      "passed": true
+    },
+    {
+      "name": "no-mask ACL and FD rollback preserve exact mode and ACL",
+      "passed": true
+    },
+    {
+      "name": "installed transaction one apply for two references, commit, reopen journal and no duplicate apply",
+      "passed": true,
+      "applyCount": 1
+    },
+    {
+      "name": "installed revision fence rejects stale policy transaction",
+      "passed": true
+    },
+    {
+      "name": "injected peer failure restores ACL/owner/mode and preserves child data",
+      "passed": true,
+      "operation": {
+        "operationid": "59faff41-28ab-4e9e-83b8-1d36a6dc92d0",
+        "instanceUuid": "dae60fb8-8dc8-417c-97a7-afabbf675a17",
+        "baseRevision": 1,
+        "targetRevision": 2,
+        "requestHash": "1e6397485d7a8fa6efdbc8ceec9cda4c5cb01c96f53d1df00a269a7ca7d6b2a8",
+        "state": "ROLLED_BACK",
+        "phase": "COMPLETED",
+        "rollback": {
+          "state": "SUCCEEDED"
+        },
+        "updated": 1793167708.9644537,
+        "originalfailure": {
+          "code": "DESIGN_PEER_VERIFY_FAILURE",
+          "phase": "VERIFYING",
+          "type": "Rejected"
+        }
+      }
+    },
+    {
+      "name": "installed cross-process instance lock rejects concurrent second writer",
+      "passed": true
+    },
+    {
+      "name": "controlled NFS process refresh invalidates external POSIX attribute cache",
+      "passed": true,
+      "oldPid": 153463,
+      "newPid": 153512,
+      "smbPidUnchanged": true
+    },
+    {
+      "name": "actual isolated NFSv4 and SMB cross-read/write before/after one common POSIX root change",
+      "passed": true,
+      "before": {
+        "phase": "before",
+        "nfsMountUid": 65534,
+        "nfsMountGid": 65534,
+        "nfsMountMode": "0o770",
+        "smbPutNfsRead": true,
+        "nfsPutSmbRead": true,
+        "seedPreserved": true
+      },
+      "after": {
+        "phase": "after",
+        "nfsMountUid": 1001,
+        "nfsMountGid": 1001,
+        "nfsMountMode": "0o777",
+        "smbPutNfsRead": true,
+        "nfsPutSmbRead": true,
+        "seedPreserved": true
+      },
+      "seedMetadataPreserved": true
+    }
+  ],
+  "nativeProtocolIO": {
+    "before": {
+      "phase": "before",
+      "nfsMountUid": 65534,
+      "nfsMountGid": 65534,
+      "nfsMountMode": "0o770",
+      "smbPutNfsRead": true,
+      "nfsPutSmbRead": true,
+      "seedPreserved": true
+    },
+    "after": {
+      "phase": "after",
+      "nfsMountUid": 1001,
+      "nfsMountGid": 1001,
+      "nfsMountMode": "0o777",
+      "smbPutNfsRead": true,
+      "nfsPutSmbRead": true,
+      "seedPreserved": true
+    },
+    "actualRoot": {
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0777"
+    },
+    "seedBefore": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0640",
+      "sha256": "15db61f223b90b4bd23d125e4bf4d6356374d575afe79f0e6f5e5b25a2ce2357"
+    },
+    "seedAfter": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0640",
+      "sha256": "15db61f223b90b4bd23d125e4bf4d6356374d575afe79f0e6f5e5b25a2ce2357"
+    }
+  },
+  "success": true,
+  "productionUnchanged": true,
+  "isolatedPathsRemoved": true,
+  "productionFileCount": 61,
+  "guestExitCode": 0
+}

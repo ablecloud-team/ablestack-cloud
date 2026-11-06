@@ -1,0 +1,19 @@
+{
+  "readOnly": true,
+  "markers": [
+    {
+      "path": "/srv/ablestack-storage/volumes/6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae/export/r1444n/ui-preserve.txt",
+      "sha256": "d4aa35f7d126e31d0e98c254513a80d8b8528b0b6544a44ec0de1af6234855ba",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640"
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae/export/r1444s/ui-preserve.txt",
+      "sha256": "4db09637a676b95f7008b98c34be71219dbee588e38d7de6f174da82eb4fd350",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660"
+    }
+  ]
+}

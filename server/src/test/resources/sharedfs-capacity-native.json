@@ -1,0 +1,25 @@
+{
+  "bootId": "e92456e6-cce5-4cb8-bab7-d8ffa2961c2d",
+  "capacitySnapshotVersion": 1,
+  "observations": [
+    {
+      "filesystems": [
+        {
+          "availableBytes": 10561605632,
+          "device": 2064,
+          "filesystem": "xfs",
+          "identity": "9c8ddfe9-3e23-46f0-9476-5c794b004841:2064",
+          "totalBytes": 10670309376,
+          "usedBytes": 108703744,
+          "uuid": "9c8ddfe9-3e23-46f0-9476-5c794b004841"
+        }
+      ],
+      "mappingStatus": "EXACT",
+      "status": "CURRENT",
+      "volumeUuid": "e070a0aa-dbf5-48c0-83e0-09f874446277"
+    }
+  ],
+  "observedAt": "2026-11-02T13:58:11Z",
+  "status": "CURRENT",
+  "success": true
+}

@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "4d5bf7b458ea11383a03d94c1c8b7d54ccd4328f",
+  "files": {
+    "ui/src/views/storage/SharedFSTab.vue": "60c5608c2103f97265b1e940904632ddce35bcdc36b29f4d29f5d0f36faf0283",
+    "ui/src/utils/storageConfigPreflight.js": "33d2461dde7e8fdbc0426001b48af3a7ec44f412c75a80707e00ef484c1d58b9",
+    "ui/src/components/storage/StorageConfigurationPreflightPanel.vue": "b651b9eb85e52ec2643810191313556e2d475270ef12345f96519b66eb202254"
+  }
+}

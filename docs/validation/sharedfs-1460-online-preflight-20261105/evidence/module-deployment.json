@@ -1,0 +1,23 @@
+{
+  "receipt": {
+    "success": true,
+    "previous": "1460.client.3",
+    "current": "1460.client.4",
+    "sourceCommit": "0fff973b8f14923db177e76a26cefa53d1c83330",
+    "signatureVerified": true,
+    "integrityVerified": true,
+    "configurationAndPendingOperationUnchanged": true,
+    "protocolRestarted": false,
+    "changedModuleFiles": [
+      "manifest.json",
+      "integrity.json",
+      "lib/ablestack-storage/shared_directory_policy.py",
+      "lib/ablestack-storage/configuration_preflight.py",
+      "lib/ablestack-storage/configuration_transaction.py",
+      "lib/ablestack-storage/nfs_client_policy_runtime.py"
+    ],
+    "receiptCorrection": "Recomputed release3 to release4 file hashes; installer was not rerun"
+  },
+  "current": "/opt/ablestack/storage-runtime/releases/1460.client.4",
+  "version": "1460.client.4"
+}

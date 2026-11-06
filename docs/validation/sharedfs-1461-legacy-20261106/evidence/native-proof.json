@@ -1,0 +1,6 @@
+{
+  "pid": 72523,
+  "exit": 0,
+  "stdout": "native exit 0\n{\"ok\": true, \"checks\": [\"real_implicit_default_identity_ipv4_ipv6_and_protected_configuration\", \"foreign_instance_rejected_before_any_service_effect\", \"real_authenticated_session_blocks_handoff_without_stopping_or_replaying\", \"interruption_after_stop_intent_reconciles_same_operation\", \"same_port_legacy_to_managed_handoff_and_authenticated_read\", \"rollback_restores_owned_legacy_binding_and_manifest_absence\", \"commit_keeps_explicit_managed_listener_and_data_permissions\", \"managed_boot_reconciliation_without_duplicate_default_listener\", \"production_configuration_process_and_nfs_data_unchanged\"], \"protectedUnchanged\": true}\n\n\n",
+  "stderr": ""
+}

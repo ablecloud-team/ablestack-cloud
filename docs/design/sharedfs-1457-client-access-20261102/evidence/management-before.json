@@ -1,0 +1,23 @@
+{
+  "jarSha256": "cda2c91bd86fc5accf79863be4a383cf3439f728c22b148908972c940624bb3f",
+  "classes": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "3d64a480e3ae4aa361cdcdb21cbd5db589c10810e4e90e29efa2378926752666",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": "79815e600468b27be1cb841fed0d6103650987c50972d06d7acf40e0e4d025ae",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": "4282cbfe165c0950bb4a00994e6cf075c605307f85f736a46496954eb2669ab7",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbCreationPolicy.class": "011c441e7ffd0639d1de473d70e5ce4a5a7e5f87cca07dfa8a443a7f26f7bc37",
+    "org/apache/cloudstack/storage/dataservice/StorageSmbFileIdentity.class": "bf779c6a2f55037dbbb7b1ac49c9ba75f824d9911cc1bb91c6afe355c2f16a36",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": "c322f8f37383e726a1b3b32f997f01683759d9b4f01e8032656ba512bed23f43",
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": "757114893e5dd35bf3eec0a556b7b4ce49ad51c707c865ec4c9bf6d007483936",
+    "org/apache/cloudstack/api/response/StorageSmbShareResponse.class": "f951ca9fea33e22f40b32026a023d7e2595c0efaefea86c1dbb934b219123262"
+  },
+  "sourceMatches": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": true,
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationCoordinator.class": true,
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfigurationPreflight.class": true,
+    "org/apache/cloudstack/storage/dataservice/StorageSmbCreationPolicy.class": true,
+    "org/apache/cloudstack/storage/dataservice/StorageSmbFileIdentity.class": true,
+    "org/apache/cloudstack/api/command/user/storage/dataservice/CreateStorageSmbShareCmd.class": true,
+    "org/apache/cloudstack/api/command/user/storage/dataservice/UpdateStorageSmbShareCmd.class": true,
+    "org/apache/cloudstack/api/response/StorageSmbShareResponse.class": true
+  }
+}

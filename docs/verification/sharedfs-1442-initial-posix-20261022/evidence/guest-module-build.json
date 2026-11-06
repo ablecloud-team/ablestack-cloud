@@ -1,0 +1,16 @@
+{
+  "baseCompressedSha256": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+  "sourceStoragectlSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+  "changedGuestPaths": [
+    "usr/local/bin/ablestack-storagectl"
+  ],
+  "unchangedGuestPathsVerified": 33922,
+  "changedArchiveMembers": [],
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261022/issue1442-initial-posix/systemvm-epic1442-initial-posix-20261022.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261022/issue1442-initial-posix/systemvm-epic1442-initial-posix-20261022.qcow2.bz2",
+  "compressedSha256": "aa9e627b137bd7b5313cbfb073b4f48490f15fa5df59f7665d07ee2d6143cff7",
+  "compressedBytes": 463683288,
+  "qemuImageCheck": "No errors were found on the image.\n27411/80000 = 34.26% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1797324800",
+  "buildKind": "module overlay on verified Europa SystemVM base; no package/OS changes"
+}

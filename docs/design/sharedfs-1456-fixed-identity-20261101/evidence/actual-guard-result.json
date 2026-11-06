@@ -1,0 +1,5 @@
+{
+  "exitcode": 0,
+  "stdout": "{\"actualProtectedHelper\": true, \"checks\": [{\"name\": \"setgid\", \"expected\": \"SMB_PARENT_IDENTITY_CONFLICT\", \"actual\": \"SMB_PARENT_IDENTITY_CONFLICT\", \"passed\": true}, {\"name\": \"inherit\", \"expected\": \"SMB_PARENT_IDENTITY_CONFLICT\", \"actual\": \"SMB_PARENT_IDENTITY_CONFLICT\", \"passed\": true}, {\"name\": \"ordinary\", \"expected\": null, \"actual\": null, \"passed\": true}]}\n",
+  "stderr": ""
+}

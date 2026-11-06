@@ -1,0 +1,5 @@
+{
+  "exitcode": 1,
+  "stdout": "{\"privatePrototypeDiagnostics\": [\"  error probing vfs module '/var/tmp/epic1456-control-nerhps1u/full_audit.so': NT_STATUS_INVALID_PARAMETER\", \"  smbd_vfs_init: vfs_init_custom failed for /var/tmp/epic1456-control-nerhps1u/full_audit.so\", \"  make_connection_snum: vfs_init failed for service fixed\"]}\n\n\n/var/tmp/epic1456-injection-c9t814o2/native-prototype.py:45: DeprecationWarning: 'spwd' is deprecated and slated for removal in Python 3.13\n  import spwd\nTraceback (most recent call last):\n  File \"/var/tmp/epic1456-injection-c9t814o2/native-prototype.py\", line 152, in <module>\n    if __name__=='__main__':raise SystemExit(main())\n                                             ^^^^^^\n  File \"/var/tmp/epic1456-injection-c9t814o2/native-prototype.py\", line 104, in main\n    assert q.returncode==0 and path.exists() and directory.exists(),q.stdout+q.stderr\n           ^^^^^^^^^^^^^^^\nAssertionError: tree connect failed: NT_STATUS_BAD_NETWORK_NAME\n\n\n\n",
+  "stderr": ""
+}
