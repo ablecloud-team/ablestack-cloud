@@ -96,6 +96,34 @@ class Paths(unittest.TestCase):
         with self.assertRaisesRegex(h.PolicyError,"DIRECTORY_PATH_IDENTITY_CHANGED"):self.engine.ensure(self.row,"NFS")
         self.assertFalse((parent/"team").exists())
 
+    def test_legacy_smb_search_bits_require_owned_intermediate_inode(self):
+        self.row["config"].pop("pathBindingVersion")
+        self.row["acls"] = [{"principalType": "LOCAL_USER", "principal": "nobody"}]
+        self.payload["candidate"] = {"smb share apply": {"shares": [self.row]}}
+        self.base.chmod(0o755)
+        parent = self.volume / "projects"
+        previous = os.umask(0o077)
+        try:
+            self.begin()
+            with patch.object(h, "checked", return_value=b""):
+                self.engine.create_legacy_smb(self.row)
+                self.assertEqual("SMB_PARENT_TRAVERSAL_OK", self.engine.smb_parent_traversal(self.row)["code"])
+            self.assertEqual(0o711, parent.stat().st_mode & 0o777)
+            self.assertEqual(0o700, (parent / "team").stat().st_mode & 0o777)
+            self.assertEqual({}, self.engine.journal_value()["bindings"])
+            self.engine.rollback()
+            self.assertFalse(parent.exists())
+
+            parent.mkdir(mode=0o700)
+            original = parent.stat()
+            self.begin()
+            with patch.object(h, "checked", return_value=b""):
+                self.assertEqual({"code": "SMB_PARENT_TRAVERSAL_DENIED", "path": str(parent)},
+                                 self.engine.smb_parent_traversal(self.row))
+            self.assertEqual(original, parent.stat())
+        finally:
+            os.umask(previous)
+
     def test_downgrade_protection_reads_both_protocols(self):
         desired=self.base/"desired";desired.mkdir();registry=desired/"directory-policy.json"
         (desired/"nfs-export-apply.json").write_text(json.dumps({"exports":[self.row]}))

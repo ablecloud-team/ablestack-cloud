@@ -220,6 +220,15 @@ def inspect(intent):
             report["smblegacypreview"] = {"mode": legacy["mode"], "bindings": legacy["sockets"],
                                         "requested": intent.get("smbendpoint", {})}
             report["impact"].update(method="SMB_LEGACY_HANDOFF", drainrequired=True, ackrequired=True)
+        if intent.get("smbparenttarget"):
+            from shared_directory_policy import FileSharePathBindings
+            target = intent["smbparenttarget"]
+            check = ({"code": "SMB_PARENT_TRAVERSAL_DEFERRED"} if target.get("deferred")
+                     else FileSharePathBindings().smb_parent_traversal(target, defer_mount=True))
+            blocked = check["code"] == "SMB_PARENT_TRAVERSAL_DENIED"
+            report["checks"].append({**check, "blocking": blocked, "severity": "ERROR" if blocked else "INFO"})
+            if blocked:
+                report["status"] = "BLOCKED"
         if nfs_client is not None:
             report["impact"].update({"class": "ONLINE_RELOAD", "method": "NFS_CLIENT_RELOAD", "drainrequired": False})
         if client_access is not None:

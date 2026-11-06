@@ -1317,6 +1317,96 @@ class FileSharePathBindings:
                 for r in value.get("exports", value.get("shares", []))
                 if FileSharePathBindings.bound(r) and r.get("state") not in ("Disabled", "Destroyed", "Error")]
 
+    @classmethod
+    def legacy_smb_row(cls, row):
+        config = row.get("config") or {}
+        if cls.bound(row) or row.get("state") in ("Disabled", "Destroyed", "Error"):
+            return None
+        root = config.get("volumeMountPath")
+        path = config.get("backingPath") or row.get("path")
+        if not root or not path or path == root:
+            return None
+        if not path.startswith(root + "/"):
+            raise PolicyError("DIRECTORY_POLICY_PATH_MISMATCH")
+        return {**row, "config": {**config, "backingPath": path, "relativeSharePath": path[len(root) + 1:]}}
+
+    @classmethod
+    def legacy_creation_rows(cls, commands):
+        smb = commands.get("smb share apply", {})
+        if not smb.get("enabled", True):
+            return []
+        result = []
+        for share in smb.get("shares", []):
+            row = cls.legacy_smb_row(share)
+            if row and row["config"].get("createDirectory", True) and not Path(row["config"]["backingPath"]).is_dir():
+                result.append(row)
+        return result
+
+    def smb_parent_traversal(self, share, defer_mount=False):
+        row = self.legacy_smb_row(share)
+        if not row:
+            return {"code": "SMB_PARENT_TRAVERSAL_NOT_APPLICABLE"}
+        root = Path(row["config"]["volumeMountPath"])
+        if defer_mount:
+            mount = subprocess.run(["findmnt", "-n", "-M", str(root)], capture_output=True, timeout=4)
+            if mount.returncode == 1 and not mount.stdout and not mount.stderr:
+                return {"code": "SMB_PARENT_TRAVERSAL_DEFERRED"}
+            if mount.returncode:
+                raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+        observed = self.inspect(row)
+        parents = [str(root / parent["path"]) for parent in observed["parents"]
+                   if parent["path"] not in observed["missing"]]
+        config = row["config"]
+        principals = {(acl["principalType"], acl["principal"]) for acl in row.get("acls", [])
+                      if acl.get("principal") and acl.get("state") not in ("Disabled", "Destroyed", "Error")}
+        if config.get("guestOk"):
+            principals.add(("GUEST", "nobody"))
+        if not principals:
+            return {"code": "SMB_PARENT_TRAVERSAL_PENDING_ACL"}
+        fixed = config.get("fileIdentity") or {}
+        deadline = time.monotonic() + 6
+        for kind, name in sorted(principals):
+            def run(args):
+                return subprocess.run(args, capture_output=True, text=True,
+                                      timeout=max(0.01, deadline - time.monotonic()))
+            if fixed.get("mode") == "FIXED":
+                uid, gid = fixed["uid"], fixed["gid"]
+                groups = []
+            elif kind in ("LOCAL_GROUP", "AD_GROUP"):
+                result = run(["getent", "--", "group", name])
+                if result.returncode:
+                    raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+                uid, gid = 4294967294, int(result.stdout.split(":")[2])
+                groups = []
+            else:
+                result = run(["getent", "--", "passwd", name])
+                if result.returncode == 2 and kind == "LOCAL_USER":
+                    # A not-yet-provisioned local user has a new private group.
+                    uid = gid = 4294967294
+                    groups = []
+                else:
+                    if result.returncode:
+                        raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+                    _, _, uid, gid, *_ = result.stdout.split(":")
+                    result = run(["id", "-G", "--", name])
+                    if result.returncode:
+                        raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+                    groups = result.stdout.split()
+            script = (
+                "import json,os,sys; os.setgroups(list(map(int,sys.argv[3].split(','))) if sys.argv[3] else []);"
+                "os.setgid(int(sys.argv[2])); os.setuid(int(sys.argv[1]));"
+                "print(next((p for p in json.loads(sys.argv[4]) if not os.access(p,os.X_OK)),''))"
+            )
+            result = run(["python3", "-c", script, str(uid), str(gid), ",".join(groups), json.dumps(parents)])
+            if result.returncode:
+                raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+            denied = result.stdout.rstrip("\n")
+            if denied:
+                if denied not in parents:
+                    raise PolicyError("SMB_PARENT_TRAVERSAL_UNAVAILABLE")
+                return {"code": "SMB_PARENT_TRAVERSAL_DENIED", "path": denied}
+        return {"code": "SMB_PARENT_TRAVERSAL_OK"}
+
     @staticmethod
     def mnt_id(fd):
         return int(next(line.split(":", 1)[1] for line in Path("/proc/self/fdinfo/" + str(fd)).read_text().splitlines()
@@ -1369,6 +1459,8 @@ class FileSharePathBindings:
             info = json.loads(checked(["findmnt", "-J", "-M", str(root), "-o", "TARGET,UUID,FSTYPE,FSROOT"]).decode())["filesystems"]
             if len(info) != 1 or not info[0].get("uuid") or info[0].get("fstype") not in ("xfs", "ext4") or info[0].get("fsroot") != "/":
                 raise PolicyError("DIRECTORY_VOLUME_NOT_MOUNTED")
+            if not self.bound(row) and c.get("filesystemUuid") and c["filesystemUuid"] != info[0]["uuid"]:
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
             identity = c.get("pathIdentity") or {}
             if identity and (identity.get("filesystemUuid") != info[0]["uuid"]
                              or identity.get("volumeRootInode") != os.fstat(fd).st_ino):
@@ -1415,9 +1507,12 @@ class FileSharePathBindings:
         return self.read(self.journal, {}) if self.journal else {}
 
     def begin(self, payload):
-        plans = {r["uuid"]: self.inspect(r) for r in self.rows(payload["candidate"])}
+        commands = payload["candidate"]
+        legacy = self.legacy_creation_rows(commands)
+        plans = {r["uuid"]: self.inspect(r) for r in self.rows(commands) + legacy}
         self.write(self.journal, {"version": 1, "instanceUuid": payload["instanceUuid"], "operationid": payload["operationid"],
                                  "plans": plans, "created": [], "intents": [], "bindings": {},
+                                 "legacyPaths": [r["config"]["backingPath"] for r in legacy],
                                  "before": self.registered()})
 
     def anchor(self, resource, identity):
@@ -1426,7 +1521,13 @@ class FileSharePathBindings:
         token = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:24]
         return self.root / (canonical + "-" + token)
 
-    def ensure(self, row, protocol):
+    def create_legacy_smb(self, row):
+        legacy = self.legacy_smb_row(row)
+        if not legacy or not self.journal or self.restoring:
+            raise PolicyError("DIRECTORY_CREATION_REQUIRES_TRANSACTION")
+        self.ensure(legacy, "SMB", legacy=True)
+
+    def ensure(self, row, protocol, legacy=False):
         c = row["config"]
         root, relative, fd, fsuuid = self.volume(row)
         journal = self.journal_value()
@@ -1436,13 +1537,16 @@ class FileSharePathBindings:
         created_target = False
         try:
             expected = c.get("pathIdentity") or {}
-            if not plan and not expected:
+            if not plan and (legacy or not expected):
                 raise PolicyError("DIRECTORY_CREATION_REQUIRES_TRANSACTION")
+            if legacy and (plan["filesystemuuid"] != fsuuid or plan["rootinode"] != root_inode or plan["mountid"] != mid):
+                raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
             walked = []
             for part in relative.split("/"):
                 walked.append(part); name = "/".join(walked)
                 owned = next((v for v in journal.get("created", []) if v["volume"] == str(root) and v["relative"] == name), None)
                 absent = plan and name in plan["missing"]
+                intermediate = legacy and name != relative
                 parent_relative = "/".join(walked[:-1])
                 planned_parent = next((v for v in (plan or {}).get("parents", []) if v["path"] == parent_relative), None)
                 parent_owned = next((v for v in journal.get("created", []) if v["volume"] == str(root) and v["relative"] == parent_relative), None)
@@ -1454,15 +1558,28 @@ class FileSharePathBindings:
                         os.close(child)
                         raise PolicyError("DIRECTORY_CREATION_UNCONFIRMED")
                 except FileNotFoundError:
-                    if not absent or self.restoring or not c.get("createDirectory"):
+                    if not absent or self.restoring or not c.get("createDirectory", legacy):
                         raise PolicyError("DIRECTORY_CREATION_REQUIRED")
+                    if intermediate:
+                        parent = os.fstat(fd)
+                        if parent.st_uid != 0 or parent.st_mode & 0o022:
+                            raise PolicyError("SMB_PARENT_CREATION_UNSAFE")
                     journal["intents"].append({"volume": str(root), "relative": name, "parentinode": os.fstat(fd).st_ino})
                     self.write(self.journal, journal)
-                    try: os.mkdir(part, 0o755, dir_fd=fd)
+                    try: os.mkdir(part, 0o700 if intermediate else 0o755, dir_fd=fd)
                     except FileExistsError: raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
                     child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-                    owned = {"volume": str(root), "relative": name, "inode": os.fstat(child).st_ino, "filesystemUuid": fsuuid, "volumeRootInode": root_inode}
+                    info = os.fstat(child)
+                    if legacy and (info.st_dev != device or self.mnt_id(child) != mid or info.st_uid != 0
+                                   or os.stat(part, dir_fd=fd, follow_symlinks=False).st_ino != info.st_ino):
+                        os.close(child)
+                        raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                    owned = {"volume": str(root), "relative": name, "inode": info.st_ino, "filesystemUuid": fsuuid, "volumeRootInode": root_inode}
                     journal["created"].append(owned); self.write(self.journal, journal)
+                    if intermediate:
+                        # Explicit search bits on this operation-owned inode. Payload umask stays private.
+                        os.fchmod(child, stat.S_IMODE(info.st_mode) | 0o111)
+                        os.fsync(child)
                 except OSError: raise PolicyError("DIRECTORY_PATH_SYMLINK")
                 os.close(fd); fd = child
                 if os.fstat(fd).st_dev != device or self.mnt_id(fd) != mid:
@@ -1475,6 +1592,11 @@ class FileSharePathBindings:
                 raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
             if plan and plan["exists"] and plan["inode"] != st.st_ino:
                 raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+            if legacy:
+                observed = self.inspect(row)
+                if not observed["exists"] or observed["inode"] != st.st_ino or observed["mountid"] != mid:
+                    raise PolicyError("DIRECTORY_PATH_IDENTITY_CHANGED")
+                return
             identity = {"filesystemUuid": fsuuid, "volumeRootInode": root_inode, "inode": st.st_ino}
             target = self.anchor(row["uuid"], identity)
             if self.root.is_symlink(): raise PolicyError("DIRECTORY_BINDING_UNSAFE")

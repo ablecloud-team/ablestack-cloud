@@ -1323,6 +1323,22 @@ class RuntimeAdapter:
         if not self.smb_options_only(payload):
             from shared_directory_policy import FileSharePathBindings, PolicyError
             engine = self.path_bindings()
+            smb = payload["candidate"].get("smb share apply", {})
+            before = payload.get("before", {}).get("smb share apply", {})
+            prior = {row["uuid"]: row for row in before.get("shares", [])}
+            if smb.get("enabled", True) and not smb.get("listenerOnly"):
+                def access(row):
+                    config = row.get("config") or {}
+                    principals = {(a.get("principalType"), a.get("principal")) for a in row.get("acls", [])
+                                  if a.get("state") not in ("Disabled", "Destroyed", "Error")}
+                    return row.get("path"), config.get("guestOk"), config.get("fileIdentity"), principals
+                for row in smb.get("shares", []):
+                    path, guest, identity, principals = access(row)
+                    old_path, old_guest, old_identity, old_principals = access(prior.get(row["uuid"], {}))
+                    if (path, guest, identity) != (old_path, old_guest, old_identity) or principals - old_principals:
+                        check = engine.smb_parent_traversal(row)
+                        if check["code"] == "SMB_PARENT_TRAVERSAL_DENIED":
+                            raise Rejected(check["code"])
             for row in engine.rows(payload["candidate"]):
                 preview = engine.inspect(row)
                 if not preview["exists"] and not row["config"].get("createDirectory"):
@@ -1631,7 +1647,9 @@ class RuntimeAdapter:
             raise Rejected("BEFORE_IMAGE_LIMIT")
         atomic_json(self.snapshot_path, snapshot)
         file_commands = any(k in payload["candidate"] for k in ("nfs export apply", "smb share apply"))
-        if file_commands and (FileSharePathBindings.rows(payload["candidate"]) or FileSharePathBindings.rows(payload.get("before", {}))):
+        if file_commands and (FileSharePathBindings.rows(payload["candidate"])
+                              or FileSharePathBindings.rows(payload.get("before", {}))
+                              or FileSharePathBindings.legacy_creation_rows(payload["candidate"])):
             self.path_bindings().begin(payload)
 
     def lio_snapshot(self, payload):
@@ -2003,11 +2021,11 @@ class RuntimeAdapter:
         self.restore_alias_mounts(snapshot, payload)
         self.restore_network(snapshot, payload)
         self.restore_files(snapshot)
+        journaled_roots = [Path(path) for path in self.path_bindings().journal_value().get("legacyPaths", [])]
+        journaled_roots.extend(Path(row["config"]["backingPath"]) for row in self.path_bindings().rows(payload["candidate"]))
         for name, value in snapshot["metadata"].items():
             if value is None:
-                nested_roots = [Path((row.get("config") or {})["backingPath"])
-                    for row in self.path_bindings().rows(payload["candidate"])]
-                if any(Path(name) == root or Path(name).is_relative_to(root) for root in nested_roots):
+                if any(Path(name) == root or Path(name).is_relative_to(root) for root in journaled_roots):
                     continue  # owned inode-checked journal performs empty-only cleanup
                 with contextlib.suppress(FileNotFoundError, OSError):
                     Path(name).rmdir()  # only empty operation-created directories

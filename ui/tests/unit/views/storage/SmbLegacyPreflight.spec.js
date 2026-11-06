@@ -60,3 +60,16 @@ test('normal managed or non-SMB preflight keeps the existing layout without a du
   wrapper = shallowMount(Preflight, { props: { report }, global: mountGlobal })
   expect(wrapper.find('[data-testid="smb-legacy-handoff"]').exists()).toBe(false)
 })
+
+
+test('parent traversal denial names the exact path and keeps apply blocked', () => {
+  const report = {
+    ...decodeConfigurationPreflight(preflightWire),
+    status: 'BLOCKED',
+    checks: [{ code: 'SMB_PARENT_TRAVERSAL_DENIED', blocking: true, path: '/srv/ablestack-storage/volumes/data/export' }]
+  }
+  wrapper = shallowMount(Preflight, { props: { report, acknowledged: true }, global: mountGlobal })
+  expect(wrapper.text()).toContain('message.storage.smb.parent.denied')
+  expect(wrapper.text()).toContain('/srv/ablestack-storage/volumes/data/export')
+  expect(preflightApplicable(report, true, Date.parse(report.expiresat) - 1)).toBe(false)
+})

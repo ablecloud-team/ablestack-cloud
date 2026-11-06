@@ -57,6 +57,14 @@ export function configurationModalIntent (type, forms, context) {
   if (key === 'smbShare' && action !== 'delete') {
     try { Object.assign(result, smbSharePolicyIntent(smbSharePolicyParameters(form, action === 'update'))) } catch { return null }
   }
+  if (key === 'smbShare' && action !== 'delete') {
+    if (form.name) result.name = form.name
+    if (form.path) result.path = form.path
+  }
+  if (key === 'smbAcl' && action !== 'delete' && form.principal) {
+    result.smbprincipal = form.principal
+    if (action === 'create' && form.principaltype) result.smbprincipaltype = form.principaltype
+  }
   if (['nfsExport', 'smbShare'].includes(key) && action !== 'delete') {
     Object.assign(result, fileSharePathParameters(form, action === 'update'))
     if (result.relativepath !== undefined) result.createdirectory = !!form.createdirectory

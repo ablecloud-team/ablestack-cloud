@@ -90,7 +90,7 @@ final class StorageServiceConfigurationPreflight {
             throw new InvalidParameterValueException("Public preflight intent exceeds its bound");
         try {
             JsonObject value=JsonParser.parseString(raw).getAsJsonObject();
-            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid","smbclientaccess","exportid","nfsclientpolicy"));
+            Set<String> allowed=new HashSet<>(Arrays.asList("api","resourceid","protocol","recursive","volumeid","volumemode","newvolume","endpointid","listenip","port","posixchanges","name","path","idmappingmode","expectedpolicyrevision","smbinheritance","smbcreation","smboptions","smbfullapply","relativepath","createdirectory","directorypolicyid","smbfileidentity","guestok","publicationrequired","shareid","smbclientaccess","exportid","nfsclientpolicy","smbprincipal","smbprincipaltype"));
             if (!allowed.containsAll(value.keySet())) throw new IllegalArgumentException();
             api(value.get("api").getAsString());
             if (value.has("nfsclientpolicy")) {
@@ -107,6 +107,18 @@ final class StorageServiceConfigurationPreflight {
             }
             for(String key:Arrays.asList("guestok","publicationrequired"))
                 if(value.has(key) && (!StorageSmbParentInheritance.shareApi(value.get("api").getAsString()) || !value.get(key).isJsonPrimitive() || !value.getAsJsonPrimitive(key).isBoolean()))throw new IllegalArgumentException();
+            if (value.has("smbprincipal") || value.has("smbprincipaltype")) {
+                String operation = value.get("api").getAsString();
+                if (!Arrays.asList("createStorageSmbShare", "createStorageSmbAcl", "updateStorageSmbAcl").contains(operation)
+                        || !value.has("smbprincipal") || !value.get("smbprincipal").isJsonPrimitive()
+                        || !value.getAsJsonPrimitive("smbprincipal").isString()
+                        || value.get("smbprincipal").getAsString().length() > 255)
+                    throw new IllegalArgumentException();
+                if (value.has("smbprincipaltype") && (!value.get("smbprincipaltype").isJsonPrimitive()
+                        || !Arrays.asList("LOCAL_USER", "LOCAL_GROUP", "AD_USER", "AD_GROUP").contains(
+                                value.get("smbprincipaltype").getAsString().toUpperCase(Locale.ROOT))))
+                    throw new IllegalArgumentException();
+            }
             if(value.has("relativepath")) StorageFileSharePaths.normalize(value.get("relativepath").getAsString());
             if(value.has("createdirectory") && (!value.get("createdirectory").isJsonPrimitive() || !value.getAsJsonPrimitive("createdirectory").isBoolean()))throw new IllegalArgumentException();
             for (String k:Arrays.asList("api","resourceid","protocol","volumeid","volumemode","endpointid","listenip","shareid","exportid"))
@@ -199,6 +211,21 @@ final class StorageServiceConfigurationPreflight {
             value.add("nfsclientpolicy",StorageNfsClientPolicy.fields(request));
             if (request.get("exportid")!=null) value.add("exportid",new Gson().toJsonTree(request.get("exportid")));
         }
+        String apiName = value.get("api").getAsString();
+        if (StorageSmbParentInheritance.shareApi(apiName)) {
+            for (String key : Arrays.asList("name", "path"))
+                if (request.get(key) != null) value.add(key, new Gson().toJsonTree(request.get(key)));
+            if (request.get("aclprincipal") != null) {
+                value.addProperty("smbprincipal", String.valueOf(request.get("aclprincipal")));
+                if (request.get("aclprincipaltype") != null)
+                    value.addProperty("smbprincipaltype", String.valueOf(request.get("aclprincipaltype")));
+            }
+        }
+        if (Arrays.asList("createStorageSmbAcl", "updateStorageSmbAcl").contains(apiName) && request.get("principal") != null) {
+            value.addProperty("smbprincipal", String.valueOf(request.get("principal")));
+            if (request.get("principaltype") != null)
+                value.addProperty("smbprincipaltype", String.valueOf(request.get("principaltype")));
+        }
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbAclCmd)
             value.add("shareid", new Gson().toJsonTree(request.get("shareid")));
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.UpdateStorageNfsIdentityMappingCmd)
@@ -217,6 +244,61 @@ final class StorageServiceConfigurationPreflight {
         if (id==null || id.isJsonNull()) return null;
         String v=id.getAsString(); return v.matches("[0-9]+")?rules.findById(Long.valueOf(v)):rules.findByUuid(v);
     }
+    private JsonObject smbParentTarget(String name, JsonObject intent, StorageFileShareVO share, VolumeVO volume, JsonElement ref) {
+        if (!Arrays.asList("createStorageSmbShare", "updateStorageSmbShare", "createStorageSmbAcl", "updateStorageSmbAcl").contains(name)
+                || intent.has("relativepath")) return null;
+        JsonObject config = share == null ? new JsonObject() : StorageFileSharePaths.config(share.getConfigJson());
+        if (StorageFileSharePaths.bound(config)) return null;
+        JsonObject target = new JsonObject();
+        if (volume == null) {
+            if (share == null && name.equals("createStorageSmbShare") && intent.has("newvolume")) {
+                target.addProperty("deferred", true);
+                return target;
+            }
+            return null;
+        }
+        String path = intent.has("path") ? intent.get("path").getAsString().trim() : "";
+        if (path.isEmpty() && share != null) path = share.getPath();
+        if (path.isEmpty() && intent.has("name")) path = "/export/" + intent.get("name").getAsString().trim();
+        if (!path.matches("/export/[A-Za-z0-9._-]+")) return null;
+        String root = "/srv/ablestack-storage/volumes/" + volume.getUuid();
+        JsonObject guestConfig = new JsonObject();
+        guestConfig.addProperty("volumeMountPath", root);
+        guestConfig.addProperty("backingPath", root + path);
+        if (share != null && Objects.equals(volume.getId(), share.getVolumeId()) && path.equals(share.getPath())) {
+            for (String key : Arrays.asList("backingPath", "pathIdentity", "filesystemUuid"))
+                if (config.has(key)) guestConfig.add(key, config.get(key).deepCopy());
+        }
+        if (intent.has("guestok")) guestConfig.add("guestOk", intent.get("guestok"));
+        else if (config.has("guestOk")) guestConfig.add("guestOk", config.get("guestOk"));
+        if (intent.has("smbfileidentity"))
+            config = StorageFileSharePaths.config(StorageSmbFileIdentity.merge(config.toString(), intent.getAsJsonObject("smbfileidentity")));
+        if (config.has("fileIdentity")) guestConfig.add("fileIdentity", config.get("fileIdentity"));
+        target.add("config", guestConfig);
+        JsonArray principals = new JsonArray();
+        StorageAccessRuleVO replacement = name.equals("updateStorageSmbAcl") && intent.has("smbprincipal") ? rule(ref) : null;
+        if (share != null) for (StorageAccessRuleVO acl : rules.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, share.getId())) {
+            if ((replacement != null && Objects.equals(acl.getId(), replacement.getId()))
+                    || Arrays.asList("Disabled", "Destroyed", "Error").contains(acl.getState().name())) continue;
+            addSmbParentPrincipal(principals, acl.getPrincipalType().name(), acl.getPrincipal());
+        }
+        if (intent.has("smbprincipal")) {
+            String type = replacement != null ? replacement.getPrincipalType().name() :
+                    intent.has("smbprincipaltype") ? intent.get("smbprincipaltype").getAsString().toUpperCase(Locale.ROOT) : "LOCAL_USER";
+            addSmbParentPrincipal(principals, type, intent.get("smbprincipal").getAsString().trim());
+        }
+        target.add("acls", principals);
+        return target;
+    }
+
+    private static void addSmbParentPrincipal(JsonArray principals, String type, String name) {
+        if (name == null || name.isEmpty() || !Arrays.asList("LOCAL_USER", "LOCAL_GROUP", "AD_USER", "AD_GROUP").contains(type)) return;
+        JsonObject acl = new JsonObject();
+        acl.addProperty("principalType", type);
+        acl.addProperty("principal", name);
+        principals.add(acl);
+    }
+
     JsonObject observe(StorageServiceInstanceVO instance, JsonObject intent, Long owner) {
         String name=api(intent.get("api").getAsString());
         if (name.endsWith("StorageDirectoryPolicy")) {
@@ -367,6 +449,10 @@ final class StorageServiceConfigurationPreflight {
         for(Map.Entry<String,JsonElement> entry:pathQuery.entrySet()) query.add(entry.getKey(),entry.getValue());
         if(pathQuery.has("pathtarget") && query.has("posixtarget"))
             query.add("posixtarget",pathQuery.get("pathtarget"));
+        if (protocol == StorageServiceInstance.Protocol.SMB) {
+            JsonObject parentTarget = smbParentTarget(name, intent, selectedFile, pathVolume, ref);
+            if (parentTarget != null) query.add("smbparenttarget", parentTarget);
+        }
         JsonObject nfsClient=StorageNfsClientPolicy.query(name,intent,selectedFile,
                 name.equals("createStorageNfsAcl") || !StorageNfsClientPolicy.aclApi(name)?null:rule(ref));
         if(nfsClient!=null)query.add("nfsclientpolicy",nfsClient);
@@ -426,11 +512,15 @@ final class StorageServiceConfigurationPreflight {
                 "configuration preflight show",query.toString(),20,Collections.emptySet()));
             report=StorageServiceConfigurationCoordinator.parsed(wire==null?null:wire.getResultJson());
             if (wire==null || !wire.isSuccess() || !report.has("checks") || !report.has("status")) throw new CloudRuntimeException("PREFLIGHT_OBSERVATION_UNAVAILABLE");
+            if (query.has("smbparenttarget") && "READY".equals(report.get("status").getAsString())
+                    && report.getAsJsonArray("checks").asList().stream().noneMatch(check -> check.getAsJsonObject()
+                            .get("code").getAsString().startsWith("SMB_PARENT_TRAVERSAL_")))
+                throw new CloudRuntimeException("SMB_PARENT_TRAVERSAL_UNAVAILABLE");
         } catch (CloudRuntimeException error) {
             report=new JsonObject(); report.addProperty("status","UNKNOWN");report.addProperty("revision",instance.getConfigurationRevision());
             report.addProperty("observedat",System.currentTimeMillis()/1000.0);report.addProperty("expiresat",System.currentTimeMillis()/1000.0);
             report.addProperty("fingerprint","");report.add("checks",new JsonArray());
-            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED", "SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "SMB_CREATION_POLICY_PROTECTION_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
+            JsonObject failed=new JsonObject();failed.addProperty("code",Arrays.asList("SMB_PARENT_TRAVERSAL_UNAVAILABLE", "PREFLIGHT_CAPABILITY_REQUIRED", "SMB_LISTENER_CAPABILITY_REQUIRED", "NFS_POSIX_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_CAPABILITY_REQUIRED", "SMB_PARENT_INHERITANCE_PROTECTION_REQUIRED", "SMB_CREATION_POLICY_CAPABILITY_REQUIRED", "SMB_CREATION_POLICY_PROTECTION_REQUIRED").contains(error.getMessage()) ? error.getMessage() : "RESOURCE_OBSERVATION_UNAVAILABLE");
             failed.addProperty("blocking",true);failed.addProperty("severity","ERROR");report.getAsJsonArray("checks").add(failed);
         }
         if (instance.getActiveConfigurationOperationId()!=null && !Objects.equals(owner,instance.getActiveConfigurationOperationId()))

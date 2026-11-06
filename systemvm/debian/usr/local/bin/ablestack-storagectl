@@ -5020,10 +5020,11 @@ for share in payload.get("shares", []):
         raise RuntimeError(f"Refusing to render SMB share {name} on root export path {path}; expected a backing volume path")
     create_directory = truth(config, "createDirectory", True)
     cross_protocol = truth(config, "crossProtocol", False)
-    if not os.path.isdir(path):
+    creating = not os.path.isdir(path)
+    if creating:
         if not create_directory:
             raise FileNotFoundError(f"SMB share backing directory does not exist: {path}")
-        os.makedirs(path, exist_ok=True)
+        path_engine.create_legacy_smb(share)
     common=directory_policies.protected(path,payload)
     nested = path_bindings.get(share["uuid"])
     if nested and not nested["created"] and not common and any(a.get("principal") and a.get("state") not in ("Disabled","Destroyed","Error") for a in share.get("acls",[])):
@@ -5058,6 +5059,11 @@ for share in payload.get("shares", []):
             admin_users.append(smb_principal)
         if common and not common.get("legacy") or not common and apply_posix_acl(path, principal_type, principal, permission):
             applied_acl_count += 1
+
+    if creating:
+        parent_check = path_engine.smb_parent_traversal(share)
+        if parent_check["code"] == "SMB_PARENT_TRAVERSAL_DENIED":
+            raise directory_policy_module.PolicyError(parent_check["code"])
 
     guest_ok = truth(config, 'guestOk', False)
     if guest_ok and not cross_protocol and not common and (not nested or nested['created']):
